@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
@@ -26,7 +26,7 @@ public class UnplannedDisconnection extends AbstractDisconnection {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
-        applyModification(network, false, reporter);
+                      ComputationManager computationManager, ReportNode reportNode) {
+        applyModification(network, false, reportNode);
     }
 }

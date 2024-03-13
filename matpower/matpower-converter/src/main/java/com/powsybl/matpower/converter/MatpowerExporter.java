@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.HvdcUtils;
@@ -166,8 +166,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(0d);
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(twt.hasProperty(V_PROP) ? Double.parseDouble(twt.getProperty(V_PROP)) / twt.getRatedU0() : 1d);
-                mBus.setVoltageAngle(twt.hasProperty(ANGLE_PROP) ? Double.parseDouble(twt.getProperty(ANGLE_PROP)) : 0d);
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(twt.hasProperty(V_PROP) ? Double.parseDouble(twt.getProperty(V_PROP)) / twt.getRatedU0() : 1d));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(twt.hasProperty(ANGLE_PROP) ? Double.parseDouble(twt.getProperty(ANGLE_PROP)) : 0d));
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
@@ -195,8 +195,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setReactivePowerDemand(dl.getQ0());
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(0d);
-                mBus.setVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV());
-                mBus.setVoltageAngle(dl.getBoundary().getAngle());
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(dl.getBoundary().getV() / vl.getNominalV()));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(dl.getBoundary().getAngle()));
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
@@ -240,8 +240,8 @@ public class MatpowerExporter implements Exporter {
                 }
                 mBus.setShuntConductance(0d);
                 mBus.setShuntSusceptance(bSum);
-                mBus.setVoltageMagnitude(Double.isNaN(bus.getV()) ? 1 : bus.getV() / vl.getNominalV());
-                mBus.setVoltageAngle(Double.isNaN(bus.getAngle()) ? 0 : bus.getAngle());
+                mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bus.getV() / vl.getNominalV()));
+                mBus.setVoltageAngle(checkAndFixVoltageAngle(bus.getAngle()));
                 mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit() / vl.getNominalV());
                 mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit() / vl.getNominalV());
                 model.addBus(mBus);
@@ -296,7 +296,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static void createLimits(List<FlowsLimitsHolder> limitsHolders, VoltageLevel vl, MBranch mBranch) {
-        limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparrent power limits first then current limits
+        limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparent power limits first then current limits
                                                                      limitsHolder.getCurrentLimits().stream()))
                 .filter(limits -> !Double.isNaN(limits.getPermanentLimit())) // skip when there is no permanent
                 .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many tempary limits first
@@ -670,8 +670,6 @@ public class MatpowerExporter implements Exporter {
                         voltageRegulation, ratedS);
             }
         }
-
-        createDanglingLineGenerators(network, model, context);
     }
 
     private void createStaticVarCompensators(Network network, MatpowerModel model, Context context) {
@@ -697,7 +695,6 @@ public class MatpowerExporter implements Exporter {
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
-        createDanglingLineGenerators(network, model, context);
     }
 
     private void createVSCs(Network network, MatpowerModel model, Context context) {
@@ -719,7 +716,6 @@ public class MatpowerExporter implements Exporter {
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
-        createDanglingLineGenerators(network, model, context);
     }
 
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
@@ -765,6 +761,14 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
+    private static double checkAndFixVoltageMagnitude(double voltageMagnitude) {
+        return Double.isNaN(voltageMagnitude) || voltageMagnitude <= 0.0 ? 1.0 : voltageMagnitude;
+    }
+
+    private static double checkAndFixVoltageAngle(double voltageAngle) {
+        return Double.isNaN(voltageAngle) ? 0.0 : voltageAngle;
+    }
+
     private static int getBranchCount(Bus bus) {
         int[] branchCount = new int[1];
         bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
@@ -792,10 +796,10 @@ public class MatpowerExporter implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
+    public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
 
         boolean withBusNames = Parameter.readBoolean(getFormat(), parameters, WITH_BUS_NAMES_PARAMETER, defaultValueConfig);
         double maxGeneratorActivePower = Parameter.readDouble(getFormat(), parameters, MAX_GENERATOR_ACTIVE_POWER_LIMIT_PARAMETER, defaultValueConfig);
@@ -820,6 +824,7 @@ public class MatpowerExporter implements Exporter {
         createGenerators(network, model, context);
         createStaticVarCompensators(network, model, context);
         createVSCs(network, model, context);
+        createDanglingLineGenerators(network, model, context);
 
         if (!context.generatorIdsConvertedToLoad.isEmpty()) {
             LOGGER.debug("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);

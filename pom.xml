@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>15</version>
+        <version>18</version>
         <relativePath/>
     </parent>
 
@@ -399,6 +399,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-comparator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-iidm-criteria</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

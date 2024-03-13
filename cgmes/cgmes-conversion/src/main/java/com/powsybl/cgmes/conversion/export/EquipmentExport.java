@@ -29,6 +29,7 @@ import java.util.*;
 
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.export.elements.LoadingLimitEq.loadingLimitClassName;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
@@ -426,11 +427,15 @@ public final class EquipmentExport {
                 ratedS, defaultRatedS, kind, cimNamespace, writer, context);
 
         if (generatingUnit != null && !generatingUnitsWritten.contains(generatingUnit)) {
+
+            String hydroPowerPlantId = generatingUnitWriteHydroPowerPlantAndFossilFuel(i, cimNamespace, energySource, generatingUnit, writer, context);
+
             // We have not preserved the names of generating units
             // We name generating units based on the first machine found
             String generatingUnitName = "GU_" + i.getNameOrId();
             GeneratingUnitEq.write(generatingUnit, generatingUnitName, energySource, minP, maxP, targetP, cimNamespace, writeInitialP,
-                    i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null), writer, context);
+                    i.getTerminal().getVoltageLevel().getSubstation().map(s -> context.getNamingStrategy().getCgmesId(s)).orElse(null),
+                    hydroPowerPlantId, writer, context);
             generatingUnitsWritten.add(generatingUnit);
         }
     }
@@ -480,6 +485,43 @@ public final class EquipmentExport {
         } else {
             throw new PowsyblException("Unexpected ReactiveLimits type in the generator " + i.getNameOrId());
         }
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> String generatingUnitWriteHydroPowerPlantAndFossilFuel(I i, String cimNamespace, EnergySource energySource, String generatingUnit, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String hydroPlantStorageType = i.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
+        String hydroPowerPlantId = null;
+        if (hydroPlantStorageType != null && energySource.equals(EnergySource.HYDRO)) {
+            String hydroPowerPlantName = i.getNameOrId();
+            hydroPowerPlantId = context.getNamingStrategy().getCgmesId(ref(i), HYDRO_POWER_PLANT);
+            writeHydroPowerPlant(hydroPowerPlantId, hydroPowerPlantName, hydroPlantStorageType, cimNamespace, writer, context);
+        }
+
+        String fossilFuelType = i.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        if (fossilFuelType != null && !fossilFuelType.isEmpty() && energySource.equals(EnergySource.THERMAL)) {
+            String[] fossilFuelTypeArray = fossilFuelType.split(";");
+            for (int j = 0; j < fossilFuelTypeArray.length; j++) {
+                String fossilFuelName = i.getNameOrId();
+                String fossilFuelId = context.getNamingStrategy().getCgmesId(refTyped(i), ref(j), THERMAL_GENERATING_UNIT, FOSSIL_FUEL);
+                writeFossilFuel(fossilFuelId, fossilFuelName, fossilFuelTypeArray[j], generatingUnit, cimNamespace, writer, context);
+            }
+        }
+
+        return hydroPowerPlantId;
+    }
+
+    private static void writeHydroPowerPlant(String id, String name, String hydroPlantStorageType, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("HydroPowerPlant", id, name, cimNamespace, writer, context);
+        writer.writeEmptyElement(cimNamespace, "HydroPowerPlant.hydroPlantStorageType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "HydroPlantStorageKind." + hydroPlantStorageType));
+        writer.writeEndElement();
+    }
+
+    private static void writeFossilFuel(String id, String name, String fuelType, String generatingUnit, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartIdName("FossilFuel", id, name, cimNamespace, writer, context);
+        writer.writeEmptyElement(cimNamespace, "FossilFuel.fossilFuelType");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, "FuelType." + fuelType));
+        CgmesExportUtil.writeReference("FossilFuel.ThermalGeneratingUnit", generatingUnit, cimNamespace, writer, context);
+        writer.writeEndElement();
     }
 
     private static <I extends ReactiveLimitsHolder & Injection<I>> double computeDefaultRatedS(I i, double minP, double maxP) {

@@ -17,7 +17,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -268,13 +268,13 @@ public final class SteadyStateHypothesisExport {
                     break;
                 case CgmesNames.EXTERNAL_NETWORK_INJECTION:
                     writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
-                            -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0,
+                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
                 case CgmesNames.SYNCHRONOUS_MACHINE:
                     writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
-                            -g.getTargetP(), -g.getTargetQ(), isInSlackBus(g) ? 1 : 0, obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
+                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
                             cimNamespace, writer, context);
                     addRegulatingControlView(g, regulatingControlViews, context);
                     break;
@@ -296,7 +296,7 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.referencePriority");
-        writer.writeCharacters(String.valueOf(referencePriority)); // reference priority is used for angle reference selection (slack)
+        writer.writeCharacters(Integer.toString(referencePriority)); // reference priority is used for angle reference selection (slack)
         writer.writeEndElement();
         writer.writeEndElement();
     }
@@ -313,7 +313,8 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
-        writer.writeCharacters(String.valueOf(referencePriority));
+        // reference priority is used for angle reference selection (slack)
+        writer.writeCharacters(Integer.toString(referencePriority));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode);
@@ -323,7 +324,7 @@ public final class SteadyStateHypothesisExport {
     private static void writeBatteries(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Battery b : network.getBatteries()) {
             writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), false,
-                    -b.getTargetP(), -b.getTargetQ(), isInSlackBus(b) ? 1 : 0, obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
+                    -b.getTargetP(), -b.getTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
                     cimNamespace, writer, context);
         }
     }
@@ -404,16 +405,6 @@ public final class SteadyStateHypothesisExport {
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
-    }
-
-    private static boolean isInSlackBus(Injection<?> g) {
-        VoltageLevel vl = g.getTerminal().getVoltageLevel();
-        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-        if (slackTerminal != null) {
-            Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
-            return slackBus == g.getTerminal().getBusBreakerView().getBus();
-        }
-        return false;
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?, ?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

@@ -82,6 +82,12 @@
     "relativeValue" : true,
     "reactivePowerValue" : 5.0
   }, {
+    "type" : "DANGLING_LINE",
+    "id" : "id17",
+    "danglingLineId" : "dlId1",
+    "relativeValue" : true,
+    "reactivePowerValue" : 5.0
+  }, {
     "type" : "RATIO_TAP_CHANGER_TAP_POSITION",
     "id" : "id14",
     "transformerId" : "transformerId4",

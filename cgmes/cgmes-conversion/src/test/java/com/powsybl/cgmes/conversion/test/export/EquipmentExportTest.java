@@ -115,6 +115,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             generator.setTargetP(generator.getTargetP() + 0.0);
             generator.setTargetQ(generator.getTargetQ() + 0.0);
         });
+
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -133,6 +134,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             generator.setTargetP(generator.getTargetP() + 0.0);
             generator.setTargetQ(generator.getTargetQ() + 0.0);
         });
+
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -878,6 +880,56 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationMode().name(), legActual.getPhaseTapChanger().getRegulationMode().name());
         assertEquals(legNetwork.getPhaseTapChanger().getRegulationValue(), legActual.getPhaseTapChanger().getRegulationValue());
         assertEquals(legNetwork.getPhaseTapChanger().getTargetDeadband(), legActual.getPhaseTapChanger().getTargetDeadband());
+    }
+
+    @Test
+    void fossilFuelExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define fossilFuelType property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setEnergySource(EnergySource.THERMAL);
+        String expectedFuelType = "gas;lignite";
+        expectedGenerator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorFossilFuel";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the fuelType property
+        String actualFuelType = actualGenerator.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        assertEquals(expectedFuelType, actualFuelType);
+    }
+
+    @Test
+    void hydroPowerPlantExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define hydroPowerPlant property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setEnergySource(EnergySource.HYDRO);
+        String expectedStorageKind = "pumpedStorage";
+        expectedGenerator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorFossilHydroPowerPlant";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the storage kind property
+        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
+        assertEquals(expectedStorageKind, actualStorageKind);
     }
 
     @Test
