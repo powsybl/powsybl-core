@@ -27,11 +27,11 @@ class VoltageRegulationTest {
 
     @Test
     void testMultiVariant() {
-        String newState = "newState";
+        String newState1 = "newState1";
 
         Network network = BatteryNetworkFactory.create();
-        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, newState);
-        network.getVariantManager().setWorkingVariant(newState);
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, newState1);
+        network.getVariantManager().setWorkingVariant(newState1);
 
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
@@ -48,6 +48,21 @@ class VoltageRegulationTest {
         assertTrue(voltageRegulation.isVoltageRegulatorOn());
         voltageRegulation.setVoltageRegulatorOn(false);
         assertFalse(voltageRegulation.isVoltageRegulatorOn());
+
+        String newState2 = "newState2";
+        network.getVariantManager().cloneVariant(newState1, newState2);
+        network.getVariantManager().setWorkingVariant(newState2);
+        assertFalse(voltageRegulation.isVoltageRegulatorOn());
+        assertEquals(51.0, voltageRegulation.getTargetV(), 0);
+
+        voltageRegulation.setTargetV(50);
+        voltageRegulation.setVoltageRegulatorOn(true);
+        assertEquals(50.0, voltageRegulation.getTargetV(), 0);
+        assertTrue(voltageRegulation.isVoltageRegulatorOn());
+
+        network.getVariantManager().setWorkingVariant(newState1);
+        assertFalse(voltageRegulation.isVoltageRegulatorOn());
+        assertEquals(51.0, voltageRegulation.getTargetV(), 0);
 
         network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(50.0, voltageRegulation.getTargetV(), 0);
