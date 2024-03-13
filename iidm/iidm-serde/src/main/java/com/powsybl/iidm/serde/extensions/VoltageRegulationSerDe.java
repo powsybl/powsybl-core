@@ -93,8 +93,7 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
         boolean voltageRegulatorOn = networkContext.getReader().readBooleanAttribute("voltageRegulatorOn");
         double targetV = networkContext.getReader().readDoubleAttribute("targetV");
 
-        battery.newExtension(VoltageRegulationAdder.class).withVoltageRegulatorOn(voltageRegulatorOn).withTargetV(targetV).add();
-        VoltageRegulation voltageRegulation = battery.getExtension(VoltageRegulation.class);
+        VoltageRegulation voltageRegulation = battery.newExtension(VoltageRegulationAdder.class).withVoltageRegulatorOn(voltageRegulatorOn).withTargetV(targetV).add();
 
         networkContext.getReader().readChildNodes(elementName -> {
             if (elementName.equals("terminalRef")) {
