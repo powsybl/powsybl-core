@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -54,14 +54,14 @@ class StaticVarCompensatorModificationTest {
     void testApplyChecks() {
         StaticVarCompensatorModification modif1 = new StaticVarCompensatorModification("UNKNOWN_ID",
             1., 2.);
-        assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modif1.apply(network, true, ReportNode.NO_OP),
             "An invalid ID should fail to apply.");
-        assertDoesNotThrow(() -> modif1.apply(network, false, Reporter.NO_OP),
+        assertDoesNotThrow(() -> modif1.apply(network, false, ReportNode.NO_OP),
             "An invalid ID should not throw if throwException is false.");
 
         StaticVarCompensatorModification modif2 = new StaticVarCompensatorModification(svc.getId(),
             1., 2.);
-        modif2.apply(network, true, Reporter.NO_OP);
+        modif2.apply(network, true, ReportNode.NO_OP);
         assertEquals(1, svc.getVoltageSetpoint(), "Failed to modify network during apply.");
         assertEquals(2, svc.getReactivePowerSetpoint(), "Failed to modify network during apply.");
     }

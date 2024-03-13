@@ -1,7 +1,7 @@
-+ test reporter
-  + Validation warnings
-  + Imported extensions
-     Extension loadBar imported.
-     Extension loadFoo imported.
-  + XIIDM import done
-     Network "test" is imported from XML format.
++ test reportNode
+   Validation warnings
+   + Imported extensions
+      Extension loadBar imported.
+      Extension loadFoo imported.
+   + XIIDM import done
+      Network "test" is imported from XML format.

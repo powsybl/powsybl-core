@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -48,16 +48,16 @@ class ShuntCompensatorModificationTest {
     @Test
     void testApplyChecks() {
         ShuntCompensatorModification modif = new ShuntCompensatorModification(shunt.getId(), null, 1);
-        assertDoesNotThrow(() -> modif.apply(network, true, Reporter.NO_OP));
+        assertDoesNotThrow(() -> modif.apply(network, true, ReportNode.NO_OP));
         assertEquals(1, shunt.getSectionCount(), "A valid apply should modify the value");
         ShuntCompensatorModification modif1 = new ShuntCompensatorModification("UNKNOWN_ID", null, 0);
-        assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modif1.apply(network, true, ReportNode.NO_OP),
             "An invalid ID should fail to apply.");
-        assertDoesNotThrow(() -> modif1.apply(network, false, Reporter.NO_OP),
+        assertDoesNotThrow(() -> modif1.apply(network, false, ReportNode.NO_OP),
             "An invalid ID should not throw if throwException is false.");
         ShuntCompensatorModification modif2 = new ShuntCompensatorModification(shunt.getId(),
             null, shunt.getMaximumSectionCount() + 1);
-        assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modif2.apply(network, true, ReportNode.NO_OP),
             "Trying to set the number of section outside of range should not be accepted.");
         assertEquals(1, shunt.getSectionCount(), "Failed applies should not modify the value");
     }

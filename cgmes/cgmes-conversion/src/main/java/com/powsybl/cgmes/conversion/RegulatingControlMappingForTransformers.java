@@ -203,13 +203,13 @@ public class RegulatingControlMappingForTransformers {
         boolean validTargetValue = control.targetValue > 0;
         if (!validTargetValue) {
             context.invalid(rtcId, "Regulating control has a bad target voltage " + control.targetValue);
-            badVoltageTargetValueRegulatingControlReport(context.getReporter(), rtcId, control.targetValue);
+            badVoltageTargetValueRegulatingControlReport(context.getReportNode(), rtcId, control.targetValue);
         }
 
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(rtcId, "Regulating control has a bad target deadband " + control.targetDeadband);
-            badTargetDeadbandRegulatingControlReport(context.getReporter(), rtcId, control.targetDeadband);
+            badTargetDeadbandRegulatingControlReport(context.getReportNode(), rtcId, control.targetDeadband);
         }
 
         // Order is important
@@ -272,7 +272,7 @@ public class RegulatingControlMappingForTransformers {
         boolean validTargetDeadband = control.targetDeadband >= 0;
         if (!validTargetDeadband) {
             context.invalid(ptcId, "Regulating control has a bad target deadband " + control.targetDeadband);
-            badTargetDeadbandRegulatingControlReport(context.getReporter(), ptcId, control.targetDeadband);
+            badTargetDeadbandRegulatingControlReport(context.getReportNode(), ptcId, control.targetDeadband);
         }
 
         // Order is important
