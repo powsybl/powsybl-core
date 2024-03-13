@@ -78,11 +78,10 @@ public class ThreeNominalVoltageCriterion implements Criterion {
         Double nominalVoltage1 = networkElement.getNominalVoltage1();
         Double nominalVoltage2 = networkElement.getNominalVoltage2();
         Double nominalVoltage3 = networkElement.getNominalVoltage3();
-        return nominalVoltage1 != null && nominalVoltage2 != null && nominalVoltage3 != null
-                && filterWithNominalVoltages(nominalVoltage1, nominalVoltage2, nominalVoltage3);
+        return filterWithNominalVoltages(nominalVoltage1, nominalVoltage2, nominalVoltage3);
     }
 
-    private boolean filterWithNominalVoltages(double nominalVoltage1, double nominalVoltage2, double nominalVoltage3) {
+    private boolean filterWithNominalVoltages(Double nominalVoltage1, Double nominalVoltage2, Double nominalVoltage3) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
             if (!voltageInterval.checkIsBetweenBound(nominalVoltage1) &&

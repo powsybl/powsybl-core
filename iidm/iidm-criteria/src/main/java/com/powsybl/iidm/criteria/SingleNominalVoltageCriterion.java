@@ -86,6 +86,10 @@ public class SingleNominalVoltageCriterion implements Criterion {
             return nominalVoltageLowBound == null || nominalVoltageHighBound == null || lowClosed == null || highClosed == null;
         }
 
+        public boolean checkIsBetweenBound(Double value) {
+            return value != null && checkIsBetweenBound(value);
+        }
+
         public boolean checkIsBetweenBound(double value) {
             if (lowClosed && highClosed) {
                 return nominalVoltageLowBound <= value && value <= nominalVoltageHighBound;

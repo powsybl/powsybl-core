@@ -69,11 +69,10 @@ public class TwoNominalVoltageCriterion implements Criterion {
     public boolean filter(NetworkElement networkElement) {
         Double nominalVoltage1 = networkElement.getNominalVoltage1();
         Double nominalVoltage2 = networkElement.getNominalVoltage2();
-        return nominalVoltage1 != null && nominalVoltage2 != null
-                && filterWithNominalVoltages(nominalVoltage1, nominalVoltage2);
+        return filterWithNominalVoltages(nominalVoltage1, nominalVoltage2);
     }
 
-    private boolean filterWithNominalVoltages(double nominalVoltage1, double nominalVoltage2) {
+    private boolean filterWithNominalVoltages(Double nominalVoltage1, Double nominalVoltage2) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
             if (!voltageInterval.checkIsBetweenBound(nominalVoltage1) &&
