@@ -10,6 +10,7 @@ package com.powsybl.iidm.criteria.translation;
 import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -17,6 +18,13 @@ import java.util.Optional;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 public class DefaultNetworkElementAdapter implements NetworkElement {
+    private static final List<IdentifiableType> EVERY_SUPPORTED_TYPES = List.of(
+            IdentifiableType.LINE,
+            IdentifiableType.TIE_LINE,
+            IdentifiableType.DANGLING_LINE,
+            IdentifiableType.TWO_WINDINGS_TRANSFORMER,
+            IdentifiableType.THREE_WINDINGS_TRANSFORMER
+    );
 
     private final Identifiable<?> identifiable;
 
@@ -41,27 +49,18 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
 
     @Override
     public Country getCountry() {
-        switch (identifiable.getType()) {
-            case TWO_WINDINGS_TRANSFORMER -> {
-                Optional<Substation> substation = ((TwoWindingsTransformer) identifiable).getSubstation();
-                return substation.map(Substation::getNullableCountry).orElse(null);
-            }
-            case THREE_WINDINGS_TRANSFORMER -> {
-                Optional<Substation> substation = ((ThreeWindingsTransformer) identifiable).getSubstation();
-                return substation.map(Substation::getNullableCountry).orElse(null);
-            }
-            default -> {
-                Country country1 = getCountry1();
-                return country1 != null ? country1 : getCountry2();
-            }
-
-        }
+        return getCountry1();
     }
 
     private Country getCountry(TwoSides side) {
         return switch (identifiable.getType()) {
             case LINE -> getCountryFromTerminal(((Line) identifiable).getTerminal(side));
             case TIE_LINE -> getCountryFromTerminal(((TieLine) identifiable).getTerminal(side));
+            case DANGLING_LINE -> side != TwoSides.ONE ? null : getCountryFromTerminal(((DanglingLine) identifiable).getTerminal());
+            case TWO_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? null :
+                ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry).orElse(null);
+            case THREE_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? null :
+                ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry).orElse(null);
             default -> null;
         };
     }
@@ -93,9 +92,10 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
 
     private Double getNominalVoltage(ThreeSides side) {
         return switch (identifiable.getType()) {
-            case LINE -> ((Line) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
-            case TIE_LINE -> ((TieLine) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
-            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
+            case DANGLING_LINE -> side != ThreeSides.ONE ? null : ((DanglingLine) identifiable).getTerminal().getVoltageLevel().getNominalV();
+            case LINE -> side == ThreeSides.THREE ? null : ((Line) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
+            case TIE_LINE -> side == ThreeSides.THREE ? null : ((TieLine) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
+            case TWO_WINDINGS_TRANSFORMER -> side == ThreeSides.THREE ? null : ((TwoWindingsTransformer) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
             case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV();
             default -> null;
         };
@@ -108,10 +108,14 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
                     && identifiable.getType() == IdentifiableType.LINE
                 || type == NetworkElementCriterionType.TIE_LINE
                     && identifiable.getType() == IdentifiableType.TIE_LINE
+                || type == NetworkElementCriterionType.DANGLING_LINE
+                    && identifiable.getType() == IdentifiableType.DANGLING_LINE
                 || type == NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
                 || type == NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER
-                    && identifiable.getType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER;
+                    && identifiable.getType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER
+                || type == NetworkElementCriterionType.EVERY_EQUIPMENT
+                    && EVERY_SUPPORTED_TYPES.contains(identifiable.getType());
     }
 
     protected Identifiable<?> getIdentifiable() {

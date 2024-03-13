@@ -24,10 +24,12 @@ import com.powsybl.iidm.criteria.translation.NetworkElement;
 public interface Criterion {
 
     enum CriterionType {
+        AT_LEAST_ONE_NOMINAL_VOLTAGE,
         SINGLE_NOMINAL_VOLTAGE,
         TWO_NOMINAL_VOLTAGE,
         THREE_NOMINAL_VOLTAGE,
         PROPERTY,
+        AT_LEAST_ONE_COUNTRY,
         SINGLE_COUNTRY,
         TWO_COUNTRY,
         REGEX

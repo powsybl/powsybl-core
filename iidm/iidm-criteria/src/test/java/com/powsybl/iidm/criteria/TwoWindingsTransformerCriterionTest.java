@@ -86,13 +86,17 @@ public class TwoWindingsTransformerCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));
     }
 
-    private static NetworkElement createTwoWindingsTransformer(String id, Country country, double nominalVoltage1, double nominalVoltage2) {
+    protected static NetworkElement createTwoWindingsTransformer(String id, Country country, double nominalVoltage1, double nominalVoltage2) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
         when(n.getCountry()).thenReturn(country);
+        when(n.getCountry1()).thenReturn(country);
+        when(n.getCountry2()).thenReturn(null);
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
+        when(n.getNominalVoltage3()).thenReturn(null);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;
     }
 }

@@ -8,12 +8,19 @@
 package com.powsybl.iidm.criteria;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import static com.powsybl.iidm.criteria.util.NominalVoltageUtils.getNominalVoltage;
+import static com.powsybl.iidm.network.IdentifiableType.THREE_WINDINGS_TRANSFORMER;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -56,21 +63,20 @@ public class ThreeNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        if (type == IdentifiableType.THREE_WINDINGS_TRANSFORMER) {
-            ThreeWindingsTransformer transformer = (ThreeWindingsTransformer) identifiable;
-            return filterThreeWindingsTransformer(transformer.getLeg1().getTerminal(),
-                    transformer.getLeg2().getTerminal(),
-                    transformer.getLeg3().getTerminal());
-        } else {
-            return false;
-        }
+        List<Double> nominalVoltages = getNominalVoltages(identifiable, type);
+        return nominalVoltages.size() == 3 && filterWithNominalVoltages(nominalVoltages.get(0),
+                nominalVoltages.get(1), nominalVoltages.get(2));
     }
 
-    private boolean filterThreeWindingsTransformer(Terminal terminal1, Terminal terminal2, Terminal terminal3) {
-        double voltageLevel1 = terminal1.getVoltageLevel().getNominalV();
-        double voltageLevel2 = terminal2.getVoltageLevel().getNominalV();
-        double voltageLevel3 = terminal3.getVoltageLevel().getNominalV();
-        return filterWithNominalVoltages(voltageLevel1, voltageLevel2, voltageLevel3);
+    protected static List<Double> getNominalVoltages(Identifiable<?> identifiable, IdentifiableType type) {
+        if (type == THREE_WINDINGS_TRANSFORMER) {
+            ThreeWindingsTransformer transformer = (ThreeWindingsTransformer) identifiable;
+            return Arrays.asList(getNominalVoltage(transformer.getLeg1().getTerminal()),
+                    getNominalVoltage(transformer.getLeg2().getTerminal()),
+                    getNominalVoltage(transformer.getLeg3().getTerminal()));
+        } else {
+            return Collections.emptyList();
+        }
     }
 
     @Override

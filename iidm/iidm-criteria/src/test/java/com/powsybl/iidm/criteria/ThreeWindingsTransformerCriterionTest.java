@@ -88,15 +88,19 @@ public class ThreeWindingsTransformerCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));
     }
 
-    private static NetworkElement createThreeWindingsTransformer(String id, Country country, double nominalVoltage1,
+    protected static NetworkElement createThreeWindingsTransformer(String id, Country country, double nominalVoltage1,
                                                                     double nominalVoltage2, double nominalVoltage3) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
         when(n.getCountry()).thenReturn(country);
+        when(n.getCountry1()).thenReturn(country);
+        when(n.getCountry2()).thenReturn(null);
+        when(n.getNominalVoltage()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
         when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
         when(n.getNominalVoltage3()).thenReturn(nominalVoltage3);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;
     }
 }

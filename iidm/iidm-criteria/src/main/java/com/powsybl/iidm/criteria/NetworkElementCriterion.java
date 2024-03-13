@@ -20,6 +20,7 @@ public interface NetworkElementCriterion {
         DANGLING_LINE("danglingLineCriterion"),
         TWO_WINDINGS_TRANSFORMER("twoWindingsTransformerCriterion"),
         THREE_WINDINGS_TRANSFORMER("threeWindingsTransformerCriterion"),
+        EVERY_EQUIPMENT("everyEquipmentCriterion"),
         IDENTIFIERS("identifierCriterion");
 
         private final String name;

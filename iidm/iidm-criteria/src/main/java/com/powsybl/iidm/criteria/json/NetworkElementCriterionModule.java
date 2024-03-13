@@ -22,6 +22,7 @@ public class NetworkElementCriterionModule extends SimpleModule {
         addSerializer(TieLineCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(TieLineCriterion.class));
         addSerializer(TwoWindingsTransformerCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(TwoWindingsTransformerCriterion.class));
         addSerializer(ThreeWindingsTransformerCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(ThreeWindingsTransformerCriterion.class));
+        addSerializer(EveryEquipmentCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(EveryEquipmentCriterion.class));
         addSerializer(NetworkElementIdListCriterion.class, new NetworkElementIdListCriterionSerializer());
 
         addDeserializer(Criterion.class, new CriterionDeserializer());
@@ -30,6 +31,7 @@ public class NetworkElementCriterionModule extends SimpleModule {
         addDeserializer(TieLineCriterion.class, new TieLineCriterionDeserializer());
         addDeserializer(TwoWindingsTransformerCriterion.class, new TwoWindingsTransformerCriterionDeserializer());
         addDeserializer(ThreeWindingsTransformerCriterion.class, new ThreeWindingsTransformerCriterionDeserializer());
+        addDeserializer(EveryEquipmentCriterion.class, new EveryEquipmentCriterionDeserializer());
         addDeserializer(NetworkElementIdListCriterion.class, new NetworkElementIdListCriterionDeserializer());
     }
 }

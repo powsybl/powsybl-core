@@ -31,33 +31,31 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        return switch (type) {
-            case LINE -> filter(((Line) identifiable).getTerminal1().getVoltageLevel());
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION ->
-                    filter(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH -> filter(((Switch) identifiable).getVoltageLevel());
-            default -> false;
-        };
+        Double nominalVoltage = getNominalVoltage(identifiable, type);
+        return nominalVoltage != null && filterNominalVoltage(nominalVoltage);
     }
 
     @Override
     public boolean filter(NetworkElement networkElement) {
         Double nominalVoltage = networkElement.getNominalVoltage();
-        if (nominalVoltage == null) {
-            return false;
-        }
-        return filterNominalVoltage(nominalVoltage);
+        return nominalVoltage != null && filterNominalVoltage(nominalVoltage);
     }
 
-    private boolean filter(VoltageLevel voltageLevel) {
-        if (voltageLevel == null) {
-            return false;
-        }
-        double injectionNominalVoltage = voltageLevel.getNominalV();
-        return filterNominalVoltage(injectionNominalVoltage);
+    protected static Double getNominalVoltage(Identifiable<?> identifiable, IdentifiableType type) {
+        return switch (type) {
+            case LINE -> getNominalVoltage(((Line) identifiable).getTerminal1().getVoltageLevel());
+            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION ->
+                    getNominalVoltage(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> getNominalVoltage(((Switch) identifiable).getVoltageLevel());
+            default -> null;
+        };
     }
 
-    private boolean filterNominalVoltage(double nominalVoltage) {
+    private static Double getNominalVoltage(VoltageLevel voltageLevel) {
+        return voltageLevel == null ? null : voltageLevel.getNominalV();
+    }
+
+    private boolean filterNominalVoltage(Double nominalVoltage) {
         return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(nominalVoltage);
     }
 
@@ -87,11 +85,9 @@ public class SingleNominalVoltageCriterion implements Criterion {
         }
 
         public boolean checkIsBetweenBound(Double value) {
-            return value != null && checkIsBetweenBound(value);
-        }
-
-        public boolean checkIsBetweenBound(double value) {
-            if (lowClosed && highClosed) {
+            if (value == null) {
+                return false;
+            } else if (lowClosed && highClosed) {
                 return nominalVoltageLowBound <= value && value <= nominalVoltageHighBound;
             } else if (lowClosed) {
                 return nominalVoltageLowBound <= value && value < nominalVoltageHighBound;

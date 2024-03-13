@@ -51,7 +51,20 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         .setHighBound(20 * 60, true)
                         .build()));
         LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3));
+
+        LimitReductionDefinition definition4 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
+                Collections.emptyList(),
+                List.of(new EveryEquipmentCriterion(
+                        new AtLeastOneCountryCriterion(List.of(Country.FR)),
+                        new AtLeastOneNominalVoltageCriterion(
+                                new SingleNominalVoltageCriterion.VoltageInterval(380., 410., true, true)
+                        ))),
+                List.of(IntervalTemporaryDurationCriterion.builder()
+                        .setLowBound(300, true)
+                        .setHighBound(600, false)
+                        .build()));
+
+        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3, definition4));
 
         roundTripTest(definitionList, LimitReductionDefinitionListSerDeUtil::write,
                 LimitReductionDefinitionListSerDeUtil::read,

@@ -29,6 +29,11 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterion.getType().toString());
         switch (criterion.getType()) {
+            case AT_LEAST_ONE_COUNTRY:
+                serializerProvider.defaultSerializeField("countries",
+                        ((AtLeastOneCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()),
+                        jsonGenerator);
+                break;
             case SINGLE_COUNTRY:
                 serializerProvider.defaultSerializeField("countries",
                         ((SingleCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()),
@@ -41,6 +46,14 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
                 serializerProvider.defaultSerializeField("countries2",
                         ((TwoCountriesCriterion) criterion).getCountries2().stream().map(Country::toString).collect(Collectors.toList()),
                         jsonGenerator);
+                break;
+            case AT_LEAST_ONE_NOMINAL_VOLTAGE:
+                AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion = (AtLeastOneNominalVoltageCriterion) criterion;
+                if (!atLeastOneNominalVoltageCriterion.getVoltageInterval().isNull()) {
+                    serializerProvider.defaultSerializeField("voltageInterval",
+                            atLeastOneNominalVoltageCriterion.getVoltageInterval(),
+                            jsonGenerator);
+                }
                 break;
             case SINGLE_NOMINAL_VOLTAGE:
                 SingleNominalVoltageCriterion singleNominalVoltageCriterion = (SingleNominalVoltageCriterion) criterion;

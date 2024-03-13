@@ -95,9 +95,11 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
         }
         return switch (type) {
             case PROPERTY -> new PropertyCriterion(propertyKey, propertyValues, equipmentToCheck, sideToCheck);
+            case AT_LEAST_ONE_COUNTRY -> new AtLeastOneCountryCriterion(countries.stream().map(Country::valueOf).toList());
             case SINGLE_COUNTRY -> new SingleCountryCriterion(countries.stream().map(Country::valueOf).toList());
             case TWO_COUNTRY -> new TwoCountriesCriterion(countries1.stream().map(Country::valueOf).toList(),
                     countries2.stream().map(Country::valueOf).toList());
+            case AT_LEAST_ONE_NOMINAL_VOLTAGE -> new AtLeastOneNominalVoltageCriterion(voltageInterval);
             case SINGLE_NOMINAL_VOLTAGE -> new SingleNominalVoltageCriterion(voltageInterval);
             case TWO_NOMINAL_VOLTAGE -> new TwoNominalVoltageCriterion(voltageInterval1, voltageInterval2);
             case THREE_NOMINAL_VOLTAGE ->

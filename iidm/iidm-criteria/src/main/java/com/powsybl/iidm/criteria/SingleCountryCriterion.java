@@ -8,8 +8,8 @@
 package com.powsybl.iidm.criteria;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -33,16 +33,8 @@ public class SingleCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        return switch (type) {
-            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY ->
-                    filterVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH -> filterVoltageLevel(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER ->
-                    filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
-            case THREE_WINDINGS_TRANSFORMER ->
-                    filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
-            default -> false;
-        };
+        Country country = getCountry(identifiable, type);
+        return filterWithCountry(country);
     }
 
     @Override
@@ -54,17 +46,28 @@ public class SingleCountryCriterion implements Criterion {
         return countries;
     }
 
-    private boolean filterSubstation(Substation substation) {
-        if (substation == null) {
-            return false;
-        }
-        Country country = substation.getCountry().orElse(null);
-        return filterWithCountry(country);
+    protected static Country getCountry(Identifiable<?> identifiable, IdentifiableType type) {
+        return switch (type) {
+            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY ->
+                    getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> getCountry(((Switch) identifiable).getVoltageLevel());
+            case TWO_WINDINGS_TRANSFORMER ->
+                    getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+            default -> null;
+        };
     }
 
-    private boolean filterVoltageLevel(VoltageLevel voltageLevel) {
-        Substation substation = voltageLevel.getSubstation().orElse(null);
-        return filterSubstation(substation);
+    private static Country getCountry(Substation substation) {
+        if (substation == null) {
+            return null;
+        }
+        return substation.getCountry().orElse(null);
+    }
+
+    private static Country getCountry(VoltageLevel voltageLevel) {
+        return voltageLevel.getSubstation().map(SingleCountryCriterion::getCountry).orElse(null);
     }
 
     private boolean filterWithCountry(Country country) {

@@ -69,5 +69,34 @@
     "limitReduction" : 0.8,
     "limitType" : "ACTIVE_POWER",
     "monitoringOnly" : true
+  }, {
+    "limitReduction" : 0.9,
+    "limitType" : "CURRENT",
+    "monitoringOnly" : false,
+    "equipmentCriteria" : [ {
+      "type" : "everyEquipmentCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "AT_LEAST_ONE_COUNTRY",
+        "countries" : [ "FR" ]
+      },
+      "nominalVoltageCriterion" : {
+        "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
+        "voltageInterval" : {
+          "nominalVoltageLowBound" : 380.0,
+          "nominalVoltageHighBound" : 410.0,
+          "lowClosed" : true,
+          "highClosed" : true
+        }
+      }
+    } ],
+    "durationCriteria" : [ {
+      "type" : "TEMPORARY_INTERVAL",
+      "version" : "1.0",
+      "lowBound" : 300,
+      "lowClosed" : true,
+      "highBound" : 600,
+      "highClosed" : false
+    } ]
   } ]
 }

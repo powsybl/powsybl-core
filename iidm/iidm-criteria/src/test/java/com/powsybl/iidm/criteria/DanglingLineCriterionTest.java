@@ -90,12 +90,18 @@ public class DanglingLineCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine4)));
     }
 
-    private static NetworkElement createDanglingLine(String id, Country country, double nominalVoltage) {
+    protected static NetworkElement createDanglingLine(String id, Country country, double nominalVoltage) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
         when(n.getCountry()).thenReturn(country);
+        when(n.getCountry1()).thenReturn(country);
+        when(n.getCountry2()).thenReturn(null);
         when(n.getNominalVoltage()).thenReturn(nominalVoltage);
+        when(n.getNominalVoltage1()).thenReturn(nominalVoltage);
+        when(n.getNominalVoltage2()).thenReturn(null);
+        when(n.getNominalVoltage3()).thenReturn(null);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.DANGLING_LINE)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;
     }
 }

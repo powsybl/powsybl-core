@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.criteria.translation;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.NetworkElementCriterion.NetworkElementCriterionType;
 import org.junit.jupiter.api.Test;
@@ -55,12 +54,14 @@ class DefaultNetworkElementAdapterTest {
         assertEquals(225., networkElement.getNominalVoltage(), 0.01);
         assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
         assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
-        assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
+        assertNull(networkElement.getNominalVoltage3());
 
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
         assertEquals(line, networkElement.getIdentifiable());
     }
@@ -98,14 +99,53 @@ class DefaultNetworkElementAdapterTest {
         assertEquals(225., networkElement.getNominalVoltage(), 0.01);
         assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
         assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
-        assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
+        assertNull(networkElement.getNominalVoltage3());
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
         assertEquals(tieLine, networkElement.getIdentifiable());
+    }
+
+    @Test
+    void testDanglingLine() {
+        Substation substation1 = Mockito.mock(Substation.class);
+        Mockito.when(substation1.getNullableCountry()).thenReturn(Country.FR);
+
+        VoltageLevel voltageLevel = Mockito.mock(VoltageLevel.class);
+        Mockito.when(voltageLevel.getSubstation()).thenReturn(Optional.of(substation1));
+        Mockito.when(voltageLevel.getNominalV()).thenReturn(225.);
+
+        Terminal terminal = Mockito.mock(Terminal.class);
+        Mockito.when(terminal.getVoltageLevel()).thenReturn(voltageLevel);
+
+        DanglingLine danglingLine = Mockito.mock(DanglingLine.class);
+        Mockito.when(danglingLine.getType()).thenReturn(IdentifiableType.DANGLING_LINE);
+        Mockito.when(danglingLine.getId()).thenReturn("testDanglingLine");
+        Mockito.when(danglingLine.getTerminal()).thenReturn(terminal);
+
+        DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(danglingLine);
+        assertEquals("testDanglingLine", networkElement.getId());
+        assertEquals(Country.FR, networkElement.getCountry());
+        assertEquals(Country.FR, networkElement.getCountry1());
+        assertNull(networkElement.getCountry2());
+        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
+        assertNull(networkElement.getNominalVoltage2());
+        assertNull(networkElement.getNominalVoltage3());
+
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertEquals(danglingLine, networkElement.getIdentifiable());
     }
 
     @Test
@@ -138,12 +178,14 @@ class DefaultNetworkElementAdapterTest {
         assertEquals(225., networkElement.getNominalVoltage(), 0.01);
         assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
         assertEquals(90., networkElement.getNominalVoltage2(), 0.01);
-        assertThrows(PowsyblException.class, networkElement::getNominalVoltage3);
+        assertNull(networkElement.getNominalVoltage3());
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
         assertEquals(twt, networkElement.getIdentifiable());
     }
@@ -188,8 +230,10 @@ class DefaultNetworkElementAdapterTest {
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
+        assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
         assertEquals(twt, networkElement.getIdentifiable());
     }

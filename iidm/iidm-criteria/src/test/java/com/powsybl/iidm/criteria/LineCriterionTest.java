@@ -88,13 +88,18 @@ public class LineCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(line4)));
     }
 
-    private static NetworkElement createLine(String id, Country country1, Country country2, double nominalVoltage) {
+    protected static NetworkElement createLine(String id, Country country1, Country country2, double nominalVoltage) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
+        when(n.getCountry()).thenReturn(country1);
         when(n.getCountry1()).thenReturn(country1);
         when(n.getCountry2()).thenReturn(country2);
         when(n.getNominalVoltage()).thenReturn(nominalVoltage);
+        when(n.getNominalVoltage1()).thenReturn(nominalVoltage);
+        when(n.getNominalVoltage2()).thenReturn(null);
+        when(n.getNominalVoltage3()).thenReturn(null);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;
     }
 }
