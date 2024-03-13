@@ -31,10 +31,10 @@ class TimeSeriesTest {
         assertEquals(2, timeSeriesPerVersion.get(1).size());
         assertEquals(2, timeSeriesPerVersion.get(2).size());
 
-        TimeSeries<?,?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries<?,?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries<?,?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries<?,?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
+        TimeSeries<?, ?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+        TimeSeries<?, ?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+        TimeSeries<?, ?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+        TimeSeries<?, ?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
 
         assertEquals(className, ts1v1.getMetadata().getIndex().getClass());
 
