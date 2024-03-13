@@ -77,15 +77,17 @@ public final class TapChangerEq {
 
     public static void writeRatio(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep,
                                   double neutralU, boolean ltcFlag, double stepVoltageIncrement, String ratioTapChangerTableId, String cgmesRegulatingControlId,
-                                  String controlMode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+                                  String controlMode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, boolean writeTculControlMode) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("RatioTapChanger", id, tapChangerName, cimNamespace, writer, context);
         CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_TRANSFORMEREND, transformerEndId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, EQ_RATIOTAPCHANGER_SVI);
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
-        writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
+        if (writeTculControlMode) {
+            writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
+        }
         CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE, ratioTapChangerTableId, cimNamespace, writer, context);
         if (cgmesRegulatingControlId != null) {
             CgmesExportUtil.writeReference("TapChanger.TapChangerControl", cgmesRegulatingControlId, cimNamespace, writer, context);
