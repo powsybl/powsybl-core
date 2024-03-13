@@ -253,11 +253,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return namedQuery("fullModel", cgmesProfile);
-    }
-
-    @Override
     public PropertyBags fullModels() {
         return namedQuery("fullModels");
     }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
@@ -18,102 +19,38 @@ import java.util.*;
  */
 class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements CgmesMetadataModels {
 
-    static class ModelImpl implements Model {
+    private final List<CgmesMetadataModel> models = new ArrayList<>();
+    private final EnumMap<CgmesSubset, CgmesMetadataModel> partModel = new EnumMap<>(CgmesSubset.class);
 
-        private final CgmesSubset part;
-        private final String id;
-        private final String description;
-        private final int version;
-        private final String modelingAuthoritySet;
-        private final Set<String> profiles = new HashSet<>();
-        private final Set<String> dependentOn = new HashSet<>();
-        private final Set<String> supersedes = new HashSet<>();
-
-        ModelImpl(CgmesSubset part, String id, String description, int version, String modelingAuthoritySet,
-                  Set<String> profiles, Set<String> dependentOn, Set<String> supersedes) {
-            this.part = part;
-            this.id = id;
-            this.description = description;
-            this.version = version;
-            this.modelingAuthoritySet = modelingAuthoritySet;
-            this.profiles.addAll(profiles);
-            this.dependentOn.addAll(dependentOn);
-            this.supersedes.addAll(supersedes);
-        }
-
-        @Override
-        public CgmesSubset getPart() {
-            return part;
-        }
-
-        @Override
-        public String getId() {
-            return id;
-        }
-
-        @Override
-        public String getDescription() {
-            return description;
-        }
-
-        @Override
-        public int getVersion() {
-            return version;
-        }
-
-        @Override
-        public String getModelingAuthoritySet() {
-            return modelingAuthoritySet;
-        }
-
-        @Override
-        public Set<String> getProfiles() {
-            return Collections.unmodifiableSet(profiles);
-        }
-
-        @Override
-        public Set<String> getDependentOn() {
-            return Collections.unmodifiableSet(dependentOn);
-        }
-
-        @Override
-        public Set<String> getSupersedes() {
-            return Collections.unmodifiableSet(supersedes);
-        }
-    }
-
-    private final List<Model> models = new ArrayList<>();
-    private final EnumMap<CgmesSubset, Model> partModel = new EnumMap<>(CgmesSubset.class);
-
-    CgmesMetadataModelsImpl(Set<Model> models) {
+    CgmesMetadataModelsImpl(Set<CgmesMetadataModel> models) {
         this.models.addAll(models);
         models.forEach(m -> partModel.put(m.getPart(), m));
     }
 
     @Override
-    public Optional<Model> getModelForPart(CgmesSubset part) {
+    public Optional<CgmesMetadataModel> getModelForPart(CgmesSubset part) {
         return Optional.ofNullable(partModel.get(part));
     }
 
     @Override
-    public Optional<Model> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet) {
+    public Optional<CgmesMetadataModel> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet) {
         return models.stream()
                 .filter(m -> m.getPart().equals(part) && m.getModelingAuthoritySet().equals(modelingAuthoritySet))
                 .findFirst();
     }
 
     @Override
-    public Collection<Model> getModels() {
+    public Collection<CgmesMetadataModel> getModels() {
         return Collections.unmodifiableCollection(models);
     }
 
     @Override
-    public List<Model> getSortedModels() {
+    public List<CgmesMetadataModel> getSortedModels() {
         return models.stream().sorted(
-                Comparator.comparing(CgmesMetadataModels.Model::getModelingAuthoritySet)
-                        .thenComparing(CgmesMetadataModels.Model::getPart)
-                        .thenComparing(CgmesMetadataModels.Model::getVersion)
-                        .thenComparing(CgmesMetadataModels.Model::getId)
+                Comparator.comparing(CgmesMetadataModel::getModelingAuthoritySet)
+                        .thenComparing(CgmesMetadataModel::getPart)
+                        .thenComparing(CgmesMetadataModel::getVersion)
+                        .thenComparing(CgmesMetadataModel::getId)
         ).toList();
     }
 }

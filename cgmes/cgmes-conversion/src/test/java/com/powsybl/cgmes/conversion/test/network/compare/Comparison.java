@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test.network.compare;
 
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
@@ -169,8 +170,8 @@ public class Comparison {
             if (config.ignoreMissingMetadata) {
                 // All actual models should be in expected models
                 // But some expected models may be missing
-                for (CgmesMetadataModels.Model actualModel : actual.getModels()) {
-                    Optional<CgmesMetadataModels.Model> expectedModel = expected.getModelForPartModelingAuthoritySet(actualModel.getPart(), actualModel.getModelingAuthoritySet());
+                for (CgmesMetadataModel actualModel : actual.getModels()) {
+                    Optional<CgmesMetadataModel> expectedModel = expected.getModelForPartModelingAuthoritySet(actualModel.getPart(), actualModel.getModelingAuthoritySet());
                     if (expectedModel.isEmpty()) {
                         diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
                     } else {
@@ -182,8 +183,8 @@ public class Comparison {
                 if (expected.getModels().size() != actual.getModels().size()) {
                     diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
                 }
-                List<CgmesMetadataModels.Model> expectedModels = expected.getSortedModels();
-                List<CgmesMetadataModels.Model> actualModels = actual.getSortedModels();
+                List<CgmesMetadataModel> expectedModels = expected.getSortedModels();
+                List<CgmesMetadataModel> actualModels = actual.getSortedModels();
                 for (int k = 0; k < expectedModels.size(); k++) {
                     compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
                 }
@@ -191,7 +192,7 @@ public class Comparison {
         }
     }
 
-    private void compareCgmesMetadataModels(CgmesMetadataModels.Model expected, CgmesMetadataModels.Model actual) {
+    private void compareCgmesMetadataModels(CgmesMetadataModel expected, CgmesMetadataModel actual) {
         String prefix = "CgmesMetadataModel " + expected.getId() + "_";
         if (config.checkNetworkId) {
             compare(prefix + "id", expected.getId(), actual.getId());

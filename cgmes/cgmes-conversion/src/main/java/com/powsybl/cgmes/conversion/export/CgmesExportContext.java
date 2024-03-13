@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -60,10 +61,10 @@ public class CgmesExportContext {
     private String boundaryTpId; // may be null
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
-    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfileUri("EQ"));
-    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfileUri("TP"));
-    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfileUri("SV"));
-    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfileUri("SSH"));
+    private final CgmesMetadataModel eqModelDescription = new CgmesMetadataModel(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel tpModelDescription = new CgmesMetadataModel(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel svModelDescription = new CgmesMetadataModel(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel sshModelDescription = new CgmesMetadataModel(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -108,24 +109,24 @@ public class CgmesExportContext {
         if (!eqModelIds.isEmpty()) {
             getTpModelDescription()
                     .clearDependencies()
-                    .addDependencies(eqModelIds);
+                    .addDependentOn(eqModelIds);
             getSshModelDescription()
                     .clearDependencies()
-                    .addDependencies(eqModelIds);
+                    .addDependentOn(eqModelIds);
             getSvModelDescription().clearDependencies();
             Set<String> tpModelIds = getTpModelDescription().getIds();
             if (!tpModelIds.isEmpty()) {
-                getSvModelDescription().addDependencies(tpModelIds);
+                getSvModelDescription().addDependentOn(tpModelIds);
             }
             Set<String> sshModelIds = getSshModelDescription().getIds();
             if (!sshModelIds.isEmpty()) {
-                getSvModelDescription().addDependencies(sshModelIds);
+                getSvModelDescription().addDependentOn(sshModelIds);
             }
             if (boundaryEqId != null) {
-                getEqModelDescription().addDependency(boundaryEqId);
+                getEqModelDescription().addDependentOn(boundaryEqId);
             }
             if (boundaryTpId != null) {
-                getSvModelDescription().addDependency(boundaryTpId);
+                getSvModelDescription().addDependentOn(boundaryTpId);
             }
         }
     }
@@ -138,111 +139,8 @@ public class CgmesExportContext {
         fictitiousContainers.put(id.getId(), containerId);
     }
 
-    public static final class ModelDescription {
-
-        private String description;
-        private int version = 1;
-        private String supersedes;
-        private final List<String> dependencies = new ArrayList<>();
-        private String modelingAuthoritySet = DEFAULT_MODELING_AUTHORITY_SET_VALUE;
-        private final Set<String> ids = new HashSet<>();
-
-        // TODO Each model may have a list of profiles, not only one
-        private String profile;
-
-        private ModelDescription(String description, String profile) {
-            this.description = description;
-            this.profile = profile;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getSupersedes() {
-            return supersedes;
-        }
-
-        public ModelDescription setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public int getVersion() {
-            return version;
-        }
-
-        public ModelDescription setVersion(int version) {
-            this.version = version;
-            return this;
-        }
-
-        public List<String> getDependencies() {
-            return Collections.unmodifiableList(dependencies);
-        }
-
-        public ModelDescription addDependency(String dependency) {
-            dependencies.add(Objects.requireNonNull(dependency));
-            return this;
-        }
-
-        public ModelDescription addDependencies(List<String> dependencies) {
-            this.dependencies.addAll(Objects.requireNonNull(dependencies));
-            return this;
-        }
-
-        public ModelDescription addDependencies(Set<String> dependencies) {
-            this.dependencies.addAll(Objects.requireNonNull(dependencies));
-            return this;
-        }
-
-        public ModelDescription clearDependencies() {
-            this.dependencies.clear();
-            return this;
-        }
-
-        public String getModelingAuthoritySet() {
-            return modelingAuthoritySet;
-        }
-
-        public ModelDescription setModelingAuthoritySet(String modelingAuthoritySet) {
-            this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
-            return this;
-        }
-
-        public String getProfile() {
-            return profile;
-        }
-
-        public ModelDescription setProfile(String profile) {
-            this.profile = profile;
-            return this;
-        }
-
-        public void setIds(List<String> ids) {
-            this.ids.clear();
-            this.ids.addAll(Objects.requireNonNull(ids));
-        }
-
-        public void addId(String id) {
-            this.ids.add(Objects.requireNonNull(id));
-        }
-
-        public void setIds(String... ids) {
-            setIds(Arrays.asList(Objects.requireNonNull(ids)));
-        }
-
-        public Set<String> getIds() {
-            return Collections.unmodifiableSet(ids);
-        }
-
-        public void setSupersedes(String id) {
-            this.supersedes = id;
-        }
-
-    }
-
     public CgmesExportContext() {
+        initializeExportedModelProfiles(this.cim);
         referenceDataProvider = null;
     }
 
@@ -263,6 +161,7 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
+        initializeExportedModelProfiles(this.cim);
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
@@ -274,22 +173,30 @@ public class CgmesExportContext {
         }
         scenarioTime = network.getCaseDate();
         CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
-        CgmesMetadataModels.Model svMetadata = models != null ? models.getModelForPart(CgmesSubset.STATE_VARIABLES).orElse(null) : null;
-        if (svMetadata != null) {
-            svModelDescription.setDescription(svMetadata.getDescription());
-            svModelDescription.setVersion(svMetadata.getVersion() + 1);
-            svModelDescription.addDependencies(svMetadata.getDependentOn());
-            svModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
-        }
-        CgmesMetadataModels.Model sshMetadata = models != null ? models.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElse(null) : null;
-        if (sshMetadata != null) {
-            sshModelDescription.setDescription(sshMetadata.getDescription());
-            sshModelDescription.setVersion(sshMetadata.getVersion() + 1);
-            sshModelDescription.setSupersedes(sshMetadata.getId());
-            sshModelDescription.addDependencies(sshMetadata.getDependentOn());
-            sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
+        if (models != null) {
+            models.getModelForPart(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(eqModelDescription, eq));
+            models.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(sshModelDescription, ssh));
+            models.getModelForPart(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(tpModelDescription, tp));
+            models.getModelForPart(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(svModelDescription, sv));
         }
         addIidmMappings(network);
+    }
+
+    private void initializeExportedModelProfiles(CgmesNamespace.Cim cim) {
+        if (cim.hasProfiles()) {
+            eqModelDescription.setProfile(cim.getProfileUri("EQ"));
+            tpModelDescription.setProfile(cim.getProfileUri("TP"));
+            svModelDescription.setProfile(cim.getProfileUri("SV"));
+            sshModelDescription.setProfile(cim.getProfileUri("SSH"));
+        }
+    }
+
+    private void prepareExportedModelFrom(CgmesMetadataModel exportedModel, CgmesMetadataModel fromModel) {
+        exportedModel.setDescription(fromModel.getDescription());
+        exportedModel.setVersion(fromModel.getVersion() + 1);
+        exportedModel.addSupersedes(fromModel.getId());
+        exportedModel.addDependentOn(fromModel.getDependentOn());
+        exportedModel.setModelingAuthoritySet(fromModel.getModelingAuthoritySet());
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
@@ -699,12 +606,7 @@ public class CgmesExportContext {
 
     public CgmesExportContext setCimVersion(int cimVersion) {
         cim = CgmesNamespace.getCim(cimVersion);
-        if (cim.hasProfiles()) {
-            eqModelDescription.setProfile(cim.getProfileUri("EQ"));
-            tpModelDescription.setProfile(cim.getProfileUri("TP"));
-            svModelDescription.setProfile(cim.getProfileUri("SV"));
-            sshModelDescription.setProfile(cim.getProfileUri("SSH"));
-        }
+        initializeExportedModelProfiles(cim);
         return this;
     }
 
@@ -726,19 +628,19 @@ public class CgmesExportContext {
         return this;
     }
 
-    public ModelDescription getEqModelDescription() {
+    public CgmesMetadataModel getEqModelDescription() {
         return eqModelDescription;
     }
 
-    public ModelDescription getTpModelDescription() {
+    public CgmesMetadataModel getTpModelDescription() {
         return tpModelDescription;
     }
 
-    public ModelDescription getSvModelDescription() {
+    public CgmesMetadataModel getSvModelDescription() {
         return svModelDescription;
     }
 
-    public ModelDescription getSshModelDescription() {
+    public CgmesMetadataModel getSshModelDescription() {
         return sshModelDescription;
     }
 

@@ -48,7 +48,7 @@ class CgmesExportContextTest {
         assertEquals(network.getCaseDate(), context1.getScenarioTime());
         assertEquals("SV Model", context1.getSvModelDescription().getDescription());
         assertEquals(1, context1.getSvModelDescription().getVersion());
-        assertTrue(context1.getSvModelDescription().getDependencies().isEmpty());
+        assertTrue(context1.getSvModelDescription().getDependentOn().isEmpty());
         assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
         assertEquals(1, context1.getEqModelDescription().getVersion());
         assertEquals("1D", context1.getBusinessProcess());
@@ -78,9 +78,9 @@ class CgmesExportContextTest {
         assertEquals(network.getCaseDate(), context2.getScenarioTime());
         assertEquals("test", context2.getSvModelDescription().getDescription());
         assertEquals(3, context2.getSvModelDescription().getVersion());
-        assertEquals(2, context2.getSvModelDescription().getDependencies().size());
-        assertTrue(context2.getSvModelDescription().getDependencies().contains("otherModel1"));
-        assertTrue(context2.getSvModelDescription().getDependencies().contains("otherModel2"));
+        assertEquals(2, context2.getSvModelDescription().getDependentOn().size());
+        assertTrue(context2.getSvModelDescription().getDependentOn().contains("otherModel1"));
+        assertTrue(context2.getSvModelDescription().getDependentOn().contains("otherModel2"));
         assertEquals("cgmes.org", context2.getSvModelDescription().getModelingAuthoritySet());
     }
 
@@ -93,7 +93,7 @@ class CgmesExportContextTest {
         assertTrue(Duration.between(ZonedDateTime.now(), context.getScenarioTime()).toMinutes() < 1);
         assertEquals("SV Model", context.getSvModelDescription().getDescription());
         assertEquals(1, context.getSvModelDescription().getVersion());
-        assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
+        assertTrue(context.getSvModelDescription().getDependentOn().isEmpty());
         assertEquals("powsybl.org", context.getSvModelDescription().getModelingAuthoritySet());
         assertTrue(context.exportBoundaryPowerFlows());
         assertEquals("1D", context.getBusinessProcess());
@@ -111,8 +111,8 @@ class CgmesExportContextTest {
         context.getSvModelDescription()
             .setDescription("test")
             .setVersion(2)
-            .addDependency("powsybl.test.org")
-            .addDependency("cgmes")
+            .addDependentOn("powsybl.test.org")
+            .addDependentOn("cgmes")
             .setModelingAuthoritySet("cgmes.org");
 
         assertEquals(14, context.getCimVersion());
@@ -121,19 +121,19 @@ class CgmesExportContextTest {
         assertEquals(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
         assertEquals("test", context.getSvModelDescription().getDescription());
         assertEquals(2, context.getSvModelDescription().getVersion());
-        assertEquals(2, context.getSvModelDescription().getDependencies().size());
-        assertTrue(context.getSvModelDescription().getDependencies().contains("powsybl.test.org"));
-        assertTrue(context.getSvModelDescription().getDependencies().contains("cgmes"));
+        assertEquals(2, context.getSvModelDescription().getDependentOn().size());
+        assertTrue(context.getSvModelDescription().getDependentOn().contains("powsybl.test.org"));
+        assertTrue(context.getSvModelDescription().getDependentOn().contains("cgmes"));
         assertEquals("cgmes.org", context.getSvModelDescription().getModelingAuthoritySet());
         assertTrue(context.exportBoundaryPowerFlows());
         assertEquals("2D", context.getBusinessProcess());
 
         List<String> dependencies = Arrays.asList("test1", "test2", "test3");
-        context.getSvModelDescription().addDependencies(dependencies);
-        assertEquals(5, context.getSvModelDescription().getDependencies().size());
-        assertTrue(context.getSvModelDescription().getDependencies().containsAll(dependencies));
+        context.getSvModelDescription().addDependentOn(dependencies);
+        assertEquals(5, context.getSvModelDescription().getDependentOn().size());
+        assertTrue(context.getSvModelDescription().getDependentOn().containsAll(dependencies));
 
         context.getSvModelDescription().clearDependencies();
-        assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
+        assertTrue(context.getSvModelDescription().getDependentOn().isEmpty());
     }
 }

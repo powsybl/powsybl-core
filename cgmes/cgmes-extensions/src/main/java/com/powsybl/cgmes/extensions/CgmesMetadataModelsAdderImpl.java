@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
@@ -92,12 +93,18 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
             if (profiles.isEmpty()) {
                 throw new PowsyblException("Model must contain at least one profile");
             }
-            models.add(new CgmesMetadataModelsImpl.ModelImpl(part, id, description, version, modelingAuthoritySet, profiles, dependentOn, supersedes));
+            models.add(new CgmesMetadataModel(part, modelingAuthoritySet)
+                    .setId(id)
+                    .setDescription(description)
+                    .setVersion(version)
+                    .addProfiles(profiles)
+                    .addDependentOn(dependentOn)
+                    .addSupersedes(supersedes));
             return CgmesMetadataModelsAdderImpl.this;
         }
     }
 
-    private final Set<CgmesMetadataModels.Model> models = new HashSet<>();
+    private final Set<CgmesMetadataModel> models = new HashSet<>();
 
     CgmesMetadataModelsAdderImpl(Network extendable) {
         super(extendable);

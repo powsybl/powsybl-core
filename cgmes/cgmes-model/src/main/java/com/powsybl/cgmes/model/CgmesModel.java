@@ -29,10 +29,6 @@ public interface CgmesModel {
 
     Properties getProperties();
 
-    default PropertyBags fullModel(String cgmesProfile) {
-        return new PropertyBags();
-    }
-
     default PropertyBags fullModels() {
         return new PropertyBags();
     }

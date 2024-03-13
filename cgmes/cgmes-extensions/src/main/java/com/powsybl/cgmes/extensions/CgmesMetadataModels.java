@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
@@ -14,7 +15,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * <p>Store CGMES metadata related to the Network.</p>
@@ -30,70 +30,13 @@ public interface CgmesMetadataModels extends Extension<Network> {
 
     String NAME = "cgmesMetadataModels";
 
-    interface Model {
-        /**
-         * The CGMES instance file (part, subset) that the model refers to: EQ, SSH, ...
-         * @return the part of the CGMES the model refers to
-         */
-        CgmesSubset getPart();
+    Collection<CgmesMetadataModel> getModels();
 
-        /**
-         * The unique identifier for the model.
-         * A model identifier should change if the data contained in the model has changed.
-         * @return the identifier of the model
-         */
-        String getId();
+    List<CgmesMetadataModel> getSortedModels();
 
-        /**
-         * A description for the model.
-         * @return the identifier of the model
-         */
-        String getDescription();
+    Optional<CgmesMetadataModel> getModelForPart(CgmesSubset part);
 
-        /**
-         * The version number for the model.
-         * The version number should change if the data contained in the model has changed.
-         * @return the version number of the model
-         */
-        int getVersion();
-
-        /**
-         * A reference to the organisation role / modeling authority set responsible for producing the model contents.
-         * It is a URN/URI.
-         * @return the URN/URI of the modeling authority set producing the model
-         */
-        String getModelingAuthoritySet();
-
-        /**
-         * <p>References to the profiles used in the model.
-         * Each profile defines semantics data that may appear inside the model.
-         * A model may contain data from multiple profiles.</p>
-         * <p>As an example, "http://iec.ch/TC57/61970-456/SteadyStateHypothesis/2/0" refers to power flow inputs in CGMES 3.</p>
-         * <p>In CGMES 2.4, the model for the EQ part may contain two profiles: "http://iec.ch/TC57/2013/61970-452/EquipmentCore/4" to describe the equipment core and "http://iec.ch/TC57/2013/61970-452/EquipmentOperation/4" if the model is defined at node/braker level.</p>
-         * @return the URN/URIs of profiles describing the data in the model
-         */
-        Set<String> getProfiles();
-
-        /**
-         * References to other models that the model depends on.
-         * @return the identifiers of the models the model depends on
-         */
-        Set<String> getDependentOn();
-
-        /**
-         * References to other models that are superseded by this model.
-         * @return the identifiers of the models this model supersedes
-         */
-        Set<String> getSupersedes();
-    }
-
-    Collection<Model> getModels();
-
-    List<Model> getSortedModels();
-
-    Optional<Model> getModelForPart(CgmesSubset part);
-
-    Optional<Model> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet);
+    Optional<CgmesMetadataModel> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet);
 
     @Override
     default String getName() {

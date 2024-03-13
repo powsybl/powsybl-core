@@ -11,6 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
@@ -198,7 +199,7 @@ public class CgmesExport implements Exporter {
         return id;
     }
 
-    private static void addProfilesIdentifiers(Network network, String profile, CgmesExportContext.ModelDescription description) {
+    private static void addProfilesIdentifiers(Network network, String profile, CgmesMetadataModel description) {
         description.setIds(network.getPropertyNames().stream()
                 .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
                 .map(network::getProperty)

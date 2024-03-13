@@ -17,10 +17,7 @@ import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -513,7 +510,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(Duration.between(ZonedDateTime.now(), network.getCaseDate()).toMinutes() < 10);
         CgmesMetadataModels cgmesMetadata = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(cgmesMetadata);
-        Optional<CgmesMetadataModels.Model> svModel = cgmesMetadata.getModelForPart(CgmesSubset.STATE_VARIABLES);
+        Optional<CgmesMetadataModel> svModel = cgmesMetadata.getModelForPart(CgmesSubset.STATE_VARIABLES);
         assertTrue(svModel.isPresent());
         assertEquals(1, svModel.get().getVersion());
     }

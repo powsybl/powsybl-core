@@ -479,7 +479,7 @@ class CgmesExportTest {
             ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
-            CgmesMetadataModels.Model sshMetadata = network2
+            CgmesMetadataModel sshMetadata = network2
                     .getExtension(CgmesMetadataModels.class)
                     .getModelForPart(CgmesSubset.STATE_VARIABLES)
                     .orElseThrow();
@@ -499,9 +499,9 @@ class CgmesExportTest {
             ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
-            CgmesMetadataModels.Model sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+            CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             assertEquals(9, sshMetadata.getVersion());
-            CgmesMetadataModels.Model svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
+            CgmesMetadataModel svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
             assertEquals(9, svMetadata.getVersion());
         }
     }
@@ -524,9 +524,9 @@ class CgmesExportTest {
             // check network can be reimported and that ModelDescription still includes end-tag
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
 
-            CgmesMetadataModels.Model sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+            CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             assertEquals(modelDescription, sshMetadata.getDescription());
-            CgmesMetadataModels.Model svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
+            CgmesMetadataModel svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
             assertEquals(modelDescription, svMetadata.getDescription());
         }
 

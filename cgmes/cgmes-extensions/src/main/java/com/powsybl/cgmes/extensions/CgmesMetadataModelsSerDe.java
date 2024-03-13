@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
@@ -59,14 +60,14 @@ public class CgmesMetadataModelsSerDe extends AbstractExtensionSerDe<Network, Cg
         writer.writeStartNodes();
 
         // Always write models sorted
-        for (CgmesMetadataModels.Model model : extension.getSortedModels()) {
+        for (CgmesMetadataModel model : extension.getSortedModels()) {
             writeModel(model, context);
         }
 
         writer.writeEndNodes();
     }
 
-    private void writeModel(CgmesMetadataModels.Model model, SerializerContext context) {
+    private void writeModel(CgmesMetadataModel model, SerializerContext context) {
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         TreeDataWriter writer = networkContext.getWriter();
         writer.writeStartNode(getNamespaceUri(), MODEL);

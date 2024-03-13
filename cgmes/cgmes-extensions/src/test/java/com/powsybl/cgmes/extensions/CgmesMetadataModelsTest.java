@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
@@ -50,13 +51,13 @@ class CgmesMetadataModelsTest {
         CgmesMetadataModels extension = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(extension);
 
-        CgmesMetadataModels.Model ssh = extension.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+        CgmesMetadataModel ssh = extension.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
         assertEquals("SSH description", ssh.getDescription());
         assertEquals("http://powsybl.org", ssh.getModelingAuthoritySet());
         assertEquals(1, ssh.getVersion());
         assertEquals(Set.of("ssh-dependency1", "ssh-dependency2"), ssh.getDependentOn());
 
-        CgmesMetadataModels.Model sv = extension.getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
+        CgmesMetadataModel sv = extension.getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
         assertEquals("SV description", sv.getDescription());
         assertEquals("http://powsybl.org", sv.getModelingAuthoritySet());
         assertEquals(2, sv.getVersion());
