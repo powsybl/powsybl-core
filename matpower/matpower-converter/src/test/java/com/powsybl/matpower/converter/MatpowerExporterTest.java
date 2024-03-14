@@ -243,4 +243,16 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setX(0.00000003);
         exportToMatAndCompareTo(network, "/small-impedance-line.json");
     }
+
+    @Test
+    void testExportCase9DcLine() throws IOException {
+        MatpowerModel matpowerModel = MatpowerModelFactory.create9Dcline();
+        String caseId = matpowerModel.getCaseName();
+        Path matFile = tmpDir.resolve(caseId + ".mat");
+        MatpowerWriter.write(matpowerModel, matFile, true);
+
+        var network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+
+        exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
+    }
 }

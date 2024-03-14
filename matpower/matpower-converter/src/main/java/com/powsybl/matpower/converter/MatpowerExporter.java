@@ -41,6 +41,7 @@ public class MatpowerExporter implements Exporter {
     private static final int AREA_NUMBER = 1;
     private static final int LOSS_ZONE = 1;
     private static final int CONNECTED_STATUS = 1;
+    private static final int DISCONNECTED_STATUS = 0;
     private static final String V_PROP = "v";
     private static final String ANGLE_PROP = "angle";
     private static final double MIN_Z_PU = Math.pow(10, -8);
@@ -128,7 +129,7 @@ public class MatpowerExporter implements Exporter {
 
         String refBusId;
 
-        int num = 1;
+        int num = 0;
 
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
 
@@ -141,10 +142,43 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isExported(Bus bus) {
-        // TODO replace by isInMainConnectedComponent when supporting HVDC lines
-        // in the meantime, we should only get main synchronous component to avoid
-        // multiple components, that are not supported by Matpower power flow
-        return bus != null && bus.isInMainSynchronousComponent();
+        // we are supporting HVDC lines, so we can manage multiple components
+        return bus != null && bus.isInMainConnectedComponent();
+    }
+
+    private static int preserveBusIds(Network network, Context context) {
+        List<Bus> busBreakerViewBuses = network.getVoltageLevelStream()
+                .filter(voltageLevel -> voltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER))
+                .flatMap(voltageLevel -> voltageLevel.getBusBreakerView().getBusStream())
+                .toList();
+
+        Map<String, List<Integer>> busIdNumbers = new HashMap<>();
+        for (Bus busBreakerViewBus : busBreakerViewBuses) {
+            OptionalInt number = extractBusNumber(busBreakerViewBus.getId());
+            if (number.isPresent()) {
+                Bus bus = busBreakerViewBus.getVoltageLevel().getBusView().getMergedBus(busBreakerViewBus.getId());
+                if (bus != null) {
+                    busIdNumbers.computeIfAbsent(bus.getId(), n -> new ArrayList<>()).add(number.getAsInt());
+                }
+            }
+        }
+        // select the minimum as number identifier
+        busIdNumbers.forEach((key, value) -> context.mBusesNumbersByIds.put(key, value.stream().min(Comparator.naturalOrder()).orElseThrow()));
+        return context.mBusesNumbersByIds.values().stream().max(Comparator.naturalOrder()).orElse(0);
+    }
+
+    private static OptionalInt extractBusNumber(String configuredBusId) {
+        String busNumber = configuredBusId.replace("BUS-", "");
+        return busNumber.matches("[1-9]\\d*") ? OptionalInt.of(Integer.parseInt(busNumber)) : OptionalInt.empty();
+    }
+
+    private static int obtainBusNumber(String busId, Context context) {
+        if (context.mBusesNumbersByIds.containsKey(busId)) {
+            return context.mBusesNumbersByIds.get(busId);
+        }
+        context.num++;
+        context.mBusesNumbersByIds.put(busId, context.num);
+        return context.num;
     }
 
     private static void createTransformerStarBuses(Network network, MatpowerModel model, Context context) {
@@ -154,7 +188,7 @@ public class MatpowerExporter implements Exporter {
             Bus bus3 = twt.getLeg3().getTerminal().getBusView().getBus();
             if (isExported(bus1) && isExported(bus2) && isExported(bus3)) {
                 MBus mBus = new MBus();
-                mBus.setNumber(context.num++);
+                mBus.setNumber(obtainBusNumber(twt.getId(), context));
                 mBus.setName(twt.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
@@ -171,7 +205,6 @@ public class MatpowerExporter implements Exporter {
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
-                context.mBusesNumbersByIds.put(twt.getId(), mBus.getNumber());
             }
         }
     }
@@ -183,7 +216,7 @@ public class MatpowerExporter implements Exporter {
             if (isExported(bus)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
-                mBus.setNumber(context.num++);
+                mBus.setNumber(obtainBusNumber(dl.getId(), context));
                 mBus.setName(dl.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
@@ -200,7 +233,6 @@ public class MatpowerExporter implements Exporter {
                 mBus.setMinimumVoltageMagnitude(0d);
                 mBus.setMaximumVoltageMagnitude(0d);
                 model.addBus(mBus);
-                context.mBusesNumbersByIds.put(dl.getId(), mBus.getNumber());
             }
         }
     }
@@ -210,7 +242,7 @@ public class MatpowerExporter implements Exporter {
             if (isExported(bus)) {
                 VoltageLevel vl = bus.getVoltageLevel();
                 MBus mBus = new MBus();
-                mBus.setNumber(context.num++);
+                mBus.setNumber(obtainBusNumber(bus.getId(), context));
                 mBus.setName(bus.getNameOrId());
                 mBus.setType(getType(bus, context));
                 mBus.setAreaNumber(AREA_NUMBER);
@@ -245,7 +277,6 @@ public class MatpowerExporter implements Exporter {
                 mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit() / vl.getNominalV());
                 mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit() / vl.getNominalV());
                 model.addBus(mBus);
-                context.mBusesNumbersByIds.put(bus.getId(), mBus.getNumber());
             }
         }
 
@@ -299,7 +330,7 @@ public class MatpowerExporter implements Exporter {
         limitsHolders.stream().flatMap(limitsHolder -> Stream.concat(limitsHolder.getApparentPowerLimits().stream(), // apparent power limits first then current limits
                                                                      limitsHolder.getCurrentLimits().stream()))
                 .filter(limits -> !Double.isNaN(limits.getPermanentLimit())) // skip when there is no permanent
-                .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many tempary limits first
+                .max(Comparator.comparingInt(loadingLimit -> loadingLimit.getTemporaryLimits().size())) // many temporary limits first
                 .ifPresent(limits -> {
                     if (limits.getLimitType() == LimitType.CURRENT) {
                         createLimits(mBranch, limits, current -> toApparentPower(current, vl)); // convert from A to MVA
@@ -697,25 +728,101 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
-    private void createVSCs(Network network, MatpowerModel model, Context context) {
-        for (VscConverterStation vsc : network.getVscConverterStations()) {
-            Terminal t = vsc.getTerminal();
-            Bus bus = t.getBusView().getBus();
-            if (isExported(bus)) {
-                VoltageLevel vl = t.getVoltageLevel();
-                String id = vsc.getId();
-                double targetQ = vsc.getReactivePowerSetpoint();
-                double targetV = vsc.getVoltageSetpoint();
-                Bus regulatedBus = vsc.getRegulatingTerminal().getBusView().getBus();
-                double targetP = HvdcUtils.getConverterStationTargetP(vsc);
-                double minQ = vsc.getReactiveLimits().getMinQ(targetP); // approximation
-                double maxQ = vsc.getReactiveLimits().getMaxQ(targetP); // approximation
-                boolean voltageRegulation = vsc.isVoltageRegulatorOn();
-                double maxP = vsc.getHvdcLine() != null ? vsc.getHvdcLine().getMaxP() : Double.MAX_VALUE;
-                addMgen(model, context, bus, vl, id, targetV, targetP, -maxP, maxP, targetQ, minQ,
-                        maxQ, regulatedBus, voltageRegulation, Double.NaN);
+    private void createDcLines(Network network, MatpowerModel model, Context context) {
+
+        for (HvdcLine hvdcLine : network.getHvdcLines()) {
+            HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
+            HvdcConverterStation<?> hvdcConverterStation2 = hvdcLine.getConverterStation2();
+            if (hvdcConverterStation1 instanceof VscConverterStation vscConverterStation1
+                    && hvdcConverterStation2 instanceof VscConverterStation vscConverterStation2) {
+
+                if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+                    createDcLine(vscConverterStation1, vscConverterStation2, hvdcLine, model, context);
+                } else {
+                    createDcLine(vscConverterStation2, vscConverterStation1, hvdcLine, model, context);
+                }
             }
         }
+    }
+
+    private static void createDcLine(VscConverterStation rectifierVscConverterStation, VscConverterStation inverterVscConverterStation, HvdcLine hvdcLine, MatpowerModel model, Context context) {
+        Terminal rectifierTerminal = rectifierVscConverterStation.getTerminal();
+        Bus rectifierBus = obtainBus(rectifierTerminal);
+        Terminal inverterTerminal = inverterVscConverterStation.getTerminal();
+        Bus inverterBus = obtainBus(inverterTerminal);
+
+        if (isExported(rectifierBus) && isExported(inverterBus)) {
+            MDcLine mdcLine = new MDcLine();
+
+            mdcLine.setFrom(context.mBusesNumbersByIds.get(rectifierBus.getId()));
+            mdcLine.setTo(context.mBusesNumbersByIds.get(inverterBus.getId()));
+            mdcLine.setStatus(getStatus(rectifierTerminal, inverterTerminal));
+
+            double rectifierTargetP = -HvdcUtils.getConverterStationTargetP(rectifierVscConverterStation);
+            double inverterTargetP = HvdcUtils.getConverterStationTargetP(inverterVscConverterStation);
+
+            double maxP = hvdcLine.getMaxP();
+            mdcLine.setPmin(0.0);
+            mdcLine.setPmax(maxP);
+
+            // equal to the negative of the injection of corresponding dummy generator
+            mdcLine.setPf(rectifierTargetP);
+            mdcLine.setQf(checkAndFixTargetQ(rectifierVscConverterStation.getReactivePowerSetpoint()));
+            mdcLine.setVf(checkAndFixTargetV(obtainTargetV(rectifierVscConverterStation)));
+            double rectifierMinQ = rectifierVscConverterStation.getReactiveLimits().getMinQ(rectifierTargetP);
+            double rectifierMaxQ = rectifierVscConverterStation.getReactiveLimits().getMaxQ(rectifierTargetP);
+            mdcLine.setQminf(rectifierMinQ);
+            mdcLine.setQmaxf(rectifierMaxQ);
+
+            // equal to the injection of the corresponding generator
+            mdcLine.setPt(inverterTargetP);
+            mdcLine.setQt(checkAndFixTargetQ(inverterVscConverterStation.getReactivePowerSetpoint()));
+            mdcLine.setVt(checkAndFixTargetV(obtainTargetV(inverterVscConverterStation)));
+            double inverterMinQ = inverterVscConverterStation.getReactiveLimits().getMinQ(inverterTargetP);
+            double inverterMaxQ = inverterVscConverterStation.getReactiveLimits().getMaxQ(inverterTargetP);
+            mdcLine.setQmint(inverterMinQ);
+            mdcLine.setQmaxt(inverterMaxQ);
+
+            double losses = rectifierTargetP - inverterTargetP;
+            double l0 = obtainL0(rectifierVscConverterStation.getLossFactor(), rectifierTargetP, losses);
+            mdcLine.setLoss0(l0);
+            mdcLine.setLoss1(obtainL1(l0, losses, rectifierTargetP));
+            model.addDcLine(mdcLine);
+        }
+    }
+
+    private static Bus obtainBus(Terminal terminal) {
+        return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
+    }
+
+    private static int getStatus(Terminal t1, Terminal t2) {
+        return t1.isConnected() && t2.isConnected() ? CONNECTED_STATUS : DISCONNECTED_STATUS;
+    }
+
+    private static double checkAndFixTargetQ(double targetQ) {
+        return Double.isNaN(targetQ) ? 0.0 : targetQ;
+    }
+
+    private static double checkAndFixTargetV(double targetV) {
+        return Double.isNaN(targetV) || targetV <= 0.0 ? 1.0 : targetV;
+    }
+
+    // matpower only supports local control, all remote control will be localized
+    private static double obtainTargetV(VscConverterStation vscConverterStation) {
+        double nominalV = vscConverterStation.getTerminal().getVoltageLevel().getNominalV();
+        if (vscConverterStation.getRegulatingTerminal() != null) {
+            nominalV = vscConverterStation.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        }
+        return vscConverterStation.getVoltageSetpoint() / nominalV;
+    }
+
+    // According to the import process, to guarantee round-trip
+    private static double obtainL0(double lossFactor, double rectifierTargetP, double losses) {
+        return rectifierTargetP != 0.0 ? lossFactor * rectifierTargetP / 100.0 : losses;
+    }
+
+    private static double obtainL1(double l0, double losses, double rectifierTargetP) {
+        return rectifierTargetP != 0.0 ? (losses - l0) / rectifierTargetP : 0.0;
     }
 
     private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
@@ -819,12 +926,13 @@ public class MatpowerExporter implements Exporter {
                     .getId();
             LOGGER.debug("Matpower reference bus automatically selected: {}", context.refBusId);
         }
+        context.num = preserveBusIds(network, context);
         createBuses(network, model, context);
         createBranches(network, model, context);
         createGenerators(network, model, context);
         createStaticVarCompensators(network, model, context);
-        createVSCs(network, model, context);
         createDanglingLineGenerators(network, model, context);
+        createDcLines(network, model, context);
 
         if (!context.generatorIdsConvertedToLoad.isEmpty()) {
             LOGGER.debug("{} generators have been converted to a load: {}", context.generatorIdsConvertedToLoad.size(), context.generatorIdsConvertedToLoad);
