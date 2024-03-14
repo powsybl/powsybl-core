@@ -129,7 +129,6 @@ public class CgmesMetadataModel {
 
     public CgmesMetadataModel setId(String id) {
         this.id = id;
-        this.ids.add(id);
         return this;
     }
 
@@ -140,7 +139,7 @@ public class CgmesMetadataModel {
         return this;
     }
 
-    public CgmesMetadataModel addProfiles(Set<String> profiles) {
+    public CgmesMetadataModel addProfiles(Collection<String> profiles) {
         this.profiles.addAll(profiles);
         return this;
     }
@@ -151,12 +150,12 @@ public class CgmesMetadataModel {
     }
 
     public CgmesMetadataModel addSupersedes(String id) {
-        supersedes.add(id);
+        addIfNonEmpty(id, this.supersedes);
         return this;
     }
 
-    public CgmesMetadataModel addDependentOn(String dependentOn) {
-        this.dependentOn.add(dependentOn);
+    public CgmesMetadataModel addDependentOn(String id) {
+        addIfNonEmpty(id, this.dependentOn);
         return this;
     }
 
@@ -180,26 +179,9 @@ public class CgmesMetadataModel {
         return this;
     }
 
-    // FIXME(Luma) Refactoring in progress. We should not have multiple ids for a model
-
-    private final Set<String> ids = new HashSet<>();
-
-    public Set<String> getIds() {
-        return ids;
-    }
-
-    public void setIds(List<String> ids) {
-        Objects.requireNonNull(ids);
-        this.ids.clear();
-        if (ids.isEmpty()) {
-            return;
+    private static void addIfNonEmpty(String id, Collection<String> ids) {
+        if (id != null && !id.isEmpty()) {
+            ids.add(id);
         }
-        this.id = ids.get(0);
-        this.ids.addAll(ids);
-    }
-
-    public void addId(String id) {
-        Objects.requireNonNull(id);
-        this.ids.add(id);
     }
 }

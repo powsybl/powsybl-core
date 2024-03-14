@@ -220,7 +220,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
         if (context.getCimVersion() >= 16) {
-            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getEqModelDescription(), context);
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getExportedEQModel(), context);
         }
     }
 

@@ -117,16 +117,16 @@ public class CgmesExport implements Exporter {
             masUri = sourcingActor.get("masUri");
         }
 
-        context.getEqModelDescription().setModelingAuthoritySet(masUri);
-        context.getTpModelDescription().setModelingAuthoritySet(masUri);
-        context.getSshModelDescription().setModelingAuthoritySet(masUri);
-        context.getSvModelDescription().setModelingAuthoritySet(masUri);
+        context.getExportedEQModel().setModelingAuthoritySet(masUri);
+        context.getExportedTPModel().setModelingAuthoritySet(masUri);
+        context.getExportedSSHModel().setModelingAuthoritySet(masUri);
+        context.getExportedSVModel().setModelingAuthoritySet(masUri);
         String modelDescription = Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig);
         if (modelDescription != null) {
-            context.getEqModelDescription().setDescription(modelDescription);
-            context.getTpModelDescription().setDescription(modelDescription);
-            context.getSshModelDescription().setDescription(modelDescription);
-            context.getSvModelDescription().setDescription(modelDescription);
+            context.getExportedEQModel().setDescription(modelDescription);
+            context.getExportedTPModel().setDescription(modelDescription);
+            context.getExportedSSHModel().setDescription(modelDescription);
+            context.getExportedSVModel().setDescription(modelDescription);
         }
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
@@ -135,10 +135,10 @@ public class CgmesExport implements Exporter {
 
         String modelVersion = Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig);
         if (modelVersion != null) {
-            context.getEqModelDescription().setVersion(Integer.parseInt(modelVersion));
-            context.getTpModelDescription().setVersion(Integer.parseInt(modelVersion));
-            context.getSshModelDescription().setVersion(Integer.parseInt(modelVersion));
-            context.getSvModelDescription().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedEQModel().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedTPModel().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedSSHModel().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedSVModel().setVersion(Integer.parseInt(modelVersion));
         }
 
         try {
@@ -150,8 +150,8 @@ public class CgmesExport implements Exporter {
                     EquipmentExport.write(network, writer, context);
                 }
             } else {
-                addProfilesIdentifiers(network, "EQ", context.getEqModelDescription());
-                context.getEqModelDescription().addId(context.getNamingStrategy().getCgmesId(network));
+                addPartIdentifiers(network, "EQ", context.getExportedEQModel());
+                context.getExportedEQModel().setId(context.getNamingStrategy().getCgmesId(network));
             }
             if (profiles.contains("TP")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameTp, false))) {
@@ -159,7 +159,7 @@ public class CgmesExport implements Exporter {
                     TopologyExport.write(network, writer, context);
                 }
             } else {
-                addProfilesIdentifiers(network, "TP", context.getTpModelDescription());
+                addPartIdentifiers(network, "TP", context.getExportedTPModel());
             }
             if (profiles.contains("SSH")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
@@ -167,7 +167,7 @@ public class CgmesExport implements Exporter {
                     SteadyStateHypothesisExport.write(network, writer, context);
                 }
             } else {
-                addProfilesIdentifiers(network, "SSH", context.getSshModelDescription());
+                addPartIdentifiers(network, "SSH", context.getExportedSSHModel());
             }
             if (profiles.contains("SV")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
@@ -199,8 +199,8 @@ public class CgmesExport implements Exporter {
         return id;
     }
 
-    private static void addProfilesIdentifiers(Network network, String profile, CgmesMetadataModel description) {
-        description.setIds(network.getPropertyNames().stream()
+    private static void addPartIdentifiers(Network network, String profile, CgmesMetadataModel description) {
+        description.addDependentOn(network.getPropertyNames().stream()
                 .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
                 .map(network::getProperty)
                 .toList());

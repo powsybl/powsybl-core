@@ -61,10 +61,10 @@ public class CgmesExportContext {
     private String boundaryTpId; // may be null
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
-    private final CgmesMetadataModel eqModelDescription = new CgmesMetadataModel(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel tpModelDescription = new CgmesMetadataModel(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel svModelDescription = new CgmesMetadataModel(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel sshModelDescription = new CgmesMetadataModel(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedEQModel = new CgmesMetadataModel(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedTPModel = new CgmesMetadataModel(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedSVModel = new CgmesMetadataModel(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedSSHModel = new CgmesMetadataModel(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -105,29 +105,29 @@ public class CgmesExportContext {
     // TP.dependentOn EQ
     // SSH.dependentOn EQ
     public void updateDependencies() {
-        Set<String> eqModelIds = getEqModelDescription().getIds();
-        if (!eqModelIds.isEmpty()) {
-            getTpModelDescription()
-                    .clearDependencies()
-                    .addDependentOn(eqModelIds);
-            getSshModelDescription()
-                    .clearDependencies()
-                    .addDependentOn(eqModelIds);
-            getSvModelDescription().clearDependencies();
-            Set<String> tpModelIds = getTpModelDescription().getIds();
-            if (!tpModelIds.isEmpty()) {
-                getSvModelDescription().addDependentOn(tpModelIds);
-            }
-            Set<String> sshModelIds = getSshModelDescription().getIds();
-            if (!sshModelIds.isEmpty()) {
-                getSvModelDescription().addDependentOn(sshModelIds);
-            }
-            if (boundaryEqId != null) {
-                getEqModelDescription().addDependentOn(boundaryEqId);
-            }
-            if (boundaryTpId != null) {
-                getSvModelDescription().addDependentOn(boundaryTpId);
-            }
+        String eqModelId = getExportedEQModel().getId();
+        if (eqModelId == null || eqModelId.isEmpty()) {
+            return;
+        }
+
+        getExportedTPModel()
+                .clearDependencies()
+                .addDependentOn(eqModelId);
+
+        getExportedSSHModel()
+                .clearDependencies()
+                .addDependentOn(eqModelId);
+
+        getExportedSVModel()
+                .clearDependencies()
+                .addDependentOn(getExportedTPModel().getId())
+                .addDependentOn(getExportedSSHModel().getId());
+
+        if (boundaryEqId != null) {
+            getExportedEQModel().addDependentOn(boundaryEqId);
+        }
+        if (boundaryTpId != null) {
+            getExportedSVModel().addDependentOn(boundaryTpId);
         }
     }
 
@@ -174,20 +174,20 @@ public class CgmesExportContext {
         scenarioTime = network.getCaseDate();
         CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
         if (models != null) {
-            models.getModelForPart(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(eqModelDescription, eq));
-            models.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(sshModelDescription, ssh));
-            models.getModelForPart(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(tpModelDescription, tp));
-            models.getModelForPart(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(svModelDescription, sv));
+            models.getModelForPart(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(exportedEQModel, eq));
+            models.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(exportedSSHModel, ssh));
+            models.getModelForPart(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(exportedTPModel, tp));
+            models.getModelForPart(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(exportedSVModel, sv));
         }
         addIidmMappings(network);
     }
 
     private void initializeExportedModelProfiles(CgmesNamespace.Cim cim) {
         if (cim.hasProfiles()) {
-            eqModelDescription.setProfile(cim.getProfileUri("EQ"));
-            tpModelDescription.setProfile(cim.getProfileUri("TP"));
-            svModelDescription.setProfile(cim.getProfileUri("SV"));
-            sshModelDescription.setProfile(cim.getProfileUri("SSH"));
+            exportedEQModel.setProfile(cim.getProfileUri("EQ"));
+            exportedTPModel.setProfile(cim.getProfileUri("TP"));
+            exportedSVModel.setProfile(cim.getProfileUri("SV"));
+            exportedSSHModel.setProfile(cim.getProfileUri("SSH"));
         }
     }
 
@@ -628,20 +628,20 @@ public class CgmesExportContext {
         return this;
     }
 
-    public CgmesMetadataModel getEqModelDescription() {
-        return eqModelDescription;
+    public CgmesMetadataModel getExportedEQModel() {
+        return exportedEQModel;
     }
 
-    public CgmesMetadataModel getTpModelDescription() {
-        return tpModelDescription;
+    public CgmesMetadataModel getExportedTPModel() {
+        return exportedTPModel;
     }
 
-    public CgmesMetadataModel getSvModelDescription() {
-        return svModelDescription;
+    public CgmesMetadataModel getExportedSVModel() {
+        return exportedSVModel;
     }
 
-    public CgmesMetadataModel getSshModelDescription() {
-        return sshModelDescription;
+    public CgmesMetadataModel getExportedSSHModel() {
+        return exportedSSHModel;
     }
 
     public boolean exportBoundaryPowerFlows() {
