@@ -278,17 +278,9 @@ public final class CgmesExportUtil {
         };
     }
 
-    public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
+    public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine dl && !boundaryDanglingLines.contains(dl)) {
-                // TODO(Luma) Export tie line components instead of a single equipment
-                // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
-                // We need to return the proper terminal of the single tie line that will be exported
-                // When we change the export and write the two dangling lines as separate equipment,
-                // then we should always return 1 and forget about special case
-                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
-            }
             return 1;
         } else {
             if (c instanceof Branch<?> branch) {
@@ -439,7 +431,7 @@ public final class CgmesExportUtil {
         if (c instanceof DanglingLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
+            int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);

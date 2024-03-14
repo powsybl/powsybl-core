@@ -340,6 +340,7 @@ public class Conversion {
         // Voltage and angle in boundary buses
         network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
+        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
