@@ -50,7 +50,7 @@ class ZipFileDataSourceTest extends AbstractDataSourceTest {
 
     @Test
     void createZipDataSourceWithMoreThanOneDot() throws IOException {
-        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(ZIP_PATH)));) {
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(ZIP_PATH)))) {
             // create an entry
             ZipEntry e = new ZipEntry(UNRELATED_FILE);
             out.putNextEntry(e);
