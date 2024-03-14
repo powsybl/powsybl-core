@@ -104,8 +104,8 @@ class MatpowerRoundTripTest {
     }
 
     private static boolean convertersAreEqual(HvdcConverterStation<?> hvdcConverterStation, HvdcConverterStation<?> hvdcConverterStation1) {
-        assertEquals(hvdcConverterStation.getHvdcType(), HvdcConverterStation.HvdcType.VSC);
-        assertEquals(hvdcConverterStation1.getHvdcType(), HvdcConverterStation.HvdcType.VSC);
+        assertEquals(HvdcConverterStation.HvdcType.VSC, hvdcConverterStation.getHvdcType());
+        assertEquals(HvdcConverterStation.HvdcType.VSC, hvdcConverterStation1.getHvdcType());
 
         double tol = 0.0001;
         assertEquals(hvdcConverterStation.getLossFactor(), hvdcConverterStation1.getLossFactor(), tol);
