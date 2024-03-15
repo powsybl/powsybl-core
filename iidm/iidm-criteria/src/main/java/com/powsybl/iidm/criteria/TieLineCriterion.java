@@ -15,16 +15,16 @@ public class TieLineCriterion extends AbstractNetworkElementEquipmentCriterion {
     public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.TIE_LINE;
 
     private final TwoCountriesCriterion twoCountriesCriterion;
-    private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
+    private final TwoNominalVoltageCriterion twoNominalVoltageCriterion;
 
-    public TieLineCriterion(TwoCountriesCriterion twoCountriesCriterion, SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
-        this(null, twoCountriesCriterion, singleNominalVoltageCriterion);
+    public TieLineCriterion(TwoCountriesCriterion twoCountriesCriterion, TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
+        this(null, twoCountriesCriterion, twoNominalVoltageCriterion);
     }
 
-    public TieLineCriterion(String name, TwoCountriesCriterion twoCountriesCriterion, SingleNominalVoltageCriterion singleNominalVoltageCriterion) {
+    public TieLineCriterion(String name, TwoCountriesCriterion twoCountriesCriterion, TwoNominalVoltageCriterion twoNominalVoltageCriterion) {
         super(name);
         this.twoCountriesCriterion = twoCountriesCriterion;
-        this.singleNominalVoltageCriterion = singleNominalVoltageCriterion;
+        this.twoNominalVoltageCriterion = twoNominalVoltageCriterion;
     }
 
     @Override
@@ -38,8 +38,8 @@ public class TieLineCriterion extends AbstractNetworkElementEquipmentCriterion {
     }
 
     @Override
-    public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
-        return singleNominalVoltageCriterion;
+    public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
+        return twoNominalVoltageCriterion;
     }
 
 }

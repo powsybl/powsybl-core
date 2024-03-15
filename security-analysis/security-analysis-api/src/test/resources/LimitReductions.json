@@ -16,8 +16,8 @@
       "type" : "lineCriterion",
       "version" : "1.0",
       "nominalVoltageCriterion" : {
-        "type" : "SINGLE_NOMINAL_VOLTAGE",
-        "voltageInterval" : {
+        "type" : "TWO_NOMINAL_VOLTAGE",
+        "voltageInterval1" : {
           "nominalVoltageLowBound" : 350.0,
           "nominalVoltageHighBound" : 410.0,
           "lowClosed" : true,

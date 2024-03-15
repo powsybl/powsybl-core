@@ -33,21 +33,24 @@ class LimitReductionDefinitionListTest {
     private static NetworkElementCriterion networkElementCriterion2;
     private static NetworkElementCriterion networkElementCriterion3;
     private static NetworkElementCriterion networkElementCriterion4;
+    private static NetworkElementCriterion networkElementCriterion5;
     private static ContingencyContext contingencyContext1;
 
     @BeforeAll
     static void init() {
         networkElementCriterion1 = new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"));
-        networkElementCriterion2 = new LineCriterion(null, new SingleNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false)));
+        networkElementCriterion2 = new LineCriterion(null, new TwoNominalVoltageCriterion(
+                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null));
         networkElementCriterion3 = new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
         networkElementCriterion4 = new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
+        networkElementCriterion5 = new TieLineCriterion(null, new TwoNominalVoltageCriterion(
+                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null));
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
                 contingencyContext1,
                 List.of(networkElementCriterion1, networkElementCriterion2,
-                        networkElementCriterion3, networkElementCriterion4),
+                        networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
                 List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion()));
         definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
     }
@@ -79,7 +82,7 @@ class LimitReductionDefinitionListTest {
     @Test
     void limitReductionDefinitionGetNetworkElementCriteria() {
         assertEquals(List.of(networkElementCriterion1, networkElementCriterion2,
-                networkElementCriterion3, networkElementCriterion4),
+                networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
                 definition1.getNetworkElementCriteria());
         assertTrue(definition2.getNetworkElementCriteria().isEmpty());
     }

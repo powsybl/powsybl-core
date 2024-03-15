@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.LineCriterion;
-import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.TwoCountriesCriterion;
+import com.powsybl.iidm.criteria.TwoNominalVoltageCriterion;
 
 import java.io.IOException;
 
@@ -30,11 +30,11 @@ public class LineCriterionDeserializer extends AbstractNetworkElementCriterionDe
     public LineCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         AbstractNetworkElementCriterionDeserializer.ParsingContext parsingContext = new AbstractNetworkElementCriterionDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.SINGLE_NOMINAL_VOLTAGE));
+                LineCriterion.TYPE, CriterionType.TWO_COUNTRY, CriterionType.TWO_NOMINAL_VOLTAGE));
 
         return new LineCriterion(parsingContext.name,
                 (TwoCountriesCriterion) parsingContext.countryCriterion,
-                (SingleNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+                (TwoNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }
 
 }

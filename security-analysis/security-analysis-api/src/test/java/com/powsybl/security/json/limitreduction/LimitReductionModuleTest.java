@@ -34,8 +34,8 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         ContingencyContext contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         List<NetworkElementCriterion> networkElementCriteria1 =
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
-                        new LineCriterion(null, new SingleNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false))),
+                        new LineCriterion(null, new TwoNominalVoltageCriterion(
+                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
                         new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
                         new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());

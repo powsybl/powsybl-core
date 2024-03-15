@@ -37,8 +37,9 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     @Test
     void lineCriterionRoundTripTest() throws IOException {
         LineCriterion criterion = new LineCriterion("criterion1", new TwoCountriesCriterion(List.of(Country.FR, Country.BE)),
-                        new SingleNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
+                        new TwoNominalVoltageCriterion(
+                                new SingleNominalVoltageCriterion.VoltageInterval(190., 210., true, true),
+                                new SingleNominalVoltageCriterion.VoltageInterval(220., 230., true, true)));
         LineCriterion empty = new LineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
@@ -49,8 +50,9 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     @Test
     void tieLineCriterionRoundTripTest() throws IOException {
         TieLineCriterion criterion = new TieLineCriterion("criterion5", new TwoCountriesCriterion(List.of(Country.FR, Country.DE)),
-                new SingleNominalVoltageCriterion(
-                        new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
+                new TwoNominalVoltageCriterion(
+                        new SingleNominalVoltageCriterion.VoltageInterval(190., 210., true, true),
+                        new SingleNominalVoltageCriterion.VoltageInterval(220., 230., true, true)));
         TieLineCriterion empty = new TieLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
