@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -28,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
+@SuppressWarnings("checkstyle:RegexpSingleline")
 class CommonGridModelExportTest extends AbstractSerDeTest {
 
     @Test
@@ -60,8 +62,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         Set<String> expectedTPs = network.getSubnetworks().stream().map(
                 n -> n.getExtension(CgmesMetadataModels.class)
-                        .getModelForPart(CgmesSubset.TOPOLOGY)
-                        .map(CgmesMetadataModels.Model::getId)
+                        .getModelForSubset(CgmesSubset.TOPOLOGY)
+                        .map(CgmesMetadataModel::getId)
                         .orElseThrow())
                 .collect(Collectors.toSet());
         assertEquals(
@@ -78,6 +80,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // All IGM TPs must be present in the SV dependentOns
         assertTrue(svDependentOns.containsAll(expectedTPs));
+
+        // FIXME(Luma) work in progress
+        // The CGM SV should depend on updated IGM SSHs
+        // As a first step, just check that the CGM dependentOns should contain more items, not only IGM TPs
+        assertTrue(svDependentOns.size() > expectedTPs.size());
     }
 
     private static final Pattern REGEX_DEPENDENT_ON = Pattern.compile("Model.DependentOn rdf:resource=\"(.*?)\"");
@@ -101,9 +108,9 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         network.getSubnetworks().forEach(n -> {
             System.out.printf("  subnetwork : %s%n", n.getSubstations().iterator().next().getCountry().orElseThrow());
             System.out.printf("         SSH : %s%n",
-                    n.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).map(CgmesMetadataModels.Model::getId).orElse("uknown"));
+                    n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).map(CgmesMetadataModel::getId).orElse("uknown"));
             System.out.printf("          TP : %s%n",
-                    n.getExtension(CgmesMetadataModels.class).getModelForPart(CgmesSubset.TOPOLOGY).map(CgmesMetadataModels.Model::getId).orElse("uknown"));
+                    n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.TOPOLOGY).map(CgmesMetadataModel::getId).orElse("uknown"));
         });
     }
 

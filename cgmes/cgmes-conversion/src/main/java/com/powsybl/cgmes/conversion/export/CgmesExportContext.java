@@ -101,16 +101,39 @@ public class CgmesExportContext {
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
 
-    /**
-     * Update dependencies in a way that:
-     *   SV depends on TP and SSH
-     *   TP depends on EQ
-     *   SSH depends on EQ
-     * If the boundaries subset have been defined:
-     *   EQ depends on EQ_BD
-     *   SV depends on TP_BD
-     */
-    public void updateDependencies() {
+    public void updateDependencies(Network network) {
+        boolean isCGM = network.getSubnetworks().size() > 1;
+        if (isCGM) {
+            updateDependenciesCGMSolution(network);
+        } else {
+            updateDependenciesIGM();
+        }
+    }
+
+    private void updateDependenciesCGMSolution(Network network) {
+        // FIXME(Luma) work in progress
+        // First step: we only know how to update dependencies of CGM SV solution from IGM (Subnetwork) original TP models
+        Set<String> igmOriginalTpModels = network.getSubnetworks().stream()
+                .map(sn -> sn.getExtension(CgmesMetadataModels.class))
+                .filter(Objects::nonNull)
+                .map(models -> ((CgmesMetadataModels) models).getModelForSubset(CgmesSubset.TOPOLOGY))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(CgmesMetadataModel::getId)
+                .collect(Collectors.toSet());
+        Set<String> igmExportedSshModels = Collections.emptySet();
+        getExportedSVModel()
+                .clearDependencies()
+                .addDependentOn(igmOriginalTpModels)
+                .addDependentOn(igmExportedSshModels);
+    }
+
+    private void updateDependenciesIGM() {
+        // Update dependencies in a way that:
+        // [EQ.dependentOn EQ_BD]
+        // SV.dependentOn TP, SSH[, TP_BD]
+        // TP.dependentOn EQ
+        // SSH.dependentOn EQ
         String eqModelId = getExportedEQModel().getId();
         if (eqModelId == null || eqModelId.isEmpty()) {
             return;

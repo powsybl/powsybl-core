@@ -127,7 +127,7 @@ public final class CgmesExportUtil {
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setId(modelId);
-        context.updateDependencies();
+        context.updateDependencies(network);
 
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
