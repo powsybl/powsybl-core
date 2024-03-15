@@ -21,7 +21,6 @@ import java.io.IOException;
 public class NetworkElementEquipmentCriterionSerializer<T extends AbstractNetworkElementEquipmentCriterion>
         extends StdSerializer<T> {
 
-    //TODO find another better name for this class?
     public NetworkElementEquipmentCriterionSerializer(Class<T> clazz) {
         super(clazz);
     }
