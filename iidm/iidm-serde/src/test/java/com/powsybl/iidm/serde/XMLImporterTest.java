@@ -112,6 +112,9 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         }
         writeNetworkWithComment("/test7.xiidm");
         writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_VERSION.getNamespaceURI());
+        writeNetwork("/test9.0.xiidm", CURRENT_IIDM_VERSION, true);
+        writeNetwork("/test10.0.xiidm", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test11.iidm.xml", CURRENT_IIDM_VERSION, false);
 
         importer = new XMLImporter();
     }
@@ -155,6 +158,9 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
         assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test9.0")));
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test10.0")));
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test11.iidm")));
     }
 
     @Test
