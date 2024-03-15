@@ -26,7 +26,7 @@ public class LimitReductionSerializer extends StdSerializer<LimitReduction> {
     @Override
     public void serialize(LimitReduction limitReduction, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("limitReduction", limitReduction.getLimitReduction());
+        jsonGenerator.writeNumberField("value", limitReduction.getValue());
         jsonGenerator.writeStringField("limitType", limitReduction.getLimitType().name());
         jsonGenerator.writeBooleanField("monitoringOnly", limitReduction.isMonitoringOnly());
 

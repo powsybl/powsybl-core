@@ -69,8 +69,8 @@ class LimitReductionListTest {
 
     @Test
     void limitReductionGetValue() {
-        assertEquals(0.9f, limitReduction1.getLimitReduction());
-        assertEquals(0.8f, limitReduction2.getLimitReduction());
+        assertEquals(0.9f, limitReduction1.getValue());
+        assertEquals(0.8f, limitReduction2.getValue());
     }
 
     @Test

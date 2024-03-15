@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class LimitReduction {
     private final LimitType limitType;
-    private final float limitReduction;
+    private final float value;
     private final boolean monitoringOnly;
     private final ContingencyContext contingencyContext;
     private final List<NetworkElementCriterion> networkElementCriteria;
@@ -35,23 +35,23 @@ public class LimitReduction {
                 || limitType == LimitType.APPARENT_POWER;
     }
 
-    public LimitReduction(LimitType limitType, float limitReduction, boolean monitoringOnly) {
-        this(limitType, limitReduction, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
+    public LimitReduction(LimitType limitType, float value, boolean monitoringOnly) {
+        this(limitType, value, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public LimitReduction(LimitType limitType, float limitReduction, boolean monitoringOnly,
-                                    ContingencyContext contingencyContext,
-                                    List<NetworkElementCriterion> networkElementCriteria,
-                                    List<LimitDurationCriterion> limitDurationCriteria) {
+    public LimitReduction(LimitType limitType, float value, boolean monitoringOnly,
+                          ContingencyContext contingencyContext,
+                          List<NetworkElementCriterion> networkElementCriteria,
+                          List<LimitDurationCriterion> limitDurationCriteria) {
         if (isSupportedLimitType(limitType)) {
             this.limitType = limitType;
         } else {
             throw new PowsyblException(limitType + " is not a supported limit type for limit reduction");
         }
-        if (limitReduction > 1. || limitReduction < 0.) {
+        if (value > 1. || value < 0.) {
             throw new PowsyblException("Limit reduction value should be in [0;1]");
         }
-        this.limitReduction = limitReduction;
+        this.value = value;
         this.monitoringOnly = monitoringOnly;
         this.contingencyContext = Objects.requireNonNull(contingencyContext);
         this.networkElementCriteria = ImmutableList.copyOf(Objects.requireNonNull(networkElementCriteria));
@@ -62,8 +62,8 @@ public class LimitReduction {
         return limitType;
     }
 
-    public float getLimitReduction() {
-        return limitReduction;
+    public float getValue() {
+        return value;
     }
 
     public boolean isMonitoringOnly() {
