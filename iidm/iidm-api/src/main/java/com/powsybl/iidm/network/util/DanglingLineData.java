@@ -73,12 +73,12 @@ public class DanglingLineData {
         boundaryBusTheta = vBoundaryBus.getArgument();
     }
 
-    private static double getV(DanglingLine danglingLine) {
+    static double getV(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
             : Double.NaN;
     }
 
-    private static double getTheta(DanglingLine danglingLine) {
+    static double getTheta(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected()
             ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
             : Double.NaN;
