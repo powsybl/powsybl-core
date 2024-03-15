@@ -762,6 +762,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         // Create a new NetworkImpl and transfer the extensions to it
         NetworkImpl detachedNetwork = new NetworkImpl(getId(), getNameOrId(), getSourceFormat());
         transferExtensions(this, detachedNetwork);
+        transferProperties(this, detachedNetwork);
 
         // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
