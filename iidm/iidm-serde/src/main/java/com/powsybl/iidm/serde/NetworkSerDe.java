@@ -203,7 +203,7 @@ public final class NetworkSerDe {
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartNode(context.getNamespaceURI(), EXTENSION_ROOT_ELEMENT_NAME);
@@ -782,7 +782,7 @@ public final class NetworkSerDe {
 
         context.getReader().readChildNodes(extensionName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
-            // to check for an extension to exist if depth is greater than zero. Furthermore in case of
+            // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
             if (context.getOptions().withExtension(extensionName)) {
                 ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
