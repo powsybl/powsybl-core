@@ -99,7 +99,7 @@ public class TerminalMapping {
 
     public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
+        if (cgmesTerminal != null && cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
             String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
             if (acLineSegmentCgmesTerminalId != null) {
                 return findBoundary(acLineSegmentCgmesTerminalId);
