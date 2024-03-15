@@ -142,7 +142,10 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isExported(Bus bus) {
-        // we are supporting HVDC lines, so we can manage multiple components
+        // we are supporting dcLines, so we can manage the mainConnectedComponent.
+        // Matpower power flow does not support multiple components.
+        // Only Vsc Hvdc links are exported as dcLines. Lcc Hvdc links are exported as loads
+        // TODO select properly the components to be exported
         return bus != null && bus.isInMainConnectedComponent();
     }
 
@@ -162,11 +165,14 @@ public class MatpowerExporter implements Exporter {
                 }
             }
         }
-        // select the minimum as number identifier
+        // select the minimum as the number
         busIdNumbers.forEach((key, value) -> context.mBusesNumbersByIds.put(key, value.stream().min(Comparator.naturalOrder()).orElseThrow()));
+
+        // last number used
         return context.mBusesNumbersByIds.values().stream().max(Comparator.naturalOrder()).orElse(0);
     }
 
+    // according to the busId of the import process
     private static OptionalInt extractBusNumber(String configuredBusId) {
         String busNumber = configuredBusId.replace("BUS-", "");
         return busNumber.matches("[1-9]\\d*") ? OptionalInt.of(Integer.parseInt(busNumber)) : OptionalInt.empty();
