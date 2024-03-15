@@ -142,8 +142,7 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
-    public void testMergeAndDetachWithProperties()
-    {
+    public void testMergeAndDetachWithProperties() {
         // Create 2 networks with a Property
         Network n1 = Network.create("network1", "manual");
         n1.setProperty("property_name1", "property_value1");
