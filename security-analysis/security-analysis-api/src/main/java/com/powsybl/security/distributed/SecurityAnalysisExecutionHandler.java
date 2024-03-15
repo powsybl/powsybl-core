@@ -16,9 +16,9 @@ import com.powsybl.security.action.ActionList;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
-import com.powsybl.security.json.limitreduction.LimitReductionDefinitionListSerDeUtil;
-import com.powsybl.security.limitreduction.LimitReductionDefinition;
-import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
+import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
+import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitreduction.LimitReductionList;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.OperatorStrategyList;
@@ -168,7 +168,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         }
         addOperatorStrategyFile(options, workingDir, input.getOperatorStrategies());
         addActionFile(options, workingDir, input.getActions());
-        addLimitReductionsFile(options, workingDir, input.getLimitReductionDefinitions());
+        addLimitReductionsFile(options, workingDir, input.getLimitReductions());
 
         return new CommandExecution(options.toCommand(), executionCount);
     }
@@ -256,16 +256,16 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     }
 
     /**
-     * Add limit reduction definitions file option, and write it as JSON to working directory.
+     * Add limit reductions file option, and write it as JSON to working directory.
      */
-    private static void addLimitReductionsFile(SecurityAnalysisCommandOptions options, Path workingDir, List<LimitReductionDefinition> limitReductionDefinitions) {
-        if (limitReductionDefinitions.isEmpty()) {
+    private static void addLimitReductionsFile(SecurityAnalysisCommandOptions options, Path workingDir, List<LimitReduction> limitReductions) {
+        if (limitReductions.isEmpty()) {
             return;
         }
         Path path = getLimitReductionsPath(workingDir);
         options.limitReductionsFile(path);
-        LOGGER.debug("Writing limit reduction definitions to file {}", path);
-        LimitReductionDefinitionListSerDeUtil.write(new LimitReductionDefinitionList(limitReductionDefinitions), path);
+        LOGGER.debug("Writing limit reductions to file {}", path);
+        LimitReductionListSerDeUtil.write(new LimitReductionList(limitReductions), path);
     }
 
     /**

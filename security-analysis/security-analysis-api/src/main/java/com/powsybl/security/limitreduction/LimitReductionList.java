@@ -13,20 +13,20 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Contains the definitions of the applied limit reductions.
+ * Contains the list of the applied limit reductions.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  */
 
-public class LimitReductionDefinitionList {
+public class LimitReductionList {
     public static final String VERSION = "1.0";
-    private final List<LimitReductionDefinition> limitReductionDefinitions;
+    private final List<LimitReduction> limitReductions;
 
-    public LimitReductionDefinitionList(List<LimitReductionDefinition> limitReductionDefinitions) {
-        this.limitReductionDefinitions = ImmutableList.copyOf(Objects.requireNonNull(limitReductionDefinitions));
+    public LimitReductionList(List<LimitReduction> limitReductions) {
+        this.limitReductions = ImmutableList.copyOf(Objects.requireNonNull(limitReductions));
     }
 
-    public List<LimitReductionDefinition> getLimitReductionDefinitions() {
-        return limitReductionDefinitions;
+    public List<LimitReduction> getLimitReductions() {
+        return limitReductions;
     }
 }

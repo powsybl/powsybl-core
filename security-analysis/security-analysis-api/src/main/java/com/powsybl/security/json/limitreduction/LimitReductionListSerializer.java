@@ -10,26 +10,26 @@ package com.powsybl.security.json.limitreduction;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReductionList;
 
 import java.io.IOException;
 
-import static com.powsybl.security.limitreduction.LimitReductionDefinitionList.VERSION;
+import static com.powsybl.security.limitreduction.LimitReductionList.VERSION;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitReductionDefinitionListSerializer extends StdSerializer<LimitReductionDefinitionList> {
+public class LimitReductionListSerializer extends StdSerializer<LimitReductionList> {
 
-    public LimitReductionDefinitionListSerializer() {
-        super(LimitReductionDefinitionList.class);
+    public LimitReductionListSerializer() {
+        super(LimitReductionList.class);
     }
 
     @Override
-    public void serialize(LimitReductionDefinitionList limitReductionDefinitionList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(LimitReductionList limitReductionList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        serializerProvider.defaultSerializeField("limitReductionDefinitions", limitReductionDefinitionList.getLimitReductionDefinitions(), jsonGenerator);
+        serializerProvider.defaultSerializeField("limitReductions", limitReductionList.getLimitReductions(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

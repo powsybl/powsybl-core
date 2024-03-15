@@ -18,7 +18,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.limitreduction.LimitReductionDefinition;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -81,7 +81,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
      * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param limitReductionDefinitions list of the limit reductions to apply
+     * @param limitReductions list of the limit reductions to apply
      * @param reportNode the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
@@ -96,7 +96,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   List<OperatorStrategy> operatorStrategies,
                                                   List<Action> actions,
                                                   List<StateMonitor> monitors,
-                                                  List<LimitReductionDefinition> limitReductionDefinitions,
+                                                  List<LimitReduction> limitReductions,
                                                   ReportNode reportNode);
 
     /**

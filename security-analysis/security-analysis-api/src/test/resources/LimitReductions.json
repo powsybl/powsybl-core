@@ -1,6 +1,6 @@
 {
   "version" : "1.0",
-  "limitReductionDefinitions" : [ {
+  "limitReductions" : [ {
     "limitReduction" : 0.9,
     "limitType" : "CURRENT",
     "monitoringOnly" : false,

@@ -16,8 +16,8 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.limitreduction.LimitReductionDefinition;
-import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitreduction.LimitReductionList;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -43,19 +43,19 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
-        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
+        LimitReduction limitReduction1 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
                 contingencyContext1, networkElementCriteria1, durationCriteria1);
 
-        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER, 0.5f, false,
+        LimitReduction limitReduction2 = new LimitReduction(LimitType.APPARENT_POWER, 0.5f, false,
                 ContingencyContext.all(),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
                 List.of(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(10 * 60, true)
                         .setHighBound(20 * 60, true)
                         .build()));
-        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
+        LimitReduction limitReduction3 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8f, true);
 
-        LimitReductionDefinition definition4 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
+        LimitReduction limitReduction4 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
                 ContingencyContext.all(),
                 List.of(new EveryEquipmentCriterion(
                         new AtLeastOneCountryCriterion(List.of(Country.FR)),
@@ -67,10 +67,10 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         .setHighBound(600, false)
                         .build()));
 
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2, definition3, definition4));
+        LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2, limitReduction3, limitReduction4));
 
-        roundTripTest(definitionList, LimitReductionDefinitionListSerDeUtil::write,
-                LimitReductionDefinitionListSerDeUtil::read,
+        roundTripTest(limitReductionList, LimitReductionListSerDeUtil::write,
+                LimitReductionListSerDeUtil::read,
                 "/LimitReductions.json");
     }
 }

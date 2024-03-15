@@ -14,7 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.security.limitreduction.LimitReductionDefinition;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 
 import java.io.IOException;
@@ -24,9 +24,9 @@ import java.util.List;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
-public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitReductionDefinition> {
-    public LimitReductionDefinitionDeserializer() {
-        super(LimitReductionDefinition.class);
+public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> {
+    public LimitReductionDeserializer() {
+        super(LimitReduction.class);
     }
 
     private static class ParsingContext {
@@ -39,7 +39,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
     }
 
     @Override
-    public LimitReductionDefinition deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitReduction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (fieldName) {
@@ -76,7 +76,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
                 }
             }
         });
-        return new LimitReductionDefinition(context.limitType, context.limitReduction, context.monitoringOnly,
+        return new LimitReduction(context.limitType, context.limitReduction, context.monitoringOnly,
                 context.contingencyContext,
                 context.networkElementCriteria != null ? context.networkElementCriteria : Collections.emptyList(),
                 context.durationCriteria != null ? context.durationCriteria : Collections.emptyList());

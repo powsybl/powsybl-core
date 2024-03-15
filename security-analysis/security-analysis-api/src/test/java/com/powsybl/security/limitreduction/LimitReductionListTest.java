@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class LimitReductionDefinitionListTest {
+class LimitReductionListTest {
 
-    private static LimitReductionDefinition definition1;
-    private static LimitReductionDefinition definition2;
+    private static LimitReduction limitReduction1;
+    private static LimitReduction limitReduction2;
     private static NetworkElementCriterion networkElementCriterion1;
     private static NetworkElementCriterion networkElementCriterion2;
     private static NetworkElementCriterion networkElementCriterion3;
@@ -47,73 +47,73 @@ class LimitReductionDefinitionListTest {
                 new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null));
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
-        definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
+        limitReduction1 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
                 contingencyContext1,
                 List.of(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
                 List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion()));
-        definition2 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
+        limitReduction2 = new LimitReduction(LimitType.ACTIVE_POWER, 0.8f, true);
     }
 
     @Test
-    void limitReductionDefinitionListTest() {
-        LimitReductionDefinitionList definitionList = new LimitReductionDefinitionList(List.of(definition1, definition2));
-        assertEquals(List.of(definition1, definition2), definitionList.getLimitReductionDefinitions());
+    void limitReductionListTest() {
+        LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2));
+        assertEquals(List.of(limitReduction1, limitReduction2), limitReductionList.getLimitReductions());
     }
 
     @Test
-    void limitReductionDefinitionGetType() {
-        assertEquals(LimitType.CURRENT, definition1.getLimitType());
-        assertEquals(LimitType.ACTIVE_POWER, definition2.getLimitType());
+    void limitReductionGetType() {
+        assertEquals(LimitType.CURRENT, limitReduction1.getLimitType());
+        assertEquals(LimitType.ACTIVE_POWER, limitReduction2.getLimitType());
     }
 
     @Test
-    void limitReductionDefinitionGetValue() {
-        assertEquals(0.9f, definition1.getLimitReduction());
-        assertEquals(0.8f, definition2.getLimitReduction());
+    void limitReductionGetValue() {
+        assertEquals(0.9f, limitReduction1.getLimitReduction());
+        assertEquals(0.8f, limitReduction2.getLimitReduction());
     }
 
     @Test
-    void limitReductionDefinitionIsMonitoringOnly() {
-        assertFalse(definition1.isMonitoringOnly());
-        assertTrue(definition2.isMonitoringOnly());
+    void limitReductionIsMonitoringOnly() {
+        assertFalse(limitReduction1.isMonitoringOnly());
+        assertTrue(limitReduction2.isMonitoringOnly());
     }
 
     @Test
-    void limitReductionDefinitionGetNetworkElementCriteria() {
+    void limitReductionGetNetworkElementCriteria() {
         assertEquals(List.of(networkElementCriterion1, networkElementCriterion2,
                 networkElementCriterion3, networkElementCriterion4, networkElementCriterion5),
-                definition1.getNetworkElementCriteria());
-        assertTrue(definition2.getNetworkElementCriteria().isEmpty());
+                limitReduction1.getNetworkElementCriteria());
+        assertTrue(limitReduction2.getNetworkElementCriteria().isEmpty());
     }
 
     @Test
-    void limitReductionDefinitionGetContingencyContext() {
-        assertEquals(contingencyContext1, definition1.getContingencyContext());
-        assertEquals(ContingencyContext.all(), definition2.getContingencyContext());
+    void limitReductionGetContingencyContext() {
+        assertEquals(contingencyContext1, limitReduction1.getContingencyContext());
+        assertEquals(ContingencyContext.all(), limitReduction2.getContingencyContext());
     }
 
     @Test
-    void limitReductionDefinitionGetDurationCriteria() {
-        assertEquals(2, definition1.getDurationCriteria().size());
-        assertInstanceOf(PermanentDurationCriterion.class, definition1.getDurationCriteria().get(0));
-        assertInstanceOf(AllTemporaryDurationCriterion.class, definition1.getDurationCriteria().get(1));
-        assertTrue(definition2.getDurationCriteria().isEmpty());
+    void limitReductionGetDurationCriteria() {
+        assertEquals(2, limitReduction1.getDurationCriteria().size());
+        assertInstanceOf(PermanentDurationCriterion.class, limitReduction1.getDurationCriteria().get(0));
+        assertInstanceOf(AllTemporaryDurationCriterion.class, limitReduction1.getDurationCriteria().get(1));
+        assertTrue(limitReduction2.getDurationCriteria().isEmpty());
     }
 
     @Test
     void unsupportedLimitType() {
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.VOLTAGE, 0.9f, false));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.VOLTAGE, 0.9f, false));
         assertEquals("VOLTAGE is not a supported limit type for limit reduction", e.getMessage());
     }
 
     @Test
     void unsupportedLimitReductionValues() {
         String expectedMessage = "Limit reduction value should be in [0;1]";
-        Exception e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, -0.5f, true));
+        Exception e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, -0.5f, true));
         assertEquals(expectedMessage, e.getMessage());
 
-        e = assertThrows(PowsyblException.class, () -> new LimitReductionDefinition(LimitType.CURRENT, 1.3f, false));
+        e = assertThrows(PowsyblException.class, () -> new LimitReduction(LimitType.CURRENT, 1.3f, false));
         assertEquals(expectedMessage, e.getMessage());
     }
 }

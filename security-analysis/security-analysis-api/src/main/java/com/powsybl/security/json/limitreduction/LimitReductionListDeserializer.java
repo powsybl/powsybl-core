@@ -12,8 +12,8 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.limitreduction.LimitReductionDefinition;
-import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitreduction.LimitReductionList;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,27 +21,27 @@ import java.util.List;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitReductionDefinitionListDeserializer extends StdDeserializer<LimitReductionDefinitionList> {
-    public LimitReductionDefinitionListDeserializer() {
-        super(LimitReductionDefinitionList.class);
+public class LimitReductionListDeserializer extends StdDeserializer<LimitReductionList> {
+    public LimitReductionListDeserializer() {
+        super(LimitReductionList.class);
     }
 
     private static class ParsingContext {
         String version;
-        List<LimitReductionDefinition> limitReductionDefinitions;
+        List<LimitReduction> limitReductions;
     }
 
     @Override
-    public LimitReductionDefinitionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public LimitReductionList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
             switch (parser.getCurrentName()) {
                 case "version":
                     context.version = parser.nextTextValue();
                     return true;
-                case "limitReductionDefinitions":
+                case "limitReductions":
                     parser.nextToken(); // skip
-                    context.limitReductionDefinitions = JsonUtil.readList(deserializationContext, parser, LimitReductionDefinition.class);
+                    context.limitReductions = JsonUtil.readList(deserializationContext, parser, LimitReduction.class);
                     return true;
                 default:
                     return false;
@@ -50,6 +50,6 @@ public class LimitReductionDefinitionListDeserializer extends StdDeserializer<Li
         if (context.version == null) {
             throw new JsonMappingException(parser, "version is missing");
         }
-        return new LimitReductionDefinitionList(context.limitReductionDefinitions);
+        return new LimitReductionList(context.limitReductions);
     }
 }

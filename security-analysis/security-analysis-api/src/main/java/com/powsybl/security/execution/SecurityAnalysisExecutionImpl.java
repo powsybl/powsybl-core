@@ -61,6 +61,6 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
                 new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(),
-                data.getLimitReductionDefinitions(), ReportNode.NO_OP);
+                data.getLimitReductions(), ReportNode.NO_OP);
     }
 }

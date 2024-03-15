@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class LimitReductionDefinition {
+public class LimitReduction {
     private final LimitType limitType;
     private final float limitReduction;
     private final boolean monitoringOnly;
@@ -35,11 +35,11 @@ public class LimitReductionDefinition {
                 || limitType == LimitType.APPARENT_POWER;
     }
 
-    public LimitReductionDefinition(LimitType limitType, float limitReduction, boolean monitoringOnly) {
+    public LimitReduction(LimitType limitType, float limitReduction, boolean monitoringOnly) {
         this(limitType, limitReduction, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public LimitReductionDefinition(LimitType limitType, float limitReduction, boolean monitoringOnly,
+    public LimitReduction(LimitType limitType, float limitReduction, boolean monitoringOnly,
                                     ContingencyContext contingencyContext,
                                     List<NetworkElementCriterion> networkElementCriteria,
                                     List<LimitDurationCriterion> limitDurationCriteria) {

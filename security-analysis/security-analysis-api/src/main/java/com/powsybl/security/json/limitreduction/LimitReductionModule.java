@@ -16,19 +16,19 @@ import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.criteria.json.*;
 import com.powsybl.iidm.criteria.json.duration.*;
-import com.powsybl.security.limitreduction.LimitReductionDefinition;
-import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
+import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.limitreduction.LimitReductionList;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class LimitReductionModule extends SimpleModule {
     public LimitReductionModule() {
-        addSerializer(LimitReductionDefinitionList.class, new LimitReductionDefinitionListSerializer());
-        addSerializer(LimitReductionDefinition.class, new LimitReductionDefinitionSerializer());
+        addSerializer(LimitReductionList.class, new LimitReductionListSerializer());
+        addSerializer(LimitReduction.class, new LimitReductionSerializer());
         addSerializer(Criterion.class, new CriterionSerializer());
-        addDeserializer(LimitReductionDefinitionList.class, new LimitReductionDefinitionListDeserializer());
-        addDeserializer(LimitReductionDefinition.class, new LimitReductionDefinitionDeserializer());
+        addDeserializer(LimitReductionList.class, new LimitReductionListDeserializer());
+        addDeserializer(LimitReduction.class, new LimitReductionDeserializer());
         addDeserializer(Criterion.class, new CriterionDeserializer());
 
         registerNetworkElementCriteria();
