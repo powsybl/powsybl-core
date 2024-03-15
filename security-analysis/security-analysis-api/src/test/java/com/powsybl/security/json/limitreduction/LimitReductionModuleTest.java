@@ -21,7 +21,6 @@ import com.powsybl.security.limitreduction.LimitReductionDefinition;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        List<ContingencyContext> contingencyContexts1 = List.of(ContingencyContext.specificContingency("contingency1"), ContingencyContext.none());
+        ContingencyContext contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         List<NetworkElementCriterion> networkElementCriteria1 =
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
                         new LineCriterion(null, new SingleNominalVoltageCriterion(
@@ -41,10 +40,10 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
-                contingencyContexts1, networkElementCriteria1, durationCriteria1);
+                contingencyContext1, networkElementCriteria1, durationCriteria1);
 
         LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.APPARENT_POWER, 0.5f, false,
-                Collections.emptyList(),
+                ContingencyContext.all(),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
                 List.of(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(10 * 60, true)
@@ -53,7 +52,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.ACTIVE_POWER, 0.8f, true);
 
         LimitReductionDefinition definition4 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
-                Collections.emptyList(),
+                ContingencyContext.all(),
                 List.of(new EveryEquipmentCriterion(
                         new AtLeastOneCountryCriterion(List.of(Country.FR)),
                         new AtLeastOneNominalVoltageCriterion(

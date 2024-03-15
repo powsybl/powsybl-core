@@ -4,12 +4,10 @@
     "limitReduction" : 0.9,
     "limitType" : "CURRENT",
     "monitoringOnly" : false,
-    "contingencyContexts" : [ {
+    "contingencyContext" : {
       "contextType" : "SPECIFIC",
       "contingencyId" : "contingency1"
-    }, {
-      "contextType" : "NONE"
-    } ],
+    },
     "equipmentCriteria" : [ {
       "type" : "identifierCriterion",
       "version" : "1.0",
@@ -52,6 +50,9 @@
     "limitReduction" : 0.5,
     "limitType" : "APPARENT_POWER",
     "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    },
     "equipmentCriteria" : [ {
       "type" : "identifierCriterion",
       "version" : "1.0",
@@ -68,11 +69,17 @@
   }, {
     "limitReduction" : 0.8,
     "limitType" : "ACTIVE_POWER",
-    "monitoringOnly" : true
+    "monitoringOnly" : true,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    }
   }, {
     "limitReduction" : 0.9,
     "limitType" : "CURRENT",
     "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    },
     "equipmentCriteria" : [ {
       "type" : "everyEquipmentCriterion",
       "version" : "1.0",

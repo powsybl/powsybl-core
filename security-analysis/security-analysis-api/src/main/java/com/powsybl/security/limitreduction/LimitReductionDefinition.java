@@ -25,7 +25,7 @@ public class LimitReductionDefinition {
     private final LimitType limitType;
     private final float limitReduction;
     private final boolean monitoringOnly;
-    private final List<ContingencyContext> contingencyContexts;
+    private final ContingencyContext contingencyContext;
     private final List<NetworkElementCriterion> networkElementCriteria;
     private final List<LimitDurationCriterion> durationCriteria;
 
@@ -36,11 +36,11 @@ public class LimitReductionDefinition {
     }
 
     public LimitReductionDefinition(LimitType limitType, float limitReduction, boolean monitoringOnly) {
-        this(limitType, limitReduction, monitoringOnly, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+        this(limitType, limitReduction, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
     }
 
     public LimitReductionDefinition(LimitType limitType, float limitReduction, boolean monitoringOnly,
-                                    List<ContingencyContext> contingencyContexts,
+                                    ContingencyContext contingencyContext,
                                     List<NetworkElementCriterion> networkElementCriteria,
                                     List<LimitDurationCriterion> limitDurationCriteria) {
         if (isSupportedLimitType(limitType)) {
@@ -53,7 +53,7 @@ public class LimitReductionDefinition {
         }
         this.limitReduction = limitReduction;
         this.monitoringOnly = monitoringOnly;
-        this.contingencyContexts = ImmutableList.copyOf(Objects.requireNonNull(contingencyContexts));
+        this.contingencyContext = Objects.requireNonNull(contingencyContext);
         this.networkElementCriteria = ImmutableList.copyOf(Objects.requireNonNull(networkElementCriteria));
         this.durationCriteria = ImmutableList.copyOf(Objects.requireNonNull(limitDurationCriteria));
     }
@@ -70,8 +70,8 @@ public class LimitReductionDefinition {
         return monitoringOnly;
     }
 
-    public List<ContingencyContext> getContingencyContexts() {
-        return contingencyContexts;
+    public ContingencyContext getContingencyContext() {
+        return contingencyContext;
     }
 
     public List<NetworkElementCriterion> getNetworkElementCriteria() {

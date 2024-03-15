@@ -45,7 +45,7 @@ class LimitReductionDefinitionListTest {
 
         contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
-                List.of(contingencyContext1, ContingencyContext.none()),
+                contingencyContext1,
                 List.of(networkElementCriterion1, networkElementCriterion2,
                         networkElementCriterion3, networkElementCriterion4),
                 List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion()));
@@ -85,9 +85,9 @@ class LimitReductionDefinitionListTest {
     }
 
     @Test
-    void limitReductionDefinitionGetContingencyContexts() {
-        assertEquals(List.of(contingencyContext1, ContingencyContext.none()), definition1.getContingencyContexts());
-        assertTrue(definition2.getContingencyContexts().isEmpty());
+    void limitReductionDefinitionGetContingencyContext() {
+        assertEquals(contingencyContext1, definition1.getContingencyContext());
+        assertEquals(ContingencyContext.all(), definition2.getContingencyContext());
     }
 
     @Test

@@ -33,7 +33,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
         float limitReduction;
         LimitType limitType;
         boolean monitoringOnly;
-        List<ContingencyContext> contingencyContexts;
+        ContingencyContext contingencyContext;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
     }
@@ -56,9 +56,9 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
                     context.monitoringOnly = parser.nextBooleanValue();
                     return true;
                 }
-                case "contingencyContexts" -> {
+                case "contingencyContext" -> {
                     parser.nextToken();
-                    context.contingencyContexts = JsonUtil.readList(deserializationContext, parser, ContingencyContext.class);
+                    context.contingencyContext = JsonUtil.readValue(deserializationContext, parser, ContingencyContext.class);
                     return true;
                 }
                 case "equipmentCriteria" -> {
@@ -77,7 +77,7 @@ public class LimitReductionDefinitionDeserializer extends StdDeserializer<LimitR
             }
         });
         return new LimitReductionDefinition(context.limitType, context.limitReduction, context.monitoringOnly,
-                context.contingencyContexts != null ? context.contingencyContexts : Collections.emptyList(),
+                context.contingencyContext,
                 context.networkElementCriteria != null ? context.networkElementCriteria : Collections.emptyList(),
                 context.durationCriteria != null ? context.durationCriteria : Collections.emptyList());
     }
