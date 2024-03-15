@@ -16,8 +16,8 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.LimitType;
-import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
 import com.powsybl.security.limitreduction.LimitReductionDefinition;
+import com.powsybl.security.limitreduction.LimitReductionDefinitionList;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -34,10 +34,14 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         ContingencyContext contingencyContext1 = ContingencyContext.specificContingency("contingency1");
         List<NetworkElementCriterion> networkElementCriteria1 =
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
-                        new LineCriterion(null, new TwoNominalVoltageCriterion(
+                        new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR)), new TwoNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
                         new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
-                        new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null));
+                        new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
+                        new TieLineCriterion(null, new TwoNominalVoltageCriterion(
+                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
+                        new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
+                                new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
                 contingencyContext1, networkElementCriteria1, durationCriteria1);
