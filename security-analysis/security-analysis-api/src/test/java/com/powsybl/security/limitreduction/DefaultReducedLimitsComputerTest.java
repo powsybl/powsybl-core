@@ -42,19 +42,19 @@ class DefaultReducedLimitsComputerTest {
     static void init() {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
-        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f,
+        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 0.9f, false,
                 List.of(ContingencyContext.specificContingency("contingency1")),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 List.of(new PermanentDurationCriterion()));
-        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.CURRENT, 0.5f,
+        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.CURRENT, 0.5f, false,
                 Collections.emptyList(),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
                 Collections.emptyList());
-        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.CURRENT, 0.1f,
+        LimitReductionDefinition definition3 = new LimitReductionDefinition(LimitType.CURRENT, 0.1f, false,
                 List.of(ContingencyContext.specificContingency("contingency3")),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
                 Collections.emptyList());
-        LimitReductionDefinition definition4 = new LimitReductionDefinition(LimitType.CURRENT, 0.75f,
+        LimitReductionDefinition definition4 = new LimitReductionDefinition(LimitType.CURRENT, 0.75f, false,
                 List.of(ContingencyContext.specificContingency("contingency4")),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 List.of(new EqualityTemporaryDurationCriterion(60)));
@@ -193,11 +193,11 @@ class DefaultReducedLimitsComputerTest {
 
     static Stream<Arguments> getNoChangesComputers() {
         DefaultReducedLimitsComputer noDefComputer = new DefaultReducedLimitsComputer(new LimitReductionDefinitionList(Collections.emptyList()));
-        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 1.f,
+        LimitReductionDefinition definition1 = new LimitReductionDefinition(LimitType.CURRENT, 1.f, false,
                 List.of(ContingencyContext.all()),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 Collections.emptyList());
-        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.CURRENT, 1.f,
+        LimitReductionDefinition definition2 = new LimitReductionDefinition(LimitType.CURRENT, 1.f, false,
                 List.of(ContingencyContext.all()),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 Collections.emptyList());
