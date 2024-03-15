@@ -20,6 +20,7 @@ import java.util.OptionalInt;
  *     <li>{@link #BRANCH_REACTIVE_POWER_1} and {@link #BRANCH_REACTIVE_POWER_2} if you want to monitor the reactive power in MVar of a network branch (lines,
  * two windings transformer, dangling lines, etc.). Use 1 for side 1 and use 2 for side 2. In case of a three windings transformer,
  * use {@link #BRANCH_REACTIVE_POWER_3} to monitor the reactive power in MVar of the leg 3 (network side).</li>
+ *     <li>{@link #BUS_REACTIVE_POWER} if you want to monitor the reactive power injection in MVar of a specific network bus</li>
  *     <li>{@link #BUS_VOLTAGE} if you want to monitor the voltage in KV of a specific network bus.</li>
  * </ul>
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -44,6 +45,8 @@ public enum SensitivityFunctionType {
     BRANCH_CURRENT_3(3),
     /** in MVar */
     BRANCH_REACTIVE_POWER_3(3),
+    /** In MVar */
+    BUS_REACTIVE_POWER,
     /** in kV */
     BUS_VOLTAGE;
 
