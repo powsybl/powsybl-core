@@ -48,13 +48,13 @@ class DefaultNetworkElementAdapterTest {
 
         DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(line);
         assertEquals("testLine", networkElement.getId());
-        assertEquals(Country.FR, networkElement.getCountry());
-        assertEquals(Country.FR, networkElement.getCountry1());
-        assertEquals(Country.DE, networkElement.getCountry2());
-        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
-        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
-        assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
-        assertNull(networkElement.getNominalVoltage3());
+        assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
+        assertEquals(Country.FR, networkElement.getCountry1().orElseThrow());
+        assertEquals(Country.DE, networkElement.getCountry2().orElseThrow());
+        assertEquals(225., networkElement.getNominalVoltage().orElseThrow(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1().orElseThrow(), 0.01);
+        assertEquals(226., networkElement.getNominalVoltage2().orElseThrow(), 0.01);
+        assertTrue(networkElement.getNominalVoltage3().isEmpty());
 
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
@@ -93,13 +93,13 @@ class DefaultNetworkElementAdapterTest {
 
         DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(tieLine);
         assertEquals("testTieLine", networkElement.getId());
-        assertEquals(Country.FR, networkElement.getCountry());
-        assertEquals(Country.FR, networkElement.getCountry1());
-        assertEquals(Country.DE, networkElement.getCountry2());
-        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
-        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
-        assertEquals(226., networkElement.getNominalVoltage2(), 0.01);
-        assertNull(networkElement.getNominalVoltage3());
+        assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
+        assertEquals(Country.FR, networkElement.getCountry1().orElseThrow());
+        assertEquals(Country.DE, networkElement.getCountry2().orElseThrow());
+        assertEquals(225., networkElement.getNominalVoltage().orElseThrow(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1().orElseThrow(), 0.01);
+        assertEquals(226., networkElement.getNominalVoltage2().orElseThrow(), 0.01);
+        assertTrue(networkElement.getNominalVoltage3().isEmpty());
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
@@ -130,13 +130,13 @@ class DefaultNetworkElementAdapterTest {
 
         DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(danglingLine);
         assertEquals("testDanglingLine", networkElement.getId());
-        assertEquals(Country.FR, networkElement.getCountry());
-        assertEquals(Country.FR, networkElement.getCountry1());
-        assertNull(networkElement.getCountry2());
-        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
-        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
-        assertNull(networkElement.getNominalVoltage2());
-        assertNull(networkElement.getNominalVoltage3());
+        assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
+        assertEquals(Country.FR, networkElement.getCountry1().orElseThrow());
+        assertTrue(networkElement.getCountry2().isEmpty());
+        assertEquals(225., networkElement.getNominalVoltage().orElseThrow(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1().orElseThrow(), 0.01);
+        assertTrue(networkElement.getNominalVoltage2().isEmpty());
+        assertTrue(networkElement.getNominalVoltage3().isEmpty());
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
@@ -174,11 +174,11 @@ class DefaultNetworkElementAdapterTest {
 
         DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(twt);
         assertEquals("testTwoWindingsTransformer", networkElement.getId());
-        assertEquals(Country.FR, networkElement.getCountry());
-        assertEquals(225., networkElement.getNominalVoltage(), 0.01);
-        assertEquals(225., networkElement.getNominalVoltage1(), 0.01);
-        assertEquals(90., networkElement.getNominalVoltage2(), 0.01);
-        assertNull(networkElement.getNominalVoltage3());
+        assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
+        assertEquals(225., networkElement.getNominalVoltage().orElseThrow(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage1().orElseThrow(), 0.01);
+        assertEquals(90., networkElement.getNominalVoltage2().orElseThrow(), 0.01);
+        assertTrue(networkElement.getNominalVoltage3().isEmpty());
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));
@@ -222,11 +222,11 @@ class DefaultNetworkElementAdapterTest {
 
         DefaultNetworkElementAdapter networkElement = new DefaultNetworkElementAdapter(twt);
         assertEquals("testThreeWindingsTransformer", networkElement.getId());
-        assertEquals(Country.FR, networkElement.getCountry());
-        assertEquals(400., networkElement.getNominalVoltage(), 0.01);
-        assertEquals(400., networkElement.getNominalVoltage1(), 0.01);
-        assertEquals(225., networkElement.getNominalVoltage2(), 0.01);
-        assertEquals(90., networkElement.getNominalVoltage3(), 0.01);
+        assertEquals(Country.FR, networkElement.getCountry().orElseThrow());
+        assertEquals(400., networkElement.getNominalVoltage().orElseThrow(), 0.01);
+        assertEquals(400., networkElement.getNominalVoltage1().orElseThrow(), 0.01);
+        assertEquals(225., networkElement.getNominalVoltage2().orElseThrow(), 0.01);
+        assertEquals(90., networkElement.getNominalVoltage3().orElseThrow(), 0.01);
 
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TIE_LINE));

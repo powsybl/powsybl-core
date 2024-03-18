@@ -57,7 +57,9 @@ public class AtLeastOneNominalVoltageCriterion implements Criterion {
     }
 
     private List<Double> getNominalVoltagesToCheck(NetworkElement networkElement) {
-        return Arrays.asList(networkElement.getNominalVoltage1(), networkElement.getNominalVoltage2(), networkElement.getNominalVoltage3());
+        return Arrays.asList(networkElement.getNominalVoltage1().orElse(null),
+                networkElement.getNominalVoltage2().orElse(null),
+                networkElement.getNominalVoltage3().orElse(null));
     }
 
     private boolean filterNominalVoltages(List<Double> nominalVoltagesToCheck) {

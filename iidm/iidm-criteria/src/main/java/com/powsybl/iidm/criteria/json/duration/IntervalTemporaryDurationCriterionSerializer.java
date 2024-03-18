@@ -28,12 +28,12 @@ public class IntervalTemporaryDurationCriterionSerializer extends StdSerializer<
     public void serialize(IntervalTemporaryDurationCriterion criterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         LimitDurationCriterionSerDeUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
-        if (criterion.getLowBound() != null) {
-            jsonGenerator.writeNumberField("lowBound", criterion.getLowBound());
+        if (criterion.getLowBound().isPresent()) {
+            jsonGenerator.writeNumberField("lowBound", criterion.getLowBound().get());
             jsonGenerator.writeBooleanField("lowClosed", criterion.isLowClosed());
         }
-        if (criterion.getHighBound() != null) {
-            jsonGenerator.writeNumberField("highBound", criterion.getHighBound());
+        if (criterion.getHighBound().isPresent()) {
+            jsonGenerator.writeNumberField("highBound", criterion.getHighBound().get());
             jsonGenerator.writeBooleanField("highClosed", criterion.isHighClosed());
         }
         jsonGenerator.writeEndObject();

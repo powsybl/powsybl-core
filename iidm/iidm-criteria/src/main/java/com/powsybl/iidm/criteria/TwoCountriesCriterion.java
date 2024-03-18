@@ -56,8 +56,8 @@ public class TwoCountriesCriterion implements Criterion {
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        Country countrySide1 = networkElement.getCountry1();
-        Country countrySide2 = networkElement.getCountry2();
+        Country countrySide1 = networkElement.getCountry1().orElse(null);
+        Country countrySide2 = networkElement.getCountry2().orElse(null);
         return filterWithCountries(countrySide1, countrySide2);
     }
 

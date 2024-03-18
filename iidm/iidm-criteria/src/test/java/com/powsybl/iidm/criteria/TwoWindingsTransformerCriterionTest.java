@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -89,12 +90,12 @@ public class TwoWindingsTransformerCriterionTest {
     protected static NetworkElement createTwoWindingsTransformer(String id, Country country, double nominalVoltage1, double nominalVoltage2) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
-        when(n.getCountry()).thenReturn(country);
-        when(n.getCountry1()).thenReturn(country);
-        when(n.getCountry2()).thenReturn(null);
-        when(n.getNominalVoltage1()).thenReturn(nominalVoltage1);
-        when(n.getNominalVoltage2()).thenReturn(nominalVoltage2);
-        when(n.getNominalVoltage3()).thenReturn(null);
+        when(n.getCountry()).thenReturn(Optional.of(country));
+        when(n.getCountry1()).thenReturn(Optional.of(country));
+        when(n.getCountry2()).thenReturn(Optional.empty());
+        when(n.getNominalVoltage1()).thenReturn(Optional.of(nominalVoltage1));
+        when(n.getNominalVoltage2()).thenReturn(Optional.of(nominalVoltage2));
+        when(n.getNominalVoltage3()).thenReturn(Optional.empty());
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER)).thenReturn(true);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;

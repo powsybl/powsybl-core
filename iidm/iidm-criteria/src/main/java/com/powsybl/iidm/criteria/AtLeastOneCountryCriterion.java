@@ -57,7 +57,7 @@ public class AtLeastOneCountryCriterion implements Criterion {
     }
 
     private List<Country> getCountriesToCheck(NetworkElement networkElement) {
-        return Arrays.asList(networkElement.getCountry1(), networkElement.getCountry2());
+        return Arrays.asList(networkElement.getCountry1().orElse(null), networkElement.getCountry2().orElse(null));
     }
 
     private boolean filterWithCountries(List<Country> countriesToCheck) {

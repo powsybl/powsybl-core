@@ -46,67 +46,73 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
     }
 
     @Override
-    public Country getCountry1() {
+    public Optional<Country> getCountry1() {
         return getCountry(TwoSides.ONE);
     }
 
     @Override
-    public Country getCountry2() {
+    public Optional<Country> getCountry2() {
         return getCountry(TwoSides.TWO);
     }
 
     @Override
-    public Country getCountry() {
+    public Optional<Country> getCountry() {
         return getCountry1();
     }
 
-    private Country getCountry(TwoSides side) {
+    private Optional<Country> getCountry(TwoSides side) {
         return switch (identifiable.getType()) {
             case LINE, TIE_LINE -> getCountryFromTerminal(((Branch<?>) identifiable).getTerminal(side));
             case HVDC_LINE -> getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side).getTerminal());
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != TwoSides.ONE ? null : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
-            case TWO_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? null :
-                ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry).orElse(null);
-            case THREE_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? null :
-                ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry).orElse(null);
-            default -> null;
+                    side != TwoSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
+            case TWO_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? Optional.empty() :
+                ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
+            case THREE_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? Optional.empty() :
+                ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
+            default -> Optional.empty();
         };
     }
 
-    private Country getCountryFromTerminal(Terminal terminal) {
+    private Optional<Country> getCountryFromTerminal(Terminal terminal) {
         Optional<Substation> substation = terminal.getVoltageLevel().getSubstation();
-        return substation.map(Substation::getNullableCountry).orElse(null);
+        return substation.map(Substation::getNullableCountry);
     }
 
     @Override
-    public Double getNominalVoltage1() {
+    public Optional<Double> getNominalVoltage1() {
         return getNominalVoltage(ThreeSides.ONE);
     }
 
     @Override
-    public Double getNominalVoltage2() {
+    public Optional<Double> getNominalVoltage2() {
         return getNominalVoltage(ThreeSides.TWO);
     }
 
     @Override
-    public Double getNominalVoltage3() {
+    public Optional<Double> getNominalVoltage3() {
         return getNominalVoltage(ThreeSides.THREE);
     }
 
     @Override
-    public Double getNominalVoltage() {
+    public Optional<Double> getNominalVoltage() {
         return getNominalVoltage1();
     }
 
-    private Double getNominalVoltage(ThreeSides side) {
+    private Optional<Double> getNominalVoltage(ThreeSides side) {
         return switch (identifiable.getType()) {
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != ThreeSides.ONE ? null : ((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV();
-            case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER -> side == ThreeSides.THREE ? null : ((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV();
-            case HVDC_LINE -> side == ThreeSides.THREE ? null : ((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV();
-            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV();
-            default -> null;
+                    side != ThreeSides.ONE ? Optional.empty() :
+                            Optional.of(((Injection<?>) identifiable).getTerminal().getVoltageLevel().getNominalV());
+            case LINE, TIE_LINE, TWO_WINDINGS_TRANSFORMER ->
+                    side == ThreeSides.THREE ? Optional.empty() :
+                            Optional.of(((Branch<?>) identifiable).getTerminal(side.toTwoSides()).getVoltageLevel().getNominalV());
+            case HVDC_LINE ->
+                    side == ThreeSides.THREE ? Optional.empty() :
+                            Optional.of(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal().getVoltageLevel().getNominalV());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    Optional.of(((ThreeWindingsTransformer) identifiable).getTerminal(side).getVoltageLevel().getNominalV());
+            default -> Optional.empty();
         };
     }
 

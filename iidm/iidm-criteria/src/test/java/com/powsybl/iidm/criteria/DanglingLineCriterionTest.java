@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -93,13 +94,13 @@ public class DanglingLineCriterionTest {
     protected static NetworkElement createDanglingLine(String id, Country country, double nominalVoltage) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
-        when(n.getCountry()).thenReturn(country);
-        when(n.getCountry1()).thenReturn(country);
-        when(n.getCountry2()).thenReturn(null);
-        when(n.getNominalVoltage()).thenReturn(nominalVoltage);
-        when(n.getNominalVoltage1()).thenReturn(nominalVoltage);
-        when(n.getNominalVoltage2()).thenReturn(null);
-        when(n.getNominalVoltage3()).thenReturn(null);
+        when(n.getCountry()).thenReturn(Optional.of(country));
+        when(n.getCountry1()).thenReturn(Optional.of(country));
+        when(n.getCountry2()).thenReturn(Optional.empty());
+        when(n.getNominalVoltage()).thenReturn(Optional.of(nominalVoltage));
+        when(n.getNominalVoltage1()).thenReturn(Optional.of(nominalVoltage));
+        when(n.getNominalVoltage2()).thenReturn(Optional.empty());
+        when(n.getNominalVoltage3()).thenReturn(Optional.empty());
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.DANGLING_LINE)).thenReturn(true);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;

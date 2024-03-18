@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -37,8 +38,8 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        Double nominalVoltage = networkElement.getNominalVoltage();
-        return nominalVoltage != null && filterNominalVoltage(nominalVoltage);
+        Optional<Double> nominalVoltage = networkElement.getNominalVoltage();
+        return nominalVoltage.isPresent() && filterNominalVoltage(nominalVoltage.get());
     }
 
     protected static Double getNominalVoltage(Identifiable<?> identifiable, IdentifiableType type) {

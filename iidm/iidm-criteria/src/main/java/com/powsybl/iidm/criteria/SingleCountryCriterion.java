@@ -39,7 +39,7 @@ public class SingleCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        return filterWithCountry(networkElement.getCountry());
+        return filterWithCountry(networkElement.getCountry().orElse(null));
     }
 
     public List<Country> getCountries() {

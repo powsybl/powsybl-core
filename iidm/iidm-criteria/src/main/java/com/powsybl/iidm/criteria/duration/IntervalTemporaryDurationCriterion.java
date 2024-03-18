@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.criteria.duration;
 
+import java.util.Optional;
+
 /**
  * Criterion used to filter temporary limits which acceptable durations are inside a given interval (in seconds).
  *
@@ -111,18 +113,18 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
 
     /**
      * Get the lower bound (in seconds) of the interval.
-     * @return lower bound of the acceptable interval (in seconds), or <code>null</code> if the interval has no lower bound.
+     * @return lower bound of the acceptable interval (in seconds), or <code>Optional.empty()</code> if the interval has no lower bound.
      */
-    public Integer getLowBound() {
-        return lowBound;
+    public Optional<Integer> getLowBound() {
+        return Optional.ofNullable(lowBound);
     }
 
     /**
      * Get the upper bound (in seconds) of the interval.
-     * @return upper bound of the acceptable interval (in seconds), or <code>null</code> if the interval has no upper bound.
+     * @return upper bound of the acceptable interval (in seconds), or <code>Optional.empty()</code> if the interval has no upper bound.
      */
-    public Integer getHighBound() {
-        return highBound;
+    public Optional<Integer> getHighBound() {
+        return Optional.ofNullable(highBound);
     }
 
     /**

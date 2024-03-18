@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
@@ -92,13 +93,13 @@ public class TieLineCriterionTest {
     protected static NetworkElement createTieLine(String id, Country country1, Country country2, double nominalVoltage) {
         NetworkElement n = Mockito.mock(NetworkElement.class);
         when(n.getId()).thenReturn(id);
-        when(n.getCountry()).thenReturn(country1);
-        when(n.getCountry1()).thenReturn(country1);
-        when(n.getCountry2()).thenReturn(country2);
-        when(n.getNominalVoltage()).thenReturn(nominalVoltage);
-        when(n.getNominalVoltage1()).thenReturn(nominalVoltage);
-        when(n.getNominalVoltage2()).thenReturn(null);
-        when(n.getNominalVoltage3()).thenReturn(null);
+        when(n.getCountry()).thenReturn(Optional.of(country1));
+        when(n.getCountry1()).thenReturn(Optional.of(country1));
+        when(n.getCountry2()).thenReturn(Optional.of(country2));
+        when(n.getNominalVoltage()).thenReturn(Optional.of(nominalVoltage));
+        when(n.getNominalVoltage1()).thenReturn(Optional.of(nominalVoltage));
+        when(n.getNominalVoltage2()).thenReturn(Optional.empty());
+        when(n.getNominalVoltage3()).thenReturn(Optional.empty());
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TIE_LINE)).thenReturn(true);
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
         return n;

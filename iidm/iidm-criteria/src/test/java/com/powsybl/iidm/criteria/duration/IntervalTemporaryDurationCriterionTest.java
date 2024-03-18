@@ -37,9 +37,9 @@ class IntervalTemporaryDurationCriterionTest {
                 .setLowBound(20, false)
                 .build();
         assertAll(
-                () -> assertEquals(20, criterion.getLowBound()),
+                () -> assertEquals(20, criterion.getLowBound().orElseThrow()),
                 () -> assertFalse(criterion.isLowClosed()),
-                () -> assertNull(criterion.getHighBound()),
+                () -> assertTrue(criterion.getHighBound().isEmpty()),
                 () -> assertFalse(criterion.isHighClosed())
         );
         assertFalse(criterion.filter(10));
@@ -53,7 +53,7 @@ class IntervalTemporaryDurationCriterionTest {
                 .setLowBound(30, true)
                 .build();
         assertAll(
-                () -> assertEquals(30, criterion.getLowBound()),
+                () -> assertEquals(30, criterion.getLowBound().orElseThrow()),
                 () -> assertTrue(criterion.isLowClosed())
         );
         assertFalse(criterion.filter(20));
@@ -67,9 +67,9 @@ class IntervalTemporaryDurationCriterionTest {
                 .setHighBound(200, false)
                 .build();
         assertAll(
-                () -> assertNull(criterion.getLowBound()),
+                () -> assertTrue(criterion.getLowBound().isEmpty()),
                 () -> assertFalse(criterion.isLowClosed()),
-                () -> assertEquals(200, criterion.getHighBound()),
+                () -> assertEquals(200, criterion.getHighBound().orElseThrow()),
                 () -> assertFalse(criterion.isHighClosed())
         );
         assertFalse(criterion.filter(300));
@@ -83,7 +83,7 @@ class IntervalTemporaryDurationCriterionTest {
                 .setHighBound(300, true)
                 .build();
         assertAll(
-                () -> assertEquals(300, criterion.getHighBound()),
+                () -> assertEquals(300, criterion.getHighBound().orElseThrow()),
                 () -> assertTrue(criterion.isHighClosed())
         );
         assertFalse(criterion.filter(500));
@@ -98,9 +98,9 @@ class IntervalTemporaryDurationCriterionTest {
                 .setHighBound(300, true)
                 .build();
         assertAll(
-                () -> assertEquals(20, criterion.getLowBound()),
+                () -> assertEquals(20, criterion.getLowBound().orElseThrow()),
                 () -> assertTrue(criterion.isLowClosed()),
-                () -> assertEquals(300, criterion.getHighBound()),
+                () -> assertEquals(300, criterion.getHighBound().orElseThrow()),
                 () -> assertTrue(criterion.isHighClosed())
         );
         assertFalse(criterion.filter(10));

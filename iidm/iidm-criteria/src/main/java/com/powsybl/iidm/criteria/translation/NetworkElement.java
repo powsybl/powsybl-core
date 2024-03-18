@@ -10,6 +10,8 @@ package com.powsybl.iidm.criteria.translation;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
 import com.powsybl.iidm.network.Country;
 
+import java.util.Optional;
+
 /**
  * <p>Interface that should implement objects representing network elements in order for them to be processable by
  * the {@link NetworkElementCriterion} inheriting criterion classes.</p>
@@ -19,19 +21,19 @@ public interface NetworkElement {
 
     String getId();
 
-    Country getCountry1();
+    Optional<Country> getCountry1();
 
-    Country getCountry2();
+    Optional<Country> getCountry2();
 
-    Country getCountry();
+    Optional<Country> getCountry();
 
-    Double getNominalVoltage1();
+    Optional<Double> getNominalVoltage1();
 
-    Double getNominalVoltage2();
+    Optional<Double> getNominalVoltage2();
 
-    Double getNominalVoltage3();
+    Optional<Double> getNominalVoltage3();
 
-    Double getNominalVoltage();
+    Optional<Double> getNominalVoltage();
 
     boolean isValidFor(NetworkElementCriterion.NetworkElementCriterionType networkElementCriterionType);
 }
