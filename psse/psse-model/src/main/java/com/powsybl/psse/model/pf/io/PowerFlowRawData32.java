@@ -10,6 +10,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
@@ -31,7 +32,9 @@ public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
 
     @Override
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext), StandardCharsets.UTF_8))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext), StandardCharsets.UTF_8))) {
+
+            LegacyTextReader reader = new LegacyTextReader(bReader);
 
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             caseIdentification.validate();

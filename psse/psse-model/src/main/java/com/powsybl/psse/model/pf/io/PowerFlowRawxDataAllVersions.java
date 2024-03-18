@@ -13,6 +13,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
@@ -34,9 +35,10 @@ public class PowerFlowRawxDataAllVersions implements PowerFlowData {
 
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
             Context context = new Context();
             context.setFileFormat(JSON);
+            LegacyTextReader reader = new LegacyTextReader(bReader);
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             caseIdentification.validate();
             return true;
@@ -45,9 +47,10 @@ public class PowerFlowRawxDataAllVersions implements PowerFlowData {
 
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
             Context context = new Context();
             context.setFileFormat(JSON);
+            LegacyTextReader reader = new LegacyTextReader(bReader);
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             return PsseVersion.fromRevision(caseIdentification.getRev());
         }

@@ -6,14 +6,10 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -55,16 +51,16 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
         }
 
         @Override
-        public List<PsseTwoTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseTwoTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
-            if (!isQRecordFound()) {
-                String line = readRecordLine(reader);
-                while (!endOfBlock(line)) {
+            if (!reader.isQRecordFound()) {
+                String line = reader.readRecordLine();
+                while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
-                    converterRecords.add(readRecordLine(reader));
-                    converterRecords.add(readRecordLine(reader));
-                    line = readRecordLine(reader);
+                    converterRecords.add(reader.readRecordLine());
+                    converterRecords.add(reader.readRecordLine());
+                    line = reader.readRecordLine();
                 }
             }
 

@@ -14,7 +14,6 @@ import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         }
 
         @Override
-        public List<PsseTransformerImpedanceCorrection> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
             List<ZCorr33> list33 = new ZCorr33Data().read(reader, context);
             return convertToImpedanceCorrectionList(list33);
         }
@@ -370,8 +369,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         }
 
         @Override
-        public List<PsseTransformerImpedanceCorrection> read(BufferedReader reader, Context context) throws IOException {
-            List<String> records = readRecords(reader);
+        public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
+            List<String> records = reader.readRecords();
 
             ZCorr35FirstData record1Data = new ZCorr35FirstData();
             ZCorr35PointsData record2Data = new ZCorr35PointsData();
@@ -744,7 +743,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
         }
 
         @Override
-        public List<PsseTransformerImpedanceCorrection> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseTransformerImpedanceCorrection> read(LegacyTextReader reader, Context context) throws IOException {
             if (reader != null) {
                 throw new PsseException("Unexpected reader. Should be null");
             }

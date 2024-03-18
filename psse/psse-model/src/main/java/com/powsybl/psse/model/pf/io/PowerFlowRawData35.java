@@ -10,6 +10,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -33,20 +34,22 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
 
     @Override
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext), StandardCharsets.UTF_8))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext), StandardCharsets.UTF_8))) {
+
+            LegacyTextReader reader = new LegacyTextReader(bReader);
 
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             caseIdentification.validate();
             PssePowerFlowModel model = new PssePowerFlowModel(caseIdentification);
 
-            skip(SYSTEM_WIDE, reader);
+            reader.skip(SYSTEM_WIDE);
             model.addBuses(new BusData().read(reader, context));
             model.addLoads(new LoadData().read(reader, context));
             model.addFixedShunts(new FixedBusShuntData().read(reader, context));
             model.addGenerators(new GeneratorData().read(reader, context));
             model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
 
-            skip(SYSTEM_SWITCHING_DEVICE, reader);
+            reader.skip(SYSTEM_SWITCHING_DEVICE);
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
 
@@ -63,7 +66,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
             model.addGneDevice(new GneDeviceData().read(reader, context));
             model.addInductionMachines(new InductionMachineData().read(reader, context));
-            skip(SUBSTATION, reader);
+            reader.skip(SUBSTATION);
 
             return model;
         }
