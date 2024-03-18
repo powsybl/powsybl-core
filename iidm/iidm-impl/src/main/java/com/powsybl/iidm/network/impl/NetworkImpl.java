@@ -1045,6 +1045,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         SubnetworkImpl sn = new SubnetworkImpl(
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
+        transferProperties(original, sn);
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }
