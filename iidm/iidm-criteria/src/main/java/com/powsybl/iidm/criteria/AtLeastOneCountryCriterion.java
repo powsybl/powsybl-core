@@ -17,8 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>Criterion checking that one of the countries of the network element, <b>on whichever side</b>,
- * is among a defined list of countries.</p>
+ * <p>Criterion checking that at least one side of a network element belongs to a country defined in a list.</p>
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
 public class AtLeastOneCountryCriterion implements Criterion {

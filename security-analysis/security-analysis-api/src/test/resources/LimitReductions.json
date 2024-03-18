@@ -110,7 +110,7 @@
       "contextType" : "ALL"
     },
     "equipmentCriteria" : [ {
-      "type" : "everyEquipmentCriterion",
+      "type" : "identifiableCriterion",
       "version" : "1.0",
       "countryCriterion" : {
         "type" : "AT_LEAST_ONE_COUNTRY",
