@@ -15,6 +15,7 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -254,5 +255,61 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         var network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
 
         exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
+    }
+
+    @Test
+    void testBusesToBeExported() throws IOException {
+        Network network = createThreeComponentsConnectedByHvdcLinesNetwork();
+        exportToMatAndCompareTo(network, "/threeComponentsConnectedByHvdcLines.json");
+    }
+
+    private static Network createThreeComponentsConnectedByHvdcLinesNetwork() {
+        Network network = Network.create("threeComponentsConnectedByHvdcLines", "iidm");
+
+        // Component 1
+        VoltageLevel vl11 = network.newSubstation().setId("S11").add()
+                .newVoltageLevel().setId("VL11").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl11.getBusBreakerView().newBus().setId("BUS-11").add();
+
+        VoltageLevel vl12 = network.newSubstation().setId("S12").add()
+                .newVoltageLevel().setId("VL12").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl12.getBusBreakerView().newBus().setId("BUS-12").add();
+
+        // Component 2
+        VoltageLevel vl21 = network.newSubstation().setId("S21").add()
+                .newVoltageLevel().setId("VL21").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl21.getBusBreakerView().newBus().setId("BUS-21").add();
+
+        VoltageLevel vl22 = network.newSubstation().setId("S22").add()
+                .newVoltageLevel().setId("VL22").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl22.getBusBreakerView().newBus().setId("BUS-22").add();
+
+        // Component 3
+        VoltageLevel vl31 = network.newSubstation().setId("S31").add()
+                .newVoltageLevel().setId("VL31").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl31.getBusBreakerView().newBus().setId("BUS-31").add();
+
+        VoltageLevel vl32 = network.newSubstation().setId("S32").add()
+                .newVoltageLevel().setId("VL32").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl32.getBusBreakerView().newBus().setId("BUS-32").add();
+
+        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setTargetQ(8.0).setMinP(0.0).setMaxP(15.0).setVoltageRegulatorOn(false).add();
+        SlackTerminal.attach(network.getBusBreakerView().getBus("BUS-11"));
+        vl22.newLoad().setId("LOAD-22").setBus("BUS-22").setP0(5.0).setQ0(4.0).add();
+        vl32.newLoad().setId("LOAD-32").setBus("BUS-32").setP0(5.0).setQ0(4.0).add();
+
+        network.newLine().setId("LINE-11-12").setBus1("BUS-11").setBus2("BUS-12").setR(0.0).setX(0.001).add();
+        network.newLine().setId("LINE-21-22").setBus1("BUS-21").setBus2("BUS-22").setR(0.0).setX(0.001).add();
+        network.newLine().setId("LINE-31-32").setBus1("BUS-31").setBus2("BUS-32").setR(0.0).setX(0.001).add();
+
+        vl12.newLccConverterStation().setId("LCC-12").setBus("BUS-12").setPowerFactor(0.90f).setLossFactor(0.0f).add();
+        vl21.newLccConverterStation().setId("LCC-21").setBus("BUS-21").setPowerFactor(0.90f).setLossFactor(0.0f).add();
+        network.newHvdcLine().setId("HVDCLINE-12-21").setConverterStationId1("LCC-12").setConverterStationId2("LCC-21").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+
+        vl12.newVscConverterStation().setId("VSC-12").setBus("BUS-12").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageRegulatorOn(false).add();
+        vl31.newVscConverterStation().setId("VSC-31").setBus("BUS-31").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageRegulatorOn(false).add();
+        network.newHvdcLine().setId("HVDCLINE-12-31").setConverterStationId1("VSC-12").setConverterStationId2("VSC-31").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+
+        return network;
     }
 }
