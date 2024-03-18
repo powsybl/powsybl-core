@@ -126,7 +126,7 @@ class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
                 Starting pre-contingency analysis
                     Round 0
                         Violations:
-                """));
+                """.replaceAll("\n", System.lineSeparator())));
         assertTrue(out.contains("""
                         Rule 'rule1' evaluated to TRUE
                         Applying action 'action1'
@@ -136,14 +136,14 @@ class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
                 Starting post-contingency 'contingency1' analysis
                     Round 0
                         Violations:
-                """));
+                """.replaceAll("\n", System.lineSeparator())));
         assertTrue(out.contains("""
                         Rule 'rule1' evaluated to FALSE
                         Rule 'rule2' evaluated to TRUE
                         Applying action 'action2'
                     Round 1
                         No more violation
-                """));
+                """.replaceAll("\n", System.lineSeparator())));
         assertEquals("", berr.toString());
     }
 
