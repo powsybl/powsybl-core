@@ -26,7 +26,7 @@ import java.io.InputStreamReader;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractLoadFlowRulesEngineTest {
+public abstract class AbstractLoadFlowRulesEngineTest {
 
     protected Network network;
 

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-interface EurostagTutorialExample1WithTemporaryLimitFactory {
+public interface EurostagTutorialExample1WithTemporaryLimitFactory {
 
     static Network create() {
         Network network = EurostagTutorialExample1Factory.create();
