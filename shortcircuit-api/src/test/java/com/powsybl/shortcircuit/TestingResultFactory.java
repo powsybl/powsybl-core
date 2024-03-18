@@ -43,7 +43,7 @@ public final class TestingResultFactory {
     public static FortescueFaultResult createFaultResult(String faultId, LimitViolationType limitType, float limit, float value) {
         Fault fault = new BusFault(faultId, "BusId", 0.0, 0.0);
         List<LimitViolation> limitViolations = new ArrayList<>();
-        float limitReductionValue = 1;
+        double limitReductionValue = 1;
         LimitViolation limitViolation1 = new LimitViolation("VLGEN", limitType, limit, limitReductionValue, value);
         limitViolations.add(limitViolation1);
         LimitViolation limitViolation2 = new LimitViolation("VLGEN", limitType, limit, limitReductionValue, value);
@@ -57,7 +57,7 @@ public final class TestingResultFactory {
         String subjectId = "id";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReductionValue = 1;
+        double limitReductionValue = 1;
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReductionValue, value);
         limitViolations.add(limitViolation);
@@ -75,7 +75,7 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReductionValue = 1;
+        double limitReductionValue = 1;
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReductionValue, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
@@ -98,7 +98,7 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReductionValue = 1;
+        double limitReductionValue = 1;
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReductionValue, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
@@ -119,7 +119,7 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReductionValue = 1;
+        double limitReductionValue = 1;
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReductionValue, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());
@@ -144,7 +144,7 @@ public final class TestingResultFactory {
         String subjectId = "vlId";
         LimitViolationType limitType = LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT;
         float limit = 2000;
-        float limitReductionValue = 1;
+        double limitReductionValue = 1;
         float value = 2500;
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReductionValue, value);
         limitViolation.addExtension(DummyLimitViolationExtension.class, new DummyLimitViolationExtension());

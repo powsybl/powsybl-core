@@ -16,9 +16,9 @@ public abstract class AbstractBranchActionExpressionNode extends AbstractActionE
 
     private final List<String> branchIds;
 
-    private final float limitReduction;
+    private final double limitReduction;
 
-    public AbstractBranchActionExpressionNode(List<String> branchIds, float limitReduction) {
+    public AbstractBranchActionExpressionNode(List<String> branchIds, double limitReduction) {
         this.branchIds = Objects.requireNonNull(branchIds);
         if (branchIds.isEmpty()) {
             throw new IllegalArgumentException("The list of branch Ids should not be empty");
@@ -33,7 +33,7 @@ public abstract class AbstractBranchActionExpressionNode extends AbstractActionE
         return branchIds;
     }
 
-    public float getLimitReduction() {
+    public double getLimitReduction() {
         return limitReduction;
     }
 }
