@@ -1,5 +1,5 @@
 [ {
-  "type" : "everyEquipmentCriterion",
+  "type" : "identifiableCriterion",
   "version" : "1.0",
   "name" : "criterion7",
   "countryCriterion" : {
@@ -16,6 +16,6 @@
     }
   }
 }, {
-  "type" : "everyEquipmentCriterion",
+  "type" : "identifiableCriterion",
   "version" : "1.0"
 } ]

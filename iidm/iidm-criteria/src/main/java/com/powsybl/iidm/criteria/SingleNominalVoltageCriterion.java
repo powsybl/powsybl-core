@@ -49,6 +49,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
                     getNominalVoltage(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> getNominalVoltage(((Switch) identifiable).getVoltageLevel());
+            case BUS -> getNominalVoltage(((Bus) identifiable).getVoltageLevel());
             default -> null;
         };
     }

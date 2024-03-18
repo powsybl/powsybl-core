@@ -53,13 +53,13 @@ public class EveryEquipmentCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT,
-                new EveryEquipmentCriterion(null, null).getNetworkElementCriterionType());
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE,
+                new IdentifiableCriterion(null, null).getNetworkElementCriterionType());
     }
 
     @Test
     void emptyCriterionTest() {
-        EveryEquipmentCriterion criterion = new EveryEquipmentCriterion(null, null);
+        IdentifiableCriterion criterion = new IdentifiableCriterion(null, null);
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
@@ -77,7 +77,7 @@ public class EveryEquipmentCriterionTest {
 
     @Test
     void nominalVoltageTest() {
-        EveryEquipmentCriterion criterion = new EveryEquipmentCriterion(null, new AtLeastOneNominalVoltageCriterion(
+        IdentifiableCriterion criterion = new IdentifiableCriterion(null, new AtLeastOneNominalVoltageCriterion(
                 new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
@@ -93,7 +93,7 @@ public class EveryEquipmentCriterionTest {
 
     @Test
     void countriesTest() {
-        EveryEquipmentCriterion criterion = new EveryEquipmentCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)), null);
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)), null);
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
@@ -105,7 +105,7 @@ public class EveryEquipmentCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
 
-        criterion = new EveryEquipmentCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)), null);
+        criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)), null);
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
@@ -120,7 +120,7 @@ public class EveryEquipmentCriterionTest {
 
     @Test
     void mixedCriteriaTest() {
-        EveryEquipmentCriterion criterion = new EveryEquipmentCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)),
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)),
                 new AtLeastOneNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(190., 230., true, true)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));

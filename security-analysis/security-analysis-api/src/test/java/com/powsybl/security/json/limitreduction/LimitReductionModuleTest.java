@@ -57,7 +57,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
 
         LimitReduction limitReduction4 = new LimitReduction(LimitType.CURRENT, 0.9f, false,
                 ContingencyContext.all(),
-                List.of(new EveryEquipmentCriterion(
+                List.of(new IdentifiableCriterion(
                         new AtLeastOneCountryCriterion(List.of(Country.FR)),
                         new AtLeastOneNominalVoltageCriterion(
                                 new SingleNominalVoltageCriterion.VoltageInterval(380., 410., true, true)

@@ -101,7 +101,7 @@ public class ThreeWindingsTransformerCriterionTest {
         when(n.getNominalVoltage2()).thenReturn(Optional.of(nominalVoltage2));
         when(n.getNominalVoltage3()).thenReturn(Optional.of(nominalVoltage3));
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER)).thenReturn(true);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE)).thenReturn(true);
         return n;
     }
 }

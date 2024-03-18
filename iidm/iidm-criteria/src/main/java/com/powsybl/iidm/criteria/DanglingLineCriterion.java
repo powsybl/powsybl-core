@@ -41,5 +41,4 @@ public class DanglingLineCriterion extends AbstractNetworkElementEquipmentCriter
     public SingleNominalVoltageCriterion getNominalVoltageCriterion() {
         return singleNominalVoltageCriterion;
     }
-
 }

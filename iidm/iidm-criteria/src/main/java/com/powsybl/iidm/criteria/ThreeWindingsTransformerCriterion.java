@@ -41,5 +41,4 @@ public class ThreeWindingsTransformerCriterion extends AbstractNetworkElementEqu
     public ThreeNominalVoltageCriterion getNominalVoltageCriterion() {
         return threeNominalVoltageCriterion;
     }
-
 }

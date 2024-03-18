@@ -102,7 +102,7 @@ public class DanglingLineCriterionTest {
         when(n.getNominalVoltage2()).thenReturn(Optional.empty());
         when(n.getNominalVoltage3()).thenReturn(Optional.empty());
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.DANGLING_LINE)).thenReturn(true);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE)).thenReturn(true);
         return n;
     }
 }

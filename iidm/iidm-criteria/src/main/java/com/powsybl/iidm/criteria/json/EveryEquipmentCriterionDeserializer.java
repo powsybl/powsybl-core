@@ -13,26 +13,26 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.AtLeastOneCountryCriterion;
 import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
-import com.powsybl.iidm.criteria.EveryEquipmentCriterion;
+import com.powsybl.iidm.criteria.IdentifiableCriterion;
 
 import java.io.IOException;
 
 /**
- * <p>Deserializer for {@link EveryEquipmentCriterion} objects.</p>
+ * <p>Deserializer for {@link IdentifiableCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class EveryEquipmentCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<EveryEquipmentCriterion> {
+public class EveryEquipmentCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<IdentifiableCriterion> {
     public EveryEquipmentCriterionDeserializer() {
-        super(EveryEquipmentCriterion.class);
+        super(IdentifiableCriterion.class);
     }
 
     @Override
-    public EveryEquipmentCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public IdentifiableCriterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext parsingContext = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
-                EveryEquipmentCriterion.TYPE, CriterionType.AT_LEAST_ONE_COUNTRY, CriterionType.AT_LEAST_ONE_NOMINAL_VOLTAGE));
+                IdentifiableCriterion.TYPE, CriterionType.AT_LEAST_ONE_COUNTRY, CriterionType.AT_LEAST_ONE_NOMINAL_VOLTAGE));
 
-        return new EveryEquipmentCriterion(parsingContext.name,
+        return new IdentifiableCriterion(parsingContext.name,
                 (AtLeastOneCountryCriterion) parsingContext.countryCriterion,
                 (AtLeastOneNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
     }

@@ -118,7 +118,7 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
 
     @Override
     public boolean isValidFor(NetworkElementCriterionType type) {
-        return type == NetworkElementCriterionType.IDENTIFIERS
+        return type == NetworkElementCriterionType.IDENTIFIER
                 || type == NetworkElementCriterionType.LINE
                     && identifiable.getType() == IdentifiableType.LINE
                 || type == NetworkElementCriterionType.TIE_LINE
@@ -129,7 +129,7 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
                     && identifiable.getType() == IdentifiableType.TWO_WINDINGS_TRANSFORMER
                 || type == NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER
                     && identifiable.getType() == IdentifiableType.THREE_WINDINGS_TRANSFORMER
-                || type == NetworkElementCriterionType.EVERY_EQUIPMENT
+                || type == NetworkElementCriterionType.IDENTIFIABLE
                     && EVERY_SUPPORTED_TYPES.contains(identifiable.getType());
     }
 

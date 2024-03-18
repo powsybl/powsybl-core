@@ -8,20 +8,20 @@
 package com.powsybl.iidm.criteria;
 
 /**
- * <p>{@link NetworkElementCriterion} on every kind of equipment.</p>
+ * <p>{@link NetworkElementCriterion} on identifiables of a network.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class EveryEquipmentCriterion extends AbstractNetworkElementEquipmentCriterion {
-    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.EVERY_EQUIPMENT;
+public class IdentifiableCriterion extends AbstractNetworkElementEquipmentCriterion {
+    public static final NetworkElementCriterionType TYPE = NetworkElementCriterionType.IDENTIFIABLE;
 
     private final AtLeastOneCountryCriterion atLeastOneCountryCriterion;
     private final AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion;
 
-    public EveryEquipmentCriterion(AtLeastOneCountryCriterion atLeastOneCountryCriterion, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
+    public IdentifiableCriterion(AtLeastOneCountryCriterion atLeastOneCountryCriterion, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
         this(null, atLeastOneCountryCriterion, atLeastOneNominalVoltageCriterion);
     }
 
-    public EveryEquipmentCriterion(String name, AtLeastOneCountryCriterion atLeastOneCountryCriterion, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
+    public IdentifiableCriterion(String name, AtLeastOneCountryCriterion atLeastOneCountryCriterion, AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion) {
         super(name);
         this.atLeastOneCountryCriterion = atLeastOneCountryCriterion;
         this.atLeastOneNominalVoltageCriterion = atLeastOneNominalVoltageCriterion;
@@ -41,5 +41,4 @@ public class EveryEquipmentCriterion extends AbstractNetworkElementEquipmentCrit
     public AtLeastOneNominalVoltageCriterion getNominalVoltageCriterion() {
         return atLeastOneNominalVoltageCriterion;
     }
-
 }

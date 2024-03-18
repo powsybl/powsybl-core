@@ -34,7 +34,7 @@ public class NetworkElementIdListCriterionTest {
 
     @Test
     void typeTest() {
-        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIERS,
+        assertEquals(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIER,
                 new NetworkElementIdListCriterion(Set.of()).getNetworkElementCriterionType());
     }
 

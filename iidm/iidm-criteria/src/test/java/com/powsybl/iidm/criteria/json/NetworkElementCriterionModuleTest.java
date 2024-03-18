@@ -103,10 +103,10 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
 
     @Test
     void everyEquipmentCriterionRoundTripTest() throws IOException {
-        EveryEquipmentCriterion criterion = new EveryEquipmentCriterion("criterion7", new AtLeastOneCountryCriterion(List.of(Country.FR, Country.DE)),
+        IdentifiableCriterion criterion = new IdentifiableCriterion("criterion7", new AtLeastOneCountryCriterion(List.of(Country.FR, Country.DE)),
                 new AtLeastOneNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
-        EveryEquipmentCriterion empty = new EveryEquipmentCriterion(null, null);
+        IdentifiableCriterion empty = new IdentifiableCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readEveryEquipmentCriteria,
@@ -144,7 +144,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     private static List<NetworkElementCriterion> readEveryEquipmentCriteria(Path jsonFile) {
-        return convert(readCriteria(jsonFile, new TypeReference<List<EveryEquipmentCriterion>>() { }));
+        return convert(readCriteria(jsonFile, new TypeReference<List<IdentifiableCriterion>>() { }));
     }
 
     private static List<NetworkElementCriterion> readNetworkElementIdListCriteria(Path jsonFile) {

@@ -41,5 +41,4 @@ public class LineCriterion extends AbstractNetworkElementEquipmentCriterion {
     public TwoNominalVoltageCriterion getNominalVoltageCriterion() {
         return twoNominalVoltageCriterion;
     }
-
 }

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.criteria;
 
 /**
- * <p>Abstract classes for {@link NetworkElementCriterion} implementations corresponding to real.</p>
+ * <p>Abstract classes for {@link NetworkElementCriterion} implementations corresponding to real network elements.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractNetworkElementEquipmentCriterion extends AbstractNetworkElementCriterion {

@@ -97,7 +97,7 @@ public class TwoWindingsTransformerCriterionTest {
         when(n.getNominalVoltage2()).thenReturn(Optional.of(nominalVoltage2));
         when(n.getNominalVoltage3()).thenReturn(Optional.empty());
         when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER)).thenReturn(true);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.EVERY_EQUIPMENT)).thenReturn(true);
+        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE)).thenReturn(true);
         return n;
     }
 }

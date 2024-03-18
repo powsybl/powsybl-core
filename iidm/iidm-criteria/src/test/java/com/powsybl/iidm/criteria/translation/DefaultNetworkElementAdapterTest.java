@@ -61,8 +61,8 @@ class DefaultNetworkElementAdapterTest {
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIER));
         assertEquals(line, networkElement.getIdentifiable());
     }
 
@@ -106,8 +106,8 @@ class DefaultNetworkElementAdapterTest {
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIER));
         assertEquals(tieLine, networkElement.getIdentifiable());
     }
 
@@ -143,8 +143,8 @@ class DefaultNetworkElementAdapterTest {
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIER));
         assertEquals(danglingLine, networkElement.getIdentifiable());
     }
 
@@ -185,8 +185,8 @@ class DefaultNetworkElementAdapterTest {
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIER));
         assertEquals(twt, networkElement.getIdentifiable());
     }
 
@@ -233,8 +233,8 @@ class DefaultNetworkElementAdapterTest {
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.DANGLING_LINE));
         assertFalse(networkElement.isValidFor(NetworkElementCriterionType.TWO_WINDINGS_TRANSFORMER));
         assertTrue(networkElement.isValidFor(NetworkElementCriterionType.THREE_WINDINGS_TRANSFORMER));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.EVERY_EQUIPMENT));
-        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIERS));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIABLE));
+        assertTrue(networkElement.isValidFor(NetworkElementCriterionType.IDENTIFIER));
         assertEquals(twt, networkElement.getIdentifiable());
     }
 }
