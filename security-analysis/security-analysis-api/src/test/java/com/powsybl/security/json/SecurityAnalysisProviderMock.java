@@ -16,7 +16,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.json.JsonSecurityAnalysisParametersTest.*;
 import com.powsybl.security.limitreduction.LimitReduction;
