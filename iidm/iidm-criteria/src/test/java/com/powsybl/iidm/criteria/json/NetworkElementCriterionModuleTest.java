@@ -102,7 +102,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     }
 
     @Test
-    void everyEquipmentCriterionRoundTripTest() throws IOException {
+    void identifiableCriterionRoundTripTest() throws IOException {
         IdentifiableCriterion criterion = new IdentifiableCriterion("criterion7", new AtLeastOneCountryCriterion(List.of(Country.FR, Country.DE)),
                 new AtLeastOneNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
@@ -110,7 +110,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readIdentifiableCriteria,
-                "/criterion/every-equipment-criteria.json");
+                "/criterion/identifiable-criteria.json");
     }
 
     @Test
