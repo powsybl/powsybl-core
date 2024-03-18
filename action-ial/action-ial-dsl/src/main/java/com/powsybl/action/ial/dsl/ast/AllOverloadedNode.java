@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class AllOverloadedNode extends AbstractBranchActionExpressionNode {
 
-    public AllOverloadedNode(List<String> branchIds, float limitReduction) {
+    public AllOverloadedNode(List<String> branchIds, double limitReduction) {
         super(branchIds, limitReduction);
     }
 
