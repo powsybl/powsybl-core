@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 public class LimitReduction {
     private final LimitType limitType;
-    private final float value;
+    private final double value;
     private final boolean monitoringOnly;
     private final ContingencyContext contingencyContext;
     private final List<NetworkElementCriterion> networkElementCriteria;
@@ -35,11 +35,11 @@ public class LimitReduction {
                 || limitType == LimitType.APPARENT_POWER;
     }
 
-    public LimitReduction(LimitType limitType, float value, boolean monitoringOnly) {
+    public LimitReduction(LimitType limitType, double value, boolean monitoringOnly) {
         this(limitType, value, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public LimitReduction(LimitType limitType, float value, boolean monitoringOnly,
+    public LimitReduction(LimitType limitType, double value, boolean monitoringOnly,
                           ContingencyContext contingencyContext,
                           List<NetworkElementCriterion> networkElementCriteria,
                           List<LimitDurationCriterion> limitDurationCriteria) {
@@ -62,7 +62,7 @@ public class LimitReduction {
         return limitType;
     }
 
-    public float getValue() {
+    public double getValue() {
         return value;
     }
 

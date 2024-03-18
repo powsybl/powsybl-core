@@ -24,10 +24,10 @@ import java.util.function.Consumer;
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
-    private final float limitReductionValue;
+    private final double limitReductionValue;
     private final Set<LoadingLimitType> currentLimitTypes;
 
-    public DefaultLimitViolationDetector(float limitReductionValue, Collection<LoadingLimitType> currentLimitTypes) {
+    public DefaultLimitViolationDetector(double limitReductionValue, Collection<LoadingLimitType> currentLimitTypes) {
         if (limitReductionValue <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }

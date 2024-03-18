@@ -51,16 +51,16 @@ public final class Security {
         return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), 1f);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, float limitReductionValue) {
+    public static List<LimitViolation> checkLimits(Network network, double limitReductionValue) {
         return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitReductionValue);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, float limitReductionValue) {
+    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, double limitReductionValue) {
         Objects.requireNonNull(currentLimitType);
         return checkLimits(network, EnumSet.of(currentLimitType), limitReductionValue);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, float limitReductionValue) {
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
         // allow to increase the limits
@@ -72,7 +72,7 @@ public final class Security {
         return violations;
     }
 
-    public static List<LimitViolation> checkLimitsDc(Network network, float limitReductionValue, double dcPowerFactor) {
+    public static List<LimitViolation> checkLimitsDc(Network network, double limitReductionValue, double dcPowerFactor) {
         Objects.requireNonNull(network);
         // allow to increase the limits
         if (limitReductionValue <= 0) {
