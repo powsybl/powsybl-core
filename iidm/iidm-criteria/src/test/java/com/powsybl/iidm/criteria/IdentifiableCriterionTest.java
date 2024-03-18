@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class EveryEquipmentCriterionTest {
+public class IdentifiableCriterionTest {
     private static NetworkElement danglingLine1;
     private static NetworkElement danglingLine2;
     private static NetworkElement line1;

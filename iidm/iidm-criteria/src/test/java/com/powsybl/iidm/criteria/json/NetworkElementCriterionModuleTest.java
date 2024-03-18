@@ -109,7 +109,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         IdentifiableCriterion empty = new IdentifiableCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
-                NetworkElementCriterionModuleTest::readEveryEquipmentCriteria,
+                NetworkElementCriterionModuleTest::readIdentifiableCriteria,
                 "/criterion/every-equipment-criteria.json");
     }
 
@@ -143,7 +143,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         return convert(readCriteria(jsonFile, new TypeReference<List<ThreeWindingsTransformerCriterion>>() { }));
     }
 
-    private static List<NetworkElementCriterion> readEveryEquipmentCriteria(Path jsonFile) {
+    private static List<NetworkElementCriterion> readIdentifiableCriteria(Path jsonFile) {
         return convert(readCriteria(jsonFile, new TypeReference<List<IdentifiableCriterion>>() { }));
     }
 

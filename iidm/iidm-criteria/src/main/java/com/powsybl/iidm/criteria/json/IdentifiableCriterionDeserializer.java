@@ -21,8 +21,8 @@ import java.io.IOException;
  * <p>Deserializer for {@link IdentifiableCriterion} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class EveryEquipmentCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<IdentifiableCriterion> {
-    public EveryEquipmentCriterionDeserializer() {
+public class IdentifiableCriterionDeserializer extends AbstractNetworkElementCriterionDeserializer<IdentifiableCriterion> {
+    public IdentifiableCriterionDeserializer() {
         super(IdentifiableCriterion.class);
     }
 
