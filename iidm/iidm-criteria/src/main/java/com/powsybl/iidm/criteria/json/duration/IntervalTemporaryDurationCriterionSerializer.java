@@ -29,11 +29,11 @@ public class IntervalTemporaryDurationCriterionSerializer extends StdSerializer<
         jsonGenerator.writeStartObject();
         LimitDurationCriterionSerDeUtil.serializeCommonHeadAttributes(criterion, jsonGenerator);
         if (criterion.getLowBound().isPresent()) {
-            jsonGenerator.writeNumberField("lowBound", criterion.getLowBound().get());
+            jsonGenerator.writeNumberField("lowBound", criterion.getLowBound().orElseThrow());
             jsonGenerator.writeBooleanField("lowClosed", criterion.isLowClosed());
         }
         if (criterion.getHighBound().isPresent()) {
-            jsonGenerator.writeNumberField("highBound", criterion.getHighBound().get());
+            jsonGenerator.writeNumberField("highBound", criterion.getHighBound().orElseThrow());
             jsonGenerator.writeBooleanField("highClosed", criterion.isHighClosed());
         }
         jsonGenerator.writeEndObject();
