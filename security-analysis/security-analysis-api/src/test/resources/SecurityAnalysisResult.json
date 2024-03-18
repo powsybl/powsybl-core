@@ -13,7 +13,7 @@
         "subjectId" : "NHV1_NHV2_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
-        "limitReduction" : 0.95,
+        "limitReduction" : 0.949999988079071,
         "value" : 110.0,
         "side" : "ONE",
         "extensions" : {
@@ -105,13 +105,13 @@
         "subjectId" : "GEN",
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.9,
+        "limitReduction" : 0.8999999761581421,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
-        "limitReduction" : 0.7,
+        "limitReduction" : 0.699999988079071,
         "value" : 115.0,
         "extensions" : {
           "Voltage" : {

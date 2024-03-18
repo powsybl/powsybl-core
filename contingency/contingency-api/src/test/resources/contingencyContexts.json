@@ -1,0 +1,10 @@
+[ {
+  "contextType" : "NONE"
+}, {
+  "contextType" : "ALL"
+}, {
+  "contextType" : "ONLY_CONTINGENCIES"
+}, {
+  "contextType" : "SPECIFIC",
+  "contingencyId" : "lineId"
+} ]

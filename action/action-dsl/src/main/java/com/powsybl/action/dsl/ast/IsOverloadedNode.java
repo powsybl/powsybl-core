@@ -10,7 +10,7 @@ import java.util.List;
 
 public class IsOverloadedNode extends AbstractBranchActionExpressionNode {
 
-    public IsOverloadedNode(List<String> branchIds, float limitReduction) {
+    public IsOverloadedNode(List<String> branchIds, double limitReduction) {
         super(branchIds, limitReduction);
     }
 

@@ -8,8 +8,10 @@ package com.powsybl.iidm.criteria;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -30,21 +32,34 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
+        Double nominalVoltage = getNominalVoltage(identifiable, type);
+        return nominalVoltage != null && filterNominalVoltage(nominalVoltage);
+    }
+
+    @Override
+    public boolean filter(NetworkElement networkElement) {
+        Optional<Double> nominalVoltage = networkElement.getNominalVoltage();
+        return nominalVoltage.isPresent() && filterNominalVoltage(nominalVoltage.get());
+    }
+
+    protected static Double getNominalVoltage(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
-            case LINE -> filterInjection(((Line) identifiable).getTerminal1().getVoltageLevel());
-            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION ->
-                    filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH -> filterInjection(((Switch) identifiable).getVoltageLevel());
-            default -> false;
+            case LINE, TIE_LINE -> getNominalVoltage(((Branch<?>) identifiable).getTerminal1().getVoltageLevel());
+            case HVDC_LINE -> getNominalVoltage(((HvdcLine) identifiable).getConverterStation1().getTerminal().getVoltageLevel());
+            case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
+                    getNominalVoltage(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> getNominalVoltage(((Switch) identifiable).getVoltageLevel());
+            case BUS -> getNominalVoltage(((Bus) identifiable).getVoltageLevel());
+            default -> null;
         };
     }
 
-    private boolean filterInjection(VoltageLevel voltageLevel) {
-        if (voltageLevel == null) {
-            return false;
-        }
-        double injectionNominalVoltage = voltageLevel.getNominalV();
-        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(injectionNominalVoltage);
+    private static Double getNominalVoltage(VoltageLevel voltageLevel) {
+        return voltageLevel == null ? null : voltageLevel.getNominalV();
+    }
+
+    private boolean filterNominalVoltage(Double nominalVoltage) {
+        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(nominalVoltage);
     }
 
     public VoltageInterval getVoltageInterval() {
@@ -72,8 +87,10 @@ public class SingleNominalVoltageCriterion implements Criterion {
             return nominalVoltageLowBound == null || nominalVoltageHighBound == null || lowClosed == null || highClosed == null;
         }
 
-        public boolean checkIsBetweenBound(double value) {
-            if (lowClosed && highClosed) {
+        public boolean checkIsBetweenBound(Double value) {
+            if (value == null) {
+                return false;
+            } else if (lowClosed && highClosed) {
                 return nominalVoltageLowBound <= value && value <= nominalVoltageHighBound;
             } else if (lowClosed) {
                 return nominalVoltageLowBound <= value && value < nominalVoltageHighBound;

@@ -46,11 +46,11 @@ public final class ActionExpressionHelper {
         return new MostLoadedNode(branchIds);
     }
 
-    public static IsOverloadedNode newIsOverloadedNode(List<String> branchIds, float limitReduction) {
+    public static IsOverloadedNode newIsOverloadedNode(List<String> branchIds, double limitReduction) {
         return new IsOverloadedNode(branchIds, limitReduction);
     }
 
-    public static AllOverloadedNode newAllOverloadedNode(List<String> branchIds, float limitReduction) {
+    public static AllOverloadedNode newAllOverloadedNode(List<String> branchIds, double limitReduction) {
         return new AllOverloadedNode(branchIds, limitReduction);
     }
 
