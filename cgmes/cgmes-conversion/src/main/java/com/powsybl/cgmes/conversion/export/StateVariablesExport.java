@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
@@ -97,22 +98,21 @@ public final class StateVariablesExport {
 
     private static Map<String, String> buildAngleRefs(Network network, CgmesExportContext context) {
         Map<String, String> angleRefs = new HashMap<>();
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            buildAngleRefs(slackTerminal, angleRefs, context);
-        }
+        ReferenceTerminals.getTerminals(network).forEach(t -> buildAngleRefs(t, angleRefs, context));
         return angleRefs;
     }
 
-    private static void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs, CgmesExportContext context) {
-        if (slackTerminal != null && slackTerminal.getTerminal() != null) {
-            Bus bus = slackTerminal.getTerminal().getBusBreakerView().getBus();
+    private static void buildAngleRefs(Terminal referenceTerminal, Map<String, String> angleRefs, CgmesExportContext context) {
+        if (referenceTerminal != null) {
+            Bus bus = referenceTerminal.getBusBreakerView().getBus();
             if (bus != null && bus.getSynchronousComponent() != null) {
                 buildAngleRefs(bus.getSynchronousComponent().getNum(), bus, angleRefs, context);
             } else if (bus != null) {
                 buildAngleRefs(bus, angleRefs, context);
             } else {
-                Supplier<String> message = () -> String.format("Slack terminal at equipment %s is not connected and is not exported as slack terminal", slackTerminal.getTerminal().getConnectable().getId());
+                Supplier<String> message = () -> String.format(
+                        "Reference terminal at equipment %s is not connected and is not used to export angle references",
+                        referenceTerminal.getConnectable().getId());
                 LOG.info(message.get());
             }
         }
@@ -299,7 +299,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             Bus b = dl.getTerminal().getBusView().getBus();
             String topologicalNode = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNode != null) {
@@ -310,18 +310,6 @@ public final class StateVariablesExport {
                 } else {
                     writeVoltage(topologicalNode, 0.0, 0.0, cimNamespace, writer, context);
                 }
-            }
-        }
-        // Voltages at inner nodes of Tie Lines
-        // (boundary nodes that have been left inside CGM)
-        for (TieLine l : network.getTieLines()) {
-            // The topological node should be the same in both dangling lines
-            String topologicalNode = l.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            if (topologicalNode == null) {
-                topologicalNode = l.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
-            }
-            if (topologicalNode != null) {
-                writeVoltage(topologicalNode, l.getDanglingLine1().getBoundary().getV(), l.getDanglingLine1().getBoundary().getAngle(), cimNamespace, writer, context);
             }
         }
     }
@@ -380,44 +368,20 @@ public final class StateVariablesExport {
 
         Map<String, Double> equivalentInjectionTerminalP = new HashMap<>();
         Map<String, Double> equivalentInjectionTerminalQ = new HashMap<>();
-        CgmesExportUtil.getBoundaryDanglingLines(network).forEach(dl -> {
+        network.getDanglingLines(DanglingLineFilter.ALL).forEach(dl -> {
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary", dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer, context);
             }
             writePowerFlowTerminalFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, dl.getTerminal().getP(), dl.getTerminal().getQ(), cimNamespace, writer, context);
+            context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL);
             equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getP() : v - dl.getBoundary().getP());
             equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -dl.getBoundary().getQ() : v - dl.getBoundary().getQ());
         });
+        equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
         network.getTwoWindingsTransformerStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
         network.getLineStream().forEach(b -> writeConnectableBranchPowerFlow(cimNamespace, writer, context, b));
-
-        network.getTieLineStream().forEach(b -> {
-            writePowerFlowTieLineTerminalFromAlias(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine1().getTerminal(), cimNamespace, writer, context);
-            writePowerFlowTieLineTerminalFromAlias(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, b.getDanglingLine2().getTerminal(), cimNamespace, writer, context);
-            if (context.exportBoundaryPowerFlows()) {
-                writePowerFlowTerminalFromAlias(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine1().getBoundary().getP(), b.getDanglingLine1().getBoundary().getQ(), cimNamespace, writer, context);
-                writePowerFlowTerminalFromAlias(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "_Boundary", b.getDanglingLine2().getBoundary().getP(), b.getDanglingLine2().getBoundary().getQ(), cimNamespace, writer, context);
-            }
-            // Compute also equivalent injection values for boundary lines that have been left inside the CGM,
-            // hey have been organised in tie lines
-            String eit1 = b.getDanglingLine1().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL);
-            if (eit1 == null) {
-                LOG.warn("Missing equivalent injection terminal for dangling line {}. For proper export models must be combined in a Network with subnetworks instead of assembled", b.getDanglingLine1().getId());
-            } else {
-                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getP() : v - b.getDanglingLine1().getBoundary().getP());
-                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine1(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine1().getBoundary().getQ() : v - b.getDanglingLine1().getBoundary().getQ());
-            }
-            String eit2 = b.getDanglingLine2().getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL);
-            if (eit2 == null) {
-                LOG.warn("Missing equivalent injection terminal for dangling line {}. For proper export models must be combined in a Network with subnetworks instead of assembled", b.getDanglingLine2().getId());
-            } else {
-                equivalentInjectionTerminalP.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getP() : v - b.getDanglingLine2().getBoundary().getP());
-                equivalentInjectionTerminalQ.compute(context.getNamingStrategy().getCgmesIdFromProperty(b.getDanglingLine2(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION_TERMINAL), (k, v) -> v == null ? -b.getDanglingLine2().getBoundary().getQ() : v - b.getDanglingLine2().getBoundary().getQ());
-            }
-        });
-        equivalentInjectionTerminalP.keySet().forEach(eiId -> writePowerFlow(eiId, equivalentInjectionTerminalP.get(eiId), equivalentInjectionTerminalQ.get(eiId), cimNamespace, writer, context));
 
         network.getThreeWindingsTransformerStream().forEach(twt -> {
             writePowerFlowTerminalFromAlias(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1, twt.getLeg1().getTerminal(), cimNamespace, writer, context);
@@ -486,10 +450,6 @@ public final class StateVariablesExport {
     private static void writePowerFlowTerminalFromAlias(Identifiable<?> c, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         // Export only if we have a terminal identifier
         writePowerFlowTerminalFromAlias(c, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
-    }
-
-    private static void writePowerFlowTieLineTerminalFromAlias(DanglingLine danglingLine, String aliasTypeForTerminalId, Terminal t, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        writePowerFlowTerminalFromAlias(danglingLine, aliasTypeForTerminalId, t.getP(), t.getQ(), cimNamespace, writer, context);
     }
 
     private static void writePowerFlowTerminalFromAlias(Identifiable<?> c, String aliasTypeForTerminalId, double p, double q, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
@@ -613,7 +573,7 @@ public final class StateVariablesExport {
         // create SvStatus, iterate on Connectables, check Terminal status, add to SvStatus
         network.getConnectableStream().forEach(c -> {
             if (context.isExportedEquipment(c)) {
-                writeConnectableStatus(c, cimNamespace, writer, context, network);
+                writeConnectableStatus(c, cimNamespace, writer, context);
             }
         });
 
@@ -621,14 +581,7 @@ public final class StateVariablesExport {
         // If it is disconnected on the boundary side, it might not appear on the SV file.
     }
 
-    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer,
-                                               CgmesExportContext context, Network network) {
-        if (connectable instanceof DanglingLine dl && !network.isBoundaryElement(dl)) {
-            // TODO(Luma) Export tie line components instead of a single equipment
-            // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
-            // We ignore dangling lines inside tie lines for now
-            return;
-        }
+    private static void writeConnectableStatus(Connectable<?> connectable, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(connectable)) {
             // Equivalent shunts do not have a section count in SSH, SV profiles,
             // To make output consistent with IIDM section count == 0 we declare it out of service

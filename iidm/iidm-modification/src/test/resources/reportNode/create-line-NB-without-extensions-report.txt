@@ -1,0 +1,8 @@
++ Testing creating line reportNode without extensions
+   New connectable lineTest of type LINE created.
+   No extensions found on voltageLevel vl2. The extension on the connectable is not created.
+   No busbar section position extension found on bbs5, only one disconnector is created.
+   New feeder bay associated to lineTest of type LINE was created and connected to voltage level vl2 on busbar section bbs5 with a closed disconnector and on 0 parallel busbar sections with an open disconnector.
+   No extensions found on voltageLevel vl1. The extension on the connectable is not created.
+   No busbar section position extension found on bbs1, only one disconnector is created.
+   New feeder bay associated to lineTest of type LINE was created and connected to voltage level vl1 on busbar section bbs1 with a closed disconnector and on 0 parallel busbar sections with an open disconnector.

@@ -818,7 +818,14 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:SynchronousMachine.type ?type ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
-    FILTER (!REGEX(STR(?type), "Kind.condenser"))
+    VALUES ?type {
+        cim:SynchronousMachineKind.generator
+        cim:SynchronousMachineKind.generatorOrCondenser
+        cim:SynchronousMachineKind.motor
+        cim:SynchronousMachineKind.generatorOrMotor
+        cim:SynchronousMachineKind.motorOrCondenser
+        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
     }
@@ -829,6 +836,19 @@ WHERE {
         cim:GeneratingUnit.initialP ?initialP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
     OPTIONAL { ?GeneratingUnit cim:IdentifiedObject.description ?generatingUnitDescription }
+    OPTIONAL { ?GeneratingUnit cim:HydroGeneratingUnit.HydroPowerPlant ?HydroPowerPlant
+        OPTIONAL {
+            ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
+        }
+    }
+    OPTIONAL {
+        SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
+        WHERE {
+                ?FossilFuel a cim:FossilFuel;
+                cim:FossilFuel.fossilFuelType ?fossilFuelType;
+                cim:FossilFuel.ThermalGeneratingUnit ?GeneratingUnit .
+        } GROUP BY ?GeneratingUnit
+    }
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
