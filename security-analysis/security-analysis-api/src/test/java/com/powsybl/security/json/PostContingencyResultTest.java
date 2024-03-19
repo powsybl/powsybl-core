@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.json;
 
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
@@ -75,6 +76,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule())
                 .writerWithDefaultPrettyPrinter()
                 .writeValue(out, postContingencyResult);
         } catch (IOException e) {
@@ -86,6 +88,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         try {
             return JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule())
                 .readerFor(PostContingencyResult.class)
                 .readValue(Files.newInputStream(jsonFile));
         } catch (IOException e) {

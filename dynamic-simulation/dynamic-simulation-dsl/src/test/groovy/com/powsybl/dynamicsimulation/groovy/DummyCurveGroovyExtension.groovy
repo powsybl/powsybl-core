@@ -7,7 +7,7 @@
 package com.powsybl.dynamicsimulation.groovy
 
 import com.google.auto.service.AutoService
-import com.powsybl.commons.reporter.Reporter
+import com.powsybl.commons.report.ReportNode
 import com.powsybl.dsl.DslException
 import com.powsybl.dynamicsimulation.Curve
 
@@ -31,7 +31,7 @@ class DummyCurveGroovyExtension implements CurveGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<Curve> consumer, Reporter reporter) {
+    void load(Binding binding, Consumer<Curve> consumer, ReportNode reportNode) {
         binding.dummyCurve = { Closure<Void> closure ->
             def cloned = closure.clone()
 

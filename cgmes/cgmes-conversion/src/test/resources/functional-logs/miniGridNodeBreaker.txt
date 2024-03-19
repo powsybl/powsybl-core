@@ -1,12 +1,12 @@
 + Test importing MiniGrid-NodeBreaker
-  + Reading CGMES Triplestore
-     Instance file MiniGridTestConfiguration_BC_SSH_v3.0.0.xml
-     Instance file MiniGridTestConfiguration_EQ_BD_v3.0.0.xml
-     Instance file MiniGridTestConfiguration_TP_BD_v3.0.0.xml
-     Instance file MiniGridTestConfiguration_BC_EQ_v3.0.0.xml
-     Instance file MiniGridTestConfiguration_BC_SV_v3.0.0.xml
-     Instance file MiniGridTestConfiguration_BC_TP_v3.0.0.xml
-  + Importing CGMES file(s)
-     Node 183d126d-2522-4ff2-a8cd-c5016cf09c1b has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
-     Node 49831d24-33e9-4233-8424-3f88186a924e has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
-     CGMES network urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66 is imported.
+   + Reading CGMES Triplestore
+      Instance file MiniGridTestConfiguration_BC_SSH_v3.0.0.xml
+      Instance file MiniGridTestConfiguration_EQ_BD_v3.0.0.xml
+      Instance file MiniGridTestConfiguration_TP_BD_v3.0.0.xml
+      Instance file MiniGridTestConfiguration_BC_EQ_v3.0.0.xml
+      Instance file MiniGridTestConfiguration_BC_SV_v3.0.0.xml
+      Instance file MiniGridTestConfiguration_BC_TP_v3.0.0.xml
+   + Importing CGMES file(s)
+      Node 183d126d-2522-4ff2-a8cd-c5016cf09c1b has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
+      Node 49831d24-33e9-4233-8424-3f88186a924e has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
+      CGMES network urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66 is imported.

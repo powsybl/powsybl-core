@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -83,12 +83,12 @@ class TapPositionModificationTest {
     @Test
     void testUnknownId() {
         NetworkModification modif = new PhaseTapPositionModification("UNKNOWN_ID", 5);
-        assertThrows(PowsyblException.class, () -> modif.apply(network, true, Reporter.NO_OP));
-        assertDoesNotThrow(() -> modif.apply(network, false, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modif.apply(network, true, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> modif.apply(network, false, ReportNode.NO_OP),
             "An invalid ID should not throw if throwException is false.");
         NetworkModification modif2 = new RatioTapPositionModification("UNKNOWN_ID", 5);
-        assertThrows(PowsyblException.class, () -> modif2.apply(network, true, Reporter.NO_OP));
-        assertDoesNotThrow(() -> modif2.apply(network, false, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modif2.apply(network, true, ReportNode.NO_OP));
+        assertDoesNotThrow(() -> modif2.apply(network, false, ReportNode.NO_OP),
             "An invalid ID should not throw if throwException is false.");
     }
 
@@ -108,13 +108,13 @@ class TapPositionModificationTest {
         assertFalse(leg.hasPhaseTapChanger(), "Test assumptions are wrong.");
         NetworkModification modifRtc = new RatioTapPositionModification(threeWindingNetwork.getId(), 1,
             ThreeSides.ONE);
-        assertThrows(PowsyblException.class, () -> modifRtc.apply(threeWindingNetwork, true, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modifRtc.apply(threeWindingNetwork, true, ReportNode.NO_OP),
             "Modifying a Ratio tap that is not present should throw.");
         // Phase
         assertFalse(leg.hasRatioTapChanger(), "Test assumptions are wrong.");
         NetworkModification modifPtc = new PhaseTapPositionModification(threeWindingNetwork.getId(), 1,
             ThreeSides.ONE);
-        assertThrows(PowsyblException.class, () -> modifPtc.apply(threeWindingNetwork, true, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modifPtc.apply(threeWindingNetwork, true, ReportNode.NO_OP),
             "Modifying a Phasetap that is not present should throw.");
     }
 
@@ -212,10 +212,10 @@ class TapPositionModificationTest {
             networkToApply = threeWindingNetwork;
         }
         modif = getNetworkModification(type, invalidTapPos, transformerId, leg);
-        assertThrows(PowsyblException.class, () -> modif.apply(networkToApply, true, Reporter.NO_OP));
+        assertThrows(PowsyblException.class, () -> modif.apply(networkToApply, true, ReportNode.NO_OP));
         assertEquals(currentTapPos, tapPositionSupplier.get(),
             "Invalid tap position should not be applied to the network");
-        modif.apply(networkToApply, false, Reporter.NO_OP);
+        modif.apply(networkToApply, false, ReportNode.NO_OP);
         assertEquals(currentTapPos, tapPositionSupplier.get(),
             "Invalid tap position should not be applied to the network");
     }

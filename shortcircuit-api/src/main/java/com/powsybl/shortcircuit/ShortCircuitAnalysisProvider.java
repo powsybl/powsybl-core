@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -54,8 +54,8 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
                                                               ShortCircuitParameters parameters,
                                                               ComputationManager computationManager,
                                                               List<FaultParameters> faultParameters,
-                                                              Reporter reporter) {
-        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters, reporter);
+                                                              ReportNode reportNode) {
+        return ShortCircuitAnalysis.runAsync(network, faults, parameters, computationManager, faultParameters, reportNode);
     }
 
     /**

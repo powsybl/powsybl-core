@@ -7,9 +7,8 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
@@ -20,70 +19,65 @@ final class TieLineReports {
     private static final String DANGLING_LINE_ID_2 = "danglingLineId2";
 
     // DEBUG
-    static void inconsistentPropertyValues(Reporter reporter, String propertyName, String propertyValue1, String propertyValue2, String danglingLineId1, String danglingLineId2) {
-        reporter.report(Report.builder()
-                .withKey("InconsistentPropertyValues")
-                .withDefaultMessage("Inconsistencies of property ${propertyName} between ${danglingLineId1} (value=${propertyValue1}) and ${danglingLineId2} (value=${propertyValue2}). Property is not added to merged line")
-                .withValue("propertyName", propertyName)
-                .withValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withValue("propertyValue1", propertyValue1)
-                .withValue(DANGLING_LINE_ID_2, danglingLineId2)
-                .withValue("propertyValue2", propertyValue2)
+    static void inconsistentPropertyValues(ReportNode reportNode, String propertyName, String propertyValue1, String propertyValue2, String danglingLineId1, String danglingLineId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("InconsistentPropertyValues", "Inconsistencies of property ${propertyName} between ${danglingLineId1} (value=${propertyValue1}) and ${danglingLineId2} (value=${propertyValue2}). Property is not added to merged line")
+                .withUntypedValue("propertyName", propertyName)
+                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue("propertyValue1", propertyValue1)
+                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue("propertyValue2", propertyValue2)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .build());
+                .add();
     }
 
-    static void moveCommonAliases(Reporter reporter, String alias, String danglingLineId1, String danglingLineId2) {
-        reporter.report(Report.builder()
-                .withKey("MoveCommonAlias")
-                .withDefaultMessage("Alias ${alias} found in dangling lines ${danglingLineId1} and ${danglingLineId2} is moved to their merged line.")
-                .withValue("alias", alias)
-                .withValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withValue(DANGLING_LINE_ID_2, danglingLineId2)
+    static void moveCommonAliases(ReportNode reportNode, String alias, String danglingLineId1, String danglingLineId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("MoveCommonAlias", "Alias ${alias} found in dangling lines ${danglingLineId1} and ${danglingLineId2} is moved to their merged line.")
+                .withUntypedValue("alias", alias)
+                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .build());
+                .add();
     }
 
-    static void propertyOnlyOnOneSide(Reporter reporter, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
-        reporter.report(Report.builder()
-                .withKey("PropertyOnlyOnOneSide")
-                .withDefaultMessage("Inconsistencies of property ${propertyName} between both sides (${danglingLineId1) on side 1 and ${danglingLineId2} on side2) of merged line. " +
+    static void propertyOnlyOnOneSide(ReportNode reportNode, String propertyName, String propertyValue, int emptySide, String danglingLineId1, String danglingLineId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("PropertyOnlyOnOneSide", "Inconsistencies of property ${propertyName} between both sides (${danglingLineId1) on side 1 and ${danglingLineId2} on side2) of merged line. " +
                         "Side ${side} has no value. Value on other side is kept.")
-                .withValue("propertyName", propertyName)
-                .withValue("side", emptySide)
-                .withValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withValue(DANGLING_LINE_ID_2, danglingLineId2)
-                .withValue("propertyValue", propertyValue)
+                .withUntypedValue("propertyName", propertyName)
+                .withUntypedValue("side", emptySide)
+                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue("propertyValue", propertyValue)
                 .withSeverity(TypedValue.DEBUG_SEVERITY)
-                .build());
+                .add();
     }
 
     // WARN
-    static void inconsistentAliasTypes(Reporter reporter, String alias, String type1, String type2, String danglingLineId1, String danglingLineId2) {
-        reporter.report(Report.builder()
-                .withKey("InconsistentAliasTypes")
-                .withDefaultMessage("Inconsistencies of types for alias ${alias} type in dangling lines ${danglingLineId1} (type=${type1}) and ${danglingLineId2} (type=${type2}). Type is lost.")
-                .withValue("alias", alias)
-                .withValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withValue("type1", type1)
-                .withValue(DANGLING_LINE_ID_2, danglingLineId2)
-                .withValue("type2", type2)
+    static void inconsistentAliasTypes(ReportNode reportNode, String alias, String type1, String type2, String danglingLineId1, String danglingLineId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("InconsistentAliasTypes", "Inconsistencies of types for alias ${alias} type in dangling lines ${danglingLineId1} (type=${type1}) and ${danglingLineId2} (type=${type2}). Type is lost.")
+                .withUntypedValue("alias", alias)
+                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue("type1", type1)
+                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue("type2", type2)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    static void inconsistentAliasValues(Reporter reporter, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
-        reporter.report(Report.builder()
-                .withKey("InconsistentAliasValues")
-                .withDefaultMessage("Inconsistencies found for alias type '${type}'('${alias1}' for '${danglingLineId1}' and '${alias2}' for '${danglingLineId2}'). " +
+    static void inconsistentAliasValues(ReportNode reportNode, String alias1, String alias2, String type, String danglingLineId1, String danglingLineId2) {
+        reportNode.newReportNode()
+                .withMessageTemplate("InconsistentAliasValues", "Inconsistencies found for alias type '${type}'('${alias1}' for '${danglingLineId1}' and '${alias2}' for '${danglingLineId2}'). " +
                         "Types are respectively renamed as '${type}_1' and '${type}_2'.")
-                .withValue("alias1", alias1)
-                .withValue("alias2", alias2)
-                .withValue(DANGLING_LINE_ID_1, danglingLineId1)
-                .withValue(DANGLING_LINE_ID_2, danglingLineId2)
-                .withValue("type", type)
+                .withUntypedValue("alias1", alias1)
+                .withUntypedValue("alias2", alias2)
+                .withUntypedValue(DANGLING_LINE_ID_1, danglingLineId1)
+                .withUntypedValue(DANGLING_LINE_ID_2, danglingLineId2)
+                .withUntypedValue("type", type)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     private TieLineReports() {

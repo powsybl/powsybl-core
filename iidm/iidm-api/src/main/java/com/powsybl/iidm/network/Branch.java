@@ -471,31 +471,31 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     /**
      * Only checks overloading for LimitType.Current and permanent limits
      */
-    boolean isOverloaded(float limitReduction);
+    boolean isOverloaded(double limitReductionValue);
 
     int getOverloadDuration();
 
-    boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type);
+    boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type);
 
     boolean checkPermanentLimit(TwoSides side, LimitType type);
 
-    boolean checkPermanentLimit1(float limitReduction, LimitType type);
+    boolean checkPermanentLimit1(double limitReductionValue, LimitType type);
 
     boolean checkPermanentLimit1(LimitType type);
 
-    boolean checkPermanentLimit2(float limitReduction, LimitType type);
+    boolean checkPermanentLimit2(double limitReductionValue, LimitType type);
 
     boolean checkPermanentLimit2(LimitType type);
 
-    Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type);
+    Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits(TwoSides side, LimitType type);
 
-    Overload checkTemporaryLimits1(float limitReduction, LimitType type);
+    Overload checkTemporaryLimits1(double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits1(LimitType type);
 
-    Overload checkTemporaryLimits2(float limitReduction, LimitType type);
+    Overload checkTemporaryLimits2(double limitReductionValue, LimitType type);
 
     Overload checkTemporaryLimits2(LimitType type);
 }

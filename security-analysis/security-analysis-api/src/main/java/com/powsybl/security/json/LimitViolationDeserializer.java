@@ -44,7 +44,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
         double limit = Double.NaN;
-        float limitReduction = Float.NaN;
+        double limitReduction = Double.NaN;
         double value = Double.NaN;
         ThreeSides side = null;
 

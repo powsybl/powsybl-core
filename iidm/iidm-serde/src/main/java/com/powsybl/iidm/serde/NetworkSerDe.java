@@ -25,7 +25,7 @@ import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonWriter;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
@@ -203,7 +203,7 @@ public final class NetworkSerDe {
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartNode(context.getNamespaceURI(), EXTENSION_ROOT_ELEMENT_NAME);
@@ -507,12 +507,12 @@ public final class NetworkSerDe {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
-        return read(is, config, anonymizer, NetworkFactory.findDefault(), Reporter.NO_OP);
+        return read(is, config, anonymizer, NetworkFactory.findDefault(), ReportNode.NO_OP);
     }
 
-    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, Reporter reporter) {
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, ReportNode reportNode) {
         try (TreeDataReader reader = createTreeDataReader(is, config)) {
-            return read(reader, config, anonymizer, networkFactory, reporter);
+            return read(reader, config, anonymizer, networkFactory, reportNode);
         }
     }
 
@@ -688,47 +688,47 @@ public final class NetworkSerDe {
         return network;
     }
 
-    private static void logExtensionsImported(Reporter reporter, Set<String> extensionNamesImported) {
-        DeserializerReports.importedExtension(reporter, extensionNamesImported);
+    private static void logExtensionsImported(ReportNode reportNode, Set<String> extensionNamesImported) {
+        DeserializerReports.importedExtension(reportNode, extensionNamesImported);
     }
 
-    private static void logExtensionsNotFound(Reporter reporter, Set<String> extensionNamesNotFound) {
-        DeserializerReports.extensionNotFound(reporter, extensionNamesNotFound);
+    private static void logExtensionsNotFound(ReportNode reportNode, Set<String> extensionNamesNotFound) {
+        DeserializerReports.extensionNotFound(reportNode, extensionNamesNotFound);
     }
 
     public static Network read(TreeDataReader reader, ImportOptions config, Anonymizer anonymizer,
-                               NetworkFactory networkFactory, Reporter reporter) {
+                               NetworkFactory networkFactory, ReportNode reportNode) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(networkFactory);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
 
         TreeDataHeader header = reader.readHeader();
         IidmVersion iidmVersion = IidmVersion.of(header.rootVersion(), ".");
         NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, header.extensionVersions());
 
         Network network = initNetwork(networkFactory, context, reader, null);
-        network.getReporterContext().pushReporter(reporter);
+        network.getReportNodeContext().pushReportNode(reportNode);
 
         Set<String> extensionNamesImported = new TreeSet<>();
         Set<String> extensionNamesNotFound = new TreeSet<>();
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        Reporter validationReporter = reporter.createSubReporter("validationWarnings", "Validation warnings");
+        ReportNode validationReportNode = reportNode.newReportNode().withMessageTemplate("validationWarnings", "Validation warnings").add();
         reader.readChildNodes(elementName ->
                 readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
 
         if (!extensionNamesImported.isEmpty()) {
-            Reporter importedExtensionReporter = reporter.createSubReporter("importedExtensions", "Imported extensions");
-            logExtensionsImported(importedExtensionReporter, extensionNamesImported);
+            ReportNode importedExtensionReportNode = reportNode.newReportNode().withMessageTemplate("importedExtensions", "Imported extensions").add();
+            logExtensionsImported(importedExtensionReportNode, extensionNamesImported);
         }
         if (!extensionNamesNotFound.isEmpty()) {
-            Reporter extensionsNotFoundReporter = reporter.createSubReporter("extensionsNotFound", "Not found extensions");
+            ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withMessageTemplate("extensionsNotFound", "Not found extensions").add();
             throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
-            logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
+            logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }
 
-        context.executeEndTasks(network, validationReporter);
+        context.executeEndTasks(network, validationReportNode);
 
         return network;
     }
@@ -737,9 +737,9 @@ public final class NetworkSerDe {
         return read(xmlFile, new ImportOptions());
     }
 
-    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt, Reporter reporter) throws IOException {
+    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt, ReportNode reportNode) throws IOException {
         Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
         Network network;
         Anonymizer anonymizer = null;
 
@@ -751,7 +751,7 @@ public final class NetworkSerDe {
         }
         //Read the base file with the extensions declared in the extensions list
         try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
-            network = NetworkSerDe.read(isb, options, anonymizer, networkFactory, reporter);
+            network = NetworkSerDe.read(isb, options, anonymizer, networkFactory, reportNode);
         }
         return network;
     }
@@ -782,7 +782,7 @@ public final class NetworkSerDe {
 
         context.getReader().readChildNodes(extensionName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
-            // to check for an extension to exist if depth is greater than zero. Furthermore in case of
+            // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
             if (context.getOptions().withExtension(extensionName)) {
                 ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
@@ -858,7 +858,7 @@ public final class NetworkSerDe {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory, Reporter.NO_OP);
+            return read(is, new ImportOptions(), null, networkFactory, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
