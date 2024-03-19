@@ -57,11 +57,7 @@ public class IdentifierContingencyList implements ContingencyList {
                             .stream()
                             .map(ContingencyElement::of)
                             .collect(Collectors.toList());
-                    String contingencyId = identifier.getContingencyId().orElse("Contingency : " +
-                            contingencyElements
-                                    .stream()
-                                    .map(ContingencyElement::getId)
-                                    .collect(Collectors.joining(" + ")));
+                    String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(contingencyElements));
                     return new Contingency(contingencyId, contingencyElements);
                 })
                 .filter(contingency -> contingency.isValid(network))
@@ -73,16 +69,20 @@ public class IdentifierContingencyList implements ContingencyList {
         networkElementIdentifiers.forEach(identifier -> {
             Set<String> notFoundElements = identifier.getNotFoundElements(network);
             if (!notFoundElements.isEmpty()) {
-                String contingencyId = identifier.getContingencyId().orElse("Contingency : " +
-                        identifier.filterIdentifiable(network)
-                                .stream()
-                                .map(ContingencyElement::of)
-                                .map(ContingencyElement::getId)
-                                .collect(Collectors.joining(" + ")));
+                String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(identifier.filterIdentifiable(network)
+                        .stream()
+                        .map(ContingencyElement::of).toList()));
                 notFoundElementsMap.put(contingencyId, notFoundElements);
             }
 
         });
         return notFoundElementsMap;
+    }
+
+    private String getGeneratedContingencyId(List<ContingencyElement> contingencyElements) {
+        return "Contingency : " + contingencyElements
+                        .stream()
+                        .map(ContingencyElement::getId)
+                        .collect(Collectors.joining(" + "));
     }
 }

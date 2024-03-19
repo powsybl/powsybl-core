@@ -51,22 +51,7 @@ class ContingencyDslLoader extends DslLoader {
     static void loadDsl(Binding binding, Network network, Consumer<Contingency> consumer, ContingencyDslObserver observer) {
         // contingencies
         binding.contingency = { String id, Closure<Void> closure ->
-            def cloned = closure.clone()
-            ContingencySpec contingencySpec = new ContingencySpec()
-
-            List<Extension<Contingency>> extensionList = new ArrayList<>();
-            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
-                dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
-            }
-
-            cloned.delegate = contingencySpec
-            cloned()
-            if (!contingencySpec.equipments) {
-                throw new DslException("'equipments' field is not set")
-            }
-            if (contingencySpec.equipments.length == 0) {
-                throw new DslException("'equipments' field is empty")
-            }
+            def (ContingencySpec contingencySpec, ArrayList<Extension<Contingency>> extensionList) = processClosure(closure, binding)
             def valid = true
             def builder = Contingency.builder(id)
             for (String equipment : contingencySpec.equipments) {
@@ -111,6 +96,26 @@ class ContingencyDslLoader extends DslLoader {
         }
     }
 
+    private static List processClosure(Closure<Void> closure, Binding binding) {
+        def cloned = closure.clone()
+        ContingencySpec contingencySpec = new ContingencySpec()
+
+        List<Extension<Contingency>> extensionList = new ArrayList<>();
+        for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
+            dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
+        }
+
+        cloned.delegate = contingencySpec
+        cloned()
+        if (!contingencySpec.equipments) {
+            throw new DslException("'equipments' field is not set")
+        }
+        if (contingencySpec.equipments.length == 0) {
+            throw new DslException("'equipments' field is empty")
+        }
+        [contingencySpec, extensionList]
+    }
+
     Map<String, Set<String>> loadNotFoundElements(Network network) {
         loadNotFoundElements(network, null)
     }
@@ -144,33 +149,18 @@ class ContingencyDslLoader extends DslLoader {
 
     static void findNotFoundIdentifiables(Binding binding, Network network, BiConsumer<String, Set<String>> consumer) {
         binding.contingency = { String id, Closure<Void> closure ->
-            def cloned = closure.clone()
-            ContingencySpec contingencySpec = new ContingencySpec()
+            def (ContingencySpec contingencySpec) = processClosure(closure, binding)
 
-            List<Extension<Contingency>> extensionList = new ArrayList<>();
-            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
-                dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
-            }
-
-            cloned.delegate = contingencySpec
-            cloned()
-            if (!contingencySpec.equipments) {
-                throw new DslException("'equipments' field is not set")
-            }
-            if (contingencySpec.equipments.length == 0) {
-                throw new DslException("'equipments' field is empty")
-            }
-
-            Set<String> notFoundIdentifiable = new LinkedHashSet<>();
+            Set<String> notFoundIdentifiables = new LinkedHashSet<>();
             for (String equipment : contingencySpec.equipments) {
                 Identifiable identifiable = network.getIdentifiable(equipment)
                 if (identifiable == null) {
                     LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
-                    notFoundIdentifiable.add(equipment);
+                    notFoundIdentifiables.add(equipment);
                 }
             }
             if (!notFoundIdentifiable.isEmpty()) {
-                consumer.accept(id, notFoundIdentifiable)
+                consumer.accept(id, notFoundIdentifiables)
             }
         }
     }
