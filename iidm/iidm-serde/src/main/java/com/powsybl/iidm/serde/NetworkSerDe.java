@@ -679,12 +679,19 @@ public final class NetworkSerDe {
         network.setCaseDate(date);
         network.setForecastDistance(forecastDistance);
 
-        ValidationLevel[] minValidationLevel = new ValidationLevel[1];
-        minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> minValidationLevel[0] = reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
+        ValidationLevel minValidationLevel;
+        if (context.getOptions().getMinimalValidationLevel().isPresent()) {
+            minValidationLevel = context.getOptions().getMinimalValidationLevel().get();
+        } else {
+            ValidationLevel[] fileMinValidationLevel = new ValidationLevel[1];
+            fileMinValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> fileMinValidationLevel[0] = reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(fileMinValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
+            minValidationLevel = fileMinValidationLevel[0];
+            context.getOptions().setMinimalValidationLevel(minValidationLevel.toString());
+        }
 
-        IidmSerDeUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
-        network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+        network.setMinimumAcceptableValidationLevel(minValidationLevel);
         return network;
     }
 

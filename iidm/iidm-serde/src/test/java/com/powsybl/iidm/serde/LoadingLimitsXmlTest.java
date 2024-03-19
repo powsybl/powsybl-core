@@ -180,6 +180,20 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         });
     }
 
+    @Test
+    void testImportWithoutPermanentLimit2() {
+        // Check that import succeed for versions prior to 1.12
+        // (the permanent limit is computed)
+        ImportOptions options = new ImportOptions()
+                .setMinimalValidationLevel(ValidationLevel.EQUIPMENT.toString());
+        testForAllPreviousVersions(IidmVersion.V_1_12, version -> {
+            Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
+            Line line = n.getLine("NHV1_NHV2_1");
+            assertEquals(Double.NaN, line.getCurrentLimits1().orElseThrow().getPermanentLimit());
+            assertEquals(Double.NaN, line.getCurrentLimits2().orElseThrow().getPermanentLimit());
+        });
+    }
+
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {
         limitsAdderSupplier.get()
                 .setPermanentLimit(350)

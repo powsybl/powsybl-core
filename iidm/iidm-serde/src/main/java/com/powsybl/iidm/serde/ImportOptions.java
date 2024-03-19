@@ -7,7 +7,9 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
+import com.powsybl.iidm.network.ValidationLevel;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -19,6 +21,8 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
     private boolean withAutomationSystems = true;
     private double missingPermanentLimitPercentage = 100.;
+
+    private ValidationLevel minimalValidationLevel = null;
 
     public ImportOptions() {
     }
@@ -70,6 +74,14 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
         return this;
     }
 
+    public ImportOptions setMinimalValidationLevel(String minimalValidationLevel) {
+        if (minimalValidationLevel != null) {
+            // no check?
+            this.minimalValidationLevel = ValidationLevel.valueOf(minimalValidationLevel);
+        }
+        return this;
+    }
+
     /**
      * <p>Percentage to use to compute a missing permanent limit from the temporary limits.</p>
      * <p>IMPORTANT: This parameter is only effective when importing networks in IIDM version < 1.12
@@ -78,5 +90,14 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
      */
     public double getMissingPermanentLimitPercentage() {
         return missingPermanentLimitPercentage;
+    }
+
+    /**
+     * <p>Minimal validation level accepted during import.</p>
+     * <p>If null, we first look at the one defined in the file. If not defined, the default value is SSH.</p>
+     * @return the validation level if defined.
+     */
+    public Optional<ValidationLevel> getMinimalValidationLevel() {
+        return minimalValidationLevel != null ? Optional.of(minimalValidationLevel) : Optional.empty();
     }
 }

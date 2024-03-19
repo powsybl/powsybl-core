@@ -182,8 +182,9 @@ public final class ConnectableSerDeUtil {
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void readLoadingLimits(String type, A adder, TreeDataReader reader, IidmVersion iidmVersion, ImportOptions options) {
+        ValidationLevel minimalValidationLevel = options.getMinimalValidationLevel().orElse(ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double permanentLimit = reader.readDoubleAttribute("permanentLimit");
-        if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0) {
+        if (Double.isNaN(permanentLimit) && iidmVersion.compareTo(IidmVersion.V_1_12) >= 0 && minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
             throw new PowsyblException("permanentLimit is absent in '" + type + "'");
         }
         adder.setPermanentLimit(permanentLimit);
@@ -205,7 +206,11 @@ public final class ConnectableSerDeUtil {
                 throw new PowsyblException("Unknown element name '" + elementName + "' in '" + type + "'");
             }
         });
-        adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
+        if (minimalValidationLevel == ValidationLevel.STEADY_STATE_HYPOTHESIS) {
+            adder.fixLimits(options.getMissingPermanentLimitPercentage()).add();
+        } else {
+            adder.add();
+        }
     }
 
     private static void readAllLoadingLimits(TreeDataReader reader, String groupElementName, OperationalLimitsGroup group, IidmVersion version, ImportOptions options) {
