@@ -20,7 +20,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
