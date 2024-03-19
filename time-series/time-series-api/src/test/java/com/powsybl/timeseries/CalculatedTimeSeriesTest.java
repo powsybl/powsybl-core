@@ -158,8 +158,8 @@ class CalculatedTimeSeriesTest {
                 "} ]");
         assertEquals(jsonRef, json);
 
-        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
-        for (TimeSeries timeSeries : timeSeriesList) {
+        List<TimeSeries<?, ?>> timeSeriesList = TimeSeries.parseJson(json);
+        for (TimeSeries<?, ?> timeSeries : timeSeriesList) {
             timeSeries.setTimeSeriesNameResolver(resolver);
         }
 
@@ -176,7 +176,7 @@ class CalculatedTimeSeriesTest {
         // automatic jackson serialization
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
-        List<TimeSeries> tsLs2 = objectMapper.readValue(objectMapper.writeValueAsString(tsLs),
+        List<TimeSeries<?, ?>> tsLs2 = objectMapper.readValue(objectMapper.writeValueAsString(tsLs),
                                                         TypeFactory.defaultInstance().constructCollectionType(List.class, TimeSeries.class));
         assertEquals(tsLs, tsLs2);
     }

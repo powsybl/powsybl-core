@@ -17,15 +17,15 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class TimeSeriesJsonDeserializer extends StdDeserializer<TimeSeries> {
+public class TimeSeriesJsonDeserializer extends StdDeserializer<TimeSeries<?, ?>> {
 
     public TimeSeriesJsonDeserializer() {
         super(TimeSeries.class);
     }
 
     @Override
-    public TimeSeries deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(jsonParser, true);
+    public TimeSeries<?, ?> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        List<TimeSeries<?, ?>> timeSeriesList = TimeSeries.parseJson(jsonParser, true);
         if (timeSeriesList.size() != 1) {
             throw new TimeSeriesException("Time series JSON deserialization error");
         }

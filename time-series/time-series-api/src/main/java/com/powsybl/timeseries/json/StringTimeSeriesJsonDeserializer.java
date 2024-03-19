@@ -26,7 +26,7 @@ public class StringTimeSeriesJsonDeserializer extends StdDeserializer<StringTime
 
     @Override
     public StringTimeSeries deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(jsonParser, true);
+        List<TimeSeries<?, ?>> timeSeriesList = TimeSeries.parseJson(jsonParser, true);
         if (timeSeriesList.size() != 1 || !(timeSeriesList.get(0) instanceof StringTimeSeries)) {
             throw new TimeSeriesException("String time series JSON deserialization error");
         }

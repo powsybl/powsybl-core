@@ -73,7 +73,7 @@ class StringTimeSeriesTest {
                 "}");
         String json = JsonUtil.toJson(timeSeries::writeJson);
         assertEquals(jsonRef, json);
-        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
+        List<TimeSeries<?, ?>> timeSeriesList = TimeSeries.parseJson(json);
         assertEquals(1, timeSeriesList.size());
         String json2 = JsonUtil.toJson(timeSeriesList.get(0)::writeJson);
         assertEquals(json, json2);

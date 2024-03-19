@@ -26,7 +26,7 @@ public class DoubleTimeSeriesJsonDeserializer extends StdDeserializer<DoubleTime
 
     @Override
     public DoubleTimeSeries deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(jsonParser, true);
+        List<TimeSeries<?, ?>> timeSeriesList = TimeSeries.parseJson(jsonParser, true);
         if (timeSeriesList.size() != 1 || !(timeSeriesList.get(0) instanceof DoubleTimeSeries)) {
             throw new TimeSeriesException("Double time series JSON deserialization error");
         }
