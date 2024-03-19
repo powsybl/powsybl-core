@@ -10,42 +10,67 @@ import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.strategy.OperatorStrategy;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class OperatorStrategyResult {
 
+    public static class ConditionalActionsResult {
+
+        private final String conditionalActionsId;
+        private final PostContingencyComputationStatus status;
+
+        private final LimitViolationsResult limitViolationsResult;
+
+        private final NetworkResult networkResult;
+
+        public ConditionalActionsResult(String conditionalActionsId, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
+                           NetworkResult networkResult) {
+            this.conditionalActionsId = conditionalActionsId;
+            this.status = Objects.requireNonNull(status);
+            this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
+            this.networkResult = Objects.requireNonNull(networkResult);
+        }
+
+        public String getConditionalActionsId() {
+            return conditionalActionsId;
+        }
+
+        public PostContingencyComputationStatus getStatus() {
+            return status;
+        }
+
+        public LimitViolationsResult getLimitViolationsResult() {
+            return limitViolationsResult;
+        }
+
+        public NetworkResult getNetworkResult() {
+            return networkResult;
+        }
+    }
+
     private final OperatorStrategy operatorStrategy;
 
-    private final PostContingencyComputationStatus status;
-
-    private final LimitViolationsResult limitViolationsResult;
-
-    private final NetworkResult networkResult;
+    private List<ConditionalActionsResult> conditionalActionsResults = new ArrayList<>();
 
     public OperatorStrategyResult(OperatorStrategy operatorStrategy, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
                                   NetworkResult networkResult) {
         this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
-        this.status = Objects.requireNonNull(status);
-        this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
-        this.networkResult = Objects.requireNonNull(networkResult);
+        this.conditionalActionsResults.add(new ConditionalActionsResult(operatorStrategy.getId(), status, limitViolationsResult, networkResult));
+    }
+
+    public OperatorStrategyResult(OperatorStrategy operatorStrategy, List<ConditionalActionsResult> conditionalActionsResults) {
+        this.operatorStrategy = Objects.requireNonNull(operatorStrategy);
+        this.conditionalActionsResults = conditionalActionsResults;
     }
 
     public OperatorStrategy getOperatorStrategy() {
         return operatorStrategy;
     }
 
-    public PostContingencyComputationStatus getStatus() {
-        return status;
-    }
-
-    public LimitViolationsResult getLimitViolationsResult() {
-        return limitViolationsResult;
-    }
-
-    public NetworkResult getNetworkResult() {
-        return networkResult;
+    public List<ConditionalActionsResult> getConditionalActionsResult() {
+        return conditionalActionsResults;
     }
 }

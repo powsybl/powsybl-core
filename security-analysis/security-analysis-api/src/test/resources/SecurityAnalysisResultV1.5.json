@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.5",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -166,17 +166,15 @@
         "actionIds" : [ "actionId1" ]
       } ]
     },
-    "conditionalActionsResults" : [ {
-      "status" : "CONVERGED",
-      "limitViolationsResult" : {
-        "limitViolations" : [ ],
-        "actionsTaken" : [ ]
-      },
-      "networkResult" : {
-        "branchResults" : [ ],
-        "busResults" : [ ],
-        "threeWindingsTransformerResults" : [ ]
-      }
-    } ]
+    "status" : "CONVERGED",
+    "limitViolationsResult" : {
+      "limitViolations" : [ ],
+      "actionsTaken" : [ ]
+    },
+    "networkResult" : {
+      "branchResults" : [ ],
+      "busResults" : [ ],
+      "threeWindingsTransformerResults" : [ ]
+    }
   } ]
 }

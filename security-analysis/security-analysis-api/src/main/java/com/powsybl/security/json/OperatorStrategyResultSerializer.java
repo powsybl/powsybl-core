@@ -26,9 +26,7 @@ public class OperatorStrategyResultSerializer extends StdSerializer<OperatorStra
     public void serialize(OperatorStrategyResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         serializerProvider.defaultSerializeField("operatorStrategy", result.getOperatorStrategy(), jsonGenerator);
-        serializerProvider.defaultSerializeField("status", result.getStatus(), jsonGenerator);
-        serializerProvider.defaultSerializeField("limitViolationsResult", result.getLimitViolationsResult(), jsonGenerator);
-        serializerProvider.defaultSerializeField("networkResult", result.getNetworkResult(), jsonGenerator);
+        serializerProvider.defaultSerializeField("conditionalActionsResults", result.getConditionalActionsResult(), jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 }

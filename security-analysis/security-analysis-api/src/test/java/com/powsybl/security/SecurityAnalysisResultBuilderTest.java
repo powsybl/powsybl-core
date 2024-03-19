@@ -250,11 +250,12 @@ class SecurityAnalysisResultBuilderTest {
 
         OperatorStrategyResult strategyResult = result.getOperatorStrategyResults().get(0);
         assertSame(operatorStrategy, strategyResult.getOperatorStrategy());
-        LimitViolationsResult violationsResult = strategyResult.getLimitViolationsResult();
-        assertSame(PostContingencyComputationStatus.CONVERGED, strategyResult.getStatus());
+        OperatorStrategyResult.ConditionalActionsResult finalResult = strategyResult.getConditionalActionsResult().get(0);
+        LimitViolationsResult violationsResult = finalResult.getLimitViolationsResult();
+        assertSame(PostContingencyComputationStatus.CONVERGED, finalResult.getStatus());
         assertEquals(1, violationsResult.getLimitViolations().size());
         assertSame(violation, violationsResult.getLimitViolations().get(0));
-        NetworkResult networkResult = strategyResult.getNetworkResult();
+        NetworkResult networkResult = finalResult.getNetworkResult();
         assertEquals(1, networkResult.getBusResults().size());
         assertEquals(busResult, networkResult.getBusResults().get(0));
         assertTrue(networkResult.getBranchResults().isEmpty());
