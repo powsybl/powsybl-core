@@ -23,6 +23,6 @@ public class SensitivityFactorJsonSerializer extends StdSerializer<SensitivityFa
 
     @Override
     public void serialize(SensitivityFactor factor, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
-        SensitivityFactor.writeJson(jsonGenerator, factor);
+        SensitivityFactor.writeJson(jsonGenerator, factor, serializerProvider);
     }
 }

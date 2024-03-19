@@ -3,7 +3,7 @@
   "operatorStrategies" : [ {
     "id" : "id1",
     "contingencyContextType" : "SPECIFIC",
-    "contingencyId" : "contingencyId1",
+    "contingencyIds" : [ "contingencyId1" ],
     "conditionalActions" : [ {
       "id" : "default",
       "condition" : {
@@ -21,7 +21,7 @@
   }, {
     "id" : "id2",
     "contingencyContextType" : "SPECIFIC",
-    "contingencyId" : "contingencyId2",
+    "contingencyIds" : [ "contingencyId2" ],
     "conditionalActions" : [ {
       "id" : "default",
       "condition" : {
