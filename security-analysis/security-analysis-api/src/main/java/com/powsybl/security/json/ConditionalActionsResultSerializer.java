@@ -16,6 +16,7 @@ public class ConditionalActionsResultSerializer extends StdSerializer<OperatorSt
     @Override
     public void serialize(OperatorStrategyResult.ConditionalActionsResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
+        serializerProvider.defaultSerializeField("conditionalActionsId", result.getConditionalActionsId(), jsonGenerator);
         serializerProvider.defaultSerializeField("status", result.getStatus(), jsonGenerator);
         serializerProvider.defaultSerializeField("limitViolationsResult", result.getLimitViolationsResult(), jsonGenerator);
         serializerProvider.defaultSerializeField("networkResult", result.getNetworkResult(), jsonGenerator);

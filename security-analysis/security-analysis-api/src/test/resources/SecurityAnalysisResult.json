@@ -167,6 +167,7 @@
       } ]
     },
     "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId",
       "status" : "CONVERGED",
       "limitViolationsResult" : {
         "limitViolations" : [ ],
