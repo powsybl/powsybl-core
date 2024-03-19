@@ -117,9 +117,9 @@ public class TimeSeriesTable {
         }
     }
 
-    private int fromVersion;
+    private final int fromVersion;
 
-    private int toVersion;
+    private final int toVersion;
 
     private List<TimeSeriesMetadata> timeSeriesMetadata;
 
@@ -252,7 +252,7 @@ public class TimeSeriesTable {
     }
 
     private long getTimeSeriesOffset(int version, int timeSeriesNum) {
-        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (version - fromVersion) * tableIndex.getPointCount();
+        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (long) (version - fromVersion) * tableIndex.getPointCount();
     }
 
     private int getStatisticsIndex(int version, int timeSeriesNum) {
