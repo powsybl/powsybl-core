@@ -8,7 +8,6 @@ package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationDetector;
 
 import java.util.function.Consumer;
 

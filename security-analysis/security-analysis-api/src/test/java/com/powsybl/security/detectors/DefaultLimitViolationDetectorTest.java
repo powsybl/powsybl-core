@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;

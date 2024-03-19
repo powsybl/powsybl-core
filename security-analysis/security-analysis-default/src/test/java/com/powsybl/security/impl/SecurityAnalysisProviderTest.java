@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.*;
 import com.powsybl.security.action.Action;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
+import com.powsybl.security.detectors.LimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;

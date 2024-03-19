@@ -26,6 +26,7 @@ import com.powsybl.security.action.Action;
 import com.powsybl.security.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
+import com.powsybl.security.detectors.LimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
