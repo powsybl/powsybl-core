@@ -96,7 +96,8 @@ class StringTimeSeriesTest {
 
     @Test
     void testCreateError() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", new RegularTimeSeriesIndex(0, 2, 1), "a", "b"));
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", index, "a", "b"));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }
