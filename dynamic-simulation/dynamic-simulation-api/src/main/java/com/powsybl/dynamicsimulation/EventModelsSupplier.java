@@ -16,6 +16,6 @@ import java.util.Collections;
 public interface EventModelsSupplier extends SimulatorInputSupplier<EventModel> {
 
     static EventModelsSupplier empty() {
-        return (network, reporter) -> Collections.emptyList();
+        return (network, reportNode) -> Collections.emptyList();
     }
 }

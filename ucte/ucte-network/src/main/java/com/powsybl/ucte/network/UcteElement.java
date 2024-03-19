@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -149,7 +149,7 @@ public class UcteElement implements UcteRecord {
     private static final double MIN_X = 0.05;
 
     @Override
-    public void fix(Reporter reporter) {
+    public void fix(ReportNode reportNode) {
         switch (status) {
             case EQUIVALENT_ELEMENT_IN_OPERATION:
             case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:

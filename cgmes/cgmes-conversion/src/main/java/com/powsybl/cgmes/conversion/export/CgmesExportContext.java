@@ -16,7 +16,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,7 +54,7 @@ public class CgmesExportContext {
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
-    private Reporter reporter = Reporter.NO_OP;
+    private ReportNode reportNode = ReportNode.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
@@ -402,7 +402,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c, network);
+                    addIidmMappingsTerminal(t, c);
                 }
             }
         }
@@ -488,7 +488,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
+    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
@@ -508,7 +508,7 @@ public class CgmesExportContext {
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = namingStrategy.getCgmesId(refTyped(c), TERMINAL, ref(sequenceNumber));
@@ -533,11 +533,39 @@ public class CgmesExportContext {
                 }
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && hasVoltageControlCapability(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
+    }
+
+    private static boolean hasVoltageControlCapability(Generator generator) {
+        if (Double.isNaN(generator.getTargetV()) || generator.getReactiveLimits() == null) {
+            return false;
+        }
+
+        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+        if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+            return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
+        }
+
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(ReactiveCapabilityCurve rcc) {
+        for (ReactiveCapabilityCurve.Point point : rcc.getPoints()) {
+            if (point.getMaxQ() != point.getMinQ()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(MinMaxReactiveLimits mmrl) {
+        return mmrl.getMaxQ() != mmrl.getMinQ();
     }
 
     private void addIidmMappingsBatteries(Network network) {
@@ -632,7 +660,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (alias == null) {
@@ -826,13 +854,13 @@ public class CgmesExportContext {
         return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
 
-    public CgmesExportContext setReporter(Reporter reporter) {
-        this.reporter = reporter;
+    public CgmesExportContext setReportNode(ReportNode reportNode) {
+        this.reportNode = reportNode;
         return this;
     }
 
-    public Reporter getReporter() {
-        return this.reporter;
+    public ReportNode getReportNode() {
+        return this.reportNode;
     }
 
     public void putTopologicalNode(String tn, Bus bus) {

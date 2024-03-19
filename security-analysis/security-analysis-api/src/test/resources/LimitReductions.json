@@ -1,0 +1,138 @@
+{
+  "version" : "1.0",
+  "limitReductions" : [ {
+    "value" : 0.8999999761581421,
+    "limitType" : "CURRENT",
+    "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "SPECIFIC",
+      "contingencyId" : "contingency1"
+    },
+    "equipmentCriteria" : [ {
+      "type" : "identifierCriterion",
+      "version" : "1.0",
+      "identifiers" : [ "NHV1_NHV2_1" ]
+    }, {
+      "type" : "lineCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "TWO_COUNTRY",
+        "countries1" : [ "FR" ],
+        "countries2" : [ ]
+      },
+      "nominalVoltageCriterion" : {
+        "type" : "TWO_NOMINAL_VOLTAGE",
+        "voltageInterval1" : {
+          "nominalVoltageLowBound" : 350.0,
+          "nominalVoltageHighBound" : 410.0,
+          "lowClosed" : true,
+          "highClosed" : false
+        }
+      }
+    }, {
+      "type" : "twoWindingsTransformerCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "SINGLE_COUNTRY",
+        "countries" : [ "FR", "BE" ]
+      }
+    }, {
+      "type" : "threeWindingsTransformerCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "SINGLE_COUNTRY",
+        "countries" : [ "FR", "BE" ]
+      }
+    }, {
+      "type" : "tieLineCriterion",
+      "version" : "1.0",
+      "nominalVoltageCriterion" : {
+        "type" : "TWO_NOMINAL_VOLTAGE",
+        "voltageInterval1" : {
+          "nominalVoltageLowBound" : 350.0,
+          "nominalVoltageHighBound" : 410.0,
+          "lowClosed" : true,
+          "highClosed" : false
+        }
+      }
+    }, {
+      "type" : "danglingLineCriterion",
+      "version" : "1.0",
+      "nominalVoltageCriterion" : {
+        "type" : "SINGLE_NOMINAL_VOLTAGE",
+        "voltageInterval" : {
+          "nominalVoltageLowBound" : 80.0,
+          "nominalVoltageHighBound" : 100.0,
+          "lowClosed" : true,
+          "highClosed" : false
+        }
+      }
+    } ],
+    "durationCriteria" : [ {
+      "type" : "PERMANENT",
+      "version" : "1.0"
+    }, {
+      "type" : "TEMPORARY_ALL",
+      "version" : "1.0"
+    } ]
+  }, {
+    "value" : 0.5,
+    "limitType" : "APPARENT_POWER",
+    "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    },
+    "equipmentCriteria" : [ {
+      "type" : "identifierCriterion",
+      "version" : "1.0",
+      "identifiers" : [ "NHV1_NHV2_2" ]
+    } ],
+    "durationCriteria" : [ {
+      "type" : "TEMPORARY_INTERVAL",
+      "version" : "1.0",
+      "lowBound" : 600,
+      "lowClosed" : true,
+      "highBound" : 1200,
+      "highClosed" : true
+    } ]
+  }, {
+    "value" : 0.800000011920929,
+    "limitType" : "ACTIVE_POWER",
+    "monitoringOnly" : true,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    }
+  }, {
+    "value" : 0.8999999761581421,
+    "limitType" : "CURRENT",
+    "monitoringOnly" : false,
+    "contingencyContext" : {
+      "contextType" : "ALL"
+    },
+    "equipmentCriteria" : [ {
+      "type" : "identifiableCriterion",
+      "version" : "1.0",
+      "countryCriterion" : {
+        "type" : "AT_LEAST_ONE_COUNTRY",
+        "countries" : [ "FR" ]
+      },
+      "nominalVoltageCriterion" : {
+        "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
+        "voltageInterval" : {
+          "nominalVoltageLowBound" : 380.0,
+          "nominalVoltageHighBound" : 410.0,
+          "lowClosed" : true,
+          "highClosed" : true
+        }
+      }
+    } ],
+    "durationCriteria" : [ {
+      "type" : "TEMPORARY_INTERVAL",
+      "version" : "1.0",
+      "lowBound" : 300,
+      "lowClosed" : true,
+      "highBound" : 600,
+      "highClosed" : false
+    } ]
+  } ]
+}

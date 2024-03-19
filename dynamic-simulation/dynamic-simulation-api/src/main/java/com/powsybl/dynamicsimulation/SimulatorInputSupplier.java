@@ -7,7 +7,7 @@
 
 package com.powsybl.dynamicsimulation;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -31,13 +31,13 @@ public interface SimulatorInputSupplier<T> {
      * Return a list of <pre>T</pre> objects specific to a given network
      *
      * @param network The network used to filter the content of the list
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      *
      * @return A list of <pre>T</pre> for the given network
      */
-    List<T> get(Network network, Reporter reporter);
+    List<T> get(Network network, ReportNode reportNode);
 
     default List<T> get(Network network) {
-        return get(network, Reporter.NO_OP);
+        return get(network, ReportNode.NO_OP);
     }
 }

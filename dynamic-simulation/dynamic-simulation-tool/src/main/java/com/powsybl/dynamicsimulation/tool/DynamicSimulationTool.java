@@ -9,7 +9,7 @@ package com.powsybl.dynamicsimulation.tool;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.*;
 import com.powsybl.dynamicsimulation.groovy.*;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
@@ -154,14 +154,14 @@ public class DynamicSimulationTool implements Tool {
             JsonDynamicSimulationParameters.update(params, parametersFile);
         }
 
-        ReporterModel reporter = new ReporterModel("dynamicSimulationTool", "Dynamic Simulation Tool");
-        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reporter);
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").build();
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {
-            exportLog(reporter, context, outputLogFile);
+            exportLog(reportNode, context, outputLogFile);
         } else {
-            printLog(reporter, context);
+            printLog(reportNode, context);
         }
 
         Path outputFile = line.hasOption(OUTPUT_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE)) : null;
@@ -205,9 +205,9 @@ public class DynamicSimulationTool implements Tool {
         printDynamicSimulationResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
-    private void printLog(ReporterModel reporter, ToolRunningContext context) throws IOException {
+    private void printLog(ReportNode reportNode, ToolRunningContext context) throws IOException {
         Writer writer = new OutputStreamWriter(context.getOutputStream());
-        reporter.export(writer);
+        reportNode.print(writer);
         writer.flush();
     }
 
@@ -229,8 +229,8 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulationResultSerializer.write(result, outputFile);
     }
 
-    private void exportLog(ReporterModel reporter, ToolRunningContext context, Path outputLogFile) {
+    private void exportLog(ReportNode reportNode, ToolRunningContext context, Path outputLogFile) throws IOException {
         context.getOutputStream().println("Writing logs to '" + outputLogFile + "'");
-        reporter.export(outputLogFile);
+        reportNode.print(outputLogFile);
     }
 }

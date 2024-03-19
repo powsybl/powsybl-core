@@ -64,6 +64,7 @@ public abstract class AbstractDanglingLineTest {
         String id = "danglingId";
         String name = "danlingName";
         String pairingKey = "code";
+        String newPairingKey = "new_code";
         voltageLevel.newDanglingLine()
                         .setId(id)
                         .setName(name)
@@ -111,6 +112,8 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(p02, danglingLine.getP0(), 0.0);
         danglingLine.setQ0(q02);
         assertEquals(q02, danglingLine.getQ0(), 0.0);
+        danglingLine.setPairingKey(newPairingKey);
+        assertEquals(newPairingKey, danglingLine.getPairingKey());
 
         danglingLine.newCurrentLimits()
                 .setPermanentLimit(100.0)

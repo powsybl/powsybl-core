@@ -198,7 +198,7 @@ class LimitViolationDetectorTest {
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
             }
         };

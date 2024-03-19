@@ -86,12 +86,12 @@ class DefaultLimitViolationDetectorTest {
             && line1Limits.get().getTemporaryLimits().isEmpty()
             && line1Limits.get().getPermanentLimit() > i); // no overload expected
 
-        // no violation if limitReduction is 1
+        // no violation if limitReductionValue is 1
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT);
         assertTrue(violationsCollector.isEmpty());
 
-        // violation reported if limitReduction is 0.9
+        // violation reported if limitReductionValue is 0.9
         cdetector = new DefaultLimitViolationDetector(0.9f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkLimitViolation(line1, TwoSides.ONE, i, violationsCollector::add, LimitType.CURRENT);
         Assertions.assertThat(violationsCollector)
