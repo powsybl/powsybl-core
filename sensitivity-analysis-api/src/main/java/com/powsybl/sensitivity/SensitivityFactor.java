@@ -118,7 +118,9 @@ public class SensitivityFactor {
             jsonGenerator.writeStringField("variableId", variableId);
             jsonGenerator.writeBooleanField("variableSet", variableSet);
             jsonGenerator.writeStringField("contingencyContextType", contingencyContext.getContextType().name());
-            serializerProvider.defaultSerializeField("contingencyIds", contingencyContext.getContingencyIds(), jsonGenerator);
+            if (!contingencyContext.getContingencyIds().isEmpty()) {
+                serializerProvider.defaultSerializeField("contingencyIds", contingencyContext.getContingencyIds(), jsonGenerator);
+            }
             jsonGenerator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

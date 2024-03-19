@@ -8,6 +8,7 @@
 
 package com.powsybl.contingency;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.google.common.collect.ImmutableList;
@@ -48,14 +49,13 @@ public class ContingencyContext {
         this(Collections.singletonList(contingencyId), contingencyContextType);
     }
 
-    public ContingencyContext(@JsonProperty("contingencyIds") List<String> contingencyIds,
+    public ContingencyContext(@JsonProperty("contingencyIds") @JsonInclude(JsonInclude.Include.NON_EMPTY) List<String> contingencyIds,
                               @JsonProperty("contextType") ContingencyContextType contingencyContextType) {
-        Objects.requireNonNull(contingencyIds);
+        this.contingencyIds = contingencyIds == null ? Collections.emptyList() : contingencyIds;
         this.contextType = Objects.requireNonNull(contingencyContextType);
-        if (contingencyContextType == ContingencyContextType.SPECIFIC && contingencyIds.isEmpty()) {
+        if (contingencyContextType == ContingencyContextType.SPECIFIC && this.contingencyIds.isEmpty()) {
             throw new IllegalArgumentException("Contingency IDs should not be empty in case of specific contingency context");
         }
-        this.contingencyIds = contingencyIds;
     }
 
     public static ContingencyContext specificContingency(String contingencyId) {

@@ -6,32 +6,28 @@
     "variableType" : "INJECTION_ACTIVE_POWER",
     "variableId" : "g",
     "variableSet" : false,
-    "contingencyContextType" : "ALL",
-    "contingencyIds" : [ ]
+    "contingencyContextType" : "ALL"
   }, {
     "functionType" : "BRANCH_ACTIVE_POWER_1",
     "functionId" : "l2",
     "variableType" : "INJECTION_ACTIVE_POWER",
     "variableId" : "g2",
     "variableSet" : false,
-    "contingencyContextType" : "NONE",
-    "contingencyIds" : [ ]
+    "contingencyContextType" : "NONE"
   }, {
     "functionType" : "BRANCH_CURRENT_1",
     "functionId" : "l",
     "variableType" : "INJECTION_ACTIVE_POWER",
     "variableId" : "g",
     "variableSet" : false,
-    "contingencyContextType" : "ALL",
-    "contingencyIds" : [ ]
+    "contingencyContextType" : "ALL"
   }, {
     "functionType" : "BRANCH_CURRENT_1",
     "functionId" : "l2",
     "variableType" : "INJECTION_ACTIVE_POWER",
     "variableId" : "g2",
     "variableSet" : false,
-    "contingencyContextType" : "NONE",
-    "contingencyIds" : [ ]
+    "contingencyContextType" : "NONE"
   } ],
   "sensitivityValues" : [ {
     "factorIndex" : 0,
