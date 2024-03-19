@@ -9,6 +9,7 @@ package com.powsybl.security.strategy;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableList;
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.json.SecurityAnalysisJsonModule;
 
@@ -51,7 +52,8 @@ public class OperatorStrategyList {
         Objects.requireNonNull(is);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule());
         try {
             return objectMapper.readValue(is, OperatorStrategyList.class);
         } catch (IOException e) {
@@ -86,6 +88,7 @@ public class OperatorStrategyList {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule());
     }
 }

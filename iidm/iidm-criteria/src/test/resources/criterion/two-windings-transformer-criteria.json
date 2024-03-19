@@ -1,0 +1,27 @@
+[ {
+  "type" : "twoWindingsTransformerCriterion",
+  "version" : "1.0",
+  "name" : "criterion2",
+  "countryCriterion" : {
+    "type" : "SINGLE_COUNTRY",
+    "countries" : [ "FR", "BE" ]
+  },
+  "nominalVoltageCriterion" : {
+    "type" : "TWO_NOMINAL_VOLTAGE",
+    "voltageInterval1" : {
+      "nominalVoltageLowBound" : 80.0,
+      "nominalVoltageHighBound" : 100.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    },
+    "voltageInterval2" : {
+      "nominalVoltageLowBound" : 380.0,
+      "nominalVoltageHighBound" : 420.0,
+      "lowClosed" : true,
+      "highClosed" : false
+    }
+  }
+}, {
+  "type" : "twoWindingsTransformerCriterion",
+  "version" : "1.0"
+} ]

@@ -8,6 +8,7 @@ package com.powsybl.iidm.criteria;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableType;
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 
 /**
  * the purpose of these class is to filter contingencies in a criterion contingency list
@@ -23,10 +24,12 @@ import com.powsybl.iidm.network.IdentifiableType;
 public interface Criterion {
 
     enum CriterionType {
+        AT_LEAST_ONE_NOMINAL_VOLTAGE,
         SINGLE_NOMINAL_VOLTAGE,
         TWO_NOMINAL_VOLTAGE,
         THREE_NOMINAL_VOLTAGE,
         PROPERTY,
+        AT_LEAST_ONE_COUNTRY,
         SINGLE_COUNTRY,
         TWO_COUNTRY,
         REGEX
@@ -35,6 +38,10 @@ public interface Criterion {
     CriterionType getType();
 
     default boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
+        return false;
+    }
+
+    default boolean filter(NetworkElement networkElement) {
         return false;
     }
 }

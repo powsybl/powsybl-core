@@ -60,6 +60,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
-                new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(), ReportNode.NO_OP);
+                new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(),
+                data.getLimitReductions(), ReportNode.NO_OP);
     }
 }

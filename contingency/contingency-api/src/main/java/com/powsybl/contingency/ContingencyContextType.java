@@ -29,7 +29,7 @@ public enum ContingencyContextType {
      */
     SPECIFIC,
     /**
-     *  Corresponds to all contingencies, without the pre-contingency situation
+     *  Corresponds to all contingencies (without the pre-contingency situation)
      */
     ONLY_CONTINGENCIES
 }
