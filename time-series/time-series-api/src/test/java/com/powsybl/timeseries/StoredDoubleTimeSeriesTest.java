@@ -110,23 +110,23 @@ class StoredDoubleTimeSeriesTest {
         assertEquals(3, split.size());
 
         // check first chunk
-        assertTrue(split.get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0));
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0));
         assertEquals(chunkposition, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getOffset());
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getLength());
 
         // check second chunk
-        assertTrue(split.get(1) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1));
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0));
         assertEquals(chunkposition + 1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
 
         // check third chunk
-        assertTrue(split.get(2) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(2));
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0));
         assertEquals(chunkposition + 3, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
     }
@@ -156,35 +156,36 @@ class StoredDoubleTimeSeriesTest {
 
         // check first chunk
         assertEquals(1, split.get(0).size());
-        assertTrue(split.get(0).get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0).get(0));
         StoredDoubleTimeSeries ts = (StoredDoubleTimeSeries) split.get(0).get(0);
         assertEquals(1, ts.getChunks().size());
-        assertTrue(ts.getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().get(0));
         assertEquals(0, ts.getChunks().get(0).getOffset());
         assertEquals(2, ts.getChunks().get(0).getLength());
 
         // check second chunk
         assertEquals(1, split.get(1).size());
-        assertTrue(split.get(1).get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1).get(0));
         ts = (StoredDoubleTimeSeries) split.get(1).get(0);
         assertEquals(1, ts.getChunks().size());
-        assertTrue(ts.getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().get(0));
         assertEquals(2, ts.getChunks().get(0).getOffset());
         assertEquals(2, ts.getChunks().get(0).getLength());
 
         // check third chunk
         assertEquals(1, split.get(2).size());
-        assertTrue(split.get(2).get(0) instanceof StoredDoubleTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(2).get(0));
         ts = (StoredDoubleTimeSeries) split.get(2).get(0);
         assertEquals(1, ts.getChunks().size());
-        assertTrue(ts.getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertInstanceOf(UncompressedDoubleDataChunk.class, ts.getChunks().get(0));
         assertEquals(4, ts.getChunks().get(0).getOffset());
         assertEquals(2, ts.getChunks().get(0).getLength());
     }
 
     @Test
     void testCreateError() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createDouble("ts1", new RegularTimeSeriesIndex(0, 2, 1), 0d, 1d));
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createDouble("ts1", index, 0d, 1d));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }
