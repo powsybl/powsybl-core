@@ -32,8 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -169,15 +167,6 @@ class GroovyContingencyListTest extends AbstractTaskInterruptionTest {
     @Timeout(3)
     @ValueSource(booleans = {false, true})
     void testCancelTask(boolean isDelayed) throws Exception {
-
-        // Counters
-        waitForStart = new CountDownLatch(1);
-        waitForFinish = new CountDownLatch(1);
-        waitForInterruption = new CountDownLatch(1);
-
-        // Booleans
-        config = new AtomicBoolean(false);
-        interrupted = new AtomicBoolean(false);
         writeToDslFile("contingency('c1') {",
             "    equipments 'NHV1_NHV2_1'",
             "}");

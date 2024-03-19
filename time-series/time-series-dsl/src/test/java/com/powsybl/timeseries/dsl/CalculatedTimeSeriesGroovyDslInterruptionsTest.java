@@ -18,8 +18,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.threeten.extra.Interval;
 
 import java.time.Duration;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -49,15 +47,6 @@ class CalculatedTimeSeriesGroovyDslInterruptionsTest extends AbstractTaskInterru
 
     @BeforeEach
     void setUp() {
-        // Counters
-        waitForStart = new CountDownLatch(1);
-        waitForFinish = new CountDownLatch(1);
-        waitForInterruption = new CountDownLatch(1);
-
-        // Booleans
-        config = new AtomicBoolean(false);
-        interrupted = new AtomicBoolean(false);
-
         // Time Series Store
         store = new ReadOnlyTimeSeriesStoreCache(
             TimeSeries.createDouble(timeSeriesNames[0], index, fooValues)

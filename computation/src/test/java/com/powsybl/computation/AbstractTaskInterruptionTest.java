@@ -103,6 +103,17 @@ public abstract class AbstractTaskInterruptionTest {
      * @throws InterruptedException Exception that should be thrown during the interruption
      */
     public void testCancelLongTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws InterruptedException {
+
+        // Counters
+        waitForStart = new CountDownLatch(1);
+        waitForFinish = new CountDownLatch(1);
+        waitForInterruption = new CountDownLatch(1);
+
+        // Booleans
+        config = new AtomicBoolean(false);
+        interrupted = new AtomicBoolean(false);
+
+        // Task
         CompletableFuture<Object> task = createTask(methodCalledInTask);
 
         // If asked, wait a bit to simulate interruption by a user
@@ -120,6 +131,17 @@ public abstract class AbstractTaskInterruptionTest {
      * @throws InterruptedException Exception that should be thrown during the interruption
      */
     public void testCancelShortTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws InterruptedException {
+
+        // Counters
+        waitForStart = new CountDownLatch(1);
+        waitForFinish = new CountDownLatch(1);
+        waitForInterruption = new CountDownLatch(1);
+
+        // Booleans
+        config = new AtomicBoolean(false);
+        interrupted = new AtomicBoolean(false);
+
+        // Task
         CompletableFuture<Object> task = createTask(methodCalledInTask);
 
         // If asked, wait a bit to simulate interruption by a user
