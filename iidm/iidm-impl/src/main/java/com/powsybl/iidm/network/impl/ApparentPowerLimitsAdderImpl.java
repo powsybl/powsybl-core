@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ApparentPowerLimits;
 import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationLevel;
 
 import java.util.function.Supplier;
 
@@ -21,19 +22,22 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
 
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
 
-    public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId) {
+    private final NetworkImpl network;
+
+    public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
         super(validable, ownerId);
         this.groupSupplier = groupSupplier;
+        this.network = network;
     }
 
     @Override
     public ApparentPowerLimits add() {
-        checkLoadingLimits();
+        network.setValidationLevelIfGreaterThan(checkLoadingLimits(network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ApparentPowerLimits on %s: error getting or creating the group", getOwnerId()));
         }
-        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits);
+        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits, network);
         group.setApparentPowerLimits(limits);
         return limits;
     }

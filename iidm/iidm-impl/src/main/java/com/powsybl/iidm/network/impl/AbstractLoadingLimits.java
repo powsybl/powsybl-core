@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Collection;
@@ -22,6 +23,8 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
+
+    private final NetworkImpl network;
 
     static class TemporaryLimitImpl implements TemporaryLimit {
 
@@ -61,11 +64,12 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         }
     }
 
-    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, NetworkImpl network) {
         this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
+        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -75,7 +79,8 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits());
+        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
+                network.getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);

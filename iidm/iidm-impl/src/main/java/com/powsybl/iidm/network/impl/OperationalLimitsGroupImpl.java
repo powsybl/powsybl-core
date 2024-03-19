@@ -64,17 +64,17 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId());
+        return new CurrentLimitsAdderImpl(() -> this, validable, identifiable.getId(), (NetworkImpl) identifiable.getNetwork());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId());
+        return new ActivePowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), (NetworkImpl) identifiable.getNetwork());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId());
+        return new ApparentPowerLimitsAdderImpl(() -> this, validable, identifiable.getId(), (NetworkImpl) identifiable.getNetwork());
     }
 
     @Override

@@ -567,7 +567,7 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode,
-                                           boolean throwException, ReportNode reportNode) {
+                                                      boolean throwException, ReportNode reportNode) {
         if (converterMode == null) {
             throwExceptionOrLogError(validable, "converter mode is invalid", throwException, reportNode);
             return ValidationLevel.EQUIPMENT;
@@ -589,15 +589,30 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
-        ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits);
+    public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+                                                     boolean throwException, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits, throwException, reportNode);
         ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
+        return validationLevel;
     }
 
-    public static void checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
-        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty() || permanentLimit <= 0) {
-            throw new ValidationException(validable, "permanent limit must be defined and be > 0");
+    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+                                                      boolean throwException, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty()) {
+            throwExceptionOrLogError(validable, "permanent limit must be defined if temporary limits are present", throwException, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
+        if (!Double.isNaN(permanentLimit) && permanentLimit <= 0) {
+            // because it is forbidden for SSH and EQ validation levels.
+            throw new ValidationException(validable, "permanent limit must be > 0");
+        }
+        return validationLevel;
+    }
+
+    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+                                                      boolean throwException) {
+        return checkPermanentLimit(validable, permanentLimit, temporaryLimits, throwException, ReportNode.NO_OP);
     }
 
     public static void checkTemporaryLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {

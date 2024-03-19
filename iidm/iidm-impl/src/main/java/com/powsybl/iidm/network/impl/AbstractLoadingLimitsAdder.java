@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -138,8 +139,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         return !temporaryLimits.isEmpty();
     }
 
-    protected void checkLoadingLimits() {
-        ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values());
+    protected ValidationLevel checkLoadingLimits(boolean throwException, ReportNode reportNode) {
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), throwException, reportNode);
+    }
+
+    protected ValidationLevel checkLoadingLimits(boolean throwException) {
+        return checkLoadingLimits(throwException, ReportNode.NO_OP);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {
