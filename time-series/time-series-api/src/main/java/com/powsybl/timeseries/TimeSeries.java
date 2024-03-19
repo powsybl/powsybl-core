@@ -20,6 +20,7 @@ import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -36,6 +37,8 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>> extends Iterable<P> {
+
+    Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
 
     int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = 0;
 
@@ -232,17 +235,21 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
                 // If the version is equals to the default version, either log a warning or throw an exception
                 if (version == DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES) {
+                    String line = String.join(";", tokens);
                     if (timeSeriesCsvConfig.withStrictVersioningImport()) {
                         throw new TimeSeriesException(String.format("The version number for a versioned TimeSeries cannot be equals to the default version number (%s) at line \"%s\"",
                             DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
-                            String.join(";", tokens)));
+                            line));
                     } else {
                         reportNode.newReportNode()
                             .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line \"${line}\"")
                             .withSeverity(TypedValue.WARN_SEVERITY)
                             .withUntypedValue("versionNumber", DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES)
-                            .withUntypedValue("line", String.join(";", tokens))
+                            .withUntypedValue("line", line)
                             .add();
+                        LOGGER.warn("The version number for a versioned TimeSeries should not be equals to the default version number ({}) at line \"{}}\"",
+                            DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
+                            line);
                     }
                 }
             }
@@ -334,7 +341,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             List<TimeSeries> timeSeriesList = new ArrayList<>(names.size());
             for (int i = 0; i < names.size(); i++) {
                 if (Objects.isNull(names.get(i))) {
-                    LoggerFactory.getLogger(TimeSeries.class).warn("Timeseries without name");
+                    LOGGER.warn("Timeseries without name");
                     continue;
                 }
                 TimeSeriesMetadata metadata = new TimeSeriesMetadata(names.get(i), dataTypes[i], index);
@@ -457,8 +464,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         readCsvValues(iterator, context, timeSeriesPerVersion, reportNode);
 
         long timing = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-        LoggerFactory.getLogger(TimeSeries.class)
-                .info("{} time series loaded from CSV in {} ms",
+        LOGGER.info("{} time series loaded from CSV in {} ms",
                 timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum(),
                     timing);
         reportNode.newReportNode()
