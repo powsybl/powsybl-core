@@ -292,8 +292,9 @@ class TimeSeriesTest {
 
     @Test
     void splitTest() {
+        List<DoubleTimeSeries> emptyList = Collections.emptyList();
         try {
-            TimeSeries.split(Collections.<DoubleTimeSeries>emptyList(), 2);
+            TimeSeries.split(emptyList, 2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
