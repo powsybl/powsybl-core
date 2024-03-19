@@ -255,16 +255,20 @@ class SecurityAnalysisTest {
         // this monitor will be filtered because the id of the branch of the state Monitor and the id of the branch of the contingency are the same
         monitors.add(new StateMonitor(new ContingencyContext("NHV1_NHV2_2", ContingencyContextType.SPECIFIC),
             Collections.singleton("NHV1_NHV2_2"), Collections.emptySet(), Collections.emptySet()));
-        monitors.add(new StateMonitor(new ContingencyContext(null, ContingencyContextType.NONE),
+        monitors.add(new StateMonitor(ContingencyContext.none(),
                 Set.of("NHV1_NHV2_1", "NOT_EXISTING_BRANCH"), Set.of("VLHV1", "NOT_EXISTING_VOLTAGE_LEVEL"), Collections.singleton("NOT_EXISTING_T3W"))); // ignore IDs of non existing equipment
 
         DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, ReportNode.NO_OP);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
         Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
-        Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBusResult("VLHV1_0")).isEqualToComparingOnlyGivenFields(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBusResult("VLHV1_0"))
+            .usingRecursiveComparison()
+            .isEqualTo(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
         Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_1", 560.0, 550.0, 1192.5631358010583, 560.0, 550.0, 1192.5631358010583, 0.0));
-        Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBranchResult("NHV1_NHV2_1")).isEqualToComparingOnlyGivenFields(new BranchResult("NHV1_NHV2_1", 560.0, 550.0, 1192.5631358010583, 560.0, 550.0, 1192.5631358010583, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBranchResult("NHV1_NHV2_1"))
+            .usingRecursiveComparison()
+            .isEqualTo(new BranchResult("NHV1_NHV2_1", 560.0, 550.0, 1192.5631358010583, 560.0, 550.0, 1192.5631358010583, 0.0));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getNetworkResult().getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_2", 600.0, 500.0, 1186.6446717954987, 600.0, 500.0, 1186.6446717954987, 0.0));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV2", "VLHV2_0", 380.0, 0.0));
     }

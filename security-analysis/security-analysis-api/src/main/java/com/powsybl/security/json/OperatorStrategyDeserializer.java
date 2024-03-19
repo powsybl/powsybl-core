@@ -23,6 +23,7 @@ import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.security.strategy.ConditionalActions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -46,7 +47,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         String version;
         String id;
         ContingencyContextType contingencyContextType;
-        String contingencyId;
+        List<String> contingencyIds = new ArrayList<>();
         List<ConditionalActions> stages;
         Condition condition;
         List<String> actionIds;
@@ -71,7 +72,11 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
                     return true;
                 case "contingencyId":
                     parser.nextToken();
-                    context.contingencyId = parser.getValueAsString();
+                    context.contingencyIds = Collections.singletonList(parser.getValueAsString());
+                    return true;
+                case "contingencyIds":
+                    parser.nextToken();
+                    context.contingencyIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     return true;
                 case "conditionalActions":
                     parser.nextToken();
@@ -102,7 +107,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
         // First version of the operator strategy only allows association to one contingency. Next versions use contingency
         // context. So, for backward compatibility purposes, we consider that if contingencyContextType is null, we have
         // a specific contingency context type.
-        ContingencyContext contingencyContext = new ContingencyContext(context.contingencyId,
+        ContingencyContext contingencyContext = new ContingencyContext(context.contingencyIds,
                 context.contingencyContextType != null ? context.contingencyContextType : ContingencyContextType.SPECIFIC);
         OperatorStrategy strategy;
         if (context.version.compareTo("1.5") < 0) {

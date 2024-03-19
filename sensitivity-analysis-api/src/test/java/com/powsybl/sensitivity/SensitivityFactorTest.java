@@ -39,7 +39,7 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         assertEquals(OptionalInt.empty(), factor.getVariableType().getSide());
         assertEquals("g", factor.getVariableId());
         assertFalse(factor.isVariableSet());
-        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=INJECTION_ACTIVE_POWER, variableId='g', variableSet=false, contingencyContext=ContingencyContext(contingencyIds=[], contextType=ALL))", factor.toString());
     }
 
     @Test
@@ -55,7 +55,7 @@ class SensitivityFactorTest extends AbstractSerDeTest {
         assertEquals(1, factor1.getVariableType().getSide().orElse(0));
         assertEquals("ptc1", factor1.getVariableId());
         assertFalse(factor1.isVariableSet());
-        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', variableSet=false, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor1.toString());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER_1, functionId='l', variableType=TRANSFORMER_PHASE_1, variableId='ptc1', variableSet=false, contingencyContext=ContingencyContext(contingencyIds=[], contextType=ALL))", factor1.toString());
     }
 
     @Test

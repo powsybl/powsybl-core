@@ -8,10 +8,12 @@
 
 package com.powsybl.contingency;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.google.common.collect.ImmutableList;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -24,16 +26,16 @@ import java.util.Objects;
  * contingency's id is defined if informations are needed after
  * a specific contingency computation
  */
-@JsonPropertyOrder({"contextType", "contingencyId"})
+@JsonPropertyOrder({"contextType", "contingencyIds"})
 public class ContingencyContext {
 
-    private static final ContingencyContext ALL = new ContingencyContext(null, ContingencyContextType.ALL);
+    private static final ContingencyContext ALL = new ContingencyContext(Collections.emptyList(), ContingencyContextType.ALL);
 
-    private static final ContingencyContext NONE = new ContingencyContext(null, ContingencyContextType.NONE);
+    private static final ContingencyContext NONE = new ContingencyContext(Collections.emptyList(), ContingencyContextType.NONE);
 
-    private static final ContingencyContext ONLY_CONTINGENCIES = new ContingencyContext(null, ContingencyContextType.ONLY_CONTINGENCIES);
+    private static final ContingencyContext ONLY_CONTINGENCIES = new ContingencyContext(Collections.emptyList(), ContingencyContextType.ONLY_CONTINGENCIES);
 
-    private final String contingencyId;
+    private final List<String> contingencyIds;
 
     /**
      * Define if information is asked for pre-contingency state, post-contingency state or both
@@ -41,17 +43,31 @@ public class ContingencyContext {
      */
     private final ContingencyContextType contextType;
 
-    public ContingencyContext(@JsonProperty("contingencyId") @JsonInclude(JsonInclude.Include.NON_NULL) String contingencyId,
-                              @JsonProperty("contextType") ContingencyContextType contingencyContextType) {
-        this.contextType = Objects.requireNonNull(contingencyContextType);
-        if (contingencyContextType == ContingencyContextType.SPECIFIC && contingencyId == null) {
-            throw new IllegalArgumentException("Contingency ID should not be null in case of specific contingency context");
-        }
-        this.contingencyId = contingencyId;
+    public ContingencyContext(String contingencyId,
+                              ContingencyContextType contingencyContextType) {
+        this(Collections.singletonList(contingencyId), contingencyContextType);
     }
 
-    public String getContingencyId() {
-        return contingencyId;
+    public ContingencyContext(@JsonProperty("contingencyIds") List<String> contingencyIds,
+                              @JsonProperty("contextType") ContingencyContextType contingencyContextType) {
+        Objects.requireNonNull(contingencyIds);
+        this.contextType = Objects.requireNonNull(contingencyContextType);
+        if (contingencyContextType == ContingencyContextType.SPECIFIC && contingencyIds.isEmpty()) {
+            throw new IllegalArgumentException("Contingency IDs should not be empty in case of specific contingency context");
+        }
+        this.contingencyIds = contingencyIds;
+    }
+
+    public static ContingencyContext specificContingency(String contingencyId) {
+        return new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
+    }
+
+    public static ContingencyContext specificContingency(List<String> contingencyIds) {
+        return new ContingencyContext(contingencyIds, ContingencyContextType.SPECIFIC);
+    }
+
+    public List<String> getContingencyIds() {
+        return ImmutableList.copyOf(contingencyIds);
     }
 
     public ContingencyContextType getContextType() {
@@ -67,37 +83,35 @@ public class ContingencyContext {
             return false;
         }
         ContingencyContext that = (ContingencyContext) o;
-        return Objects.equals(contingencyId, that.contingencyId) &&
+        return Objects.equals(contingencyIds, that.contingencyIds) &&
             contextType == that.contextType;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(contingencyId, contextType);
+        return Objects.hash(contingencyIds, contextType);
     }
 
     @Override
     public String toString() {
         return "ContingencyContext(" +
-            "contingencyId='" + Objects.toString(contingencyId, "") + '\'' +
+            "contingencyIds=" + contingencyIds +
             ", contextType=" + contextType +
             ')';
     }
 
     public static ContingencyContext create(String contingencyId, ContingencyContextType contingencyContextType) {
+        return create(Collections.singletonList(contingencyId), contingencyContextType);
+    }
+
+    public static ContingencyContext create(List<String> contingencyIds, ContingencyContextType contingencyContextType) {
         Objects.requireNonNull(contingencyContextType);
-        switch (contingencyContextType) {
-            case ALL:
-                return ALL;
-            case NONE:
-                return NONE;
-            case SPECIFIC:
-                return specificContingency(contingencyId);
-            case ONLY_CONTINGENCIES:
-                return ONLY_CONTINGENCIES;
-            default:
-                throw new IllegalStateException("Unknown contingency context type: " + contingencyContextType);
-        }
+        return switch (contingencyContextType) {
+            case ALL -> ALL;
+            case NONE -> NONE;
+            case SPECIFIC -> specificContingency(contingencyIds);
+            case ONLY_CONTINGENCIES -> ONLY_CONTINGENCIES;
+        };
     }
 
     public static ContingencyContext all() {
@@ -110,9 +124,5 @@ public class ContingencyContext {
 
     public static ContingencyContext onlyContingencies() {
         return ONLY_CONTINGENCIES;
-    }
-
-    public static ContingencyContext specificContingency(String contingencyId) {
-        return new ContingencyContext(contingencyId, ContingencyContextType.SPECIFIC);
     }
 }
