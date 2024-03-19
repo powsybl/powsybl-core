@@ -74,14 +74,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
         return this;
     }
 
-    public ImportOptions setMinimalValidationLevel(String minimalValidationLevel) {
-        if (minimalValidationLevel != null) {
-            // no check?
-            this.minimalValidationLevel = ValidationLevel.valueOf(minimalValidationLevel);
-        }
-        return this;
-    }
-
     /**
      * <p>Percentage to use to compute a missing permanent limit from the temporary limits.</p>
      * <p>IMPORTANT: This parameter is only effective when importing networks in IIDM version < 1.12
@@ -90,6 +82,14 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
      */
     public double getMissingPermanentLimitPercentage() {
         return missingPermanentLimitPercentage;
+    }
+
+    public ImportOptions setMinimalValidationLevel(String minimalValidationLevel) {
+        if (minimalValidationLevel != null) {
+            // no check?
+            this.minimalValidationLevel = ValidationLevel.valueOf(minimalValidationLevel);
+        }
+        return this;
     }
 
     /**

@@ -688,7 +688,7 @@ public final class NetworkSerDe {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> fileMinValidationLevel[0] = reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
             IidmSerDeUtil.assertMinimumVersionIfNotDefault(fileMinValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
             minValidationLevel = fileMinValidationLevel[0];
-            context.getOptions().setMinimalValidationLevel(minValidationLevel.toString());
+            context.setNetworkValidationLevel(minValidationLevel);
         }
 
         network.setMinimumAcceptableValidationLevel(minValidationLevel);
