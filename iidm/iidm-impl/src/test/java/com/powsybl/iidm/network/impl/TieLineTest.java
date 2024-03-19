@@ -322,6 +322,7 @@ class TieLineTest {
                 .setX(0.059)
                 .setG(0.05)
                 .setB(0.14)
+                .setPairingKey("key")
                 .add();
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
@@ -418,6 +419,7 @@ class TieLineTest {
                 .setX(14.928011999999999)
                 .setG(0.00299837274)
                 .setB(-0.01393693142)
+                .setPairingKey("key")
                 .add();
 
         TieLine tieLine = network.newTieLine()
