@@ -159,7 +159,7 @@ class ContingencyDslLoader extends DslLoader {
                     notFoundIdentifiables.add(equipment);
                 }
             }
-            if (!notFoundIdentifiable.isEmpty()) {
+            if (!notFoundIdentifiables.isEmpty()) {
                 consumer.accept(id, notFoundIdentifiables)
             }
         }
