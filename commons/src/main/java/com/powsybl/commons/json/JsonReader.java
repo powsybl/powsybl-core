@@ -244,7 +244,7 @@ public class JsonReader extends AbstractTreeDataReader {
                                 contextQueue.add(new Context(ContextType.OBJECT, parser.currentName()));
                                 childNodeReader.onStartNode(contextQueue.getLast().getFieldName());
                             }
-                            default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "' after field name");
+                            default -> throw newUnexpectedTokenException();
                         }
                     }
                     case START_OBJECT -> {
@@ -257,7 +257,7 @@ public class JsonReader extends AbstractTreeDataReader {
                         contextQueue.removeLast();
                     }
                     case END_OBJECT -> throw new PowsyblException("JSON parsing: unexpected END_OBJECT");
-                    default -> throw new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "'.");
+                    default -> throw newUnexpectedTokenException();
                 }
             }
 
@@ -272,14 +272,24 @@ public class JsonReader extends AbstractTreeDataReader {
     private Context checkNodeChain(ContextType expectedNodeType) {
         return Optional.ofNullable(contextQueue.peekLast())
                 .filter(n -> n.getType() == expectedNodeType)
-                .orElseThrow(() -> new PowsyblException("JSON parsing: unexpected " + parser.currentToken()));
+                .orElseThrow(this::newUnexpectedTokenException);
+    }
+
+    private PowsyblException newUnexpectedTokenException() {
+        try {
+            return new PowsyblException("JSON parsing: unexpected token '" + parser.currentToken() + "'" +
+                    " (value = '" + parser.getValueAsString() + "')" +
+                    " after field name '" + parser.currentName() + "'");
+        } catch (IOException e) {
+            return new PowsyblException("JSON parsing: unexpected " + parser.currentToken());
+        }
     }
 
     @Override
     public void readEndNode() {
         try {
             if (getNextToken() != JsonToken.END_OBJECT) {
-                throw new PowsyblException("JSON parsing: unexpected token " + parser.currentToken());
+                throw newUnexpectedTokenException();
             }
             checkNodeChain(ContextType.OBJECT);
             contextQueue.removeLast();
