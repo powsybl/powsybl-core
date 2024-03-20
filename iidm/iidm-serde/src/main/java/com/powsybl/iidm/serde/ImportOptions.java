@@ -98,6 +98,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
      * @return the validation level if defined.
      */
     public Optional<ValidationLevel> getMinimalValidationLevel() {
-        return minimalValidationLevel != null ? Optional.of(minimalValidationLevel) : Optional.empty();
+        return Optional.ofNullable(minimalValidationLevel);
     }
 }

@@ -72,7 +72,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
             100.);
 
     public static final Parameter MINIMAL_VALIDATION_LEVEL_PARAMETER = new Parameter(MINIMAL_VALIDATION_LEVEL,
-            ParameterType.STRING, "Minimal validation level excepted",
+            ParameterType.STRING, "Minimal validation level accepted",
             null);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
