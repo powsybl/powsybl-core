@@ -28,7 +28,7 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
 
     @Override
     public ActivePowerLimits add() {
-        network.setValidationLevelIfGreaterThan(checkLoadingLimits(network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        checkAndUpdateValidationLevel(network);
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ActivePowerLimits on %s: error getting or creating the group", getOwnerId()));
