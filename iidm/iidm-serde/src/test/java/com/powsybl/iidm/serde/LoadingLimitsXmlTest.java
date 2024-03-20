@@ -161,7 +161,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testImportWithoutPermanentLimit() {
-        // Check that import succeed for versions prior to 1.12
+        // Check that import succeeds for versions prior to 1.12
         // (the permanent limit is computed)
         ImportOptions options = new ImportOptions()
                 .setMissingPermanentLimitPercentage(90.);
@@ -182,11 +182,11 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testImportWithoutPermanentLimit2() {
-        // Check that import succeed for versions prior to 1.12
-        // (the permanent limit is computed)
+        // Check that import succeeds for all versions:
+        // with the minimalValidationLevel option set to EQUIPMENT, the limits are imported to Double.NaN
         ImportOptions options = new ImportOptions()
                 .setMinimalValidationLevel(ValidationLevel.EQUIPMENT.toString());
-        testForAllPreviousVersions(IidmVersion.V_1_12, version -> {
+        testForAllVersionsSince(IidmVersion.V_1_0, version -> {
             Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
             Line line = n.getLine("NHV1_NHV2_1");
             assertEquals(Double.NaN, line.getCurrentLimits1().orElseThrow().getPermanentLimit());
