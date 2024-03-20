@@ -171,7 +171,7 @@ public class Conversion {
         // First build all the containers
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
-        prepareFictitiousVoltageLevelsForLineContainers(context);
+        createFictitiousVoltageLevelsForLineContainers(context);
 
         PropertyBags nodes = context.nodeBreaker()
                 ? cgmes.connectivityNodes()
@@ -519,7 +519,7 @@ public class Conversion {
         }
     }
 
-    private void prepareFictitiousVoltageLevelsForLineContainers(Context context) {
+    private void createFictitiousVoltageLevelsForLineContainers(Context context) {
         Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
         PropertyBags acLineSegments = cgmes.acLineSegments();
         for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
