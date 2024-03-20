@@ -1,0 +1,1433 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_10" id="shift/TestCase_with_transformers" caseDate="2023-08-25T17:35:29.641+02:00" forecastDistance="0" sourceFormat="UCTE" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="ES_L1_" country="ES">
+        <iidm:voltageLevel id="ES_L1_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_L1_1 ">
+                    <iidm:property name="geographicalName" value="ES_L1_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_L1_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_L1_1 " connectableBus="ES_L1_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ES_L1_1 _load" loadType="UNDEFINED" p0="1967.0" q0="-53.5" bus="ES_L1_1 " connectableBus="ES_L1_1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ES_L2_" country="ES">
+        <iidm:voltageLevel id="ES_L2_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_L2_1 ">
+                    <iidm:property name="geographicalName" value="ES_L2_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_L2_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_L2_1 " connectableBus="ES_L2_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ES_L2_1 _load" loadType="UNDEFINED" p0="1967.0" q0="-53.5" bus="ES_L2_1 " connectableBus="ES_L2_1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ES_E1_" country="ES">
+        <iidm:voltageLevel id="ES_E1_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_E1_1 ">
+                    <iidm:property name="geographicalName" value="ES_E1_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_E1_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_E1_1 " connectableBus="ES_E1_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ES_01_" country="ES">
+        <iidm:voltageLevel id="ES_01_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_01_1 ">
+                    <iidm:property name="geographicalName" value="ES_01_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_01_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_01_1 " connectableBus="ES_01_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ES_02_" country="ES">
+        <iidm:voltageLevel id="ES_02_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_02_1 ">
+                    <iidm:property name="geographicalName" value="ES_02_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_02_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_02_1 " connectableBus="ES_02_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESCTGN" country="ES">
+        <iidm:voltageLevel id="ESCTGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESCTGN1 ">
+                    <iidm:property name="geographicalName" value="ESCTGN1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_03_1 ">
+                    <iidm:property name="geographicalName" value="ES_03_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESCTGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="ESCTGN1 " connectableBus="ESCTGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_03_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_03_1 " connectableBus="ES_03_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESCTGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESCTGN1 " connectableBus="ESCTGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_03_1  ESCTGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" bus1="ESCTGN1 " connectableBus1="ESCTGN1 " voltageLevelId1="ESCTGN1" bus2="ES_03_1 " connectableBus2="ES_03_1 " voltageLevelId2="ESCTGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ESCTGU" country="ES">
+        <iidm:voltageLevel id="ESCTGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESCTGU1 ">
+                    <iidm:property name="geographicalName" value="ESCTGU1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_04_1 ">
+                    <iidm:property name="geographicalName" value="ES_04_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESCTGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="ESCTGU1 " connectableBus="ESCTGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_04_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_04_1 " connectableBus="ES_04_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESCTGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESCTGU1 " connectableBus="ESCTGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_04_1  ESCTGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" bus1="ESCTGU1 " connectableBus1="ESCTGU1 " voltageLevelId1="ESCTGU1" bus2="ES_04_1 " connectableBus2="ES_04_1 " voltageLevelId2="ESCTGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ES_05_" country="ES">
+        <iidm:voltageLevel id="ES_05_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_05_1 ">
+                    <iidm:property name="geographicalName" value="ES_05_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_05_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_05_1 " connectableBus="ES_05_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ES_06_" country="ES">
+        <iidm:voltageLevel id="ES_06_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_06_1 ">
+                    <iidm:property name="geographicalName" value="ES_06_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_06_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_06_1 " connectableBus="ES_06_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESDTGN" country="ES">
+        <iidm:voltageLevel id="ESDTGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESDTGN1 ">
+                    <iidm:property name="geographicalName" value="ESDTGN1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_07_1 ">
+                    <iidm:property name="geographicalName" value="ES_07_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESDTGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESDTGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_07_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_07_1 " connectableBus="ES_07_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESDTGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESDTGN1 " connectableBus="ESDTGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_07_1  ESDTGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESDTGN1 " voltageLevelId1="ESDTGN1" connectableBus2="ES_07_1 " voltageLevelId2="ESDTGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ESDTGU" country="ES">
+        <iidm:voltageLevel id="ESDTGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESDTGU1 ">
+                    <iidm:property name="geographicalName" value="ESDTGU1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_08_1 ">
+                    <iidm:property name="geographicalName" value="ES_08_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESDTGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESDTGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_08_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_08_1 " connectableBus="ES_08_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESDTGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESDTGU1 " connectableBus="ESDTGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_08_1  ESDTGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESDTGU1 " voltageLevelId1="ESDTGU1" connectableBus2="ES_08_1 " voltageLevelId2="ESDTGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ESD2GN" country="ES">
+        <iidm:voltageLevel id="ESD2GN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESD2GN1 ">
+                    <iidm:property name="geographicalName" value="ESD2GN1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_09_1 ">
+                    <iidm:property name="geographicalName" value="ES_09_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESD2GN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESD2GN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_09_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_09_1 " connectableBus="ES_09_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESD2GN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESD2GN1 " connectableBus="ESD2GN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_09_1  ESD2GN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESD2GN1 " voltageLevelId1="ESD2GN1" connectableBus2="ES_09_1 " voltageLevelId2="ESD2GN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="ES_09_1  ESD2GN1  2" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESD2GN1 " voltageLevelId1="ESD2GN1" connectableBus2="ES_09_1 " voltageLevelId2="ESD2GN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ESD2GU" country="ES">
+        <iidm:voltageLevel id="ESD2GU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESD2GU1 ">
+                    <iidm:property name="geographicalName" value="ESD2GU1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_10_1 ">
+                    <iidm:property name="geographicalName" value="ES_10_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESD2GU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESD2GU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_10_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_10_1 " connectableBus="ES_10_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESD2GU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESD2GU1 " connectableBus="ESD2GU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_10_1  ESD2GU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESD2GU1 " voltageLevelId1="ESD2GU1" connectableBus2="ES_10_1 " voltageLevelId2="ESD2GU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="ES_10_1  ESD2GU1  2" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESD2GU1 " voltageLevelId1="ESD2GU1" connectableBus2="ES_10_1 " voltageLevelId2="ESD2GU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ES_11_" country="ES">
+        <iidm:voltageLevel id="ES_11_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_11_1 ">
+                    <iidm:property name="geographicalName" value="ES_11_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_11_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_11_1 " connectableBus="ES_11_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESCDGN" country="ES">
+        <iidm:voltageLevel id="ESCDGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESCDGN1 ">
+                    <iidm:property name="geographicalName" value="ESCDGN1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_12_1 ">
+                    <iidm:property name="geographicalName" value="ES_12_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESCDGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESCDGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_12_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_12_1 " connectableBus="ES_12_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESCDGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESCDGN1 " connectableBus="ESCDGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_12_1  ESCDGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESCDGN1 " voltageLevelId1="ESCDGN1" connectableBus2="ES_12_1 " voltageLevelId2="ESCDGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ES_13_" country="ES">
+        <iidm:voltageLevel id="ES_13_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ES_13_1 ">
+                    <iidm:property name="geographicalName" value="ES_13_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ES_13_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_13_1 " connectableBus="ES_13_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESCDGU" country="ES">
+        <iidm:voltageLevel id="ESCDGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESCDGU1 ">
+                    <iidm:property name="geographicalName" value="ESCDGU1"/>
+                </iidm:bus>
+                <iidm:bus id="ES_14_1 ">
+                    <iidm:property name="geographicalName" value="ES_14_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESCDGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESCDGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="ES_14_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="ES_14_1 " connectableBus="ES_14_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESCDGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESCDGU1 " connectableBus="ESCDGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="ES_14_1  ESCDGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="ESCDGU1 " voltageLevelId1="ESCDGU1" connectableBus2="ES_14_1 " voltageLevelId2="ESCDGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="ESDCGU" country="ES">
+        <iidm:voltageLevel id="ESDCGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESDCGU1 ">
+                    <iidm:property name="geographicalName" value="ESDCGU1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESDCGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="ESDCGU1 " connectableBus="ESDCGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESDCGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESDCGU1 " connectableBus="ESDCGU1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESDCGN" country="ES">
+        <iidm:voltageLevel id="ESDCGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESDCGN1 ">
+                    <iidm:property name="geographicalName" value="ESDCGN1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESDCGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="ESDCGN1 " connectableBus="ESDCGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESDCGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESDCGN1 " connectableBus="ESDCGN1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESDDGU" country="ES">
+        <iidm:voltageLevel id="ESDDGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESDDGU1 ">
+                    <iidm:property name="geographicalName" value="ESDDGU1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESDDGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESDDGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESDDGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESDDGU1 " connectableBus="ESDDGU1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="ESDDGN" country="ES">
+        <iidm:voltageLevel id="ESDDGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="ESDDGN1 ">
+                    <iidm:property name="geographicalName" value="ESDDGN1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="ESDDGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="ESDDGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="ESDDGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="ESDDGN1 " connectableBus="ESDDGN1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FR_L1_" country="FR">
+        <iidm:voltageLevel id="FR_L1_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_L1_1 ">
+                    <iidm:property name="geographicalName" value="FR_L1_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_L1_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_L1_1 " connectableBus="FR_L1_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FR_L1_1 _load" loadType="UNDEFINED" p0="1967.0" q0="-53.5" bus="FR_L1_1 " connectableBus="FR_L1_1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FR_L2_" country="FR">
+        <iidm:voltageLevel id="FR_L2_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_L2_1 ">
+                    <iidm:property name="geographicalName" value="FR_L2_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_L2_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_L2_1 " connectableBus="FR_L2_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FR_L2_1 _load" loadType="UNDEFINED" p0="1967.0" q0="-53.5" bus="FR_L2_1 " connectableBus="FR_L2_1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FR_E1_" country="FR">
+        <iidm:voltageLevel id="FR_E1_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_E1_1 ">
+                    <iidm:property name="geographicalName" value="FR_E1_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_E1_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_E1_1 " connectableBus="FR_E1_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FR_01_" country="FR">
+        <iidm:voltageLevel id="FR_01_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_01_1 ">
+                    <iidm:property name="geographicalName" value="FR_01_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_01_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_01_1 " connectableBus="FR_01_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FR_02_" country="FR">
+        <iidm:voltageLevel id="FR_02_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_02_1 ">
+                    <iidm:property name="geographicalName" value="FR_02_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_02_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_02_1 " connectableBus="FR_02_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRCTGN" country="FR">
+        <iidm:voltageLevel id="FRCTGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRCTGN1 ">
+                    <iidm:property name="geographicalName" value="FRCTGN1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_03_1 ">
+                    <iidm:property name="geographicalName" value="FR_03_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRCTGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="FRCTGN1 " connectableBus="FRCTGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_03_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_03_1 " connectableBus="FR_03_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRCTGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRCTGN1 " connectableBus="FRCTGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_03_1  FRCTGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" bus1="FRCTGN1 " connectableBus1="FRCTGN1 " voltageLevelId1="FRCTGN1" bus2="FR_03_1 " connectableBus2="FR_03_1 " voltageLevelId2="FRCTGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FRCTGU" country="FR">
+        <iidm:voltageLevel id="FRCTGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRCTGU1 ">
+                    <iidm:property name="geographicalName" value="FRCTGU1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_04_1 ">
+                    <iidm:property name="geographicalName" value="FR_04_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRCTGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="FRCTGU1 " connectableBus="FRCTGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_04_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_04_1 " connectableBus="FR_04_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRCTGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRCTGU1 " connectableBus="FRCTGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_04_1  FRCTGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" bus1="FRCTGU1 " connectableBus1="FRCTGU1 " voltageLevelId1="FRCTGU1" bus2="FR_04_1 " connectableBus2="FR_04_1 " voltageLevelId2="FRCTGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FR_05_" country="FR">
+        <iidm:voltageLevel id="FR_05_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_05_1 ">
+                    <iidm:property name="geographicalName" value="FR_05_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_05_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_05_1 " connectableBus="FR_05_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FR_06_" country="FR">
+        <iidm:voltageLevel id="FR_06_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_06_1 ">
+                    <iidm:property name="geographicalName" value="FR_06_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_06_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_06_1 " connectableBus="FR_06_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRDTGN" country="FR">
+        <iidm:voltageLevel id="FRDTGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRDTGN1 ">
+                    <iidm:property name="geographicalName" value="FRDTGN1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_07_1 ">
+                    <iidm:property name="geographicalName" value="FR_07_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRDTGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRDTGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_07_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_07_1 " connectableBus="FR_07_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRDTGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRDTGN1 " connectableBus="FRDTGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_07_1  FRDTGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRDTGN1 " voltageLevelId1="FRDTGN1" connectableBus2="FR_07_1 " voltageLevelId2="FRDTGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FRDTGU" country="FR">
+        <iidm:voltageLevel id="FRDTGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRDTGU1 ">
+                    <iidm:property name="geographicalName" value="FRDTGU1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_08_1 ">
+                    <iidm:property name="geographicalName" value="FR_08_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRDTGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRDTGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_08_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_08_1 " connectableBus="FR_08_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRDTGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRDTGU1 " connectableBus="FRDTGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_08_1  FRDTGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRDTGU1 " voltageLevelId1="FRDTGU1" connectableBus2="FR_08_1 " voltageLevelId2="FRDTGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FRD2GN" country="FR">
+        <iidm:voltageLevel id="FRD2GN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRD2GN1 ">
+                    <iidm:property name="geographicalName" value="FRD2GN1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_09_1 ">
+                    <iidm:property name="geographicalName" value="FR_09_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRD2GN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRD2GN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_09_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_09_1 " connectableBus="FR_09_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRD2GN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRD2GN1 " connectableBus="FRD2GN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_09_1  FRD2GN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRD2GN1 " voltageLevelId1="FRD2GN1" connectableBus2="FR_09_1 " voltageLevelId2="FRD2GN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="FR_09_1  FRD2GN1  2" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRD2GN1 " voltageLevelId1="FRD2GN1" connectableBus2="FR_09_1 " voltageLevelId2="FRD2GN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FRD2GU" country="FR">
+        <iidm:voltageLevel id="FRD2GU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRD2GU1 ">
+                    <iidm:property name="geographicalName" value="FRD2GU1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_10_1 ">
+                    <iidm:property name="geographicalName" value="FR_10_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRD2GU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRD2GU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_10_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_10_1 " connectableBus="FR_10_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRD2GU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRD2GU1 " connectableBus="FRD2GU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_10_1  FRD2GU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRD2GU1 " voltageLevelId1="FRD2GU1" connectableBus2="FR_10_1 " voltageLevelId2="FRD2GU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="FR_10_1  FRD2GU1  2" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRD2GU1 " voltageLevelId1="FRD2GU1" connectableBus2="FR_10_1 " voltageLevelId2="FRD2GU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FR_11_" country="FR">
+        <iidm:voltageLevel id="FR_11_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_11_1 ">
+                    <iidm:property name="geographicalName" value="FR_11_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_11_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_11_1 " connectableBus="FR_11_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRCDGN" country="FR">
+        <iidm:voltageLevel id="FRCDGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRCDGN1 ">
+                    <iidm:property name="geographicalName" value="FRCDGN1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_12_1 ">
+                    <iidm:property name="geographicalName" value="FR_12_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRCDGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRCDGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_12_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_12_1 " connectableBus="FR_12_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRCDGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRCDGN1 " connectableBus="FRCDGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_12_1  FRCDGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRCDGN1 " voltageLevelId1="FRCDGN1" connectableBus2="FR_12_1 " voltageLevelId2="FRCDGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FR_13_" country="FR">
+        <iidm:voltageLevel id="FR_13_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FR_13_1 ">
+                    <iidm:property name="geographicalName" value="FR_13_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FR_13_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_13_1 " connectableBus="FR_13_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRCDGU" country="FR">
+        <iidm:voltageLevel id="FRCDGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRCDGU1 ">
+                    <iidm:property name="geographicalName" value="FRCDGU1"/>
+                </iidm:bus>
+                <iidm:bus id="FR_14_1 ">
+                    <iidm:property name="geographicalName" value="FR_14_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRCDGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRCDGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="FR_14_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="FR_14_1 " connectableBus="FR_14_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRCDGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRCDGU1 " connectableBus="FRCDGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="FR_14_1  FRCDGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="FRCDGU1 " voltageLevelId1="FRCDGU1" connectableBus2="FR_14_1 " voltageLevelId2="FRCDGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="FRDCGU" country="FR">
+        <iidm:voltageLevel id="FRDCGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRDCGU1 ">
+                    <iidm:property name="geographicalName" value="FRDCGU1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRDCGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="FRDCGU1 " connectableBus="FRDCGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRDCGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRDCGU1 " connectableBus="FRDCGU1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRDCGN" country="FR">
+        <iidm:voltageLevel id="FRDCGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRDCGN1 ">
+                    <iidm:property name="geographicalName" value="FRDCGN1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRDCGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="FRDCGN1 " connectableBus="FRDCGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRDCGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRDCGN1 " connectableBus="FRDCGN1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRDDGU" country="FR">
+        <iidm:voltageLevel id="FRDDGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRDDGU1 ">
+                    <iidm:property name="geographicalName" value="FRDDGU1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRDDGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRDDGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRDDGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRDDGU1 " connectableBus="FRDDGU1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="FRDDGN" country="FR">
+        <iidm:voltageLevel id="FRDDGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="FRDDGN1 ">
+                    <iidm:property name="geographicalName" value="FRDDGN1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="FRDDGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="FRDDGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="FRDDGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="FRDDGN1 " connectableBus="FRDDGN1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PT_L1_" country="PT">
+        <iidm:voltageLevel id="PT_L1_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_L1_1 ">
+                    <iidm:property name="geographicalName" value="PT_L1_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_L1_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_L1_1 " connectableBus="PT_L1_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PT_L1_1 _load" loadType="UNDEFINED" p0="1967.0" q0="-53.5" bus="PT_L1_1 " connectableBus="PT_L1_1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PT_L2_" country="PT">
+        <iidm:voltageLevel id="PT_L2_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_L2_1 ">
+                    <iidm:property name="geographicalName" value="PT_L2_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_L2_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_L2_1 " connectableBus="PT_L2_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PT_L2_1 _load" loadType="UNDEFINED" p0="1967.0" q0="-53.5" bus="PT_L2_1 " connectableBus="PT_L2_1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PT_E1_" country="PT">
+        <iidm:voltageLevel id="PT_E1_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_E1_1 ">
+                    <iidm:property name="geographicalName" value="PT_E1_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_E1_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_E1_1 " connectableBus="PT_E1_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PT_01_" country="PT">
+        <iidm:voltageLevel id="PT_01_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_01_1 ">
+                    <iidm:property name="geographicalName" value="PT_01_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_01_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_01_1 " connectableBus="PT_01_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PT_02_" country="PT">
+        <iidm:voltageLevel id="PT_02_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_02_1 ">
+                    <iidm:property name="geographicalName" value="PT_02_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_02_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_02_1 " connectableBus="PT_02_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTCTGN" country="PT">
+        <iidm:voltageLevel id="PTCTGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTCTGN1 ">
+                    <iidm:property name="geographicalName" value="PTCTGN1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_03_1 ">
+                    <iidm:property name="geographicalName" value="PT_03_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTCTGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="PTCTGN1 " connectableBus="PTCTGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_03_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_03_1 " connectableBus="PT_03_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTCTGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTCTGN1 " connectableBus="PTCTGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_03_1  PTCTGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" bus1="PTCTGN1 " connectableBus1="PTCTGN1 " voltageLevelId1="PTCTGN1" bus2="PT_03_1 " connectableBus2="PT_03_1 " voltageLevelId2="PTCTGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PTCTGU" country="PT">
+        <iidm:voltageLevel id="PTCTGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTCTGU1 ">
+                    <iidm:property name="geographicalName" value="PTCTGU1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_04_1 ">
+                    <iidm:property name="geographicalName" value="PT_04_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTCTGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="PTCTGU1 " connectableBus="PTCTGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_04_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_04_1 " connectableBus="PT_04_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTCTGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTCTGU1 " connectableBus="PTCTGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_04_1  PTCTGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" bus1="PTCTGU1 " connectableBus1="PTCTGU1 " voltageLevelId1="PTCTGU1" bus2="PT_04_1 " connectableBus2="PT_04_1 " voltageLevelId2="PTCTGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PT_05_" country="PT">
+        <iidm:voltageLevel id="PT_05_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_05_1 ">
+                    <iidm:property name="geographicalName" value="PT_05_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_05_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_05_1 " connectableBus="PT_05_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PT_06_" country="PT">
+        <iidm:voltageLevel id="PT_06_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_06_1 ">
+                    <iidm:property name="geographicalName" value="PT_06_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_06_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_06_1 " connectableBus="PT_06_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTDTGN" country="PT">
+        <iidm:voltageLevel id="PTDTGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTDTGN1 ">
+                    <iidm:property name="geographicalName" value="PTDTGN1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_07_1 ">
+                    <iidm:property name="geographicalName" value="PT_07_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTDTGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTDTGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_07_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_07_1 " connectableBus="PT_07_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTDTGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTDTGN1 " connectableBus="PTDTGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_07_1  PTDTGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTDTGN1 " voltageLevelId1="PTDTGN1" connectableBus2="PT_07_1 " voltageLevelId2="PTDTGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PTDTGU" country="PT">
+        <iidm:voltageLevel id="PTDTGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTDTGU1 ">
+                    <iidm:property name="geographicalName" value="PTDTGU1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_08_1 ">
+                    <iidm:property name="geographicalName" value="PT_08_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTDTGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTDTGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_08_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_08_1 " connectableBus="PT_08_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTDTGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTDTGU1 " connectableBus="PTDTGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_08_1  PTDTGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTDTGU1 " voltageLevelId1="PTDTGU1" connectableBus2="PT_08_1 " voltageLevelId2="PTDTGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PTD2GN" country="PT">
+        <iidm:voltageLevel id="PTD2GN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTD2GN1 ">
+                    <iidm:property name="geographicalName" value="PTD2GN1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_09_1 ">
+                    <iidm:property name="geographicalName" value="PT_09_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTD2GN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTD2GN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_09_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_09_1 " connectableBus="PT_09_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTD2GN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTD2GN1 " connectableBus="PTD2GN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_09_1  PTD2GN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTD2GN1 " voltageLevelId1="PTD2GN1" connectableBus2="PT_09_1 " voltageLevelId2="PTD2GN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="PT_09_1  PTD2GN1  2" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTD2GN1 " voltageLevelId1="PTD2GN1" connectableBus2="PT_09_1 " voltageLevelId2="PTD2GN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PTD2GU" country="PT">
+        <iidm:voltageLevel id="PTD2GU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTD2GU1 ">
+                    <iidm:property name="geographicalName" value="PTD2GU1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_10_1 ">
+                    <iidm:property name="geographicalName" value="PT_10_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTD2GU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTD2GU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_10_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_10_1 " connectableBus="PT_10_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTD2GU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTD2GU1 " connectableBus="PTD2GU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_10_1  PTD2GU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTD2GU1 " voltageLevelId1="PTD2GU1" connectableBus2="PT_10_1 " voltageLevelId2="PTD2GU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="PT_10_1  PTD2GU1  2" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTD2GU1 " voltageLevelId1="PTD2GU1" connectableBus2="PT_10_1 " voltageLevelId2="PTD2GU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PT_11_" country="PT">
+        <iidm:voltageLevel id="PT_11_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_11_1 ">
+                    <iidm:property name="geographicalName" value="PT_11_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_11_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_11_1 " connectableBus="PT_11_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTCDGN" country="PT">
+        <iidm:voltageLevel id="PTCDGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTCDGN1 ">
+                    <iidm:property name="geographicalName" value="PTCDGN1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_12_1 ">
+                    <iidm:property name="geographicalName" value="PT_12_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTCDGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTCDGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_12_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_12_1 " connectableBus="PT_12_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTCDGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTCDGN1 " connectableBus="PTCDGN1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_12_1  PTCDGN1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTCDGN1 " voltageLevelId1="PTCDGN1" connectableBus2="PT_12_1 " voltageLevelId2="PTCDGN1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PT_13_" country="PT">
+        <iidm:voltageLevel id="PT_13_1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PT_13_1 ">
+                    <iidm:property name="geographicalName" value="PT_13_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PT_13_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_13_1 " connectableBus="PT_13_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTCDGU" country="PT">
+        <iidm:voltageLevel id="PTCDGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTCDGU1 ">
+                    <iidm:property name="geographicalName" value="PTCDGU1"/>
+                </iidm:bus>
+                <iidm:bus id="PT_14_1 ">
+                    <iidm:property name="geographicalName" value="PT_14_1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTCDGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTCDGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:generator id="PT_14_1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" bus="PT_14_1 " connectableBus="PT_14_1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTCDGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTCDGU1 " connectableBus="PTCDGU1 "/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="PT_14_1  PTCDGU1  1" r="0.1" x="10.0" g="0.0" b="0.0" ratedU1="400.0" ratedU2="400.0" connectableBus1="PTCDGU1 " voltageLevelId1="PTCDGU1" connectableBus2="PT_14_1 " voltageLevelId2="PTCDGU1">
+            <iidm:property name="nomimalPower" value="999.0"/>
+            <iidm:currentLimits2 permanentLimit="999999.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="PTDCGU" country="PT">
+        <iidm:voltageLevel id="PTDCGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTDCGU1 ">
+                    <iidm:property name="geographicalName" value="PTDCGU1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTDCGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="PTDCGU1 " connectableBus="PTDCGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTDCGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTDCGU1 " connectableBus="PTDCGU1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTDCGN" country="PT">
+        <iidm:voltageLevel id="PTDCGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTDCGN1 ">
+                    <iidm:property name="geographicalName" value="PTDCGN1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTDCGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="1000.0" targetV="380.0" targetQ="0.0" bus="PTDCGN1 " connectableBus="PTDCGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTDCGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTDCGN1 " connectableBus="PTDCGN1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTDDGU" country="PT">
+        <iidm:voltageLevel id="PTDDGU1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTDDGU1 ">
+                    <iidm:property name="geographicalName" value="PTDDGU1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTDDGU1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTDDGU1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTDDGU1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTDDGU1 " connectableBus="PTDDGU1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="PTDDGN" country="PT">
+        <iidm:voltageLevel id="PTDDGN1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="PTDDGN1 ">
+                    <iidm:property name="geographicalName" value="PTDDGN1"/>
+                </iidm:bus>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="PTDDGN1 _generator" energySource="OTHER" minP="-9000.0" maxP="9000.0" voltageRegulatorOn="true" targetP="0.0" targetV="380.0" targetQ="0.0" connectableBus="PTDDGN1 ">
+                <iidm:minMaxReactiveLimits minQ="-9000.0" maxQ="9000.0"/>
+            </iidm:generator>
+            <iidm:load id="PTDDGN1 _load" loadType="UNDEFINED" p0="0.0" q0="-2.0" bus="PTDDGN1 " connectableBus="PTDDGN1 "/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="ES_01_1  ES_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_01_1 " connectableBus1="ES_01_1 " voltageLevelId1="ES_01_1" bus2="ES_04_1 " connectableBus2="ES_04_1 " voltageLevelId2="ESCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_10_1  ES_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_10_1 " connectableBus1="ES_10_1 " voltageLevelId1="ESD2GU1" bus2="ES_04_1 " connectableBus2="ES_04_1 " voltageLevelId2="ESCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_10_1  ES_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_10_1 " connectableBus1="ES_10_1 " voltageLevelId1="ESD2GU1" bus2="ES_08_1 " connectableBus2="ES_08_1 " voltageLevelId2="ESDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_11_1  ES_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_11_1 " connectableBus1="ES_11_1 " voltageLevelId1="ES_11_1" bus2="ES_08_1 " connectableBus2="ES_08_1 " voltageLevelId2="ESDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_11_1  ES_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_11_1 " connectableBus1="ES_11_1 " voltageLevelId1="ES_11_1" bus2="ES_05_1 " connectableBus2="ES_05_1 " voltageLevelId2="ES_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_02_1  ES_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_02_1 " connectableBus1="ES_02_1 " voltageLevelId1="ES_02_1" bus2="ES_05_1 " connectableBus2="ES_05_1 " voltageLevelId2="ES_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_02_1  ES_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_02_1 " connectableBus1="ES_02_1 " voltageLevelId1="ES_02_1" bus2="ES_03_1 " connectableBus2="ES_03_1 " voltageLevelId2="ESCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_07_1  ES_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_07_1 " connectableBus1="ES_07_1 " voltageLevelId1="ESDTGN1" bus2="ES_03_1 " connectableBus2="ES_03_1 " voltageLevelId2="ESCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_07_1  ES_13_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_07_1 " connectableBus1="ES_07_1 " voltageLevelId1="ESDTGN1" bus2="ES_13_1 " connectableBus2="ES_13_1 " voltageLevelId2="ES_13_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_09_1  ES_13_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_09_1 " connectableBus1="ES_09_1 " voltageLevelId1="ESD2GN1" bus2="ES_13_1 " connectableBus2="ES_13_1 " voltageLevelId2="ES_13_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_09_1  ES_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_09_1 " connectableBus1="ES_09_1 " voltageLevelId1="ESD2GN1" bus2="ES_06_1 " connectableBus2="ES_06_1 " voltageLevelId2="ES_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_01_1  ES_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_01_1 " connectableBus1="ES_01_1 " voltageLevelId1="ES_01_1" bus2="ES_06_1 " connectableBus2="ES_06_1 " voltageLevelId2="ES_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_11_1  ES_12_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" connectableBus1="ES_11_1 " voltageLevelId1="ES_11_1" connectableBus2="ES_12_1 " voltageLevelId2="ESCDGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_13_1  ES_14_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" connectableBus1="ES_13_1 " voltageLevelId1="ES_13_1" connectableBus2="ES_14_1 " voltageLevelId2="ESCDGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L1_1  ES_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L1_1 " connectableBus1="ES_L1_1 " voltageLevelId1="ES_L1_1" bus2="ES_E1_1 " connectableBus2="ES_E1_1 " voltageLevelId2="ES_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L2_1  ES_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L2_1 " connectableBus1="ES_L2_1 " voltageLevelId1="ES_L2_1" bus2="ES_E1_1 " connectableBus2="ES_E1_1 " voltageLevelId2="ES_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L1_1  ES_02_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L1_1 " connectableBus1="ES_L1_1 " voltageLevelId1="ES_L1_1" bus2="ES_02_1 " connectableBus2="ES_02_1 " voltageLevelId2="ES_02_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L1_1  ES_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L1_1 " connectableBus1="ES_L1_1 " voltageLevelId1="ES_L1_1" bus2="ES_04_1 " connectableBus2="ES_04_1 " voltageLevelId2="ESCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L1_1  ES_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L1_1 " connectableBus1="ES_L1_1 " voltageLevelId1="ES_L1_1" bus2="ES_05_1 " connectableBus2="ES_05_1 " voltageLevelId2="ES_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L1_1  ES_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L1_1 " connectableBus1="ES_L1_1 " voltageLevelId1="ES_L1_1" bus2="ES_08_1 " connectableBus2="ES_08_1 " voltageLevelId2="ESDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L1_1  ES_10_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L1_1 " connectableBus1="ES_L1_1 " voltageLevelId1="ES_L1_1" bus2="ES_10_1 " connectableBus2="ES_10_1 " voltageLevelId2="ESD2GU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L2_1  ES_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L2_1 " connectableBus1="ES_L2_1 " voltageLevelId1="ES_L2_1" bus2="ES_03_1 " connectableBus2="ES_03_1 " voltageLevelId2="ESCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L2_1  ES_01_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L2_1 " connectableBus1="ES_L2_1 " voltageLevelId1="ES_L2_1" bus2="ES_01_1 " connectableBus2="ES_01_1 " voltageLevelId2="ES_01_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L2_1  ES_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L2_1 " connectableBus1="ES_L2_1 " voltageLevelId1="ES_L2_1" bus2="ES_06_1 " connectableBus2="ES_06_1 " voltageLevelId2="ES_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L2_1  ES_07_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L2_1 " connectableBus1="ES_L2_1 " voltageLevelId1="ES_L2_1" bus2="ES_07_1 " connectableBus2="ES_07_1 " voltageLevelId2="ESDTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_L2_1  ES_09_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_L2_1 " connectableBus1="ES_L2_1 " voltageLevelId1="ES_L2_1" bus2="ES_09_1 " connectableBus2="ES_09_1 " voltageLevelId2="ESD2GN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_01_1  ESDCGN1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_01_1 " connectableBus1="ES_01_1 " voltageLevelId1="ES_01_1" bus2="ESDCGN1 " connectableBus2="ESDCGN1 " voltageLevelId2="ESDCGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_02_1  ESDCGU1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_02_1 " connectableBus1="ES_02_1 " voltageLevelId1="ES_02_1" bus2="ESDCGU1 " connectableBus2="ESDCGU1 " voltageLevelId2="ESDCGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_05_1  ESDDGN1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_05_1 " connectableBus1="ES_05_1 " voltageLevelId1="ES_05_1" bus2="ESDDGN1 " connectableBus2="ESDDGN1 " voltageLevelId2="ESDDGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_06_1  ESDDGU1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_06_1 " connectableBus1="ES_06_1 " voltageLevelId1="ES_06_1" bus2="ESDDGU1 " connectableBus2="ESDDGU1 " voltageLevelId2="ESDDGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_01_1  FR_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_01_1 " connectableBus1="FR_01_1 " voltageLevelId1="FR_01_1" bus2="FR_04_1 " connectableBus2="FR_04_1 " voltageLevelId2="FRCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_10_1  FR_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_10_1 " connectableBus1="FR_10_1 " voltageLevelId1="FRD2GU1" bus2="FR_04_1 " connectableBus2="FR_04_1 " voltageLevelId2="FRCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_10_1  FR_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_10_1 " connectableBus1="FR_10_1 " voltageLevelId1="FRD2GU1" bus2="FR_08_1 " connectableBus2="FR_08_1 " voltageLevelId2="FRDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_11_1  FR_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_11_1 " connectableBus1="FR_11_1 " voltageLevelId1="FR_11_1" bus2="FR_08_1 " connectableBus2="FR_08_1 " voltageLevelId2="FRDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_11_1  FR_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_11_1 " connectableBus1="FR_11_1 " voltageLevelId1="FR_11_1" bus2="FR_05_1 " connectableBus2="FR_05_1 " voltageLevelId2="FR_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_02_1  FR_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_02_1 " connectableBus1="FR_02_1 " voltageLevelId1="FR_02_1" bus2="FR_05_1 " connectableBus2="FR_05_1 " voltageLevelId2="FR_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_02_1  FR_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_02_1 " connectableBus1="FR_02_1 " voltageLevelId1="FR_02_1" bus2="FR_03_1 " connectableBus2="FR_03_1 " voltageLevelId2="FRCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_07_1  FR_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_07_1 " connectableBus1="FR_07_1 " voltageLevelId1="FRDTGN1" bus2="FR_03_1 " connectableBus2="FR_03_1 " voltageLevelId2="FRCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_07_1  FR_13_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_07_1 " connectableBus1="FR_07_1 " voltageLevelId1="FRDTGN1" bus2="FR_13_1 " connectableBus2="FR_13_1 " voltageLevelId2="FR_13_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_09_1  FR_13_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_09_1 " connectableBus1="FR_09_1 " voltageLevelId1="FRD2GN1" bus2="FR_13_1 " connectableBus2="FR_13_1 " voltageLevelId2="FR_13_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_09_1  FR_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_09_1 " connectableBus1="FR_09_1 " voltageLevelId1="FRD2GN1" bus2="FR_06_1 " connectableBus2="FR_06_1 " voltageLevelId2="FR_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_01_1  FR_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_01_1 " connectableBus1="FR_01_1 " voltageLevelId1="FR_01_1" bus2="FR_06_1 " connectableBus2="FR_06_1 " voltageLevelId2="FR_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_11_1  FR_12_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" connectableBus1="FR_11_1 " voltageLevelId1="FR_11_1" connectableBus2="FR_12_1 " voltageLevelId2="FRCDGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_13_1  FR_14_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" connectableBus1="FR_13_1 " voltageLevelId1="FR_13_1" connectableBus2="FR_14_1 " voltageLevelId2="FRCDGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L1_1  FR_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L1_1 " connectableBus1="FR_L1_1 " voltageLevelId1="FR_L1_1" bus2="FR_E1_1 " connectableBus2="FR_E1_1 " voltageLevelId2="FR_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L2_1  FR_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L2_1 " connectableBus1="FR_L2_1 " voltageLevelId1="FR_L2_1" bus2="FR_E1_1 " connectableBus2="FR_E1_1 " voltageLevelId2="FR_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L1_1  FR_02_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L1_1 " connectableBus1="FR_L1_1 " voltageLevelId1="FR_L1_1" bus2="FR_02_1 " connectableBus2="FR_02_1 " voltageLevelId2="FR_02_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L1_1  FR_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L1_1 " connectableBus1="FR_L1_1 " voltageLevelId1="FR_L1_1" bus2="FR_04_1 " connectableBus2="FR_04_1 " voltageLevelId2="FRCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L1_1  FR_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L1_1 " connectableBus1="FR_L1_1 " voltageLevelId1="FR_L1_1" bus2="FR_05_1 " connectableBus2="FR_05_1 " voltageLevelId2="FR_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L1_1  FR_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L1_1 " connectableBus1="FR_L1_1 " voltageLevelId1="FR_L1_1" bus2="FR_08_1 " connectableBus2="FR_08_1 " voltageLevelId2="FRDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L1_1  FR_10_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L1_1 " connectableBus1="FR_L1_1 " voltageLevelId1="FR_L1_1" bus2="FR_10_1 " connectableBus2="FR_10_1 " voltageLevelId2="FRD2GU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L2_1  FR_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L2_1 " connectableBus1="FR_L2_1 " voltageLevelId1="FR_L2_1" bus2="FR_03_1 " connectableBus2="FR_03_1 " voltageLevelId2="FRCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L2_1  FR_01_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L2_1 " connectableBus1="FR_L2_1 " voltageLevelId1="FR_L2_1" bus2="FR_01_1 " connectableBus2="FR_01_1 " voltageLevelId2="FR_01_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L2_1  FR_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L2_1 " connectableBus1="FR_L2_1 " voltageLevelId1="FR_L2_1" bus2="FR_06_1 " connectableBus2="FR_06_1 " voltageLevelId2="FR_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L2_1  FR_07_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L2_1 " connectableBus1="FR_L2_1 " voltageLevelId1="FR_L2_1" bus2="FR_07_1 " connectableBus2="FR_07_1 " voltageLevelId2="FRDTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_L2_1  FR_09_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_L2_1 " connectableBus1="FR_L2_1 " voltageLevelId1="FR_L2_1" bus2="FR_09_1 " connectableBus2="FR_09_1 " voltageLevelId2="FRD2GN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_01_1  FRDCGN1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_01_1 " connectableBus1="FR_01_1 " voltageLevelId1="FR_01_1" bus2="FRDCGN1 " connectableBus2="FRDCGN1 " voltageLevelId2="FRDCGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_02_1  FRDCGU1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_02_1 " connectableBus1="FR_02_1 " voltageLevelId1="FR_02_1" bus2="FRDCGU1 " connectableBus2="FRDCGU1 " voltageLevelId2="FRDCGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_05_1  FRDDGN1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_05_1 " connectableBus1="FR_05_1 " voltageLevelId1="FR_05_1" bus2="FRDDGN1 " connectableBus2="FRDDGN1 " voltageLevelId2="FRDDGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="FR_06_1  FRDDGU1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="FR_06_1 " connectableBus1="FR_06_1 " voltageLevelId1="FR_06_1" bus2="FRDDGU1 " connectableBus2="FRDDGU1 " voltageLevelId2="FRDDGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_01_1  PT_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_01_1 " connectableBus1="PT_01_1 " voltageLevelId1="PT_01_1" bus2="PT_04_1 " connectableBus2="PT_04_1 " voltageLevelId2="PTCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_10_1  PT_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_10_1 " connectableBus1="PT_10_1 " voltageLevelId1="PTD2GU1" bus2="PT_04_1 " connectableBus2="PT_04_1 " voltageLevelId2="PTCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_10_1  PT_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_10_1 " connectableBus1="PT_10_1 " voltageLevelId1="PTD2GU1" bus2="PT_08_1 " connectableBus2="PT_08_1 " voltageLevelId2="PTDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_11_1  PT_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_11_1 " connectableBus1="PT_11_1 " voltageLevelId1="PT_11_1" bus2="PT_08_1 " connectableBus2="PT_08_1 " voltageLevelId2="PTDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_11_1  PT_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_11_1 " connectableBus1="PT_11_1 " voltageLevelId1="PT_11_1" bus2="PT_05_1 " connectableBus2="PT_05_1 " voltageLevelId2="PT_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_02_1  PT_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_02_1 " connectableBus1="PT_02_1 " voltageLevelId1="PT_02_1" bus2="PT_05_1 " connectableBus2="PT_05_1 " voltageLevelId2="PT_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_02_1  PT_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_02_1 " connectableBus1="PT_02_1 " voltageLevelId1="PT_02_1" bus2="PT_03_1 " connectableBus2="PT_03_1 " voltageLevelId2="PTCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_07_1  PT_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_07_1 " connectableBus1="PT_07_1 " voltageLevelId1="PTDTGN1" bus2="PT_03_1 " connectableBus2="PT_03_1 " voltageLevelId2="PTCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_07_1  PT_13_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_07_1 " connectableBus1="PT_07_1 " voltageLevelId1="PTDTGN1" bus2="PT_13_1 " connectableBus2="PT_13_1 " voltageLevelId2="PT_13_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_09_1  PT_13_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_09_1 " connectableBus1="PT_09_1 " voltageLevelId1="PTD2GN1" bus2="PT_13_1 " connectableBus2="PT_13_1 " voltageLevelId2="PT_13_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_09_1  PT_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_09_1 " connectableBus1="PT_09_1 " voltageLevelId1="PTD2GN1" bus2="PT_06_1 " connectableBus2="PT_06_1 " voltageLevelId2="PT_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_01_1  PT_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_01_1 " connectableBus1="PT_01_1 " voltageLevelId1="PT_01_1" bus2="PT_06_1 " connectableBus2="PT_06_1 " voltageLevelId2="PT_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_11_1  PT_12_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" connectableBus1="PT_11_1 " voltageLevelId1="PT_11_1" connectableBus2="PT_12_1 " voltageLevelId2="PTCDGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_13_1  PT_14_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" connectableBus1="PT_13_1 " voltageLevelId1="PT_13_1" connectableBus2="PT_14_1 " voltageLevelId2="PTCDGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L1_1  PT_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L1_1 " connectableBus1="PT_L1_1 " voltageLevelId1="PT_L1_1" bus2="PT_E1_1 " connectableBus2="PT_E1_1 " voltageLevelId2="PT_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L2_1  PT_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L2_1 " connectableBus1="PT_L2_1 " voltageLevelId1="PT_L2_1" bus2="PT_E1_1 " connectableBus2="PT_E1_1 " voltageLevelId2="PT_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L1_1  PT_02_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L1_1 " connectableBus1="PT_L1_1 " voltageLevelId1="PT_L1_1" bus2="PT_02_1 " connectableBus2="PT_02_1 " voltageLevelId2="PT_02_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L1_1  PT_04_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L1_1 " connectableBus1="PT_L1_1 " voltageLevelId1="PT_L1_1" bus2="PT_04_1 " connectableBus2="PT_04_1 " voltageLevelId2="PTCTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L1_1  PT_05_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L1_1 " connectableBus1="PT_L1_1 " voltageLevelId1="PT_L1_1" bus2="PT_05_1 " connectableBus2="PT_05_1 " voltageLevelId2="PT_05_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L1_1  PT_08_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L1_1 " connectableBus1="PT_L1_1 " voltageLevelId1="PT_L1_1" bus2="PT_08_1 " connectableBus2="PT_08_1 " voltageLevelId2="PTDTGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L1_1  PT_10_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L1_1 " connectableBus1="PT_L1_1 " voltageLevelId1="PT_L1_1" bus2="PT_10_1 " connectableBus2="PT_10_1 " voltageLevelId2="PTD2GU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L2_1  PT_03_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L2_1 " connectableBus1="PT_L2_1 " voltageLevelId1="PT_L2_1" bus2="PT_03_1 " connectableBus2="PT_03_1 " voltageLevelId2="PTCTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L2_1  PT_01_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L2_1 " connectableBus1="PT_L2_1 " voltageLevelId1="PT_L2_1" bus2="PT_01_1 " connectableBus2="PT_01_1 " voltageLevelId2="PT_01_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L2_1  PT_06_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L2_1 " connectableBus1="PT_L2_1 " voltageLevelId1="PT_L2_1" bus2="PT_06_1 " connectableBus2="PT_06_1 " voltageLevelId2="PT_06_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L2_1  PT_07_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L2_1 " connectableBus1="PT_L2_1 " voltageLevelId1="PT_L2_1" bus2="PT_07_1 " connectableBus2="PT_07_1 " voltageLevelId2="PTDTGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_L2_1  PT_09_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_L2_1 " connectableBus1="PT_L2_1 " voltageLevelId1="PT_L2_1" bus2="PT_09_1 " connectableBus2="PT_09_1 " voltageLevelId2="PTD2GN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_01_1  PTDCGN1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_01_1 " connectableBus1="PT_01_1 " voltageLevelId1="PT_01_1" bus2="PTDCGN1 " connectableBus2="PTDCGN1 " voltageLevelId2="PTDCGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_02_1  PTDCGU1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_02_1 " connectableBus1="PT_02_1 " voltageLevelId1="PT_02_1" bus2="PTDCGU1 " connectableBus2="PTDCGU1 " voltageLevelId2="PTDCGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_05_1  PTDDGN1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_05_1 " connectableBus1="PT_05_1 " voltageLevelId1="PT_05_1" bus2="PTDDGN1 " connectableBus2="PTDDGN1 " voltageLevelId2="PTDDGN1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_06_1  PTDDGU1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_06_1 " connectableBus1="PT_06_1 " voltageLevelId1="PT_06_1" bus2="PTDDGU1 " connectableBus2="PTDDGU1 " voltageLevelId2="PTDDGU1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="PT_E1_1  ES_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="PT_E1_1 " connectableBus1="PT_E1_1 " voltageLevelId1="PT_E1_1" bus2="ES_E1_1 " connectableBus2="ES_E1_1 " voltageLevelId2="ES_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+    <iidm:line id="ES_E1_1  FR_E1_1  1" r="2.0" x="10.0" g1="0.0" b1="2.4999999999999998E-5" g2="0.0" b2="2.4999999999999998E-5" bus1="ES_E1_1 " connectableBus1="ES_E1_1 " voltageLevelId1="ES_E1_1" bus2="FR_E1_1 " connectableBus2="FR_E1_1 " voltageLevelId2="FR_E1_1">
+        <iidm:currentLimits1 permanentLimit="5000.0"/>
+        <iidm:currentLimits2 permanentLimit="5000.0"/>
+    </iidm:line>
+</iidm:network>

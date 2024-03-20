@@ -123,8 +123,14 @@ class GeneratorScalable extends AbstractInjectionScalable {
         Terminal t = g.getTerminal();
         if (!t.isConnected()) {
             if (parameters.isReconnect()) {
-                new ConnectGenerator(g.getId()).apply(n);
                 LOGGER.info("Connecting {}", g.getId());
+                new ConnectGenerator(g.getId()).apply(n);
+                if (!t.isConnected() || !g.getTerminal().getBusBreakerView().getConnectableBus().isInMainConnectedComponent()) {
+                    //If the generator still disconnected, we should not change the active power setPoint
+                    LOGGER.info("Generator {} could not be connected, discarded from scaling", g.getId());
+                    return 0.;
+                }
+
             } else {
                 LOGGER.info("Generator {} is not connected, discarded from scaling", g.getId());
                 return 0.;
@@ -134,6 +140,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
         double oldTargetP = g.getTargetP();
         double minimumTargetP = minimumTargetP(g);
         double maximumTargetP = maximumTargetP(g);
+
         if (!parameters.isAllowsGeneratorOutOfActivePowerLimits() && (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP)) {
             LOGGER.error("Error scaling GeneratorScalable {}: Initial P is not in the range [Pmin, Pmax], skipped", id);
             return 0.;
