@@ -83,6 +83,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
                 network.getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
+        this.network.invalidateValidationLevel();
         group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
         return (L) this;
     }
