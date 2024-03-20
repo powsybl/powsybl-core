@@ -191,8 +191,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean isOverloaded(float limitReduction) {
-        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
+    public boolean isOverloaded(double limitReductionValue) {
+        return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
     }
 
     @Override
@@ -201,10 +201,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkPermanentLimit1(limitReduction, type),
-            () -> checkPermanentLimit2(limitReduction, type));
+            () -> checkPermanentLimit1(limitReductionValue, type),
+            () -> checkPermanentLimit2(limitReductionValue, type));
     }
 
     @Override
@@ -213,8 +213,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    public boolean checkPermanentLimit1(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -223,8 +223,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    public boolean checkPermanentLimit2(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -233,10 +233,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkTemporaryLimits1(limitReduction, type),
-            () -> checkTemporaryLimits2(limitReduction, type));
+            () -> checkTemporaryLimits1(limitReductionValue, type),
+            () -> checkTemporaryLimits2(limitReductionValue, type));
     }
 
     @Override
@@ -245,8 +245,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    public Overload checkTemporaryLimits1(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -255,8 +255,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    public Overload checkTemporaryLimits2(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override

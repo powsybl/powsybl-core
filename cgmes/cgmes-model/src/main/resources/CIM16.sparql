@@ -818,7 +818,14 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:SynchronousMachine.type ?type ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
-    FILTER (!REGEX(STR(?type), "Kind.condenser"))
+    VALUES ?type {
+        cim:SynchronousMachineKind.generator
+        cim:SynchronousMachineKind.generatorOrCondenser
+        cim:SynchronousMachineKind.motor
+        cim:SynchronousMachineKind.generatorOrMotor
+        cim:SynchronousMachineKind.motorOrCondenser
+        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
     }

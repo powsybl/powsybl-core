@@ -246,7 +246,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private final String pairingKey;
+    private String pairingKey;
 
     private final GenerationImpl generation;
 
@@ -414,6 +414,18 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public String getPairingKey() {
         return pairingKey;
+    }
+
+    @Override
+    public DanglingLine setPairingKey(String pairingKey) {
+        if (this.isPaired()) {
+            throw new ValidationException(this, "pairing key cannot be set if dangling line is paired.");
+        } else {
+            String oldValue = this.pairingKey;
+            this.pairingKey = pairingKey;
+            notifyUpdate("pairing_key", oldValue, pairingKey);
+        }
+        return this;
     }
 
     @Override
