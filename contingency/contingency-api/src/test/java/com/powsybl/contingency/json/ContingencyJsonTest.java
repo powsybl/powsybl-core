@@ -132,6 +132,15 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingencies.json");
     }
 
+    @Test
+    void readNotDefaultJsonList() throws IOException {
+        Files.copy(getClass().getResourceAsStream("/identifierContingencyList.json"), fileSystem.getPath("/identifierContingencyList.json"));
+
+        ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/identifierContingencyList.json"));
+        assertEquals("list1", contingencyList.getName());
+        assertEquals("identifier", contingencyList.getType());
+    }
+
     static class DummyExtension implements Extension<Contingency> {
 
         private Contingency contingency;
