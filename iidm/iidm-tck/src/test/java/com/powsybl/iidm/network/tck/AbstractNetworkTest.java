@@ -8,17 +8,15 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -600,15 +598,17 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
-        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
-        List<ReporterModel> subReporters = reporter.getSubReporters();
-        assertEquals(1, subReporters.size());
-        ReporterModel subReporter = subReporters.get(0);
-        assertEquals("IIDMValidation", subReporter.getTaskKey());
-        assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
-        Collection<Report> reports = subReporter.getReports();
-        assertFalse(reports.isEmpty());
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
+
+        List<ReportNode> children = reportNode.getChildren();
+        assertEquals(1, children.size());
+        ReportNode reportNodeChild = children.get(0);
+        assertEquals("IIDMValidation", reportNodeChild.getMessageKey());
+        assertEquals("Running validation checks on IIDM network scada", reportNodeChild.getMessage());
+
+        List<ReportNode> messageNodes = reportNodeChild.getChildren();
+        assertFalse(messageNodes.isEmpty());
 
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 

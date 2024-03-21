@@ -6,7 +6,8 @@
  */
 package com.powsybl.dynamicsimulation.groovy
 
-import com.powsybl.commons.reporter.Reporter
+
+import com.powsybl.commons.report.ReportNode
 
 import java.util.function.Consumer
 
@@ -33,7 +34,7 @@ class DummyEventModelGroovyExtension implements EventModelGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<EventModel> consumer, Reporter reporter) {
+    void load(Binding binding, Consumer<EventModel> consumer, ReportNode reportNode) {
         binding.dummyEventModel = { Closure<Void> closure ->
             def cloned = closure.clone()
 

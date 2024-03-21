@@ -6,6 +6,8 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AmplExportConfig;
+
 import java.util.Collection;
 import java.util.Collections;
 
@@ -28,4 +30,10 @@ public class EmptyAmplParameters implements AmplParameters {
     public boolean isDebug() {
         return false;
     }
+
+    @Override
+    public AmplExportConfig getAmplExportConfig() {
+        return null;
+    }
+
 }

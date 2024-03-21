@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.modification.tapchanger;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
@@ -56,7 +56,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      Reporter reporter) {
+                      ReportNode reportNode) {
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
         if (threeWindingsTransformer != null) {

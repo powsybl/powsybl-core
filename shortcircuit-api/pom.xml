@@ -20,7 +20,7 @@
 
     <artifactId>powsybl-shortcircuit-api</artifactId>
     <name>Short-circuit API</name>
-    <description>An API to run three phase short-circuit calculations</description>
+    <description>An API to run three-phase short-circuit analysis</description>
 
     <build>
         <plugins>

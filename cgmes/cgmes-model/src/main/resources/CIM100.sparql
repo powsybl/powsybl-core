@@ -46,14 +46,18 @@ SELECT *
         && !regex(?profile, "EquipmentBoundary", "i"))
 }}
 
-# query: synchronousMachines
+# query: synchronousMachinesGenerators
 SELECT *
 WHERE {
 { GRAPH ?graph {
     ?SynchronousMachine
         a cim:SynchronousMachine ;
         cim:IdentifiedObject.name ?name ;
+        cim:SynchronousMachine.type ?type ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
+    # Some test cases of condensers have a (wrong) association with a generating unit,
+    # So we explicitly check for the type of the synchronous machine
+    FILTER (!REGEX(STR(?type), "Kind.condenser"))
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
        }
@@ -62,6 +66,19 @@ WHERE {
         cim:GeneratingUnit.minOperatingP ?minP ;
         cim:GeneratingUnit.maxOperatingP ?maxP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
+    OPTIONAL { ?GeneratingUnit cim:HydroGeneratingUnit.HydroPowerPlant ?HydroPowerPlant
+        OPTIONAL {
+            ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
+        }
+    }
+    OPTIONAL {
+            SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
+            WHERE {
+                    ?FossilFuel a cim:FossilFuel;
+                    cim:FossilFuel.fossilFuelType ?fossilFuelType;
+                    cim:FossilFuel.ThermalGeneratingUnit ?GeneratingUnit .
+            } GROUP BY ?GeneratingUnit
+    }
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
@@ -76,7 +93,7 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:SynchronousMachine.referencePriority ?referencePriority ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
 }}
-OPTIONAL { GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH2 {
     ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
 }}
 }

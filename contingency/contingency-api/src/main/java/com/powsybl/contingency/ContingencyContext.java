@@ -7,7 +7,9 @@
 
 package com.powsybl.contingency;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Objects;
 
@@ -21,6 +23,7 @@ import java.util.Objects;
  * contingency's id is defined if informations are needed after
  * a specific contingency computation
  */
+@JsonPropertyOrder({"contextType", "contingencyId"})
 public class ContingencyContext {
 
     private static final ContingencyContext ALL = new ContingencyContext(null, ContingencyContextType.ALL);
@@ -37,7 +40,7 @@ public class ContingencyContext {
      */
     private final ContingencyContextType contextType;
 
-    public ContingencyContext(@JsonProperty("contingencyId") String contingencyId,
+    public ContingencyContext(@JsonProperty("contingencyId") @JsonInclude(JsonInclude.Include.NON_NULL) String contingencyId,
                               @JsonProperty("contextType") ContingencyContextType contingencyContextType) {
         this.contextType = Objects.requireNonNull(contingencyContextType);
         if (contingencyContextType == ContingencyContextType.SPECIFIC && contingencyId == null) {
@@ -102,6 +105,10 @@ public class ContingencyContext {
 
     public static ContingencyContext none() {
         return NONE;
+    }
+
+    public static ContingencyContext onlyContingencies() {
+        return ONLY_CONTINGENCIES;
     }
 
     public static ContingencyContext specificContingency(String contingencyId) {

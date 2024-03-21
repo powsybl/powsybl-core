@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.SecurityAnalysisResult;
 
@@ -49,7 +50,8 @@ public class SecurityAnalysisResultSerializer extends StdSerializer<SecurityAnal
         Objects.requireNonNull(writer);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule());
 
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(writer, result);

@@ -824,6 +824,88 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(legNetwork.getPhaseTapChanger().getTargetDeadband(), legActual.getPhaseTapChanger().getTargetDeadband());
     }
 
+    @Test
+    void fossilFuelExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define fossilFuelType property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setEnergySource(EnergySource.THERMAL);
+        String expectedFuelType = "gas;lignite";
+        expectedGenerator.setProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE, expectedFuelType);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorFossilFuel";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the fuelType property
+        String actualFuelType = actualGenerator.getProperty(Conversion.PROPERTY_FOSSIL_FUEL_TYPE);
+        assertEquals(expectedFuelType, actualFuelType);
+    }
+
+    @Test
+    void hydroPowerPlantExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define hydroPowerPlant property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setEnergySource(EnergySource.HYDRO);
+        String expectedStorageKind = "pumpedStorage";
+        expectedGenerator.setProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE, expectedStorageKind);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorFossilHydroPowerPlant";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the storage kind property
+        String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
+        assertEquals(expectedStorageKind, actualStorageKind);
+    }
+
+    private Network createOneGeneratorNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("network", "test");
+        Substation substation1 = network.newSubstation()
+                .setId("substation1")
+                .setCountry(Country.FR)
+                .setTso("TSO1")
+                .setGeographicalTags("region1")
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("voltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        voltageLevel1.getNodeBreakerView()
+                .newBusbarSection()
+                .setId("busbarSection1")
+                .setNode(0)
+                .add();
+        Generator generator1 = voltageLevel1.newGenerator()
+                .setId("generator1")
+                .setNode(1)
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(25.0)
+                .setTargetQ(10.0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        generator1.newMinMaxReactiveLimits().setMinQ(-50.0).setMaxQ(50.0).add();
+        voltageLevel1.getNodeBreakerView().newInternalConnection().setNode1(0).setNode2(1).add();
+        return network;
+    }
+
     private Network exportImportNodeBreaker(Network expected, ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
         return exportImport(expected, dataSource, false, true, false);
     }

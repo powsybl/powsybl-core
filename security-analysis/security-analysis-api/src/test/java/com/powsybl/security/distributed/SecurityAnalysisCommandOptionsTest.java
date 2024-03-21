@@ -129,7 +129,8 @@ class SecurityAnalysisCommandOptionsTest {
                 .caseFile(fileSystem.getPath("test.xiidm"))
                 .parametersFile(fileSystem.getPath("params.json"))
                 .actionsFile(fileSystem.getPath("actions.json"))
-                .strategiesFile(fileSystem.getPath("strategies.json"));
+                .strategiesFile(fileSystem.getPath("strategies.json"))
+                .limitReductionsFile(fileSystem.getPath("limit-reductions.json"));
 
         SimpleCommand cmd = options.toCommand();
         String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
@@ -141,7 +142,8 @@ class SecurityAnalysisCommandOptionsTest {
                         "--case-file=test.xiidm",
                         "--parameters-file=params.json",
                         "--actions-file=actions.json",
-                        "--strategies-file=strategies.json");
+                        "--strategies-file=strategies.json",
+                        "--limit-reductions-file=limit-reductions.json");
 
     }
 

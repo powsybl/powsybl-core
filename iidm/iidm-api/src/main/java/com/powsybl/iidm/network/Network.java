@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 
@@ -116,22 +116,22 @@ public interface Network extends Container<Network> {
      * @param parameters         Import-specific parameters
      * @param networkFactory     Network factory
      * @param loader             Provides the list of available importers and post-processors
-     * @param reporter           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory,
-                        ImportersLoader loader, Reporter reporter) {
+                        ImportersLoader loader, ReportNode reportNode) {
         ReadOnlyDataSource dataSource = DataSource.fromPath(file);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
-            return importer.importData(dataSource, networkFactory, parameters, reporter);
+            return importer.importData(dataSource, networkFactory, parameters, reportNode);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
 
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters,
-                        ImportersLoader loader, Reporter reporter) {
-        return read(file, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reporter);
+                        ImportersLoader loader, ReportNode reportNode) {
+        return read(file, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reportNode);
     }
 
     /**
@@ -145,7 +145,7 @@ public interface Network extends Container<Network> {
      * @return                   The loaded network
      */
     static Network read(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        return read(file, computationManager, config, parameters, loader, Reporter.NO_OP);
+        return read(file, computationManager, config, parameters, loader, ReportNode.NO_OP);
     }
 
     /**
@@ -198,15 +198,15 @@ public interface Network extends Container<Network> {
      * @param parameters         Import-specific parameters
      * @param networkFactory     Network factory
      * @param loader             Provides the list of available importers and post-processors
-     * @param reporter           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
-    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, Reporter reporter) {
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
         ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
         dataSource.putData(filename, data);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
-            return importer.importData(dataSource, networkFactory, parameters, reporter);
+            return importer.importData(dataSource, networkFactory, parameters, reportNode);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
@@ -221,11 +221,11 @@ public interface Network extends Container<Network> {
      * @param config             The import config, in particular definition of post processors
      * @param parameters         Import-specific parameters
      * @param loader             Provides the list of available importers and post-processors
-     * @param reporter           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
-    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, Reporter reporter) {
-        return read(filename, data, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reporter);
+    static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, ReportNode reportNode) {
+        return read(filename, data, computationManager, config, parameters, NetworkFactory.findDefault(), loader, reportNode);
     }
 
     /**
@@ -241,7 +241,7 @@ public interface Network extends Container<Network> {
      * @return                   The loaded network
      */
     static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        return read(filename, data, computationManager, config, parameters, loader, Reporter.NO_OP);
+        return read(filename, data, computationManager, config, parameters, loader, ReportNode.NO_OP);
     }
 
     /**
@@ -304,11 +304,11 @@ public interface Network extends Container<Network> {
      *
      * @param filename           The name of the file to be imported.
      * @param data               The raw data from which the network should be loaded
-     * @param reporter           The reporter used for functional logs
+     * @param reportNode           The reportNode used for functional logs
      * @return                   The loaded network
      */
-    static Network read(String filename, InputStream data, Reporter reporter) {
-        return read(filename, data, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), null, new ImportersServiceLoader(), reporter);
+    static Network read(String filename, InputStream data, ReportNode reportNode) {
+        return read(filename, data, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), null, new ImportersServiceLoader(), reportNode);
     }
 
     static Network read(ReadOnlyDataSource dataSource) {
@@ -316,13 +316,13 @@ public interface Network extends Container<Network> {
     }
 
     static Network read(ReadOnlyDataSource dataSource, Properties properties) {
-        return read(dataSource, properties, Reporter.NO_OP);
+        return read(dataSource, properties, ReportNode.NO_OP);
     }
 
-    static Network read(ReadOnlyDataSource dataSource, Properties properties, Reporter reporter) {
+    static Network read(ReadOnlyDataSource dataSource, Properties properties, ReportNode reportNode) {
         Importer importer = Importer.find(dataSource);
         if (importer != null) {
-            return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reporter);
+            return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reportNode);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
@@ -341,29 +341,29 @@ public interface Network extends Container<Network> {
     }
 
     static Network read(List<ReadOnlyDataSource> dataSources, Properties properties) {
-        return read(dataSources, properties, Reporter.NO_OP);
+        return read(dataSources, properties, ReportNode.NO_OP);
     }
 
-    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties, Reporter reporter) {
+    static Network read(List<ReadOnlyDataSource> dataSources, Properties properties, ReportNode reportNode) {
         Objects.requireNonNull(dataSources);
-        return read(new MultipleReadOnlyDataSource(dataSources), properties, reporter);
+        return read(new MultipleReadOnlyDataSource(dataSources), properties, reportNode);
     }
 
-    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
             throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
         }
         for (Importer importer : Importer.list(loader, computationManager, config)) {
-            Importers.importAll(dir, importer, parallel, parameters, consumer, listener, networkFactory, reporter);
+            Importers.importAll(dir, importer, parallel, parameters, consumer, listener, networkFactory, reportNode);
         }
     }
 
-    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
-        readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, NetworkFactory.findDefault(), reporter);
+    static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
+        readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, NetworkFactory.findDefault(), reportNode);
     }
 
     static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
-        readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, Reporter.NO_OP);
+        readAll(dir, parallel, loader, computationManager, config, parameters, consumer, listener, ReportNode.NO_OP);
     }
 
     static void readAll(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
@@ -579,33 +579,33 @@ public interface Network extends Container<Network> {
     VariantManager getVariantManager();
 
     /**
-     * <p>Allows {@link ReporterContext} to be accessed simultaneously by different threads.</p>
-     * <p>When this option is activated, the reporter context can have a different content
+     * <p>Allows {@link ReportNodeContext} to be accessed simultaneously by different threads.</p>
+     * <p>When this option is activated, the reportNode context can have a different content
      * for each thread.</p>
      * <p>Note that to avoid memory leaks when in multi-thread configuration: </p>
      * <ul>
-     *     <li>each reporter pushed in the ReporterContext should be popped in a "finally" section:
+     *     <li>each reportNode pushed in the ReportNodeContext should be popped in a "finally" section:
      * <pre>
      * {@code
-     *     network.getReporterContext().pushReporter(reporter);
+     *     network.getReportNodeContext().pushReportNode(reportNode);
      *     try {
      *         // code that can throw an exception
      *     } finally {
-     *         network.getReporterContext().popReporter();
+     *         network.getReportNodeContext().popReportNode();
      *     }
      * }
      * </pre>
      * </li>
      * <li>the context should be set in mono-thread access when multi-threading policy is no more useful.</li>
      * </ul>
-     * @param allow allow multi-thread access to the ReporterContext
+     * @param allow allow multi-thread access to the ReportNodeContext
      */
-    void allowReporterContextMultiThreadAccess(boolean allow);
+    void allowReportNodeContextMultiThreadAccess(boolean allow);
 
     /**
-     * Get the {@link ReporterContext} of the network.
+     * Get the {@link ReportNodeContext} of the network.
      */
-    ReporterContext getReporterContext();
+    ReportNodeContext getReportNodeContext();
 
     /**
      * Get all countries.
@@ -1376,7 +1376,7 @@ public interface Network extends Container<Network> {
      * Return the network validation status.
      */
     default ValidationLevel runValidationChecks(boolean throwsException) {
-        return runValidationChecks(throwsException, Reporter.NO_OP);
+        return runValidationChecks(throwsException, ReportNode.NO_OP);
     }
 
     /**
@@ -1385,7 +1385,7 @@ public interface Network extends Container<Network> {
      * If all network components are valid, network validation status is updated to true.
      * Return the network validation status.
      */
-    default ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+    default ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
 
@@ -1450,18 +1450,18 @@ public interface Network extends Container<Network> {
      * @param format the export format
      * @param parameters some properties to configure the export
      * @param dataSource data source
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
-    default void write(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, Reporter reporter) {
+    default void write(ExportersLoader loader, String format, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Exporter exporter = Exporter.find(loader, format);
         if (exporter == null) {
             throw new PowsyblException("Export format " + format + " not supported");
         }
-        exporter.export(this, parameters, dataSource, reporter);
+        exporter.export(this, parameters, dataSource, reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, DataSource dataSource) {
-        write(loader, format, parameters, dataSource, Reporter.NO_OP);
+        write(loader, format, parameters, dataSource, ReportNode.NO_OP);
     }
 
     default void write(String format, Properties parameters, DataSource dataSource) {
@@ -1474,15 +1474,15 @@ public interface Network extends Container<Network> {
      * @param format the export format
      * @param parameters some properties to configure the export
      * @param file the network file
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
-    default void write(ExportersLoader loader, String format, Properties parameters, Path file, Reporter reporter) {
+    default void write(ExportersLoader loader, String format, Properties parameters, Path file, ReportNode reportNode) {
         DataSource dataSource = Exporters.createDataSource(file);
-        write(loader, format, parameters, dataSource, reporter);
+        write(loader, format, parameters, dataSource, reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, Path file) {
-        write(loader, format, parameters, file, Reporter.NO_OP);
+        write(loader, format, parameters, file, ReportNode.NO_OP);
     }
 
     default void write(String format, Properties parameters, Path file) {
@@ -1496,14 +1496,14 @@ public interface Network extends Container<Network> {
      * @param parameters some properties to configure the export
      * @param directory the output directory where files are generated
      * @param baseName a base name for all generated files
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
-    default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, Reporter reporter) {
-        write(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reporter);
+    default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, ReportNode reportNode) {
+        write(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {
-        write(loader, format, parameters, directory, basename, Reporter.NO_OP);
+        write(loader, format, parameters, directory, basename, ReportNode.NO_OP);
     }
 
     default void write(String format, Properties parameters, String directory, String baseName) {

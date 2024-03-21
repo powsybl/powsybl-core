@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
@@ -25,57 +25,57 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public void apply(Network network) {
-        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), Reporter.NO_OP);
+        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
     public void apply(Network network, ComputationManager computationManager) {
-        apply(network, new DefaultNamingStrategy(), false, computationManager, Reporter.NO_OP);
+        apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP);
     }
 
     @Override
-    public void apply(Network network, ComputationManager computationManager, Reporter reporter) {
-        apply(network, new DefaultNamingStrategy(), false, computationManager, reporter);
+    public void apply(Network network, ComputationManager computationManager, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode);
     }
 
     @Override
-    public void apply(Network network, Reporter reporter) {
-        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reporter);
+    public void apply(Network network, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, Reporter reporter) {
-        apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reporter);
+    public void apply(Network network, boolean throwException, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
-    public void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter) {
-        apply(network, new DefaultNamingStrategy(), throwException, computationManager, reporter);
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode);
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy) {
-        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), Reporter.NO_OP);
+        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager) {
-        apply(network, namingStrategy, false, computationManager, Reporter.NO_OP);
+        apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP);
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, Reporter reporter) {
-        apply(network, namingStrategy, false, computationManager, reporter);
+    public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        apply(network, namingStrategy, false, computationManager, reportNode);
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, Reporter reporter) {
-        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reporter);
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, Reporter reporter) {
-        apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reporter);
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode) {
+        apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reportNode);
     }
 
     /**

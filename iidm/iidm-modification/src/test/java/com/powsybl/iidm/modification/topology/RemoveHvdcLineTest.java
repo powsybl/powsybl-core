@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
@@ -70,21 +70,21 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
     @Test
     void testRemoveHvdcLineUnknownShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        ReporterModel reporter = new ReporterModel("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reporter on removing a HVDC line with unknown shunt");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineWithUnknownShunt", "Testing reportNode on removing a HVDC line with unknown shunt").build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").withShuntCompensatorIds("UnknownShunt").build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Shunt UnknownShunt not found", e.getMessage());
-        assertEquals("notFoundShunt", reporter.getReports().iterator().next().getReportKey());
+        assertEquals("notFoundShunt", reportNode.getChildren().get(0).getMessageKey());
     }
 
     @Test
     void testRemoveHvdcLineUnknownLine() {
         Network network = Network.create("empty", "test");
-        ReporterModel reporter = new ReporterModel("reportTestRemoveHvdcLineUnknownLine", "Testing reporter on removing a HVDC line with wrong line ID");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveHvdcLineUnknownLine", "Testing reportNode on removing a HVDC line with wrong line ID").build();
         RemoveHvdcLine removeHvdcLine = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reporter));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeHvdcLine.apply(network, true, reportNode));
         assertEquals("Hvdc Line L not found", e.getMessage());
-        assertEquals("HvdcNotFound", reporter.getReports().iterator().next().getReportKey());
+        assertEquals("HvdcNotFound", reportNode.getChildren().get(0).getMessageKey());
     }
 
     private static void addVoltageLevelWithShuntCompensator(Network network) {

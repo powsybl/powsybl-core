@@ -1458,7 +1458,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReference microGridBaseCaseNLMultipleSlacks() {
+    public static GridModelReference microGridBaseCaseNLMultipleReferencePriorities() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_multiple_generators_with_reference_priority/";
         return new GridModelReferenceResources(

@@ -58,6 +58,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
+    public String visit(CachedNodeCalc nodeCalc, Void arg, String child) {
+        return child;
+    }
+
+    @Override
     public String visit(TimeNodeCalc nodeCalc, Void arg, String child) {
         return "(" + child + ").time()";
     }
@@ -99,6 +104,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
 
     @Override
     public NodeCalc iterate(MaxNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, Void arg) {
         return nodeCalc.getChild();
     }
 

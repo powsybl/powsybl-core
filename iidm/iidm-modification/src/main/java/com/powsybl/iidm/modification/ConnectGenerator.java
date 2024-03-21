@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
@@ -31,7 +31,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");

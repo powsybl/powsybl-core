@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.serde.test;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.serde.ImportOptions;
@@ -25,6 +25,6 @@ public final class MetrixTutorialSixBusesFactory {
     }
 
     public static Network create(NetworkFactory networkFactory) {
-        return NetworkSerDe.read(MetrixTutorialSixBusesFactory.class.getResourceAsStream("/metrix-tutorial-6-buses-network.xiidm"), new ImportOptions(), null, networkFactory, Reporter.NO_OP);
+        return NetworkSerDe.read(MetrixTutorialSixBusesFactory.class.getResourceAsStream("/metrix-tutorial-6-buses-network.xiidm"), new ImportOptions(), null, networkFactory, ReportNode.NO_OP);
     }
 }

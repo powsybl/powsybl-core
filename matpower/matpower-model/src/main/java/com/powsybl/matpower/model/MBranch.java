@@ -70,7 +70,7 @@ public class MBranch {
     /**
      * initial branch status, 1 = in-service, 0 = out-of-service
      */
-    private double status;
+    private int status;
 
     /**
      * minimum angle difference, ThetaF - ThetaT (degrees)
@@ -162,11 +162,11 @@ public class MBranch {
         this.phaseShiftAngle = phaseShiftAngle;
     }
 
-    public double getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(double status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

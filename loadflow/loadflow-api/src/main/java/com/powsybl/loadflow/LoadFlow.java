@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -41,15 +41,15 @@ public final class LoadFlow {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
+        public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
-            Objects.requireNonNull(reporter);
-            return provider.run(network, computationManager, workingStateId, parameters, reporter);
+            Objects.requireNonNull(reportNode);
+            return provider.run(network, computationManager, workingStateId, parameters, reportNode);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return runAsync(network, workingStateId, computationManager, parameters, Reporter.NO_OP);
+            return runAsync(network, workingStateId, computationManager, parameters, ReportNode.NO_OP);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -64,15 +64,15 @@ public final class LoadFlow {
             return runAsync(network, LoadFlowParameters.load());
         }
 
-        public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
+        public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
-            Objects.requireNonNull(reporter);
-            return provider.run(network, computationManager, workingStateId, parameters, reporter).join();
+            Objects.requireNonNull(reportNode);
+            return provider.run(network, computationManager, workingStateId, parameters, reportNode).join();
         }
 
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return run(network, workingStateId, computationManager, parameters, Reporter.NO_OP);
+            return run(network, workingStateId, computationManager, parameters, ReportNode.NO_OP);
         }
 
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -121,8 +121,8 @@ public final class LoadFlow {
         return find(null);
     }
 
-    public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
-        return find().runAsync(network, workingStateId, computationManager, parameters, reporter);
+    public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
+        return find().runAsync(network, workingStateId, computationManager, parameters, reportNode);
     }
 
     public static CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -141,8 +141,8 @@ public final class LoadFlow {
         return find().runAsync(network);
     }
 
-    public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
-        return find().run(network, workingStateId, computationManager, parameters, reporter);
+    public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, ReportNode reportNode) {
+        return find().run(network, workingStateId, computationManager, parameters, reportNode);
     }
 
     public static LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {

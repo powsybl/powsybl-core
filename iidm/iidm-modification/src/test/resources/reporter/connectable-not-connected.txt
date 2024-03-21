@@ -1,2 +1,0 @@
-+ Testing reporter for connectable connection
-   Connectable L2 has NOT been connected.

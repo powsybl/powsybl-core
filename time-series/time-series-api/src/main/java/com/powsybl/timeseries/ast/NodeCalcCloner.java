@@ -68,6 +68,17 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(CachedNodeCalc nodeCalc, A arg, NodeCalc child) {
+        // CachedNodeCalc are not cloned or else the NodeCalc would not be the same anymore
+        return nodeCalc;
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
     public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
         return new TimeNodeCalc(child);
     }

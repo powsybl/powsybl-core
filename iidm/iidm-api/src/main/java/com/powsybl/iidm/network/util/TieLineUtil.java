@@ -7,11 +7,12 @@
 package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.Sets;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +72,10 @@ public final class TieLineUtil {
     }
 
     public static void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties) {
-        mergeProperties(dl1, dl2, properties, Reporter.NO_OP);
+        mergeProperties(dl1, dl2, properties, ReportNode.NO_OP);
     }
 
-    public static void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties, Reporter reporter) {
+    public static void mergeProperties(DanglingLine dl1, DanglingLine dl2, Properties properties, ReportNode reportNode) {
         Set<String> dl1Properties = dl1.getPropertyNames();
         Set<String> dl2Properties = dl2.getPropertyNames();
         Set<String> commonProperties = Sets.intersection(dl1Properties, dl2Properties);
@@ -85,15 +86,15 @@ public final class TieLineUtil {
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else if (dl1.getProperty(prop).isEmpty()) {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
-                propertyOnlyOnOneSide(reporter, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
+                propertyOnlyOnOneSide(reportNode, prop, dl2.getProperty(prop), 1, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl2.getProperty(prop));
             } else if (dl2.getProperty(prop).isEmpty()) {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
-                propertyOnlyOnOneSide(reporter, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
+                propertyOnlyOnOneSide(reportNode, prop, dl1.getProperty(prop), 2, dl1.getId(), dl2.getId());
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
                 LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
-                inconsistentPropertyValues(reporter, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
+                inconsistentPropertyValues(reportNode, prop, dl1.getProperty(prop), dl2.getProperty(prop), dl1.getId(), dl2.getId());
             }
         });
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
@@ -101,21 +102,21 @@ public final class TieLineUtil {
     }
 
     public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases) {
-        mergeIdenticalAliases(dl1, dl2, aliases, Reporter.NO_OP);
+        mergeIdenticalAliases(dl1, dl2, aliases, ReportNode.NO_OP);
     }
 
-    public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, Reporter reporter) {
+    public static void mergeIdenticalAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, ReportNode reportNode) {
         for (String alias : dl1.getAliases()) {
             if (dl2.getAliases().contains(alias)) {
                 LOGGER.debug("Alias '{}' is found in dangling lines '{}' and '{}'. It is moved to their new tie line.", alias, dl1.getId(), dl2.getId());
-                moveCommonAliases(reporter, alias, dl1.getId(), dl2.getId());
+                moveCommonAliases(reportNode, alias, dl1.getId(), dl2.getId());
                 String type1 = dl1.getAliasType(alias).orElse("");
                 String type2 = dl2.getAliasType(alias).orElse("");
                 if (type1.equals(type2)) {
                     aliases.put(alias, type1);
                 } else {
                     LOGGER.warn("Inconsistencies found for alias '{}' type in dangling lines '{}' and '{}'. Type is lost.", alias, dl1.getId(), dl2.getId());
-                    inconsistentAliasTypes(reporter, alias, type1, type2, dl1.getId(), dl2.getId());
+                    inconsistentAliasTypes(reportNode, alias, type1, type2, dl1.getId(), dl2.getId());
                     aliases.put(alias, "");
                 }
             }
@@ -126,7 +127,7 @@ public final class TieLineUtil {
         });
     }
 
-    public static void mergeDifferentAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, Reporter reporter) {
+    public static void mergeDifferentAliases(DanglingLine dl1, DanglingLine dl2, Map<String, String> aliases, ReportNode reportNode) {
         for (String alias : dl1.getAliases()) {
             if (!dl2.getAliases().contains(alias)) {
                 aliases.put(alias, dl1.getAliasType(alias).orElse(""));
@@ -141,7 +142,7 @@ public final class TieLineUtil {
                     aliases.put(alias1, type + "_1");
                     LOGGER.warn("Inconsistencies found for alias type '{}'('{}' for '{}' and '{}' for '{}'). " +
                             "Types are respectively renamed as '{}_1' and '{}_2'.", type, alias1, dl1.getId(), alias, dl2.getId(), type, type);
-                    inconsistentAliasValues(reporter, alias1, alias, type, dl1.getId(), dl2.getId());
+                    inconsistentAliasValues(reportNode, alias1, alias, type, dl1.getId(), dl2.getId());
                     type += "_2";
                 }
                 aliases.put(alias, type);
@@ -297,6 +298,16 @@ public final class TieLineUtil {
         return adm.y22().add(adm.y21()).getImaginary();
     }
 
+    public static double getBoundaryV(DanglingLine dl1, DanglingLine dl2) {
+        Complex boundaryV = voltageAtTheBoundaryNode(dl1, dl2);
+        return boundaryV.abs();
+    }
+
+    public static double getBoundaryAngle(DanglingLine dl1, DanglingLine dl2) {
+        Complex boundaryV = voltageAtTheBoundaryNode(dl1, dl2);
+        return Math.toDegrees(Math.atan2(boundaryV.getImaginary(), boundaryV.getReal()));
+    }
+
     private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(DanglingLine dl1,
         DanglingLine dl2) {
         // zero impedance dangling lines should be supported
@@ -321,6 +332,19 @@ public final class TieLineUtil {
         } else {
             return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
         }
+    }
+
+    private static Complex voltageAtTheBoundaryNode(DanglingLine dl1, DanglingLine dl2) {
+
+        Complex v1 = ComplexUtils.polar2Complex(DanglingLineData.getV(dl1), DanglingLineData.getTheta(dl1));
+        Complex v2 = ComplexUtils.polar2Complex(DanglingLineData.getV(dl2), DanglingLineData.getTheta(dl2));
+
+        BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(dl1.getR(), dl1.getX(), 1.0, 0.0, 1.0, 0.0,
+                new Complex(dl1.getG(), dl1.getB()), new Complex(0.0, 0.0));
+        BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
+                new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
+
+        return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
     }
 
     /**

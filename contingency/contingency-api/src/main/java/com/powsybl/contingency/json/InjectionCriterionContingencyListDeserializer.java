@@ -10,8 +10,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.InjectionCriterionContingencyList;
-import com.powsybl.contingency.contingency.list.criterion.SingleCountryCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.SingleCountryCriterion;
+import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 
 import java.io.IOException;
 

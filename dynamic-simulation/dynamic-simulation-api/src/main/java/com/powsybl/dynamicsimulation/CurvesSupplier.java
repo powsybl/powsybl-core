@@ -15,6 +15,6 @@ import java.util.Collections;
 public interface CurvesSupplier extends SimulatorInputSupplier<Curve> {
 
     static CurvesSupplier empty() {
-        return (network, reporter) -> Collections.emptyList();
+        return (network, reportNode) -> Collections.emptyList();
     }
 }

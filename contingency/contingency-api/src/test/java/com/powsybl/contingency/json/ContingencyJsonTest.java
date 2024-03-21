@@ -13,11 +13,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.*;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 import com.powsybl.iidm.network.Network;
@@ -48,6 +48,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         super.setUp();
 
         Files.copy(getClass().getResourceAsStream("/contingencies.json"), fileSystem.getPath("/contingencies.json"));
+        Files.copy(getClass().getResourceAsStream("/contingenciesWithOptionalName.json"), fileSystem.getPath("/contingenciesWithOptionalName.json"));
     }
 
     private static Contingency create() {
@@ -139,6 +140,24 @@ class ContingencyJsonTest extends AbstractSerDeTest {
         ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/identifierContingencyList.json"));
         assertEquals("list1", contingencyList.getName());
         assertEquals("identifier", contingencyList.getType());
+    }
+
+    @Test
+    void readJsonListContingenciesWithOptionalName() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        DefaultContingencyList contingencyList = (DefaultContingencyList) ContingencyList.load(fileSystem.getPath("/contingenciesWithOptionalName.json"));
+        assertEquals("list", contingencyList.getName());
+
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals("contingency", contingencies.get(0).getId());
+        assertEquals("contingency name", contingencies.get(0).getName().get());
+        assertEquals(2, contingencies.get(0).getElements().size());
+        assertEquals("contingency2", contingencies.get(1).getId());
+        assertEquals(1, contingencies.get(1).getElements().size());
+
+        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingenciesWithOptionalName.json");
     }
 
     static class DummyExtension implements Extension<Contingency> {

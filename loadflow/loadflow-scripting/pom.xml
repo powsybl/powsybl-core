@@ -23,6 +23,7 @@
     <description>Use loadflow API in scripts</description>
 
     <properties>
+        <groovydoc.attach>true</groovydoc.attach>
         <groovydoc.classifier>javadoc</groovydoc.classifier>
     </properties>
 
@@ -42,10 +43,6 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

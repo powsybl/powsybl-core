@@ -7,7 +7,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 
 import java.util.*;
 
@@ -119,26 +119,26 @@ public class UcteNetworkImpl implements UcteNetwork {
     }
 
     @Override
-    public void fix(Reporter reporter) {
+    public void fix(ReportNode reportNode) {
 
-        Reporter nodesReporter = reporter.createSubReporter("fixUcteNodes", "Fix UCTE nodes");
+        ReportNode nodesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteNodes", "Fix UCTE nodes").add();
         for (UcteNode node : nodes.values()) {
-            node.fix(nodesReporter);
+            node.fix(nodesReportNode);
         }
 
-        Reporter linesReporter = reporter.createSubReporter("fixUcteLines", "Fix UCTE lines");
+        ReportNode linesReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteLines", "Fix UCTE lines").add();
         for (UcteLine line : lines.values()) {
-            line.fix(linesReporter);
+            line.fix(linesReportNode);
         }
 
-        Reporter transfoReporter = reporter.createSubReporter("fixUcteTransformer", "Fix UCTE transformers");
+        ReportNode transfoReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteTransformer", "Fix UCTE transformers").add();
         for (UcteTransformer transfo : transformers.values()) {
-            transfo.fix(transfoReporter);
+            transfo.fix(transfoReportNode);
         }
 
-        Reporter regulationsReporter = reporter.createSubReporter("fixUcteRegulations", "Fix UCTE regulations");
+        ReportNode regulationsReportNode = reportNode.newReportNode().withMessageTemplate("fixUcteRegulations", "Fix UCTE regulations").add();
         for (UcteRegulation regulation : regulations.values()) {
-            regulation.fix(regulationsReporter);
+            regulation.fix(regulationsReportNode);
         }
     }
 

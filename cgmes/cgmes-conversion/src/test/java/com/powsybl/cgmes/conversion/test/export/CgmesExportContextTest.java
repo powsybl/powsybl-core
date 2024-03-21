@@ -32,7 +32,7 @@ class CgmesExportContextTest {
     void testExporter() {
         var exporter = new CgmesExport();
         assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
-        assertEquals(17, exporter.getParameters().size());
+        assertEquals(19, exporter.getParameters().size());
     }
 
     @Test
@@ -49,6 +49,8 @@ class CgmesExportContextTest {
         assertEquals(1, context1.getSvModelDescription().getVersion());
         assertTrue(context1.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
+        assertEquals(1, context1.getEqModelDescription().getVersion());
+        assertEquals("1D", context1.getBusinessProcess());
 
         network.newExtension(CimCharacteristicsAdder.class)
             .setCimVersion(14)
@@ -88,6 +90,7 @@ class CgmesExportContextTest {
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context.getSvModelDescription().getModelingAuthoritySet());
         assertTrue(context.exportBoundaryPowerFlows());
+        assertEquals("1D", context.getBusinessProcess());
     }
 
     @Test
@@ -97,7 +100,8 @@ class CgmesExportContextTest {
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .setScenarioTime(ZonedDateTime.parse("2020-09-22T17:21:11.381+02:00"))
             .setExportBoundaryPowerFlows(true)
-            .setExportFlowsForSwitches(false);
+            .setExportFlowsForSwitches(false)
+            .setBusinessProcess("2D");
         context.getSvModelDescription()
             .setDescription("test")
             .setVersion(2)
@@ -116,6 +120,7 @@ class CgmesExportContextTest {
         assertTrue(context.getSvModelDescription().getDependencies().contains("cgmes"));
         assertEquals("cgmes.org", context.getSvModelDescription().getModelingAuthoritySet());
         assertTrue(context.exportBoundaryPowerFlows());
+        assertEquals("2D", context.getBusinessProcess());
 
         List<String> dependencies = Arrays.asList("test1", "test2", "test3");
         context.getSvModelDescription().addDependencies(dependencies);

@@ -39,7 +39,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         Terminal terminal = null;
         if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
             if (terminalId != null) {
-                terminal = context.terminalMapping().find(terminalId, true);
+                terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }
             if (terminal != null) {
                 createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
@@ -50,7 +50,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             }
         } else if (limitSubclass.equals("VoltageLimit")) {
             if (terminalId != null) {
-                terminal = context.terminalMapping().find(terminalId, false);
+                terminal = context.terminalMapping().findForVoltageLimits(terminalId);
             }
             if (terminal != null) {
                 vl = terminal.getVoltageLevel();
@@ -146,8 +146,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
-                loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
-                loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
+                loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1", getLoadingLimitAdder1Supplier(limitSubClass, b));
+                loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2", getLoadingLimitAdder2Supplier(limitSubClass, b));
             } else {
                 createLimitsAdder(terminalNumber, limitSubClass, b);
             }

@@ -30,7 +30,7 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
- * Generic parameters for short circuit-computations.
+ * Generic parameters for short-circuit computations.
  * May contain extensions for implementation-specific parameters.
  *
  * @author Boubakeur Brahimi
@@ -150,7 +150,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * The type of study: transient, subtransient or steady state.
+     * The type of study: transient, sub-transient or steady state.
      */
     public StudyType getStudyType() {
         return studyType;
@@ -195,7 +195,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of the generators
+    /** In case of a sub-transient study, a multiplicative coefficient to obtain the sub-transient reactance of the generators
      * from the transient reactance. By default, X''d = 0.7 * X'd.
      */
     public double getSubTransientCoefficient() {
@@ -292,7 +292,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * A boolean indicating if the functional logs in reporter should be detailed or aggregated.
+     * A boolean indicating if the functional logs in reportNode should be detailed or aggregated.
      */
     public boolean isDetailedReport() {
         return detailedReport;

@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.parameters.Parameter;
 
 import java.util.*;
@@ -87,7 +87,7 @@ public interface Exporter {
      * @param dataSource data source
      */
     default void export(Network network, Properties parameters, DataSource dataSource) {
-        export(network, parameters, dataSource, Reporter.NO_OP);
+        export(network, parameters, dataSource, ReportNode.NO_OP);
     }
 
     /**
@@ -96,9 +96,9 @@ public interface Exporter {
      * @param network the model
      * @param parameters some properties to configure the export
      * @param dataSource data source
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      */
-    default void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
+    default void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         export(network, parameters, dataSource);
     }
 

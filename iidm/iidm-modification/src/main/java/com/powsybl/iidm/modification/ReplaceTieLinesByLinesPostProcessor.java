@@ -12,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
@@ -44,7 +44,7 @@ public class ReplaceTieLinesByLinesPostProcessor implements ImportPostProcessor 
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager, Reporter reporter) {
-        new ReplaceTieLinesByLines().apply(network, Parameter.readBoolean("XIIDM", null, THROW_EXCEPTION_PARAMETER, defaultValueConfig), computationManager, reporter);
+    public void process(Network network, ComputationManager computationManager, ReportNode reportNode) {
+        new ReplaceTieLinesByLines().apply(network, Parameter.readBoolean("XIIDM", null, THROW_EXCEPTION_PARAMETER, defaultValueConfig), computationManager, reportNode);
     }
 }

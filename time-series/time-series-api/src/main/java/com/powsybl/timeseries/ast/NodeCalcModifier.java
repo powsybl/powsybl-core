@@ -77,6 +77,19 @@ public class NodeCalcModifier<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(CachedNodeCalc nodeCalc, A arg, NodeCalc child) {
+        if (child != null) {
+            nodeCalc.setChild(child);
+        }
+        return null;
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
     public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
         if (child != null) {
             nodeCalc.setChild(child);

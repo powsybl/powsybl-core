@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  *
@@ -23,8 +23,8 @@ public class UcteLine extends UcteElement {
     }
 
     @Override
-    public void fix(Reporter reporter) {
-        UcteValidation.checkValidLineCharacteristics(this, reporter);
-        super.fix(reporter);
+    public void fix(ReportNode reportNode) {
+        UcteValidation.checkValidLineCharacteristics(this, reportNode);
+        super.fix(reportNode);
     }
 }

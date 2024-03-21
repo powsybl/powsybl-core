@@ -23,7 +23,7 @@ public interface FaultResult extends Extendable<FaultResult> {
          */
         SUCCESS,
         /**
-         * Data useful to short circuit calculation is missing, typically the transient reactance of generators
+         * Data useful to short-circuit current calculation is missing, typically the transient reactance of generators
          */
         NO_SHORT_CIRCUIT_DATA,
         /**

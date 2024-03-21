@@ -19,6 +19,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -194,11 +195,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return voltageLevel(n).isEmpty() || context.boundary().containsNode(nodeId(n));
     }
 
-    public void convertToDanglingLine(int boundarySide) {
-        convertToDanglingLine(boundarySide, 0.0, 0.0, 0.0, 0.0);
+    public DanglingLine convertToDanglingLine(String eqInstance, int boundarySide) {
+        return convertToDanglingLine(eqInstance, boundarySide, 0.0, 0.0, 0.0, 0.0);
     }
 
-    public void convertToDanglingLine(int boundarySide, double r, double x, double gch, double bch) {
+    public DanglingLine convertToDanglingLine(String eqInstance, int boundarySide, double r, double x, double gch, double bch) {
         // Non-boundary side (other side) of the line
         int modelSide = 3 - boundarySide;
         String boundaryNode = nodeId(boundarySide);
@@ -236,11 +237,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);
         connect(dlAdder, modelSide);
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, null);
+        Optional<EquivalentInjectionConversion> equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(context, boundaryNode, eqInstance);
         DanglingLine dl;
-        if (equivalentInjectionConversion != null) {
-            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
-            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion::convertReactiveLimits);
+        if (equivalentInjectionConversion.isPresent()) {
+            dl = equivalentInjectionConversion.get().convertOverDanglingLine(dlAdder, f);
+            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion.get()::convertReactiveLimits);
         } else {
             dl = dlAdder
                     .setP0(f.p())
@@ -279,16 +280,43 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 setDanglingLineModelSideFlow(dl, boundaryNode);
             }
         }
+        return dl;
     }
 
     public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl) {
         double v = dl.getBoundary().getV();
         double angle = dl.getBoundary().getAngle();
 
-        if (!Double.isNaN(v) && !Double.isNaN(angle)) {
-            dl.setProperty("v", Double.toString(v));
-            dl.setProperty("angle", Double.toString(angle));
+        if (isVoltageDefined(v, angle)) {
+            setVoltageProperties(dl, v, angle);
         }
+    }
+
+    public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl1, DanglingLine dl2) {
+        double v = TieLineUtil.getBoundaryV(dl1, dl2);
+        double angle = TieLineUtil.getBoundaryAngle(dl1, dl2);
+
+        if (!isVoltageDefined(v, angle)) {
+            v = dl1.getBoundary().getV();
+            angle = dl1.getBoundary().getAngle();
+        }
+        if (!isVoltageDefined(v, angle)) {
+            v = dl2.getBoundary().getV();
+            angle = dl2.getBoundary().getAngle();
+        }
+        if (isVoltageDefined(v, angle)) {
+            setVoltageProperties(dl1, v, angle);
+            setVoltageProperties(dl2, v, angle);
+        }
+    }
+
+    private static boolean isVoltageDefined(double v, double angle) {
+        return !Double.isNaN(v) && !Double.isNaN(angle);
+    }
+
+    private static void setVoltageProperties(DanglingLine dl, double v, double angle) {
+        dl.setProperty("v", Double.toString(v));
+        dl.setProperty("angle", Double.toString(angle));
     }
 
     private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
@@ -333,41 +361,23 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.getTerminal().setQ(svmodel.getQ());
     }
 
-    protected static EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, BoundaryLine boundaryLine) {
+    private static Optional<EquivalentInjectionConversion> getEquivalentInjectionConversionForDanglingLine(Context context, String boundaryNode, String eqInstance) {
         List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
         if (eis.isEmpty()) {
-            return null;
+            return Optional.empty();
         } else if (eis.size() == 1) {
-            if (boundaryLine == null) {
-                return new EquivalentInjectionConversion(eis.get(0), context);
-            } else {
-                // This should not happen
-                // We have decided to assemble a dangling line,
-                // so we have the two MAS at this boundary point,
-                // so there must be more than one equivalent injection
-                context.invalid("Boundary node " + boundaryNode,
-                        "Expected multiple equivalent injections at boundary node in assembled model and found only one");
-                return null;
-            }
+            return Optional.of(new EquivalentInjectionConversion(eis.get(0), context));
         } else {
-            if (boundaryLine == null) {
-                // This should not happen
-                // We have decided to create a dangling line,
-                // so only one MAS at this boundary point,
-                // so there must be only one equivalent injection
-                context.invalid("Boundary node " + boundaryNode, "Multiple equivalent injections at boundary node");
-                return null;
+            // Select the EI thas is defined in the same EQ instance of the given line
+            String eqInstancePropertyName = "graph";
+            List<PropertyBag> eisEqInstance = eis.stream().filter(eik -> eik.getId(eqInstancePropertyName).equals(eqInstance)).toList();
+
+            if (eisEqInstance.size() == 1) {
+                return Optional.of(new EquivalentInjectionConversion(eisEqInstance.get(0), context));
             } else {
-                // Select the EI thas is defined in the same EQ instance of the given line
-                String eqInstancePropertyName = "graph";
-                PropertyBag ei = eis.stream()
-                        .filter(eik -> eik.getId(eqInstancePropertyName).equals(boundaryLine.getEqInstance()))
-                        .findFirst().orElse(null);
-                if (ei == null) {
-                    context.invalid("Boundary node " + boundaryNode,
-                            "Assembled model does not contain an equivalent injection in the same graph of line " + boundaryLine.getId());
-                }
-                return new EquivalentInjectionConversion(ei, context);
+                context.invalid("Boundary node " + boundaryNode,
+                        "Assembled model does not contain only one equivalent injection in the same graph " + eqInstance);
+                return Optional.empty();
             }
         }
     }
@@ -405,16 +415,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].t.connected();
     }
 
-    String cgmesVoltageLevelId() {
-        return terminals[0].cgmesVoltageLevelId;
-    }
-
     String cgmesVoltageLevelId(int n) {
         return terminals[n - 1].cgmesVoltageLevelId;
-    }
-
-    String iidmVoltageLevelId() {
-        return terminals[0].iidmVoltageLevelId;
     }
 
     String iidmVoltageLevelId(int n) {
@@ -668,41 +670,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
-        }
-    }
-
-    protected BoundaryLine createBoundaryLine(String boundaryNode) {
-        // Keep the EQ instance where this equipment at boundary has been defined
-        // The equipment may be a transformer,
-        // in that case we have a list property bags,
-        // one for each of transformer end
-        String eqInstance = (p != null ? p : ps.get(0)).getId("graph");
-
-        int modelEnd = 1;
-        if (nodeId(1).equals(boundaryNode)) {
-            modelEnd = 2;
-        }
-        String id = iidmId();
-        String name = iidmName();
-        String modelIidmVoltageLevelId = iidmVoltageLevelId(modelEnd);
-        boolean modelTconnected = terminalConnected(modelEnd);
-        String modelBus = busId(modelEnd);
-        String modelTerminalId = terminalId(modelEnd);
-        String boundaryTerminalId = terminalId(modelEnd == 1 ? 2 : 1);
-        int modelNode = -1;
-        if (context.nodeBreaker()) {
-            modelNode = iidmNode(modelEnd);
-        }
-        PowerFlow modelPowerFlow = powerFlowSV(modelEnd);
-        return new BoundaryLine(eqInstance, id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, getBoundarySide(modelEnd), boundaryTerminalId, modelPowerFlow);
-    }
-
-    private static TwoSides getBoundarySide(int modelEnd) {
-        if (modelEnd == 1) {
-            return TwoSides.TWO;
-        } else {
-            return TwoSides.ONE;
         }
     }
 

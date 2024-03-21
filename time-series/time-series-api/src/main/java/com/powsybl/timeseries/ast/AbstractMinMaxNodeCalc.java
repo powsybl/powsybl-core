@@ -12,28 +12,17 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
-
-    protected NodeCalc child;
+public abstract class AbstractMinMaxNodeCalc extends AbstractSingleChildNodeCalc {
 
     protected final double value;
 
     protected AbstractMinMaxNodeCalc(NodeCalc child, double value) {
-        this.child = Objects.requireNonNull(child);
+        super(child);
         this.value = value;
-    }
-
-    public NodeCalc getChild() {
-        return child;
-    }
-
-    public void setChild(NodeCalc child) {
-        this.child = Objects.requireNonNull(child);
     }
 
     protected abstract String getJsonName();

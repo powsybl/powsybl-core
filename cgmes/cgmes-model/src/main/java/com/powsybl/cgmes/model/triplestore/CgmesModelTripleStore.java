@@ -9,7 +9,7 @@ package com.powsybl.cgmes.model.triplestore;
 
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
@@ -54,7 +54,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
+    public void read(InputStream is, String baseName, String contextName, ReportNode reportNode) {
         // Reset cached nodeBreaker value everytime we read new data
         nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);
@@ -504,8 +504,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return namedQuery("synchronousMachines");
+    public PropertyBags synchronousMachinesGenerators() {
+        return namedQuery("synchronousMachinesGenerators");
+    }
+
+    @Override
+    public PropertyBags synchronousMachinesCondensers() {
+        return namedQuery("synchronousMachinesCondensers");
     }
 
     @Override
@@ -614,6 +619,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         PropertyBags r = query(queryText);
         final long t1 = System.currentTimeMillis();
         if (LOG.isDebugEnabled()) {
+            LOG.debug("results query {}{}{}", name, System.lineSeparator(), r.tabulateLocals());
             LOG.debug("dt query {} {} ms, result set size = {}", name, t1 - t0, r.size());
         }
         return r;

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This executionHandler will run an ampl model on a network.
@@ -96,7 +97,11 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     private void exportNetworkAsAmpl(Path workingDir) {
         DataSource networkExportDataSource = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
-        new AmplExporter().export(network, null, networkExportDataSource);
+        if (parameters.getAmplExportConfig() != null) {
+            new AmplExporter().export(network, parameters.getAmplExportConfig(), networkExportDataSource);
+        } else {
+            new AmplExporter().export(network, new Properties(), networkExportDataSource);
+        }
     }
 
     /**

@@ -7,9 +7,8 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -81,10 +80,10 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         this.lineAdder = Objects.requireNonNull(lineAdder);
     }
 
-    private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, Reporter reporter) {
+    private static boolean checkFictitiousSubstationId(boolean createFictSubstation, String fictitiousSubstationId, boolean throwException, ReportNode reportNode) {
         if (createFictSubstation && fictitiousSubstationId == null) {
             LOG.error("Fictitious substation ID must be defined if a fictitious substation is to be created");
-            undefinedFictitiousSubstationId(reporter);
+            undefinedFictitiousSubstationId(reportNode);
             if (throwException) {
                 throw new PowsyblException("Fictitious substation ID must be defined if a fictitious substation is to be created");
             }
@@ -120,13 +119,13 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager, ReportNode reportNode) {
         // Checks
-        if (failChecks(network, throwException, reporter, LOG)) {
+        if (failChecks(network, throwException, reportNode, LOG)) {
             return;
         }
 
-        if (!checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, throwException, reporter)) {
+        if (!checkFictitiousSubstationId(createFictSubstation, fictitiousSubstationId, throwException, reportNode)) {
             return;
         }
 
@@ -220,7 +219,7 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
                 // No position extension is present so only one disconnector is needed
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbs);
                 LOG.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
-                noBusbarSectionPositionExtensionReport(reporter, bbs);
+                noBusbarSectionPositionExtensionReport(reportNode, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(voltageLevel, position);
                 createNodeBreakerSwitchesTopology(voltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, originalLineId, bbsList, bbs);
@@ -232,15 +231,14 @@ public class CreateLineOnLine extends AbstractLineConnectionModification<CreateL
         // Create the new line
         Line newLine = lineAdder.add();
         LOG.info("New line {} was created and connected on a tee point to lines {} and {} replacing line {}", newLine.getId(), line1Id, line2Id, originalLineId);
-        reporter.report(Report.builder()
-                .withKey("newLineOnLineCreated")
-                .withDefaultMessage("New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
-                .withValue("newLineId", newLine.getId())
-                .withValue("line1Id", line1Id)
-                .withValue("line2Id", line2Id)
-                .withValue("originalLineId", originalLineId)
+        reportNode.newReportNode()
+                .withMessageTemplate("newLineOnLineCreated", "New line ${newLineId} was created and connected on a tee point to lines ${line1Id} and ${line2Id} replacing line ${originalLineId}.")
+                .withUntypedValue("newLineId", newLine.getId())
+                .withUntypedValue("line1Id", line1Id)
+                .withUntypedValue("line2Id", line2Id)
+                .withUntypedValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
     public LineAdder getLineAdder() {

@@ -438,7 +438,7 @@ public final class CgmesConformity1Catalog {
                         "cb459405-cc14-4215-a45c-416789205904")
                 .shuntCompensators("002b0a40-3957-46db-b84a-30420083558f",
                         "d771118f-36e9-4115-a128-cc3d9ce3e3da")
-                .synchronousMachines("3a3b27be-b18b-4385-b557-6735d733baf0",
+                .synchronousMachinesGenerators("3a3b27be-b18b-4385-b557-6735d733baf0",
                         "550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                 .modelProfiles("urn:uuid:0eb1540d-5ca3-40ab-9bf7-c91ec4c5d7c3",
                         "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
@@ -934,7 +934,7 @@ public final class CgmesConformity1Catalog {
                 .ratioTapChangers("0522ca48-e644-4d3a-9721-22bb0abd1c8b",
                         "4a8a5456-91ac-4bc9-b8e2-64eeeef78a1a",
                         "8de2d157-15d1-42c7-b376-a8ae5b6c0e77")
-                .synchronousMachines("2970a2b7-b840-4e9c-b405-0cb854cd2318",
+                .synchronousMachinesGenerators("2970a2b7-b840-4e9c-b405-0cb854cd2318",
                         "392ea173-4f8e-48fa-b2a3-5c3721e93196",
                         "ca67be42-750e-4ebf-bfaa-24d446e59a22")
                 .asynchronousMachines("062ece1f-ade5-4d20-9c3a-fd8f12d12ec1",

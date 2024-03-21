@@ -111,6 +111,10 @@ class PsseRawDataTest extends AbstractSerDeTest {
         return new ResourceDataSource("IEEE_14_isolated_buses", new ResourceSet("/", "IEEE_14_isolated_buses.raw"));
     }
 
+    private ReadOnlyDataSource ieee14QrecordRev35Raw() {
+        return new ResourceDataSource("IEEE_14_bus_Q_record_rev35", new ResourceSet("/", "IEEE_14_bus_Q_record_rev35.raw"));
+    }
+
     private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
@@ -702,6 +706,14 @@ class PsseRawDataTest extends AbstractSerDeTest {
     void ieee14BusNonInductionMachineDataRev35Test() throws IOException {
         String expectedJson = loadReference("/IEEE_14_bus_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14nonInductionMachineDataRaw35(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    void ieee14BusQrecordRev35Test() throws IOException {
+        String expectedJson = loadReference("/IEEE_14_bus_Q_record_rev35.json");
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14QrecordRev35Raw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }

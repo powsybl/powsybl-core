@@ -160,7 +160,7 @@ public class BinaryOperation extends AbstractBinaryNodeCalc {
 
     @Override
     public int hashCode() {
-        return left.hashCode() + right.hashCode() + operator.hashCode();
+        return Objects.hash(left, right, operator, NAME);
     }
 
     @Override

@@ -1,13 +1,16 @@
 # PowSyBl Core
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4795/badge)](https://bestpractices.coreinfrastructure.org/projects/4795)
+
 [![Actions Status](https://github.com/powsybl/powsybl-core/workflows/CI/badge.svg)](https://github.com/powsybl/powsybl-core/actions)
 [![Coverage Status](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=coverage)](https://sonarcloud.io/component_measures?id=com.powsybl%3Apowsybl-core&metric=coverage)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=com.powsybl%3Apowsybl-core&metric=alert_status)](https://sonarcloud.io/dashboard?id=com.powsybl%3Apowsybl-core)
+
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/4795/badge)](https://bestpractices.coreinfrastructure.org/projects/4795)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/powsybl/powsybl-core/badge)](https://securityscorecards.dev/viewer/?uri=github.com/powsybl/powsybl-core)
+
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
-[![Join the community on Spectrum](https://withspectrum.github.io/badge/badge.svg)](https://spectrum.chat/powsybl)
-[![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-rzvbuzjk-nxi0boim1RKPS5PjieI0rA)
 [![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-core.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-core)
+[![Slack](https://img.shields.io/badge/slack-powsybl-blueviolet.svg?logo=slack)](https://join.slack.com/t/powsybl/shared_invite/zt-rzvbuzjk-nxi0boim1RKPS5PjieI0rA)
 
 PowSyBl (**Pow**er **Sy**stem **Bl**ocks) is an open source framework written in Java, that makes it easy to write complex
 software for power systems’ simulations and analysis. Its modular approach allows developers to extend or customize its
@@ -29,7 +32,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
 
 This document describes how to build the code of PowSyBl Core. If you just want to run PowSyBl demos, please visit
 https://www.powsybl.org/ where downloads will be available soon. If you want guidance on how to start building your own
-application based on PowSyBl, please visit the http://www.powsybl.org/docs/tutorials/ page.
+application based on PowSyBl, please visit the [tutorials](https://www.powsybl.org/pages/documentation/developer/tutorials/) page.
 
 The PowSyBl Core project is not a standalone project. Read on to learn how to modify the core code, be it for fun, for
 diagnosing bugs, for improving your understanding of the framework, or for preparing pull requests to suggest improvements!

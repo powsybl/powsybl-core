@@ -24,13 +24,15 @@ public class ContingencyBuilder {
 
     private final List<ContingencyElement> elements;
 
+    private String name;
+
     ContingencyBuilder(String id) {
         this.id = Objects.requireNonNull(id);
         this.elements = new ArrayList<>();
     }
 
     public Contingency build() {
-        return new Contingency(id, elements);
+        return new Contingency(id, name, elements);
     }
 
     public ContingencyBuilder addBattery(String id) {
@@ -143,6 +145,11 @@ public class ContingencyBuilder {
 
     public ContingencyBuilder addIdentifiable(Identifiable<?> identifiable) {
         elements.add(ContingencyElement.of(identifiable));
+        return this;
+    }
+
+    public ContingencyBuilder addName(String name) {
+        this.name = name;
         return this;
     }
 }

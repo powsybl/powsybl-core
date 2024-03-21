@@ -152,4 +152,11 @@ class NodeCalcEvaluatorAndPrintTest {
         node.setRight(new TimeSeriesNameNodeCalc("bar"));
         assertEquals("max(timeSeries['foo'], timeSeries['bar'])", NodeCalcPrinter.print(node));
     }
+
+    @Test
+    void testCached() {
+        NodeCalc node = new CachedNodeCalc(new DoubleNodeCalc(5.0));
+        assertEquals(5.0, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("5.0", NodeCalcPrinter.print(node));
+    }
 }

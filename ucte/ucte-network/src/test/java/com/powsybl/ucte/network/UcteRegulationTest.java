@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +53,7 @@ class UcteRegulationTest {
         UctePhaseRegulation invalidPhaseRegulation5 = new UctePhaseRegulation(Double.NaN, 1, 0, Double.NaN);
 
         regulation.setPhaseRegulation(invalidPhaseRegulation1);
-        regulation.fix(Reporter.NO_OP);
+        regulation.fix(ReportNode.NO_OP);
         assertNotNull(regulation.getPhaseRegulation());
         assertTrue(Double.isNaN(invalidPhaseRegulation1.getU()));
 
@@ -71,7 +71,7 @@ class UcteRegulationTest {
         UcteAngleRegulation invalidAngleRegulation7 = new UcteAngleRegulation(0.0, Double.NaN, 1, 0, Double.NaN, null);
 
         regulation.setAngleRegulation(invalidAngleRegulation1);
-        regulation.fix(Reporter.NO_OP);
+        regulation.fix(ReportNode.NO_OP);
         assertNotNull(regulation.getAngleRegulation());
         assertEquals(UcteAngleRegulationType.ASYM, invalidAngleRegulation1.getType());
 
@@ -85,13 +85,13 @@ class UcteRegulationTest {
 
     private void testFix(UcteRegulation regulation, UctePhaseRegulation phaseRegulation) {
         regulation.setPhaseRegulation(phaseRegulation);
-        regulation.fix(Reporter.NO_OP);
+        regulation.fix(ReportNode.NO_OP);
         assertNull(regulation.getPhaseRegulation());
     }
 
     private void testFix(UcteRegulation regulation, UcteAngleRegulation angleRegulation) {
         regulation.setAngleRegulation(angleRegulation);
-        regulation.fix(Reporter.NO_OP);
+        regulation.fix(ReportNode.NO_OP);
         assertNull(regulation.getAngleRegulation());
     }
 }

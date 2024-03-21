@@ -60,15 +60,29 @@ public class TerminalMapping {
         return cgmesTerminalsMapping.get(cgmesTerminalId);
     }
 
-    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
+    public Terminal findForFlowLimits(String cgmesTerminalId) {
+        // We only considered Terminals assigned to an iidm equipment
+        // Terminals not included in the iidm model are:
+        // - boundary terminal of danglingLines (paired an unpaired)
+        // - terminal of switches
+        // Limits associated to these terminals are discarded
+        return terminals.get(cgmesTerminalId);
+    }
+
+    public Terminal findForVoltageLimits(String cgmesTerminalId) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        if (loadingLimits) {
-            return findFromTopologicalNodeForLoadingLimits(cgmesTerminalsMapping.get(cgmesTerminalId));
-        } else {
-            return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
-        }
+        return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+    }
+
+    /**
+     * @deprecated Not used anymore. Use {@link #findForVoltageLimits(String)}
+     * or {@link #findForFlowLimits(String)} instead.
+     */
+    @Deprecated(since = "6.1.2")
+    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     /**
@@ -85,7 +99,7 @@ public class TerminalMapping {
 
     public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
+        if (cgmesTerminal != null && cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
             String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
             if (acLineSegmentCgmesTerminalId != null) {
                 return findBoundary(acLineSegmentCgmesTerminalId);
@@ -152,13 +166,6 @@ public class TerminalMapping {
         // returns a disconnected terminal associated with the given topological node
         // if no terminal found, returns null
         return disconnectedTerminal;
-    }
-
-    public Terminal findFromTopologicalNodeForLoadingLimits(String topologicalNode) {
-        if (topologicalNodesMapping.containsKey(topologicalNode) && topologicalNodesMapping.get(topologicalNode).size() == 1) {
-            return terminals.get(topologicalNodesMapping.get(topologicalNode).get(0));
-        }
-        return null;
     }
 
     public String findCgmesTerminalFromTopologicalNode(String topologicalNode) {

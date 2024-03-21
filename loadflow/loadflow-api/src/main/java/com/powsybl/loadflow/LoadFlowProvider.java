@@ -13,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.parameters.Parameter;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -54,10 +54,10 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param computationManager a computation manager to external program execution
      * @param workingVariantId   variant id of the network
      * @param parameters         load flow execution parameters
-     * @param reporter           the reporter used for functional logs
+     * @param reportNode           the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter);
+    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, ReportNode reportNode);
 
     /**
      * Get specific parameters class.

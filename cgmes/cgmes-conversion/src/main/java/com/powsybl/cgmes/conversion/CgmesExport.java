@@ -18,7 +18,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -63,7 +63,7 @@ public class CgmesExport implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties params, DataSource ds, Reporter reporter) {
+    public void export(Network network, Properties params, DataSource ds, ReportNode reportNode) {
         Objects.requireNonNull(network);
         String baseName = baseName(params, ds, network);
         String filenameEq = baseName + "_EQ.xml";
@@ -106,12 +106,13 @@ public class CgmesExport implements Exporter {
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
-                .setReporter(reporter);
+                .setReportNode(reportNode)
+                .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig));
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
         String masUri = Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig);
         PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
-        if (sourcingActor.containsKey("masUri") && masUri.equals(DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
+        if (sourcingActor.containsKey("masUri") && masUri.equals(CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
             masUri = sourcingActor.get("masUri");
         }
 
@@ -130,6 +131,15 @@ public class CgmesExport implements Exporter {
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
+
+        String modelVersion = Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig);
+        if (modelVersion != null) {
+            context.getEqModelDescription().setVersion(Integer.parseInt(modelVersion));
+            context.getTpModelDescription().setVersion(Integer.parseInt(modelVersion));
+            context.getSshModelDescription().setVersion(Integer.parseInt(modelVersion));
+            context.getSvModelDescription().setVersion(Integer.parseInt(modelVersion));
+        }
+
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
             checkConsistency(profiles, network, context);
@@ -202,7 +212,7 @@ public class CgmesExport implements Exporter {
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            inconsistentProfilesTPRequiredReport(context.getReporter(), network.getId());
+            inconsistentProfilesTPRequiredReport(context.getReportNode(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
@@ -245,7 +255,8 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
     public static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
-    private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
+    public static final String MODEL_VERSION = "iidm.export.cgmes.model-version";
+    public static final String BUSINESS_PROCESS = "iidm.export.cgmes.business-process";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -299,7 +310,7 @@ public class CgmesExport implements Exporter {
             MODELING_AUTHORITY_SET,
             ParameterType.STRING,
             "Modeling authority set",
-            DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+            CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     private static final Parameter MODEL_DESCRIPTION_PARAMETER = new Parameter(
             MODEL_DESCRIPTION,
             ParameterType.STRING,
@@ -344,6 +355,18 @@ public class CgmesExport implements Exporter {
             "Namespace to use for name-based UUID generation. It must be a valid UUID itself",
             CgmesExportContext.DEFAULT_UUID_NAMESPACE.toString());
 
+    private static final Parameter MODEL_VERSION_PARAMETER = new Parameter(
+            MODEL_VERSION,
+            ParameterType.STRING,
+            "Model version",
+            null);
+
+    private static final Parameter BUSINESS_PROCESS_PARAMETER = new Parameter(
+            BUSINESS_PROCESS,
+            ParameterType.STRING,
+            "Business process",
+            CgmesExportContext.DEFAULT_BUSINESS_PROCESS);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -361,7 +384,9 @@ public class CgmesExport implements Exporter {
             MAX_P_MISMATCH_CONVERGED_PARAMETER,
             MAX_Q_MISMATCH_CONVERGED_PARAMETER,
             EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER,
-            UUID_NAMESPACE_PARAMETER);
+            UUID_NAMESPACE_PARAMETER,
+            MODEL_VERSION_PARAMETER,
+            BUSINESS_PROCESS_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 
 import java.time.ZoneOffset;
@@ -23,15 +22,14 @@ public class ImportPostProcessorMock implements ImportPostProcessor {
 
     @Override
     public String getName() {
-        return "testReporter";
+        return "testReportNode";
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager, Reporter reporter) throws Exception {
+    public void process(Network network, ComputationManager computationManager, ReportNode reportNode) throws Exception {
         network.setCaseDate(ZonedDateTime.of(2021, 12, 20, 0, 0, 0, 0, ZoneOffset.UTC));
-        reporter.report(Report.builder()
-            .withKey("testImportPostProcessor")
-            .withDefaultMessage("testing import post processor")
-            .build());
+        reportNode.newReportNode()
+            .withMessageTemplate("testImportPostProcessor", "testing import post processor")
+            .add();
     }
 }

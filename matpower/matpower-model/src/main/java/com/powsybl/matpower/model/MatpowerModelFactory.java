@@ -70,4 +70,7 @@ public final class MatpowerModelFactory {
         return readModelJsonFromResources("ieee9zeroimpedance.json");
     }
 
+    public static MatpowerModel create9Dcline() {
+        return readModelJsonFromResources("t_case9_dcline.json");
+    }
 }

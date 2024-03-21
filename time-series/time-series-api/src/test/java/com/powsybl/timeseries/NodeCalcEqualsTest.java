@@ -144,4 +144,22 @@ class NodeCalcEqualsTest {
         NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
         assertNotEquals(node1, node2);
     }
+
+    @Test
+    void cachedTest() {
+        new EqualsTester()
+            .addEqualityGroup(new CachedNodeCalc(new IntegerNodeCalc(1)), new CachedNodeCalc(new IntegerNodeCalc(1)))
+            .addEqualityGroup(new CachedNodeCalc(new IntegerNodeCalc(2)), new CachedNodeCalc(new IntegerNodeCalc(2)))
+            .testEquals();
+
+        // Different BinaryMaxCalc
+        assertNotEquals(
+            new CachedNodeCalc(new IntegerNodeCalc(1)),
+            new CachedNodeCalc(new IntegerNodeCalc(2)));
+
+        // BinaryMaxCalc and other NodeCal
+        NodeCalc node1 = new CachedNodeCalc(new IntegerNodeCalc(1));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node1, node2);
+    }
 }

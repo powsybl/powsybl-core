@@ -809,17 +809,26 @@ WHERE {
     FILTER REGEX ( STR (?Shunt), "{0}")
 }
 
-# query: synchronousMachines
+# query: synchronousMachinesGenerators
 SELECT *
 WHERE {
 { GRAPH ?graph {
     ?SynchronousMachine
         a cim:SynchronousMachine ;
         cim:IdentifiedObject.name ?name ;
+        cim:SynchronousMachine.type ?type ;
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
+    VALUES ?type {
+        cim:SynchronousMachineKind.generator
+        cim:SynchronousMachineKind.generatorOrCondenser
+        cim:SynchronousMachineKind.motor
+        cim:SynchronousMachineKind.generatorOrMotor
+        cim:SynchronousMachineKind.motorOrCondenser
+        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
-       }
+    }
     ?GeneratingUnit
         a ?generatingUnitType ;
         cim:GeneratingUnit.minOperatingP ?minP ;
@@ -827,6 +836,19 @@ WHERE {
         cim:GeneratingUnit.initialP ?initialP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
     OPTIONAL { ?GeneratingUnit cim:IdentifiedObject.description ?generatingUnitDescription }
+    OPTIONAL { ?GeneratingUnit cim:HydroGeneratingUnit.HydroPowerPlant ?HydroPowerPlant
+        OPTIONAL {
+            ?HydroPowerPlant cim:HydroPowerPlant.hydroPlantStorageType ?hydroPlantStorageType
+        }
+    }
+    OPTIONAL {
+        SELECT ?GeneratingUnit (group_concat(?fossilFuelType;separator=";") as ?fossilFuelTypeList)
+        WHERE {
+                ?FossilFuel a cim:FossilFuel;
+                cim:FossilFuel.fossilFuelType ?fossilFuelType;
+                cim:FossilFuel.ThermalGeneratingUnit ?GeneratingUnit .
+        } GROUP BY ?GeneratingUnit
+    }
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
@@ -843,6 +865,35 @@ OPTIONAL { GRAPH ?graphSSH {
 }}
 OPTIONAL { GRAPH ?graphSSH2 {
     ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
+}}
+}
+
+# query: synchronousMachinesCondensers
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        a cim:SynchronousMachine ;
+        cim:IdentifiedObject.name ?name ;
+        cim:SynchronousMachine.type ?type .
+    FILTER REGEX(STR(?type), "Kind.condenser")
+    OPTIONAL {
+        ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
+    }
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?SynchronousMachine
+        cim:RotatingMachine.q ?q ;
+        cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
+    # For condensers, the p value is always 0
+    BIND ( "0" AS ?p )
 }}
 }
 

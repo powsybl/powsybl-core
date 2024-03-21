@@ -142,6 +142,27 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void testMergeAndDetachWithProperties() {
+        // Create 2 networks with a Property
+        Network n1 = Network.create("network1", "manual");
+        n1.setProperty("property_name1", "property_value1");
+        Network n2 = Network.create("network2", "manual");
+        n2.setProperty("property_name2", "property_value2");
+
+        // Merge the networks and check that the properties have been transferred to subnetworks
+        Network merged = Network.merge(n1, n2);
+        assertFalse(merged.hasProperty());
+        assertEquals("property_value1", merged.getSubnetwork("network1").getProperty("property_name1"));
+        assertEquals("property_value2", merged.getSubnetwork("network2").getProperty("property_name2"));
+
+        // Detach the subnetworks and check that the properties have been transferred to the detached networks
+        Network detached1 = merged.getSubnetwork("network1").detach();
+        Network detached2 = merged.getSubnetwork("network2").detach();
+        assertEquals("property_value1", detached1.getProperty("property_name1"));
+        assertEquals("property_value2", detached2.getProperty("property_name2"));
+    }
+
+    @Test
     public void testMergeAndDetachWithExtensions() {
         n1 = EurostagTutorialExample1Factory.createWithMoreGenerators();
         addSubstationAndVoltageLevel(n2, "s2", Country.BE, "vl2", "b2");

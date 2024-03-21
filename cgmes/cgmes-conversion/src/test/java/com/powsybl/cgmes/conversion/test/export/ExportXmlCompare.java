@@ -619,6 +619,16 @@ final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringTextValueEquivalentInjection(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("EquivalentInjection")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult ignoringOperationalLimitIds(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Comparison.Detail control = comparison.getControlDetails();

@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DefaultDataSourceObserver;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -107,7 +107,7 @@ public class ConversionTool implements Tool {
         }
 
         Properties inputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Network.read(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams, createNetworkFactory(), new ImportersServiceLoader(), Reporter.NO_OP);
+        Network network = Network.read(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams, createNetworkFactory(), new ImportersServiceLoader(), ReportNode.NO_OP);
 
         Properties outputParams = ConversionToolUtils.readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {

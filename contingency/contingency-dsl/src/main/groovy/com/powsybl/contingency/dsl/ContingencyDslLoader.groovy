@@ -16,6 +16,7 @@ import org.codehaus.groovy.control.CompilationFailedException
 import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.slf4j.LoggerFactory
 
+import java.util.function.BiConsumer
 import java.util.function.Consumer
 
 /**
@@ -50,22 +51,7 @@ class ContingencyDslLoader extends DslLoader {
     static void loadDsl(Binding binding, Network network, Consumer<Contingency> consumer, ContingencyDslObserver observer) {
         // contingencies
         binding.contingency = { String id, Closure<Void> closure ->
-            def cloned = closure.clone()
-            ContingencySpec contingencySpec = new ContingencySpec()
-
-            List<Extension<Contingency>> extensionList = new ArrayList<>();
-            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
-                dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
-            }
-
-            cloned.delegate = contingencySpec
-            cloned()
-            if (!contingencySpec.equipments) {
-                throw new DslException("'equipments' field is not set")
-            }
-            if (contingencySpec.equipments.length == 0) {
-                throw new DslException("'equipments' field is empty")
-            }
+            def (ContingencySpec contingencySpec, ArrayList<Extension<Contingency>> extensionList) = processClosure(closure, binding)
             def valid = true
             def builder = Contingency.builder(id)
             for (String equipment : contingencySpec.equipments) {
@@ -106,6 +92,75 @@ class ContingencyDslLoader extends DslLoader {
                 consumer.accept(contingency)
             } else {
                 LOGGER.warn("Contingency '{}' is invalid", id)
+            }
+        }
+    }
+
+    private static List processClosure(Closure<Void> closure, Binding binding) {
+        def cloned = closure.clone()
+        ContingencySpec contingencySpec = new ContingencySpec()
+
+        List<Extension<Contingency>> extensionList = new ArrayList<>();
+        for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
+            dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
+        }
+
+        cloned.delegate = contingencySpec
+        cloned()
+        if (!contingencySpec.equipments) {
+            throw new DslException("'equipments' field is not set")
+        }
+        if (contingencySpec.equipments.length == 0) {
+            throw new DslException("'equipments' field is empty")
+        }
+        [contingencySpec, extensionList]
+    }
+
+    Map<String, Set<String>> loadNotFoundElements(Network network) {
+        loadNotFoundElements(network, null)
+    }
+
+    Map<String, Set<String>> loadNotFoundElements(Network network, ContingencyDslObserver observer) {
+        Map<String, Set<String>> notFoundElements = new HashMap<>()
+
+        LOGGER.debug("Loading DSL '{}'", dslSrc.getName())
+        try {
+            observer?.begin(dslSrc.getName())
+
+            Binding binding = new Binding()
+
+            findNotFoundIdentifiables(binding, network, notFoundElements.&put)
+
+            // set base network
+            binding.setVariable("network", network)
+
+            def shell = createShell(binding, new ImportCustomizer())
+
+            shell.evaluate(dslSrc)
+
+            observer?.end()
+
+            notFoundElements
+
+        } catch (CompilationFailedException e) {
+            throw new DslException(e.getMessage(), e)
+        }
+    }
+
+    static void findNotFoundIdentifiables(Binding binding, Network network, BiConsumer<String, Set<String>> consumer) {
+        binding.contingency = { String id, Closure<Void> closure ->
+            def (ContingencySpec contingencySpec) = processClosure(closure, binding)
+
+            Set<String> notFoundIdentifiables = new LinkedHashSet<>();
+            for (String equipment : contingencySpec.equipments) {
+                Identifiable identifiable = network.getIdentifiable(equipment)
+                if (identifiable == null) {
+                    LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
+                    notFoundIdentifiables.add(equipment);
+                }
+            }
+            if (!notFoundIdentifiables.isEmpty()) {
+                consumer.accept(id, notFoundIdentifiables)
             }
         }
     }

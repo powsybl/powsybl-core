@@ -8,9 +8,9 @@ package com.powsybl.contingency;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +30,24 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private final List<ContingencyElement> elements;
 
-    public Contingency(String id, ContingencyElement... elements) {
-        this(id, Arrays.asList(elements));
+    private final String name;
+
+    public Contingency(String id, String name, List<ContingencyElement> elements) {
+        this.id = Objects.requireNonNull(id);
+        this.name = name;
+        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
+    }
+
+    public Contingency(String id, String name, ContingencyElement... elements) {
+        this(id, name, Arrays.asList(elements));
     }
 
     public Contingency(String id, List<ContingencyElement> elements) {
-        this.id = Objects.requireNonNull(id);
-        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
+        this(id, null, elements);
+    }
+
+    public Contingency(String id, ContingencyElement... elements) {
+        this(id, Arrays.asList(elements));
     }
 
     public String getId() {
@@ -49,15 +60,19 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, elements);
+        return Objects.hash(id, name, elements);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Contingency other) {
-            return id.equals(other.id) && elements.equals(other.elements);
+            return id.equals(other.id) && Objects.equals(name, other.name) && elements.equals(other.elements);
         }
         return false;
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void addElement(ContingencyElement element) {

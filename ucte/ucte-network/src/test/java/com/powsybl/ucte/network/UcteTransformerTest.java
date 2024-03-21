@@ -6,8 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
-import static org.junit.jupiter.api.Assertions.*;
+import com.powsybl.commons.report.ReportNode;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.ucte.network.UcteElementStatus.REAL_ELEMENT_IN_OPERATION;
@@ -55,11 +54,11 @@ class UcteTransformerTest extends AbstractUcteElementTest {
     void testFix() {
         UcteElementId id = createElementId();
         UcteTransformer invalidTransformer1 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0, 0.0, 0.0, -1, null, 0.0, 0.0, 0.0, 0.0);
-        invalidTransformer1.fix(Reporter.NO_OP);
+        invalidTransformer1.fix(ReportNode.NO_OP);
         assertEquals(0.05, invalidTransformer1.getReactance(), 0.0);
 
         UcteTransformer invalidTransformer2 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0, -0.01, 0.0, null, null, 0.0, 0.0, 0.0, 0.0);
-        invalidTransformer2.fix(Reporter.NO_OP);
+        invalidTransformer2.fix(ReportNode.NO_OP);
         assertEquals(-0.05, invalidTransformer2.getReactance(), 0.0);
     }
 }

@@ -333,8 +333,8 @@ class TransformerConverter extends AbstractConverter {
 
         /**
          * Create a transformer model from measures.
-         *
-         * shortCircuitVoltage short circuit voltage in %
+         * <p>
+         * shortCircuitVoltage short-circuit voltage in %
          * copperLosses copper loss in KWh
          * openCircuitCurrent open circuit in %
          * coreLosses core (or iron) losses in KWh
@@ -344,7 +344,7 @@ class TransformerConverter extends AbstractConverter {
         static Complex createImpedanceFromMeasures(double shortCircuitVoltage, double copperLosses,
             double ratedApparentPower, double nominalVoltage) {
 
-            // calculate leakage impedance from short circuit measures
+            // calculate leakage impedance from short-circuit measurements
             double zpu = shortCircuitVoltage / 100;
             double rpu = copperLosses / (1000 * ratedApparentPower);
             double xpu = Math.sqrt(zpu * zpu - rpu * rpu) * Math.signum(shortCircuitVoltage);

@@ -47,6 +47,10 @@ public interface NodeCalcVisitor<R, A> {
 
     NodeCalc iterate(MaxNodeCalc nodeCalc, A arg);
 
+    R visit(CachedNodeCalc nodeCalc, A arg, R child);
+
+    NodeCalc iterate(CachedNodeCalc nodeCalc, A arg);
+
     R visit(TimeSeriesNameNodeCalc nodeCalc, A arg);
 
     R visit(TimeSeriesNumNodeCalc nodeCalc, A arg);

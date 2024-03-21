@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -119,18 +119,18 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
-        Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reporter, throwException);
+                      ComputationManager computationManager, ReportNode reportNode) {
+        Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reportNode, throwException);
         if (tpLine1 == null) {
             return;
         }
 
-        Line tpLine2 = getLineFromNetwork(network, teePointLine2Id, reporter, throwException);
+        Line tpLine2 = getLineFromNetwork(network, teePointLine2Id, reportNode, throwException);
         if (tpLine2 == null) {
             return;
         }
 
-        Line tpLineToRemove = getLineFromNetwork(network, teePointLineToRemoveId, reporter, throwException);
+        Line tpLineToRemove = getLineFromNetwork(network, teePointLineToRemoveId, reportNode, throwException);
         if (tpLineToRemove == null) {
             return;
         }
@@ -138,7 +138,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
         if (teePoint == null) {
-            noTeePointAndOrTappedVoltageLevelReport(reporter, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
+            noTeePointAndOrTappedVoltageLevelReport(reportNode, teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             LOGGER.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the tee point and the tapped voltage level from lines %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
@@ -164,7 +164,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         attachLine(tpLine2.getTerminal(tpLine2OtherVlSide), newLine2Adder, (bus, adder) -> adder.setConnectableBus2(bus.getId()), (bus, adder) -> adder.setBus2(bus.getId()), (node, adder) -> adder.setNode2(node));
 
         // Create the breaker topology
-        if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, namingStrategy, reporter, throwException)) {
+        if (!createTopology(newLine1Adder, newLine2Adder, tappedVoltageLevel, namingStrategy, reportNode, throwException)) {
             return;
         }
 
@@ -191,38 +191,38 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // Remove the three existing lines
         tpLine1.remove();
-        removedLineReport(reporter, teePointLine1Id);
+        removedLineReport(reportNode, teePointLine1Id);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine1Id);
         tpLine2.remove();
-        removedLineReport(reporter, teePointLine2Id);
+        removedLineReport(reportNode, teePointLine2Id);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reporter);
-        removedLineReport(reporter, teePointLineToRemoveId);
+        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reportNode);
+        removedLineReport(reportNode, teePointLineToRemoveId);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLineToRemoveId);
 
         // Create the two new lines
         Line newLine1 = newLine1Adder.add();
         addLoadingLimits(newLine1, limits1TpLine1, TwoSides.ONE);
         addLoadingLimits(newLine1, limits2TpLine1, TwoSides.TWO);
-        createdLineReport(reporter, newLine1Id);
+        createdLineReport(reportNode, newLine1Id);
         LOGGER.info("Line {} created", newLine1Id);
 
         Line newLine2 = newLine2Adder.add();
         addLoadingLimits(newLine2, limits1TpLine2, TwoSides.ONE);
         addLoadingLimits(newLine2, limits2TpLine2, TwoSides.TWO);
-        createdLineReport(reporter, newLine2Id);
+        createdLineReport(reportNode, newLine2Id);
         LOGGER.info("Line {} created", newLine2Id);
 
         // remove tee point
-        removeVoltageLevelAndSubstation(teePoint, reporter);
+        removeVoltageLevelAndSubstation(teePoint, reportNode);
     }
 
-    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, Reporter reporter, boolean throwException) {
+    private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {
         TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {
             Bus bus = tappedVoltageLevel.getBusBreakerView().getBus(bbsOrBusId);
             if (bus == null) {
-                return errorWhenBusNull(reporter, tappedVoltageLevel, throwException);
+                return errorWhenBusNull(reportNode, tappedVoltageLevel, throwException);
             }
             Bus bus1 = tappedVoltageLevel.getBusBreakerView()
                 .newBus()
@@ -241,7 +241,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         } else if (topologyKind == TopologyKind.NODE_BREAKER) {
             BusbarSection bbs = tappedVoltageLevel.getNodeBreakerView().getBusbarSection(bbsOrBusId);
             if (bbs == null) {
-                return errorWhenBusbarSectionNull(reporter, tappedVoltageLevel, throwException);
+                return errorWhenBusbarSectionNull(reportNode, tappedVoltageLevel, throwException);
             }
             // New node
             int firstAvailableNode = tappedVoltageLevel.getNodeBreakerView().getMaximumNodeIndex() + 1;
@@ -257,7 +257,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
                 createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbs);
                 createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode + 3, firstAvailableNode + 2, namingStrategy, newLine2Id, bbs);
                 LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs.getId());
-                noBusbarSectionPositionExtensionReport(reporter, bbs);
+                noBusbarSectionPositionExtensionReport(reportNode, bbs);
             } else {
                 List<BusbarSection> bbsList = getParallelBusbarSections(tappedVoltageLevel, position);
                 createNodeBreakerSwitchesTopology(tappedVoltageLevel, firstAvailableNode, firstAvailableNode + 1, namingStrategy, newLine1Id, bbsList, bbs);
@@ -267,10 +267,10 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return true;
     }
 
-    private Line getLineFromNetwork(Network network, String lineId, Reporter reporter, boolean throwException) {
+    private Line getLineFromNetwork(Network network, String lineId, ReportNode reportNode, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {
-            notFoundLineReport(reporter, lineId);
+            notFoundLineReport(reportNode, lineId);
             LOGGER.error(LINE_NOT_FOUND_LOG_MESSAGE, lineId);
             if (throwException) {
                 throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
@@ -279,8 +279,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return line;
     }
 
-    private boolean errorWhenBusNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {
-        notFoundBusInVoltageLevelReport(reporter, bbsOrBusId, voltageLevel.getId());
+    private boolean errorWhenBusNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
+        notFoundBusInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
         LOGGER.error("Bus {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
         if (throwException) {
             throw new PowsyblException(String.format("Bus %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));
@@ -289,8 +289,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         }
     }
 
-    private boolean errorWhenBusbarSectionNull(Reporter reporter, VoltageLevel voltageLevel, boolean throwException) {
-        notFoundBusbarSectionInVoltageLevelReport(reporter, bbsOrBusId, voltageLevel.getId());
+    private boolean errorWhenBusbarSectionNull(ReportNode reportNode, VoltageLevel voltageLevel, boolean throwException) {
+        notFoundBusbarSectionInVoltageLevelReport(reportNode, bbsOrBusId, voltageLevel.getId());
         LOGGER.error("Busbar section {} is not found in voltage level {}", bbsOrBusId, voltageLevel.getId());
         if (throwException) {
             throw new PowsyblException(String.format("Busbar section %s is not found in voltage level %s", bbsOrBusId, voltageLevel.getId()));

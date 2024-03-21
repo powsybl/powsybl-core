@@ -17,7 +17,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
@@ -113,7 +114,7 @@ public final class SteadyStateHypothesisExport {
                 }
             }
         }
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
@@ -123,12 +124,24 @@ public final class SteadyStateHypothesisExport {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer, context);
             }
         }
+        // If we are performing an updated export, write recorded busbar section terminals as connected
+        if (!context.isExportEquipment()) {
+            for (Bus b : network.getBusBreakerView().getBuses()) {
+                String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+                if (!bbsTerminals.isEmpty()) {
+                    for (String bbsTerminal : bbsTerminals.split(",")) {
+                        writeTerminal(bbsTerminal, true, cimNamespace, writer, context);
+                    }
+                }
+            }
+        }
     }
 
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (!exported.contains(ei) && ei != null) {
                 // Ensure equivalent injection identifier is valid
@@ -144,7 +157,6 @@ public final class SteadyStateHypothesisExport {
                 writeEquivalentInjection(cgmesId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
                 exported.add(ei);
             }
-
         }
     }
 
@@ -259,8 +271,8 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
-            // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
+            // reference priority is used for angle reference selection
+            writer.writeCharacters(Integer.toString(ReferencePriority.get(g)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(g.getTargetP(), g.getMinP(), g.getReactiveLimits()));
@@ -281,7 +293,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
+            writer.writeCharacters(Integer.toString(ReferencePriority.get(b)));
             writer.writeEndElement();
             writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
@@ -365,16 +377,6 @@ public final class SteadyStateHypothesisExport {
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
-    }
-
-    private static boolean isInSlackBus(Injection<?> g) {
-        VoltageLevel vl = g.getTerminal().getVoltageLevel();
-        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-        if (slackTerminal != null) {
-            Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
-            return slackBus == g.getTerminal().getBusBreakerView().getBus();
-        }
-        return false;
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?, ?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

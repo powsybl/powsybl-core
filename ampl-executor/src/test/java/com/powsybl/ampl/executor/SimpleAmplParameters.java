@@ -6,7 +6,9 @@
  */
 package com.powsybl.ampl.executor;
 
+import com.powsybl.ampl.converter.AmplExportConfig;
 import com.powsybl.ampl.converter.AmplSubset;
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.util.StringToIntMapper;
 
 import java.io.BufferedReader;
@@ -69,4 +71,10 @@ public class SimpleAmplParameters implements AmplParameters {
     public boolean isDebug() {
         return true;
     }
+
+    @Override
+    public AmplExportConfig getAmplExportConfig() {
+        return new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.defaultVersion(), false);
+    }
+
 }

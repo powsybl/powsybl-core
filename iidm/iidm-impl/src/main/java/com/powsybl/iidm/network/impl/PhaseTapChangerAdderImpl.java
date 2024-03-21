@@ -6,17 +6,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -192,12 +190,11 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         if (parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReporterContext().getReporter().report(Report.builder()
-                    .withKey("validationWarning")
-                    .withDefaultMessage("${parent} has both Ratio and Phase Tap Changer.")
-                    .withValue("parent", parent.getMessageHeader())
+            network.getReportNodeContext().getReportNode().newReportNode()
+                    .withMessageTemplate("validationWarning", "${parent} has both Ratio and Phase Tap Changer.")
+                    .withUntypedValue("parent", parent.getMessageHeader())
                     .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
+                    .add();
         }
 
         parent.setPhaseTapChanger(tapChanger);

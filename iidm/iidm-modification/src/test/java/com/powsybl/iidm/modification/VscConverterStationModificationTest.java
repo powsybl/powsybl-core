@@ -7,7 +7,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -51,14 +51,14 @@ class VscConverterStationModificationTest {
     void testApplyChecks() {
         VscConverterStationModification modif1 = new VscConverterStationModification("UNKNOWN_ID", 1.,
             2.);
-        assertThrows(PowsyblException.class, () -> modif1.apply(network, true, Reporter.NO_OP),
+        assertThrows(PowsyblException.class, () -> modif1.apply(network, true, ReportNode.NO_OP),
             "An invalid ID should fail to apply.");
-        assertDoesNotThrow(() -> modif1.apply(network, false, Reporter.NO_OP),
+        assertDoesNotThrow(() -> modif1.apply(network, false, ReportNode.NO_OP),
             "An invalid ID should not throw if throwException is false.");
 
         VscConverterStationModification modif2 = new VscConverterStationModification(vsc.getId(), 1.,
             2.);
-        modif2.apply(network, true, Reporter.NO_OP);
+        modif2.apply(network, true, ReportNode.NO_OP);
         assertEquals(1, vsc.getVoltageSetpoint(), "Failed to modify network during apply.");
         assertEquals(2, vsc.getReactivePowerSetpoint(), "Failed to modify network during apply.");
     }

@@ -6,7 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 
 /**
  *
@@ -104,8 +104,8 @@ public class UcteTransformer extends UcteElement {
     }
 
     @Override
-    public void fix(Reporter reporter) {
-        UcteValidation.checkValidTransformerCharacteristics(this, reporter);
-        super.fix(reporter);
+    public void fix(ReportNode reportNode) {
+        UcteValidation.checkValidTransformerCharacteristics(this, reportNode);
+        super.fix(reportNode);
     }
 }

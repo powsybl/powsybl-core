@@ -54,7 +54,7 @@ public final class CgmesExportUtil {
     private static final DecimalFormat SCIENTIFIC_FORMAT = new DecimalFormat("0.######E0", DOUBLE_FORMAT_SYMBOLS);
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyy-MM-dd'T'HH:mm:ssXXX").withZone(ZoneOffset.UTC);
 
-    private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
+    private static final Pattern CIM_MRID_PATTERN = Pattern.compile("(?i)_?[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
     private static final Pattern URN_UUID_PATTERN = Pattern.compile("(?i)urn:uuid:[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{12}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN1 = Pattern.compile("(?i)[a-f\\d]{8}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{4}-[a-f\\d]{7}");
     private static final Pattern ENTSOE_BD_EXCEPTIONS_PATTERN2 = Pattern.compile("(?i)[a-f\\d]{8}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{4}[a-f\\d]{12}");
@@ -116,16 +116,22 @@ public final class CgmesExportUtil {
 
     public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
         // The ref to build a unique model id must contain:
-        // the network, the subset (EQ, SSH, SV, ...), and the FULL_MODEL part
+        // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
-        CgmesObjectReference[] modelRef = {refTyped(network), ref(subset), Part.FULL_MODEL};
+        CgmesObjectReference[] modelRef = {
+            refTyped(network),
+            ref(subset),
+            ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
+            ref(format(modelDescription.getVersion())),
+            ref(context.getBusinessProcess()),
+            Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
         modelDescription.setIds(modelId);
         context.updateDependencies();
 
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReporter().report("CgmesId", modelId);
+        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelId).add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();
@@ -270,17 +276,9 @@ public final class CgmesExportUtil {
         };
     }
 
-    public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
+    public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine dl && !boundaryDanglingLines.contains(dl)) {
-                // TODO(Luma) Export tie line components instead of a single equipment
-                // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
-                // We need to return the proper terminal of the single tie line that will be exported
-                // When we change the export and write the two dangling lines as separate equipment,
-                // then we should always return 1 and forget about special case
-                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
-            }
             return 1;
         } else {
             if (c instanceof Branch<?> branch) {
@@ -431,7 +429,7 @@ public final class CgmesExportUtil {
         if (c instanceof DanglingLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
+            int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
