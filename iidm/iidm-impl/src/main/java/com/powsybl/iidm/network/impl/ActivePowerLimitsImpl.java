@@ -15,8 +15,8 @@ import java.util.TreeMap;
  */
 class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimitsImpl> implements ActivePowerLimits {
 
-    ActivePowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, NetworkImpl network) {
-        super(group, permanentLimit, temporaryLimits, network);
+    ActivePowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, temporaryLimits);
     }
 
     @Override

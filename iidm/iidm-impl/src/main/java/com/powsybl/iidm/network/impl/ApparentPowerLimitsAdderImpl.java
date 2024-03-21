@@ -36,7 +36,7 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ApparentPowerLimits on %s: error getting or creating the group", getOwnerId()));
         }
-        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits, network);
+        ApparentPowerLimits limits = new ApparentPowerLimitsImpl(group, permanentLimit, temporaryLimits);
         group.setApparentPowerLimits(limits);
         return limits;
     }

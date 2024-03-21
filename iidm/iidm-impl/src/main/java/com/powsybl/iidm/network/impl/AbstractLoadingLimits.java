@@ -24,8 +24,6 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
-    private final NetworkImpl network;
-
     static class TemporaryLimitImpl implements TemporaryLimit {
 
         private final String name;
@@ -64,12 +62,11 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         }
     }
 
-    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, NetworkImpl network) {
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
         // The limits validation must be performed before calling this constructor (in the adders).
-        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -79,11 +76,12 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
+        NetworkImpl network = group.getNetwork();
         ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
                 network.getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
-        this.network.invalidateValidationLevel();
+        network.invalidateValidationLevel();
         group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
         return (L) this;
     }

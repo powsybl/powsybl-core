@@ -15,9 +15,8 @@ import java.util.TreeMap;
  */
 class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsImpl> implements ApparentPowerLimits {
 
-    ApparentPowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits,
-                            NetworkImpl network) {
-        super(group, permanentLimit, temporaryLimits, network);
+    ApparentPowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, temporaryLimits);
     }
 
     @Override
