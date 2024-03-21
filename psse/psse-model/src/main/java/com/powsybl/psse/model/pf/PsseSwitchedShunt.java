@@ -468,4 +468,46 @@ public class PsseSwitchedShunt extends PsseVersioned {
     public void setS8(int s8) {
         this.s8 = s8;
     }
+
+    public PsseSwitchedShunt copy() {
+        PsseSwitchedShunt copy = new PsseSwitchedShunt();
+        copy.i = this.i;
+        copy.modsw = this.modsw;
+        copy.adjm = this.adjm;
+        copy.stat = this.stat;
+        copy.vswhi = this.vswhi;
+        copy.vswlo = this.vswlo;
+        copy.swrem = this.swrem;
+        copy.rmpct = this.rmpct;
+        copy.rmidnt = this.rmidnt;
+        copy.binit = this.binit;
+        copy.n1 = this.n1;
+        copy.b1 = this.b1;
+        copy.n2 = this.n2;
+        copy.b2 = this.b2;
+        copy.n3 = this.n3;
+        copy.b3 = this.b3;
+        copy.n4 = this.n4;
+        copy.b4 = this.b4;
+        copy.n5 = this.n5;
+        copy.b5 = this.b5;
+        copy.n6 = this.n6;
+        copy.b6 = this.b6;
+        copy.n7 = this.n7;
+        copy.b7 = this.b7;
+        copy.n8 = this.n8;
+        copy.b8 = this.b8;
+        copy.id = this.id;
+        copy.swreg = this.swreg;
+        copy.nreg = this.nreg;
+        copy.s1 = this.s1;
+        copy.s2 = this.s2;
+        copy.s3 = this.s3;
+        copy.s4 = this.s4;
+        copy.s5 = this.s5;
+        copy.s6 = this.s6;
+        copy.s7 = this.s7;
+        copy.s8 = this.s8;
+        return copy;
+    }
 }

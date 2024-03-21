@@ -7,7 +7,6 @@
 package com.powsybl.psse.converter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -839,31 +838,28 @@ class TransformerConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
-    static void updateTransformers(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+    static void updateTransformers(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTransformers().forEach(psseTransformer -> {
-            updatePsseModel.addTransformers(Collections.singletonList(psseTransformer));
-            PsseTransformer updatePsseTransformer = updatePsseModel.getTransformers().get(updatePsseModel.getTransformers().size() - 1);
-
-            if (isTwoWindingsTransformer(updatePsseTransformer)) {
-                updateTwoWindingsTransformer(network, updatePsseTransformer);
+            if (isTwoWindingsTransformer(psseTransformer)) {
+                updateTwoWindingsTransformer(network, psseTransformer);
             } else {
-                updateThreeWindingsTransformer(network, updatePsseTransformer);
+                updateThreeWindingsTransformer(network, psseTransformer);
             }
         });
     }
 
-    private static void updateTwoWindingsTransformer(Network network, PsseTransformer updatePsseTransformer) {
-        String transformerId = getTransformerId(updatePsseTransformer.getI(), updatePsseTransformer.getJ(), updatePsseTransformer.getCkt());
+    private static void updateTwoWindingsTransformer(Network network, PsseTransformer psseTransformer) {
+        String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
         TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer(transformerId);
         if (tw2t == null) {
-            updatePsseTransformer.setStat(0);
+            psseTransformer.setStat(0);
         } else {
             double baskv1 = tw2t.getTerminal1().getVoltageLevel().getNominalV();
-            double nomV1 = getNomV(updatePsseTransformer.getWinding1(), tw2t.getTerminal1().getVoltageLevel());
-            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), baskv1, nomV1, updatePsseTransformer.getCw()));
-            updatePsseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
+            double nomV1 = getNomV(psseTransformer.getWinding1(), tw2t.getTerminal1().getVoltageLevel());
+            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+            psseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
 
-            updatePsseTransformer.setStat(getStatus(tw2t));
+            psseTransformer.setStat(getStatus(tw2t));
         }
     }
 
@@ -875,28 +871,28 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static void updateThreeWindingsTransformer(Network network, PsseTransformer updatePsseTransformer) {
-        String transformerId = getTransformerId(updatePsseTransformer.getI(), updatePsseTransformer.getJ(), updatePsseTransformer.getK(), updatePsseTransformer.getCkt());
+    private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer) {
+        String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
         ThreeWindingsTransformer tw3t = network.getThreeWindingsTransformer(transformerId);
         if (tw3t == null) {
-            updatePsseTransformer.setStat(0);
+            psseTransformer.setStat(0);
         } else {
             double baskv1 = tw3t.getLeg1().getTerminal().getVoltageLevel().getNominalV();
-            double nomV1 = getNomV(updatePsseTransformer.getWinding1(), tw3t.getLeg1().getTerminal().getVoltageLevel());
-            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw3t.getLeg1().getRatioTapChanger(), tw3t.getLeg1().getPhaseTapChanger()), baskv1, nomV1, updatePsseTransformer.getCw()));
-            updatePsseTransformer.getWinding1().setAng(getAngle(tw3t.getLeg1().getPhaseTapChanger()));
+            double nomV1 = getNomV(psseTransformer.getWinding1(), tw3t.getLeg1().getTerminal().getVoltageLevel());
+            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw3t.getLeg1().getRatioTapChanger(), tw3t.getLeg1().getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+            psseTransformer.getWinding1().setAng(getAngle(tw3t.getLeg1().getPhaseTapChanger()));
 
             double baskv2 = tw3t.getLeg2().getTerminal().getVoltageLevel().getNominalV();
-            double nomV2 = getNomV(updatePsseTransformer.getWinding2(), tw3t.getLeg2().getTerminal().getVoltageLevel());
-            updatePsseTransformer.getWinding2().setWindv(defineWindV(getRatio(tw3t.getLeg2().getRatioTapChanger(), tw3t.getLeg2().getPhaseTapChanger()), baskv2, nomV2, updatePsseTransformer.getCw()));
-            updatePsseTransformer.getWinding2().setAng(getAngle(tw3t.getLeg2().getPhaseTapChanger()));
+            double nomV2 = getNomV(psseTransformer.getWinding2(), tw3t.getLeg2().getTerminal().getVoltageLevel());
+            psseTransformer.getWinding2().setWindv(defineWindV(getRatio(tw3t.getLeg2().getRatioTapChanger(), tw3t.getLeg2().getPhaseTapChanger()), baskv2, nomV2, psseTransformer.getCw()));
+            psseTransformer.getWinding2().setAng(getAngle(tw3t.getLeg2().getPhaseTapChanger()));
 
             double baskv3 = tw3t.getLeg3().getTerminal().getVoltageLevel().getNominalV();
-            double nomV3 = getNomV(updatePsseTransformer.getWinding3(), tw3t.getLeg3().getTerminal().getVoltageLevel());
-            updatePsseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), baskv3, nomV3, updatePsseTransformer.getCw()));
-            updatePsseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
+            double nomV3 = getNomV(psseTransformer.getWinding3(), tw3t.getLeg3().getTerminal().getVoltageLevel());
+            psseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
+            psseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
 
-            updatePsseTransformer.setStat(getStatus(tw3t));
+            psseTransformer.setStat(getStatus(tw3t));
         }
     }
 

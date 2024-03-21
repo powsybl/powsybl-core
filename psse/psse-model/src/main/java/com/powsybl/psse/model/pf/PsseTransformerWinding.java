@@ -145,4 +145,24 @@ public class PsseTransformerWinding extends PsseVersioned {
     public double getCnxa() {
         return cnxa;
     }
+
+    public PsseTransformerWinding copy() {
+        PsseTransformerWinding copy = new PsseTransformerWinding();
+        copy.windv = this.windv;
+        copy.nomv = this.nomv;
+        copy.ang = this.ang;
+        copy.cod = this.cod;
+        copy.cont = this.cont;
+        copy.node = this.node;
+        copy.rma = this.rma;
+        copy.rmi = this.rmi;
+        copy.vma = this.vma;
+        copy.vmi = this.vmi;
+        copy.ntp = this.ntp;
+        copy.tab = this.tab;
+        copy.cr = this.cr;
+        copy.cx = this.cx;
+        copy.cnxa = this.cnxa;
+        return copy;
+    }
 }

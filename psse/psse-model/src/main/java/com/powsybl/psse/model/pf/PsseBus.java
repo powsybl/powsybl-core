@@ -170,4 +170,22 @@ public class PsseBus extends PsseVersioned {
         checkVersion("evlo");
         this.evlo = evlo;
     }
+
+    public PsseBus copy() {
+        PsseBus copy = new PsseBus();
+        copy.i = this.i;
+        copy.name = this.name;
+        copy.baskv = this.baskv;
+        copy.ide = this.ide;
+        copy.area = this.area;
+        copy.zone = this.zone;
+        copy.owner = this.owner;
+        copy.vm = this.vm;
+        copy.va = this.va;
+        copy.nvhi = this.nvhi;
+        copy.nvlo = this.nvlo;
+        copy.evhi = this.evhi;
+        copy.evlo = this.evlo;
+        return copy;
+    }
 }

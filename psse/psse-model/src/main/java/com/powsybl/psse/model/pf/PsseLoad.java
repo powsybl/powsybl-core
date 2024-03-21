@@ -228,4 +228,28 @@ public class PsseLoad extends PsseVersioned {
         checkVersion("loadtype");
         this.loadtype = loadtype;
     }
+
+    public PsseLoad copy() {
+        PsseLoad copy = new PsseLoad();
+        copy.i = this.i;
+        copy.id = this.id;
+        copy.status = this.status;
+        copy.area = this.area;
+        copy.zone = this.zone;
+        copy.owner = this.owner;
+        copy.pl = this.pl;
+        copy.ql = this.ql;
+        copy.ip = this.ip;
+        copy.iq = this.iq;
+        copy.yp = this.yp;
+        copy.yq = this.yq;
+        copy.owner = this.owner;
+        copy.scale = this.scale;
+        copy.intrpt = this.intrpt;
+        copy.dgenp = this.dgenp;
+        copy.dgenq = this.dgenq;
+        copy.dgenm = this.dgenm;
+        copy.loadtype = this.loadtype;
+        return copy;
+    }
 }

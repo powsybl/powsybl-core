@@ -274,4 +274,32 @@ public class PsseGenerator extends PsseVersioned {
     public PsseOwnership getOwnership() {
         return ownership;
     }
+
+    public PsseGenerator copy() {
+        PsseGenerator copy = new PsseGenerator();
+        copy.i = this.i;
+        copy.id = this.id;
+        copy.pg = this.pg;
+        copy.qg = this.qg;
+        copy.qt = this.qt;
+        copy.qb = this.qb;
+        copy.vs = this.vs;
+        copy.ireg = this.ireg;
+        copy.mbase = this.mbase;
+        copy.zr = this.zr;
+        copy.zx = this.zx;
+        copy.rt = this.rt;
+        copy.xt = this.xt;
+        copy.gtap = this.gtap;
+        copy.stat = this.stat;
+        copy.rmpct = this.rmpct;
+        copy.pt = this.pt;
+        copy.pb = this.pb;
+        copy.ownership = this.ownership;
+        copy.wmod = this.wmod;
+        copy.wpf = this.wpf;
+        copy.nreg = this.nreg;
+        copy.baslod = this.baslod;
+        return copy;
+    }
 }

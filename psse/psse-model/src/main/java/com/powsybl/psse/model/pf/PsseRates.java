@@ -238,4 +238,24 @@ public class PsseRates extends PsseVersioned {
         checkVersion("rate12");
         this.rate12 = rate12;
     }
+
+    public PsseRates copy() {
+        PsseRates copy = new PsseRates();
+        copy.ratea = this.ratea;
+        copy.rateb = this.rateb;
+        copy.ratec = this.ratec;
+        copy.rate1 = this.rate1;
+        copy.rate2 = this.rate2;
+        copy.rate3 = this.rate3;
+        copy.rate4 = this.rate4;
+        copy.rate5 = this.rate5;
+        copy.rate6 = this.rate6;
+        copy.rate7 = this.rate7;
+        copy.rate8 = this.rate8;
+        copy.rate9 = this.rate9;
+        copy.rate10 = this.rate10;
+        copy.rate11 = this.rate11;
+        copy.rate12 = this.rate12;
+        return copy;
+    }
 }
