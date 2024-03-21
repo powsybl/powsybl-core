@@ -24,7 +24,7 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.action.ActionList;
+import com.powsybl.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecution;
@@ -33,6 +33,7 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
+import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
@@ -302,6 +303,7 @@ public class SecurityAnalysisTool implements Tool {
         options.getPath(MONITORING_FILE).ifPresent(monitorFilePath -> executionInput.setMonitors(StateMonitor.read(monitorFilePath)));
         options.getPath(STRATEGIES_FILE).ifPresent(operatorStrategyFilePath -> executionInput.setOperatorStrategies(OperatorStrategyList.read(operatorStrategyFilePath).getOperatorStrategies()));
         options.getPath(ACTIONS_FILE).ifPresent(actionFilePath -> executionInput.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
+        options.getPath(LIMIT_REDUCTIONS_FILE).ifPresent(limitReductionsFilePath -> executionInput.setLimitReductions(LimitReductionListSerDeUtil.read(limitReductionsFilePath).getLimitReductions()));
 
         updateInput(options, executionInput);
 

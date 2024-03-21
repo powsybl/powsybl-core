@@ -60,6 +60,11 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
     }
 
     @Override
+    public Set<String> getNotFoundElements(Network network) {
+        return Collections.emptySet();
+    }
+
+    @Override
     public IdentifierType getType() {
         return IdentifierType.VOLTAGE_LEVELS_AND_ORDER;
     }

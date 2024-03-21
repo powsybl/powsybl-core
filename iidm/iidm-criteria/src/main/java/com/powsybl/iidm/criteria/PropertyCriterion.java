@@ -67,7 +67,7 @@ public class PropertyCriterion implements Criterion {
 
     private boolean filterEquipment(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
-            case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY ->
+            case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY, HVDC_CONVERTER_STATION ->
                     filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER, LINE ->

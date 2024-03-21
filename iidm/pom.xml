@@ -32,9 +32,9 @@
         <module>iidm-modification</module>
         <module>iidm-reducer</module>
         <module>iidm-scripting</module>
+        <module>iidm-serde</module>
         <module>iidm-tck</module>
         <module>iidm-test</module>
-        <module>iidm-serde</module>
     </modules>
 
 </project>

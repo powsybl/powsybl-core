@@ -18,6 +18,8 @@ import java.util.Set;
 public interface NetworkElementIdentifier {
     Set<Identifiable<?>> filterIdentifiable(Network network);
 
+    Set<String> getNotFoundElements(Network network);
+
     enum IdentifierType {
         ID_BASED,
         VOLTAGE_LEVELS_AND_ORDER,

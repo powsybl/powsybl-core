@@ -7,12 +7,16 @@
 package com.powsybl.iidm.criteria;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.powsybl.iidm.criteria.util.NominalVoltageUtils.getNominalVoltage;
 import static com.powsybl.iidm.network.IdentifiableType.*;
 
 /**
@@ -48,21 +52,35 @@ public class TwoNominalVoltageCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        if (type == TWO_WINDINGS_TRANSFORMER || type == LINE) {
-            return filter(((Branch<?>) identifiable).getTerminal1(), ((Branch<?>) identifiable).getTerminal2());
+        List<Double> nominalVoltages = getNominalVoltages(identifiable, type);
+        return nominalVoltages.size() == 2 && filterWithNominalVoltages(nominalVoltages.get(0), nominalVoltages.get(1));
+    }
+
+    protected static List<Double> getNominalVoltages(Identifiable<?> identifiable, IdentifiableType type) {
+        if (type == TWO_WINDINGS_TRANSFORMER || type == LINE || type == TIE_LINE) {
+            Branch<?> branch = (Branch<?>) identifiable;
+            return Arrays.asList(getNominalVoltage(branch.getTerminal1()), getNominalVoltage(branch.getTerminal2()));
         } else if (type == HVDC_LINE) {
-            return filter(((HvdcLine) identifiable).getConverterStation1().getTerminal(),
-                    ((HvdcLine) identifiable).getConverterStation2().getTerminal());
+            HvdcLine hvdcLine = (HvdcLine) identifiable;
+            return Arrays.asList(getNominalVoltage(hvdcLine.getConverterStation1().getTerminal()),
+                    getNominalVoltage(hvdcLine.getConverterStation2().getTerminal()));
         } else {
-            return false;
+            return Collections.emptyList();
         }
     }
 
-    private boolean filter(Terminal terminal1, Terminal terminal2) {
+    @Override
+    public boolean filter(NetworkElement networkElement) {
+        Double nominalVoltage1 = networkElement.getNominalVoltage1().orElse(null);
+        Double nominalVoltage2 = networkElement.getNominalVoltage2().orElse(null);
+        return filterWithNominalVoltages(nominalVoltage1, nominalVoltage2);
+    }
+
+    private boolean filterWithNominalVoltages(Double nominalVoltage1, Double nominalVoltage2) {
         AtomicBoolean filter = new AtomicBoolean(true);
         voltageIntervals.forEach(voltageInterval -> {
-            if (!voltageInterval.checkIsBetweenBound(terminal1.getVoltageLevel().getNominalV()) &&
-                    !voltageInterval.checkIsBetweenBound(terminal2.getVoltageLevel().getNominalV())) {
+            if (!voltageInterval.checkIsBetweenBound(nominalVoltage1) &&
+                    !voltageInterval.checkIsBetweenBound(nominalVoltage2)) {
                 filter.set(false);
             }
         });
