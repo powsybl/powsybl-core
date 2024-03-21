@@ -119,7 +119,7 @@ class ContingencyJsonTest extends AbstractSerDeTest {
     void readJsonList() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
 
-        DefaultContingencyList contingencyList = (DefaultContingencyList) ContingencyList.load(fileSystem.getPath("/contingencies.json"));
+        ContingencyList contingencyList = ContingencyList.load(fileSystem.getPath("/contingencies.json"));
         assertEquals("list", contingencyList.getName());
 
         List<Contingency> contingencies = contingencyList.getContingencies(network);
