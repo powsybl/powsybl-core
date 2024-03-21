@@ -38,25 +38,31 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-dsl</artifactId>
+            <artifactId>powsybl-action-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-dsl-spi</artifactId>
+            <artifactId>powsybl-action-ial-dsl</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-simulator</artifactId>
+            <artifactId>powsybl-action-ial-dsl-spi</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-action-util</artifactId>
+            <artifactId>powsybl-action-ial-simulator</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-action-ial-util</artifactId>
             <version>${project.version}</version>
         </dependency>
 

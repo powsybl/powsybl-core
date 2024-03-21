@@ -24,14 +24,14 @@ import java.util.function.Consumer;
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
-    private final float limitReduction;
+    private final double limitReductionValue;
     private final Set<LoadingLimitType> currentLimitTypes;
 
-    public DefaultLimitViolationDetector(float limitReduction, Collection<LoadingLimitType> currentLimitTypes) {
-        if (limitReduction <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
+    public DefaultLimitViolationDetector(double limitReductionValue, Collection<LoadingLimitType> currentLimitTypes) {
+        if (limitReductionValue <= 0) {
+            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
-        this.limitReduction = limitReduction;
+        this.limitReductionValue = limitReductionValue;
         this.currentLimitTypes = EnumSet.copyOf(Objects.requireNonNull(currentLimitTypes));
     }
 
@@ -82,12 +82,12 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), limitReduction, value));
+                    vl.getLowVoltageLimit(), limitReductionValue, value));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), limitReduction, value));
+                    vl.getHighVoltageLimit(), limitReductionValue, value));
         }
     }
 
@@ -100,33 +100,33 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
             lowLimit -> {
                 if (value <= lowLimit) {
                     consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.LOW_VOLTAGE_ANGLE, lowLimit,
-                            limitReduction, value));
+                            limitReductionValue, value));
                 }
             });
         voltageAngleLimit.getHighLimit().ifPresent(
             highLimit -> {
                 if (value >= highLimit) {
                     consumer.accept(new LimitViolation(voltageAngleLimit.getId(), LimitViolationType.HIGH_VOLTAGE_ANGLE, highLimit,
-                            limitReduction, value));
+                            limitReductionValue, value));
                 }
             });
     }
 
     public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
-            checkTemporary(branch, side, limitReduction, value, consumer, type);
+            checkTemporary(branch, side, limitReductionValue, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(branch, side, limitReduction, value, consumer, type);
+            checkPermanentLimit(branch, side, limitReductionValue, value, consumer, type);
         }
     }
 
     public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
         if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
-            checkTemporary(transformer, side, limitReduction, value, consumer, type);
+            checkTemporary(transformer, side, limitReductionValue, value, consumer, type);
         } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            checkPermanentLimit(transformer, side, limitReduction, value, consumer, type);
+            checkPermanentLimit(transformer, side, limitReductionValue, value, consumer, type);
         }
     }
 }

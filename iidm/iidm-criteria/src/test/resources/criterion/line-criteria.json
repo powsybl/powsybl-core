@@ -1,0 +1,28 @@
+[ {
+  "type" : "lineCriterion",
+  "version" : "1.0",
+  "name" : "criterion1",
+  "countryCriterion" : {
+    "type" : "TWO_COUNTRY",
+    "countries1" : [ "FR", "BE" ],
+    "countries2" : [ ]
+  },
+  "nominalVoltageCriterion" : {
+    "type" : "TWO_NOMINAL_VOLTAGE",
+    "voltageInterval1" : {
+      "nominalVoltageLowBound" : 190.0,
+      "nominalVoltageHighBound" : 210.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    },
+    "voltageInterval2" : {
+      "nominalVoltageLowBound" : 220.0,
+      "nominalVoltageHighBound" : 230.0,
+      "lowClosed" : true,
+      "highClosed" : true
+    }
+  }
+}, {
+  "type" : "lineCriterion",
+  "version" : "1.0"
+} ]

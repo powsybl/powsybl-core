@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.criteria;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
@@ -31,42 +33,47 @@ public class SingleCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
-        return switch (type) {
-            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY ->
-                    filterInjection(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
-            case SWITCH -> filterInjection(((Switch) identifiable).getVoltageLevel());
-            case TWO_WINDINGS_TRANSFORMER ->
-                    filterSubstation(((TwoWindingsTransformer) identifiable).getNullableSubstation());
-            case THREE_WINDINGS_TRANSFORMER ->
-                    filterSubstation(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
-            default -> false;
-        };
+        Country country = getCountry(identifiable, type);
+        return filterWithCountry(country);
+    }
+
+    @Override
+    public boolean filter(NetworkElement networkElement) {
+        return filterWithCountry(networkElement.getCountry().orElse(null));
     }
 
     public List<Country> getCountries() {
         return countries;
     }
 
-    private boolean filterSubstation(Substation substation) {
-        if (substation == null) {
-            return false;
-        }
-        Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null && !countries.isEmpty()) {
-            return false;
-        }
-        return countries.isEmpty() || countries.contains(injectionCountry);
+    protected static Country getCountry(Identifiable<?> identifiable, IdentifiableType type) {
+        return switch (type) {
+            case DANGLING_LINE, GENERATOR, LOAD, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, BATTERY, HVDC_CONVERTER_STATION ->
+                    getCountry(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
+            case SWITCH -> getCountry(((Switch) identifiable).getVoltageLevel());
+            case TWO_WINDINGS_TRANSFORMER ->
+                    getCountry(((TwoWindingsTransformer) identifiable).getNullableSubstation());
+            case THREE_WINDINGS_TRANSFORMER ->
+                    getCountry(((ThreeWindingsTransformer) identifiable).getNullableSubstation());
+            default -> null;
+        };
     }
 
-    private boolean filterInjection(VoltageLevel voltageLevel) {
-        Substation substation = voltageLevel.getSubstation().orElse(null);
+    private static Country getCountry(Substation substation) {
         if (substation == null) {
+            return null;
+        }
+        return substation.getCountry().orElse(null);
+    }
+
+    private static Country getCountry(VoltageLevel voltageLevel) {
+        return voltageLevel.getSubstation().map(SingleCountryCriterion::getCountry).orElse(null);
+    }
+
+    private boolean filterWithCountry(Country country) {
+        if (country == null && !countries.isEmpty()) {
             return false;
         }
-        Country injectionCountry = substation.getCountry().orElse(null);
-        if (injectionCountry == null && !countries.isEmpty()) {
-            return false;
-        }
-        return countries.isEmpty() || countries.contains(injectionCountry);
+        return countries.isEmpty() || countries.contains(country);
     }
 }
