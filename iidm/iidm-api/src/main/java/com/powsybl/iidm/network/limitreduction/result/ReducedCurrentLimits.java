@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.CurrentLimits;
  */
 public class ReducedCurrentLimits extends AbstractReducedLoadingLimits implements CurrentLimits {
     public ReducedCurrentLimits(double permanentLimit, double originalPermanentLimit,
-                                float reductionAppliedOnPermanentLimit) {
+                                double reductionAppliedOnPermanentLimit) {
         super(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
     }
 }

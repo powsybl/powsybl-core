@@ -28,31 +28,31 @@ import java.util.Optional;
 import static com.powsybl.contingency.ContingencyContextType.*;
 
 /**
- * Abstract class responsible for computing reduced limits using a {@link LimitReductionDefinitionList}.
+ * Abstract class responsible for computing reduced limits using a {@link LimitReductionList}.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends AbstractReducedLimitsComputer<P, L> {
-    private final LimitReductionDefinitionList limitReductionDefinitionList;
-    private List<LimitReductionDefinition> definitionsForCurrentContingencyId = Collections.emptyList();
-    private boolean sameDefinitionsAsForPreviousContingencyId = false;
+    private final LimitReductionList limitReductionList;
+    private List<LimitReduction> reductionsForCurrentContingencyId = Collections.emptyList();
+    private boolean sameReductionsAsForPreviousContingencyId = false;
 
     /**
-     * Create a new {@link AbstractContingencyWiseReducedLimitsComputer} using a list of reduction definitions.
-     * @param limitReductionDefinitionList the list of the reduction definitions to use when computing reduced limits.
+     * Create a new {@link AbstractContingencyWiseReducedLimitsComputer} using a list of reductions.
+     * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    protected AbstractContingencyWiseReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
+    protected AbstractContingencyWiseReducedLimitsComputer(LimitReductionList limitReductionList) {
         super();
-        this.limitReductionDefinitionList = limitReductionDefinitionList;
-        computeDefinitionsForCurrentContingencyId(null);
+        this.limitReductionList = limitReductionList;
+        computeReductionsForCurrentContingencyId(null);
     }
 
     @Override
     protected Optional<LimitsContainer<L>> computeLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side) {
         OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
         Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
-        if (definitionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
+        if (reductionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
             return originalLimits.map(UnalteredLimitsContainer::new);
         }
@@ -90,10 +90,10 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
     protected abstract NetworkElement asNetworkElement(P processable);
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement, LimitType limitType) {
-        for (LimitReductionDefinition limitReductionDefinition : definitionsForCurrentContingencyId) {
-            if (limitReductionDefinition.getLimitType() == limitType &&
-                    isEquipmentAffectedByLimitReduction(networkElement, limitReductionDefinition)) {
-                setLimitReductionsToLimitReducer(limitsReducer, limitReductionDefinition);
+        for (LimitReduction limitReduction : reductionsForCurrentContingencyId) {
+            if (limitReduction.getLimitType() == limitType &&
+                    isEquipmentAffectedByLimitReduction(networkElement, limitReduction)) {
+                setLimitReductionsToLimitReducer(limitsReducer, limitReduction);
             }
         }
     }
@@ -101,71 +101,69 @@ public abstract class AbstractContingencyWiseReducedLimitsComputer<P, L> extends
     /**
      * <p>Change the contingency for which the altered limits must be computed.</p>
      * @param contingencyId the ID of the new contingency
-     * @return <code>true</code> if the reduction definitions to use for the new contingency are the same as for the previous one,
+     * @return <code>true</code> if the reductions to use for the new contingency are the same as for the previous one,
      * <code>false</code> otherwise.
      */
     public boolean changeContingencyId(String contingencyId) {
-        var definitionsForPreviousContingencyId = definitionsForCurrentContingencyId;
-        computeDefinitionsForCurrentContingencyId(contingencyId);
-        sameDefinitionsAsForPreviousContingencyId = definitionsForCurrentContingencyId.equals(definitionsForPreviousContingencyId);
-        if (!isSameDefinitionsAsForPreviousContingencyId()) {
+        var reductionsForPreviousContingencyId = reductionsForCurrentContingencyId;
+        computeReductionsForCurrentContingencyId(contingencyId);
+        sameReductionsAsForPreviousContingencyId = reductionsForCurrentContingencyId.equals(reductionsForPreviousContingencyId);
+        if (!isSameReductionsAsForPreviousContingencyId()) {
             // The limit reductions are not the same as for the previous contingencyId, we clear the cache.
             clearCache();
         }
-        return isSameDefinitionsAsForPreviousContingencyId();
+        return isSameReductionsAsForPreviousContingencyId();
     }
 
-    private void computeDefinitionsForCurrentContingencyId(String contingencyId) {
-        definitionsForCurrentContingencyId = limitReductionDefinitionList.getLimitReductionDefinitions().stream()
-                .filter(l -> isContingencyContextListApplicable(l.getContingencyContexts(), contingencyId))
+    private void computeReductionsForCurrentContingencyId(String contingencyId) {
+        reductionsForCurrentContingencyId = limitReductionList.getLimitReductions().stream()
+                .filter(l -> isContingencyContextListApplicable(l.getContingencyContext(), contingencyId))
                 .toList();
     }
 
     /**
-     * <p>Indicate if the reduction definitions currently applied are as for the previous contingency.</p>
-     * @return <code>true</code> if the reduction definitions to use for the current contingency are the same as for the previous one,
+     * <p>Indicate if the reductions currently applied are as for the previous contingency.</p>
+     * @return <code>true</code> if the reductions to use for the current contingency are the same as for the previous one,
      * <code>false</code> otherwise.
      */
-    public boolean isSameDefinitionsAsForPreviousContingencyId() {
-        return sameDefinitionsAsForPreviousContingencyId;
+    public boolean isSameReductionsAsForPreviousContingencyId() {
+        return sameReductionsAsForPreviousContingencyId;
     }
 
-    private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReductionDefinition limitReductionDefinition) {
-        if (isPermanentLimitAffectedByLimitReduction(limitReductionDefinition)) {
-            limitsReducer.setPermanentLimitReduction(limitReductionDefinition.getLimitReduction());
+    private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReduction limitReduction) {
+        if (isPermanentLimitAffectedByLimitReduction(limitReduction)) {
+            limitsReducer.setPermanentLimitReduction(limitReduction.getValue());
         }
         limitsReducer.getTemporaryLimitsAcceptableDurationStream()
-                .filter(acceptableDuration -> isTemporaryLimitAffectedByLimitReduction(acceptableDuration, limitReductionDefinition))
+                .filter(acceptableDuration -> isTemporaryLimitAffectedByLimitReduction(acceptableDuration, limitReduction))
                 .forEach(acceptableDuration -> limitsReducer.setTemporaryLimitReduction(acceptableDuration,
-                        limitReductionDefinition.getLimitReduction()));
+                        limitReduction.getValue()));
     }
 
-    protected static boolean isContingencyContextListApplicable(List<ContingencyContext> contingencyContextList, String contingencyId) {
-        return contingencyContextList.isEmpty()
-                || contingencyContextList.stream().anyMatch(contingencyContext ->
-                    contingencyContext.getContextType() == ALL
-                        || contingencyContext.getContextType() == NONE && contingencyId == null
-                        || contingencyContext.getContextType() == ONLY_CONTINGENCIES && contingencyId != null
-                        || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId)
-        );
+    protected static boolean isContingencyContextListApplicable(ContingencyContext contingencyContext, String contingencyId) {
+        return contingencyContext == null
+                || contingencyContext.getContextType() == ALL
+                || contingencyContext.getContextType() == NONE && contingencyId == null
+                || contingencyContext.getContextType() == ONLY_CONTINGENCIES && contingencyId != null
+                || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId);
     }
 
-    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElement networkElement, LimitReductionDefinition limitReductionDefinition) {
+    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElement networkElement, LimitReduction limitReduction) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
-        List<NetworkElementCriterion> networkElementCriteria = limitReductionDefinition.getNetworkElementCriteria();
+        List<NetworkElementCriterion> networkElementCriteria = limitReduction.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
                 || networkElementCriteria.stream().anyMatch(networkElementCriterion -> networkElementCriterion.accept(networkElementVisitor));
     }
 
-    protected static boolean isPermanentLimitAffectedByLimitReduction(LimitReductionDefinition limitReductionDefinition) {
-        return limitReductionDefinition.getDurationCriteria().isEmpty()
-                || limitReductionDefinition.getDurationCriteria().stream()
+    protected static boolean isPermanentLimitAffectedByLimitReduction(LimitReduction limitReduction) {
+        return limitReduction.getDurationCriteria().isEmpty()
+                || limitReduction.getDurationCriteria().stream()
                     .anyMatch(c -> c.getType().equals(LimitDurationCriterion.LimitDurationType.PERMANENT));
     }
 
-    protected static boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReductionDefinition limitReductionDefinition) {
-        return limitReductionDefinition.getDurationCriteria().isEmpty()
-                || limitReductionDefinition.getDurationCriteria().stream()
+    protected static boolean isTemporaryLimitAffectedByLimitReduction(int temporaryLimitAcceptableDuration, LimitReduction limitReduction) {
+        return limitReduction.getDurationCriteria().isEmpty()
+                || limitReduction.getDurationCriteria().stream()
                     .filter(limitDurationCriterion -> limitDurationCriterion.getType().equals(LimitDurationCriterion.LimitDurationType.TEMPORARY))
                     .map(AbstractTemporaryDurationCriterion.class::cast)
                     .anyMatch(c -> c.filter(temporaryLimitAcceptableDuration));

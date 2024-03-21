@@ -38,5 +38,5 @@ public abstract class AbstractReducedLimitsContainer<H extends L, L> implements 
 
     public abstract Details getDetailsForTemporaryLimit(int acceptableDuration);
 
-    public record Details(double originalValue, float appliedReduction) { }
+    public record Details(double originalValue, double appliedReduction) { }
 }

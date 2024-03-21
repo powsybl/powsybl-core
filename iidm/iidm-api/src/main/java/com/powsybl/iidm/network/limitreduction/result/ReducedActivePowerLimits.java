@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.ActivePowerLimits;
  */
 public class ReducedActivePowerLimits extends AbstractReducedLoadingLimits implements ActivePowerLimits {
     public ReducedActivePowerLimits(double permanentLimit, double originalPermanentLimit,
-                                    float reductionAppliedOnPermanentLimit) {
+                                    double reductionAppliedOnPermanentLimit) {
         super(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
     }
 }

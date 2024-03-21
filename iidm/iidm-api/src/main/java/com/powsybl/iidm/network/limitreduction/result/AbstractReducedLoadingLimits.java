@@ -21,11 +21,11 @@ import java.util.TreeMap;
 public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     private final double permanentLimit;
     private final double originalPermanentLimit;
-    private final float reductionAppliedOnPermanentLimit;
+    private final double reductionAppliedOnPermanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>();
 
     public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                 double originalValue, float appliedReduction) implements TemporaryLimit {
+                                 double originalValue, double appliedReduction) implements TemporaryLimit {
         @Override
         public String getName() {
             return name();
@@ -50,20 +50,20 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
             return originalValue();
         }
 
-        public float getAppliedReduction() {
+        public double getAppliedReduction() {
             return appliedReduction();
         }
     }
 
     protected AbstractReducedLoadingLimits(double permanentLimit, double originalPermanentLimit,
-                                           float reductionAppliedOnPermanentLimit) {
+                                           double reductionAppliedOnPermanentLimit) {
         this.permanentLimit = permanentLimit;
         this.originalPermanentLimit = originalPermanentLimit;
         this.reductionAppliedOnPermanentLimit = reductionAppliedOnPermanentLimit;
     }
 
     public void addTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
-                                  double originalValue, float reductionApplied) {
+                                  double originalValue, double reductionApplied) {
         temporaryLimits.put(acceptableDuration, new ReducedTemporaryLimit(name, value, acceptableDuration, fictitious,
                 originalValue, reductionApplied));
     }
@@ -77,7 +77,7 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
         return originalPermanentLimit;
     }
 
-    public float getReductionAppliedOnPermanentLimit() {
+    public double getReductionAppliedOnPermanentLimit() {
         return reductionAppliedOnPermanentLimit;
     }
 

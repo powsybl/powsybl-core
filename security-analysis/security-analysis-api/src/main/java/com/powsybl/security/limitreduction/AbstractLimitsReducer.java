@@ -21,8 +21,8 @@ import java.util.stream.IntStream;
  */
 public abstract class AbstractLimitsReducer<L> {
     private final L originalLimits;
-    private float permanentLimitReduction = 1.0f;
-    protected final Map<Integer, Float> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
+    private double permanentLimitReduction = 1.0;
+    protected final Map<Integer, Double> temporaryLimitReductionByAcceptableDuration = new HashMap<>();
 
     protected AbstractLimitsReducer(L originalLimits) {
         this.originalLimits = originalLimits;
@@ -41,9 +41,9 @@ public abstract class AbstractLimitsReducer<L> {
     protected abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
     protected LimitsContainer<L> getReducedLimits() {
-        if (permanentLimitReduction == 1.0f
+        if (permanentLimitReduction == 1.0
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
-                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0f))) {
+                    || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
             // No reductions are applicable
             return new UnalteredLimitsContainer<>(getOriginalLimits());
         }
@@ -54,23 +54,23 @@ public abstract class AbstractLimitsReducer<L> {
         return originalLimits;
     }
 
-    void setPermanentLimitReduction(float permanentLimitReduction) {
+    void setPermanentLimitReduction(double permanentLimitReduction) {
         this.permanentLimitReduction = permanentLimitReduction;
     }
 
-    public float getPermanentLimitReduction() {
+    public double getPermanentLimitReduction() {
         return permanentLimitReduction;
     }
 
-    void setTemporaryLimitReduction(int acceptableDuration, float limitReduction) {
+    void setTemporaryLimitReduction(int acceptableDuration, double limitReduction) {
         temporaryLimitReductionByAcceptableDuration.put(acceptableDuration, limitReduction);
     }
 
-    public float getTemporaryLimitReduction(int acceptableDuration) {
-        return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.f);
+    public double getTemporaryLimitReduction(int acceptableDuration) {
+        return temporaryLimitReductionByAcceptableDuration.getOrDefault(acceptableDuration, 1.);
     }
 
-    protected static double applyReduction(double value, float reduction) {
+    protected static double applyReduction(double value, double reduction) {
         return value == Double.MAX_VALUE ? Double.MAX_VALUE : value * reduction;
     }
 }

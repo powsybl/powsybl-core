@@ -26,12 +26,12 @@ public class DefaultReducedLimitsComputer extends AbstractContingencyWiseReduced
 
     /**
      * Create a new {@link AbstractContingencyWiseReducedLimitsComputer} for {@link com.powsybl.iidm.network.Identifiable}
-     * using a list of reduction definitions.
+     * using a list of reductions.
      *
-     * @param limitReductionDefinitionList the list of the reduction definitions to use when computing reduced limits.
+     * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    public DefaultReducedLimitsComputer(LimitReductionDefinitionList limitReductionDefinitionList) {
-        super(limitReductionDefinitionList);
+    public DefaultReducedLimitsComputer(LimitReductionList limitReductionList) {
+        super(limitReductionList);
     }
 
     @Override
