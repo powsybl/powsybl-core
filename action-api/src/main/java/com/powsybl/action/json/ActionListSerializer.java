@@ -11,8 +11,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.action.ActionList;
+import com.powsybl.action.IdentifierActionList;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.powsybl.action.ActionList.VERSION;
 
@@ -30,6 +33,14 @@ public class ActionListSerializer extends StdSerializer<ActionList> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         serializerProvider.defaultSerializeField("actions", actionList.getActions(), jsonGenerator);
+        if (actionList instanceof IdentifierActionList identifierActionList) {
+            serializerProvider.defaultSerializeField("elementIdentifiers",
+                identifierActionList.getElementIdentifierMap().entrySet().stream()
+                    .collect(Collectors.toMap(map -> map.getKey().getId(), Map.Entry::getValue)), jsonGenerator);
+            serializerProvider.defaultSerializeField("actionBuilders",
+                identifierActionList.getElementIdentifierMap().entrySet().stream()
+                    .collect(Collectors.toMap(map -> map.getKey().getId(), map -> map.getKey().build())), jsonGenerator);
+        }
         jsonGenerator.writeEndObject();
     }
 }

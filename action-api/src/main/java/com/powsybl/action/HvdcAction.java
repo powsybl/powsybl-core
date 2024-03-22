@@ -9,7 +9,6 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.HvdcLine;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -41,7 +40,7 @@ public class HvdcAction extends AbstractAction {
 
     HvdcAction(String id, String hvdcId, Boolean acEmulationEnabled, Double activePowerSetpoint, HvdcLine.ConvertersMode converterMode, Double droop, Double p0, Boolean relativeValue) {
         super(id);
-        this.hvdcId = Objects.requireNonNull(hvdcId);
+        this.hvdcId = hvdcId;
         this.acEmulationEnabled = acEmulationEnabled;
         this.activePowerSetpoint = activePowerSetpoint;
         this.converterMode = converterMode;
@@ -53,6 +52,19 @@ public class HvdcAction extends AbstractAction {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public HvdcActionBuilder convertToBuilder() {
+        return new HvdcActionBuilder()
+            .withId(id)
+            .withHvdcId(hvdcId)
+            .withAcEmulationEnabled(acEmulationEnabled)
+            .withActivePowerSetpoint(activePowerSetpoint)
+            .withConverterMode(converterMode)
+            .withDroop(droop)
+            .withP0(p0)
+            .withRelativeValue(relativeValue);
     }
 
     public String getHvdcId() {

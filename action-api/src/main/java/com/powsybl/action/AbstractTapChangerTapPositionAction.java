@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.ThreeSides;
  */
 public abstract class AbstractTapChangerTapPositionAction extends AbstractTapChangerAction {
 
-    private final int tapPosition;
-    private final boolean relativeValue; // true if relative value chosen, false if absolute value
+    protected final int tapPosition;
+    protected final boolean relativeValue; // true if relative value chosen, false if absolute value
 
     protected AbstractTapChangerTapPositionAction(String id, String transformerId, boolean relativeValue, int tapPosition, ThreeSides side) {
         super(id, transformerId, side);

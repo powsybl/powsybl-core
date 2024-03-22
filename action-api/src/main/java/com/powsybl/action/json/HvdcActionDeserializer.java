@@ -27,20 +27,9 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
         super(HvdcAction.class);
     }
 
-    private static class ParsingContext {
-        String id;
-        String hvdcId;
-        Boolean acEmulationEnabled;
-        Double activePowerSetpoint;
-        HvdcLine.ConvertersMode converterMode;
-        Double droop;
-        Double p0;
-        Boolean relativeValue;
-    }
-
     @Override
     public HvdcAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+        HvdcActionBuilder hvdcActionBuilder = new HvdcActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
@@ -49,47 +38,38 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     }
                     return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
+                    hvdcActionBuilder.withId(jsonParser.nextTextValue());
                     return true;
                 case "hvdcId":
-                    context.hvdcId = jsonParser.nextTextValue();
+                    hvdcActionBuilder.withHvdcId(jsonParser.nextTextValue());
                     return true;
                 case "acEmulationEnabled":
                     jsonParser.nextToken();
-                    context.acEmulationEnabled = jsonParser.getValueAsBoolean();
+                    hvdcActionBuilder.withAcEmulationEnabled(jsonParser.getValueAsBoolean());
                     return true;
                 case "activePowerSetpoint":
                     jsonParser.nextToken();
-                    context.activePowerSetpoint = jsonParser.getValueAsDouble();
+                    hvdcActionBuilder.withActivePowerSetpoint(jsonParser.getValueAsDouble());
                     return true;
                 case "converterMode":
-                    context.converterMode = HvdcLine.ConvertersMode.valueOf(jsonParser.nextTextValue());
+                    hvdcActionBuilder.withConverterMode(HvdcLine.ConvertersMode.valueOf(jsonParser.nextTextValue()));
                     return true;
                 case "droop":
                     jsonParser.nextToken();
-                    context.droop = jsonParser.getValueAsDouble();
+                    hvdcActionBuilder.withDroop(jsonParser.getValueAsDouble());
                     return true;
                 case "p0":
                     jsonParser.nextToken();
-                    context.p0 = jsonParser.getValueAsDouble();
+                    hvdcActionBuilder.withP0(jsonParser.getValueAsDouble());
                     return true;
                 case "relativeValue":
                     jsonParser.nextToken();
-                    context.relativeValue = jsonParser.getValueAsBoolean();
+                    hvdcActionBuilder.withRelativeValue(jsonParser.getValueAsBoolean());
                     return true;
                 default:
                     return false;
             }
         });
-        return new HvdcActionBuilder()
-                .withId(context.id)
-                .withHvdcId(context.hvdcId)
-                .withAcEmulationEnabled(context.acEmulationEnabled)
-                .withActivePowerSetpoint(context.activePowerSetpoint)
-                .withConverterMode(context.converterMode)
-                .withDroop(context.droop)
-                .withP0(context.p0)
-                .withRelativeValue(context.relativeValue)
-                .build();
+        return hvdcActionBuilder.build();
     }
 }

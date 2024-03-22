@@ -22,7 +22,9 @@ public class DanglingLineActionDeserializer extends AbstractLoadActionDeserializ
     @Override
     protected DanglingLineAction createAction(ParsingContext context) {
         DanglingLineActionBuilder builder = new DanglingLineActionBuilder();
-        builder.withId(context.id).withDanglingLineId(context.elementId).withRelativeValue(context.relativeValue);
+        builder.withId(context.id)
+            .withDanglingLineId(context.elementId)
+            .withRelativeValue(context.relativeValue);
         if (context.activePowerValue != null) {
             builder.withActivePowerValue(context.activePowerValue);
         }

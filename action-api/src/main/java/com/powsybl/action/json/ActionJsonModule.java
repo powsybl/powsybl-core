@@ -6,12 +6,17 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.action.*;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer;
+import com.powsybl.iidm.network.identifiers.json.IdentifierSerializer;
 
 public class ActionJsonModule extends SimpleModule {
 
     public ActionJsonModule() {
         addSerializer(ActionList.class, new ActionListSerializer());
+        addSerializer(NetworkElementIdentifier.class, new IdentifierSerializer());
         addDeserializer(ActionList.class, new ActionListDeserializer());
+        addDeserializer(NetworkElementIdentifier.class, new IdentifierDeserializer());
         configureActionsSerialization();
     }
 

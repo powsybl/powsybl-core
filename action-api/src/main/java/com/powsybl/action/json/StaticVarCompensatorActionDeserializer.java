@@ -27,17 +27,9 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
         super(StaticVarCompensatorAction.class);
     }
 
-    private static class ParsingContext {
-        String id;
-        String staticVarCompensatorId;
-        String regulationMode;
-        Double voltageSetpoint;
-        Double reactivePowerSetpoint;
-    }
-
     @Override
     public StaticVarCompensatorAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+        StaticVarCompensatorActionBuilder builder = new StaticVarCompensatorActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
@@ -46,38 +38,26 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                     }
                     return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
+                    builder.withId(jsonParser.nextTextValue());
                     return true;
                 case "staticVarCompensatorId":
-                    context.staticVarCompensatorId = jsonParser.nextTextValue();
+                    builder.withStaticVarCompensatorId(jsonParser.nextTextValue());
                     return true;
                 case "regulationMode":
-                    context.regulationMode = jsonParser.nextTextValue();
+                    builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(jsonParser.nextTextValue()));
                     return true;
                 case "voltageSetpoint":
                     jsonParser.nextToken();
-                    context.voltageSetpoint = jsonParser.getValueAsDouble();
+                    builder.withVoltageSetpoint(jsonParser.getValueAsDouble());
                     return true;
                 case "reactivePowerSetpoint":
                     jsonParser.nextToken();
-                    context.reactivePowerSetpoint = jsonParser.getValueAsDouble();
+                    builder.withReactivePowerSetpoint(jsonParser.getValueAsDouble());
                     return true;
                 default:
                     return false;
             }
         });
-        StaticVarCompensatorActionBuilder builder = new StaticVarCompensatorActionBuilder();
-        builder.withId(context.id)
-                .withStaticVarCompensatorId(context.staticVarCompensatorId);
-        if (context.regulationMode != null) {
-            builder.withRegulationMode(StaticVarCompensator.RegulationMode.valueOf(context.regulationMode));
-        }
-        if (context.voltageSetpoint != null) {
-            builder.withVoltageSetpoint(context.voltageSetpoint);
-        }
-        if (context.reactivePowerSetpoint != null) {
-            builder.withReactivePowerSetpoint(context.reactivePowerSetpoint);
-        }
         return builder.build();
     }
 }

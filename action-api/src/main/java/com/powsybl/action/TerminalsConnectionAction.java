@@ -9,7 +9,6 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.ThreeSides;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -34,8 +33,8 @@ public class TerminalsConnectionAction extends AbstractAction {
      */
     public TerminalsConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
         super(id);
-        this.elementId = Objects.requireNonNull(elementId);
-        this.side = Objects.requireNonNull(side);
+        this.elementId = elementId;
+        this.side = side;
         this.open = open;
     }
 
@@ -48,13 +47,22 @@ public class TerminalsConnectionAction extends AbstractAction {
      */
     public TerminalsConnectionAction(String id, String elementId, boolean open) {
         super(id);
-        this.elementId = Objects.requireNonNull(elementId);
+        this.elementId = elementId;
         this.open = open;
     }
 
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public TerminalsConnectionActionBuilder convertToBuilder() {
+        return new TerminalsConnectionActionBuilder()
+            .withId(id)
+            .withNetworkElementId(elementId)
+            .withSide(side)
+            .withOpen(open);
     }
 
     /**

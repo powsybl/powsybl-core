@@ -77,8 +77,7 @@ public class GeneratorActionDeserializer extends StdDeserializer<GeneratorAction
             }
         });
         GeneratorActionBuilder generatorActionBuilder = new GeneratorActionBuilder();
-        generatorActionBuilder
-                .withId(context.id)
+        generatorActionBuilder.withId(context.id)
                 .withGeneratorId(context.generatorId);
         if (context.activePowerRelativeValue != null) {
             generatorActionBuilder.withActivePowerRelativeValue(context.activePowerRelativeValue);

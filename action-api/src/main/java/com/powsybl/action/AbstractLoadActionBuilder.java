@@ -10,7 +10,7 @@ package com.powsybl.action;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B extends AbstractLoadActionBuilder<T, B>> {
+public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B extends AbstractLoadActionBuilder<T, B>> implements ActionBuilder {
 
     protected String id;
     protected String elementId;
@@ -18,8 +18,21 @@ public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B 
     protected Double activePowerValue;
     protected Double reactivePowerValue;
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
     public abstract T build();
 
+    @Override
+    public B withNetworkElementId(String elementId) {
+        this.elementId = elementId;
+        return (B) this;
+    }
+
+    @Override
     public B withId(String id) {
         this.id = id;
         return (B) this;

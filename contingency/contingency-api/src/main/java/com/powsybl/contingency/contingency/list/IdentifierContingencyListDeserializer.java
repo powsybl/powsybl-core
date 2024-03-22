@@ -5,19 +5,20 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.json;
+package com.powsybl.contingency.contingency.list;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+
+import static com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer.IDENTIFIER_LIST_VERSION;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -25,7 +26,6 @@ import java.util.List;
 public class IdentifierContingencyListDeserializer extends StdDeserializer<IdentifierContingencyList> {
 
     private static final String CONTEXT_NAME = "identifierContingencyList";
-    public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
     public IdentifierContingencyListDeserializer() {
         super(IdentifierContingencyList.class);

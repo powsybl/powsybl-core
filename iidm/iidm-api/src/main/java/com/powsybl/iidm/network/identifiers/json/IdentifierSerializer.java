@@ -5,14 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.json;
+package com.powsybl.iidm.network.identifiers.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.contingency.contingency.list.identifier.*;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
-import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class IdentifierSerializer extends StdSerializer<NetworkElementIdentifier
                 break;
             case LIST:
                 serializerProvider.defaultSerializeField("identifierList",
-                        ((NetworkElementIdentifierList) networkElementIdentifier).getNetworkElementIdentifiers(),
+                        ((NetworkElementIdentifierContingencyList) networkElementIdentifier).getNetworkElementIdentifiers(),
                         jsonGenerator);
                 break;
             case VOLTAGE_LEVELS_AND_ORDER:

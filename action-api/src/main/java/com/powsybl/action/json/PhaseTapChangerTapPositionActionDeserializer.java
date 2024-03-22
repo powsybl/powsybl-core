@@ -10,6 +10,7 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.PhaseTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.PhaseTapChangerTapPositionAction;
 
@@ -43,7 +44,12 @@ public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapCha
             return false;
         });
         checkFields(commonParsingContext, jsonParser);
-        return new PhaseTapChangerTapPositionAction(commonParsingContext.id, commonParsingContext.transformerId,
-                commonParsingContext.relativeValue, commonParsingContext.tapPosition, commonParsingContext.side);
+        return new PhaseTapChangerTapPositionActionBuilder()
+            .withId(commonParsingContext.id)
+            .withTransformerId(commonParsingContext.transformerId)
+            .withRelativeValue(commonParsingContext.relativeValue)
+            .withTapPosition(commonParsingContext.tapPosition)
+            .withSide(commonParsingContext.side)
+            .build();
     }
 }

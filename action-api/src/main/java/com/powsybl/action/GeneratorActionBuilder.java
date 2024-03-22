@@ -10,7 +10,7 @@ package com.powsybl.action;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public class GeneratorActionBuilder {
+public class GeneratorActionBuilder implements ActionBuilder {
 
     private String id;
     private String generatorId;
@@ -20,6 +20,18 @@ public class GeneratorActionBuilder {
     private Double targetV;
     private Double targetQ;
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public GeneratorActionBuilder withNetworkElementId(String generatorId) {
+        this.generatorId = generatorId;
+        return this;
+    }
+
+    @Override
     public GeneratorAction build() {
         if (activePowerRelativeValue != null ^ activePowerValue != null) {
             throw new IllegalArgumentException("For a generator action, both or none of these two attributes must be provided: activePowerValue and activePowerRelativeValue");

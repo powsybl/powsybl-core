@@ -10,6 +10,7 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.PhaseTapChangerRegulationActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.action.PhaseTapChangerRegulationAction;
@@ -26,14 +27,9 @@ public class PhaseTapChangerRegulationActionDeserializer extends AbstractTapChan
         super(PhaseTapChangerRegulationAction.class);
     }
 
-    private static class ParsingContext {
-        String regulationMode;
-        Double regulationValue = null;
-    }
-
     @Override
     public PhaseTapChangerRegulationAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+        PhaseTapChangerRegulationActionBuilder builder = new PhaseTapChangerRegulationActionBuilder();
         AbstractTapChangerRegulationActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name);
@@ -48,21 +44,20 @@ public class PhaseTapChangerRegulationActionDeserializer extends AbstractTapChan
                     }
                     return true;
                 case "regulationMode":
-                    context.regulationMode = jsonParser.nextTextValue();
+                    builder.withRegulationMode(PhaseTapChanger.RegulationMode.valueOf(jsonParser.nextTextValue()));
                     return true;
                 case "regulationValue":
                     jsonParser.nextToken();
-                    context.regulationValue = jsonParser.getValueAsDouble();
+                    builder.withRegulationValue(jsonParser.getValueAsDouble());
                     return true;
                 default:
                     return false;
             }
         });
-        PhaseTapChanger.RegulationMode mode = null;
-        if (commonParsingContext.regulating) {
-            mode = PhaseTapChanger.RegulationMode.valueOf(context.regulationMode);
-        }
-        return new PhaseTapChangerRegulationAction(commonParsingContext.id, commonParsingContext.transformerId,
-                commonParsingContext.side, commonParsingContext.regulating, mode, context.regulationValue);
+        return builder.withId(commonParsingContext.id)
+            .withTransformerId(commonParsingContext.transformerId)
+            .withSide(commonParsingContext.side)
+            .withRegulating(commonParsingContext.regulating)
+            .build();
     }
 }

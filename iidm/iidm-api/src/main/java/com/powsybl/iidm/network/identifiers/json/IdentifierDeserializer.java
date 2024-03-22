@@ -5,22 +5,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.json;
+package com.powsybl.iidm.network.identifiers.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.contingency.list.identifier.*;
-import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-
-import static com.powsybl.contingency.json.IdentifierContingencyListDeserializer.IDENTIFIER_LIST_VERSION;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -28,6 +27,8 @@ import static com.powsybl.contingency.json.IdentifierContingencyListDeserializer
 public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdentifier> {
     private static final String CONTEXT_NAME = "Identifier";
     private static final String CONTINGENCY_ID = "contingencyId";
+
+    public static final String IDENTIFIER_LIST_VERSION = "identifierListVersion";
 
     public IdentifierDeserializer() {
         super(NetworkElementIdentifier.class);
@@ -73,7 +74,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         }
         return switch (type) {
             case ID_BASED -> new IdBasedNetworkElementIdentifier(identifier, contingencyId);
-            case LIST -> new NetworkElementIdentifierList(networkElementIdentifierList, contingencyId);
+            case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
                     new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
         };

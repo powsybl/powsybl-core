@@ -28,6 +28,14 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
         return NAME;
     }
 
+    @Override
+    public ShuntCompensatorPositionActionBuilder convertToBuilder() {
+        return new ShuntCompensatorPositionActionBuilder()
+            .withId(id)
+            .withShuntCompensatorId(shuntCompensatorId)
+            .withSectionCount(sectionCount);
+    }
+
     public String getShuntCompensatorId() {
         return shuntCompensatorId;
     }

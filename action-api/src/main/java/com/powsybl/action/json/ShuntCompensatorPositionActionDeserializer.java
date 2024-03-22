@@ -26,15 +26,9 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
         super(ShuntCompensatorPositionAction.class);
     }
 
-    private static class ParsingContext {
-        String id;
-        String shuntCompensatorId;
-        Integer sectionCount = null;
-    }
-
     @Override
     public ShuntCompensatorPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+        ShuntCompensatorPositionActionBuilder builder = new ShuntCompensatorPositionActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
@@ -43,23 +37,19 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
                     }
                     return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
+                    builder.withId(jsonParser.nextTextValue());
                     return true;
                 case "shuntCompensatorId":
-                    context.shuntCompensatorId = jsonParser.nextTextValue();
+                    builder.withShuntCompensatorId(jsonParser.nextTextValue());
                     return true;
                 case "sectionCount":
                     jsonParser.nextToken();
-                    context.sectionCount = jsonParser.getValueAsInt();
+                    builder.withSectionCount(jsonParser.getValueAsInt());
                     return true;
                 default:
                     return false;
             }
         });
-        return new ShuntCompensatorPositionActionBuilder()
-                .withId(context.id)
-                .withShuntCompensatorId(context.shuntCompensatorId)
-                .withSectionCount(context.sectionCount)
-                .build();
+        return builder.build();
     }
 }

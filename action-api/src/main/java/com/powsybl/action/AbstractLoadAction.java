@@ -20,9 +20,9 @@ import java.util.OptionalDouble;
  */
 public abstract class AbstractLoadAction extends AbstractAction {
 
-    private final boolean relativeValue;
-    private final Double activePowerValue;
-    private final Double reactivePowerValue;
+    protected final boolean relativeValue;
+    protected final Double activePowerValue;
+    protected final Double reactivePowerValue;
 
     /**
      * @param id the id of the action.

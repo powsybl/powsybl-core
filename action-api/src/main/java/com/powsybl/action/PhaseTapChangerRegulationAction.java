@@ -40,6 +40,17 @@ public class PhaseTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return NAME;
     }
 
+    @Override
+    public PhaseTapChangerRegulationActionBuilder convertToBuilder() {
+        return new PhaseTapChangerRegulationActionBuilder()
+            .withId(id)
+            .withTransformerId(transformerId)
+            .withRegulationValue(regulationValue)
+            .withRegulationMode(regulationMode)
+            .withRegulating(regulating)
+            .withSide(side);
+    }
+
     public Optional<PhaseTapChanger.RegulationMode> getRegulationMode() {
         return Optional.ofNullable(regulationMode);
     }

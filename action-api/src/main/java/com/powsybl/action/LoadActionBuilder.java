@@ -7,6 +7,7 @@ public class LoadActionBuilder extends AbstractLoadActionBuilder<LoadAction, Loa
         return this;
     }
 
+    @Override
     public LoadAction build() {
         if (relativeValue == null) {
             throw new IllegalArgumentException("For a load action, relativeValue must be provided");

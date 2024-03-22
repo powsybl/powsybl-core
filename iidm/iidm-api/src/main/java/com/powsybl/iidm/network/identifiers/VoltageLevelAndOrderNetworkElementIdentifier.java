@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.contingency.list.identifier;
+package com.powsybl.iidm.network.identifiers;
 
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Identifiable;
@@ -54,7 +54,7 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
                 return Collections.singleton(foundConnectables.get(0));
             } else {
                 LOG.warn("found several connectables between voltage levels {} and {} with order {}",
-                        order, voltageLevel1.getId(), voltageLevel2.getId());
+                        voltageLevel1.getId(), voltageLevel2.getId(), order);
                 return Collections.emptySet();
             }
         }

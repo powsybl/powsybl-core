@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.SwitchActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.SwitchAction;
 
@@ -25,15 +26,9 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
         super(SwitchAction.class);
     }
 
-    private static class ParsingContext {
-        String id;
-        String switchId;
-        Boolean open;
-    }
-
     @Override
     public SwitchAction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+        SwitchActionBuilder builder = new SwitchActionBuilder();
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
                 case "type":
@@ -42,22 +37,19 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
                     }
                     return true;
                 case "id":
-                    context.id = parser.nextTextValue();
+                    builder.withId(parser.nextTextValue());
                     return true;
                 case "switchId":
-                    context.switchId = parser.nextTextValue();
+                    builder.withSwitchId(parser.nextTextValue());
                     return true;
                 case "open":
                     parser.nextToken();
-                    context.open = parser.getValueAsBoolean();
+                    builder.withOpen(parser.getValueAsBoolean());
                     return true;
                 default:
                     return false;
             }
         });
-        if (context.open == null) {
-            throw JsonMappingException.from(parser, "for switch action open field can't be null");
-        }
-        return new SwitchAction(context.id, context.switchId, context.open);
+        return builder.build();
     }
 }

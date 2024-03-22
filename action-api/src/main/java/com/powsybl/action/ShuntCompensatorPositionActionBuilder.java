@@ -10,12 +10,24 @@ package com.powsybl.action;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class ShuntCompensatorPositionActionBuilder {
+public class ShuntCompensatorPositionActionBuilder implements ActionBuilder<ShuntCompensatorPositionActionBuilder> {
 
     private String id;
     private String shuntCompensatorId;
     private Integer sectionCount = null;
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public ShuntCompensatorPositionActionBuilder withNetworkElementId(String shuntCompensatorId) {
+        this.shuntCompensatorId = shuntCompensatorId;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorPositionAction build() {
         if (sectionCount == null) {
             throw new IllegalArgumentException("sectionCount in undefined");

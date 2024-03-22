@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.TerminalsConnectionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.action.TerminalsConnectionAction;
@@ -26,16 +27,9 @@ public class TerminalsConnectionActionDeserializer extends StdDeserializer<Termi
         super(TerminalsConnectionAction.class);
     }
 
-    private static class ParsingContext {
-        String id;
-        String elementId;
-        ThreeSides side;
-        Boolean open;
-    }
-
     @Override
     public TerminalsConnectionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+        TerminalsConnectionActionBuilder builder = new TerminalsConnectionActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
@@ -44,30 +38,23 @@ public class TerminalsConnectionActionDeserializer extends StdDeserializer<Termi
                     }
                     return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
+                    builder.withId(jsonParser.nextTextValue());
                     return true;
                 case "elementId":
-                    context.elementId = jsonParser.nextTextValue();
+                    builder.withNetworkElementId(jsonParser.nextTextValue());
                     return true;
                 case "side":
                     jsonParser.nextToken();
-                    context.side = ThreeSides.valueOf(jsonParser.getValueAsString());
+                    builder.withSide(ThreeSides.valueOf(jsonParser.getValueAsString()));
                     return true;
                 case "open":
                     jsonParser.nextToken();
-                    context.open = jsonParser.getValueAsBoolean();
+                    builder.withOpen(jsonParser.getValueAsBoolean());
                     return true;
                 default:
                     return false;
             }
         });
-        if (context.open == null) {
-            throw JsonMappingException.from(jsonParser, "for terminal connection action open field can't be null");
-        }
-        if (context.side == null) {
-            return new TerminalsConnectionAction(context.id, context.elementId, context.open);
-        } else {
-            return new TerminalsConnectionAction(context.id, context.elementId, context.side, context.open);
-        }
+        return builder.build();
     }
 }

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.contingency.contingency.list.identifier;
+package com.powsybl.iidm.network.identifiers;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Identifiable;
@@ -16,7 +16,7 @@ import java.util.*;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class NetworkElementIdentifierList implements NetworkElementIdentifier {
+public class NetworkElementIdentifierContingencyList implements NetworkElementIdentifier {
     private final List<NetworkElementIdentifier> networkElementIdentifiers;
     private final String contingencyId;
 
@@ -24,11 +24,11 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
         return networkElementIdentifiers;
     }
 
-    public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers) {
+    public NetworkElementIdentifierContingencyList(List<NetworkElementIdentifier> networkElementIdentifiers) {
         this(networkElementIdentifiers, null);
     }
 
-    public NetworkElementIdentifierList(List<NetworkElementIdentifier> networkElementIdentifiers, String contingencyId) {
+    public NetworkElementIdentifierContingencyList(List<NetworkElementIdentifier> networkElementIdentifiers, String contingencyId) {
         this.networkElementIdentifiers = ImmutableList.copyOf(networkElementIdentifiers);
         this.contingencyId = contingencyId;
     }

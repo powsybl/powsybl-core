@@ -1,0 +1,31 @@
+{
+  "version" : "1.1",
+  "actions" : [ ],
+  "elementIdentifiers" : {
+    "lineConnectionAction" : {
+      "type" : "VOLTAGE_LEVELS_AND_ORDER",
+      "voltageLevelId1" : "VLHV1",
+      "voltageLevelId2" : "VLHV2",
+      "order" : "1"
+    },
+    "switchAction" : {
+      "type" : "ID_BASED",
+      "identifier" : "switch 1"
+    }
+  },
+  "actionBuilders" : {
+    "lineConnectionAction" : {
+      "type" : "TERMINALS_CONNECTION",
+      "id" : "lineConnectionAction",
+      "elementId" : null,
+      "side" : "ONE",
+      "open" : true
+    },
+    "switchAction" : {
+      "type" : "SWITCH",
+      "id" : "switchAction",
+      "switchId" : null,
+      "open" : true
+    }
+  }
+}

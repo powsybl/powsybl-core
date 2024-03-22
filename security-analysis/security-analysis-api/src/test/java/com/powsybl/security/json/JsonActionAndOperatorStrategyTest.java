@@ -88,6 +88,11 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         public String getType() {
             return NAME;
         }
+
+        @Override
+        public ActionBuilder<?> convertToBuilder() {
+            return null;
+        }
     }
 
     @Test

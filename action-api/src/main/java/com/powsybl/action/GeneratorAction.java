@@ -7,7 +7,6 @@
  */
 package com.powsybl.action;
 
-import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -46,7 +45,7 @@ public class GeneratorAction extends AbstractAction {
     GeneratorAction(String id, String generatorId, Boolean activePowerRelativeValue, Double activePowerValue,
                     Boolean voltageRegulatorOn, Double targetV, Double targetQ) {
         super(id);
-        this.generatorId = Objects.requireNonNull(generatorId);
+        this.generatorId = generatorId;
         this.activePowerRelativeValue = activePowerRelativeValue;
         this.activePowerValue = activePowerValue;
         this.voltageRegulatorOn = voltageRegulatorOn;
@@ -57,6 +56,18 @@ public class GeneratorAction extends AbstractAction {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public GeneratorActionBuilder convertToBuilder() {
+        return new GeneratorActionBuilder()
+            .withId(id)
+            .withGeneratorId(generatorId)
+            .withActivePowerRelativeValue(activePowerRelativeValue)
+            .withActivePowerValue(activePowerValue)
+            .withVoltageRegulatorOn(voltageRegulatorOn)
+            .withTargetV(targetV)
+            .withTargetQ(targetQ);
     }
 
     public String getGeneratorId() {
