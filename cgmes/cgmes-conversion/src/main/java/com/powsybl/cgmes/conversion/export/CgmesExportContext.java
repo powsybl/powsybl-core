@@ -70,6 +70,7 @@ public class CgmesExportContext {
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
+    public static final boolean EXPORT_AS_CGM_VALUE = false;
     public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
     public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
     public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
@@ -101,34 +102,7 @@ public class CgmesExportContext {
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
 
-    public void updateDependencies(Network network) {
-        boolean isCGM = network.getSubnetworks().size() > 1;
-        if (isCGM) {
-            updateDependenciesCGMSolution(network);
-        } else {
-            updateDependenciesIGM();
-        }
-    }
-
-    private void updateDependenciesCGMSolution(Network network) {
-        // FIXME(Luma) work in progress
-        // First step: we only know how to update dependencies of CGM SV solution from IGM (Subnetwork) original TP models
-        Set<String> igmOriginalTpModels = network.getSubnetworks().stream()
-                .map(sn -> sn.getExtension(CgmesMetadataModels.class))
-                .filter(Objects::nonNull)
-                .map(models -> ((CgmesMetadataModels) models).getModelForSubset(CgmesSubset.TOPOLOGY))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(CgmesMetadataModel::getId)
-                .collect(Collectors.toSet());
-        Set<String> igmExportedSshModels = Collections.emptySet();
-        getExportedSVModel()
-                .clearDependencies()
-                .addDependentOn(igmOriginalTpModels)
-                .addDependentOn(igmExportedSshModels);
-    }
-
-    private void updateDependenciesIGM() {
+    public void updateDependenciesIGM() {
         // Update dependencies in a way that:
         // [EQ.dependentOn EQ_BD]
         // SV.dependentOn TP, SSH[, TP_BD]

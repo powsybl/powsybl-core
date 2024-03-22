@@ -115,23 +115,23 @@ public final class CgmesExportUtil {
     }
 
     public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
-        // The ref to build a unique model id must contain:
-        // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
-        // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
-        CgmesObjectReference[] modelRef = {
-            refTyped(network),
-            ref(subset),
-            ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
-            ref(format(modelDescription.getVersion())),
-            ref(context.getBusinessProcess()),
-            Part.FULL_MODEL};
-        String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-        modelDescription.setId(modelId);
-        context.updateDependencies(network);
-
+        if (modelDescription.getId() == null || modelDescription.getId().isEmpty()) {
+            // The ref to build a unique model id must contain:
+            // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
+            // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
+            CgmesObjectReference[] modelRef = {
+                refTyped(network),
+                ref(subset),
+                ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
+                ref(String.valueOf(modelDescription.getVersion())),
+                ref(context.getBusinessProcess()),
+                Part.FULL_MODEL};
+            String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
+            modelDescription.setId(modelId);
+        }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelId).add();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
+        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelDescription.getId()).add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();

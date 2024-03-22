@@ -21,10 +21,8 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -32,8 +30,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("checkstyle:RegexpSingleline")
 class CommonGridModelExportTest extends AbstractSerDeTest {
 
+    private static final Pattern REGEX_ID = Pattern.compile("FullModel rdf:about=\"(.*?)\"");
+    private static final Pattern REGEX_VERSION = Pattern.compile("Model.version>(.*?)<");
+    private static final Pattern REGEX_DEPENDENT_ON = Pattern.compile("Model.DependentOn rdf:resource=\"(.*?)\"");
+    private static final Pattern REGEX_SUPERSEDES = Pattern.compile("Model.Supersedes rdf:resource=\"(.*?)\"");
+    private static final Pattern REGEX_MAS = Pattern.compile("Model.modelingAuthoritySet>(.*?)<");
+
     @Test
-    void testAssembled() throws IOException {
+    void testCgmExport() throws IOException {
         /*
         Summary from CGM Building Process Implementation Guide:
 
@@ -54,70 +58,81 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         This means that the CGM SV file must contain a md:Model.DependentOn reference to each IGM’s original TP.
         */
 
-        // Obtain an assembled set of IGMs
-        // Each IGM is a Subnetwork in the CGM Network
+        // Read the network (CGM) with its subnetworks (IGMs)
         Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
         assertEquals(2, network.getSubnetworks().size());
-        debugCGM(network);
 
-        Set<String> expectedTPs = network.getSubnetworks().stream().map(
-                n -> n.getExtension(CgmesMetadataModels.class)
-                        .getModelForSubset(CgmesSubset.TOPOLOGY)
-                        .map(CgmesMetadataModel::getId)
-                        .orElseThrow())
-                .collect(Collectors.toSet());
-        assertEquals(
-                Set.of("urn:uuid:5d32d257-1646-4906-a1f6-4d7ce3f91569", "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20"),
-                expectedTPs);
+        // Expected values
+        String beMas = "http://elia.be/CGMES/2.4.15";
+        String nlMas = "http://tennet.nl/CGMES/2.4.15";
+        String originalBeSshId = "urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e";
+        String originalNlSshId = "urn:uuid:66085ffe-dddf-4fc8-805c-2c7aa2097b90";
+        String originalBeTpId = "urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20";
+        String originalNlTpId = "urn:uuid:5d32d257-1646-4906-a1f6-4d7ce3f91569";
+        int originalVersion = 2;
 
-        // Export the SV for the CGM
+        // Check the original IGMs SSH and TP content
+        Network beNetwork = network.getSubnetwork("urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73");
+        Network nlNetwork = network.getSubnetwork("urn:uuid:77b55f87-fc1e-4046-9599-6c6b4f991a86");
+
+        CgmesMetadataModel originalBeSshModel = getSubsetModel(beNetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        assertEquals(originalBeSshId, originalBeSshModel.getId());
+        assertEquals(originalVersion, originalBeSshModel.getVersion());
+        assertEquals(beMas, originalBeSshModel.getModelingAuthoritySet());
+
+        CgmesMetadataModel originalNlSshModel = getSubsetModel(nlNetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        assertEquals(originalNlSshId, originalNlSshModel.getId());
+        assertEquals(originalVersion, originalNlSshModel.getVersion());
+        assertEquals(nlMas, originalNlSshModel.getModelingAuthoritySet());
+
+        CgmesMetadataModel originalBeTpModel = getSubsetModel(beNetwork, CgmesSubset.TOPOLOGY);
+        assertEquals(originalBeTpId, originalBeTpModel.getId());
+        assertEquals(originalVersion, originalBeTpModel.getVersion());
+        assertEquals(beMas, originalBeTpModel.getModelingAuthoritySet());
+
+        CgmesMetadataModel originalNlTpModel = getSubsetModel(nlNetwork, CgmesSubset.TOPOLOGY);
+        assertEquals(originalNlTpId, originalNlTpModel.getId());
+        assertEquals(originalVersion, originalNlTpModel.getVersion());
+        assertEquals(nlMas, originalNlTpModel.getModelingAuthoritySet());
+
+        // Perform a CGM export and read the exported files
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.PROFILES, "SV");
-        String basename = network.getNameOrId();
+        exportParams.put(CgmesExport.EXPORT_AS_CGM, true);
+        String basename = "test-assembled";
+        // network.write("CGMES", exportParams, Path.of(basename));  // TODO remove
         network.write("CGMES", exportParams, tmpDir.resolve(basename));
-        Set<String> svDependentOns = dependentOns(read(basename, "SV"));
-        debugSvDependentOns(svDependentOns);
+        String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
+        String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
+        String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
 
-        // All IGM TPs must be present in the SV dependentOns
-        assertTrue(svDependentOns.containsAll(expectedTPs));
+        // Each updated IGM SSH should supersede the original one
+        assertEquals(originalBeSshId, getOccurrences(updatedBeSshXml, REGEX_SUPERSEDES).iterator().next());
+        assertEquals(originalNlSshId, getOccurrences(updatedNlSshXml, REGEX_SUPERSEDES).iterator().next());
 
-        // FIXME(Luma) work in progress
-        // The CGM SV should depend on updated IGM SSHs
-        // As a first step, just check that the CGM dependentOns should contain more items, not only IGM TPs
-        assertTrue(svDependentOns.size() > expectedTPs.size());
+        // The updated CGM SV should depend on the updated IGMs SSH and the original IGMs TP
+        String updatedBeSshId = getOccurrences(updatedBeSshXml, REGEX_ID).iterator().next();
+        String updatedNlSshId = getOccurrences(updatedNlSshXml, REGEX_ID).iterator().next();
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId);
+        assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
+
+        // Check MAS and version
+        assertEquals(beMas, getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
+        assertEquals(nlMas, getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
+        assertEquals(String.valueOf(originalVersion + 1), getOccurrences(updatedBeSshXml, REGEX_VERSION).iterator().next());
+        assertEquals(String.valueOf(originalVersion + 1), getOccurrences(updatedNlSshXml, REGEX_VERSION).iterator().next());
     }
 
-    private static final Pattern REGEX_DEPENDENT_ON = Pattern.compile("Model.DependentOn rdf:resource=\"(.*?)\"");
-    
-    Set<String> dependentOns(String xml) {
+    private CgmesMetadataModel getSubsetModel(Network network, CgmesSubset subset) {
+        return network.getExtension(CgmesMetadataModels.class).getModelForSubset(subset).orElseThrow();
+    }
+
+    private Set<String> getOccurrences(String xml, Pattern pattern) {
         Set<String> matches = new HashSet<>();
-        Matcher matcher = REGEX_DEPENDENT_ON.matcher(xml);
+        Matcher matcher = pattern.matcher(xml);
         while (matcher.find()) {
             matches.add(matcher.group(1));
         }
         return matches;
-    }
-
-    private String read(String basename, String profile) throws IOException {
-        String instanceFile = String.format("%s_%s.xml", basename, profile);
-        return Files.readString(tmpDir.resolve(instanceFile));
-    }
-
-    private static void debugCGM(Network network) {
-        System.out.println("IGM subnetworks:");
-        network.getSubnetworks().forEach(n -> {
-            System.out.printf("  subnetwork : %s%n", n.getSubstations().iterator().next().getCountry().orElseThrow());
-            System.out.printf("         SSH : %s%n",
-                    n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).map(CgmesMetadataModel::getId).orElse("uknown"));
-            System.out.printf("          TP : %s%n",
-                    n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.TOPOLOGY).map(CgmesMetadataModel::getId).orElse("uknown"));
-        });
-    }
-
-    private void debugSvDependentOns(Set<String> svDependentOns) {
-        System.out.println();
-        System.out.println("SV dependentOns:");
-        System.out.println(Arrays.toString(svDependentOns.toArray()));
     }
 
 }

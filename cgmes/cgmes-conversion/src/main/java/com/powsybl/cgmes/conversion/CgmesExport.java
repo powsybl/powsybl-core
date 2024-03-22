@@ -12,8 +12,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -81,11 +83,7 @@ public class CgmesExport implements Exporter {
             // If not given explicitly,
             // the reference data provider can try to obtain it from the country of the network
             // If we have multiple countries we do not pass this info to the reference data provider
-            Set<String> countries = network.getSubstationStream()
-                    .map(Substation::getCountry)
-                    .flatMap(Optional::stream)
-                    .map(Enum::name)
-                    .collect(Collectors.toUnmodifiableSet());
+            Set<String> countries = getCountries(network);
             if (countries.size() == 1) {
                 countryName = countries.iterator().next();
             }
@@ -142,46 +140,146 @@ public class CgmesExport implements Exporter {
             context.getExportedSVModel().setVersion(Integer.parseInt(modelVersion));
         }
 
-        try {
+        if (Parameter.readBoolean(getFormat(), params, EXPORT_AS_CGM_PARAMETER, defaultValueConfig)) {
+            /* CGM export
+            This export consists in providing an updated SSH for the IGMs and an updated SV for the whole CGM
+            The new updated IGMs SSH shall supersede the original ones
+            The new updated CGM SV is dependend on the new updated IGMs SHH and on the original IGMs TP
+            */
+
+            // checkCgmConsistency();
+
+            Set<String> updatedIgmSshIds = new HashSet<>();
+            Set<String> originalIgmTpIds = new HashSet<>();
+            for (Network subnetwork : network.getSubnetworks()) {
+                // Retrieve the IGM original SSH and TP model
+                CgmesMetadataModels originalIgmModels = subnetwork.getExtension(CgmesMetadataModels.class);
+                Optional<CgmesMetadataModel> originalIgmSshModel = originalIgmModels != null ?
+                        originalIgmModels.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS) :
+                        Optional.empty();
+                Optional<CgmesMetadataModel> originalIgmTpModel = originalIgmModels != null ?
+                        originalIgmModels.getModelForSubset(CgmesSubset.TOPOLOGY) :
+                        Optional.empty();
+                originalIgmTpModel.ifPresent(m -> originalIgmTpIds.add(m.getId()));
+
+                // Create a new IGM SSH model based on the original one
+                String igmMAS = originalIgmSshModel
+                        .map(CgmesMetadataModel::getModelingAuthoritySet)
+                        .orElseGet(() -> CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+                CgmesMetadataModel updatedIgmSshModel = new CgmesMetadataModel(CgmesSubset.STEADY_STATE_HYPOTHESIS, igmMAS);
+                context.getExportedSSHModel().getProfiles().forEach(updatedIgmSshModel::setProfile);
+                originalIgmSshModel.ifPresent(m -> updatedIgmSshModel.setDescription(m.getDescription()));
+                originalIgmSshModel.ifPresent(m -> updatedIgmSshModel.setVersion(m.getVersion() + 1));
+                originalIgmSshModel.ifPresent(m -> updatedIgmSshModel.addSupersedes(m.getId()));
+
+                // Export the IGM SSH using the updated model
+                Set<String> countries = getCountries(subnetwork);
+                String igmName = countries.size() == 1 ? countries.iterator().next() : subnetwork.getId();
+                String igmFileNameSsh = baseName + "_" + igmName + "_SSH.xml";
+                context.addIidmMappings(subnetwork);
+                subsetExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, igmFileNameSsh, ds, context, Optional.of(updatedIgmSshModel));
+                updatedIgmSshIds.add(updatedIgmSshModel.getId());
+            }
+
+            // Check for an existing CGM SV model
+            CgmesMetadataModels originalCgmModels = network.getExtension(CgmesMetadataModels.class);
+            Optional<CgmesMetadataModel> originalCgmSvModel = originalCgmModels != null ?
+                    originalCgmModels.getModelForSubset(CgmesSubset.STATE_VARIABLES) :
+                    Optional.empty();
+
+            // Create a new CGM SV model based on the original one
+            CgmesMetadataModel updatedCgmSvModel = new CgmesMetadataModel(CgmesSubset.STATE_VARIABLES, masUri);
+            context.getExportedSVModel().getProfiles().forEach(updatedCgmSvModel::setProfile);
+            updatedCgmSvModel.addDependentOn(updatedIgmSshIds);
+            updatedCgmSvModel.addDependentOn(originalIgmTpIds);
+            originalCgmSvModel.ifPresent(m -> updatedCgmSvModel.setDescription(m.getDescription()));
+            originalCgmSvModel.ifPresent(m -> updatedCgmSvModel.setVersion(m.getVersion() + 1));
+
+            // Export the CGM SV using the new model
+            subsetExport(network, CgmesSubset.STATE_VARIABLES, filenameSv, ds, context, Optional.of(updatedCgmSvModel));
+        } else {
+            // IGM export
+            context.updateDependenciesIGM();
+
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
-            checkConsistency(profiles, network, context);
+            checkIgmConsistency(profiles, network, context);
             if (profiles.contains("EQ")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameEq, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    EquipmentExport.write(network, writer, context);
-                }
+                subsetExport(network, CgmesSubset.EQUIPMENT, filenameEq, ds, context, Optional.empty());
             } else {
                 addSubsetIdentifiers(network, "EQ", context.getExportedEQModel());
                 context.getExportedEQModel().setId(context.getNamingStrategy().getCgmesId(network));
             }
             if (profiles.contains("TP")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameTp, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    TopologyExport.write(network, writer, context);
-                }
+                subsetExport(network, CgmesSubset.TOPOLOGY, filenameTp, ds, context, Optional.empty());
             } else {
                 addSubsetIdentifiers(network, "TP", context.getExportedTPModel());
             }
             if (profiles.contains("SSH")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    SteadyStateHypothesisExport.write(network, writer, context);
-                }
+                subsetExport(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, filenameSsh, ds, context, Optional.empty());
             } else {
                 addSubsetIdentifiers(network, "SSH", context.getExportedSSHModel());
             }
             if (profiles.contains("SV")) {
-                try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
-                    XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
-                    StateVariablesExport.write(network, writer, context);
-                }
+                subsetExport(network, CgmesSubset.STATE_VARIABLES, filenameSv, ds, context, Optional.empty());
             }
             context.getNamingStrategy().debug(baseName, ds);
+        }
+    }
+
+    /**
+     * Retrieve all the countries present in a network.
+     * @param network the network for which the countries are being looked for
+     * @return a Set of countries present in the network
+     */
+    private static Set<String> getCountries(Network network) {
+        return network.getSubstationStream()
+                .map(Substation::getCountry)
+                .flatMap(Optional::stream)
+                .map(Enum::name)
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    /**
+     * Export a CGMES subset of a network.
+     * @param network the network whose subset is to be exported
+     * @param subset the CGMES subset to export (accepted values are: EQ/TP/SSH/SV)
+     * @param fileName the name of the exported file
+     * @param dataSource the data source used for the export
+     * @param context the context used for the export
+     * @param model if provided, the model information to use
+     */
+    private void subsetExport(Network network, CgmesSubset subset, String fileName, DataSource dataSource, CgmesExportContext context, Optional<CgmesMetadataModel> model) {
+        try (OutputStream out = new BufferedOutputStream(dataSource.newOutputStream(fileName, false))) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
+            switch (subset) {
+                case EQUIPMENT:
+                    EquipmentExport.write(network, writer, context);
+                    break;
+                case TOPOLOGY:
+                    TopologyExport.write(network, writer, context);
+                    break;
+                case STEADY_STATE_HYPOTHESIS:
+                    SteadyStateHypothesisExport.write(network, writer, context, model);
+                    break;
+                case STATE_VARIABLES:
+                    StateVariablesExport.write(network, writer, context, model);
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid subset, one of the following value is expected: EQ/TP/SSH/SV.");
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    private static void checkCgmConsistency() {
+        /* TODO
+        Verify that each of the subnetwork has a CgmesMetadataModel of part SSH and TP
+        This is necessary in order to correctly build the references (dependentOn and supersedes)
+        to the IGM SSH and TP export files
+        */
     }
 
     private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter, ReferenceDataProvider referenceDataProvider) {
@@ -207,7 +305,7 @@ public class CgmesExport implements Exporter {
                 .toList());
     }
 
-    private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {
+    private static void checkIgmConsistency(List<String> profiles, Network network, CgmesExportContext context) {
         boolean networkIsNodeBreaker = network.getVoltageLevelStream()
                 .map(VoltageLevel::getTopologyKind)
                 .anyMatch(tk -> tk == TopologyKind.NODE_BREAKER);
@@ -248,6 +346,7 @@ public class CgmesExport implements Exporter {
     public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
+    public static final String EXPORT_AS_CGM = "iidm.export.cgmes.export_as_cgm";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
@@ -298,6 +397,11 @@ public class CgmesExport implements Exporter {
             "Profiles to export",
             List.of("EQ", "TP", "SSH", "SV"),
             List.of("EQ", "TP", "SSH", "SV"));
+    private static final Parameter EXPORT_AS_CGM_PARAMETER = new Parameter(
+            EXPORT_AS_CGM,
+            ParameterType.BOOLEAN,
+            "True for a CGM export, False for an IGM export",
+            CgmesExportContext.EXPORT_AS_CGM_VALUE);
     private static final Parameter BOUNDARY_EQ_ID_PARAMETER = new Parameter(
             BOUNDARY_EQ_ID,
             ParameterType.STRING,
@@ -376,6 +480,7 @@ public class CgmesExport implements Exporter {
             EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
             PROFILES_PARAMETER,
+            EXPORT_AS_CGM_PARAMETER,
             BOUNDARY_EQ_ID_PARAMETER,
             BOUNDARY_TP_ID_PARAMETER,
             MODELING_AUTHORITY_SET_PARAMETER,
