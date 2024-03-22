@@ -28,7 +28,7 @@ class CgmesMetadataModelsTest {
         Network network = NetworkTest1Factory.create();
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
+                .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setId("sshId")
                 .setDescription("SSH description")
                 .setModelingAuthoritySet("http://powsybl.org")
@@ -38,7 +38,7 @@ class CgmesMetadataModelsTest {
                 .addDependentOn("ssh-dependency2")
                 .add()
                 .newModel()
-                .setPart(CgmesSubset.STATE_VARIABLES)
+                .setSubset(CgmesSubset.STATE_VARIABLES)
                 .setId("svId")
                 .setDescription("SV description")
                 .setModelingAuthoritySet("http://powsybl.org")
@@ -51,13 +51,13 @@ class CgmesMetadataModelsTest {
         CgmesMetadataModels extension = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(extension);
 
-        CgmesMetadataModel ssh = extension.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+        CgmesMetadataModel ssh = extension.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
         assertEquals("SSH description", ssh.getDescription());
         assertEquals("http://powsybl.org", ssh.getModelingAuthoritySet());
         assertEquals(1, ssh.getVersion());
         assertEquals(Set.of("ssh-dependency1", "ssh-dependency2"), ssh.getDependentOn());
 
-        CgmesMetadataModel sv = extension.getModelForPart(CgmesSubset.STATE_VARIABLES).orElseThrow();
+        CgmesMetadataModel sv = extension.getModelForSubset(CgmesSubset.STATE_VARIABLES).orElseThrow();
         assertEquals("SV description", sv.getDescription());
         assertEquals("http://powsybl.org", sv.getModelingAuthoritySet());
         assertEquals(2, sv.getVersion());

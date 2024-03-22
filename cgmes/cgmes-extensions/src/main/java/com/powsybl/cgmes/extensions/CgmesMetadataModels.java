@@ -34,9 +34,9 @@ public interface CgmesMetadataModels extends Extension<Network> {
 
     List<CgmesMetadataModel> getSortedModels();
 
-    Optional<CgmesMetadataModel> getModelForPart(CgmesSubset part);
+    Optional<CgmesMetadataModel> getModelForSubset(CgmesSubset subset);
 
-    Optional<CgmesMetadataModel> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet);
+    Optional<CgmesMetadataModel> getModelForSubsetModelingAuthoritySet(CgmesSubset subset, String modelingAuthoritySet);
 
     @Override
     default String getName() {

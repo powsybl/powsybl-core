@@ -20,7 +20,7 @@ public final class ComparisonConfig {
     public ComparisonConfig() {
         checkNetworkId = true;
         versionIncremented = false;
-        exportedParts = Collections.emptySet();
+        isExportedSubset = Collections.emptySet();
         ignoreMissingMetadata = false;
         differences = new DifferencesFail();
         networkMappingFactory = NetworkMapping::new;
@@ -41,8 +41,8 @@ public final class ComparisonConfig {
         return this;
     }
 
-    public ComparisonConfig exportedParts(Set<CgmesSubset> exportedParts) {
-        this.exportedParts = exportedParts;
+    public ComparisonConfig exportedSubset(Set<CgmesSubset> exportedSubsets) {
+        this.isExportedSubset = exportedSubsets;
         return this;
     }
 
@@ -88,13 +88,13 @@ public final class ComparisonConfig {
         return this;
     }
 
-    public boolean isExportedPart(CgmesSubset part) {
-        return exportedParts.contains(part);
+    public boolean isExportedSubset(CgmesSubset subset) {
+        return isExportedSubset.contains(subset);
     }
 
     boolean checkNetworkId;
     boolean versionIncremented;
-    Set<CgmesSubset> exportedParts;
+    Set<CgmesSubset> isExportedSubset;
     boolean ignoreMissingMetadata;
     Differences differences;
     NetworkMappingFactory networkMappingFactory;

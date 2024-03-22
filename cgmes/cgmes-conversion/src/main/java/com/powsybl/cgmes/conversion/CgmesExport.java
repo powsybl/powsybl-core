@@ -150,7 +150,7 @@ public class CgmesExport implements Exporter {
                     EquipmentExport.write(network, writer, context);
                 }
             } else {
-                addPartIdentifiers(network, "EQ", context.getExportedEQModel());
+                addSubsetIdentifiers(network, "EQ", context.getExportedEQModel());
                 context.getExportedEQModel().setId(context.getNamingStrategy().getCgmesId(network));
             }
             if (profiles.contains("TP")) {
@@ -159,7 +159,7 @@ public class CgmesExport implements Exporter {
                     TopologyExport.write(network, writer, context);
                 }
             } else {
-                addPartIdentifiers(network, "TP", context.getExportedTPModel());
+                addSubsetIdentifiers(network, "TP", context.getExportedTPModel());
             }
             if (profiles.contains("SSH")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
@@ -167,7 +167,7 @@ public class CgmesExport implements Exporter {
                     SteadyStateHypothesisExport.write(network, writer, context);
                 }
             } else {
-                addPartIdentifiers(network, "SSH", context.getExportedSSHModel());
+                addSubsetIdentifiers(network, "SSH", context.getExportedSSHModel());
             }
             if (profiles.contains("SV")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
@@ -199,7 +199,7 @@ public class CgmesExport implements Exporter {
         return id;
     }
 
-    private static void addPartIdentifiers(Network network, String profile, CgmesMetadataModel description) {
+    private static void addSubsetIdentifiers(Network network, String profile, CgmesMetadataModel description) {
         description.addDependentOn(network.getPropertyNames().stream()
                 .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
                 .map(network::getProperty)

@@ -9,7 +9,7 @@
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:simpleType name="Part">
+    <xs:simpleType name="Subset">
         <xs:restriction base="xs:string">
             <xs:enumeration value="EQUIPMENT"/>
             <xs:enumeration value="TOPOLOGY"/>
@@ -29,7 +29,7 @@
             <xs:element name="dependentOnModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="supersedesModel" type="cmm:nonEmptyString" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
-        <xs:attribute name="part" type="cmm:Part"/>
+        <xs:attribute name="subset" type="cmm:Subset"/>
         <xs:attribute name="modelingAuthoritySet" use="required" type="cmm:nonEmptyString"/>
         <xs:attribute name="id" type="xs:string"/>
         <xs:attribute name="version" use="required" type="cmm:nonEmptyString"/>

@@ -27,7 +27,7 @@ import java.util.*;
  */
 public class CgmesMetadataModel {
 
-    private final CgmesSubset part;
+    private final CgmesSubset subset;
     private String id;
     private String description;
     private int version;
@@ -36,20 +36,20 @@ public class CgmesMetadataModel {
     private final Set<String> dependentOn = new HashSet<>();
     private final Set<String> supersedes = new HashSet<>();
 
-    public CgmesMetadataModel(CgmesSubset part, String modelingAuthoritySet) {
-        this.part = part;
+    public CgmesMetadataModel(CgmesSubset subset, String modelingAuthoritySet) {
+        this.subset = subset;
         this.modelingAuthoritySet = modelingAuthoritySet;
         this.version = 1;
-        this.description = part.getIdentifier() + " Model";
+        this.description = subset.getIdentifier() + " Model";
     }
 
     /**
-     * The CGMES instance file (part, subset) that the model refers to: EQ, SSH, ...
+     * The CGMES instance file (subset) that the model refers to: EQ, SSH, ...
      *
-     * @return the part of the CGMES the model refers to
+     * @return the subset of the CGMES the model refers to
      */
-    public CgmesSubset getPart() {
-        return part;
+    public CgmesSubset getSubset() {
+        return subset;
     }
 
     /**
@@ -96,7 +96,7 @@ public class CgmesMetadataModel {
      * Each profile defines semantics data that may appear inside the model.
      * A model may contain data from multiple profiles.</p>
      * <p>As an example, "http://iec.ch/TC57/61970-456/SteadyStateHypothesis/2/0" refers to power flow inputs in CGMES 3.</p>
-     * <p>In CGMES 2.4, the model for the EQ part may contain two profiles: "http://iec.ch/TC57/2013/61970-452/EquipmentCore/4" to describe the equipment core and "http://iec.ch/TC57/2013/61970-452/EquipmentOperation/4" if the model is defined at node/braker level.</p>
+     * <p>In CGMES 2.4, the model for the EQ subset may contain two profiles: "http://iec.ch/TC57/2013/61970-452/EquipmentCore/4" to describe the equipment core and "http://iec.ch/TC57/2013/61970-452/EquipmentOperation/4" if the model is defined at node/braker level.</p>
      *
      * @return the URN/URIs of profiles describing the data in the model
      */

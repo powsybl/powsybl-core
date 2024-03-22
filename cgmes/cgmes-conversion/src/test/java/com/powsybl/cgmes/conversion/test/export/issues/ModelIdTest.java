@@ -46,7 +46,7 @@ class ModelIdTest extends AbstractSerDeTest {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
 
-        // Check ids of the different export parts (EQ, SSH, SV, TP) are different
+        // Check ids of the different exported subsets (EQ, SSH, SV, TP) are different
         network.setCaseDate(t0);
         Map<String, String> ids0 = exportedIds(network, exportParams);
         Set<String> uniqueIds = new HashSet<>(ids0.values());
@@ -65,7 +65,7 @@ class ModelIdTest extends AbstractSerDeTest {
         // Export will increase the version number available in the metadata
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
-                    .setPart(CgmesSubset.STEADY_STATE_HYPOTHESIS)
+                    .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                     .setId("not-relevant")
                     .setDescription("not-relevant")
                     .setVersion(42)

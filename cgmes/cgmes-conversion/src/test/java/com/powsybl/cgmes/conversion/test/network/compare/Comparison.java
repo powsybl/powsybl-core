@@ -171,7 +171,7 @@ public class Comparison {
                 // All actual models should be in expected models
                 // But some expected models may be missing
                 for (CgmesMetadataModel actualModel : actual.getModels()) {
-                    Optional<CgmesMetadataModel> expectedModel = expected.getModelForPartModelingAuthoritySet(actualModel.getPart(), actualModel.getModelingAuthoritySet());
+                    Optional<CgmesMetadataModel> expectedModel = expected.getModelForSubsetModelingAuthoritySet(actualModel.getSubset(), actualModel.getModelingAuthoritySet());
                     if (expectedModel.isEmpty()) {
                         diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
                     } else {
@@ -197,12 +197,12 @@ public class Comparison {
         if (config.checkNetworkId) {
             compare(prefix + "id", expected.getId(), actual.getId());
         }
-        compare(prefix + "part", expected.getPart(), actual.getPart());
+        compare(prefix + "subset", expected.getSubset(), actual.getSubset());
         compare(prefix + "description", expected.getDescription(), actual.getDescription());
-        // If part has not been exported, the version has not been incremented
-        CgmesSubset part = expected.getPart();
+        // If subset has not been exported, the version has not been incremented
+        CgmesSubset subset = expected.getSubset();
         int expectedVersion = expected.getVersion();
-        if (config.versionIncremented && config.isExportedPart(part)) {
+        if (config.versionIncremented && config.isExportedSubset(subset)) {
             expectedVersion++;
         }
         compare(prefix + "version", expectedVersion, actual.getVersion());

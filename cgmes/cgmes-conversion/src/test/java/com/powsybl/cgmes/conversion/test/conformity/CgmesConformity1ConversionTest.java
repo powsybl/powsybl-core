@@ -102,7 +102,7 @@ class CgmesConformity1ConversionTest {
                     .tolerance(1e-5)
                     .checkNetworkId(false)
                     .incrementVersions(true)
-                    .exportedParts(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
+                    .exportedSubset(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -121,7 +121,7 @@ class CgmesConformity1ConversionTest {
                     .tolerance(1e-5)
                     .checkNetworkId(false)
                     .incrementVersions(true)
-                    .exportedParts(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
+                    .exportedSubset(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }

@@ -60,7 +60,7 @@ class CgmesExportContextTest {
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
                 .setId("testId")
-                .setPart(CgmesSubset.STATE_VARIABLES)
+                .setSubset(CgmesSubset.STATE_VARIABLES)
                 .setDescription("test")
                 .setVersion(2)
                 .addProfile("testProfile")

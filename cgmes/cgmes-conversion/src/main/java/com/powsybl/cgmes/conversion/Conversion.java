@@ -448,7 +448,7 @@ public class Conversion {
         for (PropertyBag p : ps) {
             CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
                 .setId(p.getId("FullModel"))
-                .setPart(partFromGraph(p.getLocal("graph")))
+                .setSubset(subsetFromGraph(p.getLocal("graph")))
                 .setDescription(p.getId("description"))
                 .setVersion(readVersion(p, context))
                 .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
@@ -469,7 +469,7 @@ public class Conversion {
         }
     }
 
-    private CgmesSubset partFromGraph(String graph) {
+    private CgmesSubset subsetFromGraph(String graph) {
         return Stream.of(CgmesSubset.values())
                 .filter(subset -> subset.isValidName(graph))
                 .findFirst()

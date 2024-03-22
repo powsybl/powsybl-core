@@ -512,7 +512,7 @@ class CgmesConformity1ModifiedConversionTest {
         assertTrue(Duration.between(ZonedDateTime.now(), network.getCaseDate()).toMinutes() < 10);
         CgmesMetadataModels cgmesMetadata = network.getExtension(CgmesMetadataModels.class);
         assertNotNull(cgmesMetadata);
-        Optional<CgmesMetadataModel> svModel = cgmesMetadata.getModelForPart(CgmesSubset.STATE_VARIABLES);
+        Optional<CgmesMetadataModel> svModel = cgmesMetadata.getModelForSubset(CgmesSubset.STATE_VARIABLES);
         assertTrue(svModel.isPresent());
         assertEquals(1, svModel.get().getVersion());
     }

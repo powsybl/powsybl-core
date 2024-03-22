@@ -20,22 +20,22 @@ import java.util.*;
 class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements CgmesMetadataModels {
 
     private final List<CgmesMetadataModel> models = new ArrayList<>();
-    private final EnumMap<CgmesSubset, CgmesMetadataModel> partModel = new EnumMap<>(CgmesSubset.class);
+    private final EnumMap<CgmesSubset, CgmesMetadataModel> subsetModel = new EnumMap<>(CgmesSubset.class);
 
     CgmesMetadataModelsImpl(Set<CgmesMetadataModel> models) {
         this.models.addAll(models);
-        models.forEach(m -> partModel.put(m.getPart(), m));
+        models.forEach(m -> subsetModel.put(m.getSubset(), m));
     }
 
     @Override
-    public Optional<CgmesMetadataModel> getModelForPart(CgmesSubset part) {
-        return Optional.ofNullable(partModel.get(part));
+    public Optional<CgmesMetadataModel> getModelForSubset(CgmesSubset subset) {
+        return Optional.ofNullable(subsetModel.get(subset));
     }
 
     @Override
-    public Optional<CgmesMetadataModel> getModelForPartModelingAuthoritySet(CgmesSubset part, String modelingAuthoritySet) {
+    public Optional<CgmesMetadataModel> getModelForSubsetModelingAuthoritySet(CgmesSubset subset, String modelingAuthoritySet) {
         return models.stream()
-                .filter(m -> m.getPart().equals(part) && m.getModelingAuthoritySet().equals(modelingAuthoritySet))
+                .filter(m -> m.getSubset().equals(subset) && m.getModelingAuthoritySet().equals(modelingAuthoritySet))
                 .findFirst();
     }
 
@@ -48,7 +48,7 @@ class CgmesMetadataModelsImpl extends AbstractExtension<Network> implements Cgme
     public List<CgmesMetadataModel> getSortedModels() {
         return models.stream().sorted(
                 Comparator.comparing(CgmesMetadataModel::getModelingAuthoritySet)
-                        .thenComparing(CgmesMetadataModel::getPart)
+                        .thenComparing(CgmesMetadataModel::getSubset)
                         .thenComparing(CgmesMetadataModel::getVersion)
                         .thenComparing(CgmesMetadataModel::getId)
         ).toList();

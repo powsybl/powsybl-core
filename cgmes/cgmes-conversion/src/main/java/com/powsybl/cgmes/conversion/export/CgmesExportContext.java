@@ -174,10 +174,10 @@ public class CgmesExportContext {
         scenarioTime = network.getCaseDate();
         CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
         if (models != null) {
-            models.getModelForPart(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(exportedEQModel, eq));
-            models.getModelForPart(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(exportedSSHModel, ssh));
-            models.getModelForPart(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(exportedTPModel, tp));
-            models.getModelForPart(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(exportedSVModel, sv));
+            models.getModelForSubset(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(exportedEQModel, eq));
+            models.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(exportedSSHModel, ssh));
+            models.getModelForSubset(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(exportedTPModel, tp));
+            models.getModelForSubset(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(exportedSVModel, sv));
         }
         addIidmMappings(network);
     }

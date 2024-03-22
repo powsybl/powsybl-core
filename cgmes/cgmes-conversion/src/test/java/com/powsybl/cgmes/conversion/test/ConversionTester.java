@@ -177,7 +177,7 @@ public class ConversionTester {
         new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
     }
 
-    private static String partFromName(String name) {
+    private static String subsetFromName(String name) {
         return Stream.of(CgmesSubset.values())
                 .filter(s -> s.isValidName(name))
                 .map(CgmesSubset::getIdentifier)
@@ -200,7 +200,7 @@ public class ConversionTester {
 
         // Copy the original files to the temporary destination, ensuring a normalized name
         for (String name : new CgmesOnDataSource(originalDs).names()) {
-            String normalizedName = baseName + "_" + partFromName(name) + ".xml";
+            String normalizedName = baseName + "_" + subsetFromName(name) + ".xml";
             try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(normalizedName, false));
                  InputStream in = originalDs.newInputStream(name)) {
                 ByteStreams.copy(in, out);
