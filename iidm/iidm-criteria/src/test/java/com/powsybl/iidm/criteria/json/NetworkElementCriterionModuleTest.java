@@ -10,21 +10,23 @@ package com.powsybl.iidm.criteria.json;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -106,11 +108,32 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         IdentifiableCriterion criterion = new IdentifiableCriterion("criterion7", new AtLeastOneCountryCriterion(List.of(Country.FR, Country.DE)),
                 new AtLeastOneNominalVoltageCriterion(
                         new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
-        IdentifiableCriterion empty = new IdentifiableCriterion(null, null);
-        List<NetworkElementCriterion> criteria = List.of(criterion, empty);
+        IdentifiableCriterion small1 = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.BE)));
+        IdentifiableCriterion small2 = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
+                new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, true)));
+        List<NetworkElementCriterion> criteria = List.of(criterion, small1, small2);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readIdentifiableCriteria,
                 "/criterion/identifiable-criteria.json");
+    }
+
+    @Test
+    void rejectEmptyIdentifiableCriterion() throws IOException {
+        String empty = """
+                {
+                  "type" : "identifiableCriterion",
+                  "version" : "1.0"
+                }
+                """;
+        PowsyblException pex = assertThrows(PowsyblException.class, () -> {
+            try (InputStream is = new ByteArrayInputStream(empty.getBytes(StandardCharsets.UTF_8))) {
+                MAPPER.readValue(is, new TypeReference<IdentifiableCriterion>() {
+                });
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+        assertEquals("Criterion of type 'identifiableCriterion' should have at least one sub-criterion", pex.getMessage());
     }
 
     @Test
