@@ -454,20 +454,29 @@ public final class CgmesExportUtil {
         return i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE) ? i.getReactiveLimits(ReactiveCapabilityCurve.class) : null;
     }
 
+    // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
+    // calculated synchronous machine kind is based on the present limits
     static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve) {
         String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
-        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve);
-        return kind != null && calculatedKind.contains(kind) ? kind : calculatedKind;
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, kind);
+        if (kind == null) {
+            return calculatedKind;
+        } else if (calculatedKind.contains(kind)) {
+            return kind;
+        } else {
+            LOG.warn("original synchronousMachineKind {} has been modified to {} according to the limits", kind, calculatedKind);
+            return calculatedKind;
+        }
     }
 
-    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve) {
+    // we cannot discriminate between generatorOrMotor and generatorOrCondenserOrMotor so,
+    // we preserve the original kind if it is available
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, String originalKind) {
         double min = curve != null ? curve.getMinP() : minP;
         double max = curve != null ? curve.getMaxP() : maxP;
 
         String kind;
-        if (min < 0 && max > 0) {
-            kind = GENERATOR_OR_MOTOR;
-        } else if (min > 0) {
+        if (min > 0) {
             kind = "generator";
         } else if (max < 0) {
             kind = "motor";
@@ -478,7 +487,7 @@ public final class CgmesExportUtil {
         } else if (max == 0) {
             kind = "motorOrCondenser";
         } else {
-            kind = "generatorOrCondenserOrMotor";
+            kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
         }
         return kind;
     }
