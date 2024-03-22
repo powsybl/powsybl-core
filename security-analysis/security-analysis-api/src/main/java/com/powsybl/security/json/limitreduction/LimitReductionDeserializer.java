@@ -12,13 +12,12 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.security.limitreduction.LimitReduction;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -76,9 +75,17 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
                 }
             }
         });
-        return new LimitReduction(context.limitType, context.value, context.monitoringOnly,
-                context.contingencyContext,
-                context.networkElementCriteria != null ? context.networkElementCriteria : Collections.emptyList(),
-                context.durationCriteria != null ? context.durationCriteria : Collections.emptyList());
+        LimitReduction.Builder builder = LimitReduction.builder(context.limitType, context.value)
+                .withMonitoringOnly(context.monitoringOnly);
+        if (context.contingencyContext != null) {
+            builder.withContingencyContext(context.contingencyContext);
+        }
+        if (context.networkElementCriteria != null) {
+            builder.withNetworkElementCriteria(context.networkElementCriteria);
+        }
+        if (context.durationCriteria != null) {
+            builder.withLimitDurationCriteria(context.durationCriteria);
+        }
+        return builder.build();
     }
 }
