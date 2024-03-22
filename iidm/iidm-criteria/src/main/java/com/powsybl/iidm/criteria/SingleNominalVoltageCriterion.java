@@ -68,15 +68,32 @@ public class SingleNominalVoltageCriterion implements Criterion {
     }
 
     public static class VoltageInterval {
-        Double nominalVoltageLowBound;
-        Double nominalVoltageHighBound;
-        Boolean lowClosed;
-        Boolean highClosed;
+        private static final VoltageInterval NULL_INTERVAL = new VoltageInterval();
 
-        public VoltageInterval() {
+        double nominalVoltageLowBound;
+        double nominalVoltageHighBound;
+        boolean lowClosed;
+        boolean highClosed;
+
+        private VoltageInterval() {
+            this.nominalVoltageLowBound = Double.NaN;
+            this.nominalVoltageHighBound = Double.NaN;
         }
 
-        public VoltageInterval(Double nominalVoltageLowBound, Double nominalVoltageHighBound, Boolean lowClosed, Boolean highClosed) {
+        public static VoltageInterval nullInterval() {
+            return NULL_INTERVAL;
+        }
+
+        public VoltageInterval(double nominalVoltageLowBound, double nominalVoltageHighBound, boolean lowClosed, boolean highClosed) {
+            if (Double.isNaN(nominalVoltageLowBound) || Double.isNaN(nominalVoltageHighBound) || nominalVoltageLowBound < 0 || nominalVoltageHighBound < 0) {
+                throw new IllegalArgumentException("Invalid interval bounds values (must be >= 0).");
+            }
+            if (nominalVoltageLowBound > nominalVoltageHighBound) {
+                throw new IllegalArgumentException("Invalid interval bounds values (nominalVoltageLowBound must be <= nominalVoltageHighBound).");
+            }
+            if (nominalVoltageLowBound == nominalVoltageHighBound && (!lowClosed || !highClosed)) {
+                throw new IllegalArgumentException("Invalid interval: it should not be empty");
+            }
             this.nominalVoltageLowBound = nominalVoltageLowBound;
             this.nominalVoltageHighBound = nominalVoltageHighBound;
             this.lowClosed = lowClosed;
@@ -85,7 +102,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
         @JsonIgnore
         public boolean isNull() {
-            return nominalVoltageLowBound == null || nominalVoltageHighBound == null || lowClosed == null || highClosed == null;
+            return this == NULL_INTERVAL;
         }
 
         public boolean checkIsBetweenBound(Double value) {
@@ -102,19 +119,19 @@ public class SingleNominalVoltageCriterion implements Criterion {
             }
         }
 
-        public Double getNominalVoltageLowBound() {
+        public double getNominalVoltageLowBound() {
             return nominalVoltageLowBound;
         }
 
-        public Double getNominalVoltageHighBound() {
+        public double getNominalVoltageHighBound() {
             return nominalVoltageHighBound;
         }
 
-        public Boolean getLowClosed() {
+        public boolean getLowClosed() {
             return lowClosed;
         }
 
-        public Boolean getHighClosed() {
+        public boolean getHighClosed() {
             return highClosed;
         }
     }

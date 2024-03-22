@@ -24,6 +24,7 @@ public class NetworkElementCriterionModule extends SimpleModule {
         addSerializer(ThreeWindingsTransformerCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(ThreeWindingsTransformerCriterion.class));
         addSerializer(IdentifiableCriterion.class, new NetworkElementEquipmentCriterionSerializer<>(IdentifiableCriterion.class));
         addSerializer(NetworkElementIdListCriterion.class, new NetworkElementIdListCriterionSerializer());
+        addSerializer(SingleNominalVoltageCriterion.VoltageInterval.class, new VoltageIntervalSerializer());
 
         addDeserializer(Criterion.class, new CriterionDeserializer());
         addDeserializer(LineCriterion.class, new LineCriterionDeserializer());
@@ -33,5 +34,6 @@ public class NetworkElementCriterionModule extends SimpleModule {
         addDeserializer(ThreeWindingsTransformerCriterion.class, new ThreeWindingsTransformerCriterionDeserializer());
         addDeserializer(IdentifiableCriterion.class, new IdentifiableCriterionDeserializer());
         addDeserializer(NetworkElementIdListCriterion.class, new NetworkElementIdListCriterionDeserializer());
+        addDeserializer(SingleNominalVoltageCriterion.VoltageInterval.class, new VoltageIntervalDeserializer());
     }
 }

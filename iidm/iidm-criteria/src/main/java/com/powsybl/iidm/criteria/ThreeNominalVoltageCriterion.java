@@ -36,15 +36,12 @@ public class ThreeNominalVoltageCriterion implements Criterion {
     public ThreeNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval1,
                                         SingleNominalVoltageCriterion.VoltageInterval voltageInterval2,
                                         SingleNominalVoltageCriterion.VoltageInterval voltageInterval3) {
-        this.voltageInterval1 = voltageInterval1 == null ?
-                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
-                        null, null) : voltageInterval1;
-        this.voltageInterval2 = voltageInterval2 == null ?
-                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
-                        null, null) : voltageInterval2;
-        this.voltageInterval3 = voltageInterval3 == null ?
-                new SingleNominalVoltageCriterion.VoltageInterval(null, null,
-                        null, null) : voltageInterval3;
+        this.voltageInterval1 = voltageInterval1 != null ? voltageInterval1 :
+                SingleNominalVoltageCriterion.VoltageInterval.nullInterval();
+        this.voltageInterval2 = voltageInterval2 != null ? voltageInterval2 :
+                SingleNominalVoltageCriterion.VoltageInterval.nullInterval();
+        this.voltageInterval3 = voltageInterval3 != null ? voltageInterval3 :
+                SingleNominalVoltageCriterion.VoltageInterval.nullInterval();
         if (!this.voltageInterval1.isNull()) {
             voltageIntervals.add(voltageInterval1);
         }
