@@ -19,18 +19,18 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>This class represents a reduction that should be applied to limits of a certain type.</p>
+ * <p>This class represents a reduction that should be applied to operational limits of a certain type.</p>
  * <p>A reduced limit is computed as <code>original limit * limitReduction.value</code>.</p>
- * <p>It may also contain restrictions indicating in which conditions it should be applied. If no restrictions are defined
- * the limit reduction will apply to all limits of the defined type.</p>
+ * <p>It may also contain restrictions indicating in which conditions it should be applied. If no restriction is defined
+ * the limit reduction is applied to all limits of the defined type.</p>
  * <p>The possible restrictions are:
  *     <ul>
- *         <li><code>monitoringOnly</code>: Does the restriction applies for monitoring use case only (<code>true</code>),
- *              or for both monitoring and action use cases (<code>false</code>)?</li>
- *         <li><code>contingencyContext</code>: The contingency context for which the limit reduction applies (in pre-contingency only, after every contingency, ...);</li>
- *         <li><code>networkElementCriteria</code>: Criteria that a network element should respect for the limit reduction to apply on its limits;</li>
- *         <li><code>limitDurationCriteria</code>: Criteria on a duration aspect that a limit should respect for the limit reduction to apply on it
- *              (permanent limit, temporary limits with an acceptable duration defined within a specific range, ...).</li>
+ *         <li><code>monitoringOnly</code>: use <code>true</code> if the limit reduction is applied when reporting the limit violations only.
+ *              Use <code>false</code> if it is applied also inside the conditions of operator strategies. The default value is <code>false</code>.</li>
+ *         <li><code>contingencyContext</code>: the contingency context in which the limit reduction is applied (in pre-contingency only, after every contingency, etc.);</li>
+ *         <li><code>networkElementCriteria</code>: criteria a network element should respect for the limit reduction to be applied on its limits;</li>
+ *         <li><code>limitDurationCriteria</code>: criteria based on limit overload acceptable durations. Through these criteria, we can defined if
+ *         the reduction is applied on the permanent limit and/or on a temporary limit if it acceptable duration is within a specific range.</li>
  *     </ul>
  * </p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -50,11 +50,11 @@ public class LimitReduction {
     }
 
     /**
-     * <p>Create a limit reduction applying on each limits of a given type.</p>
-     * <p>This reduction will apply for every contingency context, and for monitoring and action use cases.</p>
+     * <p>Create a limit reduction applying on each operational limits of a given type.</p>
+     * <p>This reduction is applied for a contingency context ALL and for limit violations reporting and operator strategy conditions.</p>
      *
-     * @param limitType the type of the limits to reduce
-     * @param value the value of the reduction (reduced limits will be equal to <code>original limit * reduction value</code>).
+     * @param limitType the type of the limits to reduce.
+     * @param value the value of the reduction (reduced limits are equal to <code>original limit * reduction value</code>).
      */
     public LimitReduction(LimitType limitType, double value) {
         this(limitType, value, false);
@@ -62,24 +62,24 @@ public class LimitReduction {
 
     /**
      * <p>Create a limit reduction applying on each limits of a given type, for monitoring only or monitoring/action
-     * use cases depending on the <code>monitoringOnly</code> parameter.</p>
-     * <p>This reduction will apply for every contingency context.</p>
+     * depending on the <code>monitoringOnly</code> parameter.</p>
+     * <p>This reduction is applied for a contingency context ALL.</p>
      *
      * @param limitType the type of the limits to reduce
-     * @param value the value of the reduction (reduced limits will be equal to <code>original limit * reduction value</code>).
-     * @param monitoringOnly <code>true</code> if the reduction should apply only for monitoring use case, <code>false</code> otherwise.
+     * @param value the value of the reduction (reduced limits are equal to <code>original limit * reduction value</code>).
+     * @param monitoringOnly <code>true</code> if the reduction is applied only for monitoring only, <code>false</code> otherwise.
      */
     public LimitReduction(LimitType limitType, double value, boolean monitoringOnly) {
         this(limitType, value, monitoringOnly, ContingencyContext.all(), Collections.emptyList(), Collections.emptyList());
     }
 
     /**
-     * <p>Initiate a builder for creating more specific limit reductions (indicate a contingency context or criteria
-     * on network elements or limit durations).</p>
+     * <p>Initialize a builder for creating more specific limit reductions (indicate a contingency context or criteria
+     * on network elements or on limit durations).</p>
      *
-     * @param limitType the type of the limits to reduce
-     * @param value the value of the reduction (reduced limits will be equal to <code>original limit * reduction value</code>).
-     * @return a builder to use to create a {@link LimitReduction}.
+     * @param limitType the type of the limits to reduce.
+     * @param value the value of the reduction (reduced limits are equal to <code>original limit * reduction value</code>).
+     * @return a builder used to create a {@link LimitReduction}.
      */
     public static LimitReduction.Builder builder(LimitType limitType, double value) {
         return new Builder(limitType, value);
@@ -87,12 +87,12 @@ public class LimitReduction {
 
     /**
      * <p>Builder used to create a {@link LimitReduction}.</p>
-     * <p>The default values for the {@link LimitReduction} to create are the following:
+     * <p>The default values for the {@link LimitReduction} are the following:
      *     <ul>
-     *         <li><code>monitoringOnly</code>: <code>false</code>. The limit reduction will apply for all use cases (monitoring and action);</li>
-     *         <li><code>contingencyContext</code>: {@link ContingencyContext#all()}. The limit reduction will apply in pre-contingency and after every contingency.</li>
-     *         <li><code>networkElementCriteria</code>: {@link Collections#emptyList()}. The limit reduction will apply for every network element.</li>
-     *         <li><code>limitDurationCriteria</code>: {@link Collections#emptyList()}. The limit reduction will apply for all permanent and temporary limits.</li>
+     *         <li><code>monitoringOnly</code>: <code>false</code>. The limit reduction is applied for monitoring limit violations and conditions of operator strategies;</li>
+     *         <li><code>contingencyContext</code>: {@link ContingencyContext#all()}. The limit reduction is used on pre-contingency state and after each contingency state.</li>
+     *         <li><code>networkElementCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied on each network element (that holds a limit on this type).</li>
+     *         <li><code>limitDurationCriteria</code>: {@link Collections#emptyList()}. The limit reduction is applied for all permanent and temporary limits.</li>
      *     </ul>
      * </p>
      */
@@ -110,10 +110,10 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define for which use cases the limit reduction should apply.</p>
-         * <p>By default, the limit reduction will apply for all use cases (monitoring and action).</p>
+         * <p>Define if the limit reduction is applied only for limit violations report or also inside conditions of operator strategies.</p>
+         * <p>By default, the limit reduction is apply for both steps.</p>
          *
-         * @param monitoringOnly <code>true</code> if the limit reduction should only apply for monitoring use case, <code>false</code> otherwise.
+         * @param monitoringOnly <code>true</code> if the limit reduction is applied for monitoring only, <code>false</code> otherwise.
          * @return the current {@link Builder}
          */
         public Builder withMonitoringOnly(boolean monitoringOnly) {
@@ -122,11 +122,10 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define for which contingency context the limit reduction should apply.</p>
-         * <p>By default, the limit reduction will apply in pre-contingency and after every contingency.</p>
+         * <p>Define in which contingency context the limit reduction is applied.</p>
+         * <p>By default, the limit reduction is used in pre-contingency state and after each contingency state.</p>
          *
-         * @param contingencyContext the contingency context for which contingency context the limit reduction should apply.
-         *                           It could not be null.
+         * @param contingencyContext the contingency context of the limit reduction to be applied.
          * @return the current {@link Builder}
          */
         public Builder withContingencyContext(ContingencyContext contingencyContext) {
@@ -135,11 +134,11 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define criteria to use to define the network elements for which the limit reduction should apply.</p>
-         * <p>By default, the limit reduction will apply for every network element.</p>
-         * <p>This method replace all the previously network element criteria by the given ones.</p>
+         * <p>Define criteria on network elements.</p>
+         * <p>By default, the limit reduction is applied on each network element that holds a limit of the good type.</p>
+         * <p>This method is not cumulative and clean previous definitions.</p>
          *
-         * @param networkElementCriteria criteria to use to restrict the limit reduction to certain network elements.
+         * @param networkElementCriteria criteria on network elements on which the limit reduction is applied.
          * @return the current {@link Builder}
          */
         public Builder withNetworkElementCriteria(NetworkElementCriterion... networkElementCriteria) {
@@ -147,11 +146,11 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define criteria to use to define the network elements for which the limit reduction should apply.</p>
-         * <p>By default, the limit reduction will apply for every network element.</p>
-         * <p>This method replace all the previously network element criteria by the given ones.</p>
+         * <p>Define criteria on network elements.</p>
+         * <p>By default, the limit reduction is applied on each network element that holds a limit of the good type.</p>
+         * <p>This method is not cumulative and clean previous definitions.</p>
          *
-         * @param networkElementCriteria criteria to use to restrict the limit reduction to certain network elements.
+         * @param networkElementCriteria criteria on network elements on which the limit reduction is applied.
          * @return the current {@link Builder}
          */
         public Builder withNetworkElementCriteria(List<NetworkElementCriterion> networkElementCriteria) {
@@ -160,12 +159,11 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define criteria to use to define if the limit reduction should apply on permanent limits,
-         * temporary limits (with possible restrictions) or both.</p>
-         * <p>By default, the limit reduction will apply for all permanent and temporary limits.</p>
-         * <p>This method replace all the previously limit duration criteria by the given ones.</p>
+         * <p>Define criteria on permanent limit and/or on acceptable durations of temporary limits within a specific range.</p>
+         * <p>By default, the limit reduction is applied for all permanent and temporary limits of the good type.</p>
+         * <p>This method is not cumulative and clean previous definitions.</p>
          *
-         * @param limitDurationCriteria criteria to use to restrict the limit reduction to certain durations.
+         * @param limitDurationCriteria criteria to restrict the limit reduction to specific durations.
          * @return the current {@link Builder}
          */
         public Builder withLimitDurationCriteria(LimitDurationCriterion... limitDurationCriteria) {
@@ -173,12 +171,11 @@ public class LimitReduction {
         }
 
         /**
-         * <p>Define criteria to use to define if the limit reduction should apply on permanent limits,
-         * temporary limits (with possible restrictions) or both.</p>
-         * <p>By default, the limit reduction will apply for all permanent and temporary limits.</p>
-         * <p>This method replace all the previously limit duration criteria by the given ones.</p>
+         * <p>Define criteria on permanent limit and/or on acceptable durations of temporary limits within a specific range.</p>
+         * <p>By default, the limit reduction is applied for all permanent and temporary limits of the good type.</p>
+         * <p>This method is not cumulative and clean previous definitions.</p>
          *
-         * @param limitDurationCriteria criteria to use to restrict the limit reduction to certain durations.
+         * @param limitDurationCriteria criteria to restrict the limit reduction to specific durations.
          * @return the current {@link Builder}
          */
         public Builder withLimitDurationCriteria(List<LimitDurationCriterion> limitDurationCriteria) {
@@ -224,17 +221,17 @@ public class LimitReduction {
     }
 
     /**
-     * <p>Indicate if the limit reduction applies only for monitoring use case (<code>true</code>),
-     * or for monitoring and action use cases (<code>false</code>).</p>
+     * <p>Indicate if the limit reduction is applied only to report limit violations (<code>true</code>),
+     * or if also affects the conditions of operator strategies (<code>false</code>).</p>
      *
-     * @return <code>true</code> if the limit reduction applies only for monitoring use case, <code>false</code> otherwise.
+     * @return <code>true</code> if the limit reduction is applied only for monitoring, <code>false</code> otherwise.
      */
     public boolean isMonitoringOnly() {
         return monitoringOnly;
     }
 
     /**
-     * <p>Indicate for which contingency context the limit reduction applies.</p>
+     * <p>Indicate the limit reduction contingency context.</p>
      *
      * @return the {@link ContingencyContext} of the limit reduction.
      */
@@ -243,16 +240,16 @@ public class LimitReduction {
     }
 
     /**
-     * <p>Indicate the criteria used to define the network elements for which the limit reduction applies.</p>
+     * <p>Indicate the criteria on network elements candidate for the limit reduction.</p>
      *
-     * @return the list of the {@link NetworkElementCriterion} of the limit reduction.
+     * @return the list of the {@link NetworkElementCriterion} candidate for the limit reduction.
      */
     public List<NetworkElementCriterion> getNetworkElementCriteria() {
         return networkElementCriteria;
     }
 
     /**
-     * <p>Indicate criteria used to restrict the limit reduction to certain durations.</p>
+     * <p>Indicate criteria on operational limit acceptable durations.</p>
      *
      * @return the list of the {@link LimitDurationCriterion} of the limit reduction.
      */
