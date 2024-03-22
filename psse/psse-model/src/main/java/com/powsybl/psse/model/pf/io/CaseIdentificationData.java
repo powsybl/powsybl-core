@@ -12,7 +12,6 @@ import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -45,8 +44,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
 
         @Override
-        public PsseCaseIdentification readHead(BufferedReader reader, Context context) throws IOException {
-            String line = readRecordLine(reader);
+        public PsseCaseIdentification readHead(LegacyTextReader reader, Context context) throws IOException {
+            String line = reader.readRecordLine();
             context.detectDelimiter(line);
 
             String[] headers = recordGroup.fieldNames(context.getVersion());
@@ -80,7 +79,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
 
         @Override
-        public List<PsseCaseIdentification> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseCaseIdentification> read(LegacyTextReader reader, Context context) throws IOException {
             throw new PsseException("Case Identification can not be read as a record group, it was be read as head record");
         }
 
@@ -96,7 +95,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
 
         @Override
-        public PsseCaseIdentification readHead(BufferedReader reader, Context context) throws IOException {
+        public PsseCaseIdentification readHead(LegacyTextReader reader, Context context) throws IOException {
             PsseCaseIdentification caseIdentification = read(reader, context).get(0);
             context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
             return caseIdentification;
