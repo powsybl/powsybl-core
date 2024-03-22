@@ -40,6 +40,13 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
     }
 
     @Override
+    public Set<String> getNotFoundElements(Network network) {
+        Set<String> notFoundElements = new LinkedHashSet<>();
+        networkElementIdentifiers.forEach(identifiant -> notFoundElements.addAll(identifiant.getNotFoundElements(network)));
+        return notFoundElements;
+    }
+
+    @Override
     public IdentifierType getType() {
         return IdentifierType.LIST;
     }

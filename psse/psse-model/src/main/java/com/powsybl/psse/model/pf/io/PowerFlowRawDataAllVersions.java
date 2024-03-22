@@ -9,6 +9,7 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.LegacyTextReader;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
@@ -29,7 +30,8 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
 
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String extension) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
+            LegacyTextReader reader = new LegacyTextReader(bReader);
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
             caseIdentification.validate();
             return true;
@@ -38,7 +40,8 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
 
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
+            LegacyTextReader reader = new LegacyTextReader(bReader);
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
             caseIdentification.validate();
             return PsseVersion.fromRevision(caseIdentification.getRev());

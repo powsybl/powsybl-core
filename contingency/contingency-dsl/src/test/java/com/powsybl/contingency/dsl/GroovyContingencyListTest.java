@@ -25,6 +25,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -155,5 +156,27 @@ class GroovyContingencyListTest {
         assertEquals(1, contingencies.size());
         assertEquals(1, contingencies.get(0).getExtensions().size());
         assertEquals("myTs", contingencies.get(0).getExtension(ProbabilityContingencyExtension.class).getProbabilityTimeSeriesRef());
+    }
+
+    @Test
+    void testElementsNotFound() throws IOException {
+        writeToDslFile(
+                "contingency('c1') {",
+                "    equipments 'NHV1_NHV2_1'",
+                "}",
+                "contingency('c2') {",
+                "    equipments 'NHV1_NHV2_2'",
+                "}",
+                "contingency('c3') {",
+                "    equipments 'unknown'",
+                "}"
+        );
+        List<Contingency> contingencies = ContingencyList.load(dslFile)
+                .getContingencies(network);
+        assertEquals(2, contingencies.size());
+        Map<String, Set<String>> elementsNotFound = ((GroovyContingencyList) ContingencyList.load(dslFile)).getNotFoundElements(network);
+        assertEquals(1, elementsNotFound.size());
+        assertEquals(1, elementsNotFound.get("c3").size());
+        assertTrue(elementsNotFound.get("c3").contains("unknown"));
     }
 }

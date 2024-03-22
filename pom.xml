@@ -100,7 +100,7 @@
         <autoservice.version>1.1.1</autoservice.version>
         <commonscli.version>1.5.0</commonscli.version>
         <commonscompress.version>1.26.0</commonscompress.version>
-        <commons-configuration2.version>2.9.0</commons-configuration2.version>
+        <commons-configuration2.version>2.10.1</commons-configuration2.version>
         <commonsio.version>2.13.0</commonsio.version>
         <commonslang3.version>3.13.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>

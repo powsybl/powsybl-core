@@ -12,7 +12,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.ContingencyListLoader;
-import com.powsybl.contingency.contingency.list.DefaultContingencyList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,6 +32,6 @@ public class JsonContingencyListLoader implements ContingencyListLoader {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper();
         objectMapper.registerModule(new ContingencyJsonModule());
 
-        return objectMapper.readValue(stream, DefaultContingencyList.class);
+        return objectMapper.readValue(stream, ContingencyList.class);
     }
 }
