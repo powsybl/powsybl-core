@@ -9,6 +9,8 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 
+import java.util.Objects;
+
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
@@ -59,5 +61,22 @@ public class StaticVarCompensatorActionBuilder implements ActionBuilder<StaticVa
     public StaticVarCompensatorActionBuilder withReactivePowerSetpoint(Double reactivePowerSetpoint) {
         this.reactivePowerSetpoint = reactivePowerSetpoint;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        StaticVarCompensatorActionBuilder that = (StaticVarCompensatorActionBuilder) o;
+        return Objects.equals(id, that.id) && Objects.equals(staticVarCompensatorId, that.staticVarCompensatorId) && regulationMode == that.regulationMode && Objects.equals(voltageSetpoint, that.voltageSetpoint) && Objects.equals(reactivePowerSetpoint, that.reactivePowerSetpoint);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, staticVarCompensatorId, regulationMode, voltageSetpoint, reactivePowerSetpoint);
     }
 }

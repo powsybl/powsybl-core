@@ -9,6 +9,8 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.HvdcLine;
 
+import java.util.Objects;
+
 /**
  *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -35,7 +37,7 @@ public class HvdcActionBuilder implements ActionBuilder {
     }
 
     @Override
-    public HvdcActionBuilder withNetworkElementId(String generatorId) {
+    public HvdcActionBuilder withNetworkElementId(String hvdcId) {
         this.hvdcId = hvdcId;
         return this;
     }
@@ -78,5 +80,22 @@ public class HvdcActionBuilder implements ActionBuilder {
     public HvdcActionBuilder withConverterMode(HvdcLine.ConvertersMode converterMode) {
         this.converterMode = converterMode;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HvdcActionBuilder that = (HvdcActionBuilder) o;
+        return Objects.equals(id, that.id) && Objects.equals(hvdcId, that.hvdcId) && Objects.equals(acEmulationEnabled, that.acEmulationEnabled) && Objects.equals(activePowerSetpoint, that.activePowerSetpoint) && converterMode == that.converterMode && Objects.equals(droop, that.droop) && Objects.equals(p0, that.p0) && Objects.equals(relativeValue, that.relativeValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, hvdcId, acEmulationEnabled, activePowerSetpoint, converterMode, droop, p0, relativeValue);
     }
 }

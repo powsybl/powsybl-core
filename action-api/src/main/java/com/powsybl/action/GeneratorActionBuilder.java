@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
+
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
@@ -72,5 +74,22 @@ public class GeneratorActionBuilder implements ActionBuilder {
     public GeneratorActionBuilder withTargetQ(double targetQ) {
         this.targetQ = targetQ;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        GeneratorActionBuilder that = (GeneratorActionBuilder) o;
+        return Objects.equals(id, that.id) && Objects.equals(generatorId, that.generatorId) && Objects.equals(activePowerRelativeValue, that.activePowerRelativeValue) && Objects.equals(activePowerValue, that.activePowerValue) && Objects.equals(voltageRegulatorOn, that.voltageRegulatorOn) && Objects.equals(targetV, that.targetV) && Objects.equals(targetQ, that.targetQ);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, generatorId, activePowerRelativeValue, activePowerValue, voltageRegulatorOn, targetV, targetQ);
     }
 }

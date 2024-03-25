@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
+
 /**
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -24,5 +26,22 @@ public abstract class AbstractTapChangerActionTapPositionBuilder<T extends Actio
     public T withRelativeValue(boolean relativeValue) {
         this.relativeValue = relativeValue;
         return (T) this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AbstractTapChangerActionTapPositionBuilder<?> that = (AbstractTapChangerActionTapPositionBuilder<?>) o;
+        return tapPosition == that.tapPosition && relativeValue == that.relativeValue;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(tapPosition, relativeValue);
     }
 }
