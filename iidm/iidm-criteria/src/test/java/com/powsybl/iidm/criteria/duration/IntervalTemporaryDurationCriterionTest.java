@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.criteria.duration;
 
+import org.apache.commons.lang3.IntegerRange;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -40,11 +41,20 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertEquals(20, criterion.getLowBound().orElseThrow()),
                 () -> assertFalse(criterion.isLowClosed()),
                 () -> assertTrue(criterion.getHighBound().isEmpty()),
-                () -> assertFalse(criterion.isHighClosed())
+                () -> assertTrue(criterion.isHighClosed())
         );
-        assertFalse(criterion.filter(10));
-        assertFalse(criterion.filter(20));
-        assertTrue(criterion.filter(21));
+        IntegerRange range = criterion.asRange();
+        assertDuration(false, -1, criterion, range);
+        assertDuration(false, 0, criterion, range);
+        assertDuration(false, 10, criterion, range);
+        assertDuration(false, 20, criterion, range);
+        assertDuration(true, 21, criterion, range);
+        assertDuration(true, Integer.MAX_VALUE, criterion, range);
+    }
+
+    void assertDuration(boolean expected, int duration, IntervalTemporaryDurationCriterion criterion, IntegerRange range) {
+        assertEquals(expected, criterion.filter(duration));
+        assertEquals(expected, range.contains(duration));
     }
 
     @Test
@@ -56,9 +66,13 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertEquals(30, criterion.getLowBound().orElseThrow()),
                 () -> assertTrue(criterion.isLowClosed())
         );
-        assertFalse(criterion.filter(20));
-        assertTrue(criterion.filter(30));
-        assertTrue(criterion.filter(31));
+        IntegerRange range = criterion.asRange();
+        assertDuration(false, -1, criterion, range);
+        assertDuration(false, 0, criterion, range);
+        assertDuration(false, 20, criterion, range);
+        assertDuration(true, 30, criterion, range);
+        assertDuration(true, 31, criterion, range);
+        assertDuration(true, Integer.MAX_VALUE, criterion, range);
     }
 
     @Test
@@ -68,13 +82,17 @@ class IntervalTemporaryDurationCriterionTest {
                 .build();
         assertAll(
                 () -> assertTrue(criterion.getLowBound().isEmpty()),
-                () -> assertFalse(criterion.isLowClosed()),
+                () -> assertTrue(criterion.isLowClosed()),
                 () -> assertEquals(200, criterion.getHighBound().orElseThrow()),
                 () -> assertFalse(criterion.isHighClosed())
         );
-        assertFalse(criterion.filter(300));
-        assertFalse(criterion.filter(200));
-        assertTrue(criterion.filter(199));
+        IntegerRange range = criterion.asRange();
+        assertDuration(false, Integer.MAX_VALUE, criterion, range);
+        assertDuration(false, 300, criterion, range);
+        assertDuration(false, 200, criterion, range);
+        assertDuration(true, 199, criterion, range);
+        assertDuration(true, 0, criterion, range);
+        assertDuration(false, -1, criterion, range);
     }
 
     @Test
@@ -86,9 +104,13 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertEquals(300, criterion.getHighBound().orElseThrow()),
                 () -> assertTrue(criterion.isHighClosed())
         );
-        assertFalse(criterion.filter(500));
-        assertTrue(criterion.filter(300));
-        assertTrue(criterion.filter(299));
+        IntegerRange range = criterion.asRange();
+        assertDuration(false, Integer.MAX_VALUE, criterion, range);
+        assertDuration(false, 500, criterion, range);
+        assertDuration(true, 300, criterion, range);
+        assertDuration(true, 299, criterion, range);
+        assertDuration(true, 0, criterion, range);
+        assertDuration(false, -1, criterion, range);
     }
 
     @Test
@@ -103,21 +125,50 @@ class IntervalTemporaryDurationCriterionTest {
                 () -> assertEquals(300, criterion.getHighBound().orElseThrow()),
                 () -> assertTrue(criterion.isHighClosed())
         );
-        assertFalse(criterion.filter(10));
-        assertTrue(criterion.filter(30));
-        assertFalse(criterion.filter(500));
+        IntegerRange range = criterion.asRange();
+        assertDuration(false, -1, criterion, range);
+        assertDuration(false, 10, criterion, range);
+        assertDuration(true, 30, criterion, range);
+        assertDuration(false, 500, criterion, range);
+        assertDuration(false, Integer.MAX_VALUE, criterion, range);
     }
 
     @Test
     void invalidValuesTest() {
         IntervalTemporaryDurationCriterion.Builder builder = IntervalTemporaryDurationCriterion.builder();
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, builder::build);
+        assertEquals("Invalid interval criterion: at least one bound must be defined.", e.getMessage());
+
+        // Invalid negative bound
         assertThrows(IllegalArgumentException.class, () -> builder.setLowBound(-2, false));
         assertThrows(IllegalArgumentException.class, () -> builder.setHighBound(-2, false));
         builder.setLowBound(10, false);
+
+        // Invalid ]10 ; 2[ (when setting higher bound)
         assertThrows(IllegalArgumentException.class, () -> builder.setHighBound(2, false));
 
+        // Invalid ]10 ; 2[ (when setting lower bound)
         IntervalTemporaryDurationCriterion.Builder builder2 = IntervalTemporaryDurationCriterion.builder();
         builder2.setHighBound(2, false);
         assertThrows(IllegalArgumentException.class, () -> builder2.setLowBound(10, false));
+
+        IntervalTemporaryDurationCriterion.Builder builder3 = IntervalTemporaryDurationCriterion.builder();
+        builder3.setLowBound(2, false);
+        // Invalid empty bound ]2 ; 2] (when setting higher bound)
+        e = assertThrows(IllegalArgumentException.class, () -> builder3.setHighBound(2, true));
+        assertEquals("Invalid interval: it should not be empty", e.getMessage());
+        builder3.setHighBound(4, false);
+        // Invalid empty bound ]4 ; 4[ (when setting lower bound)
+        assertThrows(IllegalArgumentException.class, () -> builder3.setLowBound(4, false));
+
+        // Invalid interval [0 ; 0[
+        IntervalTemporaryDurationCriterion.Builder builder4 = IntervalTemporaryDurationCriterion.builder();
+        assertThrows(IllegalArgumentException.class, () -> builder4.setHighBound(0, false));
+        assertDoesNotThrow(() -> builder4.setHighBound(0, true)); // [0 ; 0] is valid
+
+        // Invalid interval [MAX_VALUE ; MAX_VALUE[
+        IntervalTemporaryDurationCriterion.Builder builder5 = IntervalTemporaryDurationCriterion.builder();
+        assertThrows(IllegalArgumentException.class, () -> builder5.setLowBound(Integer.MAX_VALUE, false));
+        assertDoesNotThrow(() -> builder5.setLowBound(Integer.MAX_VALUE, true)); // [MAX_VALUE ; MAX_VALUE] is valid
     }
 }
