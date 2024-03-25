@@ -8,8 +8,9 @@
 package com.powsybl.iidm.criteria;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.*;
+import org.apache.commons.lang3.DoubleRange;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -85,8 +86,10 @@ public class SingleNominalVoltageCriterion implements Criterion {
         }
 
         public VoltageInterval(double nominalVoltageLowBound, double nominalVoltageHighBound, boolean lowClosed, boolean highClosed) {
-            if (Double.isNaN(nominalVoltageLowBound) || Double.isNaN(nominalVoltageHighBound) || nominalVoltageLowBound < 0 || nominalVoltageHighBound < 0) {
-                throw new IllegalArgumentException("Invalid interval bounds values (must be >= 0).");
+            if (Double.isNaN(nominalVoltageLowBound) || Double.isNaN(nominalVoltageHighBound)
+                    || Double.isInfinite(nominalVoltageLowBound) || Double.isInfinite(nominalVoltageHighBound)
+                    || nominalVoltageLowBound < 0 || nominalVoltageHighBound < 0) {
+                throw new IllegalArgumentException("Invalid interval bounds values (must be >= 0 and not infinite).");
             }
             if (nominalVoltageLowBound > nominalVoltageHighBound) {
                 throw new IllegalArgumentException("Invalid interval bounds values (nominalVoltageLowBound must be <= nominalVoltageHighBound).");
@@ -117,6 +120,22 @@ public class SingleNominalVoltageCriterion implements Criterion {
             } else {
                 return nominalVoltageLowBound < value && value < nominalVoltageHighBound;
             }
+        }
+
+        /**
+         * <p>Return a {@link DoubleRange} representation of the interval.</p>
+         * @return the interval as a {@link DoubleRange}
+         */
+        public DoubleRange asRange() {
+            double min = nominalVoltageLowBound;
+            if (!lowClosed) {
+                min = min + Math.ulp(min);
+            }
+            double max = nominalVoltageHighBound;
+            if (!highClosed) {
+                max = max - Math.ulp(max);
+            }
+            return DoubleRange.of(min, max);
         }
 
         public double getNominalVoltageLowBound() {

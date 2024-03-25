@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.criteria;
 
+import org.apache.commons.lang3.DoubleRange;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -21,59 +22,68 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class VoltageIntervalTest {
 
-    private static final double EPSILON = 0.000_001;
+    private static final double EPSILON = 0.000_000_001;
 
     @Test
     void closedBoundsTest() {
         SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, true, true);
-        assertDuration(false, 1., interval);
-        assertDuration(false, 100. - EPSILON, interval);
-        assertDuration(true, 100., interval);
-        assertDuration(true, 150., interval);
-        assertDuration(true, 204.53, interval);
-        assertDuration(false, 204.53 + EPSILON, interval);
-        assertDuration(false, 500., interval);
-        assertDuration(false, Double.MAX_VALUE, interval);
+        DoubleRange range = interval.asRange();
+        assertDuration(false, null, interval, range);
+        assertDuration(false, 1., interval, range);
+        assertDuration(false, 100. - EPSILON, interval, range);
+        assertDuration(true, 100., interval, range);
+        assertDuration(true, 150., interval, range);
+        assertDuration(true, 204.53, interval, range);
+        assertDuration(false, 204.53 + EPSILON, interval, range);
+        assertDuration(false, 500., interval, range);
+        assertDuration(false, Double.MAX_VALUE, interval, range);
     }
 
-    void assertDuration(boolean expected, double testedValue, SingleNominalVoltageCriterion.VoltageInterval interval) {
+    void assertDuration(boolean expected, Double testedValue, SingleNominalVoltageCriterion.VoltageInterval interval, DoubleRange range) {
         assertEquals(expected, interval.checkIsBetweenBound(testedValue));
+        assertEquals(expected, range.contains(testedValue));
     }
 
     @Test
     void openedBoundsTest() {
         SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, false, false);
-        assertDuration(false, 1., interval);
-        assertDuration(false, 100., interval);
-        assertDuration(true, 100. + EPSILON, interval);
-        assertDuration(true, 150., interval);
-        assertDuration(true, 204.53 - EPSILON, interval);
-        assertDuration(false, 204.53, interval);
-        assertDuration(false, 500., interval);
-        assertDuration(false, Double.MAX_VALUE, interval);
+        DoubleRange range = interval.asRange();
+        assertDuration(false, null, interval, range);
+        assertDuration(false, 1., interval, range);
+        assertDuration(false, 100., interval, range);
+        assertDuration(true, 100. + EPSILON, interval, range);
+        assertDuration(true, 150., interval, range);
+        assertDuration(true, 204.53 - EPSILON, interval, range);
+        assertDuration(false, 204.53, interval, range);
+        assertDuration(false, 500., interval, range);
+        assertDuration(false, Double.MAX_VALUE, interval, range);
     }
 
     @Test
     void mixedBoundsTest() {
         SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, true, false);
-        assertDuration(false, 1., interval);
-        assertDuration(false, 100. - EPSILON, interval);
-        assertDuration(true, 100., interval);
-        assertDuration(true, 150., interval);
-        assertDuration(true, 204.53 - EPSILON, interval);
-        assertDuration(false, 204.53, interval);
-        assertDuration(false, 500., interval);
-        assertDuration(false, Double.MAX_VALUE, interval);
+        DoubleRange range = interval.asRange();
+        assertDuration(false, null, interval, range);
+        assertDuration(false, 1., interval, range);
+        assertDuration(false, 100. - EPSILON, interval, range);
+        assertDuration(true, 100., interval, range);
+        assertDuration(true, 150., interval, range);
+        assertDuration(true, 204.53 - EPSILON, interval, range);
+        assertDuration(false, 204.53, interval, range);
+        assertDuration(false, 500., interval, range);
+        assertDuration(false, Double.MAX_VALUE, interval, range);
 
         interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, false, true);
-        assertDuration(false, 1., interval);
-        assertDuration(false, 100., interval);
-        assertDuration(true, 100. + EPSILON, interval);
-        assertDuration(true, 150., interval);
-        assertDuration(true, 204.53, interval);
-        assertDuration(false, 204.53 + EPSILON, interval);
-        assertDuration(false, 500., interval);
-        assertDuration(false, Double.MAX_VALUE, interval);
+        range = interval.asRange();
+        assertDuration(false, null, interval, range);
+        assertDuration(false, 1., interval, range);
+        assertDuration(false, 100., interval, range);
+        assertDuration(true, 100. + EPSILON, interval, range);
+        assertDuration(true, 150., interval, range);
+        assertDuration(true, 204.53, interval, range);
+        assertDuration(false, 204.53 + EPSILON, interval, range);
+        assertDuration(false, 500., interval, range);
+        assertDuration(false, Double.MAX_VALUE, interval, range);
     }
 
     @Test
@@ -85,19 +95,36 @@ class VoltageIntervalTest {
         assertFalse(interval.isNull());
     }
 
+    @Test
+    void gettersTest() {
+        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(200.54, 225.12, false, true);
+        assertFalse(interval.getLowClosed());
+        assertTrue(interval.getHighClosed());
+        assertEquals(200.54, interval.getNominalVoltageLowBound(), 0.001);
+        assertEquals(225.12, interval.getNominalVoltageHighBound(), 0.001);
+
+        interval = new SingleNominalVoltageCriterion.VoltageInterval(200.87, 225.63, true, false);
+        assertTrue(interval.getLowClosed());
+        assertFalse(interval.getHighClosed());
+        assertEquals(200.87, interval.getNominalVoltageLowBound(), 0.001);
+        assertEquals(225.63, interval.getNominalVoltageHighBound(), 0.001);
+    }
+
     @ParameterizedTest
     @MethodSource("provideInvalidBounds")
     void invalidBound(double low, double high) {
         Exception e = assertThrows(IllegalArgumentException.class, () -> new SingleNominalVoltageCriterion.VoltageInterval(low, high, true, true));
-        assertEquals("Invalid interval bounds values (must be >= 0).", e.getMessage());
+        assertEquals("Invalid interval bounds values (must be >= 0 and not infinite).", e.getMessage());
     }
 
     private static Stream<Arguments> provideInvalidBounds() {
         return Stream.of(
-          Arguments.of(Double.NaN, 100.),
-          Arguments.of(100., Double.NaN),
-          Arguments.of(-5., 100.),
-          Arguments.of(100., -1.)
+                Arguments.of(Double.NaN, 100.),
+                Arguments.of(100., Double.NaN),
+                Arguments.of(Double.NEGATIVE_INFINITY, 100.),
+                Arguments.of(100., Double.POSITIVE_INFINITY),
+                Arguments.of(-5., 100.),
+                Arguments.of(100., -1.)
         );
     }
 
