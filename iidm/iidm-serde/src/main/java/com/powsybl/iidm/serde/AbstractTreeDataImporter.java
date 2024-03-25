@@ -54,7 +54,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.xml.missing-permanent-limit-percentage";
 
-    public static final String MINIMAL_VALIDATION_LEVEL = "iidm.import.xml.minimal-validation-level";
+    public static final String MINIMAL_VALIDATION_LEVEL = "iidm.import.minimal-validation-level";
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
