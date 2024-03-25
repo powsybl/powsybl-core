@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.results;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyComputationStatus;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -66,11 +67,49 @@ public class OperatorStrategyResult {
         this.conditionalActionsResults = conditionalActionsResults;
     }
 
+    /**
+     * @return The PostContingencyComputationStatus of the final operator strategy result
+     */
+    public PostContingencyComputationStatus getStatus() {
+        return getFinalOperatorStrategyResult().getStatus();
+    }
+
+    /**
+     * @return The LimitViolationsResult of the final operator strategy result
+     */
+    public LimitViolationsResult getLimitViolationsResult() {
+        return getFinalOperatorStrategyResult().getLimitViolationsResult();
+    }
+
+    /**
+     * @return The NetworkResult of the final operator strategy result
+     */
+    public NetworkResult getNetworkResult() {
+        return getFinalOperatorStrategyResult().getNetworkResult();
+    }
+
+    /**
+     * @return The Operator strategy associated to this result
+     */
     public OperatorStrategy getOperatorStrategy() {
         return operatorStrategy;
     }
 
+    /**
+     * @return The list of ConditionalActionsResult for each conditional actions of the associated operator strategy
+     */
     public List<ConditionalActionsResult> getConditionalActionsResult() {
         return conditionalActionsResults;
+    }
+
+    /**
+     * @return The final result associated to the operator strategy
+     */
+    public ConditionalActionsResult getFinalOperatorStrategyResult() {
+        if (!conditionalActionsResults.isEmpty()) {
+            return conditionalActionsResults.get(conditionalActionsResults.size() - 1);
+        } else {
+            throw new PowsyblException("No conditional action results available.");
+        }
     }
 }
