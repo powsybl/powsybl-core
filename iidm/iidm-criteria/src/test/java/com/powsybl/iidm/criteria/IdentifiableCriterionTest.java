@@ -11,7 +11,6 @@ import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Country;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 
@@ -54,30 +53,30 @@ public class IdentifiableCriterionTest {
     @Test
     void typeTest() {
         assertEquals(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE,
-                new IdentifiableCriterion(null, null).getNetworkElementCriterionType());
+                new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.BE))).getNetworkElementCriterionType());
     }
 
     @Test
-    void emptyCriterionTest() {
-        IdentifiableCriterion criterion = new IdentifiableCriterion(null, null);
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
+    void creationErrorsTest() {
+        AtLeastOneCountryCriterion countryCriterion = new AtLeastOneCountryCriterion(List.of(Country.DE));
+        AtLeastOneNominalVoltageCriterion nominalVoltageCriterion = new AtLeastOneNominalVoltageCriterion(
+                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test1", null, null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test2", countryCriterion, null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test3", null, nominalVoltageCriterion));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion((AtLeastOneCountryCriterion) null, null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion(countryCriterion, null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion((AtLeastOneCountryCriterion) null, nominalVoltageCriterion));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test7", (AtLeastOneCountryCriterion) null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion(null, (AtLeastOneCountryCriterion) null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test8", (AtLeastOneNominalVoltageCriterion) null));
+        assertThrows(NullPointerException.class, () -> new IdentifiableCriterion((String) null, (AtLeastOneNominalVoltageCriterion) null));
 
-        NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
-        assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
     }
 
     @Test
     void nominalVoltageTest() {
-        IdentifiableCriterion criterion = new IdentifiableCriterion(null, new AtLeastOneNominalVoltageCriterion(
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
                 new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
@@ -93,7 +92,7 @@ public class IdentifiableCriterionTest {
 
     @Test
     void countriesTest() {
-        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)), null);
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
@@ -105,7 +104,7 @@ public class IdentifiableCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
 
-        criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)), null);
+        criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));

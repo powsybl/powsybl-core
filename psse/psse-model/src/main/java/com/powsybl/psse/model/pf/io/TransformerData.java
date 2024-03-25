@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -13,7 +14,6 @@ import com.powsybl.psse.model.pf.PsseTransformer.TransformerImpedances;
 import com.powsybl.psse.model.pf.PsseTransformerWinding;
 import com.univocity.parsers.annotations.Nested;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -58,21 +58,21 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         }
 
         @Override
-        public List<PsseTransformer> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseTransformer> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> impedanceRecords = new ArrayList<>();
             List<String> windingRecords = new ArrayList<>();
-            if (!isQRecordFound()) {
-                String line = readRecordLine(reader);
-                while (!endOfBlock(line)) {
+            if (!reader.isQRecordFound()) {
+                String line = reader.readRecordLine();
+                while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
-                    impedanceRecords.add(readRecordLine(reader));
-                    windingRecords.add(readRecordLine(reader));
-                    windingRecords.add(readRecordLine(reader));
+                    impedanceRecords.add(reader.readRecordLine());
+                    windingRecords.add(reader.readRecordLine());
+                    windingRecords.add(reader.readRecordLine());
                     if (is3Winding(line)) {
-                        windingRecords.add(readRecordLine(reader));
+                        windingRecords.add(reader.readRecordLine());
                     }
-                    line = readRecordLine(reader);
+                    line = reader.readRecordLine();
                 }
             }
 
