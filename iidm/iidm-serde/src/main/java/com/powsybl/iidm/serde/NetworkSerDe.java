@@ -680,8 +680,9 @@ public final class NetworkSerDe {
         network.setForecastDistance(forecastDistance);
 
         ValidationLevel minValidationLevel;
-        if (context.getOptions().getMinimalValidationLevel().isPresent()) {
-            minValidationLevel = context.getOptions().getMinimalValidationLevel().orElseThrow();
+        Optional<ValidationLevel> optMinimalValidationLevel = context.getOptions().getMinimalValidationLevel();
+        if (optMinimalValidationLevel.isPresent()) {
+            minValidationLevel = optMinimalValidationLevel.get();
             // Read the minimum validation level (when parsing a JSON file, each attribute must be consumed) but don't use it
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
         } else {

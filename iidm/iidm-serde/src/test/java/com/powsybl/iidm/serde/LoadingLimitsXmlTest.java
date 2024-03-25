@@ -194,6 +194,13 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
         });
     }
 
+    @Test
+    void testWrongParametersValue() {
+        ImportOptions options = new ImportOptions();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> options.setMinimalValidationLevel("Unknown value"));
+        assertEquals("Unexpected value for minimalValidationLevel: Unknown value", e.getMessage());
+    }
+
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {
         limitsAdderSupplier.get()
                 .setPermanentLimit(350)

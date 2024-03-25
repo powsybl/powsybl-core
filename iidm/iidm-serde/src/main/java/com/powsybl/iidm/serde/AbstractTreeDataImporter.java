@@ -90,7 +90,8 @@ public abstract class AbstractTreeDataImporter implements Importer {
     @Override
     public List<Parameter> getParameters() {
         return List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
-                WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
+                WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
+                MINIMAL_VALIDATION_LEVEL_PARAMETER);
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {

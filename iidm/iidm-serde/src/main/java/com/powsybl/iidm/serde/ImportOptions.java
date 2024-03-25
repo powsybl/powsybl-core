@@ -7,10 +7,12 @@
 package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ValidationLevel;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -86,7 +88,9 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     public ImportOptions setMinimalValidationLevel(String minimalValidationLevel) {
         if (minimalValidationLevel != null) {
-            // no check?
+            if (Stream.of(ValidationLevel.values()).map(ValidationLevel::name).noneMatch(n -> n.equals(minimalValidationLevel))) {
+                throw new PowsyblException("Unexpected value for minimalValidationLevel: " + minimalValidationLevel);
+            }
             this.minimalValidationLevel = ValidationLevel.valueOf(minimalValidationLevel);
         }
         return this;
