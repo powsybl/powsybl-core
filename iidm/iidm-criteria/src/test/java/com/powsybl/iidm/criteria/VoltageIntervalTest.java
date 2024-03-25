@@ -87,11 +87,15 @@ class VoltageIntervalTest {
     }
 
     @Test
-    void isNullIntervalTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = SingleNominalVoltageCriterion.VoltageInterval.nullInterval();
-        assertTrue(interval.isNull());
+    void nullIntervalTest() {
+        SingleNominalVoltageCriterion.VoltageInterval nullInterval = SingleNominalVoltageCriterion.VoltageInterval.nullInterval();
+        assertTrue(nullInterval.isNull());
+        assertFalse(nullInterval.checkIsBetweenBound(10.));
 
-        interval = new SingleNominalVoltageCriterion.VoltageInterval(200., 225., true, true);
+        Exception e = assertThrows(IllegalArgumentException.class, nullInterval::asRange);
+        assertEquals("Null interval cannot be converted as a range.", e.getMessage());
+
+        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(200., 225., true, true);
         assertFalse(interval.isNull());
     }
 

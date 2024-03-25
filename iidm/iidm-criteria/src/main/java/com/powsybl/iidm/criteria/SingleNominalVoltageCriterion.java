@@ -108,8 +108,14 @@ public class SingleNominalVoltageCriterion implements Criterion {
             return this == NULL_INTERVAL;
         }
 
+        /**
+         * <p>Check if a value is inside the interval.</p>
+         * <p>It always returns <code>false</code> for {@link #nullInterval()} or if the given value is null.</p>
+         * @param value the value to test
+         * @return <code>true</code> if the value is inside the interval, <code>false</code> otherwise.
+         */
         public boolean checkIsBetweenBound(Double value) {
-            if (value == null) {
+            if (value == null || isNull()) {
                 return false;
             } else if (lowClosed && highClosed) {
                 return nominalVoltageLowBound <= value && value <= nominalVoltageHighBound;
@@ -124,9 +130,13 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
         /**
          * <p>Return a {@link DoubleRange} representation of the interval.</p>
+         * <p>This method throws an exception for {@link #nullInterval()} result.</p>
          * @return the interval as a {@link DoubleRange}
          */
         public DoubleRange asRange() {
+            if (isNull()) {
+                throw new IllegalArgumentException("Null interval cannot be converted as a range.");
+            }
             double min = nominalVoltageLowBound;
             if (!lowClosed) {
                 min = min + Math.ulp(min);
