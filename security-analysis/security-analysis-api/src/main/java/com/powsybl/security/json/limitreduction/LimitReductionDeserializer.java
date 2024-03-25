@@ -19,6 +19,7 @@ import com.powsybl.security.limitreduction.LimitReduction;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
@@ -31,7 +32,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     private static class ParsingContext {
         float value;
         LimitType limitType;
-        boolean monitoringOnly;
+        Boolean monitoringOnly;
         ContingencyContext contingencyContext;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
@@ -75,11 +76,10 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
                 }
             }
         });
-        LimitReduction.Builder builder = LimitReduction.builder(context.limitType, context.value)
-                .withMonitoringOnly(context.monitoringOnly);
-        if (context.contingencyContext != null) {
-            builder.withContingencyContext(context.contingencyContext);
-        }
+        LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
+                        checkAttribute(context.value, "value"))
+                .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
+                .withContingencyContext(checkAttribute(context.contingencyContext, "contingencyContext"));
         if (context.networkElementCriteria != null) {
             builder.withNetworkElementCriteria(context.networkElementCriteria);
         }
@@ -87,5 +87,9 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
             builder.withLimitDurationCriteria(context.durationCriteria);
         }
         return builder.build();
+    }
+
+    private static <T> T checkAttribute(T object, String attributeName) {
+        return Objects.requireNonNull(object, String.format("'%s' attribute is missing (or null)", attributeName));
     }
 }
