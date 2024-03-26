@@ -100,6 +100,25 @@ class TimeSeriesTest {
     }
 
     @Test
+    void testTimeSeriesNameMissing() {
+        String csv = String.join(System.lineSeparator(),
+            "Time;Version;;ts2",
+            "1970-01-01T01:00:00.000+01:00;1;1.0;",
+            "1970-01-01T02:00:00.000+01:00;1;;a",
+            "1970-01-01T04:00:00.000+01:00;1;3.0;b",
+            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
+            "1970-01-01T02:00:00.000+01:00;2;5.0;",
+            "1970-01-01T04:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
+
+        // Since the name if the first timeseries is missing, only the second is saved
+        assertEquals(2, timeSeriesPerVersion.size());
+        assertEquals(1, timeSeriesPerVersion.get(1).size());
+        assertEquals(1, timeSeriesPerVersion.get(2).size());
+    }
+
+    @Test
     void testFractionsOfSecondsRegularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
