@@ -105,7 +105,7 @@ class VoltageIntervalTest {
     @MethodSource("provideInvalidBounds")
     void invalidBound(double low, double high) {
         Exception e = assertThrows(IllegalArgumentException.class, () -> new SingleNominalVoltageCriterion.VoltageInterval(low, high, true, true));
-        assertEquals("Invalid interval bounds values (must be >= 0 and not infinite).", e.getMessage());
+        assertEquals("Invalid interval bound value (must be >= 0 and not infinite).", e.getMessage());
     }
 
     private static Stream<Arguments> provideInvalidBounds() {

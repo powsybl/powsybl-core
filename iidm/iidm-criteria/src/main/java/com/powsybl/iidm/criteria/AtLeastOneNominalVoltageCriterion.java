@@ -63,7 +63,7 @@ public class AtLeastOneNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filterNominalVoltages(List<Double> nominalVoltagesToCheck) {
-        return voltageInterval.isNull() || nominalVoltagesToCheck.stream().filter(Objects::nonNull).anyMatch(voltageInterval::checkIsBetweenBound);
+        return nominalVoltagesToCheck.stream().filter(Objects::nonNull).anyMatch(voltageInterval::checkIsBetweenBound);
     }
 
     public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval() {

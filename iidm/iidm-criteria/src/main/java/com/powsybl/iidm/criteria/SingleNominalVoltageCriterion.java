@@ -144,7 +144,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
 
             protected static void checkValue(double value) {
                 if (Double.isNaN(value) || Double.isInfinite(value) || value < 0) {
-                    throw new IllegalArgumentException("Invalid bound value (must be >= 0 and not infinite).");
+                    throw new IllegalArgumentException("Invalid interval bound value (must be >= 0 and not infinite).");
                 }
             }
 

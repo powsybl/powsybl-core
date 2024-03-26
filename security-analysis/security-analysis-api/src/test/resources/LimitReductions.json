@@ -24,8 +24,8 @@
         "type" : "TWO_NOMINAL_VOLTAGE",
         "voltageInterval1" : {
           "nominalVoltageLowBound" : 350.0,
-          "nominalVoltageHighBound" : 410.0,
           "lowClosed" : true,
+          "nominalVoltageHighBound" : 410.0,
           "highClosed" : false
         }
       }
@@ -50,8 +50,8 @@
         "type" : "TWO_NOMINAL_VOLTAGE",
         "voltageInterval1" : {
           "nominalVoltageLowBound" : 350.0,
-          "nominalVoltageHighBound" : 410.0,
           "lowClosed" : true,
+          "nominalVoltageHighBound" : 410.0,
           "highClosed" : false
         }
       }
@@ -62,8 +62,8 @@
         "type" : "SINGLE_NOMINAL_VOLTAGE",
         "voltageInterval" : {
           "nominalVoltageLowBound" : 80.0,
-          "nominalVoltageHighBound" : 100.0,
           "lowClosed" : true,
+          "nominalVoltageHighBound" : 100.0,
           "highClosed" : false
         }
       }
@@ -120,8 +120,8 @@
         "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
         "voltageInterval" : {
           "nominalVoltageLowBound" : 380.0,
-          "nominalVoltageHighBound" : 410.0,
           "lowClosed" : true,
+          "nominalVoltageHighBound" : 410.0,
           "highClosed" : true
         }
       }
