@@ -52,7 +52,7 @@ public final class StateVariablesExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, context.getSvModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, context.getExportedSVModel(), context);
                 writeTopologicalIslands(network, context, writer);
                 // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
             }
