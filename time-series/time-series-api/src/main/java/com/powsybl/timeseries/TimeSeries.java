@@ -40,7 +40,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
 
-    int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = 0;
+    int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = -1;
 
     enum TimeFormat {
         DATE_TIME,
