@@ -439,6 +439,12 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
+    /**
+     * Read the model header (the FullModel node) that holds metadata information.
+     * The metadata will be stored in the {@link CgmesMetadataModels} extension.
+     * @param network The network described by the model header and that will hold the extension.
+     * @param context The conversion context.
+     */
     private void addMetadataModels(Network network, Context context) {
         PropertyBags ps = cgmes.fullModels();
         if (ps.isEmpty()) {
@@ -460,6 +466,13 @@ public class Conversion {
         modelsAdder.add();
     }
 
+    /**
+     * Add references (profiles, dependencies, supersedes) to the {@link CgmesMetadataModel} being created by the adder.
+     * @param p The property bag holding the references.
+     * @param refsProperty The property name to look for in the property bag.
+     *                     The property value must be split to retrieve the complete list of references.
+     * @param adder The method in the adder that will add the references to the model.
+     */
     private void addMetadataModelReferences(PropertyBag p, String refsProperty, Function<String, CgmesMetadataModelsAdder.ModelAdder> adder) {
         String refs = p.get(refsProperty);
         if (refs != null && !refs.isEmpty()) {
@@ -469,6 +482,11 @@ public class Conversion {
         }
     }
 
+    /**
+     * Retrieve the subset from the graph.
+     * @param graph The file name. It shall contain the subset identifier.
+     * @return The {@link CgmesSubset} corresponding to the graph.
+     */
     private CgmesSubset subsetFromGraph(String graph) {
         return Stream.of(CgmesSubset.values())
                 .filter(subset -> subset.isValidName(graph))
@@ -476,6 +494,12 @@ public class Conversion {
                 .orElse(CgmesSubset.UNKNOWN);
     }
 
+    /**
+     * Retrieve the version number from the property bag.
+     * @param propertyBag The bag where to look for a version property.
+     * @param context The conversion context.
+     * @return The version number if found and is a proper integer, else the default value: 1.
+     */
     private int readVersion(PropertyBag propertyBag, Context context) {
         try {
             return propertyBag.asInt("version");

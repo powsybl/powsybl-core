@@ -252,6 +252,10 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
+    /**
+     * Query the model description (the metadata information) for all profiles (EQ, TP, ...).
+     * @return Property bags (one bag per profile) with all the model description found.
+     */
     @Override
     public PropertyBags fullModels() {
         return namedQuery("fullModels");

@@ -99,11 +99,15 @@ public class CgmesExportContext {
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
 
-    // Update dependencies in a way that:
-    // [EQ.dependentOn EQ_BD]
-    // SV.dependentOn TP, SSH[, TP_BD]
-    // TP.dependentOn EQ
-    // SSH.dependentOn EQ
+    /**
+     * Update dependencies in a way that:
+     *   SV depends on TP and SSH
+     *   TP depends on EQ
+     *   SSH depends on EQ
+     * If the boundaries subset have been defined:
+     *   EQ depends on EQ_BD
+     *   SV depends on TP_BD
+     */
     public void updateDependencies() {
         String eqModelId = getExportedEQModel().getId();
         if (eqModelId == null || eqModelId.isEmpty()) {
@@ -182,6 +186,10 @@ public class CgmesExportContext {
         addIidmMappings(network);
     }
 
+    /**
+     * Set for each exported model the profile relative to the cim version.
+     * @param cim The cim version from which depends the models profiles uri.
+     */
     private void initializeExportedModelProfiles(CgmesNamespace.Cim cim) {
         if (cim.hasProfiles()) {
             exportedEQModel.setProfile(cim.getProfileUri("EQ"));
@@ -191,6 +199,12 @@ public class CgmesExportContext {
         }
     }
 
+    /**
+     * Update the model used for the export according to the network model.
+     * All the metadata information will be duplicated, except for the version that will be incremented.
+     * @param exportedModel The {@link CgmesMetadataModel} used for the export.
+     * @param fromModel The {@link CgmesMetadataModel} attached to the network.
+     */
     private void prepareExportedModelFrom(CgmesMetadataModel exportedModel, CgmesMetadataModel fromModel) {
         exportedModel.setDescription(fromModel.getDescription());
         exportedModel.setVersion(fromModel.getVersion() + 1);

@@ -13,8 +13,8 @@ import java.util.*;
  * <p>In each CGMES instance file there is a unique <code>Model</code> object that holds metadata information.</p>
  * <p>The model contents are specified by profiles: equipment, power flow initial values, power flow results, etc.</p>
  * <p>Each model can contain data from multiple profiles and is produced by a modeling authority.</p>
- * <p>A model may have dependencies on other models. Two kind of dependencies are kept: "dependent on" and "supersedes".</p>
- * <p>A "dependent on" is a reference to the other required model. As an example: a load flow solution depends on the topology model it was computed from.</p>
+ * <p>A model may have relationships to other models. Two kind of relationships are considered: "dependent on" and "supersedes".</p>
+ * <p>A "dependent on" is a reference to an other required model. As an example: a load flow solution depends on the topology model it was computed from.</p>
  * <p>When a model is updated, the resulting model "supersedes" the models that were used as basis for the update.</p>
  * <p>
  * As an example: when building a Common Grid Model (CGM) from Individual Grid Models (IGM),
@@ -22,6 +22,7 @@ import java.util.*;
  * thus updated SSH instance files are created.
  * Each updated SSH model "supersedes" the original one.
  * </p>
+ * <p>More information can be found in the IEC-61970-552.</p>
  *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -65,7 +66,7 @@ public class CgmesMetadataModel {
     /**
      * A description for the model.
      *
-     * @return the identifier of the model
+     * @return the description of the model
      */
     public String getDescription() {
         return description;
@@ -122,16 +123,31 @@ public class CgmesMetadataModel {
         return supersedes;
     }
 
+    /**
+     * Set the given model version.
+     * @param version The version to set for the model.
+     * @return The model with the new version set.
+     */
     public CgmesMetadataModel setVersion(int version) {
         this.version = version;
         return this;
     }
 
+    /**
+     * Set the given model id.
+     * @param id The id to set for the model.
+     * @return The model with the new id set.
+     */
     public CgmesMetadataModel setId(String id) {
         this.id = id;
         return this;
     }
 
+    /**
+     * Remove any existing profile and set the given model profile.
+     * @param profile The profile to set for the model.
+     * @return The model with the new profile set.
+     */
     public CgmesMetadataModel setProfile(String profile) {
         Objects.requireNonNull(profile);
         this.profiles.clear();
@@ -139,41 +155,80 @@ public class CgmesMetadataModel {
         return this;
     }
 
+    /**
+     * Extend model profiles with the given ones.
+     * @param profiles The profiles to add for the model.
+     * @return The model with the new profiles added.
+     */
     public CgmesMetadataModel addProfiles(Collection<String> profiles) {
         this.profiles.addAll(profiles);
         return this;
     }
 
+    /**
+     * Set the given model description.
+     * @param description The description to set for the model.
+     * @return The model with the new description set.
+     */
     public CgmesMetadataModel setDescription(String description) {
         this.description = description;
         return this;
     }
 
+    /**
+     * Add the given model id to the set of ids this model supersedes
+     * @param id The additional model id this model should supersede.
+     * @return The model with an updated set of values this model supersedes.
+     */
     public CgmesMetadataModel addSupersedes(String id) {
         addIfNonEmpty(id, this.supersedes);
         return this;
     }
 
+    /**
+     * Add the given model id to the set of ids this model depends on.
+     * @param id The additional model id this model should depend on.
+     * @return The model with an updated set of values this model depends on.
+     */
     public CgmesMetadataModel addDependentOn(String id) {
         addIfNonEmpty(id, this.dependentOn);
         return this;
     }
 
+    /**
+     * Add the given model ids to the set of ids this model depends on.
+     * @param dependentOn The additional model ids this model should depend on.
+     * @return The model with an updated set of values this model depends on.
+     */
     public CgmesMetadataModel addDependentOn(Collection<String> dependentOn) {
         this.dependentOn.addAll(dependentOn);
         return this;
     }
 
+    /**
+     * Add the given model ids to the set of ids this model supersedes.
+     * @param supersedes The additional model ids this model should supersede.
+     * @return The model with an updated set of values this model supersedes.
+     */
     public CgmesMetadataModel addSupersedes(Collection<String> supersedes) {
         this.supersedes.addAll(supersedes);
         return this;
     }
 
+    /**
+     * Set the given modeling authority set.
+     * @param modelingAuthoritySet The modeling authority set to set for the model.
+     * @return The model with the new modeling authority set defined.
+     */
     public CgmesMetadataModel setModelingAuthoritySet(String modelingAuthoritySet) {
         this.modelingAuthoritySet = modelingAuthoritySet;
         return this;
     }
 
+    /**
+     * Remove all the model ids this model depends on.
+     * @return The model with an empty set of values this model depends on.
+     */
     public CgmesMetadataModel clearDependencies() {
         this.dependentOn.clear();
         return this;

@@ -17,13 +17,20 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * <p>Store CGMES metadata related to the Network.</p>
  * <p>In each CGMES instance file there is a unique <code>Model</code> object that holds metadata information.</p>
  * <p>The model contents are specified by profiles: equipment, power flow initial values, power flow results, etc.</p>
  * <p>Each model can contain data from multiple profiles and is produced by a modeling authority.</p>
- * <p>A model may have dependencies on other models. Two kind of dependencies are kept: "dependent on" and "supersedes".</p>
- * <p>A "dependent on" is a reference to the other required model. As an example: a load flow solution depends on the topology model it was computed from.</p>
- * <p>When a model is updated, the resulting model "supersedes" the models that were used as basis for the update. As an example: when building a Common Grid Model (CGM) from Individual Grid Models (IGM) the power flow initial assumptions (SSH) of each IGM might be adjusted as part of the merging process and area interchange control, thus updated SSH instance files are created. Each updated SSH model "supersedes" the original one.</p>
+ * <p>A model may have relationships to other models. Two kind of relationships are considered: "dependent on" and "supersedes".</p>
+ * <p>A "dependent on" is a reference to an other required model. As an example: a load flow solution depends on the topology model it was computed from.</p>
+ * <p>When a model is updated, the resulting model "supersedes" the models that were used as basis for the update.</p>
+ * <p>
+ * As an example: when building a Common Grid Model (CGM) from Individual Grid Models (IGM),
+ * the power flow initial assumptions (SSH) of each IGM might be adjusted as part of the merging process and area interchange control,
+ * thus updated SSH instance files are created.
+ * Each updated SSH model "supersedes" the original one.
+ * </p>
+ * <p>More information can be found in the IEC-61970-552.</p>
+ *
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public interface CgmesMetadataModels extends Extension<Network> {
