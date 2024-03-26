@@ -627,4 +627,62 @@ public abstract class AbstractNetworkTest {
             // Ignore
         }
     }
+
+    @Test
+    public void testPermanentLimitOnSelectedOperationalLimitsGroup() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        ValidationException e = assertThrows(ValidationException.class, () -> network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN));
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN);
+        assertTrue(Double.isNaN(network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().getPermanentLimit()));
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    public void testPermanentLimitViaAdder() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        OperationalLimitsGroup unselectedGroup = network.getLine("NHV1_NHV2_1").newOperationalLimitsGroup1("unselectedGroup");
+        assertNotEquals("unselectedGroup", network.getLine("NHV1_NHV2_1").getSelectedOperationalLimitsGroupId1().orElseThrow());
+        CurrentLimitsAdder adder = unselectedGroup.newCurrentLimits()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(300)
+                .setValue(1000)
+                .endTemporaryLimit();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        adder.add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    public void testPermanentLimitOnUnselectedOperationalLimitsGroup() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        OperationalLimitsGroup unselectedGroup = network.getLine("NHV1_NHV2_1").newOperationalLimitsGroup1("unselectedGroup");
+        assertNotEquals("unselectedGroup", network.getLine("NHV1_NHV2_1").getSelectedOperationalLimitsGroupId1().orElseThrow());
+        CurrentLimitsAdder adder = unselectedGroup.newCurrentLimits()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                    .setName("5'")
+                    .setAcceptableDuration(300)
+                    .setValue(1000)
+                .endTemporaryLimit();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        CurrentLimits currentLimits = adder.setPermanentLimit(1000).add();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+
+        e = assertThrows(ValidationException.class, () -> currentLimits.setPermanentLimit(Double.NaN));
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        currentLimits.setPermanentLimit(Double.NaN);
+        assertTrue(Double.isNaN(currentLimits.getPermanentLimit()));
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
 }

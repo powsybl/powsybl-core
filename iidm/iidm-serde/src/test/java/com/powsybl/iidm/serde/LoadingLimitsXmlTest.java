@@ -162,7 +162,7 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void testImportWithoutPermanentLimit() {
-        // Check that import succeed for versions prior to 1.12
+        // Check that import succeeds for versions prior to 1.12
         // (the permanent limit is computed)
         ImportOptions options = new ImportOptions()
                 .setMissingPermanentLimitPercentage(90.);
@@ -179,6 +179,27 @@ class LoadingLimitsXmlTest extends AbstractIidmSerDeTest {
                     () -> NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null));
             assertTrue(e.getMessage().contains("permanentLimit is absent"));
         });
+    }
+
+    @Test
+    void testImportWithoutPermanentLimit2() {
+        // Check that import succeeds for all versions:
+        // with the minimalValidationLevel option set to EQUIPMENT, the limits are imported to Double.NaN
+        ImportOptions options = new ImportOptions()
+                .setMinimalValidationLevel(ValidationLevel.EQUIPMENT.toString());
+        testForAllVersionsSince(IidmVersion.V_1_0, version -> {
+            Network n = NetworkSerDe.read(getVersionedNetworkAsStream("withoutPermanentLimit.xml", version), options, null);
+            Line line = n.getLine("NHV1_NHV2_1");
+            assertEquals(Double.NaN, line.getCurrentLimits1().orElseThrow().getPermanentLimit());
+            assertEquals(Double.NaN, line.getCurrentLimits2().orElseThrow().getPermanentLimit());
+        });
+    }
+
+    @Test
+    void testWrongParametersValue() {
+        ImportOptions options = new ImportOptions();
+        PowsyblException e = assertThrows(PowsyblException.class, () -> options.setMinimalValidationLevel("Unknown value"));
+        assertEquals("Unexpected value for minimalValidationLevel: Unknown value", e.getMessage());
     }
 
     private static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> void createLoadingLimits(Supplier<A> limitsAdderSupplier) {
