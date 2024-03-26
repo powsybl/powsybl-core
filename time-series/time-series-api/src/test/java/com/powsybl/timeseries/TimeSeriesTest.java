@@ -147,10 +147,10 @@ class TimeSeriesTest {
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertEquals(1, timeSeriesPerVersion.size());
-        assertEquals(2, timeSeriesPerVersion.get(0).size());
+        assertEquals(2, timeSeriesPerVersion.get(-1).size());
 
-        TimeSeries ts1 = timeSeriesPerVersion.get(0).get(0);
-        TimeSeries ts2 = timeSeriesPerVersion.get(0).get(1);
+        TimeSeries ts1 = timeSeriesPerVersion.get(-1).get(0);
+        TimeSeries ts2 = timeSeriesPerVersion.get(-1).get(1);
 
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.DOUBLE, ts1.getMetadata().getDataType());
@@ -165,9 +165,9 @@ class TimeSeriesTest {
     void testVersionedAtDefaultNumberNotStrictCSV() {
         String csv = String.join(System.lineSeparator(),
             "Time;Version;ts1;ts2",
-            "0.000;0;1.0;",
-            "0.001;0;;a",
-            "0.002;0;3.0;b",
+            "0.000;-1;1.0;",
+            "0.001;-1;;a",
+            "0.002;-1;3.0;b",
             "0.000;2;4.0;c",
             "0.001;2;5.0;",
             "0.002;2;6.0;d") + System.lineSeparator();
@@ -179,11 +179,11 @@ class TimeSeriesTest {
         TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode);
 
         assertEquals(4, reportNode.getChildren().size());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (0) at line \"0.000;0;1.0;null\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.000;-1;1.0;null\"",
             reportNode.getChildren().get(0).getMessage());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (0) at line \"0.001;0;null;a\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.001;-1;null;a\"",
             reportNode.getChildren().get(1).getMessage());
-        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (0) at line \"0.002;0;3.0;b\"",
+        assertEquals("The version number for a versioned TimeSeries should not be equals to the default version number (-1) at line \"0.002;-1;3.0;b\"",
             reportNode.getChildren().get(2).getMessage());
         assertTrue(Pattern.compile("4 time series loaded from CSV in .* ms").matcher(reportNode.getChildren().get(3).getMessage()).find());
     }
@@ -192,9 +192,9 @@ class TimeSeriesTest {
     void testVersionedAtDefaultNumberStrictCSV() {
         String csv = String.join(System.lineSeparator(),
             "Time;Version;ts1;ts2",
-            "0.000;0;1.0;",
-            "0.001;0;;a",
-            "0.002;0;3.0;b",
+            "0.000;-1;1.0;",
+            "0.001;-1;;a",
+            "0.002;-1;3.0;b",
             "0.000;2;4.0;c",
             "0.001;2;5.0;",
             "0.002;2;6.0;d") + System.lineSeparator();
@@ -204,7 +204,7 @@ class TimeSeriesTest {
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', true, TimeFormat.FRACTIONS_OF_SECOND, true);
         TimeSeriesException timeSeriesException = assertThrows(TimeSeriesException.class, () -> TimeSeries.parseCsv(csv, timeSeriesCsvConfig, reportNode));
-        assertEquals("The version number for a versioned TimeSeries cannot be equals to the default version number (0) at line \"0.000;0;1.0;null\"",
+        assertEquals("The version number for a versioned TimeSeries cannot be equals to the default version number (-1) at line \"0.000;-1;1.0;null\"",
             timeSeriesException.getMessage());
     }
 
