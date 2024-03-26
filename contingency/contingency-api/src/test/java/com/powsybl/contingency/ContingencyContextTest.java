@@ -9,7 +9,9 @@ package com.powsybl.contingency;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -28,5 +30,15 @@ class ContingencyContextTest {
     void testOnlyContingencies() {
         ContingencyContext context = ContingencyContext.create(Collections.emptyList(), ContingencyContextType.ONLY_CONTINGENCIES);
         assertEquals("ContingencyContext(contingencyIds=[], contextType=ONLY_CONTINGENCIES)", context.toString());
+    }
+
+    @Test
+    void testSeveralContingencies() {
+        List<String> contingenciesIds = new ArrayList<>();
+        contingenciesIds.add("c1");
+        contingenciesIds.add("c2");
+        contingenciesIds.add("c3");
+        ContingencyContext context = new ContingencyContext(contingenciesIds, ContingencyContextType.SPECIFIC);
+        assertEquals("ContingencyContext(contingencyIds=[c1, c2, c3], contextType=SPECIFIC)", context.toString());
     }
 }
