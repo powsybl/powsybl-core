@@ -35,7 +35,7 @@ public class SingleNominalVoltageCriterion implements Criterion {
     @Override
     public boolean filter(Identifiable<?> identifiable, IdentifiableType type) {
         Double nominalVoltage = getNominalVoltage(identifiable, type);
-        return nominalVoltage != null && filterNominalVoltage(nominalVoltage);
+        return filterNominalVoltage(nominalVoltage);
     }
 
     @Override
@@ -61,107 +61,170 @@ public class SingleNominalVoltageCriterion implements Criterion {
     }
 
     private boolean filterNominalVoltage(Double nominalVoltage) {
-        return voltageInterval.isNull() || voltageInterval.checkIsBetweenBound(nominalVoltage);
+        return voltageInterval.checkIsBetweenBound(nominalVoltage);
     }
 
     public VoltageInterval getVoltageInterval() {
         return voltageInterval;
     }
 
-    public static class VoltageInterval {
-        private static final VoltageInterval NULL_INTERVAL = new VoltageInterval();
+    public static final class VoltageInterval {
+        private final Double nominalVoltageLowBound;
+        private final Double nominalVoltageHighBound;
+        private final boolean lowClosed;
+        private final boolean highClosed;
 
-        double nominalVoltageLowBound;
-        double nominalVoltageHighBound;
-        boolean lowClosed;
-        boolean highClosed;
-
-        private VoltageInterval() {
-            this.nominalVoltageLowBound = Double.NaN;
-            this.nominalVoltageHighBound = Double.NaN;
-        }
-
-        public static VoltageInterval nullInterval() {
-            return NULL_INTERVAL;
-        }
-
-        public VoltageInterval(double nominalVoltageLowBound, double nominalVoltageHighBound, boolean lowClosed, boolean highClosed) {
-            if (Double.isNaN(nominalVoltageLowBound) || Double.isNaN(nominalVoltageHighBound)
-                    || Double.isInfinite(nominalVoltageLowBound) || Double.isInfinite(nominalVoltageHighBound)
-                    || nominalVoltageLowBound < 0 || nominalVoltageHighBound < 0) {
-                throw new IllegalArgumentException("Invalid interval bounds values (must be >= 0 and not infinite).");
-            }
-            if (nominalVoltageLowBound > nominalVoltageHighBound) {
-                throw new IllegalArgumentException("Invalid interval bounds values (nominalVoltageLowBound must be <= nominalVoltageHighBound).");
-            }
-            if (nominalVoltageLowBound == nominalVoltageHighBound && (!lowClosed || !highClosed)) {
-                throw new IllegalArgumentException("Invalid interval: it should not be empty");
-            }
-            this.nominalVoltageLowBound = nominalVoltageLowBound;
-            this.nominalVoltageHighBound = nominalVoltageHighBound;
+        /**
+         * Create a new {@link VoltageInterval} to filter network elements
+         * which nominal voltages are inside a given interval.
+         * @param lowBound lower bound of the acceptable interval. It may be <code>null</code>, if the interval has no lower bound.
+         * @param highBound upper bound of the acceptable interval. It may be <code>null</code>, if the interval has no upper bound.
+         * @param lowClosed <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
+         * @param highClosed <code>true</code> if <code>highBound</code> is part of the interval, <code>false</code> otherwise.
+         */
+        private VoltageInterval(Double lowBound, Double highBound, boolean lowClosed, boolean highClosed) {
+            this.nominalVoltageLowBound = lowBound;
+            this.nominalVoltageHighBound = highBound;
             this.lowClosed = lowClosed;
             this.highClosed = highClosed;
         }
 
-        @JsonIgnore
-        public boolean isNull() {
-            return this == NULL_INTERVAL;
+        public static class Builder {
+            private Double nominalVoltageLowBound = null;
+            private Double nominalVoltageHighBound = null;
+            private boolean lowClosed = true;
+            private boolean highClosed = true;
+
+            /**
+             * Define the lower bound of the interval.
+             * @param value value of the lower bound.
+             * @param closed <code>true</code> if the bound is part of the interval, <code>false</code> otherwise.
+             * @return the current builder
+             */
+            public Builder setLowBound(double value, boolean closed) {
+                checkValue(value);
+                checkBounds(value, nominalVoltageHighBound, closed, highClosed);
+                this.nominalVoltageLowBound = value;
+                this.lowClosed = closed;
+                return this;
+            }
+
+            /**
+             * Define the upper bound of the interval.
+             * @param value value of the upper bound.
+             * @param closed <code>true</code> if the bound is part of the interval, <code>false</code> otherwise.
+             * @return the current builder
+             */
+            public Builder setHighBound(double value, boolean closed) {
+                checkValue(value);
+                checkBounds(nominalVoltageLowBound, value, lowClosed, closed);
+                this.nominalVoltageHighBound = value;
+                this.highClosed = closed;
+                return this;
+            }
+
+            private void checkValue(double value) {
+                if (Double.isNaN(value) || Double.isInfinite(value) || value < 0) {
+                    throw new IllegalArgumentException("Invalid bound value (must be >= 0 and not infinite).");
+                }
+            }
+
+            private void checkBounds(Double low, Double high, boolean closedLow, boolean closedHigh) {
+                if (low != null && high != null && low > high) {
+                    throw new IllegalArgumentException("Invalid interval bounds values (nominalVoltageLowBound must be <= nominalVoltageHighBound).");
+                }
+                double l = low != null ? low : 0;
+                double h = high != null ? high : Double.MAX_VALUE;
+                if (l == h && (!closedLow || !closedHigh)) {
+                    throw new IllegalArgumentException("Invalid interval: it should not be empty");
+                }
+            }
+
+            public VoltageInterval build() {
+                if (nominalVoltageLowBound == null && nominalVoltageHighBound == null) {
+                    throw new IllegalArgumentException("Invalid interval: at least one bound must be defined.");
+                }
+                return new VoltageInterval(nominalVoltageLowBound, nominalVoltageHighBound, lowClosed, highClosed);
+            }
+        }
+
+        /**
+         * Return a builder to create an {@link VoltageInterval}.
+         * @return a builder
+         */
+        public static Builder builder() {
+            return new Builder();
         }
 
         /**
          * <p>Check if a value is inside the interval.</p>
-         * <p>It always returns <code>false</code> for {@link #nullInterval()} or if the given value is null.</p>
+         * <p>It returns <code>false</code> if the given value is null.</p>
          * @param value the value to test
          * @return <code>true</code> if the value is inside the interval, <code>false</code> otherwise.
          */
         public boolean checkIsBetweenBound(Double value) {
-            if (value == null || isNull()) {
+            if (value == null || value < 0) {
                 return false;
-            } else if (lowClosed && highClosed) {
-                return nominalVoltageLowBound <= value && value <= nominalVoltageHighBound;
-            } else if (lowClosed) {
-                return nominalVoltageLowBound <= value && value < nominalVoltageHighBound;
-            } else if (highClosed) {
-                return nominalVoltageLowBound < value && value <= nominalVoltageHighBound;
-            } else {
-                return nominalVoltageLowBound < value && value < nominalVoltageHighBound;
             }
+            boolean lowBoundOk = nominalVoltageLowBound == null || value > nominalVoltageLowBound
+                    || lowClosed && value.equals(nominalVoltageLowBound);
+            boolean highBoundOk = nominalVoltageHighBound == null || value < nominalVoltageHighBound
+                    || highClosed && value.equals(nominalVoltageHighBound);
+            return lowBoundOk && highBoundOk;
+        }
+
+        /**
+         * Get the lower bound of the interval.
+         * @return lower bound of the acceptable interval, or <code>Optional.empty()</code> if the interval has no lower bound.
+         */
+        public Optional<Double> getNominalVoltageLowBound() {
+            return Optional.ofNullable(nominalVoltageLowBound);
+        }
+
+        /**
+         * Get the upper bound of the interval.
+         * @return upper bound of the acceptable interval, or <code>Optional.empty()</code> if the interval has no upper bound.
+         */
+        public Optional<Double> getNominalVoltageHighBound() {
+            return Optional.ofNullable(nominalVoltageHighBound);
+        }
+
+        /**
+         * Is the interval closed on the lower side?
+         * @return <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
+         */
+        public boolean isLowClosed() {
+            return lowClosed;
+        }
+
+        /**
+         * Is the interval closed on the upper side?
+         * @return <code>true</code> if <code>highBound</code> is part of the interval, <code>false</code> otherwise.
+         */
+        public boolean isHighClosed() {
+            return highClosed;
         }
 
         /**
          * <p>Return a {@link DoubleRange} representation of the interval.</p>
-         * <p>This method throws an exception for {@link #nullInterval()} result.</p>
          * @return the interval as a {@link DoubleRange}
          */
         public DoubleRange asRange() {
-            if (isNull()) {
-                throw new IllegalArgumentException("Null interval cannot be converted as a range.");
+            double min = 0;
+            if (nominalVoltageLowBound != null) {
+                min = nominalVoltageLowBound;
+                if (!lowClosed) {
+                    min = min + Math.ulp(min);
+                }
             }
-            double min = nominalVoltageLowBound;
-            if (!lowClosed) {
-                min = min + Math.ulp(min);
-            }
-            double max = nominalVoltageHighBound;
-            if (!highClosed) {
-                max = max - Math.ulp(max);
+            double max = Double.MAX_VALUE;
+            if (nominalVoltageHighBound != null) {
+                max = nominalVoltageHighBound;
+                if (!highClosed) {
+                    max = max - Math.ulp(max);
+                }
             }
             return DoubleRange.of(min, max);
-        }
-
-        public double getNominalVoltageLowBound() {
-            return nominalVoltageLowBound;
-        }
-
-        public double getNominalVoltageHighBound() {
-            return nominalVoltageHighBound;
-        }
-
-        public boolean getLowClosed() {
-            return lowClosed;
-        }
-
-        public boolean getHighClosed() {
-            return highClosed;
         }
     }
 }

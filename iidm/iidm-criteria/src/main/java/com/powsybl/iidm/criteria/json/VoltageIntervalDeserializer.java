@@ -14,13 +14,16 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 
 import java.io.IOException;
-import java.util.Objects;
+
+import static com.powsybl.iidm.criteria.json.util.DeserializerUtils.checkBoundData;
 
 /**
  * <p>Deserializer for {@link com.powsybl.iidm.criteria.SingleNominalVoltageCriterion.VoltageInterval} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public class VoltageIntervalDeserializer extends StdDeserializer<SingleNominalVoltageCriterion.VoltageInterval> {
+
+    public static final String MISSING_BOUND_ATTRIBUTE_MESSAGE = "Missing \"%s\" attribute for nominal voltage interval with non-null \"%s\" attribute.";
 
     public VoltageIntervalDeserializer() {
         super(SingleNominalVoltageCriterion.VoltageInterval.class);
@@ -63,12 +66,13 @@ public class VoltageIntervalDeserializer extends StdDeserializer<SingleNominalVo
                 }
             }
         });
-        String errorMessageTemplate = "Attribute '%s' should be defined";
-        Objects.requireNonNull(context.nominalVoltageLowBound, String.format(errorMessageTemplate, "nominalVoltageLowBound"));
-        Objects.requireNonNull(context.nominalVoltageHighBound, String.format(errorMessageTemplate, "nominalVoltageHighBound"));
-        Objects.requireNonNull(context.lowClosed, String.format(errorMessageTemplate, "lowClosed"));
-        Objects.requireNonNull(context.highClosed, String.format(errorMessageTemplate, "highClosed"));
-        return new SingleNominalVoltageCriterion.VoltageInterval(context.nominalVoltageLowBound, context.nominalVoltageHighBound,
-                context.lowClosed, context.highClosed);
+        SingleNominalVoltageCriterion.VoltageInterval.Builder builder = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        if (checkBoundData(context.nominalVoltageLowBound, context.lowClosed, "nominalVoltageLowBound", "lowClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
+            builder.setLowBound(context.nominalVoltageLowBound, context.lowClosed);
+        }
+        if (checkBoundData(context.nominalVoltageHighBound, context.highClosed, "nominalVoltageHighBound", "highClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
+            builder.setHighBound(context.nominalVoltageHighBound, context.highClosed);
+        }
+        return builder.build();
     }
 }

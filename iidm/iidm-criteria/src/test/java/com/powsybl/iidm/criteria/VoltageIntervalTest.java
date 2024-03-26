@@ -87,31 +87,18 @@ class VoltageIntervalTest {
     }
 
     @Test
-    void nullIntervalTest() {
-        SingleNominalVoltageCriterion.VoltageInterval nullInterval = SingleNominalVoltageCriterion.VoltageInterval.nullInterval();
-        assertTrue(nullInterval.isNull());
-        assertFalse(nullInterval.checkIsBetweenBound(10.));
-
-        Exception e = assertThrows(IllegalArgumentException.class, nullInterval::asRange);
-        assertEquals("Null interval cannot be converted as a range.", e.getMessage());
-
-        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(200., 225., true, true);
-        assertFalse(interval.isNull());
-    }
-
-    @Test
     void gettersTest() {
         SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(200.54, 225.12, false, true);
-        assertFalse(interval.getLowClosed());
-        assertTrue(interval.getHighClosed());
-        assertEquals(200.54, interval.getNominalVoltageLowBound(), 0.001);
-        assertEquals(225.12, interval.getNominalVoltageHighBound(), 0.001);
+        assertFalse(interval.isLowClosed());
+        assertTrue(interval.isHighClosed());
+        assertEquals(200.54, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
+        assertEquals(225.12, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
 
         interval = new SingleNominalVoltageCriterion.VoltageInterval(200.87, 225.63, true, false);
-        assertTrue(interval.getLowClosed());
-        assertFalse(interval.getHighClosed());
-        assertEquals(200.87, interval.getNominalVoltageLowBound(), 0.001);
-        assertEquals(225.63, interval.getNominalVoltageHighBound(), 0.001);
+        assertTrue(interval.isLowClosed());
+        assertFalse(interval.isHighClosed());
+        assertEquals(200.87, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
+        assertEquals(225.63, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
     }
 
     @ParameterizedTest

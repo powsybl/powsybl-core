@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * <p>Serializer for {@link com.powsybl.iidm.criteria.SingleNominalVoltageCriterion.VoltageInterval} objects.</p>
@@ -27,10 +28,16 @@ public class VoltageIntervalSerializer extends StdSerializer<SingleNominalVoltag
     @Override
     public void serialize(SingleNominalVoltageCriterion.VoltageInterval voltageInterval, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeNumberField("nominalVoltageLowBound", voltageInterval.getNominalVoltageLowBound());
-        jsonGenerator.writeNumberField("nominalVoltageHighBound", voltageInterval.getNominalVoltageHighBound());
-        jsonGenerator.writeBooleanField("lowClosed", voltageInterval.getLowClosed());
-        jsonGenerator.writeBooleanField("highClosed", voltageInterval.getHighClosed());
+        Optional<Double> optNominalVoltageLowBound = voltageInterval.getNominalVoltageLowBound();
+        if (optNominalVoltageLowBound.isPresent()) {
+            jsonGenerator.writeNumberField("nominalVoltageLowBound", optNominalVoltageLowBound.get());
+            jsonGenerator.writeBooleanField("lowClosed", voltageInterval.isLowClosed());
+        }
+        Optional<Double> optNominalVoltageHighBound = voltageInterval.getNominalVoltageHighBound();
+        if (optNominalVoltageHighBound.isPresent()) {
+            jsonGenerator.writeNumberField("nominalVoltageHighBound", optNominalVoltageHighBound.get());
+            jsonGenerator.writeBooleanField("highClosed", voltageInterval.isHighClosed());
+        }
         jsonGenerator.writeEndObject();
     }
 }
