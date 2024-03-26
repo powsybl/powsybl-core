@@ -190,7 +190,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     }
 
     public SecurityAnalysisParameters setIntermediateResultsInOperatorStrategy(boolean intermediateResultsInOperatorStrategy) {
-        intermediateResultsInOperatorStrategy = intermediateResultsInOperatorStrategy;
+        this.intermediateResultsInOperatorStrategy = intermediateResultsInOperatorStrategy;
         return this;
     }
 
