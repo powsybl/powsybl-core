@@ -23,6 +23,6 @@ public class SensitivityFactorJsonDeserializer extends StdDeserializer<Sensitivi
 
     @Override
     public SensitivityFactor deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        return SensitivityFactor.parseJson(jsonParser);
+        return SensitivityFactor.parseJson(jsonParser, deserializationContext);
     }
 }

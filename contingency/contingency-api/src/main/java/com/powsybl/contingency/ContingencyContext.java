@@ -55,6 +55,8 @@ public class ContingencyContext {
         this.contextType = Objects.requireNonNull(contingencyContextType);
         if (contingencyContextType == ContingencyContextType.SPECIFIC && this.contingencyIds.isEmpty()) {
             throw new IllegalArgumentException("Contingency IDs should not be empty in case of specific contingency context");
+        } else if (contingencyContextType != ContingencyContextType.SPECIFIC && !this.contingencyIds.isEmpty()) {
+            throw new IllegalArgumentException("Contingency IDs should be empty in case of not a specific contingency context");
         }
     }
 

@@ -11,16 +11,21 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
+import com.powsybl.sensitivity.json.SensitivityAnalysisResultSerializer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.powsybl.sensitivity.json.SensitivityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
  * Sensitivity factor to be computed in the sensitivity analysis.
@@ -32,6 +37,8 @@ import java.util.stream.Collectors;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public class SensitivityFactor {
+
+    private static final String CONTEXT_NAME = "SensitivityFactor";
 
     private final SensitivityFunctionType functionType;
 
@@ -147,15 +154,15 @@ public class SensitivityFactor {
         }
     }
 
-    public static SensitivityFactor parseJson(JsonParser parser) {
+    public static SensitivityFactor parseJson(JsonParser parser, DeserializationContext deserializationContext) {
         Objects.requireNonNull(parser);
-
+        String version = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
         var context = new ParsingContext();
         try {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    parseJson(parser, context);
+                    parseJson(parser, context, version);
                 } else if (token == JsonToken.END_OBJECT) {
                     return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
                             new ContingencyContext(context.contingencyIds, context.contingencyContextType));
@@ -168,6 +175,10 @@ public class SensitivityFactor {
     }
 
     static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
+        parseJson(parser, context, SensitivityAnalysisResultSerializer.VERSION);
+    }
+
+    static void parseJson(JsonParser parser, ParsingContext context, String version) throws IOException {
         String fieldName = parser.getCurrentName();
         switch (fieldName) {
             case "functionType":
@@ -190,11 +201,15 @@ public class SensitivityFactor {
                 break;
             case "contingencyId":
                 context.contingencyIds = Collections.singletonList(parser.nextTextValue());
+                JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: contingencyId",
+                    version, "1.0");
                 break;
             case "contingencyIds":
                 parser.nextToken();
                 parser.setCodec(new ObjectMapper());
                 context.contingencyIds = parser.readValueAs(new TypeReference<List<String>>() { });
+                JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: contingencyIds",
+                    version, "1.1");
                 break;
             default:
                 throw new PowsyblException("Unexpected field: " + fieldName);
