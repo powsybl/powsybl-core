@@ -567,7 +567,7 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode,
-                                           boolean throwException, ReportNode reportNode) {
+                                                      boolean throwException, ReportNode reportNode) {
         if (converterMode == null) {
             throwExceptionOrLogError(validable, "converter mode is invalid", throwException, reportNode);
             return ValidationLevel.EQUIPMENT;
@@ -589,15 +589,30 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
-        ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits);
+    public static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+                                                     boolean throwException, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits, throwException, reportNode);
         ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
+        return validationLevel;
     }
 
-    public static void checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
-        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty() || permanentLimit <= 0) {
-            throw new ValidationException(validable, "permanent limit must be defined and be > 0");
+    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+                                                      boolean throwException, ReportNode reportNode) {
+        ValidationLevel validationLevel = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+        if (Double.isNaN(permanentLimit) && !temporaryLimits.isEmpty()) {
+            throwExceptionOrLogError(validable, "permanent limit must be defined if temporary limits are present", throwException, reportNode);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
+        if (!Double.isNaN(permanentLimit) && permanentLimit <= 0) {
+            // because it is forbidden for SSH and EQ validation levels.
+            throw new ValidationException(validable, "permanent limit must be > 0");
+        }
+        return validationLevel;
+    }
+
+    public static ValidationLevel checkPermanentLimit(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
+                                                      boolean throwException) {
+        return checkPermanentLimit(validable, permanentLimit, temporaryLimits, throwException, ReportNode.NO_OP);
     }
 
     public static void checkTemporaryLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
@@ -679,6 +694,9 @@ public final class ValidationUtil {
         if (regulatingTc > 1) {
             throw new ValidationException(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG);
         }
+        validationLevel = checkOperationalLimitsGroups(validable, twt.getLeg1().getOperationalLimitsGroups(), validationLevel, throwException, reportNode);
+        validationLevel = checkOperationalLimitsGroups(validable, twt.getLeg2().getOperationalLimitsGroups(), validationLevel, throwException, reportNode);
+        validationLevel = checkOperationalLimitsGroups(validable, twt.getLeg3().getOperationalLimitsGroups(), validationLevel, throwException, reportNode);
         return validationLevel;
     }
 
@@ -694,6 +712,8 @@ public final class ValidationUtil {
                 && twt.getOptionalPhaseTapChanger().map(TapChanger::isRegulating).orElse(false)) {
             throw new ValidationException(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG);
         }
+        validationLevel = checkOperationalLimitsGroups(validable, twt.getOperationalLimitsGroups1(), validationLevel, throwException, reportNode);
+        validationLevel = checkOperationalLimitsGroups(validable, twt.getOperationalLimitsGroups2(), validationLevel, throwException, reportNode);
         return validationLevel;
     }
 
@@ -711,6 +731,7 @@ public final class ValidationUtil {
                     validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reportNode));
                     validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reportNode));
                 }
+                validationLevel = checkOperationalLimitsGroups(validable, danglingLine.getOperationalLimitsGroups(), validationLevel, throwException, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), throwException, reportNode));
@@ -732,9 +753,33 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, twt, throwException, reportNode));
             } else if (identifiable instanceof VscConverterStation converterStation) {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), throwException, reportNode));
+            } else if (identifiable instanceof Branch<?> branch) {
+                validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups1(), validationLevel, throwException, reportNode);
+                validationLevel = checkOperationalLimitsGroups(validable, branch.getOperationalLimitsGroups2(), validationLevel, throwException, reportNode);
             }
         }
         return validationLevel;
+    }
+
+    private static ValidationLevel checkOperationalLimitsGroups(Validable validable, Collection<OperationalLimitsGroup> operationalLimitsGroupCollection, ValidationLevel previous, boolean throwException, ReportNode reportNode) {
+        ValidationLevel validationLevel = previous;
+        for (OperationalLimitsGroup group : operationalLimitsGroupCollection) {
+            validationLevel = checkOperationalLimitsGroup(validable, group, validationLevel, throwException, reportNode);
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkOperationalLimitsGroup(Validable validable, OperationalLimitsGroup operationalLimitsGroup, ValidationLevel previous, boolean throwException, ReportNode reportNode) {
+        ValidationLevel[] validationLevel = new ValidationLevel[1];
+        validationLevel[0] = previous;
+        operationalLimitsGroup.getCurrentLimits().ifPresent(l -> validationLevel[0] = checkLoadingLimits(validable, l, validationLevel[0], throwException, reportNode));
+        operationalLimitsGroup.getApparentPowerLimits().ifPresent(l -> validationLevel[0] = checkLoadingLimits(validable, l, validationLevel[0], throwException, reportNode));
+        operationalLimitsGroup.getActivePowerLimits().ifPresent(l -> validationLevel[0] = checkLoadingLimits(validable, l, validationLevel[0], throwException, reportNode));
+        return validationLevel[0];
+    }
+
+    private static ValidationLevel checkLoadingLimits(Validable validable, LoadingLimits limits, ValidationLevel validationLevel, boolean throwException, ReportNode reportNode) {
+        return ValidationLevel.min(validationLevel, checkLoadingLimits(validable, limits.getPermanentLimit(), limits.getTemporaryLimits(), throwException, reportNode));
     }
 
     public static ValidationLevel validate(Collection<Identifiable<?>> identifiables, boolean allChecks, boolean throwException, ValidationLevel previous, ReportNode reportNode) {
