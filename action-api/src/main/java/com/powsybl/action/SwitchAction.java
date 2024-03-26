@@ -7,6 +7,10 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.CloseSwitch;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.OpenSwitch;
+
 import java.util.Objects;
 
 /**
@@ -43,4 +47,13 @@ public class SwitchAction extends AbstractAction {
     public boolean isOpen() {
         return open;
     }
+
+    public NetworkModification toModification() {
+        if (isOpen()) {
+            return new OpenSwitch(getSwitchId());
+        } else {
+            return new CloseSwitch(getSwitchId());
+        }
+    }
+
 }

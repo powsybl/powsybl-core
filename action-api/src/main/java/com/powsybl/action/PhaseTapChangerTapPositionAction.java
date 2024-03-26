@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.tapchanger.PhaseTapPositionModification;
 import com.powsybl.iidm.network.ThreeSides;
 
 /**
@@ -29,5 +31,13 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
     @Override
     public String getType() {
         return NAME;
+    }
+
+    public NetworkModification toModification() {
+        // did not use PhaseShifterShiftTap in case of relative change because PhaseShifterShiftTap change also regulating and its mode
+        // so update PhaseTapPositionModification with is relative instead
+        // in fact side should always be filled for 3wt and is never used for 2wt..., action and modification should be separated for this 2 cases?
+        return getSide().map(side -> new PhaseTapPositionModification(getTransformerId(), getTapPosition(), side, isRelativeValue()))
+                        .orElse(new PhaseTapPositionModification(getTransformerId(), getTapPosition(), isRelativeValue()));
     }
 }

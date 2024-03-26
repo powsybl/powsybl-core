@@ -22,7 +22,7 @@ import java.util.Objects;
 public class CloseSwitch extends AbstractNetworkModification {
     private final String switchId;
 
-    CloseSwitch(String switchId) {
+    public CloseSwitch(String switchId) {
         this.switchId = Objects.requireNonNull(switchId);
     }
 

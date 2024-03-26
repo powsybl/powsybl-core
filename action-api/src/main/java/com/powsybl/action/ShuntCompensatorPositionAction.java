@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.ShuntCompensatorModification;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -34,5 +37,9 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
 
     public int getSectionCount() {
         return sectionCount;
+    }
+
+    public NetworkModification toModification() {
+        return new ShuntCompensatorModification(getShuntCompensatorId(), null, getSectionCount());
     }
 }

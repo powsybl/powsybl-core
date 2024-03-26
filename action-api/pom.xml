@@ -84,6 +84,10 @@
             <artifactId>powsybl-commons-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.TerminalsConnectionModification;
 import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Objects;
@@ -80,5 +82,11 @@ public class TerminalsConnectionAction extends AbstractAction {
      */
     public boolean isOpen() {
         return open;
+    }
+
+    public NetworkModification toModification() {
+        // not obvious how to map on ConnectableConnection/PlannedDisconnection/... especially if there is a side selected
+        return getSide().map(value -> new TerminalsConnectionModification(getElementId(), value, isOpen()))
+                .orElse(new TerminalsConnectionModification(getElementId(), isOpen()));
     }
 }
