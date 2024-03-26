@@ -58,7 +58,7 @@ public class DanglingLineCriterionTest {
     @Test
     void nominalVoltageTest() {
         DanglingLineCriterion criterion = new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
+                new VoltageInterval(40., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine3)));
@@ -84,7 +84,7 @@ public class DanglingLineCriterionTest {
     void mixedCriteriaTest() {
         DanglingLineCriterion criterion = new DanglingLineCriterion(new SingleCountryCriterion(List.of(Country.FR)),
                 new SingleNominalVoltageCriterion(
-                        new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true)));
+                        new VoltageInterval(350., 450., true, true)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine3)));

@@ -19,14 +19,14 @@ import java.util.Objects;
 
 /**
  * <p>Criterion checking that one of the nominal voltages of the network element, <b>on whichever side</b>,
- * is inside a {@link com.powsybl.iidm.criteria.SingleNominalVoltageCriterion.VoltageInterval}.</p>
+ * is inside a {@link VoltageInterval}.</p>
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
 public class AtLeastOneNominalVoltageCriterion implements Criterion {
 
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval;
+    private final VoltageInterval voltageInterval;
 
-    public AtLeastOneNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval) {
+    public AtLeastOneNominalVoltageCriterion(VoltageInterval voltageInterval) {
         this.voltageInterval = Objects.requireNonNull(voltageInterval);
     }
 
@@ -66,7 +66,7 @@ public class AtLeastOneNominalVoltageCriterion implements Criterion {
         return nominalVoltagesToCheck.stream().filter(Objects::nonNull).anyMatch(voltageInterval::checkIsBetweenBound);
     }
 
-    public SingleNominalVoltageCriterion.VoltageInterval getVoltageInterval() {
+    public VoltageInterval getVoltageInterval() {
         return voltageInterval;
     }
 }

@@ -11,22 +11,22 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.VoltageInterval;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.criteria.json.util.DeserializerUtils.checkBoundData;
 
 /**
- * <p>Deserializer for {@link com.powsybl.iidm.criteria.SingleNominalVoltageCriterion.VoltageInterval} objects.</p>
+ * <p>Deserializer for {@link VoltageInterval} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class VoltageIntervalDeserializer extends StdDeserializer<SingleNominalVoltageCriterion.VoltageInterval> {
+public class VoltageIntervalDeserializer extends StdDeserializer<VoltageInterval> {
 
     public static final String MISSING_BOUND_ATTRIBUTE_MESSAGE = "Missing \"%s\" attribute for nominal voltage interval with non-null \"%s\" attribute.";
 
     public VoltageIntervalDeserializer() {
-        super(SingleNominalVoltageCriterion.VoltageInterval.class);
+        super(VoltageInterval.class);
     }
 
     private static class ParsingContext {
@@ -37,7 +37,7 @@ public class VoltageIntervalDeserializer extends StdDeserializer<SingleNominalVo
     }
 
     @Override
-    public SingleNominalVoltageCriterion.VoltageInterval deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public VoltageInterval deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
@@ -66,7 +66,7 @@ public class VoltageIntervalDeserializer extends StdDeserializer<SingleNominalVo
                 }
             }
         });
-        SingleNominalVoltageCriterion.VoltageInterval.Builder builder = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        VoltageInterval.Builder builder = VoltageInterval.builder();
         if (checkBoundData(context.nominalVoltageLowBound, context.lowClosed, "nominalVoltageLowBound", "lowClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
             builder.setLowBound(context.nominalVoltageLowBound, context.lowClosed);
         }

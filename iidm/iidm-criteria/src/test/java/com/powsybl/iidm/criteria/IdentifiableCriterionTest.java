@@ -60,7 +60,7 @@ public class IdentifiableCriterionTest {
     void creationErrorsTest() {
         AtLeastOneCountryCriterion countryCriterion = new AtLeastOneCountryCriterion(List.of(Country.DE));
         AtLeastOneNominalVoltageCriterion nominalVoltageCriterion = new AtLeastOneNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true));
+                new VoltageInterval(40., 100., true, true));
         assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test1", null, null));
         assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test2", countryCriterion, null));
         assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test3", null, nominalVoltageCriterion));
@@ -77,7 +77,7 @@ public class IdentifiableCriterionTest {
     @Test
     void nominalVoltageTest() {
         IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
+                new VoltageInterval(40., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
@@ -120,7 +120,7 @@ public class IdentifiableCriterionTest {
     @Test
     void mixedCriteriaTest() {
         IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)),
-                new AtLeastOneNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(190., 230., true, true)));
+                new AtLeastOneNominalVoltageCriterion(new VoltageInterval(190., 230., true, true)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));

@@ -83,7 +83,7 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
     }
 
     private static void serializeTwoWindingsVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        Optional<SingleNominalVoltageCriterion.VoltageInterval> optInterval = twoNominalVoltageCriterion.getVoltageInterval1();
+        Optional<VoltageInterval> optInterval = twoNominalVoltageCriterion.getVoltageInterval1();
         if (optInterval.isPresent()) {
             serializerProvider.defaultSerializeField("voltageInterval1", optInterval.get(), jsonGenerator);
         }
@@ -94,7 +94,7 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
     }
 
     private static void serializeThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-        Optional<SingleNominalVoltageCriterion.VoltageInterval> optInterval = threeNominalVoltageCriterion.getVoltageInterval1();
+        Optional<VoltageInterval> optInterval = threeNominalVoltageCriterion.getVoltageInterval1();
         if (optInterval.isPresent()) {
             serializerProvider.defaultSerializeField("voltageInterval1", optInterval.get(), jsonGenerator);
         }

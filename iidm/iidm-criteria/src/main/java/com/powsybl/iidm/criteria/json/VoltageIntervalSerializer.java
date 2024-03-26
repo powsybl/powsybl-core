@@ -10,23 +10,23 @@ package com.powsybl.iidm.criteria.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.VoltageInterval;
 
 import java.io.IOException;
 import java.util.Optional;
 
 /**
- * <p>Serializer for {@link com.powsybl.iidm.criteria.SingleNominalVoltageCriterion.VoltageInterval} objects.</p>
+ * <p>Serializer for {@link VoltageInterval} objects.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class VoltageIntervalSerializer extends StdSerializer<SingleNominalVoltageCriterion.VoltageInterval> {
+public class VoltageIntervalSerializer extends StdSerializer<VoltageInterval> {
 
     public VoltageIntervalSerializer() {
-        super(SingleNominalVoltageCriterion.VoltageInterval.class);
+        super(VoltageInterval.class);
     }
 
     @Override
-    public void serialize(SingleNominalVoltageCriterion.VoltageInterval voltageInterval, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(VoltageInterval voltageInterval, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         Optional<Double> optNominalVoltageLowBound = voltageInterval.getNominalVoltageLowBound();
         if (optNominalVoltageLowBound.isPresent()) {

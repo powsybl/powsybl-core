@@ -26,7 +26,7 @@ class VoltageIntervalTest {
 
     @Test
     void openLowBoundTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = SingleNominalVoltageCriterion.VoltageInterval.builder()
+        VoltageInterval interval = VoltageInterval.builder()
                 .setLowBound(100.3, false)
                 .build();
         assertAll(
@@ -47,7 +47,7 @@ class VoltageIntervalTest {
 
     @Test
     void closedLowBoundTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = SingleNominalVoltageCriterion.VoltageInterval.builder()
+        VoltageInterval interval = VoltageInterval.builder()
                 .setLowBound(100., true)
                 .build();
         assertAll(
@@ -66,7 +66,7 @@ class VoltageIntervalTest {
 
     @Test
     void openHighBoundTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = SingleNominalVoltageCriterion.VoltageInterval.builder()
+        VoltageInterval interval = VoltageInterval.builder()
                 .setHighBound(204.53, false)
                 .build();
         assertAll(
@@ -88,7 +88,7 @@ class VoltageIntervalTest {
 
     @Test
     void closedHighBoundTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = SingleNominalVoltageCriterion.VoltageInterval.builder()
+        VoltageInterval interval = VoltageInterval.builder()
                 .setHighBound(329.12, true)
                 .build();
         assertAll(
@@ -110,7 +110,7 @@ class VoltageIntervalTest {
 
     @Test
     void bothBoundsTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = SingleNominalVoltageCriterion.VoltageInterval.builder()
+        VoltageInterval interval = VoltageInterval.builder()
                 .setLowBound(100., true)
                 .setHighBound(204.53, true)
                 .build();
@@ -133,14 +133,14 @@ class VoltageIntervalTest {
         assertValue(false, Double.MAX_VALUE, interval, range);
     }
 
-    void assertValue(boolean expected, Double testedValue, SingleNominalVoltageCriterion.VoltageInterval interval, DoubleRange range) {
+    void assertValue(boolean expected, Double testedValue, VoltageInterval interval, DoubleRange range) {
         assertEquals(expected, interval.checkIsBetweenBound(testedValue));
         assertEquals(expected, range.contains(testedValue));
     }
 
     @Test
     void invalidValuesTest() {
-        SingleNominalVoltageCriterion.VoltageInterval.Builder builder = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        VoltageInterval.Builder builder = VoltageInterval.builder();
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class, builder::build);
         assertEquals("Invalid interval: at least one bound must be defined.", e.getMessage());
 
@@ -153,11 +153,11 @@ class VoltageIntervalTest {
         assertThrows(IllegalArgumentException.class, () -> builder.setHighBound(2., false));
 
         // Invalid ]10 ; 2[ (when setting lower bound)
-        SingleNominalVoltageCriterion.VoltageInterval.Builder builder2 = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        VoltageInterval.Builder builder2 = VoltageInterval.builder();
         builder2.setHighBound(2., false);
         assertThrows(IllegalArgumentException.class, () -> builder2.setLowBound(10., false));
 
-        SingleNominalVoltageCriterion.VoltageInterval.Builder builder3 = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        VoltageInterval.Builder builder3 = VoltageInterval.builder();
         builder3.setLowBound(2., false);
         // Invalid empty bound ]2 ; 2] (when setting higher bound)
         e = assertThrows(IllegalArgumentException.class, () -> builder3.setHighBound(2., true));
@@ -167,25 +167,25 @@ class VoltageIntervalTest {
         assertThrows(IllegalArgumentException.class, () -> builder3.setLowBound(4., false));
 
         // Invalid interval [0 ; 0[
-        SingleNominalVoltageCriterion.VoltageInterval.Builder builder4 = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        VoltageInterval.Builder builder4 = VoltageInterval.builder();
         assertThrows(IllegalArgumentException.class, () -> builder4.setHighBound(0., false));
         assertDoesNotThrow(() -> builder4.setHighBound(0, true)); // [0 ; 0] is valid
 
         // Invalid interval [MAX_VALUE ; MAX_VALUE[
-        SingleNominalVoltageCriterion.VoltageInterval.Builder builder5 = SingleNominalVoltageCriterion.VoltageInterval.builder();
+        VoltageInterval.Builder builder5 = VoltageInterval.builder();
         assertThrows(IllegalArgumentException.class, () -> builder5.setLowBound(Double.MAX_VALUE, false));
         assertDoesNotThrow(() -> builder5.setLowBound(Double.MAX_VALUE, true)); // [MAX_VALUE ; MAX_VALUE] is valid
     }
 
     @Test
     void gettersTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(200.54, 225.12, false, true);
+        VoltageInterval interval = new VoltageInterval(200.54, 225.12, false, true);
         assertFalse(interval.isLowClosed());
         assertTrue(interval.isHighClosed());
         assertEquals(200.54, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
         assertEquals(225.12, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
 
-        interval = new SingleNominalVoltageCriterion.VoltageInterval(200.87, 225.63, true, false);
+        interval = new VoltageInterval(200.87, 225.63, true, false);
         assertTrue(interval.isLowClosed());
         assertFalse(interval.isHighClosed());
         assertEquals(200.87, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
@@ -194,7 +194,7 @@ class VoltageIntervalTest {
 
     @Test
     void closedBoundsTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, true, true);
+        VoltageInterval interval = new VoltageInterval(100., 204.53, true, true);
         DoubleRange range = interval.asRange();
         assertValue(false, null, interval, range);
         assertValue(false, 1., interval, range);
@@ -209,7 +209,7 @@ class VoltageIntervalTest {
 
     @Test
     void openedBoundsTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, false, false);
+        VoltageInterval interval = new VoltageInterval(100., 204.53, false, false);
         DoubleRange range = interval.asRange();
         assertValue(false, null, interval, range);
         assertValue(false, 1., interval, range);
@@ -224,7 +224,7 @@ class VoltageIntervalTest {
 
     @Test
     void mixedBoundsTest() {
-        SingleNominalVoltageCriterion.VoltageInterval interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, true, false);
+        VoltageInterval interval = new VoltageInterval(100., 204.53, true, false);
         DoubleRange range = interval.asRange();
         assertValue(false, null, interval, range);
         assertValue(false, 1., interval, range);
@@ -236,7 +236,7 @@ class VoltageIntervalTest {
         assertValue(false, 500., interval, range);
         assertValue(false, Double.MAX_VALUE, interval, range);
 
-        interval = new SingleNominalVoltageCriterion.VoltageInterval(100., 204.53, false, true);
+        interval = new VoltageInterval(100., 204.53, false, true);
         range = interval.asRange();
         assertValue(false, null, interval, range);
         assertValue(false, 1., interval, range);
@@ -252,7 +252,7 @@ class VoltageIntervalTest {
     @ParameterizedTest
     @MethodSource("provideInvalidBounds")
     void invalidBound(double low, double high) {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new SingleNominalVoltageCriterion.VoltageInterval(low, high, true, true));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> new VoltageInterval(low, high, true, true));
         assertEquals("Invalid interval bound value (must be >= 0 and not infinite).", e.getMessage());
     }
 
@@ -269,14 +269,14 @@ class VoltageIntervalTest {
 
     @Test
     void boundsInWrongOrder() {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new SingleNominalVoltageCriterion.VoltageInterval(100., 50., true, true));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> new VoltageInterval(100., 50., true, true));
         assertEquals("Invalid interval bounds values (nominalVoltageLowBound must be <= nominalVoltageHighBound).", e.getMessage());
     }
 
     @ParameterizedTest
     @MethodSource("provideEmptyIntervalBounds")
     void emptyInterval(double low, double high, boolean lowClosed, boolean highClosed) {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new SingleNominalVoltageCriterion.VoltageInterval(low, high, lowClosed, highClosed));
+        Exception e = assertThrows(IllegalArgumentException.class, () -> new VoltageInterval(low, high, lowClosed, highClosed));
         assertEquals("Invalid interval: it should not be empty", e.getMessage());
     }
 

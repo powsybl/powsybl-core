@@ -35,13 +35,13 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
         List<NetworkElementCriterion> networkElementCriteria1 =
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")),
                         new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR)), new TwoNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
+                                new VoltageInterval(350., 410., true, false), null)),
                         new TwoWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
                         new ThreeWindingsTransformerCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null),
                         new TieLineCriterion(null, new TwoNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(350., 410., true, false), null)),
+                                new VoltageInterval(350., 410., true, false), null)),
                         new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(80., 100., true, false))));
+                                new VoltageInterval(80., 100., true, false))));
         List<LimitDurationCriterion> durationCriteria1 = List.of(new PermanentDurationCriterion(), new AllTemporaryDurationCriterion());
         LimitReduction limitReduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
                 .withContingencyContext(contingencyContext1)
@@ -62,7 +62,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                 .withNetworkElementCriteria(new IdentifiableCriterion(
                         new AtLeastOneCountryCriterion(List.of(Country.FR)),
                         new AtLeastOneNominalVoltageCriterion(
-                                new SingleNominalVoltageCriterion.VoltageInterval(380., 410., true, true)
+                                new VoltageInterval(380., 410., true, true)
                         )))
                 .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder()
                         .setLowBound(300, true)

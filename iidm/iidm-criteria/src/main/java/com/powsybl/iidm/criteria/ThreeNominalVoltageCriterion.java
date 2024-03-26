@@ -24,15 +24,15 @@ import static com.powsybl.iidm.network.IdentifiableType.THREE_WINDINGS_TRANSFORM
  */
 public class ThreeNominalVoltageCriterion implements Criterion {
 
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval1;
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval2;
-    private final SingleNominalVoltageCriterion.VoltageInterval voltageInterval3;
+    private final VoltageInterval voltageInterval1;
+    private final VoltageInterval voltageInterval2;
+    private final VoltageInterval voltageInterval3;
     @JsonIgnore
-    private final List<SingleNominalVoltageCriterion.VoltageInterval> voltageIntervals = new ArrayList<>();
+    private final List<VoltageInterval> voltageIntervals = new ArrayList<>();
 
-    public ThreeNominalVoltageCriterion(SingleNominalVoltageCriterion.VoltageInterval voltageInterval1,
-                                        SingleNominalVoltageCriterion.VoltageInterval voltageInterval2,
-                                        SingleNominalVoltageCriterion.VoltageInterval voltageInterval3) {
+    public ThreeNominalVoltageCriterion(VoltageInterval voltageInterval1,
+                                        VoltageInterval voltageInterval2,
+                                        VoltageInterval voltageInterval3) {
         this.voltageInterval1 = voltageInterval1;
         this.voltageInterval2 = voltageInterval2;
         this.voltageInterval3 = voltageInterval3;
@@ -90,15 +90,15 @@ public class ThreeNominalVoltageCriterion implements Criterion {
         return filter.get();
     }
 
-    public Optional<SingleNominalVoltageCriterion.VoltageInterval> getVoltageInterval1() {
+    public Optional<VoltageInterval> getVoltageInterval1() {
         return Optional.ofNullable(voltageInterval1);
     }
 
-    public Optional<SingleNominalVoltageCriterion.VoltageInterval> getVoltageInterval2() {
+    public Optional<VoltageInterval> getVoltageInterval2() {
         return Optional.ofNullable(voltageInterval2);
     }
 
-    public Optional<SingleNominalVoltageCriterion.VoltageInterval> getVoltageInterval3() {
+    public Optional<VoltageInterval> getVoltageInterval3() {
         return Optional.ofNullable(voltageInterval3);
     }
 }

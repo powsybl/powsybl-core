@@ -34,10 +34,8 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
     private static HvdcLineCriterionContingencyList createHvdcLineCriterionContingencyList() {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.ES),
                 Collections.singletonList(Country.FR));
-        TwoNominalVoltageCriterion nominalVoltageCriterion = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true),
-                new SingleNominalVoltageCriterion
-                        .VoltageInterval(380.0, 400.0, true, true));
+        TwoNominalVoltageCriterion nominalVoltageCriterion = new TwoNominalVoltageCriterion(new VoltageInterval(200.0, 230.0, true, true),
+                new VoltageInterval(380.0, 400.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey1", Collections.singletonList("value2"), PropertyCriterion.EquipmentToCheck.SELF);
         RegexCriterion regexCriterion = new RegexCriterion("regex");
         return new HvdcLineCriterionContingencyList("list1", countriesCriterion, nominalVoltageCriterion, Collections.singletonList(propertyCriterion), regexCriterion);
@@ -46,7 +44,7 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
     private static LineCriterionContingencyList createLineCriterionContingencyList() {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.singletonList(Country.BE));
-        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(200.0, 230.0,
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(new VoltageInterval(200.0, 230.0,
                 true, true), null);
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
                 PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, PropertyCriterion.SideToCheck.BOTH);
@@ -57,8 +55,7 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
     private static TieLineCriterionContingencyList createTieLineCriterionContingencyList() {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.IT),
                 Collections.singletonList(Country.FR));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new VoltageInterval(200.0, 230.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
                 PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, PropertyCriterion.SideToCheck.BOTH);
         RegexCriterion regexCriterion = new RegexCriterion("regex");
@@ -67,8 +64,7 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyList() {
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new VoltageInterval(200.0, 230.0, true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
                 PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL);
         RegexCriterion regexCriterion = new RegexCriterion("regex");
@@ -77,16 +73,14 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
     }
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountryCriterion() {
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new VoltageInterval(200.0, 230.0, true, true));
         return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
                 null, nominalVoltageCriterion, Collections.emptyList(), null);
     }
 
     private static InjectionCriterionContingencyList createInjectionCriterionContingencyListNoCountryMatch() {
         SingleCountryCriterion countriesCriterion = new SingleCountryCriterion(Collections.singletonList(Country.CI));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new VoltageInterval(200.0, 230.0, true, true));
         return new InjectionCriterionContingencyList("list2", IdentifiableType.GENERATOR,
                 countriesCriterion, nominalVoltageCriterion, Collections.emptyList(), null);
     }
@@ -100,9 +94,9 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
     private static TwoWindingsTransformerCriterionContingencyList createTwoWindingsTransformerCriterionContingencyList() {
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(200.0, 230.0,
+                new VoltageInterval(200.0, 230.0,
                         true, true),
-                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
+                new VoltageInterval(380.0, 420.0,
                         true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
                 PropertyCriterion.EquipmentToCheck.SUBSTATION, PropertyCriterion.SideToCheck.BOTH);
@@ -114,11 +108,11 @@ class CriterionContingencyListJsonTest extends AbstractSerDeTest {
     private static ThreeWindingsTransformerCriterionContingencyList createThreeWindingsTransformerCriterionContingencyList() {
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.FR));
         ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(200.0, 230.0,
+                new VoltageInterval(200.0, 230.0,
                         true, true),
-                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
+                new VoltageInterval(380.0, 420.0,
                         true, true),
-                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 420.0,
+                new VoltageInterval(380.0, 420.0,
                         true, true));
         PropertyCriterion propertyCriterion = new PropertyCriterion("propertyKey", Collections.singletonList("value"),
                 PropertyCriterion.EquipmentToCheck.VOLTAGE_LEVEL, PropertyCriterion.SideToCheck.ALL_THREE);
