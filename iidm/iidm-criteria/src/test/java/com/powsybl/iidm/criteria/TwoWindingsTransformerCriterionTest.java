@@ -55,8 +55,8 @@ public class TwoWindingsTransformerCriterionTest {
     void nominalVoltagesTest() {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(null,
                 new TwoNominalVoltageCriterion(
-                        new VoltageInterval(80., 100., true, true),
-                        new VoltageInterval(40., 70., true, true)));
+                        VoltageInterval.between(80., 100., true, true),
+                        VoltageInterval.between(40., 70., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt3)));
@@ -80,8 +80,8 @@ public class TwoWindingsTransformerCriterionTest {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion(
                 new SingleCountryCriterion(List.of(Country.FR)),
                 new TwoNominalVoltageCriterion(
-                        new VoltageInterval(80., 100., true, true),
-                        new VoltageInterval(40., 70., true, true)));
+                        VoltageInterval.between(80., 100., true, true),
+                        VoltageInterval.between(40., 70., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twt1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twt3)));

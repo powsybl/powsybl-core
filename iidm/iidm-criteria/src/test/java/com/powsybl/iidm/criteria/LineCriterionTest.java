@@ -57,7 +57,8 @@ public class LineCriterionTest {
     @Test
     void nominalVoltageTest() {
         LineCriterion criterion = new LineCriterion(null, new TwoNominalVoltageCriterion(
-                new VoltageInterval(40., 100., true, true), null));
+                VoltageInterval.between(40., 100., true, true),
+                null));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line3)));
@@ -82,7 +83,9 @@ public class LineCriterionTest {
     @Test
     void mixedCriteriaTest() {
         LineCriterion criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)),
-                new TwoNominalVoltageCriterion(new VoltageInterval(350., 450., true, true), null));
+                new TwoNominalVoltageCriterion(
+                        VoltageInterval.between(350., 450., true, true),
+                        null));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line3)));

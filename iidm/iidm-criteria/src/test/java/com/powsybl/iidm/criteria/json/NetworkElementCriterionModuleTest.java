@@ -40,8 +40,8 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     void lineCriterionRoundTripTest() throws IOException {
         LineCriterion criterion = new LineCriterion("criterion1", new TwoCountriesCriterion(List.of(Country.FR, Country.BE)),
                         new TwoNominalVoltageCriterion(
-                                new VoltageInterval(190., 210., true, true),
-                                new VoltageInterval(220., 230., true, true)));
+                                VoltageInterval.between(190., 210., true, true),
+                                VoltageInterval.between(220., 230., true, true)));
         LineCriterion empty = new LineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
@@ -53,8 +53,8 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     void tieLineCriterionRoundTripTest() throws IOException {
         TieLineCriterion criterion = new TieLineCriterion("criterion5", new TwoCountriesCriterion(List.of(Country.FR, Country.DE)),
                 new TwoNominalVoltageCriterion(
-                        new VoltageInterval(190., 210., true, true),
-                        new VoltageInterval(220., 230., true, true)));
+                        VoltageInterval.between(190., 210., true, true),
+                        VoltageInterval.between(220., 230., true, true)));
         TieLineCriterion empty = new TieLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
@@ -66,7 +66,7 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     void danglingLineCriterionRoundTripTest() throws IOException {
         DanglingLineCriterion criterion = new DanglingLineCriterion("criterion6", new SingleCountryCriterion(List.of(Country.FR, Country.DE)),
                 new SingleNominalVoltageCriterion(
-                        new VoltageInterval(80., 100., true, true)));
+                        VoltageInterval.between(80., 100., true, true)));
         DanglingLineCriterion empty = new DanglingLineCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
@@ -79,8 +79,8 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         TwoWindingsTransformerCriterion criterion = new TwoWindingsTransformerCriterion("criterion2",
                 new SingleCountryCriterion(List.of(Country.FR, Country.BE)),
                 new TwoNominalVoltageCriterion(
-                        new VoltageInterval(80., 100., true, true),
-                        new VoltageInterval(380., 420., true, false)));
+                        VoltageInterval.between(80., 100., true, true),
+                        VoltageInterval.between(380., 420., true, false)));
         TwoWindingsTransformerCriterion empty = new TwoWindingsTransformerCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
@@ -93,9 +93,9 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
         ThreeWindingsTransformerCriterion criterion = new ThreeWindingsTransformerCriterion("criterion3",
                 new SingleCountryCriterion(List.of(Country.BE)),
                 new ThreeNominalVoltageCriterion(
-                        new VoltageInterval(80., 100., true, true),
-                        new VoltageInterval(190., 220., false, true),
-                        new VoltageInterval(380., 420., true, false)));
+                        VoltageInterval.between(80., 100., true, true),
+                        VoltageInterval.between(190., 220., false, true),
+                        VoltageInterval.between(380., 420., true, false)));
         ThreeWindingsTransformerCriterion empty = new ThreeWindingsTransformerCriterion(null, null);
         List<NetworkElementCriterion> criteria = List.of(criterion, empty);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
@@ -107,10 +107,10 @@ class NetworkElementCriterionModuleTest extends AbstractSerDeTest {
     void identifiableCriterionRoundTripTest() throws IOException {
         IdentifiableCriterion criterion = new IdentifiableCriterion("criterion7", new AtLeastOneCountryCriterion(List.of(Country.FR, Country.DE)),
                 new AtLeastOneNominalVoltageCriterion(
-                        new VoltageInterval(80., 100., true, true)));
+                        VoltageInterval.between(80., 100., true, true)));
         IdentifiableCriterion small1 = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.BE)));
         IdentifiableCriterion small2 = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
-                new VoltageInterval(80., 100., true, true)));
+                VoltageInterval.between(80., 100., true, true)));
         List<NetworkElementCriterion> criteria = List.of(criterion, small1, small2);
         roundTripTest(criteria, NetworkElementCriterionModuleTest::writeCriteria,
                 NetworkElementCriterionModuleTest::readIdentifiableCriteria,

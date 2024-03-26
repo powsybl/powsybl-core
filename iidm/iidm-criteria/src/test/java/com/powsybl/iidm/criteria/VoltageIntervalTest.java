@@ -9,11 +9,6 @@ package com.powsybl.iidm.criteria;
 
 import org.apache.commons.lang3.DoubleRange;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
-
-import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -179,13 +174,19 @@ class VoltageIntervalTest {
 
     @Test
     void gettersTest() {
-        VoltageInterval interval = new VoltageInterval(200.54, 225.12, false, true);
+        VoltageInterval interval = VoltageInterval.builder()
+                .setLowBound(200.54, false)
+                .setHighBound(225.12, true)
+                .build();
         assertFalse(interval.isLowClosed());
         assertTrue(interval.isHighClosed());
         assertEquals(200.54, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
         assertEquals(225.12, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
 
-        interval = new VoltageInterval(200.87, 225.63, true, false);
+        interval = VoltageInterval.builder()
+                .setLowBound(200.87, true)
+                .setHighBound(225.63, false)
+                .build();
         assertTrue(interval.isLowClosed());
         assertFalse(interval.isHighClosed());
         assertEquals(200.87, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
@@ -193,98 +194,43 @@ class VoltageIntervalTest {
     }
 
     @Test
-    void closedBoundsTest() {
-        VoltageInterval interval = new VoltageInterval(100., 204.53, true, true);
-        DoubleRange range = interval.asRange();
-        assertValue(false, null, interval, range);
-        assertValue(false, 1., interval, range);
-        assertValue(false, 100. - EPSILON, interval, range);
-        assertValue(true, 100., interval, range);
-        assertValue(true, 150., interval, range);
-        assertValue(true, 204.53, interval, range);
-        assertValue(false, 204.53 + EPSILON, interval, range);
-        assertValue(false, 500., interval, range);
-        assertValue(false, Double.MAX_VALUE, interval, range);
+    void betweenTest() {
+        VoltageInterval interval = VoltageInterval.between(200.54, 225.12, false, true);
+        assertFalse(interval.isLowClosed());
+        assertTrue(interval.isHighClosed());
+        assertEquals(200.54, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
+        assertEquals(225.12, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
+
+        interval = VoltageInterval.between(200.87, 225.63, true, false);
+        assertTrue(interval.isLowClosed());
+        assertFalse(interval.isHighClosed());
+        assertEquals(200.87, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
+        assertEquals(225.63, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
     }
 
     @Test
-    void openedBoundsTest() {
-        VoltageInterval interval = new VoltageInterval(100., 204.53, false, false);
-        DoubleRange range = interval.asRange();
-        assertValue(false, null, interval, range);
-        assertValue(false, 1., interval, range);
-        assertValue(false, 100., interval, range);
-        assertValue(true, 100. + EPSILON, interval, range);
-        assertValue(true, 150., interval, range);
-        assertValue(true, 204.53 - EPSILON, interval, range);
-        assertValue(false, 204.53, interval, range);
-        assertValue(false, 500., interval, range);
-        assertValue(false, Double.MAX_VALUE, interval, range);
+    void lowerThanTest() {
+        VoltageInterval interval = VoltageInterval.lowerThan(225.12, true);
+        assertTrue(interval.getNominalVoltageLowBound().isEmpty());
+        assertEquals(225.12, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
+        assertTrue(interval.isHighClosed());
+
+        interval = VoltageInterval.lowerThan(225.63, false);
+        assertTrue(interval.getNominalVoltageLowBound().isEmpty());
+        assertEquals(225.63, interval.getNominalVoltageHighBound().orElse(0.), 0.001);
+        assertFalse(interval.isHighClosed());
     }
 
     @Test
-    void mixedBoundsTest() {
-        VoltageInterval interval = new VoltageInterval(100., 204.53, true, false);
-        DoubleRange range = interval.asRange();
-        assertValue(false, null, interval, range);
-        assertValue(false, 1., interval, range);
-        assertValue(false, 100. - EPSILON, interval, range);
-        assertValue(true, 100., interval, range);
-        assertValue(true, 150., interval, range);
-        assertValue(true, 204.53 - EPSILON, interval, range);
-        assertValue(false, 204.53, interval, range);
-        assertValue(false, 500., interval, range);
-        assertValue(false, Double.MAX_VALUE, interval, range);
+    void greaterThanTest() {
+        VoltageInterval interval = VoltageInterval.greaterThan(200.54, false);
+        assertEquals(200.54, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
+        assertTrue(interval.getNominalVoltageHighBound().isEmpty());
+        assertFalse(interval.isLowClosed());
 
-        interval = new VoltageInterval(100., 204.53, false, true);
-        range = interval.asRange();
-        assertValue(false, null, interval, range);
-        assertValue(false, 1., interval, range);
-        assertValue(false, 100., interval, range);
-        assertValue(true, 100. + EPSILON, interval, range);
-        assertValue(true, 150., interval, range);
-        assertValue(true, 204.53, interval, range);
-        assertValue(false, 204.53 + EPSILON, interval, range);
-        assertValue(false, 500., interval, range);
-        assertValue(false, Double.MAX_VALUE, interval, range);
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideInvalidBounds")
-    void invalidBound(double low, double high) {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new VoltageInterval(low, high, true, true));
-        assertEquals("Invalid interval bound value (must be >= 0 and not infinite).", e.getMessage());
-    }
-
-    private static Stream<Arguments> provideInvalidBounds() {
-        return Stream.of(
-                Arguments.of(Double.NaN, 100.),
-                Arguments.of(100., Double.NaN),
-                Arguments.of(Double.NEGATIVE_INFINITY, 100.),
-                Arguments.of(100., Double.POSITIVE_INFINITY),
-                Arguments.of(-5., 100.),
-                Arguments.of(100., -1.)
-        );
-    }
-
-    @Test
-    void boundsInWrongOrder() {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new VoltageInterval(100., 50., true, true));
-        assertEquals("Invalid interval bounds values (nominalVoltageLowBound must be <= nominalVoltageHighBound).", e.getMessage());
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideEmptyIntervalBounds")
-    void emptyInterval(double low, double high, boolean lowClosed, boolean highClosed) {
-        Exception e = assertThrows(IllegalArgumentException.class, () -> new VoltageInterval(low, high, lowClosed, highClosed));
-        assertEquals("Invalid interval: it should not be empty", e.getMessage());
-    }
-
-    private static Stream<Arguments> provideEmptyIntervalBounds() {
-        return Stream.of(
-                Arguments.of(10., 10., false, false),
-                Arguments.of(20., 20., true, false),
-                Arguments.of(30., 30., false, true)
-        );
+        interval = VoltageInterval.greaterThan(200.87, true);
+        assertEquals(200.87, interval.getNominalVoltageLowBound().orElse(0.), 0.001);
+        assertTrue(interval.getNominalVoltageHighBound().isEmpty());
+        assertTrue(interval.isLowClosed());
     }
 }

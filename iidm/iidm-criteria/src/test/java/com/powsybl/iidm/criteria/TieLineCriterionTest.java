@@ -57,7 +57,8 @@ public class TieLineCriterionTest {
     @Test
     void nominalVoltageTest() {
         TieLineCriterion criterion = new TieLineCriterion(null, new TwoNominalVoltageCriterion(
-                        new VoltageInterval(40., 100., true, true), null));
+                VoltageInterval.between(40., 100., true, true),
+                null));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine3)));
@@ -83,7 +84,8 @@ public class TieLineCriterionTest {
     void mixedCriteriaTest() {
         TieLineCriterion criterion = new TieLineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)),
                 new TwoNominalVoltageCriterion(
-                    new VoltageInterval(350., 450., true, true), null));
+                        VoltageInterval.between(350., 450., true, true),
+                        null));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine3)));

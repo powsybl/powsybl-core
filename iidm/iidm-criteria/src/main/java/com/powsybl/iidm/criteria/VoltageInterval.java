@@ -21,35 +21,15 @@ public final class VoltageInterval {
     private final boolean highClosed;
 
     /**
-     * <p>Create a new {@link VoltageInterval} to filter network elements
-     * which nominal voltages are inside a given interval.</p>
-     * <p>To create a {@link VoltageInterval} with only one bound, the {@link #builder()} method should be used.</p>
-     *
-     * @param lowBound   lower bound of the acceptable interval.
-     * @param highBound  upper bound of the acceptable interval.
-     * @param lowClosed  <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
-     * @param highClosed <code>true</code> if <code>highBound</code> is part of the interval, <code>false</code> otherwise.
-     */
-    public VoltageInterval(double lowBound, double highBound, boolean lowClosed, boolean highClosed) {
-        Builder.checkValue(lowBound);
-        Builder.checkValue(highBound);
-        Builder.checkBounds(lowBound, highBound, lowClosed, highClosed);
-        this.nominalVoltageLowBound = lowBound;
-        this.nominalVoltageHighBound = highBound;
-        this.lowClosed = lowClosed;
-        this.highClosed = highClosed;
-    }
-
-    /**
      * Create a new {@link VoltageInterval} to filter network elements
      * which nominal voltages are inside a given interval.
      *
      * @param lowBound   lower bound of the acceptable interval. It may be <code>null</code>, if the interval has no lower bound.
-     * @param lowClosed  <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
      * @param highBound  upper bound of the acceptable interval. It may be <code>null</code>, if the interval has no upper bound.
+     * @param lowClosed  <code>true</code> if <code>lowBound</code> is part of the interval, <code>false</code> otherwise.
      * @param highClosed <code>true</code> if <code>highBound</code> is part of the interval, <code>false</code> otherwise.
      */
-    private VoltageInterval(Double lowBound, boolean lowClosed, Double highBound, boolean highClosed) {
+    private VoltageInterval(Double lowBound, Double highBound, boolean lowClosed, boolean highClosed) {
         this.nominalVoltageLowBound = lowBound;
         this.nominalVoltageHighBound = highBound;
         this.lowClosed = lowClosed;
@@ -113,7 +93,7 @@ public final class VoltageInterval {
             if (nominalVoltageLowBound == null && nominalVoltageHighBound == null) {
                 throw new IllegalArgumentException("Invalid interval: at least one bound must be defined.");
             }
-            return new VoltageInterval(nominalVoltageLowBound, lowClosed, nominalVoltageHighBound, highClosed);
+            return new VoltageInterval(nominalVoltageLowBound, nominalVoltageHighBound, lowClosed, highClosed);
         }
     }
 
@@ -124,6 +104,45 @@ public final class VoltageInterval {
      */
     public static Builder builder() {
         return new Builder();
+    }
+
+    /**
+     * <p>Convenient method to easily create a {@link VoltageInterval} with only a lower bound.</p>
+     * @param value the lower bound of the interval to create (it corresponds to the <code>nominalVoltageLowBound</code> attribute of the interval)
+     * @param valueIncluded is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @return an interval
+     */
+    public static VoltageInterval greaterThan(double value, boolean valueIncluded) {
+        return VoltageInterval.builder()
+                .setLowBound(value, valueIncluded)
+                .build();
+    }
+
+    /**
+     * <p>Convenient method to easily create a {@link VoltageInterval} with only a upper bound.</p>
+     * @param value the upper bound of the interval to create (it corresponds to the <code>nominalVoltageHighBound</code> attribute of the interval)
+     * @param valueIncluded is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @return an interval
+     */
+    public static VoltageInterval lowerThan(double value, boolean valueIncluded) {
+        return VoltageInterval.builder()
+                .setHighBound(value, valueIncluded)
+                .build();
+    }
+
+    /**
+     * <p>Convenient method to easily create a {@link VoltageInterval} with only a upper bound.</p>
+     * @param lowBound the lower bound of the interval to create (it corresponds to the <code>nominalVoltageLowBound</code> attribute of the interval)
+     * @param lowIncluded is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @param highBound the upper bound of the interval to create (it corresponds to the <code>nominalVoltageHighBound</code> attribute of the interval)
+     * @param highIncluded is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @return an interval
+     */
+    public static VoltageInterval between(double lowBound, double highBound, boolean lowIncluded, boolean highIncluded) {
+        return VoltageInterval.builder()
+                .setLowBound(lowBound, lowIncluded)
+                .setHighBound(highBound, highIncluded)
+                .build();
     }
 
     /**
