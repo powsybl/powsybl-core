@@ -294,7 +294,7 @@ public class SecurityAnalysisResultBuilder {
             this.resultContext = resultContext;
         }
 
-        public ConditionalActionsResultBuilder addConditionalActionsResult(String conditionalActionsId) {
+        public ConditionalActionsResultBuilder newConditionalActionsResult(String conditionalActionsId) {
             return new ConditionalActionsResultBuilder(conditionalActionsId, resultContext);
         }
 
