@@ -18,7 +18,7 @@ import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.ACTIVE_POW
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class ActionBuilderTest {
+class ActionBuilderTest {
 
     @Test
     void phaseTapChangerRegulationActionBuilderTest() {
@@ -86,12 +86,16 @@ public class ActionBuilderTest {
             .withId("actionId").withShuntCompensatorId("blabla")
             .withNetworkElementId("shuntCompensatorId").withSectionCount(4), shuntCompensatorPositionActionBuilder);
 
-        String message1 = Assertions.assertThrows(IllegalArgumentException.class, () -> new ShuntCompensatorPositionActionBuilder()
-            .withId("actionId").withShuntCompensatorId("shuntCompensatorId").build()).getMessage();
+        ShuntCompensatorPositionActionBuilder shuntCompensatorPositionActionBuilder1 = new ShuntCompensatorPositionActionBuilder()
+            .withId("actionId").withShuntCompensatorId("shuntCompensatorId");
+        String message1 = Assertions.assertThrows(IllegalArgumentException.class, shuntCompensatorPositionActionBuilder1::build)
+            .getMessage();
         Assertions.assertEquals("sectionCount is undefined", message1);
 
-        String message2 = Assertions.assertThrows(IllegalArgumentException.class, () -> new ShuntCompensatorPositionActionBuilder()
-            .withId("actionId").withShuntCompensatorId("shuntCompensatorId").withSectionCount(-1).build()).getMessage();
+        ShuntCompensatorPositionActionBuilder shuntCompensatorPositionActionBuilder2 = new ShuntCompensatorPositionActionBuilder()
+            .withId("actionId").withShuntCompensatorId("shuntCompensatorId").withSectionCount(-1);
+        String message2 = Assertions.assertThrows(IllegalArgumentException.class, shuntCompensatorPositionActionBuilder2::build)
+            .getMessage();
         Assertions.assertEquals("sectionCount should be positive for a shunt compensator", message2);
     }
 

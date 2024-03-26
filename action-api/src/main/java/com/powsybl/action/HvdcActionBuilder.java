@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class HvdcActionBuilder implements ActionBuilder {
+public class HvdcActionBuilder implements ActionBuilder<HvdcActionBuilder> {
 
     private String id;
     private String hvdcId;
@@ -48,8 +48,7 @@ public class HvdcActionBuilder implements ActionBuilder {
     }
 
     public HvdcActionBuilder withHvdcId(String hvdcId) {
-        this.hvdcId = hvdcId;
-        return this;
+        return withNetworkElementId(hvdcId);
     }
 
     public HvdcActionBuilder withAcEmulationEnabled(Boolean acEmulationEnabled) {

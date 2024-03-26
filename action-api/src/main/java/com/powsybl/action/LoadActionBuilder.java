@@ -3,8 +3,7 @@ package com.powsybl.action;
 public class LoadActionBuilder extends AbstractLoadActionBuilder<LoadAction, LoadActionBuilder> {
 
     public LoadActionBuilder withLoadId(String loadId) {
-        this.elementId = loadId;
-        return this;
+        return withNetworkElementId(loadId);
     }
 
     @Override

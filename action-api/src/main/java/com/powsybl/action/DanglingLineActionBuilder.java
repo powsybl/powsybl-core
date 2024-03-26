@@ -3,8 +3,7 @@ package com.powsybl.action;
 public class DanglingLineActionBuilder extends AbstractLoadActionBuilder<DanglingLineAction, DanglingLineActionBuilder> {
 
     public DanglingLineActionBuilder withDanglingLineId(String danglingLineId) {
-        this.elementId = danglingLineId;
-        return this;
+        return withNetworkElementId(danglingLineId);
     }
 
     @Override

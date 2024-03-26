@@ -44,8 +44,7 @@ public class StaticVarCompensatorActionBuilder implements ActionBuilder<StaticVa
     }
 
     public StaticVarCompensatorActionBuilder withStaticVarCompensatorId(String staticVarCompensatorId) {
-        this.staticVarCompensatorId = staticVarCompensatorId;
-        return this;
+        return withNetworkElementId(staticVarCompensatorId);
     }
 
     public StaticVarCompensatorActionBuilder withRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {

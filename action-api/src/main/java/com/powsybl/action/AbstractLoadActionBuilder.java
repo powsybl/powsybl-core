@@ -12,7 +12,8 @@ import java.util.Objects;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B extends AbstractLoadActionBuilder<T, B>> implements ActionBuilder {
+public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B extends AbstractLoadActionBuilder<T, B>>
+    implements ActionBuilder<B> {
 
     protected String id;
     protected String elementId;

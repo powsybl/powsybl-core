@@ -46,8 +46,7 @@ public class ShuntCompensatorPositionActionBuilder implements ActionBuilder<Shun
     }
 
     public ShuntCompensatorPositionActionBuilder withShuntCompensatorId(String shuntCompensatorId) {
-        this.shuntCompensatorId = shuntCompensatorId;
-        return this;
+        return withNetworkElementId(shuntCompensatorId);
     }
 
     public ShuntCompensatorPositionActionBuilder withSectionCount(int sectionCount) {

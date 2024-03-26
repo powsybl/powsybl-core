@@ -7,11 +7,15 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
 import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
 import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -21,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class IdentifierActionListTest {
+class IdentifierActionListTest {
 
     @Test
-    public void test() {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
         elementIdentifierMap.put(new TerminalsConnectionActionBuilder().withId("lineConnectionAction").withOpen(true)
@@ -35,5 +39,20 @@ public class IdentifierActionListTest {
         assertEquals(1, actionsCreated.size());
         assertEquals("lineConnectionAction", actionsCreated.get(0).getId());
         assertEquals("NHV1_NHV2_1", ((TerminalsConnectionAction) actionsCreated.get(0)).getElementId());
+    }
+
+    @Test
+    void testSeveralIdentifiablesFound() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
+        List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
+        networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
+        elementIdentifierMap.put(new TerminalsConnectionActionBuilder().withId("lineConnectionAction").withOpen(true)
+                .withSide(ThreeSides.ONE),
+            new NetworkElementIdentifierContingencyList(networkElementIdentifiers));
+        IdentifierActionList identifierActionList = new IdentifierActionList(Collections.emptyList(), elementIdentifierMap);
+        String message = Assertions.assertThrows(PowsyblException.class, () -> identifierActionList.getActions(network)).getMessage();
+        Assertions.assertEquals("for identifier in action builder more than one or none network element was found", message);
     }
 }

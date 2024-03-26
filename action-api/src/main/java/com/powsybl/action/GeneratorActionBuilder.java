@@ -12,7 +12,7 @@ import java.util.Objects;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public class GeneratorActionBuilder implements ActionBuilder {
+public class GeneratorActionBuilder implements ActionBuilder<GeneratorActionBuilder> {
 
     private String id;
     private String generatorId;
@@ -47,8 +47,7 @@ public class GeneratorActionBuilder implements ActionBuilder {
     }
 
     public GeneratorActionBuilder withGeneratorId(String generatorId) {
-        this.generatorId = generatorId;
-        return this;
+        return withNetworkElementId(generatorId);
     }
 
     public GeneratorActionBuilder withActivePowerRelativeValue(boolean activePowerRelativeValue) {

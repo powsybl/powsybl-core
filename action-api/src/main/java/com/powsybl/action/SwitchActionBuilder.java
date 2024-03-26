@@ -48,7 +48,6 @@ public class SwitchActionBuilder implements ActionBuilder<SwitchActionBuilder> {
     }
 
     public SwitchActionBuilder withSwitchId(String switchId) {
-        this.switchId = switchId;
-        return this;
+        return withNetworkElementId(switchId);
     }
 }

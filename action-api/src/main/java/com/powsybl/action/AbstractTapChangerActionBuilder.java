@@ -36,8 +36,7 @@ public abstract class AbstractTapChangerActionBuilder<T extends ActionBuilder<T>
     }
 
     public T withTransformerId(String transformerId) {
-        this.transformerId = transformerId;
-        return (T) this;
+        return withNetworkElementId(transformerId);
     }
 
     public T withSide(ThreeSides side) {
