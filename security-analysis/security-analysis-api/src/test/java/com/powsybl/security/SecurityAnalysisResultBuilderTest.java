@@ -296,11 +296,11 @@ class SecurityAnalysisResultBuilderTest {
         SecurityAnalysisResult result = builder.build();
 
         assertEquals(1, result.getOperatorStrategyResults().size());
-        assertEquals(2, result.getOperatorStrategyResults().get(0).getConditionalActionsResult().size());
+        assertEquals(2, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().size());
 
         OperatorStrategyResult strategyResult = result.getOperatorStrategyResults().get(0);
-        OperatorStrategyResult.ConditionalActionsResult firstActionsRes = strategyResult.getConditionalActionsResult().get(0);
-        OperatorStrategyResult.ConditionalActionsResult lastActionsRes = strategyResult.getConditionalActionsResult().get(1);
+        OperatorStrategyResult.ConditionalActionsResult firstActionsRes = strategyResult.getConditionalActionsResults().get(0);
+        OperatorStrategyResult.ConditionalActionsResult lastActionsRes = strategyResult.getConditionalActionsResults().get(1);
 
         // First conditional actions converged
         assertSame(PostContingencyComputationStatus.CONVERGED, firstActionsRes.getStatus());

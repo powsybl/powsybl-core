@@ -106,7 +106,7 @@ public class OperatorStrategyResult {
     /**
      * @return The list of all ConditionalActionsResult of the associated operator strategy
      */
-    public List<ConditionalActionsResult> getConditionalActionsResult() {
+    public List<ConditionalActionsResult> getConditionalActionsResults() {
         return conditionalActionsResults;
     }
 
