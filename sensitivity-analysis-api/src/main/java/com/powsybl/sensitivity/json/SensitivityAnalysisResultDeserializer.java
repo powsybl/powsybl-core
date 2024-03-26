@@ -28,6 +28,8 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         super(SensitivityAnalysisResult.class);
     }
 
+    public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
+
     @Override
     public SensitivityAnalysisResult deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String version = null;
@@ -39,6 +41,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                 case "version":
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
+                    JsonUtil.setSourceVersion(deserializationContext, version, SOURCE_VERSION_ATTRIBUTE);
                     break;
 
                 case "sensitivityFactors":
@@ -60,7 +63,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
             }
         }
 
-        if (version == null || !version.equals("1.0")) {
+        if (version == null) {
             //Only 1.0 version is supported for now
             throw new IllegalStateException("Version different than 1.0 not supported.");
         }

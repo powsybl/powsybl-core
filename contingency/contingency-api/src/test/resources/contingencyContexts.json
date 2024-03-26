@@ -6,5 +6,5 @@
   "contextType" : "ONLY_CONTINGENCIES"
 }, {
   "contextType" : "SPECIFIC",
-  "contingencyId" : "lineId"
+  "contingencyIds" : [ "lineId" ]
 } ]

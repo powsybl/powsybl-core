@@ -23,6 +23,8 @@ import java.util.List;
  */
 public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorStrategyList> {
 
+    public static final String OPERATOR_STRATEGY_LIST_SOURCE_VERSION_ATTRIBUTE = "operatorStrategyListSourceVersionAttribute";
+
     public OperatorStrategyListDeserializer() {
         super(OperatorStrategyList.class);
     }
@@ -39,6 +41,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
             switch (parser.getCurrentName()) {
                 case "version":
                     context.version = parser.nextTextValue();
+                    JsonUtil.setSourceVersion(deserializationContext, context.version, OPERATOR_STRATEGY_LIST_SOURCE_VERSION_ATTRIBUTE);
                     return true;
                 case "operatorStrategies":
                     parser.nextToken(); // skip

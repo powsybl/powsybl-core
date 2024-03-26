@@ -46,7 +46,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
 
                 case SPECIFIC:
                     int contingencyIndex = IntStream.range(0, contingencies.size())
-                            .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
+                            .filter(i -> contingencyContext.getContingencyIds().contains(contingencies.get(i).getId()))
                             .findFirst()
                             .orElseThrow();
                     resultWriter.writeSensitivityValue(factorIndex[0]++, contingencyIndex, 0.0, 0.0);

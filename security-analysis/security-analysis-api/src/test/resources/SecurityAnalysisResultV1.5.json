@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.5",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -156,7 +156,7 @@
     "operatorStrategy" : {
       "id" : "strategyId",
       "contingencyContextType" : "SPECIFIC",
-      "contingencyIds" : [ "contingency1" ],
+      "contingencyId" : "contingency1",
       "conditionalActions" : [ {
         "id" : "stage1",
         "condition" : {

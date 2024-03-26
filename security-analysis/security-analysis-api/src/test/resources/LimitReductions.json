@@ -6,7 +6,7 @@
     "monitoringOnly" : false,
     "contingencyContext" : {
       "contextType" : "SPECIFIC",
-      "contingencyId" : "contingency1"
+      "contingencyIds" : [ "contingency1" ]
     },
     "equipmentCriteria" : [ {
       "type" : "identifierCriterion",
