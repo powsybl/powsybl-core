@@ -12,7 +12,7 @@ SELECT DISTINCT  ?graph
        { ?s  ?p  ?o }
 }
 
-# query: fullModel
+# query: fullModels
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
 { GRAPH ?graph {
@@ -21,11 +21,26 @@ SELECT *
         md:Model.scenarioTime ?scenarioTime ;
         md:Model.created ?created ;
         md:Model.version ?version ;
-        md:Model.DependentOn ?DependentOn ;
-        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
-        md:Model.profile ?profile .
-    FILTER (regex(?profile, "{0}", "i"))
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet .
+    {
+    SELECT ?FullModel (group_concat(?profile; separator=" ") as ?profileList)
+        WHERE {
+                ?FullModel md:Model.profile ?profile .
+        } GROUP BY ?FullModel
+    }
     OPTIONAL { ?FullModel md:Model.description ?description }
+    OPTIONAL {
+        SELECT ?FullModel (group_concat(?dependentOn; separator=" ") as ?dependentOnList)
+            WHERE {
+                    ?FullModel md:Model.DependentOn ?dependentOn .
+            } GROUP BY ?FullModel
+    }
+    OPTIONAL {
+        SELECT ?FullModel (group_concat(?supersedes; separator=" ") as ?supersedesList)
+            WHERE {
+                    ?FullModel md:Model.Supersedes ?supersedes .
+            } GROUP BY ?FullModel
+    }
 }}
 
 # query: modelIds

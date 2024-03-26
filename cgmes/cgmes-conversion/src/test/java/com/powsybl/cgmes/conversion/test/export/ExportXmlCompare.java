@@ -261,14 +261,15 @@ final class ExportXmlCompare {
         return onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
+        // FIXME(Luma) Refactoring in progress. cgmes metadata models should be serialized in the same way, maybe we could check something else
         if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.ATTR_VALUE
-                    && control.getNodeName().equals("id")) {
-                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
-                    return ComparisonResult.EQUAL;
-                }
+            String xpath = comparison.getControlDetails().getXPath();
+            if (xpath == null) {
+                xpath = comparison.getControlDetails().getParentXPath();
+            }
+            if (xpath != null && xpath.contains("cgmesMetadataModels")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;

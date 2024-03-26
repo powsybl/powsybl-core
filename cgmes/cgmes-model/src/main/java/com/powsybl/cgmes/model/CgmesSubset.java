@@ -10,8 +10,6 @@ package com.powsybl.cgmes.model;
 
 import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
-
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
@@ -59,6 +57,11 @@ public enum CgmesSubset {
             return super.isValidName(contextName)
                     || TOPOLOGY.isValidName(contextName) && isBoundary(contextName);
         }
+    }, UNKNOWN("unknown") {
+        @Override
+        public boolean isValidName(String contextName) {
+            return false;
+        }
     };
 
     CgmesSubset(String identifier) {
@@ -89,7 +92,7 @@ public enum CgmesSubset {
     private final String identifier;
     private final String validName0;
     private final String validName1;
-    private static final Map<String, String> PROFILE = ImmutableMap.of(
+    private static final Map<String, String> PROFILE = Map.of(
         "SV", "StateVariables",
         "EQ", "EquipmentCore",
         "SSH", "SteadyStateHypothesis",

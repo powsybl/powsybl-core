@@ -57,6 +57,9 @@ class TripleStoreWriteTest {
             assertEquals(9, model.tripleStore().contextNames().size());
 
             for (CgmesSubset subset : CgmesSubset.values()) {
+                if (subset == CgmesSubset.UNKNOWN) {
+                    continue;
+                }
                 DataSource ds1 = DataSourceUtil.createDataSource(fileSystem.getPath("/"), "cgmes", CompressionFormat.ZIP, null);
                 model.write(ds1, subset);
 

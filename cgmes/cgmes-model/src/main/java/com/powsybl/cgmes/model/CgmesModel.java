@@ -30,7 +30,7 @@ public interface CgmesModel {
 
     Properties getProperties();
 
-    default PropertyBags fullModel(String cgmesProfile) {
+    default PropertyBags fullModels() {
         return new PropertyBags();
     }
 
