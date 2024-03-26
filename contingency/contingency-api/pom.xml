@@ -58,6 +58,10 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-modification</artifactId>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-criteria</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>

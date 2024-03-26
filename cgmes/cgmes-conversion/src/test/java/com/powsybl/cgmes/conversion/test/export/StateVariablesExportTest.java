@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -23,6 +24,8 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -368,8 +371,10 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
         Properties parameters = new Properties();
         parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
-        network.write("CGMES", parameters, outputPath);
 
+        setReferenceTerminalsFromReferencePriority(network);
+
+        network.write("CGMES", parameters, outputPath);
         assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
     }
 
@@ -383,12 +388,40 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         Properties parameters = new Properties();
         parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
 
+        setReferenceTerminalsFromReferencePriority(network);
+
         network.write("CGMES", parameters, outputPath);
         assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
 
         parameters.setProperty(CgmesExport.MAX_P_MISMATCH_CONVERGED, "0.000001");
         network.write("CGMES", parameters, outputPath);
         assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    @Test
+    void testDisconnectedGeneratorWithReferenceTerminal() {
+        // Create a small network
+        Network network = Network.create("network", "iidm");
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("VL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("B").add().setV(400).setAngle(0);
+        vl.newLoad().setId("L").setConnectableBus("B").setBus("B").setP0(100.0).setQ0(0.0).add();
+        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
+
+        // Set reference terminal
+        ReferenceTerminals.addTerminal(g.getTerminal());
+
+        // Disconnect the generator
+        Terminal t = g.getTerminal();
+        assertTrue(t.disconnect());
+        assertFalse(t.isConnected());
+        assertNull(t.getBusView().getBus());
+
+        // Verify in the output file that no TopologicalIsland was created
+        Path outputPath = fileSystem.getPath("tmp-referenceTerminal");
+        Path outputSv = fileSystem.getPath("tmp-referenceTerminal_SV.xml");
+        network.write("CGMES", new Properties(), outputPath);
+        assertEquals("", readFirstTopologicalIslandDescription(outputSv));
     }
 
     private static String readFirstTopologicalIslandDescription(Path sv) {
@@ -399,9 +432,11 @@ class StateVariablesExportTest extends AbstractSerDeTest {
             while (reader.hasNext()) {
                 int token = reader.next();
                 if (token == XMLStreamConstants.START_ELEMENT) {
+                    // Retrieve the TopologicalIsland node
                     if (reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
                         insideTopologicalIsland = true;
-                    } else if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
+                    }
+                    if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
                         description = reader.getElementText();
                     }
                 } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
@@ -413,6 +448,14 @@ class StateVariablesExportTest extends AbstractSerDeTest {
             throw new RuntimeException(e);
         }
         return description;
+    }
+
+    private static void setReferenceTerminalsFromReferencePriority(Network network) {
+        // Assume all terminals with reference priority > 0 are set as angle reference terminals by the load flow
+        ReferencePriorities.get(network)
+                .stream()
+                .filter(p -> p.getPriority() > 0)
+                .forEach(p -> ReferenceTerminals.addTerminal(p.getTerminal()));
     }
 
     private static String buildNetworkSvTapStepsString(Network network) {

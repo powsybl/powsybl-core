@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -378,7 +379,8 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringRdfChildLookupTerminal,
                 ExportXmlCompare::ignoringRdfChildLookupEquivalentInjection,
                 ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
-                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl);
+                ExportXmlCompare::ignoringRdfChildLookupRegulatingControl,
+                ExportXmlCompare::ignoringTextValueEquivalentInjection);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
 

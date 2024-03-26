@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conformity;
@@ -1458,7 +1459,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReference microGridBaseCaseNLMultipleSlacks() {
+    public static GridModelReference microGridBaseCaseNLMultipleReferencePriorities() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_multiple_generators_with_reference_priority/";
         return new GridModelReferenceResources(

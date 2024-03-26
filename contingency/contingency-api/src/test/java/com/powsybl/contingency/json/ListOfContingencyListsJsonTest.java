@@ -3,20 +3,23 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.*;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.GeneratorContingency;
+import com.powsybl.contingency.HvdcLineContingency;
 import com.powsybl.contingency.contingency.list.*;
-import com.powsybl.contingency.contingency.list.criterion.*;
 import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
 import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.junit.jupiter.api.Test;

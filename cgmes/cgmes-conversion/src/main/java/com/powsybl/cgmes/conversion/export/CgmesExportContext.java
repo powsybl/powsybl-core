@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export;
 
@@ -402,7 +403,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c, network);
+                    addIidmMappingsTerminal(t, c);
                 }
             }
         }
@@ -488,7 +489,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
+    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
@@ -508,7 +509,7 @@ public class CgmesExportContext {
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = namingStrategy.getCgmesId(refTyped(c), TERMINAL, ref(sequenceNumber));
@@ -660,7 +661,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (alias == null) {

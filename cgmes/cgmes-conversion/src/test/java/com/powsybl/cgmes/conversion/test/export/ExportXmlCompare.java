@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -613,6 +614,16 @@ final class ExportXmlCompare {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("TapChanger") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueEquivalentInjection(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("EquivalentInjection")) {
                 return ComparisonResult.EQUAL;
             }
         }

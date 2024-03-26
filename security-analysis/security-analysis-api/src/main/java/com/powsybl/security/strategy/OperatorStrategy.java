@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.strategy;
 
@@ -17,7 +18,7 @@ import java.util.Objects;
  * Describes a strategy that an operator would apply to solve violations occuring after a contingency.
  *
  * <p>A strategy is defined for a contingency, and defines a {@link Condition} under which
- * some {@link com.powsybl.security.action.Action}s will be taken.
+ * some {@link com.powsybl.action.Action}s will be taken.
  *
  * <p>The security analysis implementation will check that condition after the simulation
  * of the contingency, and if true, it will simulate the actions.

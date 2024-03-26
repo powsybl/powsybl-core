@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.conformity;
@@ -21,6 +22,8 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -332,6 +335,15 @@ class CgmesConformity1ConversionTest {
         assertTrue(Double.isNaN(ext.getDroop()));
         assertEquals(1.0, ext.getParticipationFactor(), 0.0);
         assertTrue(ext.isParticipate());
+    }
+
+    @Test
+    void microNLReferencePriorityExtension() {
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
+        ReferencePriority referencePriority = ReferencePriorities.get(network).iterator().next();
+        assertNotNull(referencePriority);
+        assertEquals(1, referencePriority.getPriority());
+        assertEquals("9c3b8f97-7972-477d-9dc8-87365cc0ad0e", referencePriority.getTerminal().getConnectable().getId());
     }
 
     private static class TxData {

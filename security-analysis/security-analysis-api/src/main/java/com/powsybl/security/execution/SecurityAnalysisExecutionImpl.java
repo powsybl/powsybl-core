@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
@@ -60,6 +61,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(), input.getParameters(), computationManager, input.getFilter(), input.getLimitViolationDetector(),
-                new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(), ReportNode.NO_OP);
+                new ArrayList<>(input.getInterceptors()), data.getOperatorStrategies(), data.getActions(), data.getMonitors(),
+                data.getLimitReductions(), ReportNode.NO_OP);
     }
 }

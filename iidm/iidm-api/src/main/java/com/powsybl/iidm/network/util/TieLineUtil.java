@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -12,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -297,6 +299,16 @@ public final class TieLineUtil {
         return adm.y22().add(adm.y21()).getImaginary();
     }
 
+    public static double getBoundaryV(DanglingLine dl1, DanglingLine dl2) {
+        Complex boundaryV = voltageAtTheBoundaryNode(dl1, dl2);
+        return boundaryV.abs();
+    }
+
+    public static double getBoundaryAngle(DanglingLine dl1, DanglingLine dl2) {
+        Complex boundaryV = voltageAtTheBoundaryNode(dl1, dl2);
+        return Math.toDegrees(Math.atan2(boundaryV.getImaginary(), boundaryV.getReal()));
+    }
+
     private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(DanglingLine dl1,
         DanglingLine dl2) {
         // zero impedance dangling lines should be supported
@@ -321,6 +333,19 @@ public final class TieLineUtil {
         } else {
             return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
         }
+    }
+
+    private static Complex voltageAtTheBoundaryNode(DanglingLine dl1, DanglingLine dl2) {
+
+        Complex v1 = ComplexUtils.polar2Complex(DanglingLineData.getV(dl1), DanglingLineData.getTheta(dl1));
+        Complex v2 = ComplexUtils.polar2Complex(DanglingLineData.getV(dl2), DanglingLineData.getTheta(dl2));
+
+        BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(dl1.getR(), dl1.getX(), 1.0, 0.0, 1.0, 0.0,
+                new Complex(dl1.getG(), dl1.getB()), new Complex(0.0, 0.0));
+        BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
+                new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
+
+        return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
     }
 
     /**
