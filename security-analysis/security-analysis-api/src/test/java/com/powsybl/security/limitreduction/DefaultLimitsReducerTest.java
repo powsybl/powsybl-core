@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.limitreduction.result.LimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -34,8 +34,8 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultReducedLimitsComputerTest {
-    private static DefaultReducedLimitsComputer computer;
+class DefaultLimitsReducerTest {
+    private static DefaultLimitReductionsApplier computer;
     private static Network network;
 
     @BeforeAll
@@ -59,7 +59,7 @@ class DefaultReducedLimitsComputerTest {
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 List.of(new EqualityTemporaryDurationCriterion(60)));
         LimitReductionList reductionList = new LimitReductionList(List.of(reduction1, reduction2, reduction3, reduction4));
-        computer = new DefaultReducedLimitsComputer(reductionList);
+        computer = new DefaultLimitReductionsApplier(reductionList);
     }
 
     @Test
@@ -80,10 +80,10 @@ class DefaultReducedLimitsComputerTest {
         // contingency1
         computer.changeContingencyId("contingency1");
         // - Some reductions apply for "NHV1_NHV2_1", but only for permanent limits
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
         assertTrue(optLimits.isPresent());
         assertEquals(450, optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
+        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         LoadingLimits reducedLimits = optLimits.get().getLimits();
         assertEquals(990, reducedLimits.getPermanentLimit(), 0.01);
@@ -95,12 +95,12 @@ class DefaultReducedLimitsComputerTest {
     }
 
     private static void computeAndCheckLimitsOnLine1WithoutReductions() {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
         assertTrue(optLimits.isPresent());
         assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
 
-        optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
+        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         checkOriginalLimitsOnLine1(optLimits.get().getLimits());
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
@@ -121,7 +121,7 @@ class DefaultReducedLimitsComputerTest {
     }
 
     private static void computeAndCheckLimitsOnLine2(double expectedReduction) {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE);
         assertTrue(optLimits.isPresent());
         LoadingLimits reducedLimits = optLimits.get().getLimits();
         assertEquals(1100 * expectedReduction, reducedLimits.getPermanentLimit(), 0.01);
@@ -130,7 +130,7 @@ class DefaultReducedLimitsComputerTest {
         checkOriginalLimitsOnLine2(optLimits.get().getOriginalLimits());
         assertFalse(optLimits.get().isSameAsOriginal());
 
-        optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO);
+        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         assertEquals(500 * expectedReduction, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
@@ -147,7 +147,7 @@ class DefaultReducedLimitsComputerTest {
     @Test
     void temporaryLimitToRemoveTest() {
         computer.changeContingencyId("contingency4");
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         LoadingLimits reducedLimits = optLimits.get().getLimits();
         assertEquals(1100, reducedLimits.getPermanentLimit(), 0.01);
@@ -160,7 +160,7 @@ class DefaultReducedLimitsComputerTest {
 
     @Test
     void noLimitsToReduceTest() {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.getLimitsWithAppliedReduction(network.getTwoWindingsTransformer("NGEN_NHV1"),
+        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
                 LimitType.CURRENT, ThreeSides.ONE);
         // There are no limits on "NGEN_NHV1" => no reduced limits.
         assertTrue(optLimits.isEmpty());
@@ -181,10 +181,10 @@ class DefaultReducedLimitsComputerTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("getNoChangesComputers")
-    void noChangesTest(String desc, DefaultReducedLimitsComputer noChangesComputer) {
+    void noChangesTest(String desc, DefaultLimitReductionsApplier noChangesComputer) {
         // In this test, no effective reductions were defined (either no reductions were used in the computer or
         // their values are all equal to 1.0).
-        Optional<LimitsContainer<LoadingLimits>> optLimits = noChangesComputer.getLimitsWithAppliedReduction(network.getLine("NHV1_NHV2_1"),
+        Optional<LimitsContainer<LoadingLimits>> optLimits = noChangesComputer.computeLimits(network.getLine("NHV1_NHV2_1"),
                 LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         checkOriginalLimitsOnLine1(optLimits.get().getLimits());
@@ -192,7 +192,7 @@ class DefaultReducedLimitsComputerTest {
     }
 
     static Stream<Arguments> getNoChangesComputers() {
-        DefaultReducedLimitsComputer noReductionComputer = new DefaultReducedLimitsComputer(new LimitReductionList(Collections.emptyList()));
+        DefaultLimitReductionsApplier noReductionComputer = new DefaultLimitReductionsApplier(new LimitReductionList(Collections.emptyList()));
         LimitReduction reduction1 = new LimitReduction(LimitType.CURRENT, 1., false,
                 ContingencyContext.all(),
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
@@ -202,7 +202,7 @@ class DefaultReducedLimitsComputerTest {
                 List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
                 Collections.emptyList());
         LimitReductionList reductionsTo1List = new LimitReductionList(List.of(reduction1, reduction2));
-        DefaultReducedLimitsComputer reductionsTo1Computer = new DefaultReducedLimitsComputer(reductionsTo1List);
+        DefaultLimitReductionsApplier reductionsTo1Computer = new DefaultLimitReductionsApplier(reductionsTo1List);
         return Stream.of(
                 Arguments.of("No reductions", noReductionComputer),
                 Arguments.of("Reductions to 1.0", reductionsTo1Computer)
@@ -214,9 +214,9 @@ class DefaultReducedLimitsComputerTest {
     void isContingencyContextListApplicableTest(String desc, ContingencyContext contingencyContext,
                                                 boolean applicableForPreContingency,
                                                 boolean applicableForContingency1, boolean applicableForContingency2) {
-        assertEquals(applicableForPreContingency, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContext, null));
-        assertEquals(applicableForContingency1, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContext, "contingency1"));
-        assertEquals(applicableForContingency2, AbstractContingencyWiseReducedLimitsComputer.isContingencyContextListApplicable(contingencyContext, "contingency2"));
+        assertEquals(applicableForPreContingency, AbstractLimitReductionsApplier.isContingencyContextListApplicable(contingencyContext, null));
+        assertEquals(applicableForContingency1, AbstractLimitReductionsApplier.isContingencyContextListApplicable(contingencyContext, "contingency1"));
+        assertEquals(applicableForContingency2, AbstractLimitReductionsApplier.isContingencyContextListApplicable(contingencyContext, "contingency2"));
     }
 
     static Stream<Arguments> getContingencyContextListsData() {

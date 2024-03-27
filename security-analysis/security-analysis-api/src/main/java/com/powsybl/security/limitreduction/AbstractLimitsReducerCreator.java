@@ -10,7 +10,7 @@ package com.powsybl.security.limitreduction;
 /**
  * <p>Interface for objects generating an {@link AbstractLimitsReducer} object
  * configured for a network element, with its original limits of generic type {@link L}.</p>
- * <p>{@link AbstractContingencyWiseReducedLimitsComputer} implementations dealing with limits of type {@link L} need
+ * <p>{@link AbstractLimitReductionsApplier} implementations dealing with limits of type {@link L} need
  * an implementation of this interface to compute reduced limits.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */

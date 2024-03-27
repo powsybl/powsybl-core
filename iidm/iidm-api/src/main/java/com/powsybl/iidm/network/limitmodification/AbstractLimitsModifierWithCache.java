@@ -5,11 +5,11 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.limitreduction.computer;
+package com.powsybl.iidm.network.limitmodification;
 
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.limitreduction.result.LimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,10 +23,10 @@ import java.util.Optional;
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLimitsComputer<P, L> implements ReducedLimitsComputer<P, L> {
+public abstract class AbstractLimitsModifierWithCache<P, L> implements LimitsModifier<P, L> {
     private final Map<CacheKey<P>, LimitsContainer<L>> reducedLimitsCache;
 
-    protected AbstractReducedLimitsComputer() {
+    protected AbstractLimitsModifierWithCache() {
         this.reducedLimitsCache = new HashMap<>();
     }
 
@@ -41,7 +41,7 @@ public abstract class AbstractReducedLimitsComputer<P, L> implements ReducedLimi
      * @return an object containing the original limits and the altered ones
      */
     @Override
-    public Optional<LimitsContainer<L>> getLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side) {
+    public Optional<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side) {
         Objects.requireNonNull(processable);
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
@@ -50,20 +50,20 @@ public abstract class AbstractReducedLimitsComputer<P, L> implements ReducedLimi
             return Optional.of(reducedLimitsCache.get(cacheKey));
         }
 
-        return computeLimitsWithAppliedReduction(processable, limitType, side);
+        return doComputeModifiedLimits(processable, limitType, side);
     }
 
     /**
-     * <p>Retrieve the limits on <code>processable</code> then apply reductions on it.</p>
-     * <p>If no reductions applies on the resulting {@link LimitsContainer} must contains the same object for
+     * <p>Retrieve the limits on <code>processable</code> then apply modifications on them.</p>
+     * <p>If no modifications applies on the resulting {@link LimitsContainer} must contains the same object for
      * the original and the reduced limits.</p>
      *
-     * @param processable the network element for which the limits must be retrieved and reduced
+     * @param processable the network element for which the limits must be retrieved and modified
      * @param limitType the type of limits to process
      * @param side the side of the network element where to retrieve the original limits
-     * @return an object containing both the original and the reduced limits.
+     * @return an object containing both the original and the modified limits.
      */
-    protected abstract Optional<LimitsContainer<L>> computeLimitsWithAppliedReduction(P processable, LimitType limitType, ThreeSides side);
+    protected abstract Optional<LimitsContainer<L>> doComputeModifiedLimits(P processable, LimitType limitType, ThreeSides side);
 
     protected void putInCache(P processable, LimitType limitType, ThreeSides side,
                               LimitsContainer<L> limitsContainer) {

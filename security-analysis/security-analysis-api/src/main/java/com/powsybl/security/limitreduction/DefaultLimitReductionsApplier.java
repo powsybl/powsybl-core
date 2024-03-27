@@ -10,27 +10,36 @@ package com.powsybl.security.limitreduction;
 import com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapter;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Implementation of {@link AbstractContingencyWiseReducedLimitsComputer} working with {@link com.powsybl.iidm.network.Identifiable}.
+ * <p>Implementation of {@link AbstractLimitReductionsApplier} working with {@link com.powsybl.iidm.network.Identifiable}.</p>
+ * <p>You can retrieve the reduced limits by using the {@link #computeLimits(Object, LimitType, ThreeSides)} method
+ * (with an {@link Identifiable} as first parameter).
+ * It returns a {@link com.powsybl.iidm.network.limitmodification.result.LimitsContainer} containing both
+ * the original limits (with {@link LimitsContainer#getOriginalLimits()} and the reduced limits
+ * (with {@link LimitsContainer#getLimits()}).</p>
+ *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultReducedLimitsComputer extends AbstractContingencyWiseReducedLimitsComputer<Identifiable<?>, LoadingLimits> {
+public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplier<Identifiable<?>, LoadingLimits> {
 
     private final Map<Identifiable<?>, DefaultNetworkElementAdapter> networkElementAdapterCache = new HashMap<>();
 
     /**
-     * Create a new {@link AbstractContingencyWiseReducedLimitsComputer} for {@link com.powsybl.iidm.network.Identifiable}
+     * Create a new {@link AbstractLimitReductionsApplier} for {@link com.powsybl.iidm.network.Identifiable}
      * using a list of reductions.
      *
      * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    public DefaultReducedLimitsComputer(LimitReductionList limitReductionList) {
+    public DefaultLimitReductionsApplier(LimitReductionList limitReductionList) {
         super(limitReductionList);
     }
 

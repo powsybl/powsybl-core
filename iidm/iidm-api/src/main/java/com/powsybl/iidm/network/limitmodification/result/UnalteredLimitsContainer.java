@@ -5,23 +5,21 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.limitreduction.result;
+package com.powsybl.iidm.network.limitmodification.result;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLimitsContainer<H extends L, L> implements LimitsContainer<L> {
-    private final H limits;
+public class UnalteredLimitsContainer<L> implements LimitsContainer<L> {
     private final L originalLimits;
 
-    protected AbstractReducedLimitsContainer(H limits, L originalLimits) {
-        this.limits = limits;
+    public UnalteredLimitsContainer(L originalLimits) {
         this.originalLimits = originalLimits;
     }
 
     @Override
-    public H getLimits() {
-        return limits;
+    public L getLimits() {
+        return getOriginalLimits();
     }
 
     @Override
@@ -31,12 +29,6 @@ public abstract class AbstractReducedLimitsContainer<H extends L, L> implements 
 
     @Override
     public boolean isSameAsOriginal() {
-        return false;
+        return true;
     }
-
-    public abstract Details getDetailsForPermanentLimit();
-
-    public abstract Details getDetailsForTemporaryLimit(int acceptableDuration);
-
-    public record Details(double originalValue, double appliedReduction) { }
 }

@@ -5,13 +5,13 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.limitreduction;
+package com.powsybl.iidm.network.limitmodification;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.limitreduction.result.AbstractReducedLoadingLimits;
-import com.powsybl.iidm.network.limitreduction.result.DefaultReducedLimitsContainer;
-import com.powsybl.iidm.network.limitreduction.result.LimitsContainer;
-import com.powsybl.iidm.network.limitreduction.result.UnalteredLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.AbstractReducedLoadingLimits;
+import com.powsybl.iidm.network.limitmodification.result.DefaultReducedLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.UnalteredLimitsContainer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
