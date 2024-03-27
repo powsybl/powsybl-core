@@ -59,6 +59,11 @@ public class SecurityAnalysisParametersDeserializer extends StdDeserializer<Secu
                     parser.nextToken();
                     JsonLoadFlowParameters.deserialize(parser, deserializationContext, parameters.getLoadFlowParameters());
                     break;
+                case "intermediate-results-in-operator-strategy":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: specificCompatibility", version, "1.2");
+                    parser.nextToken();
+                    parameters.setIntermediateResultsInOperatorStrategy(parser.getValueAsBoolean());
+                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);

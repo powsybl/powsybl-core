@@ -24,6 +24,6 @@ class TimeSeriesVersionsTest {
 
     @Test
     void testException() {
-        assertThrows(IllegalArgumentException.class, () -> TimeSeriesVersions.check(-1));
+        assertThrows(IllegalArgumentException.class, () -> TimeSeriesVersions.check(-2));
     }
 }

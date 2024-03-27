@@ -26,9 +26,14 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
     // VERSION = 1.0
     // VERSION = 1.1 IncreasedViolationsParameters adding.
-    public static final String VERSION = "1.1";
+    // VERSION = 1.2 intermediateResultsInOperatorStrategy
+    public static final String VERSION = "1.2";
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+
+    static final boolean DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY = false;
+
+    private boolean intermediateResultsInOperatorStrategy = DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY;
 
     public static class IncreasedViolationsParameters {
 
@@ -155,6 +160,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
 
         platformConfig.getOptionalModuleConfig("security-analysis-default-parameters")
                 .ifPresent(config -> {
+                    parameters.setIntermediateResultsInOperatorStrategy(config.getBooleanProperty("intermediate-results-in-operator-strategy", DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY));
                     parameters.getIncreasedViolationsParameters()
                             .setFlowProportionalThreshold(config.getDoubleProperty("increased-flow-violations-proportional-threshold", IncreasedViolationsParameters.DEFAULT_FLOW_PROPORTIONAL_THRESHOLD))
                             .setLowVoltageProportionalThreshold(config.getDoubleProperty("increased-low-voltage-violations-proportional-threshold", IncreasedViolationsParameters.DEFAULT_LOW_VOLTAGE_PROPORTIONAL_THRESHOLD))
@@ -181,6 +187,15 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     public SecurityAnalysisParameters setIncreasedViolationsParameters(IncreasedViolationsParameters increasedViolationsParameters) {
         this.increasedViolationsParameters = Objects.requireNonNull(increasedViolationsParameters);
         return this;
+    }
+
+    public SecurityAnalysisParameters setIntermediateResultsInOperatorStrategy(boolean intermediateResultsInOperatorStrategy) {
+        this.intermediateResultsInOperatorStrategy = intermediateResultsInOperatorStrategy;
+        return this;
+    }
+
+    public boolean getIntermediateResultsInOperatorStrategy() {
+        return intermediateResultsInOperatorStrategy;
     }
 
     public LoadFlowParameters getLoadFlowParameters() {
