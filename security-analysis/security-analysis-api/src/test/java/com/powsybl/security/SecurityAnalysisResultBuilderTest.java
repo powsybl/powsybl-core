@@ -240,7 +240,7 @@ class SecurityAnalysisResultBuilderTest {
         LimitViolation violation = LimitViolations.highVoltage().subject("VLHV1").value(425).limit(420).build();
         BusResult busResult = new BusResult("VLHV2", "VLHV2_0", 426.2, 0.12);
         builder.operatorStrategy(operatorStrategy)
-                .addConditionalActionsResult("default")
+                .newConditionalActionsResult("default")
                 .addViolation(violation)
                 .addBusResult(busResult)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
@@ -281,12 +281,12 @@ class SecurityAnalysisResultBuilderTest {
         BusResult busResult2 = new BusResult("VLHV2", "VLHV2_0", 34.2, 0.36);
 
         builder.operatorStrategy(operatorStrategy)
-                .addConditionalActionsResult("CRA1")
+                .newConditionalActionsResult("CRA1")
                 .addViolation(violation)
                 .addBusResult(busResult)
                 .setStatus(PostContingencyComputationStatus.CONVERGED)
                 .endConditionalActions()
-                .addConditionalActionsResult("CRA2")
+                .newConditionalActionsResult("CRA2")
                 .addViolation(violation2)
                 .addBusResult(busResult2)
                 .setStatus(PostContingencyComputationStatus.FAILED)
@@ -296,11 +296,11 @@ class SecurityAnalysisResultBuilderTest {
         SecurityAnalysisResult result = builder.build();
 
         assertEquals(1, result.getOperatorStrategyResults().size());
-        assertEquals(2, result.getOperatorStrategyResults().get(0).getConditionalActionsResult().size());
+        assertEquals(2, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().size());
 
         OperatorStrategyResult strategyResult = result.getOperatorStrategyResults().get(0);
-        OperatorStrategyResult.ConditionalActionsResult firstActionsRes = strategyResult.getConditionalActionsResult().get(0);
-        OperatorStrategyResult.ConditionalActionsResult lastActionsRes = strategyResult.getConditionalActionsResult().get(1);
+        OperatorStrategyResult.ConditionalActionsResult firstActionsRes = strategyResult.getConditionalActionsResults().get(0);
+        OperatorStrategyResult.ConditionalActionsResult lastActionsRes = strategyResult.getConditionalActionsResults().get(1);
 
         // First conditional actions converged
         assertSame(PostContingencyComputationStatus.CONVERGED, firstActionsRes.getStatus());

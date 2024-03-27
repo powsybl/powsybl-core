@@ -138,7 +138,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void getParameters() {
-        assertEquals(4, importer.getParameters().size());
+        assertEquals(5, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }

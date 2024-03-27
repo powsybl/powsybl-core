@@ -1289,8 +1289,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         }
 
         network.removeExtension(CgmesModelExtension.class);
-        network.removeExtension(CgmesSshMetadata.class);
-        network.removeExtension(CgmesSvMetadata.class);
+        network.removeExtension(CgmesMetadataModels.class);
         network.removeExtension(CimCharacteristics.class);
 
         return network;

@@ -15,6 +15,10 @@ import com.powsybl.security.strategy.OperatorStrategy;
 import java.util.*;
 
 /**
+ * An operator strategy could contain several conditional actions (also called stages). Each stage can be monitored through
+ * a computation status, limit violations and network results. Nevertheless, an operator strategy result always contains the
+ * final stage computation status, the limit violations on the final state of the network and the network result of the final state.
+ *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class OperatorStrategyResult {
@@ -29,7 +33,7 @@ public class OperatorStrategyResult {
         private final NetworkResult networkResult;
 
         public ConditionalActionsResult(String conditionalActionsId, PostContingencyComputationStatus status, LimitViolationsResult limitViolationsResult,
-                           NetworkResult networkResult) {
+                                        NetworkResult networkResult) {
             this.conditionalActionsId = conditionalActionsId;
             this.status = Objects.requireNonNull(status);
             this.limitViolationsResult = Objects.requireNonNull(limitViolationsResult);
@@ -69,21 +73,24 @@ public class OperatorStrategyResult {
     }
 
     /**
-     * @return The PostContingencyComputationStatus of the final operator strategy result
+     * @return The PostContingencyComputationStatus of the operator strategy. In case of multiple stage, it represents the
+     * status after applying the last conditional actions.
      */
     public PostContingencyComputationStatus getStatus() {
         return getFinalOperatorStrategyResult().getStatus();
     }
 
     /**
-     * @return The LimitViolationsResult of the final operator strategy result
+     * @return The LimitViolationsResult of the operator strategy. In case of multiple stage, it represents the limit
+     * violations monitored on the network state after applying the last conditional actions.
      */
     public LimitViolationsResult getLimitViolationsResult() {
         return getFinalOperatorStrategyResult().getLimitViolationsResult();
     }
 
     /**
-     * @return The NetworkResult of the final operator strategy result
+     * @return The NetworkResult of the operator strategy. In case of multiple stage, it represents the network
+     * result monitored on the network state after applying the last conditional actions.
      */
     public NetworkResult getNetworkResult() {
         return getFinalOperatorStrategyResult().getNetworkResult();
@@ -97,14 +104,14 @@ public class OperatorStrategyResult {
     }
 
     /**
-     * @return The list of ConditionalActionsResult for each conditional actions of the associated operator strategy
+     * @return The list of all ConditionalActionsResult of the associated operator strategy
      */
-    public List<ConditionalActionsResult> getConditionalActionsResult() {
+    public List<ConditionalActionsResult> getConditionalActionsResults() {
         return conditionalActionsResults;
     }
 
     /**
-     * @return The final result associated to the operator strategy
+     * @return The conditional actions result associated to the last stage of the strategy.
      */
     public ConditionalActionsResult getFinalOperatorStrategyResult() {
         if (!conditionalActionsResults.isEmpty()) {

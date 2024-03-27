@@ -279,11 +279,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return new PropertyBags();
-    }
-
-    @Override
     public PropertyBags controlAreas() {
         return controlAreas;
     }

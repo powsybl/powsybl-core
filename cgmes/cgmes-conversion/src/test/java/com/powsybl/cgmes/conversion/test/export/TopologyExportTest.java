@@ -102,8 +102,8 @@ class TopologyExportTest extends AbstractSerDeTest {
         exportOptions.setSorted(true);
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
-        NetworkSerDe.write(expected, expectedPath);
-        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
         NetworkSerDe.validate(actualPath);
 
         // Compare

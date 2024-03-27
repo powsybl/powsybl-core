@@ -1399,7 +1399,7 @@ public interface Network extends Container<Network> {
 
     default Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
         if (validationLevel != ValidationLevel.STEADY_STATE_HYPOTHESIS) {
-            throw new UnsupportedOperationException("Validation level below LOADFLOW not supported");
+            throw new UnsupportedOperationException("Validation level below STEADY_STATE_HYPOTHESIS not supported");
         }
         return this;
     }

@@ -120,19 +120,19 @@ class OperationalLimitsGroupsImpl implements FlowsLimitsHolder {
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return new CurrentLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId());
+                identifiable, identifiable.getId(), identifiable.getNetwork());
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
         return new ActivePowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId());
+                identifiable, identifiable.getId(), identifiable.getNetwork());
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         return new ApparentPowerLimitsAdderImpl(this::getOrCreateSelectedOperationalLimitsGroup,
-                identifiable, identifiable.getId());
+                identifiable, identifiable.getId(), identifiable.getNetwork());
     }
 
     private void notifyUpdate(OperationalLimitsGroup oldValue, OperationalLimitsGroup newValue) {
