@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.io;
 
@@ -14,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -37,13 +37,13 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     }
 
     @Override
-    public List<T> read(BufferedReader reader, Context context) throws IOException {
+    public List<T> read(LegacyTextReader reader, Context context) throws IOException {
         if (reader == null) {
             return readJson(context.getNetworkNode(), context);
         }
         // Use Jackson streaming API to skip contents until wanted node is found
         JsonFactory jsonFactory = new JsonFactory();
-        try (JsonParser parser = jsonFactory.createParser(reader)) {
+        try (JsonParser parser = jsonFactory.createParser(reader.getBufferedReader())) {
             JsonNode node = readJsonNode(parser);
             String[] actualFieldNames = readFieldNames(node);
             List<String> records = readRecords(node);
@@ -66,7 +66,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     }
 
     @Override
-    public T readHead(BufferedReader reader, Context context) throws IOException {
+    public T readHead(LegacyTextReader reader, Context context) throws IOException {
         throw new PsseException("Generic record group can not be read as head record");
     }
 

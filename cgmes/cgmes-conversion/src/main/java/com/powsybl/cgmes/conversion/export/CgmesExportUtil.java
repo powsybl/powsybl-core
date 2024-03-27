@@ -3,17 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
@@ -114,7 +115,7 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
         // The ref to build a unique model id must contain:
         // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
@@ -126,7 +127,7 @@ public final class CgmesExportUtil {
             ref(context.getBusinessProcess()),
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-        modelDescription.setIds(modelId);
+        modelDescription.setId(modelId);
         context.updateDependencies();
 
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
@@ -146,17 +147,19 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
         writer.writeCharacters(format(modelDescription.getVersion()));
         writer.writeEndElement();
-        for (String dependency : modelDescription.getDependencies()) {
+        for (String dependentOn : modelDescription.getDependentOn()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependentOn);
         }
-        if (modelDescription.getSupersedes() != null) {
+        for (String supersedes : modelDescription.getSupersedes()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, modelDescription.getSupersedes());
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, supersedes);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-        writer.writeCharacters(modelDescription.getProfile());
-        writer.writeEndElement();
+        for (String profile : modelDescription.getProfiles()) {
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+            writer.writeCharacters(profile);
+            writer.writeEndElement();
+        }
         if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER) && context.getCimVersion() < 100) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);

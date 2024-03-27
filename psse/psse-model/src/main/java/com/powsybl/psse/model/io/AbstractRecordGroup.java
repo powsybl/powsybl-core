@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.io;
 
@@ -17,7 +18,6 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
@@ -128,7 +128,7 @@ public abstract class AbstractRecordGroup<T> {
         return ioFor(context.getFileFormat(), context.getVersion().major());
     }
 
-    public List<T> read(BufferedReader reader, Context context) throws IOException {
+    public List<T> read(LegacyTextReader reader, Context context) throws IOException {
         return ioFor(context).read(reader, context);
     }
 
@@ -136,7 +136,7 @@ public abstract class AbstractRecordGroup<T> {
         ioFor(context).write(psseObjects, context, outputStream);
     }
 
-    public T readHead(BufferedReader reader, Context context) throws IOException {
+    public T readHead(LegacyTextReader reader, Context context) throws IOException {
         return ioFor(context).readHead(reader, context);
     }
 

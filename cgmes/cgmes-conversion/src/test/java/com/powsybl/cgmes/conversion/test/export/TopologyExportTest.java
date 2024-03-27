@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -101,8 +102,8 @@ class TopologyExportTest extends AbstractSerDeTest {
         exportOptions.setSorted(true);
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
-        NetworkSerDe.write(expected, expectedPath);
-        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
         NetworkSerDe.validate(actualPath);
 
         // Compare

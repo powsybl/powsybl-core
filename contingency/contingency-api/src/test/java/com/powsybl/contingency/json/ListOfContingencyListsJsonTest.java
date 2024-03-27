@@ -45,19 +45,19 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.singletonList(Country.BE));
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.DE));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
-        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true),
-                new SingleNominalVoltageCriterion
-                .VoltageInterval(100.0, 120.0, true, true));
-        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true), null);
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true),
+                VoltageInterval.between(100.0, 120.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true),
+                null);
 
-        ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true), null,
-                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 430.0,
-                        true, true));
+        ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true),
+                null,
+                VoltageInterval.between(380.0, 430.0, true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
         contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, twoNominalVoltageCriterion1,
                 Collections.emptyList(), regexCriterion));
