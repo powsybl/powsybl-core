@@ -97,6 +97,16 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
+    public String getMessageTemplate() {
+        return rootContext.getDictionary().get(messageKey);
+    }
+
+    @Override
+    public Map<String, TypedValue> getValues() {
+        return values;
+    }
+
+    @Override
     public String getMessage() {
         String messageTemplate = rootContext.getDictionary().get(messageKey);
         return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate);

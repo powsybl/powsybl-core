@@ -35,8 +35,18 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
+    public String getMessageTemplate() {
+        return null;
+    }
+
+    @Override
     public String getMessage() {
         return null;
+    }
+
+    @Override
+    public Map<String, TypedValue> getValues() {
+        return Collections.emptyMap();
     }
 
     @Override
