@@ -66,10 +66,7 @@ class LimitReductionModuleTest extends AbstractSerDeTest {
                         new AtLeastOneNominalVoltageCriterion(
                                 VoltageInterval.between(380., 410., true, true)
                         )))
-                .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.builder()
-                        .setLowBound(300, true)
-                        .setHighBound(600, false)
-                        .build())
+                .withLimitDurationCriteria(IntervalTemporaryDurationCriterion.between(300, 600, true, false))
                 .build();
 
         LimitReductionList limitReductionList = new LimitReductionList(List.of(limitReduction1, limitReduction2, limitReduction3, limitReduction4));
