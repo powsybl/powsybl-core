@@ -107,39 +107,39 @@ public final class IntervalTemporaryDurationCriterion extends AbstractTemporaryD
     /**
      * <p>Convenient method to easily create an {@link IntervalTemporaryDurationCriterion} with only a lower bound.</p>
      * @param value the lower bound (in seconds) of the interval to create (it corresponds to the <code>lowBound</code> attribute of the interval)
-     * @param valueIncluded is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @param closed is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
      * @return an interval
      */
-    public static IntervalTemporaryDurationCriterion greaterThan(int value, boolean valueIncluded) {
+    public static IntervalTemporaryDurationCriterion greaterThan(int value, boolean closed) {
         return IntervalTemporaryDurationCriterion.builder()
-                .setLowBound(value, valueIncluded)
+                .setLowBound(value, closed)
                 .build();
     }
 
     /**
      * <p>Convenient method to easily create an {@link IntervalTemporaryDurationCriterion} with only a upper bound.</p>
      * @param value the upper bound (in seconds) of the interval to create (it corresponds to the <code>highBound</code> attribute of the interval)
-     * @param valueIncluded is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @param closed is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
      * @return an interval
      */
-    public static IntervalTemporaryDurationCriterion lowerThan(int value, boolean valueIncluded) {
+    public static IntervalTemporaryDurationCriterion lowerThan(int value, boolean closed) {
         return IntervalTemporaryDurationCriterion.builder()
-                .setHighBound(value, valueIncluded)
+                .setHighBound(value, closed)
                 .build();
     }
 
     /**
      * <p>Convenient method to easily create an {@link IntervalTemporaryDurationCriterion} with only a upper bound.</p>
      * @param lowBound the lower bound (in seconds) of the interval to create (it corresponds to the <code>lowBound</code> attribute of the interval)
-     * @param lowIncluded is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @param lowClosed is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
      * @param highBound the upper bound (in seconds) of the interval to create (it corresponds to the <code>highBound</code> attribute of the interval)
-     * @param highIncluded is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @param highClosed is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
      * @return an interval
      */
-    public static IntervalTemporaryDurationCriterion between(int lowBound, int highBound, boolean lowIncluded, boolean highIncluded) {
+    public static IntervalTemporaryDurationCriterion between(int lowBound, int highBound, boolean lowClosed, boolean highClosed) {
         return IntervalTemporaryDurationCriterion.builder()
-                .setLowBound(lowBound, lowIncluded)
-                .setHighBound(highBound, highIncluded)
+                .setLowBound(lowBound, lowClosed)
+                .setHighBound(highBound, highClosed)
                 .build();
     }
 
