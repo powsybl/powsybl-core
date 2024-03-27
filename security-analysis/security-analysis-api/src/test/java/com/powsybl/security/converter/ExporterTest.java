@@ -130,6 +130,13 @@ class ExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testCompatibilityV15Deserialization() {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.5.json"));
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getOperatorStrategyResults().get(0).getConditionalActionsResults().get(0).getStatus());
+    }
+
+    @Test
     void roundTripJson() throws IOException {
         SecurityAnalysisResult result = create();
 
