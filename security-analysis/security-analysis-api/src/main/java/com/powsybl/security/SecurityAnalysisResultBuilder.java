@@ -285,7 +285,7 @@ public class SecurityAnalysisResultBuilder {
 
         private final OperatorStrategy strategy;
 
-        private final List<OperatorStrategyResult.ConditionalActionsResult> conditionalActionsResult = Collections.synchronizedList(new ArrayList<>());
+        private final List<OperatorStrategyResult.ConditionalActionsResult> conditionalActionsResult = new ArrayList<>();
 
         SecurityAnalysisResultContext resultContext;
 
