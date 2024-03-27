@@ -21,14 +21,17 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
 
     Supplier<OperationalLimitsGroupImpl> groupSupplier;
 
-    public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId) {
+    private final NetworkImpl network;
+
+    public ApparentPowerLimitsAdderImpl(Supplier<OperationalLimitsGroupImpl> groupSupplier, Validable validable, String ownerId, NetworkImpl network) {
         super(validable, ownerId);
         this.groupSupplier = groupSupplier;
+        this.network = network;
     }
 
     @Override
     public ApparentPowerLimits add() {
-        checkLoadingLimits();
+        checkAndUpdateValidationLevel(network);
         OperationalLimitsGroupImpl group = groupSupplier.get();
         if (group == null) {
             throw new PowsyblException(String.format("Error adding ApparentPowerLimits on %s: error getting or creating the group", getOwnerId()));

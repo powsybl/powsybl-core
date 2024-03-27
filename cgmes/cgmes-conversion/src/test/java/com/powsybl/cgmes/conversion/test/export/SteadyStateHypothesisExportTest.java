@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -62,7 +63,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
-            ExportXmlCompare::ignoringCgmesSshMetadataId);
+            ExportXmlCompare::ignoringCgmesMetadataModels);
         assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
@@ -75,7 +76,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
-            ExportXmlCompare::ignoringCgmesSshMetadataId);
+            ExportXmlCompare::ignoringCgmesMetadataModels);
         assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
@@ -87,7 +88,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
-            ExportXmlCompare::ignoringCgmesSshMetadataId);
+            ExportXmlCompare::ignoringCgmesMetadataModels);
         assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
     }
 
@@ -100,7 +101,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
-                ExportXmlCompare::ignoringCgmesSshMetadataId,
+                ExportXmlCompare::ignoringCgmesMetadataModels,
                 ExportXmlCompare::ignoringControlAreaNetInterchange)));
     }
 
@@ -114,7 +115,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
-                ExportXmlCompare::ignoringCgmesSshMetadataId,
+                ExportXmlCompare::ignoringCgmesMetadataModels,
                 ExportXmlCompare::ignoringHvdcLinePmax)));
     }
 
@@ -128,7 +129,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSsh))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
-            context.getSshModelDescription().setVersion(version);
+            context.getExportedSSHModel().setVersion(version);
             SteadyStateHypothesisExport.write(expected, writer, context);
         }
 
@@ -189,7 +190,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getSshModelDescription().setVersion(sshVersion);
+        context.getExportedSSHModel().setVersion(sshVersion);
         SteadyStateHypothesisExport.write(network, writer, context);
 
         return stringWriter.toString();

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -97,30 +98,30 @@ class TwoWindingsTransformerSerDe extends AbstractTransformerSerDe<TwoWindingsTr
             switch (elementName) {
                 case LIMITS_GROUP_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup1, LIMITS_GROUP_1, context.getReader(), context.getVersion(), context.getOptions()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup1, LIMITS_GROUP_1, context));
                 }
                 case ACTIVE_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits1(), context.getReader(), context.getVersion(), context.getOptions()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits1(), context));
                 }
                 case APPARENT_POWER_LIMITS_1 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits1(), context.getReader(), context.getVersion(), context.getOptions()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits1(), context));
                 }
-                case "currentLimits1" -> readCurrentLimits(twt.newCurrentLimits1(), context.getReader(), context.getVersion(), context.getOptions());
+                case "currentLimits1" -> readCurrentLimits(twt.newCurrentLimits1(), context);
                 case LIMITS_GROUP_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup2, LIMITS_GROUP_2, context.getReader(), context.getVersion(), context.getOptions()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroup(twt::newOperationalLimitsGroup2, LIMITS_GROUP_2, context));
                 }
                 case ACTIVE_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits2(), context.getReader(), context.getVersion(), context.getOptions()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(twt.newActivePowerLimits2(), context));
                 }
                 case APPARENT_POWER_LIMITS_2 -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits2(), context.getReader(), context.getVersion(), context.getOptions()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(twt.newApparentPowerLimits2(), context));
                 }
-                case "currentLimits2" -> readCurrentLimits(twt.newCurrentLimits2(), context.getReader(), context.getVersion(), context.getOptions());
+                case "currentLimits2" -> readCurrentLimits(twt.newCurrentLimits2(), context);
                 case "ratioTapChanger" -> readRatioTapChanger(twt, context);
                 case "phaseTapChanger" -> readPhaseTapChanger(twt, context);
                 default -> readSubElement(elementName, twt, context);

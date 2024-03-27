@@ -18,6 +18,7 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion.LimitDurationTy
 import java.io.IOException;
 
 import static com.powsybl.iidm.criteria.json.duration.LimitDurationCriterionSerDeUtil.readAndCheckType;
+import static com.powsybl.iidm.criteria.json.util.DeserializerUtils.checkBoundData;
 
 /**
  * <p>Deserializer for {@link IntervalTemporaryDurationCriterion} objects.</p>
@@ -77,22 +78,12 @@ public class IntervalTemporaryDurationCriterionDeserializer extends StdDeseriali
             }
         });
         IntervalTemporaryDurationCriterion.Builder builder = IntervalTemporaryDurationCriterion.builder();
-        if (checkBoundData(context.lowBound, context.lowClosed, "lowBound", "lowClosed")) {
+        if (checkBoundData(context.lowBound, context.lowClosed, "lowBound", "lowClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
             builder.setLowBound(context.lowBound, context.lowClosed);
         }
-        if (checkBoundData(context.highBound, context.highClosed, "highBound", "highClosed")) {
+        if (checkBoundData(context.highBound, context.highClosed, "highBound", "highClosed", MISSING_BOUND_ATTRIBUTE_MESSAGE)) {
             builder.setHighBound(context.highBound, context.highClosed);
         }
         return builder.build();
-    }
-
-    private boolean checkBoundData(Integer value, Boolean closed, String valueAttribute, String booleanAttribute) {
-        if (value != null && closed == null) {
-            throw new IllegalArgumentException(String.format(MISSING_BOUND_ATTRIBUTE_MESSAGE, booleanAttribute, valueAttribute));
-        }
-        if (value == null && closed != null) {
-            throw new IllegalArgumentException(String.format(MISSING_BOUND_ATTRIBUTE_MESSAGE, valueAttribute, booleanAttribute));
-        }
-        return value != null;
     }
 }
