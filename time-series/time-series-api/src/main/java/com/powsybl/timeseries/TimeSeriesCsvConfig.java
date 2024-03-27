@@ -7,10 +7,10 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.timeseries.TimeSeries.TimeFormat;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-
-import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -22,29 +22,39 @@ public class TimeSeriesCsvConfig {
     private final TimeFormat timeFormat;
     private final char separator;
     private final int maxColumns;
+    private final boolean strictVersioningImport;
 
     public TimeSeriesCsvConfig() {
-        this(ZoneId.systemDefault(), TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS);
+        this(ZoneId.systemDefault(), TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS, true);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId) {
-        this(zoneId, TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS);
+        this(zoneId, TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME, DEFAULT_MAX_COLUMNS, true);
     }
 
     public TimeSeriesCsvConfig(char separator, boolean versioned, TimeFormat timeFormat) {
-        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS);
+        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, true);
+    }
+
+    public TimeSeriesCsvConfig(char separator, boolean versioned, TimeFormat timeFormat, boolean strictVersioningImport) {
+        this(ZoneId.systemDefault(), separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport);
     }
 
     public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat) {
-        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS);
+        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, true);
     }
 
-    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns) {
+    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, boolean strictVersioningImport) {
+        this(zoneId, separator, versioned, timeFormat, DEFAULT_MAX_COLUMNS, strictVersioningImport);
+    }
+
+    public TimeSeriesCsvConfig(ZoneId zoneId, char separator, boolean versioned, TimeFormat timeFormat, int maxColumns, boolean strictVersioningImport) {
         this.dateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId);
         this.separator = separator;
         this.versioned = versioned;
         this.timeFormat = timeFormat;
         this.maxColumns = maxColumns;
+        this.strictVersioningImport = strictVersioningImport;
     }
 
     public char separator() {
@@ -65,5 +75,9 @@ public class TimeSeriesCsvConfig {
 
     public int getMaxColumns() {
         return maxColumns;
+    }
+
+    public boolean withStrictVersioningImport() {
+        return strictVersioningImport;
     }
 }
