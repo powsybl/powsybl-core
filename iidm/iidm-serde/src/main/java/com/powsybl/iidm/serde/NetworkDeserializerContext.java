@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -11,6 +12,7 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
@@ -29,6 +31,8 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
     private final ImportOptions options;
 
     private final Map<String, String> extensionVersions;
+
+    private ValidationLevel networkValidationLevel;
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
         this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
@@ -66,5 +70,14 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public Optional<String> getExtensionVersion(ExtensionSerDe<?, ?> extensionSerDe) {
         return Optional.ofNullable(extensionVersions.get(extensionSerDe.getExtensionName()));
+    }
+
+    public NetworkDeserializerContext setNetworkValidationLevel(ValidationLevel validationLevel) {
+        this.networkValidationLevel = validationLevel;
+        return this;
+    }
+
+    public ValidationLevel getNetworkValidationLevel() {
+        return this.networkValidationLevel;
     }
 }

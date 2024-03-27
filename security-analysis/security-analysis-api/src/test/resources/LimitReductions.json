@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "limitReductions" : [ {
-    "value" : 0.8999999761581421,
+    "value" : 0.9,
     "limitType" : "CURRENT",
     "monitoringOnly" : false,
     "contingencyContext" : {
@@ -96,14 +96,14 @@
       "highClosed" : true
     } ]
   }, {
-    "value" : 0.800000011920929,
+    "value" : 0.8,
     "limitType" : "ACTIVE_POWER",
     "monitoringOnly" : true,
     "contingencyContext" : {
       "contextType" : "ALL"
     }
   }, {
-    "value" : 0.8999999761581421,
+    "value" : 0.9,
     "limitType" : "CURRENT",
     "monitoringOnly" : false,
     "contingencyContext" : {

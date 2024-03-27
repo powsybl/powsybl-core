@@ -3,17 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseVoltageSourceConverter;
 import com.powsybl.psse.model.pf.PsseVoltageSourceConverterDcTransmissionLine;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -51,16 +48,16 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
         }
 
         @Override
-        public List<PsseVoltageSourceConverterDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseVoltageSourceConverterDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
-            if (!isQRecordFound()) {
-                String line = readRecordLine(reader);
-                while (!endOfBlock(line)) {
+            if (!reader.isQRecordFound()) {
+                String line = reader.readRecordLine();
+                while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
-                    converterRecords.add(readRecordLine(reader));
-                    converterRecords.add(readRecordLine(reader));
-                    line = readRecordLine(reader);
+                    converterRecords.add(reader.readRecordLine());
+                    converterRecords.add(reader.readRecordLine());
+                    line = reader.readRecordLine();
                 }
             }
 

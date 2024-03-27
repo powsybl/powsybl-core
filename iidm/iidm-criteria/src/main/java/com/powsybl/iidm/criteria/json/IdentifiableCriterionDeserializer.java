@@ -9,11 +9,13 @@ package com.powsybl.iidm.criteria.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.criteria.AtLeastOneCountryCriterion;
 import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
 import com.powsybl.iidm.criteria.Criterion.CriterionType;
 import com.powsybl.iidm.criteria.IdentifiableCriterion;
+import com.powsybl.iidm.criteria.NetworkElementCriterion;
 
 import java.io.IOException;
 
@@ -32,8 +34,21 @@ public class IdentifiableCriterionDeserializer extends AbstractNetworkElementCri
         JsonUtil.parsePolymorphicObject(parser, name -> deserializeAttributes(parser, deserializationContext, parsingContext, name,
                 IdentifiableCriterion.TYPE, CriterionType.AT_LEAST_ONE_COUNTRY, CriterionType.AT_LEAST_ONE_NOMINAL_VOLTAGE));
 
-        return new IdentifiableCriterion(parsingContext.name,
-                (AtLeastOneCountryCriterion) parsingContext.countryCriterion,
-                (AtLeastOneNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+        if (parsingContext.countryCriterion != null) {
+            if (parsingContext.nominalVoltageCriterion != null) {
+                return new IdentifiableCriterion(parsingContext.name,
+                        (AtLeastOneCountryCriterion) parsingContext.countryCriterion,
+                        (AtLeastOneNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+            } else {
+                return new IdentifiableCriterion(parsingContext.name,
+                        (AtLeastOneCountryCriterion) parsingContext.countryCriterion);
+            }
+        } else if (parsingContext.nominalVoltageCriterion != null) {
+            return new IdentifiableCriterion(parsingContext.name,
+                    (AtLeastOneNominalVoltageCriterion) parsingContext.nominalVoltageCriterion);
+        } else {
+            throw new PowsyblException("Criterion of type '" + NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE.getName() + "'" +
+                    " should have at least one sub-criterion");
+        }
     }
 }

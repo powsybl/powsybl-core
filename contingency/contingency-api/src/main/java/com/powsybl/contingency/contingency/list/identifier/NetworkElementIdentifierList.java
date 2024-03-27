@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.contingency.list.identifier;
 
@@ -37,6 +38,13 @@ public class NetworkElementIdentifierList implements NetworkElementIdentifier {
         Set<Identifiable<?>> identifiables = new LinkedHashSet<>();
         networkElementIdentifiers.forEach(identifiant -> identifiables.addAll(identifiant.filterIdentifiable(network)));
         return identifiables;
+    }
+
+    @Override
+    public Set<String> getNotFoundElements(Network network) {
+        Set<String> notFoundElements = new LinkedHashSet<>();
+        networkElementIdentifiers.forEach(identifiant -> notFoundElements.addAll(identifiant.getNotFoundElements(network)));
+        return notFoundElements;
     }
 
     @Override
