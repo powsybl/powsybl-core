@@ -106,6 +106,17 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniNodeBreaker().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportNodeBreaker(expected, dataSource);
+
+        // Avoid negative zeros during the comparison
+        expected.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
+        actual.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
+
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -114,6 +125,17 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource dataSource = CgmesConformity1Catalog.miniBusBranch().dataSource();
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
         Network actual = exportImportBusBranchNoBoundaries(expected, dataSource);
+
+        // Avoid negative zeros during the comparison
+        expected.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
+        actual.getGenerators().forEach(generator -> {
+            generator.setTargetP(generator.getTargetP() + 0.0);
+            generator.setTargetQ(generator.getTargetQ() + 0.0);
+        });
+
         assertTrue(compareNetworksEQdata(expected, actual));
     }
 
@@ -575,6 +597,42 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     @Test
+    void miniGridCgmesExportPreservingOriginalClassesOfGenerators() throws IOException, XMLStreamException {
+        ReadOnlyDataSource dataSource = Cgmes3Catalog.miniGrid().dataSource();
+        Properties properties = new Properties();
+        properties.setProperty("iidm.import.cgmes.convert-boundary", "true");
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network actual = exportImportNodeBreaker(expected, dataSource);
+
+        assertEquals(generatorsCreatedFromOriginalClassCount(expected, "SynchronousMachine"), generatorsCreatedFromOriginalClassCount(actual, "SynchronousMachine"));
+        assertEquals(generatorsCreatedFromOriginalClassCount(expected, "ExternalNetworkInjection"), generatorsCreatedFromOriginalClassCount(actual, "ExternalNetworkInjection"));
+        assertEquals(generatorsCreatedFromOriginalClassCount(expected, "EquivalentInjection"), generatorsCreatedFromOriginalClassCount(actual, "EquivalentInjection"));
+
+        // Avoid comparing targetP and targetQ (reimport does not consider the SSH file);
+        expected.getGenerators().forEach(expectedGenerator -> {
+            Generator actualGenerator = actual.getGenerator(expectedGenerator.getId());
+            actualGenerator.setTargetP(expectedGenerator.getTargetP());
+            actualGenerator.setTargetQ(expectedGenerator.getTargetQ());
+        });
+
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringSubstationNumAttributes,
+                ExportXmlCompare::ignoringSubstationLookup);
+        compareNetworksEQdata(expected, actual, knownDiffs);
+    }
+
+    private static long generatorsCreatedFromOriginalClassCount(Network network, String originalClass) {
+        return network.getGeneratorStream().filter(generator -> generatorOriginalClass(generator, originalClass)).count();
+    }
+
+    private static boolean generatorOriginalClass(Generator generator, String originalClass) {
+        String cgmesClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
+        return cgmesClass != null && cgmesClass.equals(originalClass);
+    }
+
+    @Test
     void equivalentShuntTest() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
@@ -873,6 +931,35 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // check the storage kind property
         String actualStorageKind = actualGenerator.getProperty(Conversion.PROPERTY_HYDRO_PLANT_STORAGE_TYPE);
         assertEquals(expectedStorageKind, actualStorageKind);
+    }
+
+    @Test
+    void synchronousMachineKindExportAndImportTest() throws IOException {
+        Network network = createOneGeneratorNetwork();
+
+        // Define the synchronous machine kind property
+        Generator expectedGenerator = network.getGenerator("generator1");
+        expectedGenerator.setMinP(-50.0).setMaxP(0.0).setTargetP(-10.0);
+        String expectedSynchronousMachineKind = "motorOrCondenser";
+        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, expectedSynchronousMachineKind);
+        String expectedOperatingMode = "motor";
+        expectedGenerator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, expectedOperatingMode);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "oneGeneratorSynchronousMachineKind";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Generator actualGenerator = actual.getGenerator("generator1");
+
+        // check the synchronous machine kind
+        String actualSynchronousMachineKind = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
+        String actualOperatingMode = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
+        assertEquals(expectedOperatingMode, actualOperatingMode);
     }
 
     private Network createOneGeneratorNetwork() {

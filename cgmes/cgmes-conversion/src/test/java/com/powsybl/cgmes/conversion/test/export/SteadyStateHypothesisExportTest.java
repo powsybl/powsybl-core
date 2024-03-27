@@ -7,10 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
-import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
+import com.powsybl.cgmes.conformity.*;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -381,6 +378,35 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringRdfChildLookupStaticVarCompensator,
                 ExportXmlCompare::ignoringRdfChildLookupRegulatingControl,
                 ExportXmlCompare::ignoringTextValueEquivalentInjection);
+        assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
+    }
+
+    @Test
+    void miniGridCgmesExportPreservingOriginalClasses() throws IOException, XMLStreamException {
+        ReadOnlyDataSource ds = Cgmes3Catalog.miniGrid().dataSource();
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.convert-boundary", "true");
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+
+        // Export as cgmes
+        Path outputPath = tmpDir.resolve("temp.cgmesExport");
+        Files.createDirectories(outputPath);
+        String baseName = "miniGridCgmesExportPreservingOriginalClasses";
+        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+
+        // re-import after adding the original boundary files
+        copyBoundary(outputPath, baseName, ds);
+        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+
+        InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
+        String actualSsh = exportSshAsString(actual, 5);
+
+        DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
+                ExportXmlCompare::ignoringFullModelDependentOn,
+                ExportXmlCompare::ignoringFullModelModelingAuthoritySet,
+                ExportXmlCompare::ignoringRdfChildNodeListLength,
+                ExportXmlCompare::ignoringConformLoad,
+                ExportXmlCompare::ignoringChildLookupNull);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
     }
 

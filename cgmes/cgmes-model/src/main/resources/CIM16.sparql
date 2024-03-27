@@ -839,7 +839,7 @@ WHERE {
         cim:SynchronousMachineKind.motor
         cim:SynchronousMachineKind.generatorOrMotor
         cim:SynchronousMachineKind.motorOrCondenser
-        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+        cim:SynchronousMachineKind.generatorOrCondenserOrMotor
     }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
@@ -876,6 +876,7 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:SynchronousMachine.operatingMode ?operatingMode ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
 }}
 OPTIONAL { GRAPH ?graphSSH2 {
@@ -891,7 +892,9 @@ WHERE {
         a cim:SynchronousMachine ;
         cim:IdentifiedObject.name ?name ;
         cim:SynchronousMachine.type ?type .
-    FILTER REGEX(STR(?type), "Kind.condenser")
+    VALUES ?type {
+        cim:SynchronousMachineKind.condenser
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
     }
@@ -982,6 +985,7 @@ WHERE {
         cim:ExternalNetworkInjection.minP ?minP ;
         cim:ExternalNetworkInjection.maxP ?maxP .
     ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
+    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.governorSCD ?governorSCD }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
