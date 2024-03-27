@@ -19,7 +19,6 @@ import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
-
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -132,11 +131,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return splitList;
     }
 
-    static Map<Integer, List<TimeSeries>> parseCsv(Path file) {
+    static Map<Integer, List<TimeSeries<?, ?>>> parseCsv(Path file) {
         return parseCsv(file, new TimeSeriesCsvConfig());
     }
 
-    static Map<Integer, List<TimeSeries>> parseCsv(String csv) {
+    static Map<Integer, List<TimeSeries<?, ?>>> parseCsv(String csv) {
         try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
             return parseCsv(reader, new TimeSeriesCsvConfig());
         } catch (IOException e) {
@@ -144,7 +143,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static Map<Integer, List<TimeSeries>> parseCsv(String csv, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+    static Map<Integer, List<TimeSeries<?, ?>>> parseCsv(String csv, TimeSeriesCsvConfig timeSeriesCsvConfig) {
         try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
             return parseCsv(reader, timeSeriesCsvConfig);
         } catch (IOException e) {
@@ -152,7 +151,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static Map<Integer, List<TimeSeries>> parseCsv(Path file, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+    static Map<Integer, List<TimeSeries<?, ?>>> parseCsv(Path file, TimeSeriesCsvConfig timeSeriesCsvConfig) {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             return parseCsv(reader, timeSeriesCsvConfig);
         } catch (IOException e) {
@@ -265,12 +264,12 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             switch (timeFormat) {
                 case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
                 case FRACTIONS_OF_SECOND -> {
-                    Double time = Double.parseDouble(tokens[0]) * 1000;
-                    times.add(time.longValue());
+                    double time = Double.parseDouble(tokens[0]) * 1000;
+                    times.add((long) time);
                 }
                 case MILLIS -> {
-                    Double millis = Double.parseDouble(tokens[0]);
-                    times.add(millis.longValue());
+                    double millis = Double.parseDouble(tokens[0]);
+                    times.add((long) millis);
                 }
             }
         }
@@ -282,14 +281,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     ((TDoubleArrayList) values[i]).clear();
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
-                    ((List) values[i]).clear();
+                    ((List<?>) values[i]).clear();
                 } else {
                     throw assertDataType(dataTypes[i]);
                 }
             }
         }
 
-        List<TimeSeries> createTimeSeries() {
+        List<TimeSeries<?, ?>> createTimeSeries() {
             // check time spacing is regular
             TimeSeriesIndex index = getTimeSeriesIndex();
 
@@ -300,7 +299,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 this.refIndex = index;
             }
 
-            List<TimeSeries> timeSeriesList = new ArrayList<>(names.size());
+            List<TimeSeries<?, ?>> timeSeriesList = new ArrayList<>(names.size());
             for (int i = 0; i < names.size(); i++) {
                 if (Objects.isNull(names.get(i))) {
                     LoggerFactory.getLogger(TimeSeries.class).warn("Timeseries without name");
@@ -323,7 +322,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         private TimeSeriesIndex getTimeSeriesIndex() {
-            Long spacing = checkRegularSpacing();
+            long spacing = checkRegularSpacing();
             if (spacing != Long.MIN_VALUE) {
                 return new RegularTimeSeriesIndex(times.get(0), times.get(times.size() - 1), spacing);
             } else {
@@ -353,7 +352,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
-                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion) {
+                              Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion) {
         int currentVersion = Integer.MIN_VALUE;
         while (iterator.hasNext()) {
             String[] tokens = iterator.next();
@@ -400,19 +399,19 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void checkCsvHeader(TimeSeriesCsvConfig timeSeriesCsvConfig, String[] tokens) {
         String separatorStr = Character.toString(timeSeriesCsvConfig.separator());
-        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equals(tokens[0].toLowerCase()) || !"version".equals(tokens[1].toLowerCase()))) {
+        if (timeSeriesCsvConfig.versioned() && (tokens.length < 3 || !"time".equalsIgnoreCase(tokens[0]) || !"version".equalsIgnoreCase(tokens[1]))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
-        } else if (tokens.length < 2 || !"time".equals(tokens[0].toLowerCase())) {
+        } else if (tokens.length < 2 || !"time".equalsIgnoreCase(tokens[0])) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
     }
 
-    static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+    static Map<Integer, List<TimeSeries<?, ?>>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {
         Objects.requireNonNull(reader);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = new HashMap<>();
+        Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion = new HashMap<>();
 
         CsvParserSettings settings = new CsvParserSettings();
         settings.getFormat().setDelimiter(timeSeriesCsvConfig.separator());
@@ -426,7 +425,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         LoggerFactory.getLogger(TimeSeries.class)
                 .info("{} time series loaded from CSV in {} ms",
-                timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum(),
+                timeSeriesPerVersion.values().stream().mapToInt(List::size).sum(),
                 stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         return timeSeriesPerVersion;
@@ -436,11 +435,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     String toJson();
 
-    static void writeJson(JsonGenerator generator, List<? extends TimeSeries> timeSeriesList) {
+    static void writeJson(JsonGenerator generator, List<? extends TimeSeries<?, ?>> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);
         try {
             generator.writeStartArray();
-            for (TimeSeries timeSeries : timeSeriesList) {
+            for (TimeSeries<?, ?> timeSeries : timeSeriesList) {
                 timeSeries.writeJson(generator);
             }
             generator.writeEndArray();
@@ -449,19 +448,19 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static void writeJson(Writer writer, List<? extends TimeSeries> timeSeriesList) {
+    static void writeJson(Writer writer, List<? extends TimeSeries<?, ?>> timeSeriesList) {
         JsonUtil.writeJson(writer, generator -> writeJson(generator, timeSeriesList));
     }
 
-    static void writeJson(Path file, List<? extends TimeSeries> timeSeriesList) {
+    static void writeJson(Path file, List<? extends TimeSeries<?, ?>> timeSeriesList) {
         JsonUtil.writeJson(file, generator -> writeJson(generator, timeSeriesList));
     }
 
-    static String toJson(List<? extends TimeSeries> timeSeriesList) {
+    static String toJson(List<? extends TimeSeries<?, ?>> timeSeriesList) {
         return JsonUtil.toJson(generator -> writeJson(generator, timeSeriesList));
     }
 
-    static void parseChunks(JsonParser parser, TimeSeriesMetadata metadata, List<TimeSeries> timeSeriesList) {
+    static void parseChunks(JsonParser parser, TimeSeriesMetadata metadata, List<TimeSeries<?, ?>> timeSeriesList) {
         Objects.requireNonNull(metadata);
         List<DoubleDataChunk> doubleChunks = new ArrayList<>();
         List<StringDataChunk> stringChunks = new ArrayList<>();
@@ -481,13 +480,13 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static List<TimeSeries> parseJson(JsonParser parser) {
+    static List<TimeSeries<?, ?>> parseJson(JsonParser parser) {
         return parseJson(parser, false);
     }
 
-    static List<TimeSeries> parseJson(JsonParser parser, boolean single) {
+    static List<TimeSeries<?, ?>> parseJson(JsonParser parser, boolean single) {
         Objects.requireNonNull(parser);
-        List<TimeSeries> timeSeriesList = new ArrayList<>();
+        List<TimeSeries<?, ?>> timeSeriesList = new ArrayList<>();
         try {
             TimeSeriesMetadata metadata = null;
             String name = null;
@@ -524,15 +523,15 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return timeSeriesList;
     }
 
-    static List<TimeSeries> parseJson(String json) {
+    static List<TimeSeries<?, ?>> parseJson(String json) {
         return JsonUtil.parseJson(json, TimeSeries::parseJson);
     }
 
-    static List<TimeSeries> parseJson(Reader reader) {
+    static List<TimeSeries<?, ?>> parseJson(Reader reader) {
         return JsonUtil.parseJson(reader, TimeSeries::parseJson);
     }
 
-    static List<TimeSeries> parseJson(Path file) {
+    static List<TimeSeries<?, ?>> parseJson(Path file) {
         return JsonUtil.parseJson(file, TimeSeries::parseJson);
     }
 }

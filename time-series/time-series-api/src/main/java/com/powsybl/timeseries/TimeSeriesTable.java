@@ -8,7 +8,6 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
-
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -119,9 +118,9 @@ public class TimeSeriesTable {
         }
     }
 
-    private int fromVersion;
+    private final int fromVersion;
 
-    private int toVersion;
+    private final int toVersion;
 
     private List<TimeSeriesMetadata> timeSeriesMetadata;
 
@@ -254,7 +253,7 @@ public class TimeSeriesTable {
     }
 
     private long getTimeSeriesOffset(int version, int timeSeriesNum) {
-        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (version - fromVersion) * tableIndex.getPointCount();
+        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (long) (version - fromVersion) * tableIndex.getPointCount();
     }
 
     private int getStatisticsIndex(int version, int timeSeriesNum) {
@@ -302,11 +301,11 @@ public class TimeSeriesTable {
     }
 
     @SafeVarargs
-    public final void load(int version, List<? extends TimeSeries>... timeSeries) {
+    public final void load(int version, List<? extends TimeSeries<?, ?>>... timeSeries) {
         load(version, Arrays.stream(timeSeries).flatMap(List::stream).collect(Collectors.toList()));
     }
 
-    public void load(int version, List<TimeSeries> timeSeriesList) {
+    public void load(int version, List<TimeSeries<?, ?>> timeSeriesList) {
         checkVersionIsInRange(version);
         Objects.requireNonNull(timeSeriesList);
 
@@ -318,7 +317,7 @@ public class TimeSeriesTable {
 
         List<DoubleTimeSeries> doubleTimeSeries = new ArrayList<>();
         List<StringTimeSeries> stringTimeSeries = new ArrayList<>();
-        for (TimeSeries timeSeries : timeSeriesList) {
+        for (TimeSeries<?, ?> timeSeries : timeSeriesList) {
             Objects.requireNonNull(timeSeries);
             if (timeSeries instanceof DoubleTimeSeries dts) {
                 doubleTimeSeries.add(dts);

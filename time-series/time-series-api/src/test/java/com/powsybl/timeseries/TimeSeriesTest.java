@@ -7,9 +7,8 @@
  */
 package com.powsybl.timeseries;
 
-import org.junit.jupiter.api.Test;
-
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -45,16 +44,16 @@ class TimeSeriesTest {
                 "\"1970-01-01T03:00:00.000+01:00\";\"2\";\"6.0\";\"d\"") + System.lineSeparator();
 
         Arrays.asList(csv, csvWithQuotes).forEach(data -> {
-            Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(data);
+            Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion = TimeSeries.parseCsv(data);
 
             assertEquals(2, timeSeriesPerVersion.size());
             assertEquals(2, timeSeriesPerVersion.get(1).size());
             assertEquals(2, timeSeriesPerVersion.get(2).size());
 
-            TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-            TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-            TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-            TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
+            TimeSeries<?, ?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+            TimeSeries<?, ?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+            TimeSeries<?, ?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+            TimeSeries<?, ?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
 
             assertEquals(RegularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
 
@@ -89,16 +88,16 @@ class TimeSeriesTest {
                 "1970-01-01T02:00:00.000+01:00;2;5.0;",
                 "1970-01-01T04:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
+        Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion = TimeSeries.parseCsv(csv);
 
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(1).size());
         assertEquals(2, timeSeriesPerVersion.get(2).size());
 
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
+        TimeSeries<?, ?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+        TimeSeries<?, ?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+        TimeSeries<?, ?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+        TimeSeries<?, ?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
 
         assertEquals(IrregularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
 
@@ -131,16 +130,16 @@ class TimeSeriesTest {
                 "0.002;2;6.0;d") + System.lineSeparator();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.FRACTIONS_OF_SECOND);
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+        Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(1).size());
         assertEquals(2, timeSeriesPerVersion.get(2).size());
 
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
+        TimeSeries<?, ?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+        TimeSeries<?, ?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+        TimeSeries<?, ?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+        TimeSeries<?, ?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
 
         assertEquals(RegularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
 
@@ -173,16 +172,16 @@ class TimeSeriesTest {
                 "4;2;6.0;d") + System.lineSeparator();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, TimeFormat.MILLIS);
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+        Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(1).size());
         assertEquals(2, timeSeriesPerVersion.get(2).size());
 
-        TimeSeries ts1v1 = timeSeriesPerVersion.get(1).get(0);
-        TimeSeries ts2v1 = timeSeriesPerVersion.get(1).get(1);
-        TimeSeries ts1v2 = timeSeriesPerVersion.get(2).get(0);
-        TimeSeries ts2v2 = timeSeriesPerVersion.get(2).get(1);
+        TimeSeries<?, ?> ts1v1 = timeSeriesPerVersion.get(1).get(0);
+        TimeSeries<?, ?> ts2v1 = timeSeriesPerVersion.get(1).get(1);
+        TimeSeries<?, ?> ts1v2 = timeSeriesPerVersion.get(2).get(0);
+        TimeSeries<?, ?> ts2v2 = timeSeriesPerVersion.get(2).get(1);
 
         assertEquals(IrregularTimeSeriesIndex.class, ts1v1.getMetadata().getIndex().getClass());
 
@@ -215,13 +214,13 @@ class TimeSeriesTest {
             "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
 
         TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', false, TimeFormat.DATE_TIME);
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
+        Map<Integer, List<TimeSeries<?, ?>>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, timeSeriesCsvConfig);
 
         assertEquals(1, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(0).size());
 
-        TimeSeries ts1 = timeSeriesPerVersion.get(0).get(0);
-        TimeSeries ts2 = timeSeriesPerVersion.get(0).get(1);
+        TimeSeries<?, ?> ts1 = timeSeriesPerVersion.get(0).get(0);
+        TimeSeries<?, ?> ts2 = timeSeriesPerVersion.get(0).get(1);
 
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.DOUBLE, ts1.getMetadata().getDataType());
@@ -294,8 +293,9 @@ class TimeSeriesTest {
 
     @Test
     void splitTest() {
+        List<DoubleTimeSeries> emptyList = Collections.emptyList();
         try {
-            TimeSeries.split(Collections.<DoubleTimeSeries>emptyList(), 2);
+            TimeSeries.split(emptyList, 2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }

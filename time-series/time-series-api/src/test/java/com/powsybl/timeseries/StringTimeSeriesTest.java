@@ -74,7 +74,7 @@ class StringTimeSeriesTest {
                 "}");
         String json = JsonUtil.toJson(timeSeries::writeJson);
         assertEquals(jsonRef, json);
-        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
+        List<TimeSeries<?, ?>> timeSeriesList = TimeSeries.parseJson(json);
         assertEquals(1, timeSeriesList.size());
         String json2 = JsonUtil.toJson(timeSeriesList.get(0)::writeJson);
         assertEquals(json, json2);
@@ -97,7 +97,8 @@ class StringTimeSeriesTest {
 
     @Test
     void testCreateError() {
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", new RegularTimeSeriesIndex(0, 2, 1), "a", "b"));
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 2, 1);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> TimeSeries.createString("ts1", index, "a", "b"));
         assertTrue(e.getMessage().contains("Bad number of values 2, expected 3"));
     }
 }
