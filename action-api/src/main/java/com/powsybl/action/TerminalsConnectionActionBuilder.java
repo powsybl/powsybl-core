@@ -50,6 +50,11 @@ public class TerminalsConnectionActionBuilder implements ActionBuilder<Terminals
         return this;
     }
 
+    @Override
+    public String getType() {
+        return TerminalsConnectionAction.NAME;
+    }
+
     public TerminalsConnectionActionBuilder withId(String id) {
         this.id = id;
         return this;

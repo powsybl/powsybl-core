@@ -19,15 +19,15 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class RatioTapChangerTapPositionActionDeserializer extends AbstractTapChangerTapPositionActionDeserializer<RatioTapChangerTapPositionAction> {
+public class RatioTapChangerTapPositionActionBuilderDeserializer extends AbstractTapChangerTapPositionActionBuilderDeserializer<RatioTapChangerTapPositionActionBuilder> {
 
-    public RatioTapChangerTapPositionActionDeserializer() {
-        super(RatioTapChangerTapPositionAction.class);
+    public RatioTapChangerTapPositionActionBuilderDeserializer() {
+        super(RatioTapChangerTapPositionActionBuilder.class);
     }
 
     @Override
-    public RatioTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        AbstractTapChangerTapPositionActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerTapPositionActionDeserializer.ParsingContext();
+    public RatioTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        AbstractTapChangerTapPositionActionBuilderDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerTapPositionActionBuilderDeserializer.ParsingContext();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version);
@@ -49,7 +49,6 @@ public class RatioTapChangerTapPositionActionDeserializer extends AbstractTapCha
             .withTransformerId(commonParsingContext.transformerId)
             .withRelativeValue(commonParsingContext.relativeValue)
             .withTapPosition(commonParsingContext.tapPosition)
-            .withSide(commonParsingContext.side)
-            .build();
+            .withSide(commonParsingContext.side);
     }
 }

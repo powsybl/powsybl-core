@@ -34,8 +34,8 @@ public class NetworkElementIdentifierContingencyList implements NetworkElementId
     }
 
     @Override
-    public Set<Identifiable<?>> filterIdentifiable(Network network) {
-        Set<Identifiable<?>> identifiables = new LinkedHashSet<>();
+    public Set<Identifiable> filterIdentifiable(Network network) {
+        Set<Identifiable> identifiables = new LinkedHashSet<>();
         networkElementIdentifiers.forEach(identifiant -> identifiables.addAll(identifiant.filterIdentifiable(network)));
         return identifiables;
     }

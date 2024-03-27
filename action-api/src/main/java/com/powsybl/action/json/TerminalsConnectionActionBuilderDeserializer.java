@@ -21,14 +21,14 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class TerminalsConnectionActionDeserializer extends StdDeserializer<TerminalsConnectionAction> {
+public class TerminalsConnectionActionBuilderDeserializer extends StdDeserializer<TerminalsConnectionActionBuilder> {
 
-    public TerminalsConnectionActionDeserializer() {
+    public TerminalsConnectionActionBuilderDeserializer() {
         super(TerminalsConnectionAction.class);
     }
 
     @Override
-    public TerminalsConnectionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public TerminalsConnectionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         TerminalsConnectionActionBuilder builder = new TerminalsConnectionActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
@@ -55,6 +55,6 @@ public class TerminalsConnectionActionDeserializer extends StdDeserializer<Termi
                     return false;
             }
         });
-        return builder.build();
+        return builder;
     }
 }

@@ -2,30 +2,25 @@
   "version" : "1.1",
   "actions" : [ ],
   "elementIdentifiers" : {
-    "lineConnectionAction" : {
+    "switchActionId" : {
+      "type" : "ID_BASED",
+      "identifier" : "switch 1 id"
+    },
+    "lineConnectionActionId" : {
       "type" : "VOLTAGE_LEVELS_AND_ORDER",
       "voltageLevelId1" : "VLHV1",
       "voltageLevelId2" : "VLHV2",
       "order" : "1"
-    },
-    "switchAction" : {
-      "type" : "ID_BASED",
-      "identifier" : "switch 1"
     }
   },
   "actionBuilders" : {
-    "lineConnectionAction" : {
-      "type" : "TERMINALS_CONNECTION",
-      "id" : "lineConnectionAction",
-      "elementId" : null,
-      "side" : "ONE",
-      "open" : true
+    "switchActionId" : {
+      "id" : "switchActionId",
+      "type" : "SWITCH"
     },
-    "switchAction" : {
-      "type" : "SWITCH",
-      "id" : "switchAction",
-      "switchId" : null,
-      "open" : true
+    "lineConnectionActionId" : {
+      "id" : "lineConnectionActionId",
+      "type" : "TERMINALS_CONNECTION"
     }
   }
 }

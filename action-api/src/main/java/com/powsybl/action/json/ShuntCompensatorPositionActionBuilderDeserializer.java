@@ -20,14 +20,14 @@ import java.io.IOException;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<ShuntCompensatorPositionAction> {
+public class ShuntCompensatorPositionActionBuilderDeserializer extends StdDeserializer<ShuntCompensatorPositionActionBuilder> {
 
-    public ShuntCompensatorPositionActionDeserializer() {
+    public ShuntCompensatorPositionActionBuilderDeserializer() {
         super(ShuntCompensatorPositionAction.class);
     }
 
     @Override
-    public ShuntCompensatorPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public ShuntCompensatorPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ShuntCompensatorPositionActionBuilder builder = new ShuntCompensatorPositionActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
@@ -50,6 +50,6 @@ public class ShuntCompensatorPositionActionDeserializer extends StdDeserializer<
                     return false;
             }
         });
-        return builder.build();
+        return builder;
     }
 }

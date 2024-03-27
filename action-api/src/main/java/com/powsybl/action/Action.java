@@ -18,6 +18,4 @@ public interface Action {
     String getType();
 
     String getId();
-
-    ActionBuilder<?> convertToBuilder();
 }

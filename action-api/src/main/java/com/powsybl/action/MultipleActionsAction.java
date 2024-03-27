@@ -32,11 +32,6 @@ public class MultipleActionsAction extends AbstractAction {
         return NAME;
     }
 
-    @Override
-    public ActionBuilder<?> convertToBuilder() {
-        return null;
-    }
-
     public List<Action> getActions() {
         return actions;
     }

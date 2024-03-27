@@ -11,30 +11,25 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.ActionBuilder;
+import com.powsybl.action.MultipleActionsActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.Action;
 import com.powsybl.action.MultipleActionsAction;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class MultipleActionsActionDeserializer extends StdDeserializer<MultipleActionsAction> {
+public class MultipleActionsActionBuilderDeserializer extends StdDeserializer<MultipleActionsActionBuilder> {
 
-    public MultipleActionsActionDeserializer() {
+    public MultipleActionsActionBuilderDeserializer() {
         super(MultipleActionsAction.class);
     }
 
-    private static class ParsingContext {
-        String id;
-        List<Action> actions;
-    }
-
     @Override
-    public MultipleActionsAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext context = new ParsingContext();
+    public MultipleActionsActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        MultipleActionsActionBuilder builder = new MultipleActionsActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
                 case "type":
@@ -43,16 +38,16 @@ public class MultipleActionsActionDeserializer extends StdDeserializer<MultipleA
                     }
                     return true;
                 case "id":
-                    context.id = jsonParser.nextTextValue();
+                    builder.withId(jsonParser.nextTextValue());
                     return true;
                 case "actions":
                     jsonParser.nextToken();
-                    context.actions = JsonUtil.readList(deserializationContext, jsonParser, Action.class);
+                    builder.withActionBuilders(JsonUtil.readList(deserializationContext, jsonParser, ActionBuilder.class));
                     return true;
                 default:
                     return false;
             }
         });
-        return new MultipleActionsAction(context.id, context.actions);
+        return builder;
     }
 }

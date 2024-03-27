@@ -30,8 +30,8 @@ public class IdBasedNetworkElementIdentifier implements NetworkElementIdentifier
     }
 
     @Override
-    public Set<Identifiable<?>> filterIdentifiable(Network network) {
-        Identifiable<?> identifiable = network.getIdentifiable(identifier);
+    public Set<Identifiable> filterIdentifiable(Network network) {
+        Identifiable identifiable = network.getIdentifiable(identifier);
         return identifiable == null ? Collections.emptySet() : Collections.singleton(identifiable);
     }
 

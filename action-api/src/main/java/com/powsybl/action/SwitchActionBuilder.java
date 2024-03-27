@@ -37,6 +37,11 @@ public class SwitchActionBuilder implements ActionBuilder<SwitchActionBuilder> {
         return this;
     }
 
+    @Override
+    public String getType() {
+        return SwitchAction.NAME;
+    }
+
     public SwitchActionBuilder withId(String id) {
         this.id = id;
         return this;

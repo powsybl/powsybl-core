@@ -11,8 +11,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.AbstractLoadActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.action.AbstractLoadAction;
 import com.powsybl.action.DanglingLineAction;
 import com.powsybl.action.LoadAction;
 
@@ -21,9 +21,9 @@ import java.io.IOException;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public abstract class AbstractLoadActionDeserializer <T extends AbstractLoadAction> extends StdDeserializer<T> {
+public abstract class AbstractLoadActionBuilderDeserializer<T extends AbstractLoadActionBuilder> extends StdDeserializer<T> {
 
-    protected AbstractLoadActionDeserializer(Class<T> vc) {
+    protected AbstractLoadActionBuilderDeserializer(Class<T> vc) {
         super(vc);
     }
 

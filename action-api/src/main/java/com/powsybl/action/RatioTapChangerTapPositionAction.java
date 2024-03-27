@@ -30,14 +30,4 @@ public class RatioTapChangerTapPositionAction extends AbstractTapChangerTapPosit
     public String getType() {
         return NAME;
     }
-
-    @Override
-    public RatioTapChangerTapPositionActionBuilder convertToBuilder() {
-        return new RatioTapChangerTapPositionActionBuilder()
-            .withId(id)
-            .withTransformerId(transformerId)
-            .withRelativeValue(relativeValue)
-            .withTapPosition(tapPosition)
-            .withSide(side);
-    }
 }

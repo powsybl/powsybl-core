@@ -9,19 +9,23 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 
-import java.util.Objects;
-
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class PhaseTapChangerRegulationActionBuilder extends AbstractTapChangerActionRegulationBuilder<PhaseTapChangerRegulationActionBuilder> {
+public class PhaseTapChangerRegulationActionBuilder extends AbstractTapChangerRegulationActionBuilder<PhaseTapChangerRegulationActionBuilder> {
 
     private PhaseTapChanger.RegulationMode regulationMode;
     private Double regulationValue;
 
     @Override
+    public String getType() {
+        return PhaseTapChangerRegulationAction.NAME;
+    }
+
+    @Override
     public PhaseTapChangerRegulationAction build() {
-        return new PhaseTapChangerRegulationAction(id, transformerId, side, regulating, regulationMode, regulationValue);
+        return new PhaseTapChangerRegulationAction(this.getId(), this.getTransformerId(), this.getSide().orElse(null),
+            this.isRegulating(), regulationMode, regulationValue);
     }
 
     public PhaseTapChangerRegulationActionBuilder withRegulationMode(PhaseTapChanger.RegulationMode regulationMode) {
@@ -32,22 +36,5 @@ public class PhaseTapChangerRegulationActionBuilder extends AbstractTapChangerAc
     public PhaseTapChangerRegulationActionBuilder withRegulationValue(Double regulationValue) {
         this.regulationValue = regulationValue;
         return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        PhaseTapChangerRegulationActionBuilder that = (PhaseTapChangerRegulationActionBuilder) o;
-        return regulationMode == that.regulationMode && Objects.equals(regulationValue, that.regulationValue);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(regulationMode, regulationValue);
     }
 }

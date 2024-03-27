@@ -21,14 +21,14 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
+public class HvdcActionBuilderDeserializer extends StdDeserializer<HvdcActionBuilder> {
 
-    public HvdcActionDeserializer() {
-        super(HvdcAction.class);
+    public HvdcActionBuilderDeserializer() {
+        super(HvdcActionBuilder.class);
     }
 
     @Override
-    public HvdcAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public HvdcActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         HvdcActionBuilder hvdcActionBuilder = new HvdcActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
@@ -70,6 +70,6 @@ public class HvdcActionDeserializer extends StdDeserializer<HvdcAction> {
                     return false;
             }
         });
-        return hvdcActionBuilder.build();
+        return hvdcActionBuilder;
     }
 }

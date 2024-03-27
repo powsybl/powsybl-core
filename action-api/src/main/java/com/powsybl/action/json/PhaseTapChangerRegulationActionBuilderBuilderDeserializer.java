@@ -21,16 +21,16 @@ import java.io.IOException;
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public class PhaseTapChangerRegulationActionDeserializer extends AbstractTapChangerRegulationActionDeserializer<PhaseTapChangerRegulationAction> {
+public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends AbstractTapChangerRegulationActionBuilderDeserializer<PhaseTapChangerRegulationActionBuilder> {
 
-    public PhaseTapChangerRegulationActionDeserializer() {
-        super(PhaseTapChangerRegulationAction.class);
+    public PhaseTapChangerRegulationActionBuilderBuilderDeserializer() {
+        super(PhaseTapChangerRegulationActionBuilder.class);
     }
 
     @Override
-    public PhaseTapChangerRegulationAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public PhaseTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         PhaseTapChangerRegulationActionBuilder builder = new PhaseTapChangerRegulationActionBuilder();
-        AbstractTapChangerRegulationActionDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionDeserializer.ParsingContext();
+        AbstractTapChangerRegulationActionBuilderDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionBuilderDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name);
             if (found) {
@@ -57,7 +57,6 @@ public class PhaseTapChangerRegulationActionDeserializer extends AbstractTapChan
         return builder.withId(commonParsingContext.id)
             .withTransformerId(commonParsingContext.transformerId)
             .withSide(commonParsingContext.side)
-            .withRegulating(commonParsingContext.regulating)
-            .build();
+            .withRegulating(commonParsingContext.regulating);
     }
 }

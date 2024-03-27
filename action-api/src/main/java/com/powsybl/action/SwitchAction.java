@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
+
 /**
  * An action opening or closing a switch.
  *
@@ -21,21 +23,13 @@ public class SwitchAction extends AbstractAction {
 
     public SwitchAction(String id, String switchId, boolean open) {
         super(id);
-        this.switchId = switchId;
+        this.switchId = Objects.requireNonNull(switchId);
         this.open = open;
     }
 
     @Override
     public String getType() {
         return NAME;
-    }
-
-    @Override
-    public SwitchActionBuilder convertToBuilder() {
-        return new SwitchActionBuilder()
-            .withId(id)
-            .withNetworkElementId(switchId)
-            .withOpen(open);
     }
 
     public String getSwitchId() {

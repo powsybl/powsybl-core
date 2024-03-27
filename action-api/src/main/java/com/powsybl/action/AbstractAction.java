@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 public abstract class AbstractAction implements Action {
 
-    protected final String id;
+    private final String id;
 
     protected AbstractAction(String id) {
         this.id = Objects.requireNonNull(id);

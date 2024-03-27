@@ -30,7 +30,7 @@ class IdentifierActionListTest {
     @Test
     void test() {
         Network network = EurostagTutorialExample1Factory.create();
-        Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
+        Map<ActionBuilder, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
         elementIdentifierMap.put(new TerminalsConnectionActionBuilder().withId("lineConnectionAction").withOpen(true)
                 .withSide(ThreeSides.ONE),
             new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1'));
@@ -44,7 +44,7 @@ class IdentifierActionListTest {
     @Test
     void testSeveralIdentifiablesFound() {
         Network network = EurostagTutorialExample1Factory.create();
-        Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
+        Map<ActionBuilder, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
         List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));

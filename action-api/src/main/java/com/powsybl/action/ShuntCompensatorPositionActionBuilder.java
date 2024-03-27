@@ -7,8 +7,6 @@
  */
 package com.powsybl.action;
 
-import java.util.Objects;
-
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -40,6 +38,11 @@ public class ShuntCompensatorPositionActionBuilder implements ActionBuilder<Shun
         return new ShuntCompensatorPositionAction(id, shuntCompensatorId, sectionCount);
     }
 
+    @Override
+    public String getType() {
+        return ShuntCompensatorPositionAction.NAME;
+    }
+
     public ShuntCompensatorPositionActionBuilder withId(String id) {
         this.id = id;
         return this;
@@ -52,22 +55,5 @@ public class ShuntCompensatorPositionActionBuilder implements ActionBuilder<Shun
     public ShuntCompensatorPositionActionBuilder withSectionCount(int sectionCount) {
         this.sectionCount = sectionCount;
         return this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        ShuntCompensatorPositionActionBuilder that = (ShuntCompensatorPositionActionBuilder) o;
-        return Objects.equals(id, that.id) && Objects.equals(shuntCompensatorId, that.shuntCompensatorId) && Objects.equals(sectionCount, that.sectionCount);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, shuntCompensatorId, sectionCount);
     }
 }

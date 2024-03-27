@@ -11,10 +11,16 @@ package com.powsybl.action;
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class RatioTapChangerTapPositionActionBuilder extends AbstractTapChangerActionTapPositionBuilder<RatioTapChangerTapPositionActionBuilder> {
+public class RatioTapChangerTapPositionActionBuilder extends AbstractTapChangerTapPositionActionBuilder<RatioTapChangerTapPositionActionBuilder> {
+
+    @Override
+    public String getType() {
+        return RatioTapChangerTapPositionAction.NAME;
+    }
 
     @Override
     public RatioTapChangerTapPositionAction build() {
-        return new RatioTapChangerTapPositionAction(id, transformerId, relativeValue, tapPosition, side);
+        return new RatioTapChangerTapPositionAction(this.getId(), this.getTransformerId(), this.isRelativeValue(),
+            this.getTapPosition(), this.getSide().orElse(null));
     }
 }

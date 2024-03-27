@@ -11,12 +11,16 @@ package com.powsybl.action;
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public abstract class AbstractTapChangerActionRegulationBuilder<T extends ActionBuilder<T>> extends AbstractTapChangerActionBuilder<T> {
+public abstract class AbstractTapChangerRegulationActionBuilder<T extends ActionBuilder<T>> extends AbstractTapChangerActionBuilder<T> {
 
-    protected boolean regulating;
+    private boolean regulating;
 
     public T withRegulating(boolean regulating) {
         this.regulating = regulating;
         return (T) this;
+    }
+
+    public boolean isRegulating() {
+        return regulating;
     }
 }

@@ -39,7 +39,7 @@ public class ActionListSerializer extends StdSerializer<ActionList> {
                     .collect(Collectors.toMap(map -> map.getKey().getId(), Map.Entry::getValue)), jsonGenerator);
             serializerProvider.defaultSerializeField("actionBuilders",
                 identifierActionList.getElementIdentifierMap().entrySet().stream()
-                    .collect(Collectors.toMap(map -> map.getKey().getId(), map -> map.getKey().build())), jsonGenerator);
+                    .collect(Collectors.toMap(map -> map.getKey().getId(), Map.Entry::getKey)), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

@@ -7,20 +7,19 @@
  */
 package com.powsybl.action.json;
 
-import com.powsybl.action.LoadAction;
 import com.powsybl.action.LoadActionBuilder;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
-public class LoadActionDeserializer extends AbstractLoadActionDeserializer<LoadAction> {
+public class LoadActionBuilderBuilderDeserializer extends AbstractLoadActionBuilderDeserializer<LoadActionBuilder> {
 
-    public LoadActionDeserializer() {
-        super(LoadAction.class);
+    public LoadActionBuilderBuilderDeserializer() {
+        super(LoadActionBuilder.class);
     }
 
     @Override
-    protected LoadAction createAction(AbstractLoadActionDeserializer.ParsingContext context) {
+    protected LoadActionBuilder createAction(AbstractLoadActionBuilderDeserializer.ParsingContext context) {
         LoadActionBuilder loadActionBuilder = new LoadActionBuilder();
         loadActionBuilder
                 .withId(context.id)
@@ -32,6 +31,6 @@ public class LoadActionDeserializer extends AbstractLoadActionDeserializer<LoadA
         if (context.reactivePowerValue != null) {
             loadActionBuilder.withReactivePowerValue(context.reactivePowerValue);
         }
-        return loadActionBuilder.build();
+        return loadActionBuilder;
     }
 }

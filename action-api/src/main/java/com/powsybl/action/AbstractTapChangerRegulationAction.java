@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.ThreeSides;
  */
 public abstract class AbstractTapChangerRegulationAction extends AbstractTapChangerAction {
 
-    protected final boolean regulating;
+    private final boolean regulating;
 
     protected AbstractTapChangerRegulationAction(String id, String transformerId, ThreeSides side, boolean regulating) {
         super(id, transformerId, side);

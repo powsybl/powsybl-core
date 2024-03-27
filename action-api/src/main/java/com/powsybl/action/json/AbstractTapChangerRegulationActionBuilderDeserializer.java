@@ -9,17 +9,17 @@ package com.powsybl.action.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.AbstractTapChangerRegulationActionBuilder;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.AbstractTapChangerRegulationAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public abstract class AbstractTapChangerRegulationActionDeserializer<T extends AbstractTapChangerRegulationAction> extends StdDeserializer<T> {
+public abstract class AbstractTapChangerRegulationActionBuilderDeserializer<T extends AbstractTapChangerRegulationActionBuilder> extends StdDeserializer<T> {
 
-    protected AbstractTapChangerRegulationActionDeserializer(Class<T> vc) {
+    protected AbstractTapChangerRegulationActionBuilderDeserializer(Class<T> vc) {
         super(vc);
     }
 

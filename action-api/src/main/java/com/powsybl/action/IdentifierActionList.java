@@ -22,24 +22,24 @@ import java.util.stream.Stream;
  */
 public class IdentifierActionList extends ActionList {
 
-    private final Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap;
+    private final Map<ActionBuilder, NetworkElementIdentifier> elementIdentifierMap;
 
-    public IdentifierActionList(List<Action> actions, Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap) {
+    public IdentifierActionList(List<Action> actions, Map<ActionBuilder, NetworkElementIdentifier> elementIdentifierMap) {
         super(actions);
         this.elementIdentifierMap = elementIdentifierMap;
     }
 
     public List<Action> getActions(Network network) {
         return Stream.concat(elementIdentifierMap.entrySet().stream().map(entry -> {
-            Set<Identifiable<?>> identifiables = entry.getValue().filterIdentifiable(network);
+            Set<Identifiable> identifiables = entry.getValue().filterIdentifiable(network);
             if (identifiables.size() != 1) {
                 throw new PowsyblException("for identifier in action builder more than one or none network element was found");
             }
             return entry.getKey().withNetworkElementId(identifiables.iterator().next().getId()).build();
-        }), actions.stream()).toList();
+        }), this.getActions().stream()).toList();
     }
 
-    public Map<ActionBuilder<?>, NetworkElementIdentifier> getElementIdentifierMap() {
+    public Map<ActionBuilder, NetworkElementIdentifier> getElementIdentifierMap() {
         return elementIdentifierMap;
     }
 }

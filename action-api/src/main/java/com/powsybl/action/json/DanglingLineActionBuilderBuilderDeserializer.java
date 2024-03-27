@@ -7,20 +7,19 @@
  */
 package com.powsybl.action.json;
 
-import com.powsybl.action.DanglingLineAction;
 import com.powsybl.action.DanglingLineActionBuilder;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
-public class DanglingLineActionDeserializer extends AbstractLoadActionDeserializer<DanglingLineAction> {
+public class DanglingLineActionBuilderBuilderDeserializer extends AbstractLoadActionBuilderDeserializer<DanglingLineActionBuilder> {
 
-    public DanglingLineActionDeserializer() {
-        super(DanglingLineAction.class);
+    public DanglingLineActionBuilderBuilderDeserializer() {
+        super(DanglingLineActionBuilder.class);
     }
 
     @Override
-    protected DanglingLineAction createAction(ParsingContext context) {
+    protected DanglingLineActionBuilder createAction(ParsingContext context) {
         DanglingLineActionBuilder builder = new DanglingLineActionBuilder();
         builder.withId(context.id)
             .withDanglingLineId(context.elementId)
@@ -31,6 +30,6 @@ public class DanglingLineActionDeserializer extends AbstractLoadActionDeserializ
         if (context.reactivePowerValue != null) {
             builder.withReactivePowerValue(context.reactivePowerValue);
         }
-        return builder.build();
+        return builder;
     }
 }

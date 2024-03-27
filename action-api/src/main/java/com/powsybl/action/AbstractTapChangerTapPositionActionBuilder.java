@@ -13,10 +13,10 @@ import java.util.Objects;
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public abstract class AbstractTapChangerActionTapPositionBuilder<T extends ActionBuilder<T>> extends AbstractTapChangerActionBuilder<T> {
+public abstract class AbstractTapChangerTapPositionActionBuilder<T extends ActionBuilder<T>> extends AbstractTapChangerActionBuilder<T> {
 
-    protected int tapPosition;
-    protected boolean relativeValue; // true if relative value chosen, false if absolute value
+    private int tapPosition;
+    private boolean relativeValue; // true if relative value chosen, false if absolute value
 
     public T withTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
@@ -36,12 +36,20 @@ public abstract class AbstractTapChangerActionTapPositionBuilder<T extends Actio
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        AbstractTapChangerActionTapPositionBuilder<?> that = (AbstractTapChangerActionTapPositionBuilder<?>) o;
+        AbstractTapChangerTapPositionActionBuilder<?> that = (AbstractTapChangerTapPositionActionBuilder<?>) o;
         return tapPosition == that.tapPosition && relativeValue == that.relativeValue;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(tapPosition, relativeValue);
+    }
+
+    public int getTapPosition() {
+        return tapPosition;
+    }
+
+    public boolean isRelativeValue() {
+        return relativeValue;
     }
 }

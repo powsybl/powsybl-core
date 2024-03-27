@@ -9,6 +9,7 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.StaticVarCompensator;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
@@ -33,7 +34,7 @@ public class StaticVarCompensatorAction extends AbstractAction {
                                          StaticVarCompensator.RegulationMode regulationMode,
                                          Double voltageSetpoint, Double reactivePowerSetpoint) {
         super(id);
-        this.staticVarCompensatorId = staticVarCompensatorId;
+        this.staticVarCompensatorId = Objects.requireNonNull(staticVarCompensatorId);
         this.regulationMode = regulationMode;
         this.voltageSetpoint = voltageSetpoint;
         this.reactivePowerSetpoint = reactivePowerSetpoint;
@@ -42,16 +43,6 @@ public class StaticVarCompensatorAction extends AbstractAction {
     @Override
     public String getType() {
         return NAME;
-    }
-
-    @Override
-    public StaticVarCompensatorActionBuilder convertToBuilder() {
-        return new StaticVarCompensatorActionBuilder()
-            .withId(id)
-            .withStaticVarCompensatorId(staticVarCompensatorId)
-            .withRegulationMode(regulationMode)
-            .withVoltageSetpoint(voltageSetpoint)
-            .withReactivePowerSetpoint(reactivePowerSetpoint);
     }
 
     public String getStaticVarCompensatorId() {

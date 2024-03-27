@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
+
 /**
  * An action to:
  * <ul>
@@ -31,7 +33,7 @@ public class DanglingLineAction extends AbstractLoadAction {
      */
     DanglingLineAction(String id, String danglingLineId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id, relativeValue, activePowerValue, reactivePowerValue);
-        this.danglingLineId = danglingLineId;
+        this.danglingLineId = Objects.requireNonNull(danglingLineId);
     }
 
     public String getDanglingLineId() {
@@ -41,14 +43,5 @@ public class DanglingLineAction extends AbstractLoadAction {
     @Override
     public String getType() {
         return NAME;
-    }
-
-    @Override
-    public DanglingLineActionBuilder convertToBuilder() {
-        return new DanglingLineActionBuilder().withId(id)
-            .withDanglingLineId(danglingLineId)
-            .withActivePowerValue(activePowerValue)
-            .withRelativeValue(relativeValue)
-            .withReactivePowerValue(reactivePowerValue);
     }
 }

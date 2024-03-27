@@ -9,6 +9,7 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -16,12 +17,12 @@ import java.util.Optional;
  */
 public abstract class AbstractTapChangerAction extends AbstractAction {
 
-    protected final String transformerId;
-    protected final ThreeSides side;
+    private final String transformerId;
+    private final ThreeSides side;
 
     protected AbstractTapChangerAction(String id, String transformerId, ThreeSides side) {
         super(id);
-        this.transformerId = transformerId;
+        this.transformerId = Objects.requireNonNull(transformerId);
         this.side = side;
     }
 

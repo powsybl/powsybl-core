@@ -39,7 +39,7 @@ public class VoltageLevelAndOrderNetworkElementIdentifier implements NetworkElem
     }
 
     @Override
-    public Set<Identifiable<?>> filterIdentifiable(Network network) {
+    public Set<Identifiable> filterIdentifiable(Network network) {
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevelId1);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevelId2);
         if (voltageLevel1 == null || voltageLevel2 == null) {

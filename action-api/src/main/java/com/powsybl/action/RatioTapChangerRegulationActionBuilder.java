@@ -7,40 +7,26 @@
  */
 package com.powsybl.action;
 
-import java.util.Objects;
-
 /**
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class RatioTapChangerRegulationActionBuilder extends AbstractTapChangerActionRegulationBuilder<RatioTapChangerRegulationActionBuilder> {
+public class RatioTapChangerRegulationActionBuilder extends AbstractTapChangerRegulationActionBuilder<RatioTapChangerRegulationActionBuilder> {
     private Double targetV;
 
     @Override
+    public String getType() {
+        return RatioTapChangerRegulationAction.NAME;
+    }
+
+    @Override
     public RatioTapChangerRegulationAction build() {
-        return new RatioTapChangerRegulationAction(id, transformerId, side, regulating, targetV);
+        return new RatioTapChangerRegulationAction(this.getId(), this.getTransformerId(), this.getSide().orElse(null),
+            this.isRegulating(), targetV);
     }
 
     public RatioTapChangerRegulationActionBuilder withTargetV(Double targetV) {
         this.targetV = targetV;
         return this;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RatioTapChangerRegulationActionBuilder that = (RatioTapChangerRegulationActionBuilder) o;
-        return Objects.equals(targetV, that.targetV);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(targetV);
-    }
-
 }

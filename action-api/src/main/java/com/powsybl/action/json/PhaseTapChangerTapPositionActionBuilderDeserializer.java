@@ -19,14 +19,15 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapChangerTapPositionActionDeserializer<PhaseTapChangerTapPositionAction> {
+public class PhaseTapChangerTapPositionActionBuilderDeserializer
+    extends AbstractTapChangerTapPositionActionBuilderDeserializer<PhaseTapChangerTapPositionActionBuilder> {
 
-    public PhaseTapChangerTapPositionActionDeserializer() {
-        super(PhaseTapChangerTapPositionAction.class);
+    public PhaseTapChangerTapPositionActionBuilderDeserializer() {
+        super(PhaseTapChangerTapPositionActionBuilder.class);
     }
 
     @Override
-    public PhaseTapChangerTapPositionAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public PhaseTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext commonParsingContext = new ParsingContext();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
@@ -49,7 +50,6 @@ public class PhaseTapChangerTapPositionActionDeserializer extends AbstractTapCha
             .withTransformerId(commonParsingContext.transformerId)
             .withRelativeValue(commonParsingContext.relativeValue)
             .withTapPosition(commonParsingContext.tapPosition)
-            .withSide(commonParsingContext.side)
-            .build();
+            .withSide(commonParsingContext.side);
     }
 }

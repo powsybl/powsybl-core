@@ -39,7 +39,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
         String version;
         List<Action> actions;
         Map<String, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
-        Map<String, Action> actionBuilderMap = new HashMap<>();
+        Map<String, ActionBuilder> actionBuilderMap = new HashMap<>();
     }
 
     @Override
@@ -53,7 +53,8 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                     return true;
                 case "actions":
                     parser.nextToken();
-                    context.actions = JsonUtil.readList(deserializationContext, parser, Action.class);
+                    List<ActionBuilder> actionBuilders = JsonUtil.readList(deserializationContext, parser, ActionBuilder.class);
+                    context.actions = actionBuilders.stream().map(ActionBuilder::build).toList();
                     return true;
                 case "elementIdentifiers":
                     parser.nextToken();
@@ -62,7 +63,7 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                     return true;
                 case "actionBuilders":
                     parser.nextToken();
-                    context.actionBuilderMap = parser.readValueAs(new TypeReference<HashMap<String, Action>>() {
+                    context.actionBuilderMap = parser.readValueAs(new TypeReference<HashMap<String, ActionBuilder>>() {
                     });
                     return true;
                 default:
@@ -80,9 +81,9 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
             if (!context.actionBuilderMap.keySet().containsAll(context.elementIdentifierMap.keySet())) {
                 throw new IOException("keys in elementIdentifiers are different from actionBuilders");
             }
-            Map<ActionBuilder<?>, NetworkElementIdentifier> actionBuilderNetworkElementIdentifierMap = new HashMap<>();
+            Map<ActionBuilder, NetworkElementIdentifier> actionBuilderNetworkElementIdentifierMap = new HashMap<>();
             context.elementIdentifierMap.forEach((actionId, identifier) ->
-                actionBuilderNetworkElementIdentifierMap.put(context.actionBuilderMap.get(actionId).convertToBuilder(), identifier));
+                actionBuilderNetworkElementIdentifierMap.put(context.actionBuilderMap.get(actionId), identifier));
             return new IdentifierActionList(context.actions, actionBuilderNetworkElementIdentifierMap);
         }
         return new ActionList(context.actions);

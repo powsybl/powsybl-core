@@ -17,7 +17,7 @@ import java.util.Set;
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public interface NetworkElementIdentifier {
-    Set<Identifiable<?>> filterIdentifiable(Network network);
+    Set<Identifiable> filterIdentifiable(Network network);
 
     Set<String> getNotFoundElements(Network network);
 

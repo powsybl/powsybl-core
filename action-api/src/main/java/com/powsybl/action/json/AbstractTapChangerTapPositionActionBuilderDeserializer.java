@@ -10,18 +10,18 @@ package com.powsybl.action.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.AbstractTapChangerTapPositionActionBuilder;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.action.AbstractTapChangerTapPositionAction;
 
 import java.io.IOException;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public abstract class AbstractTapChangerTapPositionActionDeserializer<T extends AbstractTapChangerTapPositionAction> extends StdDeserializer<T> {
+public abstract class AbstractTapChangerTapPositionActionBuilderDeserializer<T extends AbstractTapChangerTapPositionActionBuilder> extends StdDeserializer<T> {
 
-    protected AbstractTapChangerTapPositionActionDeserializer(Class<T> vc) {
+    protected AbstractTapChangerTapPositionActionBuilderDeserializer(Class<T> vc) {
         super(vc);
     }
 

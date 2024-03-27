@@ -11,6 +11,7 @@ package com.powsybl.action;
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public interface ActionBuilder<T extends ActionBuilder<T>> {
+    String getType();
 
     T withId(String id);
 

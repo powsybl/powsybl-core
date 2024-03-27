@@ -112,11 +112,11 @@ public class JsonActionTest extends AbstractSerDeTest {
 
     @Test
     void identifierActionList() throws IOException {
-        Map<ActionBuilder<?>, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
-        elementIdentifierMap.put(new TerminalsConnectionActionBuilder().withId("lineConnectionAction").withOpen(true).withSide(ThreeSides.ONE),
+        Map<ActionBuilder, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
+        elementIdentifierMap.put(new TerminalsConnectionActionBuilder().withId("lineConnectionActionId").withOpen(true).withSide(ThreeSides.ONE),
             new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1'));
-        elementIdentifierMap.put(new SwitchActionBuilder().withId("switchAction").withOpen(true),
-            new IdBasedNetworkElementIdentifier("switch 1"));
+        elementIdentifierMap.put(new SwitchActionBuilder().withId("switchActionId").withOpen(true),
+            new IdBasedNetworkElementIdentifier("switch 1 id"));
         IdentifierActionList identifierActionList = new IdentifierActionList(Collections.emptyList(), elementIdentifierMap);
         roundTripTest(identifierActionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/IdentifierActionListTest.json");
     }

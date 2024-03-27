@@ -36,16 +36,6 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
         return NAME;
     }
 
-    @Override
-    public RatioTapChangerRegulationActionBuilder convertToBuilder() {
-        return new RatioTapChangerRegulationActionBuilder()
-            .withId(id)
-            .withTransformerId(transformerId)
-            .withSide(side)
-            .withRegulating(regulating)
-            .withTargetV(targetV);
-    }
-
     public static RatioTapChangerRegulationAction activateRegulationAndChangeTargetV(String id, String transformerId, Double targetV) {
         return new RatioTapChangerRegulationAction(id, transformerId, null, true, targetV);
     }

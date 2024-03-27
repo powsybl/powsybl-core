@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
+
 /**
  * An action to:
  * <ul>
@@ -31,7 +33,7 @@ public class LoadAction extends AbstractLoadAction {
      */
     LoadAction(String id, String loadId, boolean relativeValue, Double activePowerValue, Double reactivePowerValue) {
         super(id, relativeValue, activePowerValue, reactivePowerValue);
-        this.loadId = loadId;
+        this.loadId = Objects.requireNonNull(loadId);
     }
 
     public String getLoadId() {
@@ -41,15 +43,5 @@ public class LoadAction extends AbstractLoadAction {
     @Override
     public String getType() {
         return NAME;
-    }
-
-    @Override
-    public LoadActionBuilder convertToBuilder() {
-        return new LoadActionBuilder()
-            .withId(id)
-            .withLoadId(loadId)
-            .withRelativeValue(relativeValue)
-            .withActivePowerValue(activePowerValue)
-            .withReactivePowerValue(reactivePowerValue);
     }
 }

@@ -21,14 +21,14 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class StaticVarCompensatorActionDeserializer extends StdDeserializer<StaticVarCompensatorAction> {
+public class StaticVarCompensatorActionBuilderDeserializer extends StdDeserializer<StaticVarCompensatorActionBuilder> {
 
-    public StaticVarCompensatorActionDeserializer() {
+    public StaticVarCompensatorActionBuilderDeserializer() {
         super(StaticVarCompensatorAction.class);
     }
 
     @Override
-    public StaticVarCompensatorAction deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public StaticVarCompensatorActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         StaticVarCompensatorActionBuilder builder = new StaticVarCompensatorActionBuilder();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
             switch (name) {
@@ -58,6 +58,6 @@ public class StaticVarCompensatorActionDeserializer extends StdDeserializer<Stat
                     return false;
             }
         });
-        return builder.build();
+        return builder;
     }
 }

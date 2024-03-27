@@ -20,14 +20,14 @@ import java.io.IOException;
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
+public class SwitchActionBuilderDeserializer extends StdDeserializer<SwitchActionBuilder> {
 
-    public SwitchActionDeserializer() {
+    public SwitchActionBuilderDeserializer() {
         super(SwitchAction.class);
     }
 
     @Override
-    public SwitchAction deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+    public SwitchActionBuilder deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         SwitchActionBuilder builder = new SwitchActionBuilder();
         JsonUtil.parsePolymorphicObject(parser, name -> {
             switch (name) {
@@ -50,6 +50,6 @@ public class SwitchActionDeserializer extends StdDeserializer<SwitchAction> {
                     return false;
             }
         });
-        return builder.build();
+        return builder;
     }
 }

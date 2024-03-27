@@ -9,14 +9,16 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Optional;
+
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public abstract class AbstractTapChangerActionBuilder<T extends ActionBuilder<T>> implements ActionBuilder<T> {
 
-    protected String id;
-    protected String transformerId;
-    protected ThreeSides side;
+    private String id;
+    private String transformerId;
+    private ThreeSides side;
 
     @Override
     public String getId() {
@@ -44,4 +46,11 @@ public abstract class AbstractTapChangerActionBuilder<T extends ActionBuilder<T>
         return (T) this;
     }
 
+    public String getTransformerId() {
+        return transformerId;
+    }
+
+    public Optional<ThreeSides> getSide() {
+        return Optional.ofNullable(side);
+    }
 }

@@ -30,14 +30,4 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
     public String getType() {
         return NAME;
     }
-
-    @Override
-    public PhaseTapChangerTapPositionActionBuilder convertToBuilder() {
-        return new PhaseTapChangerTapPositionActionBuilder()
-            .withId(id)
-            .withTransformerId(transformerId)
-            .withTapPosition(tapPosition)
-            .withRelativeValue(relativeValue)
-            .withSide(side);
-    }
 }
