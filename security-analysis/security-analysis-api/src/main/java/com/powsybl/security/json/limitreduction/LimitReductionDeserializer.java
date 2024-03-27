@@ -12,14 +12,14 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.criteria.NetworkElementCriterion;
-import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.security.limitreduction.LimitReduction;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
@@ -32,7 +32,7 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
     private static class ParsingContext {
         float value;
         LimitType limitType;
-        boolean monitoringOnly;
+        Boolean monitoringOnly;
         ContingencyContext contingencyContext;
         List<NetworkElementCriterion> networkElementCriteria;
         List<LimitDurationCriterion> durationCriteria;
@@ -76,9 +76,20 @@ public class LimitReductionDeserializer extends StdDeserializer<LimitReduction> 
                 }
             }
         });
-        return new LimitReduction(context.limitType, context.value, context.monitoringOnly,
-                context.contingencyContext,
-                context.networkElementCriteria != null ? context.networkElementCriteria : Collections.emptyList(),
-                context.durationCriteria != null ? context.durationCriteria : Collections.emptyList());
+        LimitReduction.Builder builder = LimitReduction.builder(checkAttribute(context.limitType, "limitType"),
+                        checkAttribute(context.value, "value"))
+                .withMonitoringOnly(checkAttribute(context.monitoringOnly, "monitoringOnly"))
+                .withContingencyContext(checkAttribute(context.contingencyContext, "contingencyContext"));
+        if (context.networkElementCriteria != null) {
+            builder.withNetworkElementCriteria(context.networkElementCriteria);
+        }
+        if (context.durationCriteria != null) {
+            builder.withLimitDurationCriteria(context.durationCriteria);
+        }
+        return builder.build();
+    }
+
+    private static <T> T checkAttribute(T object, String attributeName) {
+        return Objects.requireNonNull(object, String.format("'%s' attribute is missing (or null)", attributeName));
     }
 }

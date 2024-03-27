@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.conformity;
@@ -19,6 +20,7 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
@@ -97,7 +99,11 @@ class CgmesConformity1ConversionTest {
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig()
+                    .tolerance(1e-5)
+                    .checkNetworkId(false)
+                    .incrementVersions(true)
+                    .exportedSubset(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -112,7 +118,11 @@ class CgmesConformity1ConversionTest {
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig()
+                    .tolerance(1e-5)
+                    .checkNetworkId(false)
+                    .incrementVersions(true)
+                    .exportedSubset(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }

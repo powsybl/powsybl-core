@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -11,8 +12,11 @@ import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.*;
 import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
 import com.powsybl.iidm.criteria.Criterion;
+import com.powsybl.iidm.criteria.VoltageInterval;
 import com.powsybl.iidm.criteria.json.CriterionDeserializer;
 import com.powsybl.iidm.criteria.json.CriterionSerializer;
+import com.powsybl.iidm.criteria.json.VoltageIntervalDeserializer;
+import com.powsybl.iidm.criteria.json.VoltageIntervalSerializer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,6 +34,7 @@ public class ContingencyJsonModule extends SimpleModule {
         addSerializer(TieLineCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(TieLineCriterionContingencyList.class));
         addSerializer(TwoWindingsTransformerCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(TwoWindingsTransformerCriterionContingencyList.class));
         addSerializer(ThreeWindingsTransformerCriterionContingencyList.class, new EquipmentCriterionContingencyListSerializer<>(ThreeWindingsTransformerCriterionContingencyList.class));
+        addSerializer(VoltageInterval.class, new VoltageIntervalSerializer());
 
         addSerializer(DefaultContingencyList.class, new DefaultContingencyListSerializer());
         addSerializer(Contingency.class, new ContingencySerializer());
@@ -46,6 +51,7 @@ public class ContingencyJsonModule extends SimpleModule {
         addDeserializer(TieLineCriterionContingencyList.class, new TieLineCriterionContingencyListDeserializer());
         addDeserializer(TwoWindingsTransformerCriterionContingencyList.class, new TwoWindingsTransformerCriterionContingencyListDeserializer());
         addDeserializer(ThreeWindingsTransformerCriterionContingencyList.class, new ThreeWindingsTransformerCriterionContingencyListDeserializer());
+        addDeserializer(VoltageInterval.class, new VoltageIntervalDeserializer());
 
         addDeserializer(ContingencyList.class, new ContingencyListDeserializer());
         addDeserializer(DefaultContingencyList.class, new DefaultContingencyListDeserializer());
