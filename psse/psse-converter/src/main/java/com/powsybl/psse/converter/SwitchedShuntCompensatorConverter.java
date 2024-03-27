@@ -8,7 +8,6 @@
 package com.powsybl.psse.converter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -268,19 +267,16 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new switchedShunts
-    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
-        PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
+    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {
+        PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
-            updatePsseModel.addSwitchedShunts(Collections.singletonList(psseSwitchedShunt));
-            PsseSwitchedShunt updatePsseSwitchedShunt = updatePsseModel.getSwitchedShunts().get(updatePsseModel.getSwitchedShunts().size() - 1);
-
-            String switchedShuntId = getShuntId(getBusId(updatePsseSwitchedShunt.getI()), defineShuntId(updatePsseSwitchedShunt, version));
+            String switchedShuntId = getShuntId(getBusId(psseSwitchedShunt.getI()), defineShuntId(psseSwitchedShunt, version));
             ShuntCompensator switchedShunt = network.getShuntCompensator(switchedShuntId);
             if (switchedShunt == null) {
-                updatePsseSwitchedShunt.setStat(0);
+                psseSwitchedShunt.setStat(0);
             } else {
-                updatePsseSwitchedShunt.setStat(getStatus(switchedShunt));
-                updatePsseSwitchedShunt.setBinit(getQ(switchedShunt));
+                psseSwitchedShunt.setStat(getStatus(switchedShunt));
+                psseSwitchedShunt.setBinit(getQ(switchedShunt));
             }
         });
     }

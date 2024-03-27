@@ -7,7 +7,6 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Collections;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.Load;
@@ -93,19 +92,16 @@ class LoadConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new loads
-    static void updateLoads(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+    static void updateLoads(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
-            updatePsseModel.addLoads(Collections.singletonList(psseLoad));
-            PsseLoad updatePsseLoad = updatePsseModel.getLoads().get(updatePsseModel.getLoads().size() - 1);
-
-            String loadId = getLoadId(getBusId(updatePsseLoad.getI()), updatePsseLoad.getId());
+            String loadId = getLoadId(getBusId(psseLoad.getI()), psseLoad.getId());
             Load load = network.getLoad(loadId);
             if (load == null) {
-                updatePsseLoad.setStatus(0);
+                psseLoad.setStatus(0);
             } else {
-                updatePsseLoad.setStatus(getStatus(load));
-                updatePsseLoad.setPl(getP(load));
-                updatePsseLoad.setQl(getQ(load));
+                psseLoad.setStatus(getStatus(load));
+                psseLoad.setPl(getP(load));
+                psseLoad.setQl(getQ(load));
             }
         });
     }
