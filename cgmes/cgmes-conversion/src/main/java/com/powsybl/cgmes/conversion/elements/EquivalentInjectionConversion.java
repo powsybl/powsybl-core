@@ -115,6 +115,12 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+
+        addSpecificProperties(g);
+    }
+
+    private static void addSpecificProperties(Generator generator) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
     }
 
     static class Regulation {

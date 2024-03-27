@@ -483,10 +483,8 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("FullModel")) {
-                if (cxpath.contains("Model.DependentOn")) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.DependentOn")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -615,6 +613,16 @@ final class ExportXmlCompare {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("TapChanger") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringConformLoad(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ConformLoad")) {
                 return ComparisonResult.EQUAL;
             }
         }
