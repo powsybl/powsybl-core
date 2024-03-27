@@ -12,14 +12,12 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 
 import com.powsybl.triplestore.api.PropertyBag;
-
+import static com.powsybl.cgmes.model.CgmesNames.SYNCHRONOUS_MACHINE;
 import java.util.Arrays;
 
 /**
@@ -30,7 +28,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     private final boolean isCondenser;
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
-        super("SynchronousMachine", sm, context);
+        super(SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
         isCondenser = type != null && type.endsWith("Kind.condenser");
     }
@@ -76,6 +74,19 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        addSpecificProperties(g, p);
+    }
+
+    private static void addSpecificProperties(Generator generator, PropertyBag p) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
+        String type = p.getLocal("type");
+        if (type != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
+        }
+        String operatingMode = p.getLocal("operatingMode");
+        if (operatingMode != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
+        }
     }
 
     private void convertGenerator(Generator g) {

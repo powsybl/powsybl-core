@@ -31,6 +31,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
@@ -440,8 +441,7 @@ public class CgmesExportContext {
     }
 
     private static boolean isCondenser(Generator generator) {
-        // TODO(Luma) This has to be revisited with the pull request for preserving detailed info for generators (#2726)
-        return generator.getMinP() == 0 && generator.getMaxP() == 0;
+        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator)).contains("condenser");
     }
 
     private void addIidmMappingsGenerators(Network network) {

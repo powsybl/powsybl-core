@@ -10,8 +10,8 @@
     "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
     "voltageInterval" : {
       "nominalVoltageLowBound" : 80.0,
-      "nominalVoltageHighBound" : 100.0,
       "lowClosed" : true,
+      "nominalVoltageHighBound" : 100.0,
       "highClosed" : true
     }
   }
@@ -29,8 +29,8 @@
     "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
     "voltageInterval" : {
       "nominalVoltageLowBound" : 80.0,
-      "nominalVoltageHighBound" : 100.0,
       "lowClosed" : true,
+      "nominalVoltageHighBound" : 100.0,
       "highClosed" : true
     }
   }

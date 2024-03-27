@@ -182,7 +182,7 @@ public class RegulatingControlMappingForTransformers {
         }
 
         boolean okSet = false;
-        if (isControlModeVoltage(control.mode, rc.tculControlMode)) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRtcRegulatingControlVoltage(rc.id, regulating, control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode,
@@ -355,13 +355,6 @@ public class RegulatingControlMappingForTransformers {
             }
         }
         return false;
-    }
-
-    private static boolean isControlModeVoltage(String controlMode, String tculControlMode) {
-        if (RegulatingControlMapping.isControlModeVoltage(controlMode)) {
-            return true;
-        }
-        return tculControlMode != null && tculControlMode.endsWith("volt");
     }
 
     private static boolean isControlModeFixed(String controlMode) {

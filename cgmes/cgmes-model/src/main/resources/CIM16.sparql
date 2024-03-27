@@ -111,7 +111,7 @@ SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
 GROUP BY ?Type
 
 # query: allObjectsOfType
-SELECT * 
+SELECT *
 { GRAPH ?graph {
      ?object a cim:{0} ;
      ?attribute ?value .
@@ -272,19 +272,19 @@ WHERE {
     OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.fromEndIsoCode ?fromEndIsoCode }
     OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
-OPTIONAL { 
+OPTIONAL {
     {
-        SELECT ?TopologicalNode 
+        SELECT ?TopologicalNode
         WHERE {
             {
                 GRAPH ?graphTPCN { ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode }
             }
-            UNION 
+            UNION
             {
                 # For TSOs missing the direct relationship ConnectivityNode -> TopologicalNode in TP
                 # We have to locate the TopologicalNode through one of the Terminals connected to the
                 # ConnectivityNode
-                SELECT ?TopologicalNode 
+                SELECT ?TopologicalNode
                 WHERE {
                     GRAPH ?graphEQ { ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode }
                     GRAPH ?graphTPCN2 { ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode }
@@ -296,11 +296,11 @@ OPTIONAL {
     }
     ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage
     OPTIONAL { GRAPH ?graphSVT {
-        ?SvVoltageT 
+        ?SvVoltageT
             a cim:SvVoltage ;
             cim:SvVoltage.TopologicalNode ?TopologicalNode ;
             cim:SvVoltage.v ?v ;
-            cim:SvVoltage.angle ?angle 
+            cim:SvVoltage.angle ?angle
     }}
 }
 }
@@ -309,7 +309,7 @@ OPTIONAL {
 SELECT *
 WHERE {
 { GRAPH ?graphTP {
-    ?TopologicalNode 
+    ?TopologicalNode
         cim:IdentifiedObject.name ?name ;
         cim:TopologicalNode.BaseVoltage ?BaseVoltage ;
         cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
@@ -317,17 +317,17 @@ WHERE {
     OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphSVT {
-    ?SvVoltageT 
+    ?SvVoltageT
         a cim:SvVoltage ;
         cim:SvVoltage.TopologicalNode ?TopologicalNode ;
         cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle 
+        cim:SvVoltage.angle ?angle
 }}
 }
 
 # query: topologicalIslands
 SELECT *
-{ GRAPH ?graph { 
+{ GRAPH ?graph {
     ?TopologicalIsland
         a cim:TopologicalIsland ;
         cim:IdentifiedObject.name ?name ;
@@ -358,13 +358,13 @@ WHERE {
 }
 
 # query: voltages
-SELECT * 
+SELECT *
 { GRAPH ?graphSV {
-    ?SvVoltage 
+    ?SvVoltage
         a cim:SvVoltage ;
         cim:SvVoltage.TopologicalNode ?TopologicalNode ;
         cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle 
+        cim:SvVoltage.angle ?angle
 }}
 
 # query: operationalLimits
@@ -574,13 +574,13 @@ WHERE {
         cim:TapChanger.ltcFlag ?ltcFlag ;
         cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
     OPTIONAL {
-        ?RatioTapChanger
-             cim:TapChanger.TapChangerControl ?TapChangerControl ;
-             # ??? FIXME what is the difference between tculControlMode and TapChangerControl RegulatingControl.mode ?
-             cim:RatioTapChanger.tculControlMode ?tculControlMode
+        ?RatioTapChanger cim:TapChanger.TapChangerControl ?TapChangerControl .
+        OPTIONAL {
+             ?RatioTapChanger cim:RatioTapChanger.tculControlMode ?tculControlMode
+        }
     }
     OPTIONAL {
-        ?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable 
+        ?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable
     }
 }}
 OPTIONAL { GRAPH ?graphSSH {
@@ -605,9 +605,9 @@ WHERE {
         cim:TapChangerTablePoint.step ?step .
     FILTER regex(str(?Table), "{0}")
     OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r } 
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x } 
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
     OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
@@ -619,9 +619,9 @@ WHERE {
         cim:RatioTapChangerTablePoint.RatioTapChangerTable ?RatioTapChangerTable ;
         cim:TapChangerTablePoint.step ?step .
     OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r } 
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x } 
-    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
     OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
@@ -796,7 +796,7 @@ WHERE {
     VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
     ?Terminal cim:Terminal.ConductingEquipment ?ShuntCompensator .
     OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.gPerSection ?gPerSection }
-    OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.bPerSection ?bPerSection } 
+    OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.bPerSection ?bPerSection }
     OPTIONAL { ?ShuntCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
 }}
 OPTIONAL { GRAPH ?graphSV  {
@@ -839,7 +839,7 @@ WHERE {
         cim:SynchronousMachineKind.motor
         cim:SynchronousMachineKind.generatorOrMotor
         cim:SynchronousMachineKind.motorOrCondenser
-        cim:SynchronousMachineKind.generatorOrMotorOrCondenser
+        cim:SynchronousMachineKind.generatorOrCondenserOrMotor
     }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
@@ -876,6 +876,7 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:SynchronousMachine.operatingMode ?operatingMode ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
 }}
 OPTIONAL { GRAPH ?graphSSH2 {
@@ -891,7 +892,9 @@ WHERE {
         a cim:SynchronousMachine ;
         cim:IdentifiedObject.name ?name ;
         cim:SynchronousMachine.type ?type .
-    FILTER REGEX(STR(?type), "Kind.condenser")
+    VALUES ?type {
+        cim:SynchronousMachineKind.condenser
+    }
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
     }
@@ -982,6 +985,7 @@ WHERE {
         cim:ExternalNetworkInjection.minP ?minP ;
         cim:ExternalNetworkInjection.maxP ?maxP .
     ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
+    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.governorSCD ?governorSCD }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
@@ -1046,7 +1050,7 @@ WHERE {
         cim:ControlArea.type ?controlAreaType .
         OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
-        
+
 }}
 { OPTIONAL { GRAPH ?graphSSH {
     ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
@@ -1185,7 +1189,7 @@ DELETE { GRAPH <{0}>
 INSERT { GRAPH <{0}>
     { ?subjectIn {2} ?valueIn }
     }
-WHERE {     
+WHERE {
 { GRAPH <{0}>
     { ?subject  ?predicate  ?value .
       FILTER ( (?subject = <{1}>) && (?predicate = IRI({2})) )
@@ -1193,8 +1197,8 @@ WHERE {
 }
 UNION
 { GRAPH <{0}>
-    {     
-      BIND ( "{3}" AS ?object ) 
+    {
+      BIND ( "{3}" AS ?object )
       BIND ( IF ( "{4}"="true", IRI(?object), ?object) AS ?valueIn ) .
       BIND ( IF ( BOUND (?subject), ?subject, IRI(<{1}>)) AS ?subjectIn ) .
     }
@@ -1202,13 +1206,13 @@ UNION
 }
 
 # query: create
-INSERT { GRAPH <{0}> 
+INSERT { GRAPH <{0}>
     { ?subject  {2} ?value .}
     }
 WHERE {
     SELECT ?subject ?value
     WHERE { GRAPH <{0}> {
-      BIND ( "{3}" AS ?object) 
+      BIND ( "{3}" AS ?object)
       BIND ( IF ("{4}"="true", IRI(?object), ?object) AS ?value) .
       BIND ( IRI(<{1}>) AS ?subject ).
     }

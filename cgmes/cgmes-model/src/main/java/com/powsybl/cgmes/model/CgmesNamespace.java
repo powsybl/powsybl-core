@@ -100,6 +100,8 @@ public final class CgmesNamespace {
         boolean writeGeneratingUnitInitialP();
 
         boolean writeConnectivityNodes();
+
+        boolean writeTculControlMode();
     }
 
     private abstract static class AbstractCim implements Cim {
@@ -182,6 +184,11 @@ public final class CgmesNamespace {
         @Override
         public boolean writeConnectivityNodes() {
             return false;
+        }
+
+        @Override
+        public boolean writeTculControlMode() {
+            return true;
         }
 
         private Cim14() {
@@ -273,6 +280,11 @@ public final class CgmesNamespace {
             return false;
         }
 
+        @Override
+        public boolean writeTculControlMode() {
+            return true;
+        }
+
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
                     "value",
@@ -299,6 +311,11 @@ public final class CgmesNamespace {
         @Override
         public boolean writeConnectivityNodes() {
             return true;
+        }
+
+        @Override
+        public boolean writeTculControlMode() {
+            return false;
         }
 
         private Cim100() {
