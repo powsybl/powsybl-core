@@ -109,39 +109,39 @@ public final class VoltageInterval {
     /**
      * <p>Convenient method to easily create a {@link VoltageInterval} with only a lower bound.</p>
      * @param value the lower bound of the interval to create (it corresponds to the <code>nominalVoltageLowBound</code> attribute of the interval)
-     * @param valueIncluded is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @param closed is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
      * @return an interval
      */
-    public static VoltageInterval greaterThan(double value, boolean valueIncluded) {
+    public static VoltageInterval greaterThan(double value, boolean closed) {
         return VoltageInterval.builder()
-                .setLowBound(value, valueIncluded)
+                .setLowBound(value, closed)
                 .build();
     }
 
     /**
      * <p>Convenient method to easily create a {@link VoltageInterval} with only a upper bound.</p>
      * @param value the upper bound of the interval to create (it corresponds to the <code>nominalVoltageHighBound</code> attribute of the interval)
-     * @param valueIncluded is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @param closed is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
      * @return an interval
      */
-    public static VoltageInterval lowerThan(double value, boolean valueIncluded) {
+    public static VoltageInterval lowerThan(double value, boolean closed) {
         return VoltageInterval.builder()
-                .setHighBound(value, valueIncluded)
+                .setHighBound(value, closed)
                 .build();
     }
 
     /**
      * <p>Convenient method to easily create a {@link VoltageInterval} with only a upper bound.</p>
      * @param lowBound the lower bound of the interval to create (it corresponds to the <code>nominalVoltageLowBound</code> attribute of the interval)
-     * @param lowIncluded is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
+     * @param lowClosed is the bound included in the interval (it corresponds to the <code>lowClosed</code> attribute of the interval)
      * @param highBound the upper bound of the interval to create (it corresponds to the <code>nominalVoltageHighBound</code> attribute of the interval)
-     * @param highIncluded is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
+     * @param highClosed is the bound included in the interval (it corresponds to the <code>highClosed</code> attribute of the interval)
      * @return an interval
      */
-    public static VoltageInterval between(double lowBound, double highBound, boolean lowIncluded, boolean highIncluded) {
+    public static VoltageInterval between(double lowBound, double highBound, boolean lowClosed, boolean highClosed) {
         return VoltageInterval.builder()
-                .setLowBound(lowBound, lowIncluded)
-                .setHighBound(highBound, highIncluded)
+                .setLowBound(lowBound, lowClosed)
+                .setHighBound(highBound, highClosed)
                 .build();
     }
 
