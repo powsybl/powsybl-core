@@ -85,6 +85,7 @@
         <module>tools-test</module>
         <module>triple-store</module>
         <module>ucte</module>
+        <module>iidm/iidm-geodata</module>
     </modules>
 
     <properties>
