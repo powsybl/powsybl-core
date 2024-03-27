@@ -117,7 +117,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
@@ -200,7 +200,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
@@ -264,7 +264,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
@@ -346,7 +346,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 

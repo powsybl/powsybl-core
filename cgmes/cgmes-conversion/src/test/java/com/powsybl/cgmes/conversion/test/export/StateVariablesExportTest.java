@@ -558,7 +558,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getSvModelDescription().setVersion(svVersion);
+        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         StateVariablesExport.write(network, writer, context);
@@ -602,7 +602,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
-        context.getSvModelDescription().setVersion(svVersion);
+        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         context.setExportSvInjectionsForSlacks(false);
