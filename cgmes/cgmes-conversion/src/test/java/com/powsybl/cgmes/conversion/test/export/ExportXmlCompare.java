@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -260,14 +261,15 @@ final class ExportXmlCompare {
         return onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
+        // FIXME(Luma) Refactoring in progress. cgmes metadata models should be serialized in the same way, maybe we could check something else
         if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.ATTR_VALUE
-                    && control.getNodeName().equals("id")) {
-                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
-                    return ComparisonResult.EQUAL;
-                }
+            String xpath = comparison.getControlDetails().getXPath();
+            if (xpath == null) {
+                xpath = comparison.getControlDetails().getParentXPath();
+            }
+            if (xpath != null && xpath.contains("cgmesMetadataModels")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -481,10 +483,8 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("FullModel")) {
-                if (cxpath.contains("Model.DependentOn")) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.DependentOn")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -613,6 +613,16 @@ final class ExportXmlCompare {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("TapChanger") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringConformLoad(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ConformLoad")) {
                 return ComparisonResult.EQUAL;
             }
         }

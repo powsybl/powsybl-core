@@ -27,9 +27,11 @@ public class LimitReductionModule extends SimpleModule {
         addSerializer(LimitReductionList.class, new LimitReductionListSerializer());
         addSerializer(LimitReduction.class, new LimitReductionSerializer());
         addSerializer(Criterion.class, new CriterionSerializer());
+        addSerializer(VoltageInterval.class, new VoltageIntervalSerializer());
         addDeserializer(LimitReductionList.class, new LimitReductionListDeserializer());
         addDeserializer(LimitReduction.class, new LimitReductionDeserializer());
         addDeserializer(Criterion.class, new CriterionDeserializer());
+        addDeserializer(VoltageInterval.class, new VoltageIntervalDeserializer());
 
         registerNetworkElementCriteria();
         registerLimitDurationCriteria();
