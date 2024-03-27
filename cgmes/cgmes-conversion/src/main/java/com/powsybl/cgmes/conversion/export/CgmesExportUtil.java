@@ -114,20 +114,24 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
+    public static void initializeModelId(Network network, CgmesMetadataModel model, CgmesExportContext context) {
+        // The ref to build a unique model id must contain:
+        // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
+        // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
+        CgmesObjectReference[] modelRef = {
+            refTyped(network),
+            ref(model.getSubset()),
+            ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
+            ref(String.valueOf(model.getVersion())),
+            ref(context.getBusinessProcess()),
+            Part.FULL_MODEL};
+        String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
+        model.setId(modelId);
+    }
+
     public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
         if (modelDescription.getId() == null || modelDescription.getId().isEmpty()) {
-            // The ref to build a unique model id must contain:
-            // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
-            // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
-            CgmesObjectReference[] modelRef = {
-                refTyped(network),
-                ref(subset),
-                ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
-                ref(String.valueOf(modelDescription.getVersion())),
-                ref(context.getBusinessProcess()),
-                Part.FULL_MODEL};
-            String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-            modelDescription.setId(modelId);
+            initializeModelId(network, modelDescription, context);
         }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());

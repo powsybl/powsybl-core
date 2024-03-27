@@ -97,7 +97,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // Perform a CGM export and read the exported files
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.EXPORT_AS_CGM, true);
+        exportParams.put(CgmesExport.CGM_EXPORT, true);
         String basename = "test-assembled";
         // network.write("CGMES", exportParams, Path.of(basename));  // TODO remove
         network.write("CGMES", exportParams, tmpDir.resolve(basename));
