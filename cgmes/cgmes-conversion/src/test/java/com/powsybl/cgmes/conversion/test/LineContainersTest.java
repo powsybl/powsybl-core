@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LineContainersTest {
 
     @Test
-    void testLineContainerWithOneACLSNotAssociated() {
+    void testLineContainerWithOneACLSnotAssociated() {
         // This unit test reproduces a configuration observed in public data from a European TSO (NG)
         // where three ACLSs lie on a common connectivity node inside a cim:Line container
         // Two of the ACLSs have an association with the cim:Line container
