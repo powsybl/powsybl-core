@@ -559,6 +559,8 @@ public class Conversion {
     private void createFictitiousVoltageLevelsForLineContainers(Context context) {
         Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
         PropertyBags acLineSegments = cgmes.acLineSegments();
+        // First we have to iterate over all ACLSs inside Line Containers to find a voltage level reference for each Line Container
+        // There may be ACLSs that have the two nodes in the interior of Line Container and do not help in determining a voltage level reference
         for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
@@ -566,6 +568,7 @@ public class Conversion {
                         voltageLevelRefByLineContainerId, context);
             }
         }
+        // Now, iterate again over all ACLSs inside Line Containers to determine specific voltage levels to be created from the reference
         for (PropertyBag line : acLineSegments) {
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null) { // Create fictitious voltage levels for AC line segments inside line containers outside boundaries
