@@ -3,13 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
@@ -38,9 +40,9 @@ public class Comparison {
     public void compareBuses() {
         diff.current(expected);
         compareBuses(
-            expected.getBusBreakerView().getBusStream(),
-            actual.getBusBreakerView().getBusStream(),
-            this::compareBuses);
+                expected.getBusBreakerView().getBusStream(),
+                actual.getBusBreakerView().getBusStream(),
+                this::compareBuses);
     }
 
     public void compare() {
@@ -52,11 +54,8 @@ public class Comparison {
         // Compare CIM characteristics
         compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
-        // Compare SV metadata
-        compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
-
-        // Compare Ssh metadata
-        compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
+        // Compare metadata
+        compareCgmesMetadata(expected.getExtension(CgmesMetadataModels.class), actual.getExtension(CgmesMetadataModels.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -159,54 +158,71 @@ public class Comparison {
         }
     }
 
-    private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
+    private void compareCgmesMetadata(CgmesMetadataModels expected, CgmesMetadataModels actual) {
         if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSvMetadata_extension");
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_extension");
             return;
         }
         if (expected != null) {
             if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
+                diff.missing(expected.getExtendable().getId() + "_cgmesMetadataModels_extension");
                 return;
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("svVersion", config.incremented ? expected.getSvVersion() + 1 : expected.getSvVersion(), actual.getSvVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
+            if (config.ignoreMissingMetadata) {
+                // All actual models should be in expected models
+                // But some expected models may be missing
+                for (CgmesMetadataModel actualModel : actual.getModels()) {
+                    Optional<CgmesMetadataModel> expectedModel = expected.getModelForSubsetModelingAuthoritySet(actualModel.getSubset(), actualModel.getModelingAuthoritySet());
+                    if (expectedModel.isEmpty()) {
+                        diff.unexpected(actual.getExtendable().getId() + "_cgmesMetadataModels_Model " + actualModel.getId());
+                    } else {
+                        compareCgmesMetadataModels(expectedModel.get(), actualModel);
+                    }
                 }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
+            } else {
+                // If we are not ignoring models, the sorted models should be comparable one by one
+                if (expected.getModels().size() != actual.getModels().size()) {
+                    diff.compare("cgmesMetadataModels_size", expected.getModels().size(), actual.getModels().size());
+                }
+                List<CgmesMetadataModel> expectedModels = expected.getSortedModels();
+                List<CgmesMetadataModel> actualModels = actual.getSortedModels();
+                for (int k = 0; k < expectedModels.size(); k++) {
+                    compareCgmesMetadataModels(expectedModels.get(k), actualModels.get(k));
                 }
             }
         }
     }
 
-    private void compareCgmesSshMetadata(CgmesSshMetadata expected, CgmesSshMetadata actual) {
-        if (expected == null && actual != null) {
-            diff.unexpected(actual.getExtendable().getId() + "_cgmesSshMetadata_extension");
-            return;
+    private void compareCgmesMetadataModels(CgmesMetadataModel expected, CgmesMetadataModel actual) {
+        String prefix = "CgmesMetadataModel " + expected.getId() + "_";
+        if (config.checkNetworkId) {
+            compare(prefix + "id", expected.getId(), actual.getId());
         }
-        if (expected != null) {
-            if (actual == null) {
-                diff.missing(expected.getExtendable().getId() + "_cgmesSshMetadata_extension");
-                return;
+        compare(prefix + "subset", expected.getSubset(), actual.getSubset());
+        compare(prefix + "description", expected.getDescription(), actual.getDescription());
+        // If subset has not been exported, the version has not been incremented
+        CgmesSubset subset = expected.getSubset();
+        int expectedVersion = expected.getVersion();
+        if (config.versionIncremented && config.isExportedSubset(subset)) {
+            expectedVersion++;
+        }
+        compare(prefix + "version", expectedVersion, actual.getVersion());
+        compare(prefix + "modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+        compare(prefix + "profiles", expected.getProfiles(), actual.getProfiles());
+        compare(prefix + "dependentOn", expected.getDependentOn(), actual.getDependentOn());
+        compare(prefix + "supersedes", expected.getSupersedes(), actual.getSupersedes());
+    }
+
+    void compare(String context, Set<String> expecteds, Set<String> actuals) {
+        for (String expected : expecteds) {
+            if (!actuals.contains(expected)) {
+                diff.missing(context + ": " + expected);
             }
-            compare("description", expected.getDescription(), actual.getDescription());
-            compare("sshVersion", config.incremented ? expected.getSshVersion() + 1 : expected.getSshVersion(), actual.getSshVersion());
-            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
-            for (String dep : expected.getDependencies()) {
-                if (!actual.getDependencies().contains(dep)) {
-                    diff.missing("dependentOn: " + dep);
-                }
-            }
-            for (String dep : actual.getDependencies()) {
-                if (!expected.getDependencies().contains(dep)) {
-                    diff.unexpected("dependentOn: " + dep);
-                }
+        }
+        for (
+            String actual : actuals) {
+            if (!expecteds.contains(actual)) {
+                diff.unexpected(context + ": " + actual);
             }
         }
     }

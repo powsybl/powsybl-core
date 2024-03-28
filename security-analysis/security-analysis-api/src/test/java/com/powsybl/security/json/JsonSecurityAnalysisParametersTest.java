@@ -30,7 +30,8 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
         parameters.getIncreasedViolationsParameters().setFlowProportionalThreshold(0.2);
-        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.1.json");
+        parameters.setIntermediateResultsInOperatorStrategy(true);
+        roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParametersV1.2.json");
     }
 
     @Test
@@ -90,6 +91,15 @@ public class JsonSecurityAnalysisParametersTest extends AbstractSerDeTest {
         SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
                 .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.1.json"));
         assertEquals(0.2, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
+        assertFalse(parameters.getIntermediateResultsInOperatorStrategy());
+    }
+
+    @Test
+    void readJsonVersion12() {
+        SecurityAnalysisParameters parameters = JsonSecurityAnalysisParameters
+                .read(getClass().getResourceAsStream("/SecurityAnalysisParametersV1.2.json"));
+        assertEquals(0.2, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), 0.0001);
+        assertTrue(parameters.getIntermediateResultsInOperatorStrategy());
     }
 
     @Test

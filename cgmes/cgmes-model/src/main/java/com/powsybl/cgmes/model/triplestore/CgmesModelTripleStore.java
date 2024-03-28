@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model.triplestore;
@@ -252,9 +253,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
+    /**
+     * Query the model description (the metadata information) for all profiles (EQ, TP, ...).
+     * @return Property bags (one bag per profile) with all the model description found.
+     */
     @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return namedQuery("fullModel", cgmesProfile);
+    public PropertyBags fullModels() {
+        return namedQuery("fullModels");
     }
 
     @Override
