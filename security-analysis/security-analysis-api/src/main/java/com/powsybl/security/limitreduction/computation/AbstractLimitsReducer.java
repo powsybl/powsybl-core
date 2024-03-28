@@ -38,7 +38,7 @@ public abstract class AbstractLimitsReducer<L> {
      * the type of the limit).</p>
      * @return the reduced limits
      */
-    protected abstract LimitsContainer<L> generateReducedLimits();
+    protected abstract LimitsContainer<L> reduce();
 
     /**
      * <p>Return a stream of the temporary limits' acceptable durations.</p>
@@ -46,14 +46,14 @@ public abstract class AbstractLimitsReducer<L> {
      */
     public abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
-    public LimitsContainer<L> getReducedLimits() {
+    public LimitsContainer<L> getLimits() {
         if (permanentLimitReduction == 1.0
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
                     || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
             // No reductions are applicable
             return new UnalteredLimitsContainer<>(getOriginalLimits());
         }
-        return generateReducedLimits();
+        return reduce();
     }
 
     public L getOriginalLimits() {

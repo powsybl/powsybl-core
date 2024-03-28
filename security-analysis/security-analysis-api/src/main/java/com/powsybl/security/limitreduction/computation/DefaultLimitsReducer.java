@@ -27,10 +27,10 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
     }
 
     @Override
-    protected LimitsContainer<LoadingLimits> generateReducedLimits() {
+    protected LimitsContainer<LoadingLimits> reduce() {
         LoadingLimits originalLimits = getOriginalLimits();
         double reducedPermanentLimit = applyReduction(originalLimits.getPermanentLimit(), getPermanentLimitReduction());
-        AbstractReducedLoadingLimits reducedLoadingLimits = initReducedLoadingLimits(originalLimits.getLimitType(), reducedPermanentLimit,
+        AbstractReducedLoadingLimits reducedLoadingLimits = init(originalLimits.getLimitType(), reducedPermanentLimit,
                 originalLimits.getPermanentLimit(), getPermanentLimitReduction());
 
         // Compute the temporary limits:
@@ -56,9 +56,9 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
         return getOriginalLimits().getTemporaryLimits().stream().mapToInt(LoadingLimits.TemporaryLimit::getAcceptableDuration);
     }
 
-    private AbstractReducedLoadingLimits initReducedLoadingLimits(LimitType type, double permanentLimit,
-                                                                  double originalPermanentLimit,
-                                                                  double permanentLimitReduction) {
+    private AbstractReducedLoadingLimits init(LimitType type, double permanentLimit,
+                                              double originalPermanentLimit,
+                                              double permanentLimitReduction) {
         return switch (type) {
             case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
             case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);

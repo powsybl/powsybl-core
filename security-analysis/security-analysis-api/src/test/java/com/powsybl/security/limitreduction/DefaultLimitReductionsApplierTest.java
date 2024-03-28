@@ -176,19 +176,6 @@ class DefaultLimitReductionsApplierTest {
         assertTrue(optLimits.isEmpty());
     }
 
-    @Test
-    void sameReductionsAsPreviousContingencyTest() {
-        applier.setWorkingContingency(null); // pre-contingency
-        boolean sameAsBefore = applier.setWorkingContingency("contingency2");
-        // No specific reductions were defined for contingency2 => the same reductions apply.
-        assertTrue(sameAsBefore);
-        assertTrue(applier.isSameReductionsAsForPreviousContingencyId());
-        sameAsBefore = applier.setWorkingContingency("contingency1");
-        // A specific reduction was defined for contingency1 => the reductions which apply are not the same.
-        assertFalse(sameAsBefore);
-        assertFalse(applier.isSameReductionsAsForPreviousContingencyId());
-    }
-
     @ParameterizedTest(name = "{0}")
     @MethodSource("getNoChangesComputers")
     void noChangesTest(String desc, DefaultLimitReductionsApplier noChangesComputer) {
@@ -221,9 +208,9 @@ class DefaultLimitReductionsApplierTest {
     void isContingencyContextListApplicableTest(String desc, ContingencyContext contingencyContext,
                                                 boolean applicableForPreContingency,
                                                 boolean applicableForContingency1, boolean applicableForContingency2) {
-        assertEquals(applicableForPreContingency, AbstractLimitReductionsApplier.isContingencyContextListApplicable(contingencyContext, null));
-        assertEquals(applicableForContingency1, AbstractLimitReductionsApplier.isContingencyContextListApplicable(contingencyContext, "contingency1"));
-        assertEquals(applicableForContingency2, AbstractLimitReductionsApplier.isContingencyContextListApplicable(contingencyContext, "contingency2"));
+        assertEquals(applicableForPreContingency, AbstractLimitReductionsApplier.isContingencyInContingencyContext(contingencyContext, null));
+        assertEquals(applicableForContingency1, AbstractLimitReductionsApplier.isContingencyInContingencyContext(contingencyContext, "contingency1"));
+        assertEquals(applicableForContingency2, AbstractLimitReductionsApplier.isContingencyInContingencyContext(contingencyContext, "contingency2"));
     }
 
     static Stream<Arguments> getContingencyContextListsData() {

@@ -37,8 +37,7 @@ import static com.powsybl.contingency.ContingencyContextType.*;
  */
 public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimitsComputerWithCache<P, L> {
     private final List<LimitReduction> limitReductionList;
-    private List<LimitReduction> reductionsForCurrentContingencyId = Collections.emptyList();
-    private boolean sameReductionsAsForPreviousContingencyId = false;
+    private List<LimitReduction> reductionsForThisContingency = Collections.emptyList();
 
     /**
      * Create a new {@link AbstractLimitReductionsApplier} using a list of reductions.
@@ -47,14 +46,14 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     protected AbstractLimitReductionsApplier(List<LimitReduction> limitReductionList) {
         super();
         this.limitReductionList = limitReductionList;
-        computeReductionsForCurrentContingencyId(null);
+        computeReductionsForThisContingency(null);
     }
 
     @Override
     protected Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
         Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
-        if (reductionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
+        if (reductionsForThisContingency.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
             return originalLimits.map(UnalteredLimitsContainer::new);
         }
@@ -64,7 +63,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
         AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
         updateLimitReducer(limitsReducer, networkElement, limitType, monitoringOnly);
 
-        LimitsContainer<L> limitsContainer = limitsReducer.getReducedLimits();
+        LimitsContainer<L> limitsContainer = limitsReducer.getLimits();
         // Cache the value to avoid recomputing it
         putInCache(processable, limitType, side, monitoringOnly, limitsContainer);
         return Optional.of(limitsContainer);
@@ -93,10 +92,10 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
 
     private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement,
                                     LimitType limitType, boolean monitoringOnly) {
-        for (LimitReduction limitReduction : reductionsForCurrentContingencyId) {
+        for (LimitReduction limitReduction : reductionsForThisContingency) {
             if (limitReduction.getLimitType() == limitType
                     && limitReduction.isMonitoringOnly() == monitoringOnly
-                    && isEquipmentAffectedByLimitReduction(networkElement, limitReduction)) {
+                    && isNetworkElementAffectedByLimitReduction(networkElement, limitReduction)) {
                 setLimitReductionsToLimitReducer(limitsReducer, limitReduction);
             }
         }
@@ -105,33 +104,20 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     /**
      * <p>Change the contingency for which the reduced limits must be computed.</p>
      * @param contingencyId the ID of the new contingency, or <code>null</code> if you study the pre-contingency state.
-     * @return <code>true</code> if the reductions to use for the new contingency are the same as for the previous one,
-     * <code>false</code> otherwise.
      */
-    public boolean setWorkingContingency(String contingencyId) {
-        var reductionsForPreviousContingencyId = reductionsForCurrentContingencyId;
-        computeReductionsForCurrentContingencyId(contingencyId);
-        sameReductionsAsForPreviousContingencyId = reductionsForCurrentContingencyId.equals(reductionsForPreviousContingencyId);
-        if (!isSameReductionsAsForPreviousContingencyId()) {
+    public void setWorkingContingency(String contingencyId) {
+        var reductionsForPreviousContingency = reductionsForThisContingency;
+        computeReductionsForThisContingency(contingencyId);
+        if (!reductionsForThisContingency.equals(reductionsForPreviousContingency)) {
             // The limit reductions are not the same as for the previous contingencyId, we clear the cache.
             clearCache();
         }
-        return isSameReductionsAsForPreviousContingencyId();
     }
 
-    private void computeReductionsForCurrentContingencyId(String contingencyId) {
-        reductionsForCurrentContingencyId = limitReductionList.stream()
-                .filter(l -> isContingencyContextListApplicable(l.getContingencyContext(), contingencyId))
+    private void computeReductionsForThisContingency(String contingencyId) {
+        reductionsForThisContingency = limitReductionList.stream()
+                .filter(l -> isContingencyInContingencyContext(l.getContingencyContext(), contingencyId))
                 .toList();
-    }
-
-    /**
-     * <p>Indicate if the reductions currently applied are as for the previous contingency.</p>
-     * @return <code>true</code> if the reductions to use for the current contingency are the same as for the previous one,
-     * <code>false</code> otherwise.
-     */
-    public boolean isSameReductionsAsForPreviousContingencyId() {
-        return sameReductionsAsForPreviousContingencyId;
     }
 
     private void setLimitReductionsToLimitReducer(AbstractLimitsReducer<?> limitsReducer, LimitReduction limitReduction) {
@@ -144,7 +130,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
                         limitReduction.getValue()));
     }
 
-    protected static boolean isContingencyContextListApplicable(ContingencyContext contingencyContext, String contingencyId) {
+    protected static boolean isContingencyInContingencyContext(ContingencyContext contingencyContext, String contingencyId) {
         return contingencyContext == null
                 || contingencyContext.getContextType() == ALL
                 || contingencyContext.getContextType() == NONE && contingencyId == null
@@ -152,7 +138,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
                 || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId);
     }
 
-    protected static boolean isEquipmentAffectedByLimitReduction(NetworkElement networkElement, LimitReduction limitReduction) {
+    protected static boolean isNetworkElementAffectedByLimitReduction(NetworkElement networkElement, LimitReduction limitReduction) {
         NetworkElementVisitor networkElementVisitor = new NetworkElementVisitor(networkElement);
         List<NetworkElementCriterion> networkElementCriteria = limitReduction.getNetworkElementCriteria();
         return networkElementCriteria.isEmpty()
