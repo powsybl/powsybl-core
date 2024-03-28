@@ -27,10 +27,10 @@ public class RatioTapChangerTapPositionActionBuilderDeserializer extends Abstrac
 
     @Override
     public RatioTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        AbstractTapChangerTapPositionActionBuilderDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerTapPositionActionBuilderDeserializer.ParsingContext();
+        RatioTapChangerTapPositionActionBuilder builder = new RatioTapChangerTapPositionActionBuilder();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version);
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name, version);
             if (found) {
                 return true;
             }
@@ -43,12 +43,7 @@ public class RatioTapChangerTapPositionActionBuilderDeserializer extends Abstrac
             }
             return false;
         });
-        checkFields(commonParsingContext, jsonParser);
-        return new RatioTapChangerTapPositionActionBuilder()
-            .withId(commonParsingContext.id)
-            .withTransformerId(commonParsingContext.transformerId)
-            .withRelativeValue(commonParsingContext.relativeValue)
-            .withTapPosition(commonParsingContext.tapPosition)
-            .withSide(commonParsingContext.side);
+        checkFields(builder, jsonParser);
+        return builder;
     }
 }

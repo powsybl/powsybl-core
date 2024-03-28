@@ -7,8 +7,6 @@
  */
 package com.powsybl.action;
 
-import java.util.Objects;
-
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
  */
@@ -54,23 +52,6 @@ public abstract class AbstractLoadActionBuilder<T extends AbstractLoadAction, B 
     public B withReactivePowerValue(double reactivePowerValue) {
         this.reactivePowerValue = reactivePowerValue;
         return (B) this;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AbstractLoadActionBuilder<?, ?> that = (AbstractLoadActionBuilder<?, ?>) o;
-        return Objects.equals(id, that.id) && Objects.equals(elementId, that.elementId) && Objects.equals(relativeValue, that.relativeValue) && Objects.equals(activePowerValue, that.activePowerValue) && Objects.equals(reactivePowerValue, that.reactivePowerValue);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, elementId, relativeValue, activePowerValue, reactivePowerValue);
     }
 
     public Double getReactivePowerValue() {

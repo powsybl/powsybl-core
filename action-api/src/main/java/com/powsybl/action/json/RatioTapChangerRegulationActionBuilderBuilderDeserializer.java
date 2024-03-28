@@ -29,9 +29,8 @@ public class RatioTapChangerRegulationActionBuilderBuilderDeserializer extends A
     @Override
     public RatioTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         RatioTapChangerRegulationActionBuilder builder = new RatioTapChangerRegulationActionBuilder();
-        AbstractTapChangerRegulationActionBuilderDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionBuilderDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name);
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
             if (found) {
                 return true;
             }
@@ -50,9 +49,6 @@ public class RatioTapChangerRegulationActionBuilderBuilderDeserializer extends A
                     return false;
             }
         });
-        return builder.withId(commonParsingContext.id)
-            .withTransformerId(commonParsingContext.transformerId)
-            .withSide(commonParsingContext.side)
-            .withRegulating(commonParsingContext.regulating);
+        return builder;
     }
 }

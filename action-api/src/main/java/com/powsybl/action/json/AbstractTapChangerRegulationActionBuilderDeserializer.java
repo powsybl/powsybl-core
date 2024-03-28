@@ -23,27 +23,20 @@ public abstract class AbstractTapChangerRegulationActionBuilderDeserializer<T ex
         super(vc);
     }
 
-    protected static class ParsingContext {
-        String id;
-        String transformerId;
-        boolean regulating;
-        ThreeSides side = null;
-    }
-
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, ParsingContext context, String name) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name) throws IOException {
         switch (name) {
             case "id":
-                context.id = jsonParser.nextTextValue();
+                builder.withId(jsonParser.nextTextValue());
                 return true;
             case "transformerId":
-                context.transformerId = jsonParser.nextTextValue();
+                builder.withTransformerId(jsonParser.nextTextValue());
                 return true;
             case "side":
-                context.side = ThreeSides.valueOf(jsonParser.nextTextValue());
+                builder.withSide(ThreeSides.valueOf(jsonParser.nextTextValue()));
                 return true;
             case "regulating":
                 jsonParser.nextToken();
-                context.regulating = jsonParser.getValueAsBoolean();
+                builder.withRegulating(jsonParser.getValueAsBoolean());
                 return true;
             default:
                 return false;

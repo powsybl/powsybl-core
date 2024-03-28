@@ -25,46 +25,38 @@ public abstract class AbstractTapChangerTapPositionActionBuilderDeserializer<T e
         super(vc);
     }
 
-    protected static class ParsingContext {
-        String id;
-        String transformerId;
-        int tapPosition;
-        Boolean relativeValue;
-        ThreeSides side = null;
-    }
-
-    protected boolean deserializeCommonAttributes(JsonParser jsonParser, ParsingContext context, String name, String version) throws IOException {
+    protected boolean deserializeCommonAttributes(JsonParser jsonParser, T builder, String name, String version) throws IOException {
         switch (name) {
             case "id":
-                context.id = jsonParser.nextTextValue();
+                builder.withId(jsonParser.nextTextValue());
                 return true;
             case "transformerId":
-                context.transformerId = jsonParser.nextTextValue();
+                builder.withTransformerId(jsonParser.nextTextValue());
                 return true;
             case "value":
                 JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: value", version, "1.0");
                 jsonParser.nextToken();
-                context.tapPosition = jsonParser.getValueAsInt();
+                builder.withTapPosition(jsonParser.getValueAsInt());
                 return true;
             case "tapPosition":
                 JsonUtil.assertGreaterOrEqualThanReferenceVersion("actions", "Tag: tapPosition", version, "1.1");
                 jsonParser.nextToken();
-                context.tapPosition = jsonParser.getValueAsInt();
+                builder.withTapPosition(jsonParser.getValueAsInt());
                 return true;
             case "relativeValue":
                 jsonParser.nextToken();
-                context.relativeValue = jsonParser.getValueAsBoolean();
+                builder.withRelativeValue(jsonParser.getValueAsBoolean());
                 return true;
             case "side":
-                context.side = ThreeSides.valueOf(jsonParser.nextTextValue());
+                builder.withSide(ThreeSides.valueOf(jsonParser.nextTextValue()));
                 return true;
             default:
                 return false;
         }
     }
 
-    protected void checkFields(ParsingContext context, JsonParser jsonParser) throws JsonMappingException {
-        if (context.relativeValue == null) {
+    protected void checkFields(T builder, JsonParser jsonParser) throws JsonMappingException {
+        if (builder.isRelativeValue() == null) {
             throw JsonMappingException.from(jsonParser, "for phase tap changer tap position action relative value field can't be null");
         }
     }

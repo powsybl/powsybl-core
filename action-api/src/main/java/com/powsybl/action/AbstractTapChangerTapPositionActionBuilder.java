@@ -7,8 +7,6 @@
  */
 package com.powsybl.action;
 
-import java.util.Objects;
-
 /**
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -16,7 +14,7 @@ import java.util.Objects;
 public abstract class AbstractTapChangerTapPositionActionBuilder<T extends ActionBuilder<T>> extends AbstractTapChangerActionBuilder<T> {
 
     private int tapPosition;
-    private boolean relativeValue; // true if relative value chosen, false if absolute value
+    private Boolean relativeValue; // true if relative value chosen, false if absolute value
 
     public T withTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
@@ -28,28 +26,11 @@ public abstract class AbstractTapChangerTapPositionActionBuilder<T extends Actio
         return (T) this;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        AbstractTapChangerTapPositionActionBuilder<?> that = (AbstractTapChangerTapPositionActionBuilder<?>) o;
-        return tapPosition == that.tapPosition && relativeValue == that.relativeValue;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(tapPosition, relativeValue);
-    }
-
     public int getTapPosition() {
         return tapPosition;
     }
 
-    public boolean isRelativeValue() {
+    public Boolean isRelativeValue() {
         return relativeValue;
     }
 }

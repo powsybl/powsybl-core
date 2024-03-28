@@ -7,7 +7,15 @@
  */
 package com.powsybl.action.json;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.powsybl.action.LoadAction;
 import com.powsybl.action.LoadActionBuilder;
+import com.powsybl.action.RatioTapChangerTapPositionAction;
+import com.powsybl.commons.json.JsonUtil;
+
+import java.io.IOException;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy@rte-france.com>}
@@ -19,18 +27,22 @@ public class LoadActionBuilderBuilderDeserializer extends AbstractLoadActionBuil
     }
 
     @Override
-    protected LoadActionBuilder createAction(AbstractLoadActionBuilderDeserializer.ParsingContext context) {
-        LoadActionBuilder loadActionBuilder = new LoadActionBuilder();
-        loadActionBuilder
-                .withId(context.id)
-                .withLoadId(context.elementId)
-                .withRelativeValue(context.relativeValue);
-        if (context.activePowerValue != null) {
-            loadActionBuilder.withActivePowerValue(context.activePowerValue);
-        }
-        if (context.reactivePowerValue != null) {
-            loadActionBuilder.withReactivePowerValue(context.reactivePowerValue);
-        }
-        return loadActionBuilder;
+    public LoadActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+        LoadActionBuilder builder = new LoadActionBuilder();
+        JsonUtil.parsePolymorphicObject(jsonParser, name -> {
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
+            if (found) {
+                return true;
+            }
+            if (name.equals("type")) {
+                String type = jsonParser.nextTextValue();
+                if (!LoadAction.NAME.equals(type)) {
+                    throw JsonMappingException.from(jsonParser, "Expected type :" + RatioTapChangerTapPositionAction.NAME + " got : " + type);
+                }
+                return true;
+            }
+            return false;
+        });
+        return builder;
     }
 }

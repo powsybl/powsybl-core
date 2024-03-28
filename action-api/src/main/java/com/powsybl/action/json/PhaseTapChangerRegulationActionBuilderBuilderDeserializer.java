@@ -30,9 +30,8 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
     @Override
     public PhaseTapChangerRegulationActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         PhaseTapChangerRegulationActionBuilder builder = new PhaseTapChangerRegulationActionBuilder();
-        AbstractTapChangerRegulationActionBuilderDeserializer.ParsingContext commonParsingContext = new AbstractTapChangerRegulationActionBuilderDeserializer.ParsingContext();
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name);
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name);
             if (found) {
                 return true;
             }
@@ -54,9 +53,6 @@ public class PhaseTapChangerRegulationActionBuilderBuilderDeserializer extends A
                     return false;
             }
         });
-        return builder.withId(commonParsingContext.id)
-            .withTransformerId(commonParsingContext.transformerId)
-            .withSide(commonParsingContext.side)
-            .withRegulating(commonParsingContext.regulating);
+        return builder;
     }
 }

@@ -28,10 +28,10 @@ public class PhaseTapChangerTapPositionActionBuilderDeserializer
 
     @Override
     public PhaseTapChangerTapPositionActionBuilder deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-        ParsingContext commonParsingContext = new ParsingContext();
+        PhaseTapChangerTapPositionActionBuilder builder = new PhaseTapChangerTapPositionActionBuilder();
         String version = (String) deserializationContext.getAttribute(ActionListDeserializer.VERSION);
         JsonUtil.parsePolymorphicObject(jsonParser, name -> {
-            boolean found = deserializeCommonAttributes(jsonParser, commonParsingContext, name, version);
+            boolean found = deserializeCommonAttributes(jsonParser, builder, name, version);
             if (found) {
                 return true;
             }
@@ -44,12 +44,7 @@ public class PhaseTapChangerTapPositionActionBuilderDeserializer
             }
             return false;
         });
-        checkFields(commonParsingContext, jsonParser);
-        return new PhaseTapChangerTapPositionActionBuilder()
-            .withId(commonParsingContext.id)
-            .withTransformerId(commonParsingContext.transformerId)
-            .withRelativeValue(commonParsingContext.relativeValue)
-            .withTapPosition(commonParsingContext.tapPosition)
-            .withSide(commonParsingContext.side);
+        checkFields(builder, jsonParser);
+        return builder;
     }
 }
