@@ -28,13 +28,13 @@ class NoModificationsImplTest {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         LimitsComputer<Identifiable<?>, LoadingLimits> computer = LimitsComputer.NO_MODIFICATIONS;
 
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
         assertTrue(optLimits.isPresent());
         assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
         assertTrue(optLimits.get().isUnchanged());
 
-        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
+        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, true);
         assertTrue(optLimits.isPresent());
         checkLimitsOnSide2(optLimits.get().getLimits());
         checkLimitsOnSide2(optLimits.get().getOriginalLimits());

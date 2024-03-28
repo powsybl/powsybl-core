@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  * <p>Implementation of {@link AbstractLimitReductionsApplier} working with {@link com.powsybl.iidm.network.Identifiable}.</p>
- * <p>You can retrieve the reduced limits by using the {@link #computeLimits(Object, LimitType, ThreeSides)} method
+ * <p>You can retrieve the reduced limits by using the {@link #computeLimits(Object, LimitType, ThreeSides, boolean)} method
  * (with an {@link Identifiable} as first parameter).
  * It returns a {@link com.powsybl.iidm.network.limitmodification.result.LimitsContainer} containing both
  * the original limits (accessible via {@link LimitsContainer#getOriginalLimits()}) and the reduced limits

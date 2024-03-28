@@ -51,7 +51,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     @Override
-    protected Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side) {
+    protected Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
         Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
         if (reductionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
@@ -62,11 +62,11 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
         AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());
         NetworkElement networkElement = Objects.requireNonNull(asNetworkElement(processable));
         AbstractLimitsReducer<L> limitsReducer = limitsReducerCreator.create(networkElement.getId(), originalLimits.get());
-        updateLimitReducer(limitsReducer, networkElement, limitType);
+        updateLimitReducer(limitsReducer, networkElement, limitType, monitoringOnly);
 
         LimitsContainer<L> limitsContainer = limitsReducer.getReducedLimits();
         // Cache the value to avoid recomputing it
-        putInCache(processable, limitType, side, limitsContainer);
+        putInCache(processable, limitType, side, monitoringOnly, limitsContainer);
         return Optional.of(limitsContainer);
     }
 
@@ -91,10 +91,12 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
      */
     protected abstract NetworkElement asNetworkElement(P processable);
 
-    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement, LimitType limitType) {
+    private void updateLimitReducer(AbstractLimitsReducer<?> limitsReducer, NetworkElement networkElement,
+                                    LimitType limitType, boolean monitoringOnly) {
         for (LimitReduction limitReduction : reductionsForCurrentContingencyId) {
-            if (limitReduction.getLimitType() == limitType &&
-                    isEquipmentAffectedByLimitReduction(networkElement, limitReduction)) {
+            if (limitReduction.getLimitType() == limitType
+                    && limitReduction.isMonitoringOnly() == monitoringOnly
+                    && isEquipmentAffectedByLimitReduction(networkElement, limitReduction)) {
                 setLimitReductionsToLimitReducer(limitsReducer, limitReduction);
             }
         }

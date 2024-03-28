@@ -39,19 +39,21 @@ public abstract class AbstractLimitsComputerWithCache<P, L> implements LimitsCom
      * @param processable The network element for which the reduced limits must be computed
      * @param limitType The type of the limits to process
      * @param side The side of <code>processable</code> on which the limits should be retrieved
+     * @param monitoringOnly If <code>true</code>, compute the limits to use for a monitoring only use case.
+     *                       If <code>false</code>, compute the limits to use for a monitoring + action use case.
      * @return an object containing the original limits and the altered ones
      */
     @Override
-    public Optional<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side) {
+    public Optional<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         Objects.requireNonNull(processable);
         // Look into the cache to avoid recomputing reduced limits if they were already computed
         // with the same limit reductions
-        CacheKey<P> cacheKey = new CacheKey<>(processable, limitType, side);
+        CacheKey<P> cacheKey = new CacheKey<>(processable, limitType, side, monitoringOnly);
         if (reducedLimitsCache.containsKey(cacheKey)) {
             return Optional.of(reducedLimitsCache.get(cacheKey));
         }
 
-        return computeUncachedLimits(processable, limitType, side);
+        return computeUncachedLimits(processable, limitType, side, monitoringOnly);
     }
 
     /**
@@ -65,13 +67,15 @@ public abstract class AbstractLimitsComputerWithCache<P, L> implements LimitsCom
      * @param processable the network element for which the limits must be retrieved and modified
      * @param limitType the type of limits to process
      * @param side the side of the network element where to retrieve the original limits
+     * @param monitoringOnly If <code>true</code>, compute the limits to use for a monitoring only use case.
+     *                       If <code>false</code>, compute the limits to use for a monitoring + action use case.
      * @return an object containing both the original and the modified limits.
      */
-    protected abstract Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side);
+    protected abstract Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly);
 
-    protected void putInCache(P processable, LimitType limitType, ThreeSides side,
+    protected void putInCache(P processable, LimitType limitType, ThreeSides side, boolean monitoringOnly,
                               LimitsContainer<L> limitsContainer) {
-        reducedLimitsCache.put(new CacheKey<>(processable, limitType, side), limitsContainer);
+        reducedLimitsCache.put(new CacheKey<>(processable, limitType, side, monitoringOnly), limitsContainer);
     }
 
     /**
@@ -88,7 +92,9 @@ public abstract class AbstractLimitsComputerWithCache<P, L> implements LimitsCom
      * @param processable the processable object
      * @param type the limits type corresponding to the limits to cache
      * @param side the side corresponding to the limits to cache
+     * @param monitoringOnly If <code>true</code>, the limits are for a monitoring only use case.
+     *                       If <code>false</code>, the limits are for a monitoring + action use case.
      */
-    private record CacheKey<P>(P processable, LimitType type, ThreeSides side) {
+    private record CacheKey<P>(P processable, LimitType type, ThreeSides side, boolean monitoringOnly) {
     }
 }
