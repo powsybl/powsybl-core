@@ -71,11 +71,23 @@ public interface ReportNode {
     String getMessageKey();
 
     /**
+     * Get the message template for current node.
+     * @return the message template
+     */
+    String getMessageTemplate();
+
+    /**
      * Get the message of current node, replacing <code>${key}</code> references in the message template with the
      * corresponding values, either contained in current node or in one of its parents.
      * @return the message
      */
     String getMessage();
+
+    /**
+     * Get the values which belong to current node (does not include the inherited values)
+     * @return the values unmodifiable map
+     */
+    Map<String, TypedValue> getValues();
 
     /**
      * Get the value corresponding to the given key

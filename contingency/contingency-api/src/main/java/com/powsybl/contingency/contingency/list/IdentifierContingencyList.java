@@ -10,7 +10,7 @@ package com.powsybl.contingency.contingency.list;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
