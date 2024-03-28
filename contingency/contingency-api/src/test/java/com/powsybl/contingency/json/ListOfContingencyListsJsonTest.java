@@ -15,10 +15,10 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.GeneratorContingency;
 import com.powsybl.contingency.HvdcLineContingency;
 import com.powsybl.contingency.contingency.list.*;
-import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
-import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
@@ -77,7 +77,7 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("VL1",
                 "VL2", '1', "contingency1"));
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingency2"));
-        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections
+        networkElementIdentifiers.add(new NetworkElementIdentifierContingencyList(Collections
                 .singletonList(new IdBasedNetworkElementIdentifier("identifier2")), "contingency3"));
         contingencyLists.add(new IdentifierContingencyList("identifierlist", networkElementIdentifiers));
         contingencyLists.add(new TieLineCriterionContingencyList("tieLineContingencyList",
