@@ -8,14 +8,14 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.limitmodification.result.AbstractChangedLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsContainer;
 
 import java.util.Optional;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultReducedLimitsContainer extends AbstractChangedLimitsContainer<AbstractReducedLoadingLimits, LoadingLimits> {
+public class DefaultReducedLimitsContainer extends AbstractDistinctLimitsContainer<AbstractReducedLoadingLimits, LoadingLimits> {
 
     public DefaultReducedLimitsContainer(AbstractReducedLoadingLimits limits, LoadingLimits originalLimits) {
         super(limits, originalLimits);

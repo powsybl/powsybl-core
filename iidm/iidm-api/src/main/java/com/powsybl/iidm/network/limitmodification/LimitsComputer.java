@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
-import com.powsybl.iidm.network.limitmodification.result.UnchangedLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.IdenticalLimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Optional;
@@ -51,7 +51,7 @@ public interface LimitsComputer<P, L> {
         @Override
         public Optional<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
             Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
-            return limits.map(UnchangedLimitsContainer::new);
+            return limits.map(IdenticalLimitsContainer::new);
         }
 
         @Override

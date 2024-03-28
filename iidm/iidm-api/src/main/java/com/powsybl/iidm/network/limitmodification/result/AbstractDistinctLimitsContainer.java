@@ -10,16 +10,18 @@ package com.powsybl.iidm.network.limitmodification.result;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class UnchangedLimitsContainer<L> implements LimitsContainer<L> {
+public abstract class AbstractDistinctLimitsContainer<H extends L, L> implements LimitsContainer<L> {
+    private final H limits;
     private final L originalLimits;
 
-    public UnchangedLimitsContainer(L originalLimits) {
+    protected AbstractDistinctLimitsContainer(H limits, L originalLimits) {
+        this.limits = limits;
         this.originalLimits = originalLimits;
     }
 
     @Override
-    public L getLimits() {
-        return getOriginalLimits();
+    public H getLimits() {
+        return limits;
     }
 
     @Override
@@ -28,7 +30,11 @@ public class UnchangedLimitsContainer<L> implements LimitsContainer<L> {
     }
 
     @Override
-    public boolean hasChanged() {
-        return false;
+    public boolean isDistinct() {
+        return true;
     }
+
+    public abstract double getOriginalPermanentLimit();
+
+    public abstract Double getOriginalTemporaryLimit(int acceptableDuration);
 }
