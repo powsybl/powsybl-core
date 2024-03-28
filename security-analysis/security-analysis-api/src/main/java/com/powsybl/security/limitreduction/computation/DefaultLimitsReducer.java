@@ -58,11 +58,11 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
 
     private AbstractReducedLoadingLimits initReducedLoadingLimits(LimitType type, double permanentLimit,
                                                                   double originalPermanentLimit,
-                                                                  double reductionAppliedOnPermanentLimit) {
+                                                                  double permanentLimitReduction) {
         return switch (type) {
-            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
-            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
-            case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
+            case ACTIVE_POWER -> new ReducedActivePowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+            case APPARENT_POWER -> new ReducedApparentPowerLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+            case CURRENT -> new ReducedCurrentLimits(permanentLimit, originalPermanentLimit, permanentLimitReduction);
             default -> throw new IllegalArgumentException(
                     String.format("Unsupported limits type for reductions (%s)", type));
         };

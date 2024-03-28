@@ -49,12 +49,12 @@ class LimitsContainerTest {
         when(reducedT300.getName()).thenReturn("5'");
         when(reducedT300.getValue()).thenReturn(1050.);
         when(reducedT300.getOriginalValue()).thenReturn(1400.);
-        when(reducedT300.getAppliedReduction()).thenReturn(0.75);
+        when(reducedT300.getLimitReduction()).thenReturn(0.75);
 
         reducedLimits = Mockito.mock(AbstractReducedLoadingLimits.class);
         when(reducedLimits.getPermanentLimit()).thenReturn(800.);
         when(reducedLimits.getOriginalPermanentLimit()).thenReturn(1000.);
-        when(reducedLimits.getReductionAppliedOnPermanentLimit()).thenReturn(0.8);
+        when(reducedLimits.getPermanentLimitReduction()).thenReturn(0.8);
         when(reducedLimits.getTemporaryLimits()).thenReturn(List.of(reducedT300));
         when(reducedLimits.getTemporaryLimit(300)).thenReturn(reducedT300);
     }

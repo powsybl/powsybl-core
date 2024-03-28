@@ -16,7 +16,7 @@ import com.powsybl.iidm.network.ApparentPowerLimits;
  */
 public class ReducedApparentPowerLimits extends AbstractReducedLoadingLimits implements ApparentPowerLimits {
     public ReducedApparentPowerLimits(double permanentLimit, double originalPermanentLimit,
-                                      double reductionAppliedOnPermanentLimit) {
-        super(permanentLimit, originalPermanentLimit, reductionAppliedOnPermanentLimit);
+                                      double permanentLimitReduction) {
+        super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
     }
 }

@@ -35,14 +35,14 @@ public class DefaultReducedLimitsContainer extends AbstractReducedLimitsContaine
 
     @Override
     public double getPermanentLimitReduction() {
-        return getLimits().getReductionAppliedOnPermanentLimit();
+        return getLimits().getPermanentLimitReduction();
     }
 
     @Override
     public Double getTemporaryLimitReduction(int acceptableDuration) {
         return Optional.ofNullable(getLimits().getTemporaryLimit(acceptableDuration))
                 .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit.class::cast)
-                .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit::getAppliedReduction)
+                .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit::getLimitReduction)
                 .orElse(null);
     }
 }
