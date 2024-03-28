@@ -374,7 +374,7 @@ public abstract class AbstractNodeBreakerTest {
         l1.getTerminal().disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
 
         // remove load
-        l1.remove();
+        l1.remove();    // <---- TODO HERE
         topo.removeSwitch("B_L1_1");
         topo.removeSwitch("B_L1_2");
 
@@ -397,7 +397,7 @@ public abstract class AbstractNodeBreakerTest {
         l1.getTerminal().disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
 
         // remove load
-        l1.remove();
+        l1.remove();    // <---- TODO HERE
         topo.removeSwitch("B_L1_1");
         topo.removeSwitch("B_L1_2");
 
