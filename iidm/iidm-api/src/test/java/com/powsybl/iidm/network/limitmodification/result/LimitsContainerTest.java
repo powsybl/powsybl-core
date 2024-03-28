@@ -5,13 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.limitmodification;
+package com.powsybl.iidm.network.limitmodification.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.limitmodification.result.AbstractReducedLoadingLimits;
-import com.powsybl.iidm.network.limitmodification.result.DefaultReducedLimitsContainer;
-import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
-import com.powsybl.iidm.network.limitmodification.result.UnalteredLimitsContainer;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,9 +21,8 @@ import static org.mockito.Mockito.when;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class LimitsContainerTest {
-
     private static LoadingLimits originalLimits;
-    private static AbstractReducedLoadingLimits reducedLimits;
+    private static LoadingLimits changedLimits;
 
     @BeforeAll
     static void init() {
@@ -43,42 +38,47 @@ class LimitsContainerTest {
         originalLimits = Mockito.mock(LoadingLimits.class);
         when(originalLimits.getPermanentLimit()).thenReturn(1000.);
         when(originalLimits.getTemporaryLimits()).thenReturn(List.of(t600, t300));
+        when(originalLimits.getTemporaryLimitValue(300)).thenReturn(1400.);
 
-        AbstractReducedLoadingLimits.ReducedTemporaryLimit reducedT300 = Mockito.mock(AbstractReducedLoadingLimits.ReducedTemporaryLimit.class);
-        when(reducedT300.getAcceptableDuration()).thenReturn(300);
-        when(reducedT300.getName()).thenReturn("5'");
-        when(reducedT300.getValue()).thenReturn(1050.);
-        when(reducedT300.getOriginalValue()).thenReturn(1400.);
-        when(reducedT300.getLimitReduction()).thenReturn(0.75);
+        LoadingLimits.TemporaryLimit changedT300 = Mockito.mock(LoadingLimits.TemporaryLimit.class);
+        when(changedT300.getAcceptableDuration()).thenReturn(300);
+        when(changedT300.getName()).thenReturn("5'");
+        when(changedT300.getValue()).thenReturn(1050.);
 
-        reducedLimits = Mockito.mock(AbstractReducedLoadingLimits.class);
-        when(reducedLimits.getPermanentLimit()).thenReturn(800.);
-        when(reducedLimits.getOriginalPermanentLimit()).thenReturn(1000.);
-        when(reducedLimits.getPermanentLimitReduction()).thenReturn(0.8);
-        when(reducedLimits.getTemporaryLimits()).thenReturn(List.of(reducedT300));
-        when(reducedLimits.getTemporaryLimit(300)).thenReturn(reducedT300);
+        changedLimits = Mockito.mock(LoadingLimits.class);
+        when(changedLimits.getPermanentLimit()).thenReturn(800.);
+        when(changedLimits.getTemporaryLimits()).thenReturn(List.of(changedT300));
+        when(changedLimits.getTemporaryLimit(300)).thenReturn(changedT300);
+        when(changedLimits.getTemporaryLimitValue(300)).thenReturn(1050.);
     }
 
     @Test
-    void unalteredLimitsContainerTest() {
-        LimitsContainer<LoadingLimits> container = new UnalteredLimitsContainer<>(originalLimits);
+    void unchangedLimitsContainerTest() {
+        LimitsContainer<LoadingLimits> container = new UnchangedLimitsContainer<>(originalLimits);
         assertFalse(container.hasChanged());
         assertEquals(originalLimits, container.getLimits());
         assertEquals(originalLimits, container.getOriginalLimits());
     }
 
     @Test
-    void defaultReducedLimitsContainerTest() {
-        DefaultReducedLimitsContainer container = new DefaultReducedLimitsContainer(reducedLimits, originalLimits);
+    void changedLimitsContainerTest() {
+        AbstractChangedLimitsContainer<LoadingLimits, LoadingLimits> container = new AbstractChangedLimitsContainer<>(changedLimits, originalLimits) {
+            @Override
+            public double getOriginalPermanentLimit() {
+                return originalLimits.getPermanentLimit();
+            }
+
+            @Override
+            public Double getOriginalTemporaryLimit(int acceptableDuration) {
+                return originalLimits.getTemporaryLimitValue(acceptableDuration);
+            }
+        };
         assertTrue(container.hasChanged());
         assertEquals(originalLimits, container.getOriginalLimits());
-        assertEquals(reducedLimits, container.getLimits());
+        assertEquals(changedLimits, container.getLimits());
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);
         assertEquals(1050., container.getLimits().getTemporaryLimit(300).getValue(), 0.01);
         assertEquals(1000., container.getOriginalPermanentLimit(), 0.01);
-        assertEquals(0.8, container.getPermanentLimitReduction(), 0.01);
-        assertEquals(0.75, container.getTemporaryLimitReduction(300), 0.01);
         assertEquals(1400., container.getOriginalTemporaryLimit(300), 0.01);
-        assertNull(container.getTemporaryLimitReduction(600));
     }
 }

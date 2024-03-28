@@ -18,7 +18,7 @@ import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCache;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
-import com.powsybl.iidm.network.limitmodification.result.UnalteredLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.UnchangedLimitsContainer;
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
 import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCreator;
 
@@ -55,7 +55,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
         Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
         if (reductionsForThisContingency.isEmpty() || originalLimits.isEmpty()) {
             // No reductions to apply or no limits on which to apply them
-            return originalLimits.map(UnalteredLimitsContainer::new);
+            return originalLimits.map(UnchangedLimitsContainer::new);
         }
 
         AbstractLimitsReducerCreator<L, AbstractLimitsReducer<L>> limitsReducerCreator = Objects.requireNonNull(getLimitsReducerCreator());

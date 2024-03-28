@@ -10,10 +10,10 @@ package com.powsybl.iidm.network.limitmodification.result;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class UnalteredLimitsContainer<L> implements LimitsContainer<L> {
+public class UnchangedLimitsContainer<L> implements LimitsContainer<L> {
     private final L originalLimits;
 
-    public UnalteredLimitsContainer(L originalLimits) {
+    public UnchangedLimitsContainer(L originalLimits) {
         this.originalLimits = originalLimits;
     }
 

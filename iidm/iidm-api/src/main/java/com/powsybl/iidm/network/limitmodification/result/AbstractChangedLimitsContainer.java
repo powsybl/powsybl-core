@@ -10,11 +10,11 @@ package com.powsybl.iidm.network.limitmodification.result;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractReducedLimitsContainer<H extends L, L> implements LimitsContainer<L> {
+public abstract class AbstractChangedLimitsContainer<H extends L, L> implements LimitsContainer<L> {
     private final H limits;
     private final L originalLimits;
 
-    protected AbstractReducedLimitsContainer(H limits, L originalLimits) {
+    protected AbstractChangedLimitsContainer(H limits, L originalLimits) {
         this.limits = limits;
         this.originalLimits = originalLimits;
     }
@@ -37,8 +37,4 @@ public abstract class AbstractReducedLimitsContainer<H extends L, L> implements 
     public abstract double getOriginalPermanentLimit();
 
     public abstract Double getOriginalTemporaryLimit(int acceptableDuration);
-
-    public abstract double getPermanentLimitReduction();
-
-    public abstract Double getTemporaryLimitReduction(int acceptableDuration);
 }

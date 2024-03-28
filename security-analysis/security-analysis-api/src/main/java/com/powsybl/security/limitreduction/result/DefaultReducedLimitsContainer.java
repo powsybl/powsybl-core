@@ -5,16 +5,17 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.limitmodification.result;
+package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.limitmodification.result.AbstractChangedLimitsContainer;
 
 import java.util.Optional;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class DefaultReducedLimitsContainer extends AbstractReducedLimitsContainer<AbstractReducedLoadingLimits, LoadingLimits> {
+public class DefaultReducedLimitsContainer extends AbstractChangedLimitsContainer<AbstractReducedLoadingLimits, LoadingLimits> {
 
     public DefaultReducedLimitsContainer(AbstractReducedLoadingLimits limits, LoadingLimits originalLimits) {
         super(limits, originalLimits);
@@ -33,12 +34,10 @@ public class DefaultReducedLimitsContainer extends AbstractReducedLimitsContaine
                 .orElse(null);
     }
 
-    @Override
     public double getPermanentLimitReduction() {
         return getLimits().getPermanentLimitReduction();
     }
 
-    @Override
     public Double getTemporaryLimitReduction(int acceptableDuration) {
         return Optional.ofNullable(getLimits().getTemporaryLimit(acceptableDuration))
                 .map(AbstractReducedLoadingLimits.ReducedTemporaryLimit.class::cast)

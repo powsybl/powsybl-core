@@ -8,7 +8,7 @@
 package com.powsybl.security.limitreduction.computation;
 
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
-import com.powsybl.iidm.network.limitmodification.result.UnalteredLimitsContainer;
+import com.powsybl.iidm.network.limitmodification.result.UnchangedLimitsContainer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +51,7 @@ public abstract class AbstractLimitsReducer<L> {
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
                     || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
             // No reductions are applicable
-            return new UnalteredLimitsContainer<>(getOriginalLimits());
+            return new UnchangedLimitsContainer<>(getOriginalLimits());
         }
         return reduce();
     }
