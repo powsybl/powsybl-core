@@ -20,6 +20,7 @@ import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCrea
 import com.powsybl.security.limitreduction.computation.DefaultLimitsReducer;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,7 +45,7 @@ public class DefaultLimitReductionsApplier extends AbstractLimitReductionsApplie
      *
      * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    public DefaultLimitReductionsApplier(LimitReductionList limitReductionList) {
+    public DefaultLimitReductionsApplier(List<LimitReduction> limitReductionList) {
         super(limitReductionList);
     }
 

@@ -30,13 +30,13 @@ import java.util.Optional;
 import static com.powsybl.contingency.ContingencyContextType.*;
 
 /**
- * Abstract class responsible for computing reduced limits using a {@link LimitReductionList}.
+ * Abstract class responsible for computing reduced limits using a list of {@link LimitReduction}.
  *
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimitsComputerWithCache<P, L> {
-    private final LimitReductionList limitReductionList;
+    private final List<LimitReduction> limitReductionList;
     private List<LimitReduction> reductionsForCurrentContingencyId = Collections.emptyList();
     private boolean sameReductionsAsForPreviousContingencyId = false;
 
@@ -44,7 +44,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
      * Create a new {@link AbstractLimitReductionsApplier} using a list of reductions.
      * @param limitReductionList the list of the reductions to use when computing reduced limits.
      */
-    protected AbstractLimitReductionsApplier(LimitReductionList limitReductionList) {
+    protected AbstractLimitReductionsApplier(List<LimitReduction> limitReductionList) {
         super();
         this.limitReductionList = limitReductionList;
         computeReductionsForCurrentContingencyId(null);
@@ -120,7 +120,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     private void computeReductionsForCurrentContingencyId(String contingencyId) {
-        reductionsForCurrentContingencyId = limitReductionList.getLimitReductions().stream()
+        reductionsForCurrentContingencyId = limitReductionList.stream()
                 .filter(l -> isContingencyContextListApplicable(l.getContingencyContext(), contingencyId))
                 .toList();
     }
