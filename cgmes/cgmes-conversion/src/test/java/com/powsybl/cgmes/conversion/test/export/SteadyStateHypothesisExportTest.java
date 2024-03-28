@@ -129,7 +129,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSsh))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
-            context.getExportedSSHModel().setVersion(version);
             SteadyStateHypothesisExport.write(expected, writer, context);
         }
 
@@ -176,7 +175,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
-        String ssh = exportSshAsString(network, 2);
+        String ssh = exportSshAsString(network);
 
         // Equivalent shunts should not have entries in SSH
         String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
@@ -186,11 +185,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertFalse(sshLinearShuntCompensators.map.containsKey(equivalentShuntId));
     }
 
-    private static String exportSshAsString(Network network, int sshVersion) throws XMLStreamException {
+    private static String exportSshAsString(Network network) throws XMLStreamException {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getExportedSSHModel().setVersion(sshVersion);
         SteadyStateHypothesisExport.write(network, writer, context);
 
         return stringWriter.toString();
@@ -357,14 +355,16 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.MODEL_UPDATE, Boolean.FALSE);
+        new CgmesExport().export(network, exportParams, new FileDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
         Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
-        String actualSsh = exportSshAsString(actual, 5);
+        String actualSsh = exportSshAsString(actual);
 
         DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
                 ExportXmlCompare::ignoringFullModelDependentOn,
@@ -392,14 +392,16 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "miniGridCgmesExportPreservingOriginalClasses";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.MODEL_UPDATE, Boolean.FALSE);
+        new CgmesExport().export(network, exportParams, new FileDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
         Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
-        String actualSsh = exportSshAsString(actual, 5);
+        String actualSsh = exportSshAsString(actual);
 
         DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
                 ExportXmlCompare::ignoringFullModelDependentOn,
