@@ -133,7 +133,7 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
                     && EVERY_SUPPORTED_TYPES.contains(identifiable.getType());
     }
 
-    protected Identifiable<?> getIdentifiable() {
+    public Identifiable<?> getIdentifiable() {
         return identifiable;
     }
 }
