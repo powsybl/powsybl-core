@@ -62,7 +62,7 @@ class LimitsContainerTest {
     @Test
     void unalteredLimitsContainerTest() {
         LimitsContainer<LoadingLimits> container = new UnalteredLimitsContainer<>(originalLimits);
-        assertFalse(container.hasChange());
+        assertFalse(container.hasChanged());
         assertEquals(originalLimits, container.getLimits());
         assertEquals(originalLimits, container.getOriginalLimits());
     }
@@ -70,7 +70,7 @@ class LimitsContainerTest {
     @Test
     void defaultReducedLimitsContainerTest() {
         DefaultReducedLimitsContainer container = new DefaultReducedLimitsContainer(reducedLimits, originalLimits);
-        assertTrue(container.hasChange());
+        assertTrue(container.hasChanged());
         assertEquals(originalLimits, container.getOriginalLimits());
         assertEquals(reducedLimits, container.getLimits());
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);

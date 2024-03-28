@@ -30,7 +30,7 @@ public abstract class AbstractReducedLimitsContainer<H extends L, L> implements 
     }
 
     @Override
-    public boolean hasChange() {
+    public boolean hasChanged() {
         return true;
     }
 

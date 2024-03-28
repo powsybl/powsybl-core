@@ -114,7 +114,7 @@ class DefaultLimitReductionsApplierTest {
         assertTrue(optLimits.isPresent());
         checkOriginalLimitsOnLine1(optLimits.get().getLimits());
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().hasChange());
+        assertFalse(optLimits.get().hasChanged());
     }
 
     private static void checkOriginalLimitsOnLine1(LoadingLimits limits) {
@@ -138,13 +138,13 @@ class DefaultLimitReductionsApplierTest {
         assertEquals(1200 * expectedReduction, reducedLimits.getTemporaryLimitValue(20 * 60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(60), 0.01);
         checkOriginalLimitsOnLine2(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().hasChange());
+        assertTrue(optLimits.get().hasChanged());
 
         optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
         assertTrue(optLimits.isPresent());
         assertEquals(500 * expectedReduction, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertTrue(optLimits.get().hasChange());
+        assertTrue(optLimits.get().hasChanged());
     }
 
     @Test
@@ -165,7 +165,7 @@ class DefaultLimitReductionsApplierTest {
         assertEquals(1125, reducedLimits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().hasChange());
+        assertTrue(optLimits.get().hasChanged());
     }
 
     @Test
