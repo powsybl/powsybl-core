@@ -66,7 +66,6 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         return false; // FIXME append does not work with tar files
     }
 
-
     @Test
     void fakeTarTest() throws IOException {
         Files.createFile(testDir.resolve("fake.tar"));
