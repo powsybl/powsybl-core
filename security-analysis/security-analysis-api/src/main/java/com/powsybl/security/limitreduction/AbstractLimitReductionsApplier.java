@@ -108,7 +108,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
      * @return <code>true</code> if the reductions to use for the new contingency are the same as for the previous one,
      * <code>false</code> otherwise.
      */
-    public boolean changeContingencyId(String contingencyId) {
+    public boolean setWorkingContingency(String contingencyId) {
         var reductionsForPreviousContingencyId = reductionsForCurrentContingencyId;
         computeReductionsForCurrentContingencyId(contingencyId);
         sameReductionsAsForPreviousContingencyId = reductionsForCurrentContingencyId.equals(reductionsForPreviousContingencyId);

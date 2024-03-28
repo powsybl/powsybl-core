@@ -30,7 +30,7 @@ import java.util.Map;
  * It returns a {@link com.powsybl.iidm.network.limitmodification.result.LimitsContainer} containing both
  * the original limits (accessible via {@link LimitsContainer#getOriginalLimits()}) and the reduced limits
  * (accessible via {@link LimitsContainer#getLimits()}).</p>
- * <p>Since LimitReductions depend on the contingency context, you should call {@link #changeContingencyId(String contingencyId)}
+ * <p>Since LimitReductions depend on the contingency context, you should call {@link #setWorkingContingency(String contingencyId)}
  * each time the studied contingency change (use <code>null</code> for pre-contingency state).</p>
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

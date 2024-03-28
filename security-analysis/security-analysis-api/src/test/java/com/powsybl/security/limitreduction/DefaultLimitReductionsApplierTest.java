@@ -35,7 +35,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class DefaultLimitReductionsApplierTest {
-    private static DefaultLimitReductionsApplier computer;
+    private static DefaultLimitReductionsApplier applier;
     private static Network network;
 
     @BeforeAll
@@ -66,13 +66,13 @@ class DefaultLimitReductionsApplierTest {
         LimitReduction reduction5 = LimitReduction.builder(LimitType.CURRENT, 0.2)
                 .withMonitoringOnly(true)
                 .build();
-        computer = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5));
+        applier = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5));
     }
 
     @Test
     void applyReductionsTest() {
         // pre-contingency
-        computer.changeContingencyId(null);
+        applier.setWorkingContingency(null);
         // - No reductions apply for "NHV1_NHV2_1"
         computeAndCheckLimitsOnLine1WithoutReductions();
         // - Some reductions apply for "NHV1_NHV2_2"
@@ -80,19 +80,19 @@ class DefaultLimitReductionsApplierTest {
         computeAndCheckLimitsOnLine2(0.2, true);
 
         // contingency0
-        computer.changeContingencyId("contingency0");
+        applier.setWorkingContingency("contingency0");
         // - Same reductions as before apply for both network elements => the cache is used.
         computeAndCheckLimitsOnLine1WithoutReductions();
         computeAndCheckLimitsOnLine2(0.5, false);
         computeAndCheckLimitsOnLine2(0.2, true);
 
         // contingency1
-        computer.changeContingencyId("contingency1");
+        applier.setWorkingContingency("contingency1");
         // - Some reductions apply for "NHV1_NHV2_1", but only for permanent limits
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
         assertTrue(optLimits.isPresent());
         assertEquals(450, optLimits.get().getLimits().getPermanentLimit(), 0.01);
-        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
         assertTrue(optLimits.isPresent());
         LoadingLimits reducedLimits = optLimits.get().getLimits();
         assertEquals(990, reducedLimits.getPermanentLimit(), 0.01);
@@ -105,16 +105,16 @@ class DefaultLimitReductionsApplierTest {
     }
 
     private static void computeAndCheckLimitsOnLine1WithoutReductions() {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE, false);
         assertTrue(optLimits.isPresent());
         assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
 
-        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
         assertTrue(optLimits.isPresent());
         checkOriginalLimitsOnLine1(optLimits.get().getLimits());
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().isUnchanged());
+        assertFalse(optLimits.get().hasChange());
     }
 
     private static void checkOriginalLimitsOnLine1(LoadingLimits limits) {
@@ -131,33 +131,33 @@ class DefaultLimitReductionsApplierTest {
     }
 
     private static void computeAndCheckLimitsOnLine2(double expectedReduction, boolean monitoringOnly) {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE, monitoringOnly);
+        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.ONE, monitoringOnly);
         assertTrue(optLimits.isPresent());
         LoadingLimits reducedLimits = optLimits.get().getLimits();
         assertEquals(1100 * expectedReduction, reducedLimits.getPermanentLimit(), 0.01);
         assertEquals(1200 * expectedReduction, reducedLimits.getTemporaryLimitValue(20 * 60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(60), 0.01);
         checkOriginalLimitsOnLine2(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().isUnchanged());
+        assertTrue(optLimits.get().hasChange());
 
-        optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
+        optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO, monitoringOnly);
         assertTrue(optLimits.isPresent());
         assertEquals(500 * expectedReduction, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertFalse(optLimits.get().isUnchanged());
+        assertTrue(optLimits.get().hasChange());
     }
 
     @Test
     void severalApplicableReductionsTest() {
-        computer.changeContingencyId("contingency3");
+        applier.setWorkingContingency("contingency3");
         // Several reductions apply for line2 (with 0.5 and 0.1 reductions), only the last is used.
         computeAndCheckLimitsOnLine2(0.1, false);
     }
 
     @Test
     void temporaryLimitToRemoveTest() {
-        computer.changeContingencyId("contingency4");
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
+        applier.setWorkingContingency("contingency4");
+        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO, false);
         assertTrue(optLimits.isPresent());
         LoadingLimits reducedLimits = optLimits.get().getLimits();
         assertEquals(1100, reducedLimits.getPermanentLimit(), 0.01);
@@ -165,12 +165,12 @@ class DefaultLimitReductionsApplierTest {
         assertEquals(1125, reducedLimits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().isUnchanged());
+        assertTrue(optLimits.get().hasChange());
     }
 
     @Test
     void noLimitsToReduceTest() {
-        Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
+        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(network.getTwoWindingsTransformer("NGEN_NHV1"),
                 LimitType.CURRENT, ThreeSides.ONE, false);
         // There are no limits on "NGEN_NHV1" => no reduced limits.
         assertTrue(optLimits.isEmpty());
@@ -178,15 +178,15 @@ class DefaultLimitReductionsApplierTest {
 
     @Test
     void sameReductionsAsPreviousContingencyTest() {
-        computer.changeContingencyId(null); // pre-contingency
-        boolean sameAsBefore = computer.changeContingencyId("contingency2");
+        applier.setWorkingContingency(null); // pre-contingency
+        boolean sameAsBefore = applier.setWorkingContingency("contingency2");
         // No specific reductions were defined for contingency2 => the same reductions apply.
         assertTrue(sameAsBefore);
-        assertTrue(computer.isSameReductionsAsForPreviousContingencyId());
-        sameAsBefore = computer.changeContingencyId("contingency1");
+        assertTrue(applier.isSameReductionsAsForPreviousContingencyId());
+        sameAsBefore = applier.setWorkingContingency("contingency1");
         // A specific reduction was defined for contingency1 => the reductions which apply are not the same.
         assertFalse(sameAsBefore);
-        assertFalse(computer.isSameReductionsAsForPreviousContingencyId());
+        assertFalse(applier.isSameReductionsAsForPreviousContingencyId());
     }
 
     @ParameterizedTest(name = "{0}")

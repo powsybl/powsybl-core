@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 /**
  * <p>Class corresponding to the result of the {@link LimitsComputer} computation.</p>
  * <p>It contains the original and the altered limits. When no reductions apply, both fields contains the same object.
- * and {@link #isUnchanged} returns <code>true</code>.</p>
+ * and {@link #hasChange} returns <code>false</code>.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public interface LimitsContainer<L> {
@@ -22,8 +22,8 @@ public interface LimitsContainer<L> {
     L getOriginalLimits();
 
     /**
-     * <p>Indicate if the limits are the same as the original ones.</p>
-     * @return <code>true</code> if the limits are the same as the original.
+     * <p>Indicate if the limits are different from the original ones.</p>
+     * @return <code>true</code> if the limits are different from the original.
      */
-    boolean isUnchanged();
+    boolean hasChange();
 }

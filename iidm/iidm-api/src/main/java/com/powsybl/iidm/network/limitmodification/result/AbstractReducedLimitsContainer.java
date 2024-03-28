@@ -30,8 +30,8 @@ public abstract class AbstractReducedLimitsContainer<H extends L, L> implements 
     }
 
     @Override
-    public boolean isUnchanged() {
-        return false;
+    public boolean hasChange() {
+        return true;
     }
 
     public abstract double getOriginalPermanentLimit();
