@@ -10,13 +10,17 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.contingency.list.*;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.criteria.Criterion;
 import com.powsybl.iidm.criteria.VoltageInterval;
 import com.powsybl.iidm.criteria.json.CriterionDeserializer;
 import com.powsybl.iidm.criteria.json.CriterionSerializer;
 import com.powsybl.iidm.criteria.json.VoltageIntervalDeserializer;
 import com.powsybl.iidm.criteria.json.VoltageIntervalSerializer;
+import com.powsybl.contingency.contingency.list.IdentifierContingencyListDeserializer;
+import com.powsybl.contingency.contingency.list.IdentifierContingencyListSerializer;
+import com.powsybl.iidm.network.identifiers.json.IdentifierDeserializer;
+import com.powsybl.iidm.network.identifiers.json.IdentifierSerializer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
