@@ -34,8 +34,11 @@ public interface DataSourceUtil {
 
     static String getBaseName(String fileName) {
         Objects.requireNonNull(fileName);
-        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
-        return pos == -1 ? fileName : fileName.substring(0, pos);
+
+        // Get the file information
+        FileInformation fileInformation = new FileInformation(fileName);
+
+        return fileInformation.getBaseName();
     }
 
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
@@ -59,6 +62,12 @@ public interface DataSourceUtil {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileNameOrBaseName);
 
+        // If the name is too short
+        if (fileNameOrBaseName.length() < 4) {
+            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+        }
+
+        // Look for 2- or 3-chars extensions
         int dotIndex = fileNameOrBaseName.charAt(fileNameOrBaseName.length() - 4) == '.' ? fileNameOrBaseName.length() - 4 : fileNameOrBaseName.length() - 3;
         String fileNameNoExtension = fileNameOrBaseName.substring(0, dotIndex);
         String extension = fileNameOrBaseName.substring(dotIndex + 1);
@@ -71,5 +80,36 @@ public interface DataSourceUtil {
             case "bz2" -> new Bzip2FileDataSource(directory, getBaseName(fileNameNoExtension), observer);
             default -> new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         };
+    }
+
+    static NewDataSource createNewDataSource(Path directory, String baseName, String sourceFormat, ArchiveFormat archiveFormat, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        Objects.requireNonNull(directory);
+        Objects.requireNonNull(baseName);
+
+        // Create the datasource
+        return new DataSourceBuilder()
+            .withDirectory(directory)
+            .withBaseName(baseName)
+            .withSourceFormat(sourceFormat)
+            .withArchiveFormat(archiveFormat)
+            .withCompressionFormat(compressionExtension)
+            .withObserver(observer)
+            .build();
+    }
+
+    static NewDataSource createNewDataSource(Path directory, String fileName, DataSourceObserver observer) {
+
+        // Get the file information
+        FileInformation fileInformation = new FileInformation(fileName);
+
+        // Datasource creation
+        return createNewDataSource(directory,
+            fileInformation.getBaseName(), fileInformation.getSourceFormat(),
+            fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(),
+            observer);
+    }
+
+    static NewDataSource createNewDataSource(Path directory, String fileName) {
+        return createNewDataSource(directory, fileName, null);
     }
 }

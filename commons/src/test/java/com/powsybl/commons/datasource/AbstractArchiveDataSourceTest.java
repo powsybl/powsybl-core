@@ -1,0 +1,63 @@
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
+package com.powsybl.commons.datasource;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
+/**
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
+ */
+abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
+    protected final Set<String> filesInArchive = Set.of(
+        "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
+    protected Set<String> unlistedFiles;
+
+    static Stream<Arguments> provideArgumentsForClassAndListingTest() {
+        return null;
+    }
+
+    protected abstract String getFileName(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+                                          CompressionFormat compressionFormat);
+
+    protected abstract void createArchiveAndFiles(String fileName) throws IOException;
+
+    @ParameterizedTest
+    @MethodSource("provideArgumentsForClassAndListingTest")
+    void testClassAndListing(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+                             CompressionFormat compressionFormat, Class<? extends AbstractDataSource> dataSourceClass,
+                             Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
+        // Compute the full filename
+        String fileName = getFileName(baseName, sourceFormat, archiveFormat, compressionFormat);
+
+        // Create the Zip archive and add the files
+        createArchiveAndFiles(fileName);
+
+        // Update the list of unlisted files
+        unlistedFiles = filesInArchive.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
+
+        // Create the datasource
+        NewDataSource dataSource = NewDataSource.fromPath(fileSystem.getPath(fileName));
+
+        // Check the class
+        assertInstanceOf(dataSourceClass, dataSource);
+
+        // List all the files in the datasource
+        assertEquals(listedFiles, dataSource.listNames(".*"));
+        assertEquals(listedBarFiles, dataSource.listNames(".*bar.*"));
+    }
+}

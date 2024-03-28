@@ -81,7 +81,8 @@ class ExportersTest extends AbstractConvertersTest {
     @Test
     void failExport() {
         Network network = Mockito.spy(Network.class);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> network.write(loader, UNSUPPORTED_FORMAT, null, Exporters.createDataSource(path)));
+        DataSource dataSource = Exporters.createDataSource(path);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> network.write(loader, UNSUPPORTED_FORMAT, null, dataSource));
         assertEquals("Export format " + UNSUPPORTED_FORMAT + " not supported", e.getMessage());
     }
 

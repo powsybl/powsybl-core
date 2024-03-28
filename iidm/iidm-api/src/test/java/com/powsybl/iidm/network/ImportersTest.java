@@ -213,9 +213,10 @@ class ImportersTest extends AbstractConvertersTest {
 
     @Test
     void loadNullNetwork2() throws IOException {
-        InputStream is = DataSource.fromPath(badPath).newInputStream(null, "txt");
-        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read("baz.txt", is, computationManager, importConfigMock, null, networkFactory, loader, ReportNode.NO_OP));
-        assertEquals("Unsupported file format or invalid file.", e.getMessage());
+        try (InputStream is = DataSource.fromPath(badPath).newInputStream(null, "txt")) {
+            PowsyblException e = assertThrows(PowsyblException.class, () -> Network.read("baz.txt", is, computationManager, importConfigMock, null, networkFactory, loader, ReportNode.NO_OP));
+            assertEquals("Unsupported file format or invalid file.", e.getMessage());
+        }
     }
 
     @Test

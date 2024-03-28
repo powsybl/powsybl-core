@@ -17,13 +17,30 @@ public interface ReadOnlyDataSource {
 
     String getBaseName();
 
+    /**
+     * Check if a file exists in the datasource. The file name will be constructed as: {@code <basename><suffix>.<ext>}
+     * @param suffix Suffix to add to the basename of the datasource
+     * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
+     * @return true if the file exists, else false
+     */
     boolean exists(String suffix, String ext) throws IOException;
 
+    /**
+     * Check if a file exists in the datasource.
+     * @param fileName Name of the file (excluding the compression extension)
+     * @return true if the file exists, else false
+     */
     boolean exists(String fileName) throws IOException;
 
     InputStream newInputStream(String suffix, String ext) throws IOException;
 
     InputStream newInputStream(String fileName) throws IOException;
 
+    /**
+     * Returns a set of Strings corresponding to the name of the different files in the datasource.
+     * @param regex regex used to identify files in the datasource
+     * @return a set of filenames
+     * @throws IOException exception thrown during file opening
+     */
     Set<String> listNames(String regex) throws IOException;
 }
