@@ -7,6 +7,8 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -19,7 +21,7 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
 
     ShuntCompensatorPositionAction(String id, String shuntCompensatorId, int sectionCount) {
         super(id);
-        this.shuntCompensatorId = shuntCompensatorId;
+        this.shuntCompensatorId = Objects.requireNonNull(shuntCompensatorId);
         this.sectionCount = sectionCount;
     }
 
