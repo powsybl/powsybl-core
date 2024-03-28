@@ -14,7 +14,7 @@ import java.nio.file.Path;
  */
 public abstract class AbstractArchiveDataSource extends AbstractDataSource {
 
-    protected String archiveFileName;
+    private final String archiveFileName;
 
     AbstractArchiveDataSource(Path directory, String archiveFileName, String baseName, CompressionFormat compressionFormat, ArchiveFormat archiveFormat, String sourceFormat, DataSourceObserver observer) {
         super(directory, baseName, compressionFormat, archiveFormat, sourceFormat, observer);
@@ -28,9 +28,5 @@ public abstract class AbstractArchiveDataSource extends AbstractDataSource {
 
     protected Path getArchiveFilePath() {
         return directory.resolve(archiveFileName);
-    }
-
-    protected void setArchiveFileName(String archiveFileName) {
-        this.archiveFileName = archiveFileName;
     }
 }

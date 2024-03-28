@@ -124,12 +124,13 @@ class ExportersTest extends AbstractConvertersTest {
         testExporter.export(null, null, dataSource, rootReportNode);
         Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());
-        assertTrue(reportNode.get() instanceof ReportNode);
+        assertInstanceOf(ReportNode.class, reportNode.get());
 
         StringWriter sw = new StringWriter();
         rootReportNode.print(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/exportReportNodeTest.txt");
+        assertNotNull(refStream);
         String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
         String logExport = TestUtil.normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);
