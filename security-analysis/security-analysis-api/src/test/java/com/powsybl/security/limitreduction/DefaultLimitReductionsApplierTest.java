@@ -42,26 +42,30 @@ class DefaultLimitReductionsApplierTest {
     static void init() {
         network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
 
-        LimitReduction reduction1 = new LimitReduction(LimitType.CURRENT, 0.9, false,
-                ContingencyContext.specificContingency("contingency1"),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
-                List.of(new PermanentDurationCriterion()));
-        LimitReduction reduction2 = new LimitReduction(LimitType.CURRENT, 0.5, false,
-                ContingencyContext.all(),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
-                Collections.emptyList());
-        LimitReduction reduction3 = new LimitReduction(LimitType.CURRENT, 0.1, false,
-                ContingencyContext.specificContingency("contingency3"),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2"))),
-                Collections.emptyList());
-        LimitReduction reduction4 = new LimitReduction(LimitType.CURRENT, 0.75, false,
-                ContingencyContext.specificContingency("contingency4"),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
-                List.of(new EqualityTemporaryDurationCriterion(60)));
-        LimitReduction reduction5 = new LimitReduction(LimitType.CURRENT, 0.2, true,
-                ContingencyContext.all(),
-                Collections.emptyList(),
-                Collections.emptyList());
+        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.9)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency1"))
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .withLimitDurationCriteria(new PermanentDurationCriterion())
+                .build();
+        LimitReduction reduction2 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+                .withMonitoringOnly(false)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
+                .build();
+        LimitReduction reduction3 = LimitReduction.builder(LimitType.CURRENT, 0.1)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency3"))
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_2")))
+                .build();
+        LimitReduction reduction4 = LimitReduction.builder(LimitType.CURRENT, 0.75)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency4"))
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
+                .build();
+        LimitReduction reduction5 = LimitReduction.builder(LimitType.CURRENT, 0.2)
+                .withMonitoringOnly(true)
+                .build();
         LimitReductionList reductionList = new LimitReductionList(List.of(reduction1, reduction2, reduction3, reduction4, reduction5));
         computer = new DefaultLimitReductionsApplier(reductionList);
     }
@@ -200,14 +204,12 @@ class DefaultLimitReductionsApplierTest {
 
     static Stream<Arguments> getNoChangesComputers() {
         DefaultLimitReductionsApplier noReductionComputer = new DefaultLimitReductionsApplier(new LimitReductionList(Collections.emptyList()));
-        LimitReduction reduction1 = new LimitReduction(LimitType.CURRENT, 1., false,
-                ContingencyContext.all(),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
-                Collections.emptyList());
-        LimitReduction reduction2 = new LimitReduction(LimitType.CURRENT, 1., false,
-                ContingencyContext.all(),
-                List.of(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1"))),
-                Collections.emptyList());
+        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 1.)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .build();
+        LimitReduction reduction2 = LimitReduction.builder(LimitType.CURRENT, 1.)
+                .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+                .build();
         LimitReductionList reductionsTo1List = new LimitReductionList(List.of(reduction1, reduction2));
         DefaultLimitReductionsApplier reductionsTo1Computer = new DefaultLimitReductionsApplier(reductionsTo1List);
         return Stream.of(

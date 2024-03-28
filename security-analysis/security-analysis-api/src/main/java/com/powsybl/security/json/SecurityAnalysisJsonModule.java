@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -49,6 +50,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultSerializer());
         addSerializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersSerializer());
         addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
+        addSerializer(OperatorStrategyResult.ConditionalActionsResult.class, new ConditionalActionsResultSerializer());
         addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
         addSerializer(ConditionalActions.class, new ConditionalActionsSerializer());
@@ -66,6 +68,7 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addDeserializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultDeserializer());
         addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
         addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
+        addDeserializer(OperatorStrategyResult.ConditionalActionsResult.class, new ConditionalActionsResultDeserializer());
         addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
         addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
         addDeserializer(ConditionalActions.class, new ConditionalActionsDeserializer());

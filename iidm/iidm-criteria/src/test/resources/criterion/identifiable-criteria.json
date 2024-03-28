@@ -10,12 +10,28 @@
     "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
     "voltageInterval" : {
       "nominalVoltageLowBound" : 80.0,
-      "nominalVoltageHighBound" : 100.0,
       "lowClosed" : true,
+      "nominalVoltageHighBound" : 100.0,
       "highClosed" : true
     }
   }
 }, {
   "type" : "identifiableCriterion",
-  "version" : "1.0"
+  "version" : "1.0",
+  "countryCriterion" : {
+    "type" : "AT_LEAST_ONE_COUNTRY",
+    "countries" : [ "BE" ]
+  }
+}, {
+  "type" : "identifiableCriterion",
+  "version" : "1.0",
+  "nominalVoltageCriterion" : {
+    "type" : "AT_LEAST_ONE_NOMINAL_VOLTAGE",
+    "voltageInterval" : {
+      "nominalVoltageLowBound" : 80.0,
+      "lowClosed" : true,
+      "nominalVoltageHighBound" : 100.0,
+      "highClosed" : true
+    }
+  }
 } ]

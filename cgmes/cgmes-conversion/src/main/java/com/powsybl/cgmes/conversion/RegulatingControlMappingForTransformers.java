@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion;
 
@@ -181,7 +182,7 @@ public class RegulatingControlMappingForTransformers {
         }
 
         boolean okSet = false;
-        if (isControlModeVoltage(control.mode, rc.tculControlMode)) {
+        if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRtcRegulatingControlVoltage(rc.id, regulating, control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode,
@@ -354,13 +355,6 @@ public class RegulatingControlMappingForTransformers {
             }
         }
         return false;
-    }
-
-    private static boolean isControlModeVoltage(String controlMode, String tculControlMode) {
-        if (RegulatingControlMapping.isControlModeVoltage(controlMode)) {
-            return true;
-        }
-        return tculControlMode != null && tculControlMode.endsWith("volt");
     }
 
     private static boolean isControlModeFixed(String controlMode) {
