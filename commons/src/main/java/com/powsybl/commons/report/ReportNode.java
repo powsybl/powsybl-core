@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.report;
 
@@ -70,11 +71,23 @@ public interface ReportNode {
     String getMessageKey();
 
     /**
+     * Get the message template for current node.
+     * @return the message template
+     */
+    String getMessageTemplate();
+
+    /**
      * Get the message of current node, replacing <code>${key}</code> references in the message template with the
      * corresponding values, either contained in current node or in one of its parents.
      * @return the message
      */
     String getMessage();
+
+    /**
+     * Get the values which belong to current node (does not include the inherited values)
+     * @return the values unmodifiable map
+     */
+    Map<String, TypedValue> getValues();
 
     /**
      * Get the value corresponding to the given key

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -44,7 +45,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
         double limit = Double.NaN;
-        float limitReduction = Float.NaN;
+        double limitReduction = Double.NaN;
         double value = Double.NaN;
         ThreeSides side = null;
 

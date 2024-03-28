@@ -1,0 +1,10 @@
+[ {
+  "type" : "identifierCriterion",
+  "version" : "1.0",
+  "name" : "criterion4",
+  "identifiers" : [ "lineId1", "lineId2" ]
+}, {
+  "type" : "identifierCriterion",
+  "version" : "1.0",
+  "identifiers" : [ ]
+} ]

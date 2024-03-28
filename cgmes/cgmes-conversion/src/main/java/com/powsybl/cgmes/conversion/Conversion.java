@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -33,6 +34,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -156,8 +158,7 @@ public class Conversion {
         Network network = createNetwork();
         Context context = createContext(network, reportNode);
         assignNetworkProperties(context);
-        addCgmesSvMetadata(network, context);
-        addCgmesSshMetadata(network, context);
+        addMetadataModels(network, context);
         addCimCharacteristics(network);
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
@@ -340,6 +341,7 @@ public class Conversion {
         // Voltage and angle in boundary buses
         network.getDanglingLineStream(DanglingLineFilter.UNPAIRED)
             .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
+        network.getTieLines().forEach(tieLine -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()));
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
@@ -438,36 +440,72 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addCgmesSvMetadata(Network network, Context context) {
-        PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
-        if (svDescription != null && !svDescription.isEmpty()) {
-            CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setDescription(svDescription.get(0).get("description"))
-                    .setSvVersion(readVersion(svDescription, context))
-                    .setModelingAuthoritySet(svDescription.get(0).get("modelingAuthoritySet"));
-            svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
-            adder.add();
+    /**
+     * Read the model header (the FullModel node) that holds metadata information.
+     * The metadata will be stored in the {@link CgmesMetadataModels} extension.
+     * @param network The network described by the model header and that will hold the extension.
+     * @param context The conversion context.
+     */
+    private void addMetadataModels(Network network, Context context) {
+        PropertyBags ps = cgmes.fullModels();
+        if (ps.isEmpty()) {
+            return;
+        }
+        CgmesMetadataModelsAdder modelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
+        for (PropertyBag p : ps) {
+            CgmesMetadataModelsAdder.ModelAdder modelAdder = modelsAdder.newModel()
+                .setId(p.getId("FullModel"))
+                .setSubset(subsetFromGraph(p.getLocal("graph")))
+                .setDescription(p.getId("description"))
+                .setVersion(readVersion(p, context))
+                .setModelingAuthoritySet(p.getId("modelingAuthoritySet"));
+            addMetadataModelReferences(p, "profileList", modelAdder::addProfile);
+            addMetadataModelReferences(p, "dependentOnList", modelAdder::addDependentOn);
+            addMetadataModelReferences(p, "supersedesList", modelAdder::addSupersedes);
+            modelAdder.add();
+        }
+        modelsAdder.add();
+    }
+
+    /**
+     * Add references (profiles, dependencies, supersedes) to the {@link CgmesMetadataModel} being created by the adder.
+     * @param p The property bag holding the references.
+     * @param refsProperty The property name to look for in the property bag.
+     *                     The property value must be split to retrieve the complete list of references.
+     * @param adder The method in the adder that will add the references to the model.
+     */
+    private void addMetadataModelReferences(PropertyBag p, String refsProperty, Function<String, CgmesMetadataModelsAdder.ModelAdder> adder) {
+        String refs = p.get(refsProperty);
+        if (refs != null && !refs.isEmpty()) {
+            for (String ref : refs.split(" ")) {
+                adder.apply(ref);
+            }
         }
     }
 
-    private void addCgmesSshMetadata(Network network, Context context) {
-        PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
-        if (sshDescription != null && !sshDescription.isEmpty()) {
-            CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setId(sshDescription.get(0).get("FullModel"))
-                    .setDescription(sshDescription.get(0).get("description"))
-                    .setSshVersion(readVersion(sshDescription, context))
-                    .setModelingAuthoritySet(sshDescription.get(0).get("modelingAuthoritySet"));
-            sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
-            adder.add();
-        }
+    /**
+     * Retrieve the subset from the graph.
+     * @param graph The file name. It shall contain the subset identifier.
+     * @return The {@link CgmesSubset} corresponding to the graph.
+     */
+    private CgmesSubset subsetFromGraph(String graph) {
+        return Stream.of(CgmesSubset.values())
+                .filter(subset -> subset.isValidName(graph))
+                .findFirst()
+                .orElse(CgmesSubset.UNKNOWN);
     }
 
-    private int readVersion(PropertyBags propertyBags, Context context) {
+    /**
+     * Retrieve the version number from the property bag.
+     * @param propertyBag The bag where to look for a version property.
+     * @param context The conversion context.
+     * @return The version number if found and is a proper integer, else the default value: 1.
+     */
+    private int readVersion(PropertyBag propertyBag, Context context) {
         try {
-            return propertyBags.get(0).asInt("version");
+            return propertyBag.asInt("version");
         } catch (NumberFormatException e) {
-            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
+            context.fixed("Version", "The version is expected to be an integer: " + propertyBag.get("version") + ". Fixed to 1");
             return 1;
         }
     }
@@ -1031,4 +1069,7 @@ public class Conversion {
     public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
     public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
+    public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
+    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
+    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineOperatingMode";
 }

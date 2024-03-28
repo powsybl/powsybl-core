@@ -91,6 +91,7 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:SynchronousMachine.operatingMode ?operatingMode ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
 }}
 OPTIONAL { GRAPH ?graphSSH2 {

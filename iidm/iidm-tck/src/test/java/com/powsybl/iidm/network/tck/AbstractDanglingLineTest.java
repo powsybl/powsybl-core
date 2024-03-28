@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -64,6 +65,7 @@ public abstract class AbstractDanglingLineTest {
         String id = "danglingId";
         String name = "danlingName";
         String pairingKey = "code";
+        String newPairingKey = "new_code";
         voltageLevel.newDanglingLine()
                         .setId(id)
                         .setName(name)
@@ -111,6 +113,8 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(p02, danglingLine.getP0(), 0.0);
         danglingLine.setQ0(q02);
         assertEquals(q02, danglingLine.getQ0(), 0.0);
+        danglingLine.setPairingKey(newPairingKey);
+        assertEquals(newPairingKey, danglingLine.getPairingKey());
 
         danglingLine.newCurrentLimits()
                 .setPermanentLimit(100.0)

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -557,7 +558,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getSvModelDescription().setVersion(svVersion);
+        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         StateVariablesExport.write(network, writer, context);
@@ -601,7 +602,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
-        context.getSvModelDescription().setVersion(svVersion);
+        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         context.setExportSvInjectionsForSlacks(false);

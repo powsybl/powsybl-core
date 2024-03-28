@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -246,7 +247,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private final String pairingKey;
+    private String pairingKey;
 
     private final GenerationImpl generation;
 
@@ -414,6 +415,18 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public String getPairingKey() {
         return pairingKey;
+    }
+
+    @Override
+    public DanglingLine setPairingKey(String pairingKey) {
+        if (this.isPaired()) {
+            throw new ValidationException(this, "pairing key cannot be set if dangling line is paired.");
+        } else {
+            String oldValue = this.pairingKey;
+            this.pairingKey = pairingKey;
+            notifyUpdate("pairing_key", oldValue, pairingKey);
+        }
+        return this;
     }
 
     @Override

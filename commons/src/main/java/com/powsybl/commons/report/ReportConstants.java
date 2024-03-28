@@ -10,7 +10,7 @@ package com.powsybl.commons.report;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-final class ReportConstants {
+public final class ReportConstants {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
     public static final ReportNodeVersion CURRENT_VERSION = ReportNodeVersion.V_2_0;

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.criteria;
 
@@ -67,7 +68,7 @@ public class PropertyCriterion implements Criterion {
 
     private boolean filterEquipment(Identifiable<?> identifiable, IdentifiableType type) {
         return switch (type) {
-            case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY ->
+            case STATIC_VAR_COMPENSATOR, SHUNT_COMPENSATOR, BUSBAR_SECTION, GENERATOR, DANGLING_LINE, LOAD, BATTERY, HVDC_CONVERTER_STATION ->
                     filterSubstationOrVoltageLevel(((Injection<?>) identifiable).getTerminal().getVoltageLevel());
             case SWITCH -> filterSubstationOrVoltageLevel(((Switch) identifiable).getVoltageLevel());
             case TWO_WINDINGS_TRANSFORMER, LINE ->

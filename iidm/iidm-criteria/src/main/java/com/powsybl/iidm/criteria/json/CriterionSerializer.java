@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.criteria.json;
 
@@ -13,6 +14,7 @@ import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -29,6 +31,11 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", criterion.getType().toString());
         switch (criterion.getType()) {
+            case AT_LEAST_ONE_COUNTRY:
+                serializerProvider.defaultSerializeField("countries",
+                        ((AtLeastOneCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()),
+                        jsonGenerator);
+                break;
             case SINGLE_COUNTRY:
                 serializerProvider.defaultSerializeField("countries",
                         ((SingleCountryCriterion) criterion).getCountries().stream().map(Country::toString).collect(Collectors.toList()),
@@ -42,44 +49,19 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
                         ((TwoCountriesCriterion) criterion).getCountries2().stream().map(Country::toString).collect(Collectors.toList()),
                         jsonGenerator);
                 break;
+            case AT_LEAST_ONE_NOMINAL_VOLTAGE:
+                AtLeastOneNominalVoltageCriterion atLeastOneNominalVoltageCriterion = (AtLeastOneNominalVoltageCriterion) criterion;
+                serializerProvider.defaultSerializeField("voltageInterval", atLeastOneNominalVoltageCriterion.getVoltageInterval(), jsonGenerator);
+                break;
             case SINGLE_NOMINAL_VOLTAGE:
                 SingleNominalVoltageCriterion singleNominalVoltageCriterion = (SingleNominalVoltageCriterion) criterion;
-                if (!singleNominalVoltageCriterion.getVoltageInterval().isNull()) {
-                    serializerProvider.defaultSerializeField("voltageInterval",
-                            singleNominalVoltageCriterion.getVoltageInterval(),
-                            jsonGenerator);
-                }
+                serializerProvider.defaultSerializeField("voltageInterval", singleNominalVoltageCriterion.getVoltageInterval(), jsonGenerator);
                 break;
             case TWO_NOMINAL_VOLTAGE:
-                TwoNominalVoltageCriterion twoNominalVoltageCriterion = (TwoNominalVoltageCriterion) criterion;
-                if (!twoNominalVoltageCriterion.getVoltageInterval1().isNull()) {
-                    serializerProvider.defaultSerializeField("voltageInterval1",
-                            ((TwoNominalVoltageCriterion) criterion).getVoltageInterval1(),
-                            jsonGenerator);
-                }
-                if (!twoNominalVoltageCriterion.getVoltageInterval2().isNull()) {
-                    serializerProvider.defaultSerializeField("voltageInterval2",
-                            ((TwoNominalVoltageCriterion) criterion).getVoltageInterval2(),
-                            jsonGenerator);
-                }
+                serializeTwoWindingsVoltageCriterion((TwoNominalVoltageCriterion) criterion, jsonGenerator, serializerProvider);
                 break;
             case THREE_NOMINAL_VOLTAGE:
-                ThreeNominalVoltageCriterion threeNominalVoltageCriterion = (ThreeNominalVoltageCriterion) criterion;
-                if (!threeNominalVoltageCriterion.getVoltageInterval1().isNull()) {
-                    serializerProvider.defaultSerializeField("voltageInterval1",
-                            threeNominalVoltageCriterion.getVoltageInterval1(),
-                            jsonGenerator);
-                }
-                if (!threeNominalVoltageCriterion.getVoltageInterval2().isNull()) {
-                    serializerProvider.defaultSerializeField("voltageInterval2",
-                            threeNominalVoltageCriterion.getVoltageInterval2(),
-                            jsonGenerator);
-                }
-                if (!threeNominalVoltageCriterion.getVoltageInterval3().isNull()) {
-                    serializerProvider.defaultSerializeField("voltageInterval3",
-                            threeNominalVoltageCriterion.getVoltageInterval3(),
-                            jsonGenerator);
-                }
+                serializeThreeNominalVoltageCriterion((ThreeNominalVoltageCriterion) criterion, jsonGenerator, serializerProvider);
                 break;
             case PROPERTY:
                 jsonGenerator.writeStringField("propertyKey", ((PropertyCriterion) criterion).getPropertyKey());
@@ -98,5 +80,31 @@ public class CriterionSerializer extends StdSerializer<Criterion> {
                 throw new IllegalArgumentException("type " + criterion.getType().toString() + " not known");
         }
         jsonGenerator.writeEndObject();
+    }
+
+    private static void serializeTwoWindingsVoltageCriterion(TwoNominalVoltageCriterion twoNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        Optional<VoltageInterval> optInterval = twoNominalVoltageCriterion.getVoltageInterval1();
+        if (optInterval.isPresent()) {
+            serializerProvider.defaultSerializeField("voltageInterval1", optInterval.get(), jsonGenerator);
+        }
+        optInterval = twoNominalVoltageCriterion.getVoltageInterval2();
+        if (optInterval.isPresent()) {
+            serializerProvider.defaultSerializeField("voltageInterval2", optInterval.get(), jsonGenerator);
+        }
+    }
+
+    private static void serializeThreeNominalVoltageCriterion(ThreeNominalVoltageCriterion threeNominalVoltageCriterion, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+        Optional<VoltageInterval> optInterval = threeNominalVoltageCriterion.getVoltageInterval1();
+        if (optInterval.isPresent()) {
+            serializerProvider.defaultSerializeField("voltageInterval1", optInterval.get(), jsonGenerator);
+        }
+        optInterval = threeNominalVoltageCriterion.getVoltageInterval2();
+        if (optInterval.isPresent()) {
+            serializerProvider.defaultSerializeField("voltageInterval2", optInterval.get(), jsonGenerator);
+        }
+        optInterval = threeNominalVoltageCriterion.getVoltageInterval3();
+        if (optInterval.isPresent()) {
+            serializerProvider.defaultSerializeField("voltageInterval3", optInterval.get(), jsonGenerator);
+        }
     }
 }
