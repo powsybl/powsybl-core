@@ -23,15 +23,16 @@ import java.util.Optional;
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface LimitsModifier<P, L> {
+public interface LimitsComputer<P, L> {
     /**
-     * An implementation of {@link LimitsModifier} only retrieving the limits without applying modifications.
+     * An implementation of {@link LimitsComputer} only retrieving the limits of the network elements
+     * without applying modifications.
      */
-    LimitsModifier<Identifiable<?>, LoadingLimits> NO_MODIFICATIONS = new NoModificationsImpl();
+    LimitsComputer<Identifiable<?>, LoadingLimits> NO_MODIFICATIONS = new NoModificationsImpl();
 
     /**
      * <p>Retrieve the limits of <code>processable</code> corresponding to the given limits type and side,
-     * then apply on them the modifications configured in the current {@link LimitsModifier}.</p>
+     * then apply on them the modifications configured in the current {@link LimitsComputer}.</p>
      * <p>The result of this method contains both originals and altered limits.</p>
      *
      * @param processable The network element for which the altered limits must be computed
@@ -42,9 +43,9 @@ public interface LimitsModifier<P, L> {
     Optional<LimitsContainer<L>> computeLimits(P processable, LimitType limitType, ThreeSides side);
 
     /**
-     * An implementation of {@link LimitsModifier} only retrieving the limits without applying modifications.
+     * An implementation of {@link LimitsComputer} only retrieving the limits without applying modifications.
      */
-    class NoModificationsImpl extends AbstractLimitsModifierWithCache<Identifiable<?>, LoadingLimits> {
+    class NoModificationsImpl extends AbstractLimitsComputerWithCache<Identifiable<?>, LoadingLimits> {
         @Override
         public Optional<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
             Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
@@ -52,7 +53,7 @@ public interface LimitsModifier<P, L> {
         }
 
         @Override
-        protected Optional<LimitsContainer<LoadingLimits>> doComputeModifiedLimits(Identifiable<?> processable, LimitType limitType, ThreeSides side) {
+        protected Optional<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> processable, LimitType limitType, ThreeSides side) {
             throw new IllegalStateException("Not implemented: Should not be called"); // Not used
         }
     }

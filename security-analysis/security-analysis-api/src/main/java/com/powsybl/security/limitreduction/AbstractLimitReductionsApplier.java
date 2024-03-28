@@ -15,10 +15,12 @@ import com.powsybl.iidm.criteria.duration.LimitDurationCriterion;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.limitmodification.AbstractLimitsModifierWithCache;
-import com.powsybl.iidm.network.limitmodification.LimitsModifier;
+import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCache;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.UnalteredLimitsContainer;
+import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
+import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCreator;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +35,7 @@ import static com.powsybl.contingency.ContingencyContextType.*;
  * @author Sophie Frasnedo {@literal <sophie.frasnedo at rte-france.com>}
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimitsModifierWithCache<P, L> {
+public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimitsComputerWithCache<P, L> {
     private final LimitReductionList limitReductionList;
     private List<LimitReduction> reductionsForCurrentContingencyId = Collections.emptyList();
     private boolean sameReductionsAsForPreviousContingencyId = false;
@@ -49,7 +51,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     @Override
-    protected Optional<LimitsContainer<L>> doComputeModifiedLimits(P processable, LimitType limitType, ThreeSides side) {
+    protected Optional<LimitsContainer<L>> computeUncachedLimits(P processable, LimitType limitType, ThreeSides side) {
         OriginalLimitsGetter<P, L> originalLimitsGetter = Objects.requireNonNull(getOriginalLimitsGetter());
         Optional<L> originalLimits = originalLimitsGetter.getLimits(processable, limitType, side);
         if (reductionsForCurrentContingencyId.isEmpty() || originalLimits.isEmpty()) {
@@ -99,8 +101,8 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
     }
 
     /**
-     * <p>Change the contingency for which the altered limits must be computed.</p>
-     * @param contingencyId the ID of the new contingency
+     * <p>Change the contingency for which the reduced limits must be computed.</p>
+     * @param contingencyId the ID of the new contingency, or <code>null</code> if you study the pre-contingency state.
      * @return <code>true</code> if the reductions to use for the new contingency are the same as for the previous one,
      * <code>false</code> otherwise.
      */
@@ -171,7 +173,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
 
     /**
      * Interface for objects allowing to retrieve limits (of generic type {@link L}) from an object
-     * manageable by the {@link LimitsModifier} (of generic type {@link P}).
+     * manageable by the {@link LimitsComputer} (of generic type {@link P}).
      *
      * @param <P> Generic type for the network element for which we want to retrieve the limits
      * @param <L> Generic type for the limits to retrieve

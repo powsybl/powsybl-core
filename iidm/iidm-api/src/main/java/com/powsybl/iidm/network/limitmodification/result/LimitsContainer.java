@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.network.limitmodification.result;
 
-import com.powsybl.iidm.network.limitmodification.LimitsModifier;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 
 /**
- * <p>Class corresponding to the result of the {@link LimitsModifier} computation.</p>
+ * <p>Class corresponding to the result of the {@link LimitsComputer} computation.</p>
  * <p>It contains the original and the altered limits. When no reductions apply, both fields contains the same object.
- * and {@link #isSameAsOriginal} returns <code>true</code>.</p>
+ * and {@link #isUnchanged} returns <code>true</code>.</p>
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public interface LimitsContainer<L> {
@@ -21,10 +21,9 @@ public interface LimitsContainer<L> {
 
     L getOriginalLimits();
 
-    //TODO isUnchanged, isUnaltered?
     /**
      * <p>Indicate if the limits are the same as the original ones.</p>
      * @return <code>true</code> if the limits are the same as the original.
      */
-    boolean isSameAsOriginal();
+    boolean isUnchanged();
 }

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitreduction.computation;
 
 import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.LoadingLimits;
@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
  */
 public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
 
-    DefaultLimitsReducer(LoadingLimits originalLimits) {
+    public DefaultLimitsReducer(LoadingLimits originalLimits) {
         super(originalLimits);
     }
 
@@ -52,7 +52,7 @@ public class DefaultLimitsReducer extends AbstractLimitsReducer<LoadingLimits> {
     }
 
     @Override
-    protected IntStream getTemporaryLimitsAcceptableDurationStream() {
+    public IntStream getTemporaryLimitsAcceptableDurationStream() {
         return getOriginalLimits().getTemporaryLimits().stream().mapToInt(LoadingLimits.TemporaryLimit::getAcceptableDuration);
     }
 

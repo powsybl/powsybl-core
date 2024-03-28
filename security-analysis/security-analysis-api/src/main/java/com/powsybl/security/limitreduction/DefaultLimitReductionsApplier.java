@@ -15,6 +15,9 @@ import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.security.limitreduction.computation.AbstractLimitsReducer;
+import com.powsybl.security.limitreduction.computation.AbstractLimitsReducerCreator;
+import com.powsybl.security.limitreduction.computation.DefaultLimitsReducer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,8 +27,10 @@ import java.util.Map;
  * <p>You can retrieve the reduced limits by using the {@link #computeLimits(Object, LimitType, ThreeSides)} method
  * (with an {@link Identifiable} as first parameter).
  * It returns a {@link com.powsybl.iidm.network.limitmodification.result.LimitsContainer} containing both
- * the original limits (with {@link LimitsContainer#getOriginalLimits()} and the reduced limits
- * (with {@link LimitsContainer#getLimits()}).</p>
+ * the original limits (accessible via {@link LimitsContainer#getOriginalLimits()}) and the reduced limits
+ * (accessible via {@link LimitsContainer#getLimits()}).</p>
+ * <p>Since LimitReductions depend on the contingency context, you should call {@link #changeContingencyId(String contingencyId)}
+ * each time the studied contingency change (use <code>null</code> for pre-contingency state).</p>
  *
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */

@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class DefaultLimitsReducerTest {
+class DefaultLimitReductionsApplierTest {
     private static DefaultLimitReductionsApplier computer;
     private static Network network;
 
@@ -104,7 +104,7 @@ class DefaultLimitsReducerTest {
         assertTrue(optLimits.isPresent());
         checkOriginalLimitsOnLine1(optLimits.get().getLimits());
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().isSameAsOriginal());
+        assertTrue(optLimits.get().isUnchanged());
     }
 
     private static void checkOriginalLimitsOnLine1(LoadingLimits limits) {
@@ -128,13 +128,13 @@ class DefaultLimitsReducerTest {
         assertEquals(1200 * expectedReduction, reducedLimits.getTemporaryLimitValue(20 * 60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(60), 0.01);
         checkOriginalLimitsOnLine2(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().isSameAsOriginal());
+        assertFalse(optLimits.get().isUnchanged());
 
         optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_2"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         assertEquals(500 * expectedReduction, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertFalse(optLimits.get().isSameAsOriginal());
+        assertFalse(optLimits.get().isUnchanged());
     }
 
     @Test
@@ -155,7 +155,7 @@ class DefaultLimitsReducerTest {
         assertEquals(1125, reducedLimits.getTemporaryLimitValue(60), 0.01);
         assertEquals(Double.MAX_VALUE, reducedLimits.getTemporaryLimitValue(0), 0.01);
         checkOriginalLimitsOnLine1(optLimits.get().getOriginalLimits());
-        assertFalse(optLimits.get().isSameAsOriginal());
+        assertFalse(optLimits.get().isUnchanged());
     }
 
     @Test

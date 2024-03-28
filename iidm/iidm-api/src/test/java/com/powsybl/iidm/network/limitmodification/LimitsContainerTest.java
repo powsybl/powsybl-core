@@ -62,7 +62,7 @@ class LimitsContainerTest {
     @Test
     void unalteredLimitsContainerTest() {
         LimitsContainer<LoadingLimits> container = new UnalteredLimitsContainer<>(originalLimits);
-        assertTrue(container.isSameAsOriginal());
+        assertTrue(container.isUnchanged());
         assertEquals(originalLimits, container.getLimits());
         assertEquals(originalLimits, container.getOriginalLimits());
     }
@@ -70,14 +70,15 @@ class LimitsContainerTest {
     @Test
     void defaultReducedLimitsContainerTest() {
         DefaultReducedLimitsContainer container = new DefaultReducedLimitsContainer(reducedLimits, originalLimits);
-        assertFalse(container.isSameAsOriginal());
+        assertFalse(container.isUnchanged());
         assertEquals(originalLimits, container.getOriginalLimits());
         assertEquals(reducedLimits, container.getLimits());
         assertEquals(800., container.getLimits().getPermanentLimit(), 0.01);
         assertEquals(1050., container.getLimits().getTemporaryLimit(300).getValue(), 0.01);
-        assertEquals(0.8, container.getDetailsForPermanentLimit().appliedReduction(), 0.01);
-        assertEquals(0.75, container.getDetailsForTemporaryLimit(300).appliedReduction(), 0.01);
-        assertEquals(1400., container.getDetailsForTemporaryLimit(300).originalValue(), 0.01);
-        assertNull(container.getDetailsForTemporaryLimit(600));
+        assertEquals(1000., container.getOriginalPermanentLimit(), 0.01);
+        assertEquals(0.8, container.getPermanentLimitReduction(), 0.01);
+        assertEquals(0.75, container.getTemporaryLimitReduction(300), 0.01);
+        assertEquals(1400., container.getOriginalTemporaryLimit(300), 0.01);
+        assertNull(container.getTemporaryLimitReduction(600));
     }
 }

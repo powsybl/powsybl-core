@@ -5,7 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitreduction.computation;
+
+import com.powsybl.security.limitreduction.AbstractLimitReductionsApplier;
 
 /**
  * <p>Interface for objects generating an {@link AbstractLimitsReducer} object

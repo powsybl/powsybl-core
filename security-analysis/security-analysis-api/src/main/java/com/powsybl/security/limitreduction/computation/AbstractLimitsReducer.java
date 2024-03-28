@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security.limitreduction;
+package com.powsybl.security.limitreduction.computation;
 
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.UnalteredLimitsContainer;
@@ -30,6 +30,12 @@ public abstract class AbstractLimitsReducer<L> {
 
     /**
      * <p>Generate the reduced limits from the original limits and reductions stored in this object.</p>
+     * <p>This method is called when at least one of the reductions store in <code>permanentLimitReduction</code> or
+     * <code>temporaryLimitReductionByAcceptableDuration</code> is different to 1. It must return a {@link LimitsContainer}
+     * containing the result of {@link #getOriginalLimits()} as original limits and a copy of the original limits on
+     * which each limit value is obtained as the original value * the corresponding limit reduction (retrieved from
+     * {@link #getPermanentLimitReduction()} or {@link #getTemporaryLimitReduction(int acceptableDuration)} (depending on
+     * the type of the limit).</p>
      * @return the reduced limits
      */
     protected abstract LimitsContainer<L> generateReducedLimits();
@@ -38,9 +44,9 @@ public abstract class AbstractLimitsReducer<L> {
      * <p>Return a stream of the temporary limits' acceptable durations.</p>
      * @return the acceptable durations
      */
-    protected abstract IntStream getTemporaryLimitsAcceptableDurationStream();
+    public abstract IntStream getTemporaryLimitsAcceptableDurationStream();
 
-    protected LimitsContainer<L> getReducedLimits() {
+    public LimitsContainer<L> getReducedLimits() {
         if (permanentLimitReduction == 1.0
                 && (temporaryLimitReductionByAcceptableDuration.isEmpty()
                     || temporaryLimitReductionByAcceptableDuration.values().stream().allMatch(v -> v == 1.0))) {
@@ -54,7 +60,7 @@ public abstract class AbstractLimitsReducer<L> {
         return originalLimits;
     }
 
-    void setPermanentLimitReduction(double permanentLimitReduction) {
+    public void setPermanentLimitReduction(double permanentLimitReduction) {
         this.permanentLimitReduction = permanentLimitReduction;
     }
 
@@ -62,7 +68,7 @@ public abstract class AbstractLimitsReducer<L> {
         return permanentLimitReduction;
     }
 
-    void setTemporaryLimitReduction(int acceptableDuration, double limitReduction) {
+    public void setTemporaryLimitReduction(int acceptableDuration, double limitReduction) {
         temporaryLimitReductionByAcceptableDuration.put(acceptableDuration, limitReduction);
     }
 

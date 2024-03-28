@@ -30,16 +30,15 @@ public abstract class AbstractReducedLimitsContainer<H extends L, L> implements 
     }
 
     @Override
-    public boolean isSameAsOriginal() {
+    public boolean isUnchanged() {
         return false;
     }
 
-    //TODO replace by 2 functions
-    public abstract Details getDetailsForPermanentLimit();
+    public abstract double getOriginalPermanentLimit();
 
-    //TODO replace by 2 functions
-    public abstract Details getDetailsForTemporaryLimit(int acceptableDuration);
+    public abstract Double getOriginalTemporaryLimit(int acceptableDuration);
 
-    //TODO to remove
-    public record Details(double originalValue, double appliedReduction) { }
+    public abstract double getPermanentLimitReduction();
+
+    public abstract Double getTemporaryLimitReduction(int acceptableDuration);
 }

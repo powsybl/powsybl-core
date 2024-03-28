@@ -8,7 +8,7 @@
 package com.powsybl.security.limitreduction;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.limitmodification.LimitsModifier;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -21,24 +21,24 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-class NoModificiationsImplTest {
+class NoModificationsImplTest {
 
     @Test
     void test() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        LimitsModifier<Identifiable<?>, LoadingLimits> computer = LimitsModifier.NO_MODIFICATIONS;
+        LimitsComputer<Identifiable<?>, LoadingLimits> computer = LimitsComputer.NO_MODIFICATIONS;
 
         Optional<LimitsContainer<LoadingLimits>> optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.ONE);
         assertTrue(optLimits.isPresent());
         assertEquals(500, optLimits.get().getLimits().getPermanentLimit(), 0.01);
         assertEquals(500, optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
-        assertTrue(optLimits.get().isSameAsOriginal());
+        assertTrue(optLimits.get().isUnchanged());
 
         optLimits = computer.computeLimits(network.getLine("NHV1_NHV2_1"), LimitType.CURRENT, ThreeSides.TWO);
         assertTrue(optLimits.isPresent());
         checkLimitsOnSide2(optLimits.get().getLimits());
         checkLimitsOnSide2(optLimits.get().getOriginalLimits());
-        assertTrue(optLimits.get().isSameAsOriginal());
+        assertTrue(optLimits.get().isUnchanged());
     }
 
     private void checkLimitsOnSide2(LoadingLimits limits) {

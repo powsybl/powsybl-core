@@ -28,7 +28,7 @@ public class UnalteredLimitsContainer<L> implements LimitsContainer<L> {
     }
 
     @Override
-    public boolean isSameAsOriginal() {
+    public boolean isUnchanged() {
         return true;
     }
 }
