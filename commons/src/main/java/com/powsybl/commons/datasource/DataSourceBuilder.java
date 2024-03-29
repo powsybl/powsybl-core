@@ -69,6 +69,9 @@ class DataSourceBuilder {
 
         // Create the datasource
         if (compressionFormat == CompressionFormat.ZIP || archiveFormat == ArchiveFormat.ZIP) {
+            if (compressionFormat != null && archiveFormat != null && !(compressionFormat == CompressionFormat.ZIP && archiveFormat == ArchiveFormat.ZIP)) {
+                throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
+            }
             return archiveFileName == null ?
                 new ZipDataSource(directory, baseName, sourceFormat, observer) :
                 new ZipDataSource(directory, archiveFileName, baseName, sourceFormat, observer);
