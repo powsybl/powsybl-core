@@ -54,6 +54,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         testDir = fileSystem.getPath("/tmp");
         Files.createDirectories(testDir);
+        archiveWithSubfolders = "foo.iidm.tar.gz";
     }
 
     @AfterEach

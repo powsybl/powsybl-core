@@ -7,17 +7,19 @@
  */
 package com.powsybl.commons.datasource;
 
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -26,6 +28,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
     protected final Set<String> filesInArchive = Set.of(
         "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
     protected Set<String> unlistedFiles;
+    protected String archiveWithSubfolders;
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return null;
@@ -59,5 +62,25 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         // List all the files in the datasource
         assertEquals(listedFiles, dataSource.listNames(".*"));
         assertEquals(listedBarFiles, dataSource.listNames(".*bar.*"));
+    }
+
+    @Test
+    void testFileInSubfolder() throws IOException {
+        // File
+        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+
+        // Create the datasource
+        DataSource dataSource = DataSourceUtil.createDataSource(
+            file.getParent(),
+            file.getFileName().toString(),
+            "foo");
+
+        // Assertions
+        Set<String> filesInArchive = dataSource.listNames(".*");
+        assertEquals(2, filesInArchive.size());
+        assertTrue(filesInArchive.contains("foo.iidm"));
+        assertTrue(filesInArchive.contains("foo_bar.iidm"));
+        assertFalse(filesInArchive.contains("foo_baz.iidm"));
+        assertFalse(filesInArchive.contains("subfolder/foo_baz.iidm"));
     }
 }

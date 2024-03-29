@@ -46,6 +46,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         testDir = fileSystem.getPath("/tmp");
         Files.createDirectories(testDir);
+        archiveWithSubfolders = "foo.iidm.zip";
     }
 
     @AfterEach
