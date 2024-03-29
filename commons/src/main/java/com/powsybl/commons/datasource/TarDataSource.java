@@ -68,7 +68,7 @@ public class TarDataSource extends AbstractArchiveDataSource {
                 // Consider only files located at the root of the archive
                 if (!entry.isDirectory()
                     && entry.getName().indexOf('/') == entry.getName().lastIndexOf('/')
-                    && entry.getName().startsWith(baseName)) {
+                    && (baseName.isEmpty() || entry.getName().startsWith(baseName))) {
                     FileInformation fileInformation = new FileInformation(entry.getName(), false);
                     // Check that files have the same source format and respect the regex
                     if ((sourceFormat.isEmpty() || fileInformation.getSourceFormat().equals(sourceFormat))

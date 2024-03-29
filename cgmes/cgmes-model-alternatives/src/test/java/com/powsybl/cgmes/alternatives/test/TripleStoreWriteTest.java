@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.GridModelReferenceResources;
-import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -60,7 +59,7 @@ class TripleStoreWriteTest {
                 if (subset == CgmesSubset.UNKNOWN) {
                     continue;
                 }
-                DataSource ds1 = DataSourceUtil.createDataSource(fileSystem.getPath("/"), "cgmes", CompressionFormat.ZIP, null);
+                DataSource ds1 = DataSourceUtil.createDataSource(fileSystem.getPath("/"), "cgmes.zip");
                 model.write(ds1, subset);
 
                 // Assert that there is only one file in the archive

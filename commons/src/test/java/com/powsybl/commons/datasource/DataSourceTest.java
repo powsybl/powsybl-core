@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
-import static com.powsybl.commons.datasource.DataSourceUtil.createNewDataSource;
+import static com.powsybl.commons.datasource.DataSourceUtil.createDataSource;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 /**
@@ -53,35 +53,14 @@ class DataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForTestClass")
-    void testClass(String fileName, Class<? extends NewDataSource> dataSourceClass) throws IOException {
+    void testClass(String fileName, Class<? extends DataSource> dataSourceClass) throws IOException {
         // Create the fake file
         Files.createFile(fileSystem.getPath(directory + fileName));
 
         // Create the datasource based on the file
-        NewDataSource dataSource = createNewDataSource(directory, fileName);
+        DataSource dataSource = createDataSource(directory, fileName);
 
         // Assert the class of the datasource
         assertInstanceOf(dataSourceClass, dataSource);
     }
-
-//    @Test
-//    void newTest() throws IOException {
-//        Bzip2DataSource dataSource = (Bzip2DataSource) new DataSourceBuilder()
-//            .withDirectory(Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource("test/foo.txt")).getPath()).getParent())
-//            .withSourceFormat(".iidm")
-//            .withBaseName("foo")
-//            .withCompressionFormat(CompressionFormat.BZIP2)
-//            .build();
-//
-//        // write file
-//        try (OutputStream os = dataSource.newOutputStream("test", "iidm", false)) {
-//            os.write("line1".getBytes(StandardCharsets.UTF_8));
-//        } catch (IOException e) {
-//            fail();
-//        }
-//
-//        for (String name : dataSource.listNames(".*")) {
-//            assertTrue(dataSource.exists(name));
-//        }
-//    }
 }

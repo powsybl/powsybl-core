@@ -72,7 +72,7 @@ class ZipFileDataSourceTest extends AbstractDataSourceTest {
 
         }
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, null);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, BASENAME, null);
         assertTrue(dataSource.exists(UNRELATED_FILE));
         assertFalse(dataSource.exists("not.zip"));
         assertTrue(dataSource.exists(null, MAIN_EXT));

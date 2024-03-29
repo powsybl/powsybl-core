@@ -29,13 +29,13 @@ abstract class AbstractNewDataSourceTest {
         return true;
     }
 
-    void writeThenReadTest(NewDataSource dataSource) throws IOException {
+    void writeThenReadTest(DataSource dataSource) throws IOException {
         writeThenReadTest(dataSource, null, "bar");
         writeThenReadTest(dataSource, "_baz", "bar");
         writeThenReadTest(dataSource, "_baz", null);
     }
 
-    private void writeThenReadTest(NewDataSource dataSource, String suffix, String ext) throws IOException {
+    private void writeThenReadTest(DataSource dataSource, String suffix, String ext) throws IOException {
         // check file does not exist
         assertFalse(dataSource.exists(suffix, ext));
 

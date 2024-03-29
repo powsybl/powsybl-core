@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-abstract class AbstractDataSource implements NewDataSource {
+abstract class AbstractDataSource implements DataSource {
     final Path directory;
     final String baseName;
     final CompressionFormat compressionFormat;

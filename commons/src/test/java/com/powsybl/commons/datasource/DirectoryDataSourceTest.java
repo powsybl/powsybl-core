@@ -76,7 +76,7 @@ class DirectoryDataSourceTest extends AbstractNewDataSourceTest {
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
 
         // Create the datasource
-        NewDataSource dataSource = NewDataSource.fromPath(fileSystem.getPath(fileName));
+        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
 
         writeThenReadTest(dataSource);
     }
@@ -109,7 +109,7 @@ class DirectoryDataSourceTest extends AbstractNewDataSourceTest {
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the datasource
-        NewDataSource dataSource = NewDataSource.fromPath(fileSystem.getPath(fileName));
+        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);

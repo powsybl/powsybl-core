@@ -17,6 +17,7 @@ import java.nio.file.Path;
 class DataSourceBuilder {
     private Path directory;
     private String baseName;
+    private String archiveFileName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
     private String sourceFormat = "";
@@ -29,6 +30,11 @@ class DataSourceBuilder {
 
     DataSourceBuilder withBaseName(String baseName) {
         this.baseName = baseName;
+        return this;
+    }
+
+    DataSourceBuilder withArchiveFileName(String archiveFileName) {
+        this.archiveFileName = archiveFileName;
         return this;
     }
 
@@ -52,7 +58,7 @@ class DataSourceBuilder {
         return this;
     }
 
-    NewDataSource build() {
+    DataSource build() {
         // Check the mandatory parameters
         if (directory == null) {
             throw new PowsyblException("Datasource directory cannot be null");
@@ -63,7 +69,9 @@ class DataSourceBuilder {
 
         // Create the datasource
         if (compressionFormat == CompressionFormat.ZIP || archiveFormat == ArchiveFormat.ZIP) {
-            return new ZipDataSource(directory, baseName, sourceFormat, observer);
+            return archiveFileName == null ?
+                new ZipDataSource(directory, baseName, sourceFormat, observer) :
+                new ZipDataSource(directory, archiveFileName, baseName, sourceFormat, observer);
         } else if (archiveFormat == ArchiveFormat.TAR) {
             return new TarDataSource(directory, baseName, compressionFormat, sourceFormat, observer);
         } else if (compressionFormat == null) {

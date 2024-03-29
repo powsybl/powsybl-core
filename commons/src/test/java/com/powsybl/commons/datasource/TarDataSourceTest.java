@@ -109,7 +109,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        NewDataSource dataSource = DataSourceUtil.createNewDataSource(workdirPath, TAR_FILENAME);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, TAR_FILENAME, BASENAME);
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -198,7 +198,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         createArchiveAndFiles(fileName);
 
         // Create the datasource
-        NewDataSource dataSource = NewDataSource.fromPath(fileSystem.getPath(fileName));
+        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
 
         writeThenReadTest(dataSource);
     }

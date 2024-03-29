@@ -21,11 +21,6 @@ public abstract class AbstractArchiveDataSource extends AbstractDataSource {
         this.archiveFileName = archiveFileName;
     }
 
-    AbstractArchiveDataSource(Path directory, String baseName, CompressionFormat compressionFormat, ArchiveFormat archiveFormat, String sourceFormat, DataSourceObserver observer) {
-        super(directory, baseName, compressionFormat, archiveFormat, sourceFormat, observer);
-        this.archiveFileName = baseName + "." + archiveFormat.getExtension() + (compressionFormat == null ? "" : compressionFormat.getExtension());
-    }
-
     protected Path getArchiveFilePath() {
         return directory.resolve(archiveFileName);
     }
