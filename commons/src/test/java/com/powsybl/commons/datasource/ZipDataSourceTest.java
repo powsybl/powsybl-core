@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -173,7 +172,8 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
     @Test
     void testStreamNullForMissingFile() throws IOException {
         // File
-        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+        Path file = testDir.resolve("fake.zip");
+        Files.createFile(file);
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createDataSource(
@@ -185,7 +185,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
             assertNull(is);
         }
 
-        file = Path.of("/missing.file.zip");
+        file = testDir.resolve("/missing_file.zip");
         DataSource newDataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),

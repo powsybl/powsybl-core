@@ -12,8 +12,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
@@ -69,12 +71,13 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
     @Test
     void testFileInSubfolder() throws IOException {
         // File
-        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getFile());
+        Path path = file.toPath();
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createDataSource(
-            file.getParent(),
-            file.getFileName().toString(),
+            path.getParent(),
+            path.getFileName().toString(),
             "foo");
 
         // Assertions
@@ -87,9 +90,10 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
     }
 
     @Test
-    void testErrorOnAppend() {
+    void testErrorOnAppend() throws IOException {
         // File
-        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+        Path file = testDir.resolve(archiveWithSubfolders);
+        Files.createFile(file);
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createDataSource(

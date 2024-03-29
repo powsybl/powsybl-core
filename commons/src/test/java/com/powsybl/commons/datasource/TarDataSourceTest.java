@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -207,9 +206,10 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     @Test
-    void testErrorOnInputStreamForMissingFile() {
+    void testErrorOnInputStreamForMissingFile() throws IOException {
         // File
-        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+        Path file = testDir.resolve("fake.tar");
+        Files.createFile(file);
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createDataSource(
@@ -222,9 +222,9 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
                 fail();
             }
         });
-        assertEquals("File foo.bar does not seem to exist in archive " + archiveWithSubfolders, exception.getMessage());
+        assertEquals("File foo.bar does not seem to exist in archive fake.tar", exception.getMessage());
 
-        file = Path.of("/missing.file.tar.gz");
+        file = testDir.resolve("/missing.file.tar.gz");
         DataSource newDataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),
