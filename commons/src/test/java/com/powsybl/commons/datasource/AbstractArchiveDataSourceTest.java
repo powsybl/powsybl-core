@@ -13,6 +13,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Set;
@@ -29,6 +30,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
     protected Set<String> unlistedFiles;
     protected String archiveWithSubfolders;
+    protected String appendException;
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return null;
@@ -82,5 +84,24 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         assertTrue(filesInArchive.contains("foo_bar.iidm"));
         assertFalse(filesInArchive.contains("foo_baz.iidm"));
         assertFalse(filesInArchive.contains("subfolder/foo_baz.iidm"));
+    }
+
+    @Test
+    void testErrorOnAppend() {
+        // File
+        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+
+        // Create the datasource
+        DataSource dataSource = DataSourceUtil.createDataSource(
+            file.getParent(),
+            file.getFileName().toString(),
+            "foo");
+
+        UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> {
+            try (OutputStream ignored = dataSource.newOutputStream("foo.bar", true)) {
+                fail();
+            }
+        });
+        assertEquals(appendException, exception.getMessage());
     }
 }

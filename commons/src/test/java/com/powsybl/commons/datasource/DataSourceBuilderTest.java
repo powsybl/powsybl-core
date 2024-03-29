@@ -32,7 +32,7 @@ class DataSourceBuilderTest {
     }
 
     @Test
-    void testBuilderZip() {
+    void testBuilder() {
         // Observer
         DataSourceObserver observer = new DefaultDataSourceObserver();
 

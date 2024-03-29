@@ -163,9 +163,9 @@ public class TarDataSource extends AbstractArchiveDataSource {
                     return observer != null ? new ObservableInputStream(tais, tarFilePath + ":" + fileName, observer) : tais;
                 }
             }
-            throw new PowsyblException(String.format("File %s does not seem to exist in archive %s", fileName, tarFilePath));
+            throw new PowsyblException(String.format("File %s does not seem to exist in archive %s", fileName, tarFilePath.getFileName()));
         } catch (IOException e) {
-            throw new PowsyblException(String.format("Tar file %s does not seem to exist", tarFilePath));
+            throw new PowsyblException(String.format("Tar file %s does not seem to exist", tarFilePath.getFileName()));
         }
     }
 

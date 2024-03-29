@@ -76,7 +76,9 @@ class DataSourceBuilder {
                 new ZipDataSource(directory, baseName, sourceFormat, observer) :
                 new ZipDataSource(directory, archiveFileName, baseName, sourceFormat, observer);
         } else if (archiveFormat == ArchiveFormat.TAR) {
-            return new TarDataSource(directory, baseName, compressionFormat, sourceFormat, observer);
+            return archiveFileName == null ?
+                new TarDataSource(directory, baseName, compressionFormat, sourceFormat, observer) :
+                new TarDataSource(directory, archiveFileName, baseName, compressionFormat, sourceFormat, observer);
         } else if (compressionFormat == null) {
             return new DirectoryDataSource(directory, baseName, sourceFormat, observer);
         } else {

@@ -19,6 +19,8 @@ import org.junit.jupiter.params.provider.MethodSource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -47,6 +49,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
         testDir = fileSystem.getPath("/tmp");
         Files.createDirectories(testDir);
         archiveWithSubfolders = "foo.iidm.zip";
+        appendException = "append not supported in zip file data source";
     }
 
     @AfterEach
@@ -165,5 +168,30 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
 
         writeThenReadTest(dataSource);
+    }
+
+    @Test
+    void testStreamNullForMissingFile() throws IOException {
+        // File
+        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
+
+        // Create the datasource
+        DataSource dataSource = DataSourceUtil.createDataSource(
+            file.getParent(),
+            file.getFileName().toString(),
+            "foo");
+
+        try (InputStream is = dataSource.newInputStream("foo.bar")) {
+            assertNull(is);
+        }
+
+        file = Path.of("/missing.file.zip");
+        DataSource newDataSource = DataSourceUtil.createDataSource(
+            file.getParent(),
+            file.getFileName().toString(),
+            "foo");
+        try (InputStream is = dataSource.newInputStream("foo.bar")) {
+            assertNull(is);
+        }
     }
 }

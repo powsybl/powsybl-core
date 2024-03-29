@@ -11,10 +11,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
 import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
 import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
@@ -25,7 +23,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -55,6 +56,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         testDir = fileSystem.getPath("/tmp");
         Files.createDirectories(testDir);
         archiveWithSubfolders = "foo.iidm.tar.gz";
+        appendException = "append not supported in tar file data source";
     }
 
     @AfterEach
@@ -204,24 +206,34 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         writeThenReadTest(dataSource);
     }
 
-    public InputStream newInputStream(String archivePath, String fileName) throws IOException {
-        Objects.requireNonNull(fileName);
-        Path tarFilePath = Path.of(archivePath);
+    @Test
+    void testErrorOnInputStreamForMissingFile() {
+        // File
+        Path file = Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getPath());
 
-        try {
-            InputStream fis = Files.newInputStream(tarFilePath);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            GzipCompressorInputStream is = new GzipCompressorInputStream(bis);
-            TarArchiveInputStream tais = new TarArchiveInputStream(is);
-            TarArchiveEntry entry;
-            while ((entry = tais.getNextEntry()) != null) {
-                if (entry.getName().equals(fileName)) {
-                    return tais;
-                }
+        // Create the datasource
+        DataSource dataSource = DataSourceUtil.createDataSource(
+            file.getParent(),
+            file.getFileName().toString(),
+            "foo");
+
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> {
+            try (InputStream ignored = dataSource.newInputStream("foo.bar")) {
+                fail();
             }
-            return null;
-        } catch (IOException e) {
-            throw new PowsyblException(String.format("Tar file %s does not seem to exist", tarFilePath));
-        }
+        });
+        assertEquals("File foo.bar does not seem to exist in archive " + archiveWithSubfolders, exception.getMessage());
+
+        file = Path.of("/missing.file.tar.gz");
+        DataSource newDataSource = DataSourceUtil.createDataSource(
+            file.getParent(),
+            file.getFileName().toString(),
+            "foo");
+        exception = assertThrows(PowsyblException.class, () -> {
+            try (InputStream ignored = newDataSource.newInputStream("foo.bar")) {
+                fail();
+            }
+        });
+        assertEquals("Tar file missing.file.tar.gz does not seem to exist", exception.getMessage());
     }
 }
