@@ -62,10 +62,6 @@ abstract class AbstractDataSource implements DataSource {
         return archiveFormat;
     }
 
-    String getArchiveExtension() {
-        return archiveFormat == null ? "" : "." + archiveFormat.getExtension();
-    }
-
     public String getSourceFormat() {
         return sourceFormat;
     }
