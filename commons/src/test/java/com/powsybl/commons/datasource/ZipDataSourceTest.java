@@ -190,7 +190,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
             file.getParent(),
             file.getFileName().toString(),
             "foo");
-        try (InputStream is = dataSource.newInputStream("foo.bar")) {
+        try (InputStream is = newDataSource.newInputStream("foo.bar")) {
             assertNull(is);
         }
     }
