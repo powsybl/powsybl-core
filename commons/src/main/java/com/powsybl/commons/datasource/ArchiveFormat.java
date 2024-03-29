@@ -27,8 +27,8 @@ public enum ArchiveFormat {
     }
 
     public static Collection<String> getFormats() {
-        return Arrays.stream(CompressionFormat.values())
-            .map(CompressionFormat::name)
+        return Arrays.stream(ArchiveFormat.values())
+            .map(ArchiveFormat::name)
             .toList();
     }
 
