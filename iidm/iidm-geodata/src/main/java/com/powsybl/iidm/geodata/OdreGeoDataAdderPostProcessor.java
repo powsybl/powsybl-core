@@ -57,9 +57,9 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     @Override
     public void process(Network network, ComputationManager computationManager) throws Exception {
         if (Files.exists(substationsFilePath)) {
-            NetworkGeoDataFiller.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath);
+            OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath);
             if (Files.exists(aerialLinesFilePath) && Files.exists(undergroundLinesFilePath)) {
-                NetworkGeoDataFiller.fillNetworkLinesGeoDataFromFiles(network,
+                OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network,
                         aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath);
             }
         }

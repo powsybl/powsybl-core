@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Hugo Kulesza <hugo.kulesza at rte-france.com>
  */
-public class NetworkGeoDataFillerTest {
+public class OdreGeoDataAdderTest {
 
     private Network network;
 
@@ -46,7 +46,7 @@ public class NetworkGeoDataFillerTest {
         SubstationGeoData p2GeoData = new SubstationGeoData("P2", "BE", coord2);
         List<SubstationGeoData> substationsGeoData = List.of(p1GeoData, p2GeoData);
 
-        NetworkGeoDataFiller.fillNetworkSubstationsGeoData(network, substationsGeoData);
+        OdreGeoDataAdder.fillNetworkSubstationsGeoData(network, substationsGeoData);
 
         Substation station1 = network.getSubstation("P1");
         SubstationPosition position1 = station1.getExtension(SubstationPosition.class);
@@ -66,7 +66,7 @@ public class NetworkGeoDataFillerTest {
         LineGeoData position = new LineGeoData("NHV1_NHV2_2", "FR", "BE",
                 "P1", "P2", List.of(coord1, coord2));
 
-        NetworkGeoDataFiller.fillNetworkLinesGeoData(network, List.of(position));
+        OdreGeoDataAdder.fillNetworkLinesGeoData(network, List.of(position));
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
@@ -79,7 +79,7 @@ public class NetworkGeoDataFillerTest {
         Path substationsPath = Paths.get(getClass()
                 .getClassLoader().getResource("postes-electriques-rte.csv").toURI());
 
-        NetworkGeoDataFiller.fillNetworkSubstationsGeoDataFromFile(network, substationsPath);
+        OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath);
 
         Coordinate coord1 = new Coordinate(2, 1);
         Substation station1 = network.getSubstation("P1");
@@ -103,7 +103,7 @@ public class NetworkGeoDataFillerTest {
         Path undergroundLinesFile = Paths.get(getClass()
                 .getClassLoader().getResource("lignes-souterraines-rte-nv.csv").toURI());
 
-        NetworkGeoDataFiller.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
+        OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
                 undergroundLinesFile, substationsPath);
 
         Line line = network.getLine("NHV1_NHV2_2");

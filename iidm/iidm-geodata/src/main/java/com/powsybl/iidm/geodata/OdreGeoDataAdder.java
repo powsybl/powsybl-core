@@ -22,9 +22,9 @@ import java.util.Optional;
 /**
  * @author Hugo Kulesza <hugo.kulesza at rte-france.com>
  */
-public class NetworkGeoDataFiller {
+public class OdreGeoDataAdder {
 
-    protected NetworkGeoDataFiller() {
+    protected OdreGeoDataAdder() {
     }
 
     public static void fillNetworkSubstationsGeoData(Network network, List<SubstationGeoData> substationsGeoData) {

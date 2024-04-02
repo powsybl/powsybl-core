@@ -57,6 +57,9 @@ public final class FileValidator {
     private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = List.of(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
     private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
     private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
+    private static final String SUBSTATIONS = "postes-electriques";
+    private static final String AERIAL_LINES = "lignes-aeriennes";
+    private static final String UNDERGROUND_LINES = "lignes-souterraines";
 
     public static boolean validateSubstations(Path path) {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8));
@@ -88,10 +91,10 @@ public final class FileValidator {
                         getIfSubstationsOrLogError(mapResult, path, headers, typeOuvrage);
                         break;
                     case "AERIEN":
-                        getResultOrLogError(headers, AERIAL_LINES_EXPECTED_HEADERS, mapResult, FileTypeEnum.AERIAL_LINES, path);
+                        getResultOrLogError(headers, AERIAL_LINES_EXPECTED_HEADERS, mapResult, AERIAL_LINES, path);
                         break;
                     case "SOUTERRAIN":
-                        getResultOrLogError(headers, UNDERGROUND_LINES_EXPECTED_HEADERS, mapResult, FileTypeEnum.UNDERGROUND_LINES, path);
+                        getResultOrLogError(headers, UNDERGROUND_LINES_EXPECTED_HEADERS, mapResult, UNDERGROUND_LINES, path);
                         break;
                     default:
                         LOGGER.error("The file {} has no known equipment type : {}", path.getFileName(), typeOuvrage);
@@ -105,7 +108,7 @@ public final class FileValidator {
 
     private static void getIfSubstationsOrLogError(Map<String, BufferedReader> mapResult, Path path, List<String> headers, String typeOuvrage) throws IOException {
         if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
-            mapResult.putIfAbsent(FileTypeEnum.SUBSTATIONS.getValue(), new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
+            mapResult.putIfAbsent(SUBSTATIONS, new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
         } else if (isAerialOrUnderground(headers)) {
             LOGGER.error("The file {} has no equipment type : {}", path.getFileName(), typeOuvrage);
         } else {
@@ -123,9 +126,9 @@ public final class FileValidator {
                 new HashSet<>(headers).containsAll(UNDERGROUND_LINES_EXPECTED_HEADERS);
     }
 
-    private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, BufferedReader> mapResult, FileTypeEnum fileType, Path path) throws IOException {
+    private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, BufferedReader> mapResult, String fileType, Path path) throws IOException {
         if (new HashSet<>(headers).containsAll(expectedHeaders)) {
-            mapResult.putIfAbsent(fileType.getValue(), new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
+            mapResult.putIfAbsent(fileType, new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
         } else {
             List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
             LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, path.getFileName(), notFoundHeaders);
