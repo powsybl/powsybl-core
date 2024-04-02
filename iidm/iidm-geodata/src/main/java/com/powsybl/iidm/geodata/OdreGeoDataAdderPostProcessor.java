@@ -13,8 +13,8 @@ import java.util.Objects;
 
 public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
 
-    public final static String NAME = "odreGeoDataImporter";
-    public final static Map<String, String> DEFAULT_FILE_NAMES = Map.of("substations", "postes-electriques-rte.csv",
+    public static final String NAME = "odreGeoDataImporter";
+    public static final Map<String, String> DEFAULT_FILE_NAMES = Map.of("substations", "postes-electriques-rte.csv",
             "aerial-lines", "lignes-aeriennes-rte-nv.csv",
             "underground-lines", "lignes-souterraines-rte-nv.csv");
 

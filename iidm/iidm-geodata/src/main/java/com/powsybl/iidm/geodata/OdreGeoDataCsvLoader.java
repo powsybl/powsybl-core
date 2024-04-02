@@ -26,6 +26,9 @@ import java.util.List;
  */
 public class OdreGeoDataCsvLoader {
 
+    protected OdreGeoDataCsvLoader() {
+    }
+
     public static List<SubstationGeoData> getSubstationsGeoData(Path path) {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
             return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader).values());
