@@ -6,6 +6,8 @@ on:
       - 'main'
       - 'release-v**'
       - 'full-sonar-analysis-**'
+    tags:
+      - 'v*.*.*'
   pull_request:
 
 permissions: {}
