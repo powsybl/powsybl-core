@@ -135,7 +135,7 @@ public abstract class AbstractLimitReductionsApplier<P, L> extends AbstractLimit
                 || contingencyContext.getContextType() == ALL
                 || contingencyContext.getContextType() == NONE && contingencyId == null
                 || contingencyContext.getContextType() == ONLY_CONTINGENCIES && contingencyId != null
-                || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyId().equals(contingencyId);
+                || contingencyContext.getContextType() == SPECIFIC && contingencyContext.getContingencyIds().contains(contingencyId);
     }
 
     protected static boolean isNetworkElementAffectedByLimitReduction(NetworkElement networkElement, LimitReduction limitReduction) {
