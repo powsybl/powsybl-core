@@ -8,8 +8,10 @@
 package com.powsybl.iidm.network.impl.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.util.SV;
@@ -248,5 +250,29 @@ class SVTest {
             .setNode(node)
             .setEnsureIdUnicity(false)
             .add();
+    }
+
+    @Test
+    void testWithGeneration() {
+        double tol = 0.001;
+        Network network = DanglingLineNetworkFactory.createWithGeneration();
+        DanglingLine danglingLine = network.getDanglingLine("DL");
+        assertTrue(Double.isNaN(danglingLine.getBoundary().getP())); // there is no good solution here.
+        // we run an DC load flow and fill state variable
+        danglingLine.getTerminal().setP(-298.937);
+        danglingLine.getTerminal().setQ(Double.NaN);
+        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        danglingLine.getTerminal().getBusView().getBus().setV(Double.NaN);
+        assertEquals(298.937, danglingLine.getBoundary().getP(), tol);
+        assertEquals(1.712783, danglingLine.getBoundary().getAngle(), tol);
+        // we run an AC load flow
+        danglingLine.getTerminal().setP(-298.937);
+        danglingLine.getTerminal().setQ(-7.413);
+        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        danglingLine.getTerminal().getBusView().getBus().setV(100.0);
+        assertEquals(389.999, danglingLine.getBoundary().getP(), tol);
+        assertEquals(16.250, danglingLine.getBoundary().getQ(), tol);
+        assertEquals(130.037, danglingLine.getBoundary().getV(), tol);
+        assertEquals(0.995, danglingLine.getBoundary().getAngle(), tol);
     }
 }

@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.HvdcLine;
  *
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
-public class HvdcActionBuilder {
+public class HvdcActionBuilder implements ActionBuilder<HvdcActionBuilder> {
 
     private String id;
     private String hvdcId;
@@ -24,8 +24,25 @@ public class HvdcActionBuilder {
     private Double p0 = null;
     private Boolean relativeValue = null;
 
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    @Override
     public HvdcAction build() {
         return new HvdcAction(id, hvdcId, acEmulationEnabled, activePowerSetpoint, converterMode, droop, p0, relativeValue);
+    }
+
+    @Override
+    public HvdcActionBuilder withNetworkElementId(String hvdcId) {
+        this.hvdcId = hvdcId;
+        return this;
+    }
+
+    @Override
+    public String getType() {
+        return HvdcAction.NAME;
     }
 
     public HvdcActionBuilder withId(String id) {
@@ -34,8 +51,7 @@ public class HvdcActionBuilder {
     }
 
     public HvdcActionBuilder withHvdcId(String hvdcId) {
-        this.hvdcId = hvdcId;
-        return this;
+        return withNetworkElementId(hvdcId);
     }
 
     public HvdcActionBuilder withAcEmulationEnabled(Boolean acEmulationEnabled) {
