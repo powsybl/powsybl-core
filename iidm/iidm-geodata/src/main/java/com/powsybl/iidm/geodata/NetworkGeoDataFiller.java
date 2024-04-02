@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 
@@ -52,5 +53,15 @@ public class NetworkGeoDataFiller {
                         .add();
             }
         });
+    }
+
+    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path) {
+        fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path));
+    }
+
+    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath,
+                                                        Path undergroundLinesFilePath, Path substationPath) {
+        fillNetworkLinesGeoData(network,
+                OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substationPath));
     }
 }

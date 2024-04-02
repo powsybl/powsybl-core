@@ -1,0 +1,3 @@
+﻿Code poste;Nom poste;Fonction;Etat;Tension (kV);Longitude poste (DD);Latitude poste (DD);Géo-point poste (DD)
+P1;P1;POSTE DE TRANSFORMATION;E;380kV;1;2;2,1
+P2;P2;POSTE DE TRANSFORMATION;E;380kV;3;4;4,3

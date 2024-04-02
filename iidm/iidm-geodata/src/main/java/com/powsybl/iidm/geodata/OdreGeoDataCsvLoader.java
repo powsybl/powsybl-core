@@ -26,7 +26,7 @@ import java.util.List;
  */
 public class OdreGeoDataCsvLoader {
 
-    public List<SubstationGeoData> getSubstations(Path path) {
+    public static List<SubstationGeoData> getSubstationsGeoData(Path path) {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
             return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader).values());
         } catch (IOException e) {
@@ -34,7 +34,7 @@ public class OdreGeoDataCsvLoader {
         }
     }
 
-    public List<LineGeoData> getLines(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
+    public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
         try (BufferedReader aerialBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(aerialLinesFilePath))));
             BufferedReader undergroundBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(undergroundLinesFilePath))));
             BufferedReader substationBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))));
