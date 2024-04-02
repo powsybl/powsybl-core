@@ -105,5 +105,17 @@ public class NetworkGeoDataFillerTest {
 
         NetworkGeoDataFiller.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
                 undergroundLinesFile, substationsPath);
+
+        Line line = network.getLine("NHV1_NHV2_2");
+        LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
+        assertNotNull(linePosition);
+        assertEquals(List.of(new Coordinate(4, 4), new Coordinate(5, 5)),
+                linePosition.getCoordinates());
+
+        Line line2 = network.getLine("NHV1_NHV2_1");
+        LinePosition<Line> linePosition2 = line2.getExtension(LinePosition.class);
+        assertNotNull(linePosition2);
+        assertEquals(List.of(new Coordinate(1, 1), new Coordinate(2, 2), new Coordinate(3, 3)),
+                linePosition2.getCoordinates());
     }
 }

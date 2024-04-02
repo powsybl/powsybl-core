@@ -1,5 +1,6 @@
 package com.powsybl.iidm.geodata;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
@@ -11,6 +12,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
+@AutoService(ImportPostProcessor.class)
 public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
 
     public static final String NAME = "odreGeoDataImporter";

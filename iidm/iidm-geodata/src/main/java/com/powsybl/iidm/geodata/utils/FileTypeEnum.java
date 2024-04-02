@@ -14,7 +14,7 @@ public enum FileTypeEnum {
 
     SUBSTATIONS("postes-electriques"), AERIAL_LINES("lignes-aeriennes"), UNDERGROUND_LINES("lignes-souterraines");
 
-    private String value;
+    private final String value;
 
     private FileTypeEnum(String value) {
         this.value = value;
