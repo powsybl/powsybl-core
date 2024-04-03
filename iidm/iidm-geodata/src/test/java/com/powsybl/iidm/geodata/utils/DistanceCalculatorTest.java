@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.geodata.utils;
 
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,7 +18,7 @@ public class DistanceCalculatorTest {
 
     @Test
     public void test() {
-        double zeroDistance = DistanceCalculator.distance(1,0, 1,0);
+        double zeroDistance = DistanceCalculator.distance(1, 0, 1, 0);
         assertEquals(0, zeroDistance);
 
         double nonZeroDistance = DistanceCalculator.distance(10, 10, 20, 20);

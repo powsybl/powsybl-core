@@ -95,7 +95,11 @@ public class OdreGeoDataAdderPostProcessorTest {
         Line line2 = network.getLine("NHV1_NHV2_1");
         LinePosition<Line> linePosition2 = line2.getExtension(LinePosition.class);
         assertNotNull(linePosition2);
-        assertEquals(List.of(new Coordinate(1, 1), new Coordinate(2, 2), new Coordinate(3, 3)),
+        assertEquals(List.of(new Coordinate(1, 1),
+                        new Coordinate(2, 2),
+                        new Coordinate(3, 3),
+                        new Coordinate(4, 4),
+                        new Coordinate(5, 5)),
                 linePosition2.getCoordinates());
     }
 
