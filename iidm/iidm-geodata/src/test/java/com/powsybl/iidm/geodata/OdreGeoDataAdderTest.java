@@ -77,7 +77,7 @@ public class OdreGeoDataAdderTest {
     @Test
     public void addSubstationsGeoDataFromFile() throws URISyntaxException {
         Path substationsPath = Paths.get(getClass()
-                .getClassLoader().getResource("postes-electriques-rte.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
 
         OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath);
 
@@ -97,11 +97,11 @@ public class OdreGeoDataAdderTest {
     @Test
     void addLinesGeoDataFromFile() throws URISyntaxException {
         Path substationsPath = Paths.get(getClass()
-                .getClassLoader().getResource("postes-electriques-rte.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("lignes-aeriennes-rte-nv.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/lignes-aeriennes-rte-nv.csv").toURI());
         Path undergroundLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("lignes-souterraines-rte-nv.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/lignes-souterraines-rte-nv.csv").toURI());
 
         OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
                 undergroundLinesFile, substationsPath);

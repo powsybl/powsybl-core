@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.geodata.utils;
 
-import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,6 +13,9 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
@@ -23,30 +25,30 @@ public class FileValidatorTest {
     @Test
     public void whenCallingValidate() throws IOException, URISyntaxException {
         Path file = Paths.get(getClass()
-                .getClassLoader().getResource("postes-electriques-rte.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("lignes-aeriennes-rte-nv.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/lignes-aeriennes-rte-nv.csv").toURI());
         Path undergroundLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("lignes-souterraines-rte-nv.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/lignes-souterraines-rte-nv.csv").toURI());
         Path substationsFile = Paths.get(getClass()
-                .getClassLoader().getResource("postes-electriques-rte.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
         Path invalidFile = Paths.get(getClass()
-                .getClassLoader().getResource("postes-electriques-rte-erreur.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/postes-electriques-rte-erreur.csv").toURI());
 
         // test substations file validator with valid file
-        Assertions.assertThat(FileValidator.validateSubstations(file)).isTrue();
+        assertTrue(FileValidator.validateSubstations(file));
         // test substations file validator with invalid file
-        Assertions.assertThat(FileValidator.validateSubstations(invalidFile)).isFalse();
+        assertFalse(FileValidator.validateSubstations(invalidFile));
         // test lines file validator with valid files
-        Assertions.assertThat(FileValidator.validateLines(List.of(substationsFile, aerialLinesFile, undergroundLinesFile))).hasSize(3);
+        assertEquals(3, FileValidator.validateLines(List.of(substationsFile, aerialLinesFile, undergroundLinesFile)).size());
         // test lines file validator with 1 invalid file
-        Assertions.assertThat(FileValidator.validateLines(List.of(substationsFile, invalidFile, undergroundLinesFile))).hasSize(2);
+        assertEquals(2, FileValidator.validateLines(List.of(substationsFile, invalidFile, undergroundLinesFile)).size());
         // test lines file validator with 2 invalid file
-        Assertions.assertThat(FileValidator.validateLines(List.of(invalidFile, invalidFile, undergroundLinesFile))).hasSize(1);
+        assertEquals(1, FileValidator.validateLines(List.of(invalidFile, invalidFile, undergroundLinesFile)).size());
         // test lines file validator with 3 invalid file
-        Assertions.assertThat(FileValidator.validateLines(List.of(invalidFile, invalidFile, invalidFile))).isEmpty();
+        assertEquals(0, FileValidator.validateLines(List.of(invalidFile, invalidFile, invalidFile)).size());
         // test lines file validator with 4 invalid file
-        Assertions.assertThat(FileValidator.validateLines(List.of(invalidFile, invalidFile, invalidFile, invalidFile))).isEmpty();
+        assertEquals(0, FileValidator.validateLines(List.of(invalidFile, invalidFile, invalidFile, invalidFile)).size());
     }
 
 }

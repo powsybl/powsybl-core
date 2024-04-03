@@ -1,0 +1,2 @@
+Type ouvrage;Code ligne 1;Nom ligne 1;Propriétaire ligne 1;Etat;TENSION;Source donnée;Geo Shape;Nombre circuit;Code ligne 2;Nom ligne 2;Propriétaire ligne 2;Code ligne 3;Nom ligne 3;Propriétaire ligne 3;Code ligne 4;Nom ligne 4;Propriétaire ligne 4;Code ligne 5;Nom ligne 5;Proprietaire ligne 5;geo_point_2d
+SOUTERRAIN;POST1L71POST3;POST1L71POST3;RTE;EN EXPLOITATION;400kV;RTE;"{""coordinates"": [[1, 1], [2, 2], [3, 3]], ""type"": ""LineString""}";1;;;;;;;;;;;;;2, 2
