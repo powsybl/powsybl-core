@@ -29,7 +29,7 @@ import java.util.Objects;
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
 public class ActionList {
-    private final List<Action> actions;
+    protected final List<Action> actions;
     public static final String VERSION = "1.1";
 
     public ActionList(List<Action> actions) {
