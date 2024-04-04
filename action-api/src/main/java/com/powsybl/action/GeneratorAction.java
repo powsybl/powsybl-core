@@ -86,6 +86,7 @@ public class GeneratorAction extends AbstractAction {
         return targetQ == null ? OptionalDouble.empty() : OptionalDouble.of(targetQ);
     }
 
+    @Override
     public NetworkModification toModification() {
         // if values are outside of generator boundaries the boundaries are used instead
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();

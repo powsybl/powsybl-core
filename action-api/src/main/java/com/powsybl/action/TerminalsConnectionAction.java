@@ -84,6 +84,7 @@ public class TerminalsConnectionAction extends AbstractAction {
         return open;
     }
 
+    @Override
     public NetworkModification toModification() {
         // not obvious how to map on ConnectableConnection/PlannedDisconnection/... especially if there is a side selected
         return getSide().map(value -> new TerminalsConnectionModification(getElementId(), value, isOpen()))

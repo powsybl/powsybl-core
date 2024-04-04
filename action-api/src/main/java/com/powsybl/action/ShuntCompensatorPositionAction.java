@@ -41,6 +41,7 @@ public class ShuntCompensatorPositionAction extends AbstractAction {
         return sectionCount;
     }
 
+    @Override
     public NetworkModification toModification() {
         return new ShuntCompensatorModification(getShuntCompensatorId(), null, getSectionCount());
     }

@@ -48,6 +48,7 @@ public class SwitchAction extends AbstractAction {
         return open;
     }
 
+    @Override
     public NetworkModification toModification() {
         if (isOpen()) {
             return new OpenSwitch(getSwitchId());

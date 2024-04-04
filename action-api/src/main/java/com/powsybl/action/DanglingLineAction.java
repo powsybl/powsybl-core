@@ -48,6 +48,7 @@ public class DanglingLineAction extends AbstractLoadAction {
         return NAME;
     }
 
+    @Override
     public NetworkModification toModification() {
         return new DanglingLineModification(
                 getDanglingLineId(),

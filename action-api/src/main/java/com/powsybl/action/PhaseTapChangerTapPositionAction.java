@@ -33,6 +33,7 @@ public class PhaseTapChangerTapPositionAction extends AbstractTapChangerTapPosit
         return NAME;
     }
 
+    @Override
     public NetworkModification toModification() {
         return getSide().map(side -> new PhaseTapPositionModification(getTransformerId(), getTapPosition(), side, isRelativeValue()))
                         .orElse(new PhaseTapPositionModification(getTransformerId(), getTapPosition(), isRelativeValue()));
