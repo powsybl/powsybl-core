@@ -57,7 +57,7 @@ public class OdreGeoDataAdderPostProcessorTest {
                     Path path = platformConfig.getConfigDir().map(p -> p.resolve(fileName)).orElse(null);
                     assertNotNull(path);
                     try {
-                        Files.copy(getClass().getResourceAsStream("/" + fileName), path);
+                        Files.copy(getClass().getResourceAsStream("/eurostag-test/" + fileName), path);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
