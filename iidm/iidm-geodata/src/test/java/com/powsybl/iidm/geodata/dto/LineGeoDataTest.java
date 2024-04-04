@@ -8,7 +8,7 @@
 package com.powsybl.iidm.geodata.dto;
 
 import com.powsybl.iidm.network.extensions.Coordinate;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
 
