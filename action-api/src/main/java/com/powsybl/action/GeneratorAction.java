@@ -88,8 +88,8 @@ public class GeneratorAction extends AbstractAction {
 
     @Override
     public NetworkModification toModification() {
-        // if values are outside of generator boundaries the boundaries are used instead
         GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setIgnoreCorrectiveOperations(true);
         getActivePowerValue().ifPresent(value -> {
             boolean isRelative = isActivePowerRelativeValue().orElse(false);
             if (isRelative) {

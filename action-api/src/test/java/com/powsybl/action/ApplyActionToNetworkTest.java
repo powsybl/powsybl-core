@@ -196,19 +196,15 @@ class ApplyActionToNetworkTest {
         action.toModification().apply(network);
         assertEquals(503.0, generator.getTargetP());
 
-        // Now if modification active power value is more or less than min or max, it is replaced by respectively min or max
-        // this test shows this behavior
-        generator.setMinP(600.0);
         assertEquals(503.0, generator.getTargetP());
         GeneratorAction action2 = new GeneratorActionBuilder()
                 .withId("id")
                 .withGeneratorId("GEN")
                 .withActivePowerRelativeValue(true)
-                .withActivePowerValue(0)
+                .withActivePowerValue(-10)
                 .build();
         action2.toModification().apply(network);
-        assertEquals(600.0, generator.getTargetP());
-
+        assertEquals(493.0, generator.getTargetP());
     }
 
 }
