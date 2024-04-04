@@ -46,8 +46,6 @@ import static com.powsybl.cgmes.conversion.CgmesReports.inconsistentProfilesTPRe
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
 
-    private static final String INDENT = "    ";
-
     private final ParameterDefaultValueConfig defaultValueConfig;
     private final CgmesImport importer;
 
@@ -66,164 +64,168 @@ public class CgmesExport implements Exporter {
         return STATIC_PARAMETERS;
     }
 
+    /**
+     * Export the requested network to the CGMES format.
+     * @param network The network to export.
+     * @param parameters Optional parameters that influence the export.
+     * @param dataSource The dataSource used by the export.
+     * @param reportNode The reportNode used for functional logs.
+     */
     @Override
-    public void export(Network network, Properties params, DataSource ds, ReportNode reportNode) {
+    public void export(Network network, Properties parameters, DataSource dataSource, ReportNode reportNode) {
         Objects.requireNonNull(network);
-        String baseName = baseName(params, ds, network);
 
-        // Reference data (if required) will come from imported boundaries
-        // We may have received a sourcing actor as a parameter
-        String sourcingActorName = Parameter.readString(getFormat(), params, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
-        String countryName = null;
-        if (sourcingActorName == null || sourcingActorName.isEmpty()) {
-            // If not given explicitly,
-            // the reference data provider can try to obtain it from the country of the network
-            // If we have multiple countries we do not pass this info to the reference data provider
-            Set<String> countries = getCountries(network);
-            if (countries.size() == 1) {
-                countryName = countries.iterator().next();
-            }
-        }
-        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, params);
+        // Determine reference data (boundaries, base voltages and other sourcing references) for the export
+        String sourcingActorName = Parameter.readString(getFormat(), parameters, SOURCING_ACTOR_PARAMETER, defaultValueConfig);
+        String countryName = getCountry(network);
+        ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, parameters);
 
-        // The UUID namespace parameter must be a valid UUID itself
-        UUID uuidNamespace = UUID.fromString(Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig));
-        NamingStrategy namingStrategy = NamingStrategyFactory.create(
-                Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig),
-                uuidNamespace);
-        CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy)
-                .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
-                .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
-                .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
-                .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
-                .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
-                .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
-                .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
-                .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
-                .setReportNode(reportNode)
-                .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig));
+        // Create the context (the object that stores relevant data for the export)
+        String namingStrategyImpl = Parameter.readString(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        UUID uuidNamespace = UUID.fromString(Parameter.readString(getFormat(), parameters, UUID_NAMESPACE_PARAMETER, defaultValueConfig));
+        NamingStrategy namingStrategy = NamingStrategyFactory.create(namingStrategyImpl, uuidNamespace);
+        CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy);
+        addParametersToContext(context, parameters, reportNode, referenceDataProvider);
 
-        // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
-        String masUri = Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig);
-        PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
-        if (sourcingActor.containsKey("masUri") && masUri == null) {
-            masUri = sourcingActor.get("masUri");
-        }
-        String modelDescription = Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig);
-        String modelVersion = Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig);
-        String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
-        if (cimVersionParam != null) {
-            context.setCimVersion(Integer.parseInt(cimVersionParam));
-        }
-
-        if (Parameter.readBoolean(getFormat(), params, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
-            /* CGM export
-            This export consists in providing an updated SSH for the IGMs and an updated SV for the whole CGM
-            The new updated IGMs SSH shall supersede the original ones
-            The new updated CGM SV is dependend on the new updated IGMs SHH and on the original IGMs TP
-            */
-
-            // checkCgmConsistency();
-
-            Set<String> updatedIgmSshIds = new HashSet<>();
-            Set<String> originalIgmTpIds = new HashSet<>();
-            for (Network subnetwork : network.getSubnetworks()) {
-                // Retrieve the IGM original SSH and TP model
-                CgmesMetadataModels originalIgmModels = subnetwork.getExtension(CgmesMetadataModels.class);
-                Optional<CgmesMetadataModel> originalIgmTpModel = originalIgmModels != null ?
-                        originalIgmModels.getModelForSubset(CgmesSubset.TOPOLOGY) :
-                        Optional.empty();
-                originalIgmTpModel.ifPresent(m -> originalIgmTpIds.add(m.getId()));
-
-                // Create a new IGM SSH model based on the original one
-                CgmesMetadataModel updatedIgmSshModel = initializeModelForExport(
-                        subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, null, null, null, context, Boolean.TRUE);
-
-                // Export the IGM SSH using the updated model
-                Set<String> countries = getCountries(subnetwork);
-                String igmName = countries.size() == 1 ? countries.iterator().next() : subnetwork.getId();
-                String igmFileNameSsh = baseName + "_" + igmName + "_SSH.xml";
-                context.addIidmMappings(subnetwork);
-                subsetExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, igmFileNameSsh, ds, context, updatedIgmSshModel);
-                updatedIgmSshIds.add(updatedIgmSshModel.getId());
-            }
-
-            // Create a new CGM SV model based on the original one
-            CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(
-                    network, CgmesSubset.STATE_VARIABLES, masUri, modelDescription, modelVersion, context, Boolean.TRUE);
-            updatedCgmSvModel.addDependentOn(updatedIgmSshIds);
-            updatedCgmSvModel.addDependentOn(originalIgmTpIds);
-
-            // Export the CGM SV using the new model
-            subsetExport(network, CgmesSubset.STATE_VARIABLES, baseName + "_SV.xml", ds, context, updatedCgmSvModel);
+        // Export the network
+        if (Parameter.readBoolean(getFormat(), parameters, CGM_EXPORT_PARAMETER, defaultValueConfig)) {
+            exportCGM(network, dataSource, context);
         } else {
-            // Initialize models for export
-            List<CgmesSubset> exportableSubsets = List.of(
-                    CgmesSubset.EQUIPMENT,
-                    CgmesSubset.TOPOLOGY,
-                    CgmesSubset.STEADY_STATE_HYPOTHESIS,
-                    CgmesSubset.STATE_VARIABLES);
-            Map<CgmesSubset, CgmesMetadataModel> subsetModels = new EnumMap<>(CgmesSubset.class);
-            Boolean modelUpdate = Parameter.readBoolean(getFormat(), params, MODEL_UPDATE_PARAMETER, defaultValueConfig);
-            for (CgmesSubset subset : exportableSubsets) {
-                CgmesMetadataModel subsetModel = initializeModelForExport(network, subset, masUri, modelDescription, modelVersion, context, modelUpdate);
-                subsetModels.put(subset, subsetModel);
-            }
-
-            // Update dependencies
-            String boundaryEqId = getBoundaryId(CgmesSubset.EQUIPMENT.getIdentifier(), network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider);
-            String boundaryTpId = getBoundaryId(CgmesSubset.TOPOLOGY.getIdentifier(), network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider);
-            updateDependenciesIGM(subsetModels, boundaryEqId, boundaryTpId);
-
-            // Export requested subsets
-            List<String> requestedSubsets = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
-            checkIgmConsistency(requestedSubsets, network, context);
-            context.setExportEquipment(requestedSubsets.contains(CgmesSubset.EQUIPMENT.getIdentifier()));
-            for (CgmesSubset subset : exportableSubsets) {
-                if (requestedSubsets.contains(subset.getIdentifier())) {
-                    String fileName = baseName + "_" + subset.getIdentifier() + ".xml";
-                    subsetExport(network, subset, fileName, ds, context, subsetModels.get(subset));
-                }
-            }
-
-            context.getNamingStrategy().debug(baseName, ds);
+            exportIGM(network, dataSource, context);
         }
     }
 
     /**
-     * Update dependencies in a way that:
-     *   SV depends on TP and SSH
-     *   TP depends on EQ
-     *   SSH depends on EQ
-     * If the boundaries subset have been defined:
-     *   EQ depends on EQ_BD
-     *   SV depends on TP_BD
-     * @param subsetModels The model for the following subsets: EQ, TP, SSH, SV.
+     * Common Grid Model export.
+     * This consists in providing an updated SSH for the IGMs (subnetworks) and an updated SV for the CGM (network).
+     * @param network The network to export. This is the parent network that contains the subnetworks.
+     * @param dataSource The dataSource used by the export.
+     * @param context The context that stores relevant data for the export.
+     */
+    private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context) {
+        // Initialize models for export
+        Map<Network, CgmesMetadataModel> updatedIgmSshModels = new HashMap<>();
+        for (Network subnetwork : network.getSubnetworks()) {
+            CgmesMetadataModel updatedIgmSshModel = initializeModelForExport(
+                    subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, Boolean.FALSE, Boolean.TRUE);
+            updatedIgmSshModels.put(subnetwork, updatedIgmSshModel);
+        }
+        CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(
+                network, CgmesSubset.STATE_VARIABLES, context, Boolean.TRUE, Boolean.TRUE);
+
+        // Update dependencies
+        updateDependenciesCGM(network, updatedIgmSshModels, updatedCgmSvModel);
+
+        // Export the SSH for the IGMs and the SV for the CGM
+        String baseName = getBaseName(context, dataSource, network);
+        for (Network subnetwork : network.getSubnetworks()) {
+            context.addIidmMappings(subnetwork);
+
+            String country = getCountry(subnetwork);
+            String igmName = country != null ? country : subnetwork.getNameOrId();
+            String igmFileNameSsh = baseName + "_" + igmName + "_SSH.xml";
+            subsetExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, igmFileNameSsh, dataSource, context, updatedIgmSshModels.get(subnetwork));
+        }
+        subsetExport(network, CgmesSubset.STATE_VARIABLES, baseName + "_SV.xml", dataSource, context, updatedCgmSvModel);
+    }
+
+    /**
+     * Individual Grid Model export.
+     * This consists in providing the requested subsets among EQ, TP, SSH, SV.
+     * @param network The network to export. This is the parent network that contains the subnetworks.
+     * @param dataSource The dataSource used by the export.
+     * @param context The context that stores relevant data for the export.
+     */
+    private void exportIGM(Network network, DataSource dataSource, CgmesExportContext context) {
+        // Initialize models for export
+        List<CgmesSubset> exportableSubsets = List.of(
+                CgmesSubset.EQUIPMENT, CgmesSubset.TOPOLOGY, CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES);
+        Map<CgmesSubset, CgmesMetadataModel> subsetModels = new EnumMap<>(CgmesSubset.class);
+        for (CgmesSubset subset : exportableSubsets) {
+            CgmesMetadataModel subsetModel = initializeModelForExport(network, subset, context, Boolean.TRUE, context.getModelUpdate());
+            subsetModels.put(subset, subsetModel);
+        }
+
+        // Update dependencies
+        updateDependenciesIGM(subsetModels, context.getBoundaryEqId(), context.getBoundaryTpId());
+
+        // Export requested subsets
+        List<CgmesSubset> requestedSubsets = Arrays.stream(CgmesSubset.values()).filter(s -> context.getProfiles().contains(s.getIdentifier())).toList();
+        checkIgmConsistency(requestedSubsets, network, context);
+        context.setExportEquipment(requestedSubsets.contains(CgmesSubset.EQUIPMENT));
+        String baseName = getBaseName(context, dataSource, network);
+        for (CgmesSubset subset : requestedSubsets) {
+            String fileName = baseName + "_" + subset.getIdentifier() + ".xml";
+            subsetExport(network, subset, fileName, dataSource, context, subsetModels.get(subset));
+        }
+
+        context.getNamingStrategy().debug(baseName, dataSource);
+    }
+
+    /**
+     * Update cross dependencies between the subset models through the dependentOn relationship.
+     * The updated IGMs SSH supersede the original ones.
+     * The updated CGM SV depends on the updated IGMs SSH and on the original IGMs TP.
+     * @param network The CGM (network) that contains the IGMs (subnetworks).
+     * @param updatedIgmSshModels The SSH models for all the IGMs.
+     * @param updatedCgmSvModel The SV model for the CGM.
+     */
+    private void updateDependenciesCGM(Network network, Map<Network, CgmesMetadataModel> updatedIgmSshModels, CgmesMetadataModel updatedCgmSvModel) {
+        // Ensure SSH and TP models are present for each of the subnetwork
+        checkCgmConsistency();
+
+        // Retrieve original SSH and TP models
+        Set<String> updatedIgmSshModelIds = updatedIgmSshModels.values().stream().map(CgmesMetadataModel::getId).collect(Collectors.toSet());
+        Set<String> originalIgmTpIds = new HashSet<>();
+        for (Network subnetwork : network.getSubnetworks()) {
+            CgmesMetadataModels originalIgmModels = subnetwork.getExtension(CgmesMetadataModels.class);
+            CgmesMetadataModel originalIgmSshModel = originalIgmModels.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+            CgmesMetadataModel originalIgmTpModel = originalIgmModels.getModelForSubset(CgmesSubset.TOPOLOGY).orElseThrow();
+            originalIgmTpIds.add(originalIgmTpModel.getId());
+
+            // Each updated SSH model supersedes the original one
+            updatedIgmSshModels.get(subnetwork).addSupersedes(originalIgmSshModel.getId());
+        }
+
+        // Updated SV model depends on updated SSH models and original TP models
+        updatedCgmSvModel.addDependentOn(updatedIgmSshModelIds);
+        updatedCgmSvModel.addDependentOn(originalIgmTpIds);
+
+        // QoCDC, rule CgmSvSshVersionMismatch: SSHs and SV must have same version and scenario time
+        Set<CgmesMetadataModel> models = new HashSet<>(updatedIgmSshModels.values());
+        models.add(updatedCgmSvModel);
+        int version = Collections.max(models.stream().map(CgmesMetadataModel::getVersion).collect(Collectors.toSet()));
+        updatedIgmSshModels.values().forEach(m -> m.setVersion(version));
+    }
+
+    /**
+     * Update cross dependencies between the subset models including boundaries through the dependentOn relationship.
+     * @param subsetModels The models for the following subsets: EQ, TP, SSH, SV.
      * @param boundaryEqId The model id for the EQ_BD subset.
      * @param boundaryTpId The model id for the TP_BD subset.
      */
-    public void updateDependenciesIGM(Map<CgmesSubset, CgmesMetadataModel> subsetModels, String boundaryEqId, String boundaryTpId) {
+    private void updateDependenciesIGM(Map<CgmesSubset, CgmesMetadataModel> subsetModels, String boundaryEqId, String boundaryTpId) {
+        // Retrieve EQ model ID
         String eqModelId = subsetModels.get(CgmesSubset.EQUIPMENT).getId();
         if (eqModelId == null || eqModelId.isEmpty()) {
             return;
         }
 
-        subsetModels.get(CgmesSubset.TOPOLOGY)
-                .clearDependencies()
-                .addDependentOn(eqModelId);
+        // TP and SSH depend on EQ
+        subsetModels.get(CgmesSubset.TOPOLOGY).addDependentOn(eqModelId);
+        subsetModels.get(CgmesSubset.STEADY_STATE_HYPOTHESIS).addDependentOn(eqModelId);
 
-        subsetModels.get(CgmesSubset.STEADY_STATE_HYPOTHESIS)
-                .clearDependencies()
-                .addDependentOn(eqModelId);
-
+        // SV depends on TP and SSH
         subsetModels.get(CgmesSubset.STATE_VARIABLES)
-                .clearDependencies()
                 .addDependentOn(subsetModels.get(CgmesSubset.TOPOLOGY).getId())
                 .addDependentOn(subsetModels.get(CgmesSubset.STEADY_STATE_HYPOTHESIS).getId());
 
+        // EQ depends on EQ_BD (if present)
         if (boundaryEqId != null) {
             subsetModels.get(CgmesSubset.EQUIPMENT).addDependentOn(boundaryEqId);
         }
+
+        // SV depends on TP_BD (if present)
         if (boundaryTpId != null) {
             subsetModels.get(CgmesSubset.STATE_VARIABLES).addDependentOn(boundaryTpId);
         }
@@ -232,26 +234,18 @@ public class CgmesExport implements Exporter {
     /**
      * Initialize the model (= the metadata information) that is used by the export.
      * If existing, the network model extension is used for the initialization.
-     * If existing, optional properties are also used for the initialization.
+     * If existing, optional parameters are also used for the initialization.
      * If both are present, the optional parameters prevail the values in the network extension.
      * @param network The network in which to look for an existing model extension as basis for initialization.
      * @param subset The subset of the model to initialize.
-     * @param modelingAuthoritySet The modeling authority set of the model to initialize.
-     * @param modelDescription An optional parameter to give the description of the model to initialize.
-     * @param modelVersion An optional parameter to give the version of the model to initialize.
      * @param context The context used by the export.
-     * @param modelUpdate A boolean indicating whether the model has been updated.
-     * @return A model with all necessary metadata information that will be used by the export.
+     * @param useParameters A boolean indicating whether the parameters should be used to initialize the model.
+     * @param modelUpdate A boolean indicating whether the network has been updated which should induce a model update.
+     * @return A model with all necessary metadata information for the export.
      */
     public static CgmesMetadataModel initializeModelForExport(
-            Network network,
-            CgmesSubset subset,
-            String modelingAuthoritySet,
-            String modelDescription,
-            String modelVersion,
-            CgmesExportContext context,
-            Boolean modelUpdate) {
-        // Initialize a new model that will be used by the export
+            Network network, CgmesSubset subset, CgmesExportContext context, Boolean useParameters, Boolean modelUpdate) {
+        // Initialize a new model for the export
         CgmesMetadataModel modelForExport = new CgmesMetadataModel(subset, CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
         modelForExport.setProfile(context.getCim().getProfileUri(subset.getIdentifier()));
 
@@ -266,21 +260,20 @@ public class CgmesExport implements Exporter {
         networkSubsetModel.ifPresent(m -> modelForExport.addDependentOn(m.getDependentOn()));
         networkSubsetModel.ifPresent(m -> modelForExport.setModelingAuthoritySet(m.getModelingAuthoritySet()));
 
-        // In case the model has been updated, it should supersede the base one and its version number should be incremented
+        // In case the model has been updated, its version number should be incremented
         if (modelUpdate.equals(Boolean.TRUE) && networkSubsetModel.isPresent()) {
-            modelForExport.addSupersedes(networkSubsetModel.get().getId());
             modelForExport.setVersion(networkSubsetModel.get().getVersion() + 1);
         }
 
-        // If optional parameters have been specified, use them
-        if (modelDescription != null) {
-            modelForExport.setDescription(modelDescription);
+        // If optional parameters should be used and have been specified, use them
+        if (useParameters.equals(Boolean.TRUE) && context.getModelDescription() != null) {
+            modelForExport.setDescription(context.getModelDescription());
         }
-        if (modelVersion != null) {
-            modelForExport.setVersion(Integer.parseInt(modelVersion));
+        if (useParameters.equals(Boolean.TRUE) && context.getModelVersion() != null) {
+            modelForExport.setVersion(Integer.parseInt(context.getModelVersion()));
         }
-        if (modelingAuthoritySet != null) {
-            modelForExport.setModelingAuthoritySet(modelingAuthoritySet);
+        if (useParameters.equals(Boolean.TRUE) && context.getModelingAuthoritySet() != null) {
+            modelForExport.setModelingAuthoritySet(context.getModelingAuthoritySet());
         }
 
         // Now that all information have been set, initialize the model id
@@ -290,30 +283,17 @@ public class CgmesExport implements Exporter {
     }
 
     /**
-     * Retrieve all the countries present in a network.
-     * @param network the network for which the countries are being looked for
-     * @return a Set of countries present in the network
-     */
-    private static Set<String> getCountries(Network network) {
-        return network.getSubstationStream()
-                .map(Substation::getCountry)
-                .flatMap(Optional::stream)
-                .map(Enum::name)
-                .collect(Collectors.toUnmodifiableSet());
-    }
-
-    /**
      * Export a CGMES subset of a network.
-     * @param network the network whose subset is to be exported
-     * @param subset the CGMES subset to export (accepted values are: EQ/TP/SSH/SV)
-     * @param fileName the name of the exported file
-     * @param dataSource the data source used by the export
-     * @param context the context used by the export
-     * @param model if provided, the model information to use
+     * @param network The network whose subset is to be exported.
+     * @param subset The CGMES subset to export (accepted values are: EQ, TP, SSH, SV).
+     * @param fileName The name of the exported file.
+     * @param dataSource The data source used by the export.
+     * @param context The context used by the export.
+     * @param model The model (= metadata information) to use.
      */
     private void subsetExport(Network network, CgmesSubset subset, String fileName, DataSource dataSource, CgmesExportContext context, CgmesMetadataModel model) {
         try (OutputStream out = new BufferedOutputStream(dataSource.newOutputStream(fileName, false))) {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(true, INDENT, out);
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", out);
             switch (subset) {
                 case EQUIPMENT:
                     EquipmentExport.write(network, writer, context, model);
@@ -337,18 +317,74 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private static void checkCgmConsistency() {
-        /* TODO
-        Verify that each of the subnetwork has a CgmesMetadataModel of part SSH and TP
-        This is necessary in order to correctly build the references (dependentOn and supersedes)
-        to the IGM SSH and TP export files
-        */
+    /**
+     * Retrieve the country of a network if it's unique.
+     * @param network The network for which the country is being looked for.
+     * @return The network country if it's unique inside the network, else null.
+     */
+    private static String getCountry(Network network) {
+        Set<String> countries = network.getSubstationStream()
+                .map(Substation::getCountry)
+                .flatMap(Optional::stream)
+                .map(Enum::name)
+                .collect(Collectors.toUnmodifiableSet());
+
+        if (countries.size() == 1) {
+            return countries.iterator().next();
+        } else {
+            return null;
+        }
     }
 
-    private String getBoundaryId(String profile, Network network, Properties params, Parameter parameter, ReferenceDataProvider referenceDataProvider) {
-        if (network.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID")) {
-            return network.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_BD_ID");
+    /**
+     * Read the parameters and store them as properties in the context that is used by the export.
+     * @param context The context that is used by the export.
+     * @param params The optional parameters to read and store.
+     * @param reportNode The reportNode used for functional logs.
+     * @param referenceDataProvider The reference data such as boundaries or base voltage.
+     */
+    private void addParametersToContext(CgmesExportContext context, Properties params, ReportNode reportNode, ReferenceDataProvider referenceDataProvider) {
+        context.setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
+                .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
+                .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
+                .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
+                .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
+                .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
+                .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig))
+                .setModelDescription(Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig))
+                .setModelVersion(Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig))
+                .setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig))
+                .setModelUpdate(Parameter.readBoolean(getFormat(), params, MODEL_UPDATE_PARAMETER, defaultValueConfig))
+                .setProfiles(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig))
+                .setBaseName(Parameter.readString(getFormat(), params, BASE_NAME_PARAMETER))
+                .setReportNode(reportNode);
+
+        // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
+        PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
+        if (sourcingActor.containsKey("masUri") && context.getModelingAuthoritySet() == null) {
+            context.setModelingAuthoritySet(sourcingActor.get("masUri"));
         }
+
+        // Set CIM version
+        String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
+        if (cimVersionParam != null) {
+            context.setCimVersion(Integer.parseInt(cimVersionParam));
+        }
+
+        // Set boundaries
+        String boundaryEqId = getBoundaryId(CgmesSubset.EQUIPMENT.getIdentifier(), params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider);
+        if (boundaryEqId != null && context.getBoundaryEqId() == null) {
+            context.setBoundaryEqId(boundaryEqId);
+        }
+        String boundaryTpId = getBoundaryId(CgmesSubset.TOPOLOGY.getIdentifier(), params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider);
+        if (boundaryTpId != null && context.getBoundaryTpId() == null) {
+            context.setBoundaryTpId(boundaryTpId);
+        }
+    }
+
+    private String getBoundaryId(String profile, Properties params, Parameter parameter, ReferenceDataProvider referenceDataProvider) {
         String id = Parameter.readString(getFormat(), params, parameter, defaultValueConfig);
         // If not specified through a parameter, try to load it from reference data
         if (id == null && referenceDataProvider != null) {
@@ -361,33 +397,34 @@ public class CgmesExport implements Exporter {
         return id;
     }
 
-    private static void addSubsetIdentifiers(Network network, String profile, CgmesMetadataModel description) {
-        description.addDependentOn(network.getPropertyNames().stream()
-                .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
-                .map(network::getProperty)
-                .toList());
+    private static void checkCgmConsistency() {
+        /* TODO
+        Verify that each of the subnetwork has a CgmesMetadataModel of part SSH and TP
+        This is necessary in order to correctly build the references (dependentOn and supersedes)
+        to the IGM SSH and TP export files
+        */
     }
 
-    private static void checkIgmConsistency(List<String> profiles, Network network, CgmesExportContext context) {
+    private static void checkIgmConsistency(List<CgmesSubset> requestedSubsets, Network network, CgmesExportContext context) {
         boolean networkIsNodeBreaker = network.getVoltageLevelStream()
                 .map(VoltageLevel::getTopologyKind)
                 .anyMatch(tk -> tk == TopologyKind.NODE_BREAKER);
         if (networkIsNodeBreaker
-                && (profiles.contains("SSH") || profiles.contains("SV"))
-                && !profiles.contains("TP")) {
+                && (requestedSubsets.contains(CgmesSubset.STEADY_STATE_HYPOTHESIS) || requestedSubsets.contains(CgmesSubset.STATE_VARIABLES))
+                && !requestedSubsets.contains(CgmesSubset.TOPOLOGY)) {
             inconsistentProfilesTPRequiredReport(context.getReportNode(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
 
-    private String baseName(Properties params, DataSource ds, Network network) {
-        String baseName = Parameter.readString(getFormat(), params, BASE_NAME_PARAMETER);
-        if (baseName != null) {
-            return baseName;
-        } else if (ds.getBaseName() != null && !ds.getBaseName().isEmpty()) {
-            return ds.getBaseName();
+    private String getBaseName(CgmesExportContext context, DataSource dataSource, Network network) {
+        if (context.getBaseName() != null) {
+            return context.getBaseName();
+        } else if (dataSource.getBaseName() != null && !dataSource.getBaseName().isEmpty()) {
+            return dataSource.getBaseName();
+        } else {
+            return network.getNameOrId();
         }
-        return network.getNameOrId();
     }
 
     @Override

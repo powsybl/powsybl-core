@@ -223,7 +223,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
         if (context.getCimVersion() >= 16) {
             CgmesMetadataModel eqModel = CgmesExport.initializeModelForExport(
-                    network, CgmesSubset.EQUIPMENT, null, null, null, context, false);
+                    network, CgmesSubset.EQUIPMENT, context, true, false);
             CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, eqModel, context);
         }
     }

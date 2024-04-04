@@ -49,7 +49,7 @@ public final class SteadyStateHypothesisExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
-                network, CgmesSubset.STEADY_STATE_HYPOTHESIS, null, null, null, context, false);
+                network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, false);
         write(network, writer, context, model);
     }
 

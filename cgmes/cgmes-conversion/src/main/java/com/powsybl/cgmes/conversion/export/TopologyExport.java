@@ -43,7 +43,7 @@ public final class TopologyExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
-                network, CgmesSubset.TOPOLOGY, null, null, null, context, false);
+                network, CgmesSubset.TOPOLOGY, context, true, false);
         write(network, writer, context, model);
     }
 

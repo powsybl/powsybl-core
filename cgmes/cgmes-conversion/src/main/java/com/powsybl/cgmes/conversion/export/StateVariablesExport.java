@@ -50,7 +50,7 @@ public final class StateVariablesExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
-                network, CgmesSubset.STATE_VARIABLES, null, null, null, context, false);
+                network, CgmesSubset.STATE_VARIABLES, context, true, false);
         write(network, writer, context, model);
     }
 

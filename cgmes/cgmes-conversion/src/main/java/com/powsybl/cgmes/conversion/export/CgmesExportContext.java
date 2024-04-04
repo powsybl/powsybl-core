@@ -52,6 +52,8 @@ public class CgmesExportContext {
     private static final String REGION_NAME = "regionName";
     private static final String DEFAULT_REGION = "default region";
     public static final String SUB_REGION_ID = "subRegionId";
+    private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
+    private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
@@ -59,6 +61,14 @@ public class CgmesExportContext {
     private ReportNode reportNode = ReportNode.NO_OP;
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
+    private String modelingAuthoritySet = null;
+    private String modelDescription = null;
+    private String modelVersion = null;
+    private String boundaryEqId = null;
+    private String boundaryTpId = null;
+    private Boolean modelUpdate = MODEL_UPDATE_VALUE;
+    private List<String> profiles = null;
+    private String baseName = null;
     public static final boolean CGM_EXPORT_VALUE = false;
     public static final boolean MODEL_UPDATE_VALUE = true;
     public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
@@ -132,6 +142,13 @@ public class CgmesExportContext {
         }
         scenarioTime = network.getCaseDate();
         addIidmMappings(network);
+
+        if (network.hasProperty(BOUNDARY_EQ_ID_PROPERTY)) {
+            setBoundaryEqId(network.getProperty(BOUNDARY_EQ_ID_PROPERTY));
+        }
+        if (network.hasProperty(BOUNDARY_TP_ID_PROPERTY)) {
+            setBoundaryTpId(network.getProperty(BOUNDARY_TP_ID_PROPERTY));
+        }
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
@@ -696,6 +713,78 @@ public class CgmesExportContext {
 
     public CgmesExportContext setBusinessProcess(String businessProcess) {
         this.businessProcess = businessProcess;
+        return this;
+    }
+
+    public String getModelingAuthoritySet() {
+        return modelingAuthoritySet;
+    }
+
+    public CgmesExportContext setModelingAuthoritySet(String modelingAuthoritySet) {
+        this.modelingAuthoritySet = modelingAuthoritySet;
+        return this;
+    }
+
+    public String getModelDescription() {
+        return modelDescription;
+    }
+
+    public CgmesExportContext setModelDescription(String modelDescription) {
+        this.modelDescription = modelDescription;
+        return this;
+    }
+
+    public String getModelVersion() {
+        return modelVersion;
+    }
+
+    public CgmesExportContext setModelVersion(String modelVersion) {
+        this.modelVersion = modelVersion;
+        return this;
+    }
+
+    public String getBoundaryEqId() {
+        return boundaryEqId;
+    }
+
+    public CgmesExportContext setBoundaryEqId(String boundaryEqId) {
+        this.boundaryEqId = boundaryEqId;
+        return this;
+    }
+
+    public String getBoundaryTpId() {
+        return boundaryTpId;
+    }
+
+    public CgmesExportContext setBoundaryTpId(String boundaryTpId) {
+        this.boundaryTpId = boundaryTpId;
+        return this;
+    }
+
+    public Boolean getModelUpdate() {
+        return modelUpdate;
+    }
+
+    public CgmesExportContext setModelUpdate(Boolean modelUpdate) {
+        this.modelUpdate = modelUpdate;
+        return this;
+    }
+
+    public List<String> getProfiles() {
+        return profiles;
+    }
+
+    public CgmesExportContext setProfiles(List<String> profiles) {
+        this.profiles = profiles;
+        return this;
+    }
+
+    public String getBaseName() {
+        return baseName;
+    }
+
+    public CgmesExportContext setBaseName(String baseName) {
+        this.baseName = baseName;
         return this;
     }
 }

@@ -57,7 +57,7 @@ public final class EquipmentExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         CgmesMetadataModel model = CgmesExport.initializeModelForExport(
-                network, CgmesSubset.EQUIPMENT, null, null, null, context, false);
+                network, CgmesSubset.EQUIPMENT, context, true, false);
         write(network, writer, context, model);
     }
 
