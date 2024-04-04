@@ -28,7 +28,9 @@ public class SwitchActionSerializer extends StdSerializer<SwitchAction> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("type", action.getType());
         jsonGenerator.writeStringField("id", action.getId());
-        jsonGenerator.writeStringField("switchId", action.getSwitchId());
+        if (action.getSwitchId() != null) {
+            jsonGenerator.writeStringField("switchId", action.getSwitchId());
+        }
         jsonGenerator.writeBooleanField("open", action.isOpen());
         jsonGenerator.writeEndObject();
     }

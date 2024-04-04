@@ -26,7 +26,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return danglingLineData.getBoundaryBusU();
         }
@@ -38,7 +38,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getAngle() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
@@ -49,7 +49,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getP() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             return -parent.getP0();
         }
         Terminal t = parent.getTerminal();
@@ -59,7 +59,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getQ() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             return -parent.getQ0();
         }
         Terminal t = parent.getTerminal();
@@ -87,5 +87,13 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     private static boolean valid(double p0, double q0) {
         return !Double.isNaN(p0) && !Double.isNaN(q0);
+    }
+
+    private static boolean useHypothesis(DanglingLine parent) {
+        // We prefer to use P0 and Q0 if the dangling line is not paired and P0 and Q0 are valid, but we cannot retrieve
+        // P, Q, angle and voltage at boundary if the dangling line has a generation part: a previous global load flow
+        // run is needed, especially if the generation is regulating voltage.
+        // This could be improved later.
+        return !parent.isPaired() && valid(parent.getP0(), parent.getQ0()) && parent.getGeneration() == null;
     }
 }
