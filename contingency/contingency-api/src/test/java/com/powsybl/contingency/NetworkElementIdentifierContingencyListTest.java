@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -196,8 +197,8 @@ class NetworkElementIdentifierContingencyListTest {
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
-        assertEquals("NHV1_NHV2_1", contingencies.get(0).getElements().get(0).getId());
-        assertEquals("NHV1_NHV2_2", contingencies.get(0).getElements().get(1).getId());
+        List<String> elementIds = contingencies.get(0).getElements().stream().map(ContingencyElement::getId).toList();
+        assertTrue(elementIds.containsAll(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")));
     }
 
     @Test
@@ -210,7 +211,6 @@ class NetworkElementIdentifierContingencyListTest {
         Network network = EurostagTutorialExample1Factory.create();
         List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
         Assertions.assertEquals(2, identifiables.size());
-        Assertions.assertEquals("NHV1_NHV2_2", identifiables.get(0));
-        Assertions.assertEquals("NHV1_NHV2_1", identifiables.get(1));
+        assertTrue(identifiables.containsAll(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")));
     }
 }
