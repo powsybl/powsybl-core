@@ -24,7 +24,7 @@ import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.Iden
  */
 public class ElementWithUnknownCharacterIdentifier implements NetworkElementIdentifier {
     private String identifier;
-    public static final String SEPARATOR = "\\?";
+    public static final String SEPARATOR = "?";
     public static final int SEPARATOR_NUMBER_ALLOWED = 5;
     private final String contingencyId;
 
@@ -48,7 +48,7 @@ public class ElementWithUnknownCharacterIdentifier implements NetworkElementIden
         if (separatorNumber > SEPARATOR_NUMBER_ALLOWED) {
             throw new PowsyblException("there can be maximum " + SEPARATOR_NUMBER_ALLOWED + " \'?\'");
         }
-        identifier = identifier.replaceAll("\\.", "\\\\.").replaceAll(SEPARATOR, ".");
+        identifier = identifier.replace(".", "\\.").replace(SEPARATOR, ".");
     }
 
     @Override
