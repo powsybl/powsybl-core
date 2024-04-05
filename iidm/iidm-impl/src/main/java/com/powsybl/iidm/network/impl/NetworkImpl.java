@@ -1014,14 +1014,18 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private void checkMergeability(NetworkImpl otherNetwork) {
         // Check if the intersection of identifiable ids is empty
-        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
-        for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
-            Class<? extends Identifiable> clazz = entry.getKey();
-            Collection<String> objs = entry.getValue();
-            if (!objs.isEmpty()) {
-                throw new PowsyblException("The following object(s) of type "
-                        + clazz.getSimpleName() + " exist(s) in both networks: "
-                        + objs);
+        // FIXME(Luma) What about just log errors instead of throwing an exception ???
+        if (LOGGER.isErrorEnabled()) {
+            Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
+            for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
+                Class<? extends Identifiable> clazz = entry.getKey();
+                Collection<String> objs = entry.getValue();
+                if (!objs.isEmpty()) {
+                    LOGGER.error("The following object(s) of type {} exist(s) in both networks: {}",
+                            clazz.getSimpleName(),
+                            objs);
+                    LOGGER.error("Objects in the other network will be ignored");
+                }
             }
         }
 
