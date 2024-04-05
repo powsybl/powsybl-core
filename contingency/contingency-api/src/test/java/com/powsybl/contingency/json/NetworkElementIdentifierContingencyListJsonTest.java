@@ -14,10 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
-import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -44,6 +41,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                 "vl2", '1', "contingencyId2"));
         networkElementIdentifiers.add(new NetworkElementIdentifierContingencyList(Collections.singletonList(new
                 IdBasedNetworkElementIdentifier("identifier")), "contingencyId3"));
+        networkElementIdentifiers.add(new ElementWithUnknownCharacterIdentifier("identifier", "contingencyId4"));
         return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }
 

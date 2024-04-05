@@ -22,5 +22,9 @@
       "type" : "ID_BASED",
       "identifier" : "identifier"
     } ]
+  }, {
+    "type" : "ELEMENT_WITH_UNKNOWN_CHARACTER",
+    "contingencyId" : "contingencyId4",
+    "identifier" : "identifier"
   } ]
 }
