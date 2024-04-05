@@ -32,7 +32,7 @@ public class Parameter {
 
     private final List<Object> possibleValues;
 
-    private ParameterScope scope;
+    private final ParameterScope scope;
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
                      List<Object> possibleValues, ParameterScope scope) {
@@ -180,7 +180,7 @@ public class Parameter {
             }
         }
         // if none, use configured parameters
-        if (isPresent.test(value)) {
+        if (isPresent.test(value) && value != null) {
             return value;
         }
         return defaultValue;
