@@ -12,10 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
-import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -77,6 +74,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
                     new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
+            case ELEMENT_WITH_UNKNOWN_CHARACTER ->
+                new ElementWithUnknownCharacterIdentifier(identifier, contingencyId);
         };
     }
 }

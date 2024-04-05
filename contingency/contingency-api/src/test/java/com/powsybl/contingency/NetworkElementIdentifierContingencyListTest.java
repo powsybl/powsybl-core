@@ -7,11 +7,14 @@
  */
 package com.powsybl.contingency;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.identifiers.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -182,5 +185,32 @@ class NetworkElementIdentifierContingencyListTest {
         // test not found elements in network
         Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
         assertEquals(0, notFoundElements.size());
+    }
+
+    @Test
+    void testUnknownCharacterIdentifierWithList() {
+        Network network = EurostagTutorialExample1Factory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
+        NetworkElementIdentifier elementIdentifier = new ElementWithUnknownCharacterIdentifier("NHV1_NHV2_?");
+        networkElementIdentifierListElements.add(elementIdentifier);
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+        assertEquals("NHV1_NHV2_1", contingencies.get(0).getElements().get(0).getId());
+        assertEquals("NHV1_NHV2_2", contingencies.get(0).getElements().get(1).getId());
+    }
+
+    @Test
+    void testUnknownCharacterIdentifier() {
+        String message = Assertions.assertThrows(PowsyblException.class, () -> new ElementWithUnknownCharacterIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
+        Assertions.assertEquals("there can be maximum 5 \'?\'", message);
+        String message2 = Assertions.assertThrows(PowsyblException.class, () -> new ElementWithUnknownCharacterIdentifier("NHV1_NHV2_ç")).getMessage();
+        Assertions.assertEquals("Only characters allowed for this identifier are letters, numbers, \'_\', \'?\', \'.\' and \'-\'", message2);
+        NetworkElementIdentifier elementIdentifier = new ElementWithUnknownCharacterIdentifier("NHV1_NHV?_?");
+        Network network = EurostagTutorialExample1Factory.create();
+        List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        Assertions.assertEquals(2, identifiables.size());
+        Assertions.assertEquals("NHV1_NHV2_2", identifiables.get(0));
+        Assertions.assertEquals("NHV1_NHV2_1", identifiables.get(1));
     }
 }
