@@ -47,25 +47,9 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
     double getHighVoltageSetpoint();
 
     /**
-     * @deprecated Use {@link #getHighVoltageSetpoint()} instead.
-     */
-    @Deprecated(since = "4.11.0")
-    default float getHighVoltageSetPoint() {
-        return (float) getHighVoltageSetpoint();
-    }
-
-    /**
      * Set the voltage setpoint (in kV) used when the high voltage threshold is reached.
      */
     StandbyAutomaton setHighVoltageSetpoint(double highVoltageSetpoint);
-
-    /**
-     * @deprecated Use {@link #setHighVoltageSetpoint(double)} instead.
-     */
-    @Deprecated(since = "4.11.0")
-    default StandbyAutomaton setHighVoltageSetPoint(float highVoltageSetpoint) {
-        return setHighVoltageSetpoint(highVoltageSetpoint);
-    }
 
     /**
      * Get the high voltage threshold (in kV). Above this value, the static var compensator controls voltage at high voltage setpoint.
