@@ -16,7 +16,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -146,7 +145,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
         if (subset == null) {
             throw new IllegalArgumentException("subset is null");
         }
-        id2num.put(subset, HashBiMap.<String, Integer>create());
+        id2num.put(subset, HashBiMap.create());
         counter.put(subset, subset.getInitialValue());
     }
 
