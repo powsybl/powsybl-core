@@ -17,8 +17,10 @@ import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import org.junit.jupiter.api.Test;
@@ -575,77 +577,6 @@ class TransformerConversionTest {
         double q2 = Double.NaN;
         double p3 = Double.NaN;
         double q3 = Double.NaN;
-    }
-
-    private static void logAllTwoWindingsTransformer(Network n) {
-        n.getTwoWindingsTransformerStream().forEach(TransformerConversionTest::logTwoWindingsTransformerAttributes);
-    }
-
-    private static void logTwoWindingsTransformerAttributes(TwoWindingsTransformer twt) {
-        LOG.info("TwoWindingsTransformer {} ============", twt.getId());
-        LOG.info("G {}", twt.getG());
-        LOG.info("B {}", twt.getB());
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        logRatioTapChangerAttributes(rtc);
-        PhaseTapChanger ptc = twt.getPhaseTapChanger();
-        logPhaseTapChangerAttributes(ptc);
-    }
-
-    private static void logAllThreeWindingsTransformer(Network n) {
-        n.getThreeWindingsTransformerStream().forEach(TransformerConversionTest::logThreeWindingsTransformerAttributes);
-    }
-
-    private static void logThreeWindingsTransformerAttributes(ThreeWindingsTransformer twt) {
-        LOG.info("ThreeWindingsTransformer {} ============", twt.getId());
-        LOG.info("RatedU0 {}", twt.getRatedU0());
-        LOG.info("Leg1 ------");
-        logLegAttributes(twt.getLeg1());
-        LOG.info("Leg2 ------");
-        logLegAttributes(twt.getLeg2());
-        LOG.info("Leg3 ------");
-        logLegAttributes(twt.getLeg3());
-    }
-
-    private static void logLegAttributes(Leg leg) {
-        LOG.info("G {}", leg.getG());
-        LOG.info("B {}", leg.getB());
-        RatioTapChanger rtc = leg.getRatioTapChanger();
-        logRatioTapChangerAttributes(rtc);
-        PhaseTapChanger ptc = leg.getPhaseTapChanger();
-        logPhaseTapChangerAttributes(ptc);
-    }
-
-    private static void logRatioTapChangerAttributes(RatioTapChanger rtc) {
-        if (rtc == null) {
-            LOG.info("RatioTapChanger: null");
-            return;
-        }
-
-        int tapPosition = rtc.getTapPosition();
-        RatioTapChangerStep step = rtc.getStep(tapPosition);
-        LOG.info("RatioTapChanger: TapPosition {}", tapPosition);
-        LOG.info("RatioTapChanger: Step Ratio {}", 1 / step.getRho());
-        LOG.info("RatioTapChanger: Step R {}", step.getR());
-        LOG.info("RatioTapChanger: Step X {}", step.getX());
-        LOG.info("RatioTapChanger: Step G {}", step.getG());
-        LOG.info("RatioTapChanger: Step B {}", step.getB());
-    }
-
-    private static void logPhaseTapChangerAttributes(PhaseTapChanger ptc) {
-        if (ptc == null) {
-            LOG.info("PhaseTapChanger: null");
-            return;
-        }
-
-        int tapPosition = ptc.getTapPosition();
-        PhaseTapChangerStep step = ptc.getStep(tapPosition);
-        LOG.info("PhaseTapChanger: TapPosition {}", tapPosition);
-        LOG.info("PhaseTapChanger: Step Ratio {}", 1 / step.getRho());
-        LOG.info("PhaseTapChanger: Step Angle {}", -step.getAlpha());
-        LOG.info("PhaseTapChanger: Step R {}", step.getR());
-        LOG.info("PhaseTapChanger: Step X {}", step.getX());
-        LOG.info("PhaseTapChanger: Step G {}", step.getG());
-        LOG.info("PhaseTapChanger: Step B {}", step.getB());
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformerConversionTest.class);
