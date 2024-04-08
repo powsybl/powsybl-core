@@ -38,6 +38,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class TransformerConversionTest {
 
+    private static final String EQUALS_LINE = "======================";
+
     @Test
     void microGridBaseCaseBExfmr2ShuntDefault() {
         Conversion.Config config = new Conversion.Config();
@@ -412,7 +414,7 @@ class TransformerConversionTest {
             LOG.error(String.format("TransformerConversionTest: TwoWindingsTransformer id %s ===", id));
             LOG.error(String.format("Expected P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f", expected.p1, expected.q1, expected.p2, expected.q2));
             LOG.error(String.format("Actual   P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f", actual.p1, actual.q1, actual.p2, actual.q2));
-            LOG.error(String.format("======================", id));
+            LOG.error(EQUALS_LINE);
         }
         return ok;
     }
@@ -432,7 +434,7 @@ class TransformerConversionTest {
                 expected.q1, expected.p2, expected.q2, expected.p3, expected.q3));
             LOG.error(String.format("Actual   P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f P3 %12.6f Q3 %12.6f", actual.p1,
                 actual.q1, actual.p2, actual.q2, actual.p3, actual.q3));
-            LOG.error(String.format("======================", id));
+            LOG.error(EQUALS_LINE);
         }
         return ok;
     }
@@ -508,26 +510,20 @@ class TransformerConversionTest {
 
     private boolean sameFlow(T2xFlow expected, T2xFlow actual) {
         double tol = 0.00001;
-        if (Math.abs(expected.p1 - actual.p1) > tol ||
-            Math.abs(expected.q1 - actual.q1) > tol ||
-            Math.abs(expected.p2 - actual.p2) > tol ||
-            Math.abs(expected.q2 - actual.q2) > tol) {
-            return false;
-        }
-        return true;
+        return !(Math.abs(expected.p1 - actual.p1) > tol) &&
+            !(Math.abs(expected.q1 - actual.q1) > tol) &&
+            !(Math.abs(expected.p2 - actual.p2) > tol) &&
+            !(Math.abs(expected.q2 - actual.q2) > tol);
     }
 
     private boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
-        if (Math.abs(expected.p1 - actual.p1) > tol ||
-            Math.abs(expected.q1 - actual.q1) > tol ||
-            Math.abs(expected.p2 - actual.p2) > tol ||
-            Math.abs(expected.q2 - actual.q2) > tol ||
-            Math.abs(expected.p3 - actual.p3) > tol ||
-            Math.abs(expected.q3 - actual.q3) > tol) {
-            return false;
-        }
-        return true;
+        return !(Math.abs(expected.p1 - actual.p1) > tol) &&
+            !(Math.abs(expected.q1 - actual.q1) > tol) &&
+            !(Math.abs(expected.p2 - actual.p2) > tol) &&
+            !(Math.abs(expected.q2 - actual.q2) > tol) &&
+            !(Math.abs(expected.p3 - actual.p3) > tol) &&
+            !(Math.abs(expected.q3 - actual.q3) > tol);
     }
 
     private LoadFlowParameters defineLoadflowParameters(LoadFlowParameters loadFlowParameters, Conversion.Config config) {
@@ -553,13 +549,11 @@ class TransformerConversionTest {
                 t3wtSplitShuntAdmittance = true;
         }
         boolean twtSplitShuntAdmittance = false;
-        if (!t2wtSplitShuntAdmittance && !t3wtSplitShuntAdmittance) {
-            twtSplitShuntAdmittance = false;
-        } else if (t2wtSplitShuntAdmittance && t3wtSplitShuntAdmittance) {
-            twtSplitShuntAdmittance = true;
-        } else {
+        if (t2wtSplitShuntAdmittance != t3wtSplitShuntAdmittance) {
             throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
                 t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
+        } else if (t2wtSplitShuntAdmittance) {
+            twtSplitShuntAdmittance = true;
         }
 
         copyLoadFlowParameters.setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
