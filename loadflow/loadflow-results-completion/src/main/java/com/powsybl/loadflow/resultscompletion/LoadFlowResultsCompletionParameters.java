@@ -66,9 +66,9 @@ public class LoadFlowResultsCompletionParameters {
     }
 
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("epsilonX", epsilonX,
-                               "applyReactanceCorrection", applyReactanceCorrection,
-                               "z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        return Map.of("epsilonX", epsilonX,
+            "applyReactanceCorrection", applyReactanceCorrection,
+            "z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
     }
 
     @Override
