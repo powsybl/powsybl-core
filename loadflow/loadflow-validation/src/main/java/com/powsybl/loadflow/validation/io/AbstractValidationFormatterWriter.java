@@ -9,10 +9,12 @@ package com.powsybl.loadflow.validation.io;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,10 +74,12 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                                   TableFormatterConfig formatterConfig, Writer writer, ValidationType validationType) {
         try {
-            TableFormatterFactory factory = formatterFactoryClass.newInstance();
+            TableFormatterFactory factory = formatterFactoryClass.getDeclaredConstructor().newInstance();
             return factory.create(writer, id + " " + validationType + " check", formatterConfig, getColumns());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new IllegalArgumentException(e);
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            throw new PowsyblException(e);
         }
     }
 
@@ -92,8 +96,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                       boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException {
         Objects.requireNonNull(branchId);
         FlowData emptyFlowData = new FlowData(branchId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                              Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
+            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, 0, false, false, false, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = flowsData.containsKey(branchId);
@@ -103,7 +107,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 flowsData.remove(branchId);
             } else {
                 flowsData.put(branchId, new FlowData(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2,
-                                                     u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated));
+                    u1, u2, theta1, theta2, z, y, ksi, phaseAngleClock, connected1, connected2, mainComponent1, mainComponent2, validated));
             }
         } else {
             write(branchId, p1, p1Calc, q1, q1Calc, p2, p2Calc, q2, q2Calc, r, x, g1, g2, b1, b2, rho1, rho2, alpha1, alpha2, u1, u2,
@@ -121,7 +125,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                       boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
         GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                                             Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+            Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = generatorsData.containsKey(generatorId);
@@ -131,7 +135,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 generatorsData.remove(generatorId);
             } else {
                 generatorsData.put(generatorId, new GeneratorData(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected,
-                                                                  voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated));
+                    voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated));
             }
         } else {
             write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
@@ -150,8 +154,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                       boolean validated) throws IOException {
         Objects.requireNonNull(busId);
         BusData emptyBusData = new BusData(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                           Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                           Double.NaN, Double.NaN, false, false);
+            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = busesData.containsKey(busId);
@@ -161,7 +165,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 busesData.remove(busId);
             } else {
                 busesData.put(busId, new BusData(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                                 lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated));
+                    lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated));
             }
         } else {
             write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
@@ -211,7 +215,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 shuntsData.remove(shuntId);
             } else {
                 shuntsData.put(shuntId, new ShuntData(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount,
-                                                      bPerSection, v, connected, qMax, nominalV, mainComponent, validated));
+                    bPerSection, v, connected, qMax, nominalV, mainComponent, validated));
             }
         } else {
             write(shuntId, q, expectedQ, p, currentSectionCount, maximumSectionCount, bPerSection, v, connected, qMax, nominalV, mainComponent, validated, emptyShuntData, false, true);
@@ -228,7 +232,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                       boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(twtId);
         TransformerData emptyTwtData = new TransformerData(twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                                           Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
+            Double.NaN, -1, -1, -1, Double.NaN, TwoSides.ONE, Double.NaN, false, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = twtsData.containsKey(twtId);
@@ -238,7 +242,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                 twtsData.remove(twtId);
             } else {
                 twtsData.put(twtId, new TransformerData(twtId, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition,
-                                                        lowTapPosition, highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated));
+                    lowTapPosition, highTapPosition, targetV, regulatedSide, v, connected, mainComponent, validated));
             }
         } else {
             write(twtId, error, upIncrement, downIncrement, rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition,
@@ -387,7 +391,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         formatter.close();
     }
 
-    class FlowData {
+    static class FlowData {
 
         final String branchId;
         final double p1;
@@ -462,7 +466,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     }
 
-    class GeneratorData {
+    static class GeneratorData {
         final String generatorId;
         final double p;
         final double q;
@@ -503,7 +507,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     }
 
-    class BusData {
+    static class BusData {
 
         final String busId;
         final double incomingP;
@@ -564,7 +568,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     }
 
-    class SvcData {
+    static class SvcData {
 
         final String svcId;
         final double p;
@@ -601,7 +605,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     }
 
-    class ShuntData {
+    static class ShuntData {
 
         final String shuntId;
         final double q;
@@ -636,7 +640,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     }
 
-    class TransformerData {
+    static class TransformerData {
         final String twtId;
         final double error;
         final double upIncrement;
@@ -677,7 +681,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
 
     }
 
-    class Transformer3WData {
+    static class Transformer3WData {
         final String twtId;
         final TwtData twtData;
         final boolean validated;
