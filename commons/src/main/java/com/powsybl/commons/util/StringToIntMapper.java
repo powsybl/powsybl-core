@@ -17,6 +17,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
@@ -112,7 +113,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
     }
 
     public void dump(Path file) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             dump(writer);
         }
     }
@@ -136,7 +137,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
     }
 
     public void load(Path file) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(file, Charset.forName("UTF-8"))) {
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             load(reader);
         }
     }
