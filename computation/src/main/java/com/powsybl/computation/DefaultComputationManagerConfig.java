@@ -7,13 +7,16 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.exceptions.UncheckedClassCastExceptionException;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 /**
@@ -44,6 +47,7 @@ public class DefaultComputationManagerConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
+    @SuppressWarnings("unchecked")
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
@@ -58,6 +62,8 @@ public class DefaultComputationManagerConfig {
                         shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
                     } catch (ClassNotFoundException e) {
                         throw new UncheckedClassNotFoundException(e);
+                    } catch (ClassCastException e) {
+                        throw new UncheckedClassCastExceptionException(e);
                     }
                     return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
                 });
@@ -67,39 +73,33 @@ public class DefaultComputationManagerConfig {
         return config;
     }
 
-    public ComputationManager createShortTimeExecutionComputationManager() {
+    private ComputationManager createComputationManager(Class<? extends ComputationManagerFactory> computationManagerFactoryClass) {
         try {
-            return new LazyCreatedComputationManager(shortTimeExecutionComputationManagerFactoryClass.newInstance());
+            return new LazyCreatedComputationManager(computationManagerFactoryClass.getDeclaredConstructor().newInstance());
         } catch (InstantiationException e) {
             throw new UncheckedInstantiationException(e);
         } catch (IllegalAccessException e) {
             throw new UncheckedIllegalAccessException(e);
+        } catch (InvocationTargetException | NoSuchMethodException e) {
+            throw new PowsyblException(e);
         }
     }
 
+    public ComputationManager createShortTimeExecutionComputationManager() {
+        return createComputationManager(shortTimeExecutionComputationManagerFactoryClass);
+    }
+
     public ComputationManager createLongTimeExecutionComputationManager() {
-        if (longTimeExecutionComputationManagerFactoryClass != null) {
-            try {
-                return new LazyCreatedComputationManager(longTimeExecutionComputationManagerFactoryClass.newInstance());
-            } catch (InstantiationException e) {
-                throw new UncheckedInstantiationException(e);
-            } catch (IllegalAccessException e) {
-                throw new UncheckedIllegalAccessException(e);
-            }
-        } else {
-            return createShortTimeExecutionComputationManager();
-        }
+        return longTimeExecutionComputationManagerFactoryClass == null ?
+            createShortTimeExecutionComputationManager() :
+            createComputationManager(longTimeExecutionComputationManagerFactoryClass);
     }
 
     @Override
     public String toString() {
         String str = "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName()
                 + ", longTimeExecutionComputationManagerFactoryClass=";
-        if (longTimeExecutionComputationManagerFactoryClass != null) {
-            str += longTimeExecutionComputationManagerFactoryClass.getName();
-        } else {
-            str += shortTimeExecutionComputationManagerFactoryClass.getName();
-        }
+        str += Objects.requireNonNullElse(longTimeExecutionComputationManagerFactoryClass, shortTimeExecutionComputationManagerFactoryClass).getName();
         str += ")";
         return str;
     }
