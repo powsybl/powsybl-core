@@ -516,24 +516,30 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             } else {
                 // cgmesVoltageLevelId may be null if terminal is contained in a Line
                 // (happens in boundaries)
-                cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
+                cgmesVoltageLevelId = obtainCgmesVoltageLevelId(nodeId, context);
             }
             if (cgmesVoltageLevelId != null) {
                 String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
                 iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
-                // if terminal is contained in a Line Container, a fictitious voltage level is created,
-                CgmesContainer cgmesContainer = context.cgmes().nodeContainer(nodeId).orElseThrow();
-                String voltageLevelId = Conversion.getFictitiousVoltageLevelForContainer(cgmesContainer.id(), nodeId, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
-                voltageLevel = context.network().getVoltageLevel(voltageLevelId);
-                if (voltageLevel != null) {
-                    iidmVoltageLevelId = voltageLevelId;
-                } else {
-                    iidmVoltageLevelId = null;
-                }
+                iidmVoltageLevelId = null;
+                voltageLevel = null;
             }
         }
+    }
+
+    // if nodeId is contained in a Line Container, the fictitious voltage level that it is created must be considered
+    private static String obtainCgmesVoltageLevelId(String nodeId, Context context) {
+        String cgmesVoltageLevelId = null;
+        Optional<CgmesContainer> cgmesContainer = context.cgmes().nodeContainer(nodeId);
+        if (cgmesContainer.isPresent()) {
+            cgmesVoltageLevelId = cgmesContainer.get().voltageLevel();
+            if (cgmesVoltageLevelId == null) {
+                cgmesVoltageLevelId = Conversion.getFictitiousVoltageLevelForContainer(cgmesContainer.get().id(), nodeId, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
+            }
+        }
+        return cgmesVoltageLevelId;
     }
 
     // Connections

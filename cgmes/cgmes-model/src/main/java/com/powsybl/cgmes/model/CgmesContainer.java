@@ -40,7 +40,7 @@ public class CgmesContainer {
         } else if (substation != null) {
             return substation;
         } else {
-            throw new CgmesModelException("Unexpected empty cgmesContainer");
+            return null;
         }
     }
 

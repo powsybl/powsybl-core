@@ -124,13 +124,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     @Override
     public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
         cacheNodes();
-        String containerId = null;
         String nodeId = nodeBreaker && t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
         return nodeId != null ? Optional.of(nodeId) : Optional.empty();
     }
 
     @Override
     public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        cacheNodes();
+
         String containerId = null;
 
         if (nodeId != null) {
