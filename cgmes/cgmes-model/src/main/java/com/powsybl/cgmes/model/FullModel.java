@@ -7,7 +7,6 @@
  */
 package com.powsybl.cgmes.model;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -20,6 +19,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  *
