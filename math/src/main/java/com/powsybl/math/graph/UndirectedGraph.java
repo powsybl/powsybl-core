@@ -122,26 +122,8 @@ public interface UndirectedGraph<V, E> {
      * To get the number of vertices in this graph, use {@link #getVertexCount()}.
      *
      * @return the maximum number of vertices contained in this graph.
-     *
-     * @deprecated Use {@link #getVertexCapacity} instead.
      */
-    @Deprecated(since = "2.5.0")
-    default int getMaxVertex() {
-        return getVertexCapacity();
-    }
-
-    /**
-     * Return the maximum number of vertices that this graph can contain. The vertex indices are in the range [0, getVertexCapacity[
-     *
-     * As the contiguity of the vertices is not mandatory, do not use this method to iterate over the vertices. Use {@link #getVertices()} instead.
-     *
-     * To get the number of vertices in this graph, use {@link #getVertexCount()}.
-     *
-     * @return the maximum number of vertices contained in this graph.
-     */
-    default int getVertexCapacity() {
-        return getMaxVertex();
-    }
+    int getVertexCapacity();
 
     /**
      * Return an {@link Iterable} to iterate over the values attached to the vertices.
