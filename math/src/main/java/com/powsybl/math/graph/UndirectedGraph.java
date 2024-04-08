@@ -116,9 +116,7 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Return the maximum number of vertices that this graph can contain. The vertex indices are in the range [0, getVertexCapacity[
-     *
      * As the contiguity of the vertices is not mandatory, do not use this method to iterate over the vertices. Use {@link #getVertices()} instead.
-     *
      * To get the number of vertices in this graph, use {@link #getVertexCount()}.
      *
      * @return the maximum number of vertices contained in this graph.
@@ -250,7 +248,6 @@ public interface UndirectedGraph<V, E> {
      * Traverse the entire graph, starting at the specified vertex v.
      * This method relies on a {@link Traverser} instance to know if the traverse of the graph should continue or stop.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the encountered table size is less than the maximum vertex index.
-     *
      * At the end of the method, the encountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
      *
      * @param v the vertex index where the traverse has to start.
