@@ -9,7 +9,7 @@ package com.powsybl.commons.compress;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.io.IOUtils;
 
 import javax.annotation.Nullable;
 import java.io.*;
@@ -75,7 +75,7 @@ public class ZipPackager {
     }
 
     /**
-     * @param baseDir the base directory of all files
+     * @param root the base directory of all files
      * @param filenames all files to add in zip bytes
      * @return a reference to this object
      */
@@ -85,8 +85,8 @@ public class ZipPackager {
 
     /**
      * Key as zip entry name. Both key and content must not be null.
-     * @param key
-     * @param content
+     * @param key entry name
+     * @param content entry content
      * @return a reference to this object
      */
     public ZipPackager addString(String key, String content) {
@@ -95,8 +95,8 @@ public class ZipPackager {
 
     /**
      * Key as zip entry name. Both key and content must not be null.
-     * @param key
-     * @param content
+     * @param key entry name
+     * @param content entry content
      * @param charset be used to encode content
      * @return a reference to this object
      */
@@ -109,8 +109,8 @@ public class ZipPackager {
 
     /**
      * Key as zip entry name. Both key and bytes must not be null.
-     * @param key
-     * @param bytes
+     * @param key entry name
+     * @param bytes entry content
      * @return a reference to this object
      */
     public ZipPackager addBytes(String key, byte[] bytes) {
