@@ -119,7 +119,7 @@ public class FullModel {
                 ')';
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
 
         private String id;
 
