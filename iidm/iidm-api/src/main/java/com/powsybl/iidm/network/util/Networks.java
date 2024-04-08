@@ -367,7 +367,9 @@ public final class Networks {
             } else {
                 // If there is no terminal for the current node, we try to find one traversing the topology
                 Terminal equivalentTerminal = Networks.getEquivalentTerminal(voltageLevel, i);
-                addBusFromTerminal(busId, equivalentTerminal, getBusFromTerminal, nodes, i);
+                if (equivalentTerminal != null) {
+                    addBusFromTerminal(busId, equivalentTerminal, getBusFromTerminal, nodes, i);
+                }
             }
         }
         return nodes.stream().mapToInt(Integer::intValue);
