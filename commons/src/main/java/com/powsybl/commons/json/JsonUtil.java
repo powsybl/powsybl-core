@@ -7,7 +7,7 @@
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
@@ -26,9 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
-
-import static com.fasterxml.jackson.core.JsonToken.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -353,7 +352,7 @@ public final class JsonUtil {
             throw new PowsyblException("Error updating extensions, \"extensions\" field expected START_OBJECT, got "
                     + parser.currentToken());
         }
-        while (parser.nextToken() != END_OBJECT) {
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
             Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, extendable);
             if (extension != null) {
                 extensions.add(extension);
@@ -397,11 +396,11 @@ public final class JsonUtil {
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
         List<Extension<T>> extensions = new ArrayList<>();
-        if (parser.currentToken() != START_OBJECT) {
+        if (parser.currentToken() != JsonToken.START_OBJECT) {
             throw new PowsyblException("Error reading extensions, \"extensions\" field expected START_OBJECT, got "
                     + parser.currentToken());
         }
-        while (parser.nextToken() != END_OBJECT) {
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
             Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
             if (extension != null) {
                 extensions.add(extension);
@@ -501,7 +500,7 @@ public final class JsonUtil {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
         try {
-            JsonToken token = parser.currentToken();
+            com.fasterxml.jackson.core.JsonToken token = parser.currentToken();
             if (!polymorphic && token != JsonToken.START_OBJECT) {
                 throw new PowsyblException("Start object token was expected instead got: " + token);
             }
@@ -509,13 +508,13 @@ public final class JsonUtil {
                 token = parser.nextToken();
             }
             while (token != null) {
-                if (token == FIELD_NAME) {
+                if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     boolean found = fieldHandler.onField(fieldName);
                     if (!found) {
                         throw new PowsyblException("Unexpected field " + fieldName);
                     }
-                } else if (token == END_OBJECT) {
+                } else if (token == JsonToken.END_OBJECT) {
                     break;
                 } else {
                     throw new PowsyblException(UNEXPECTED_TOKEN + token);
