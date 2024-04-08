@@ -427,8 +427,8 @@ public class SubstationIdMapping {
     // Only iidm voltage levels that are fictitious
     Set<String> getFictitiousVoltageLevelsToBeCreated() {
         return fictitiousVoltageLevels.keySet().stream()
-                .map(fictitiousVoltageLevel -> voltageLevelIidm(fictitiousVoltageLevel))
-                .filter(iidmVoltageLevelId -> fictitiousVoltageLevels.containsKey(iidmVoltageLevelId))
+                .map(this::voltageLevelIidm)
+                .filter(fictitiousVoltageLevels::containsKey)
                 .collect(Collectors.toSet());
     }
 

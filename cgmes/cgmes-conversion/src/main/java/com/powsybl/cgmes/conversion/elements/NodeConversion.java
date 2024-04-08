@@ -166,7 +166,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (insideBoundary() && context.config().convertBoundary()) {
             return context.network().getVoltageLevel(Context.boundaryVoltageLevelId(this.id));
         } else if (!insideBoundary()) {
-            String containerId = p.getId("ConnectivityNodeContainer");
+            String containerId = p.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             String cgmesId = context.cgmes().container(containerId).voltageLevel();
             if (cgmesId == null) {
                 // A CGMES Voltage Level can not be obtained from the connectivity node container

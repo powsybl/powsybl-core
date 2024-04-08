@@ -137,7 +137,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (nodeId != null) {
             PropertyBag node = cachedNodesById.get(nodeId);
             if (node != null) {
-                containerId = node.getId("ConnectivityNodeContainer");
+                containerId = node.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             } else {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Missing node {}", nodeId);
@@ -154,7 +154,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (nodeId != null) {
             PropertyBag node = cachedNodesById.get(nodeId);
             if (node != null) {
-                containerId = node.getId("ConnectivityNodeContainer");
+                containerId = node.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             } else {
                 if (LOG.isWarnEnabled()) {
                     LOG.warn("Missing node {} from terminal {}", nodeId, t.id());
@@ -240,7 +240,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesContainer> computeContainers() {
         Map<String, CgmesContainer> cs = new HashMap<>();
         connectivityNodeContainers().forEach(c -> {
-            String id = c.getId("ConnectivityNodeContainer");
+            String id = c.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             String voltageLevel = c.getId("VoltageLevel");
             String substation = c.getId(SUBSTATION);
             String type = c.getId("connectivityNodeContainerType");
