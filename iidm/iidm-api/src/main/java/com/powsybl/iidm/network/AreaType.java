@@ -1,6 +1,6 @@
 package com.powsybl.iidm.network;
 
-public interface AreaType<I extends AreaType<I>> extends Identifiable<I> {
+public interface AreaType extends Identifiable<AreaType> {
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.AREA_TYPE;

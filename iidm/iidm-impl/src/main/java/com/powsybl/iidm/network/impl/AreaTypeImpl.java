@@ -5,7 +5,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 
-public class AreaTypeImpl extends AbstractIdentifiable implements AreaType {
+public class AreaTypeImpl extends AbstractIdentifiable<AreaType> implements AreaType {
     private final Ref<NetworkImpl> networkRef;
 
     public AreaTypeImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
