@@ -23,11 +23,11 @@ import java.util.TreeMap;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
+class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
 
-    private final OWNER owner;
+    private final O owner;
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
@@ -95,7 +95,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
 
     }
 
-    ReactiveCapabilityCurveAdderImpl(OWNER owner) {
+    ReactiveCapabilityCurveAdderImpl(O owner) {
         this.owner = owner;
     }
 
