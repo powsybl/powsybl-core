@@ -41,7 +41,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
         id2num = new EnumMap<>(clazz);
         counter = new EnumMap<>(clazz);
         for (S s : clazz.getEnumConstants()) {
-            id2num.put(s, HashBiMap.<String, Integer>create());
+            id2num.put(s, HashBiMap.create());
             counter.put(s, s.getInitialValue());
         }
     }
