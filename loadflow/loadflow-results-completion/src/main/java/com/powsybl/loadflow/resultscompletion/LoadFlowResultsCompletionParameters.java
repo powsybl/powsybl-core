@@ -7,7 +7,6 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Map;
