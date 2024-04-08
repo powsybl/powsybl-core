@@ -12,10 +12,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
@@ -31,7 +28,7 @@ import java.util.Optional;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  *         <p>
  *         A ConductingEquipment has at least one Terminal. From the Terminal we
- *         get either its ConnectivityNode or its TopologicalNode, depending of
+ *         get either its ConnectivityNode or its TopologicalNode, depending on
  *         the conversion context
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
@@ -527,10 +524,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
                 // if terminal is contained in a Line Container, a fictitious voltage level is created,
-                // its ID is composed by its connectivity node ID + '_VL' sufix
-                voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
+                CgmesContainer cgmesContainer = context.cgmes().nodeContainer(nodeId).orElseThrow();
+                String voltageLevelId = Conversion.getFictitiousVoltageLevelForContainer(cgmesContainer.id(), nodeId, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
+                voltageLevel = context.network().getVoltageLevel(voltageLevelId);
                 if (voltageLevel != null) {
-                    iidmVoltageLevelId = nodeId + "_VL";
+                    iidmVoltageLevelId = voltageLevelId;
                 } else {
                     iidmVoltageLevelId = null;
                 }

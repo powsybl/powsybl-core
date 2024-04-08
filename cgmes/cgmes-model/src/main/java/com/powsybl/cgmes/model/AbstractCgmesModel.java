@@ -101,16 +101,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (cachedContainers == null) {
             cachedContainers = computeContainers();
         }
-        if (cachedContainers.get(containerId) == null) { // container ID is substation
-            String fixedContainerId = connectivityNodeContainers().stream()
-                    .filter(p -> p.containsKey(SUBSTATION))
-                    .filter(p -> p.getId(SUBSTATION).equals(containerId))
-                    .findFirst()
-                    .map(p -> p.getId("VoltageLevel"))
-                    .orElseThrow(() -> new CgmesModelException(containerId + " should be a connectivity node container containing at least one voltage level"));
-            LOG.warn("{} is a substation, not a voltage level, a line or a bay but contains nodes. " +
-                    "The first CGMES voltage level found in this substation ({}}) is used instead.", containerId, fixedContainerId);
-            cachedContainers.put(containerId, cachedContainers.get(fixedContainerId));
+        if (cachedContainers.get(containerId) == null) {
+            throw new CgmesModelException("Unexpected CgmesContainer for containerId: " + containerId);
         }
         return cachedContainers.get(containerId);
     }
@@ -127,6 +119,31 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         } else {
             return Double.NaN;
         }
+    }
+
+    @Override
+    public Optional<String> node(CgmesTerminal t, boolean nodeBreaker) {
+        cacheNodes();
+        String containerId = null;
+        String nodeId = nodeBreaker && t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
+        return nodeId != null ? Optional.of(nodeId) : Optional.empty();
+    }
+
+    @Override
+    public Optional<CgmesContainer> nodeContainer(String nodeId) {
+        String containerId = null;
+
+        if (nodeId != null) {
+            PropertyBag node = cachedNodesById.get(nodeId);
+            if (node != null) {
+                containerId = node.getId("ConnectivityNodeContainer");
+            } else {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Missing node {}", nodeId);
+                }
+            }
+        }
+        return containerId == null ? Optional.empty() : Optional.of(container(containerId));
     }
 
     private CgmesContainer container(CgmesTerminal t, boolean nodeBreaker) {
@@ -225,7 +242,10 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             String id = c.getId("ConnectivityNodeContainer");
             String voltageLevel = c.getId("VoltageLevel");
             String substation = c.getId(SUBSTATION);
-            cs.put(id, new CgmesContainer(voltageLevel, substation));
+            String type = c.getId("connectivityNodeContainerType");
+            String line = type != null && type.contains("Line") ? id : null;
+            String name = c.get("name");
+            cs.put(id, new CgmesContainer(voltageLevel, substation, line, name));
         });
         return cs;
     }
