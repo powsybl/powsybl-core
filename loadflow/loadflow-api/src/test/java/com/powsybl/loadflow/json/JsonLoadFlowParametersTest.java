@@ -23,10 +23,14 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOError;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.stream.Stream;
 
 import static com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES;
 import static org.junit.jupiter.api.Assertions.*;
@@ -68,24 +72,19 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
         }
     }
 
-    @Test
-    void readJsonVersion10() {
-        LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion10.json"));
-        assertTrue(parameters.isTwtSplitShuntAdmittance());
+    private static Stream<Arguments> provideArguments() {
+        return Stream.of(
+            Arguments.of("/LoadFlowParametersVersion10.json"),
+            Arguments.of("/LoadFlowParametersVersion11.json"),
+            Arguments.of("/LoadFlowParametersVersion12.json")
+        );
     }
 
-    @Test
-    void readJsonVersion11() {
+    @ParameterizedTest
+    @MethodSource("provideArguments")
+    void readJsonSpecificVersions(String json) {
         LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion11.json"));
-        assertTrue(parameters.isTwtSplitShuntAdmittance());
-    }
-
-    @Test
-    void readJsonVersion12() {
-        LoadFlowParameters parameters = JsonLoadFlowParameters
-                .read(getClass().getResourceAsStream("/LoadFlowParametersVersion12.json"));
+                .read(getClass().getResourceAsStream(json));
         assertTrue(parameters.isTwtSplitShuntAdmittance());
     }
 
