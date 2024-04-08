@@ -67,25 +67,9 @@ public interface StandbyAutomaton extends Extension<StaticVarCompensator> {
     double getLowVoltageSetpoint();
 
     /**
-     * @deprecated Use {@link #getLowVoltageSetpoint()} instead.
-     */
-    @Deprecated(since = "4.11.0")
-    default float getLowVoltageSetPoint() {
-        return (float) getLowVoltageSetpoint();
-    }
-
-    /**
      * Set the voltage setpoint (in kV) used when the low voltage threshold is reached.
      */
     StandbyAutomaton setLowVoltageSetpoint(double lowVoltageSetpoint);
-
-    /**
-     * @deprecated Use {@link #setLowVoltageSetpoint(double)} instead.
-     */
-    @Deprecated(since = "4.11.0")
-    default StandbyAutomaton setLowVoltageSetPoint(float lowVoltageSetpoint) {
-        return setLowVoltageSetpoint(lowVoltageSetpoint);
-    }
 
     /**
      * Get the low voltage threshold (in kV). Under this value, the static var compensator controls voltage at low voltage setpoint.
