@@ -31,7 +31,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
 
     private final TreeMap<Double, ReactiveCapabilityCurve.Point> points = new TreeMap<>();
 
-    private class PointAdderImpl implements PointAdder {
+    private final class PointAdderImpl implements PointAdder {
 
         private double p = Double.NaN;
 
@@ -100,7 +100,7 @@ class ReactiveCapabilityCurveAdderImpl<O extends ReactiveLimitsOwner & Validable
     }
 
     @Override
-    public PointAdderImpl beginPoint() {
+    public PointAdder beginPoint() {
         return new PointAdderImpl();
     }
 
