@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 /**
@@ -69,22 +70,26 @@ public interface ComponentDefaultConfig {
         @Override
         public <T> T newFactoryImpl(Class<T> factoryBaseClass) {
             try {
-                return findFactoryImplClass(factoryBaseClass).newInstance();
+                return findFactoryImplClass(factoryBaseClass).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
                 throw new UncheckedIllegalAccessException(e);
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
+            } catch (InvocationTargetException | NoSuchMethodException e) {
+                throw new PowsyblException(e);
             }
         }
 
         @Override
         public <T, U extends T> T newFactoryImpl(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
             try {
-                return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).newInstance();
+                return findFactoryImplClass(factoryBaseClass, defaultFactoryImplClass).getDeclaredConstructor().newInstance();
             } catch (IllegalAccessException e) {
                 throw new UncheckedIllegalAccessException(e);
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
+            } catch (NoSuchMethodException | InvocationTargetException e) {
+                throw new PowsyblException(e);
             }
         }
     }
