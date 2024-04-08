@@ -64,7 +64,7 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return ImmutableList.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
+        return List.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_1.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_3.xsd"),
