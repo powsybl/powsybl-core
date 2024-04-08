@@ -29,7 +29,7 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  */
 public final class ShuntCompensatorsValidation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorsValidation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShuntCompensatorsValidation.class);
 
     public static final ShuntCompensatorsValidation INSTANCE = new ShuntCompensatorsValidation();
 
