@@ -193,7 +193,7 @@ public class RunLoadFlowTool implements Tool {
                 new Column("Ok"),
                 new Column("Status"),
                 new Column("Metrics"))) {
-            formatter.writeCell(result.getStatus() == LoadFlowResult.Status.FAILED);
+            formatter.writeCell(!result.isFailed());
             formatter.writeCell(result.getStatus().name());
             formatter.writeCell(result.getMetrics().toString());
         } catch (IOException e) {

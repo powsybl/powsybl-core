@@ -182,10 +182,10 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     @Test
     void readJsonVersion11() throws IOException {
         LoadFlowResult result11 = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11.json"));
-        assertNotSame(LoadFlowResult.Status.FAILED, result11.getStatus());
+        assertFalse(result11.isFailed());
 
         LoadFlowResult result12 = createVersion12();
-        assertNotSame(LoadFlowResult.Status.FAILED, result12.getStatus());
+        assertFalse(result12.isFailed());
 
         LoadFlowResult.ComponentResult component11 = result11.getComponentResults().get(0);
         LoadFlowResult.ComponentResult component12 = result12.getComponentResults().get(0);
@@ -225,7 +225,7 @@ class LoadFlowResultJsonTest extends AbstractSerDeTest {
     void version10apiBackwardCompatibility() {
         LoadFlowResult result = createVersion10();
         assertTrue(result.getComponentResults().isEmpty());
-        assertTrue(result.isOk());
+        assertTrue(result.isPartiallyConverged());
         assertEquals("", result.getLogs());
     }
 

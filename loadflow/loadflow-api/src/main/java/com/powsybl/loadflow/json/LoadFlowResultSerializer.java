@@ -40,7 +40,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
     public void serialize(LoadFlowResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
-        jsonGenerator.writeBooleanField("isOK", result.getStatus() != LoadFlowResult.Status.FAILED);
+        jsonGenerator.writeBooleanField("isOK", !result.isFailed());
         serializerProvider.defaultSerializeField("metrics", result.getMetrics(), jsonGenerator);
         List<LoadFlowResult.ComponentResult> componentResults = result.getComponentResults();
         if (!componentResults.isEmpty()) {

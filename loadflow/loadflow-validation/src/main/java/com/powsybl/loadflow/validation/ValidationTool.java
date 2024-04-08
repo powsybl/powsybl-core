@@ -217,7 +217,7 @@ public class ValidationTool implements Tool {
         LoadFlow.find(loadFlowName)
                 .runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), parameters)
                 .thenAccept(loadFlowResult -> {
-                    if (!loadFlowResult.isOk()) {
+                    if (loadFlowResult.isFailed()) {
                         throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
                     }
                 })

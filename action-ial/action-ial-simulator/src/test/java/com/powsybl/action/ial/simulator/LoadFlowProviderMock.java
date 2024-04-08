@@ -15,12 +15,8 @@ import com.powsybl.loadflow.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
-import static com.powsybl.loadflow.LoadFlowResult.ComponentResult.Status.CONVERGED;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -43,11 +39,6 @@ public class LoadFlowProviderMock extends AbstractNoSpecificParametersLoadFlowPr
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
         LOGGER.warn("Running loadflow mock");
-
-        // Add a converged ComponentResult
-        List<LoadFlowResult.ComponentResult> componentResults = new ArrayList<>();
-        componentResults.add(new LoadFlowResultImpl.ComponentResultImpl(1, 2, CONVERGED, 3, "id", 4d, 5d));
-
-        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), "", componentResults));
+        return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
     }
 }
