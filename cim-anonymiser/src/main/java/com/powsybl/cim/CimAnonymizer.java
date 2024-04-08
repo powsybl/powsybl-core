@@ -292,7 +292,9 @@ public class CimAnonymizer {
         StringAnonymizer dictionary = loadDic(dictionaryFile);
 
         // anonymize each file of the archive
-        try (ZipFile zipFileData = new ZipFile(Files.newByteChannel(cimZipFile))) {
+        try (ZipFile zipFileData = ZipFile.builder()
+            .setSeekableByteChannel(Files.newByteChannel(cimZipFile))
+            .get()) {
 
             Set<String> rdfIdValues = skipExternalRef ? getRdfIdValues(zipFileData) : null;
 
