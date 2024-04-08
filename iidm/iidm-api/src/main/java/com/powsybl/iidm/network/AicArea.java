@@ -7,12 +7,18 @@
  */
 package com.powsybl.iidm.network;
 
-public interface Area extends Identifiable<Area> {
+public interface AicArea extends Area {
 
-    AreaType getAreaType();
 
-    @Override
-    default IdentifiableType getType() {
-        return IdentifiableType.AREA;
-    }
+    /**
+     * Get the target AC Net Interchange of this area in MW, using load sign convention
+     * @return the AC Net Interchange target
+     */
+    double getAcNetInterchangeTarget();
+
+    /**
+     * Get the net interchange tolerance in MW
+     * @return the net interchange tolerance
+     */
+    double getAcNetInterchangeTolerance();
 }
