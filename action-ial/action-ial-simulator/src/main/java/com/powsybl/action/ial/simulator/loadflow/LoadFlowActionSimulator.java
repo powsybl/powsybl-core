@@ -305,7 +305,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
-        if (result.isOk()) {
+        if (result.isPartiallyConverged() || result.isFullyConverged()) {
             return checkViolations(actionDb, context);
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
@@ -359,7 +359,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
             LoadFlowResult testResult = runTest(context, networkForTest, action);
             context.addTested(actionId);
-            if (testResult.isOk()) {
+            if (testResult.isPartiallyConverged() || testResult.isFullyConverged()) {
                 List<LimitViolation> violationsInTest =
                         LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(networkForTest, 1), networkForTest);
                 if (violationsInTest.isEmpty()) {
