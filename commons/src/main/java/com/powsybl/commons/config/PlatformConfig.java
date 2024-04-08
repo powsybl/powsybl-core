@@ -120,7 +120,7 @@ public class PlatformConfig {
         return getRepository().getModuleConfig(name);
     }
 
-    private static class EmptyModuleConfigRepository implements ModuleConfigRepository {
+    private static final class EmptyModuleConfigRepository implements ModuleConfigRepository {
         @Override
         public Optional<ModuleConfig> getModuleConfig(String name) {
             return Optional.empty();
