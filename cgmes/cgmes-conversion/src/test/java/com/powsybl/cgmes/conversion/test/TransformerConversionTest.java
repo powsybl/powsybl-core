@@ -201,8 +201,16 @@ class TransformerConversionTest {
         assertTrue(ok);
     }
 
+    /**
+     * Default test for:
+     * <ul>
+     *     <li>microGridBaseCaseBExfmr3Shunt</ul>
+     *     <li>microGridBaseCaseBExfmr3RatioPhase</ul>
+     *     <li>microGridBaseCaseBExfmr3Ratio0</ul>
+     * </ul>
+     */
     @Test
-    void microGridBaseCaseBExfmr3ShuntDefault() throws IOException {
+    void microGridBaseCaseDefault() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
@@ -246,16 +254,6 @@ class TransformerConversionTest {
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseDefault() throws IOException {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
-    }
-
-    @Test
     void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
@@ -270,16 +268,6 @@ class TransformerConversionTest {
     void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() throws IOException {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
-    }
-
-    @Test
-    void microGridBaseCaseBExfmr3Ratio0Default() throws IOException {
-        Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
