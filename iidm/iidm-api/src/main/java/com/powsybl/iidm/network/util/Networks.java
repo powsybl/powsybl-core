@@ -8,7 +8,6 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
@@ -41,7 +40,7 @@ public final class Networks {
     }
 
     public static Map<String, String> getExecutionTags(Network network) {
-        return ImmutableMap.of("variant", network.getVariantManager().getWorkingVariantId());
+        return Map.of("variant", network.getVariantManager().getWorkingVariantId());
     }
 
     public static void dumpVariantId(Path workingDir, String variantId) throws IOException {
@@ -58,8 +57,8 @@ public final class Networks {
     static class ConnectedPower {
         private int busCount = 0;
 
-        private List<String> connectedLoads = new ArrayList<>();
-        private List<String> disconnectedLoads = new ArrayList<>();
+        private final List<String> connectedLoads = new ArrayList<>();
+        private final List<String> disconnectedLoads = new ArrayList<>();
         private double connectedLoadVolume = 0.0;
         private double disconnectedLoadVolume = 0.0;
 
@@ -67,11 +66,11 @@ public final class Networks {
         private double disconnectedMaxGeneration = 0.0;
         private double connectedGeneration = 0.0;
         private double disconnectedGeneration = 0.0;
-        private List<String> connectedGenerators = new ArrayList<>();
-        private List<String> disconnectedGenerators = new ArrayList<>();
+        private final List<String> connectedGenerators = new ArrayList<>();
+        private final List<String> disconnectedGenerators = new ArrayList<>();
 
-        private List<String> connectedShunts = new ArrayList<>();
-        private List<String> disconnectedShunts = new ArrayList<>();
+        private final List<String> connectedShunts = new ArrayList<>();
+        private final List<String> disconnectedShunts = new ArrayList<>();
         private double connectedShuntPositiveVolume = 0.0;
         private double disconnectedShuntPositiveVolume = 0.0;
         private double connectedShuntNegativeVolume = 0.0;
@@ -266,18 +265,18 @@ public final class Networks {
                     .writeCell(Double.toString(balanceOtherCC.connectedGeneration))
                     .writeCell(Double.toString(balanceOtherCC.disconnectedGeneration));
             formatter.writeCell("Shunt at nom V (MVar)")
-                    .writeCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
-                            Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")")
-                    .writeCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
-                            Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")")
-                    .writeCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
-                            Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")")
-                    .writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
-                            Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
+                    .writeCell(balanceMainCC.connectedShuntPositiveVolume + " " +
+                        balanceMainCC.connectedShuntNegativeVolume +
+                            " (" + balanceMainCC.connectedShunts.size() + ")")
+                    .writeCell(balanceMainCC.disconnectedShuntPositiveVolume + " " +
+                        balanceMainCC.disconnectedShuntNegativeVolume +
+                            " (" + balanceMainCC.disconnectedShunts.size() + ")")
+                    .writeCell(balanceOtherCC.connectedShuntPositiveVolume + " " +
+                        balanceOtherCC.connectedShuntNegativeVolume +
+                            " (" + balanceOtherCC.connectedShunts.size() + ")")
+                    .writeCell(balanceOtherCC.disconnectedShuntPositiveVolume + " " +
+                        balanceOtherCC.disconnectedShuntNegativeVolume +
+                            " (" + balanceOtherCC.disconnectedShunts.size() + ")");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -322,7 +321,7 @@ public final class Networks {
      * Return the list of nodes (N/B topology) for each bus of a the Bus view
      * If a node is not associated to a bus, it is not included in any list.
      * @param voltageLevel The voltage level to traverse
-     * @return the list of nodes (N/B topology) for each bus of a Bus view
+     * @return a map with the list of nodes (N/B topology) for each bus of a Bus view
      */
     public static Map<String, Set<Integer>> getNodesByBus(VoltageLevel voltageLevel) {
         checkNodeBreakerVoltageLevel(voltageLevel);
@@ -351,26 +350,24 @@ public final class Networks {
         return nodesByBus;
     }
 
+    private static void addBusFromTerminal(String busId, Terminal terminal, Function<Terminal, Bus> getBusFromTerminal, Set<Integer> nodes, int node) {
+        Bus bus = getBusFromTerminal.apply(terminal);
+        if (bus != null && bus.getId().equals(busId)) {
+            nodes.add(node);
+        }
+    }
+
     public static IntStream getNodes(String busId, VoltageLevel voltageLevel, Function<Terminal, Bus> getBusFromTerminal) {
         checkNodeBreakerVoltageLevel(voltageLevel);
         Set<Integer> nodes = new TreeSet<>();
         for (int i : voltageLevel.getNodeBreakerView().getNodes()) {
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(i);
             if (terminal != null) {
-                Bus bus = getBusFromTerminal.apply(terminal);
-                if (bus != null && bus.getId().equals(busId)) {
-                    nodes.add(i);
-                }
+                addBusFromTerminal(busId, terminal, getBusFromTerminal, nodes, i);
             } else {
                 // If there is no terminal for the current node, we try to find one traversing the topology
                 Terminal equivalentTerminal = Networks.getEquivalentTerminal(voltageLevel, i);
-
-                if (equivalentTerminal != null) {
-                    Bus bus = getBusFromTerminal.apply(equivalentTerminal);
-                    if (bus != null && bus.getId().equals(busId)) {
-                        nodes.add(i);
-                    }
-                }
+                addBusFromTerminal(busId, equivalentTerminal, getBusFromTerminal, nodes, i);
             }
         }
         return nodes.stream().mapToInt(Integer::intValue);
