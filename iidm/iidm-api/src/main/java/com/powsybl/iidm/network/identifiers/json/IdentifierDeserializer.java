@@ -51,8 +51,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "identifierList" -> {
                     parser.nextToken();
-                    networkElementIdentifierList = JsonUtil.readList(deserializationContext,
-                            parser, NetworkElementIdentifier.class);
+                    networkElementIdentifierList = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
@@ -73,9 +72,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             case ID_BASED -> new IdBasedNetworkElementIdentifier(identifier, contingencyId);
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
-                    new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
-            case ELEMENT_WITH_UNKNOWN_CHARACTER ->
-                new ElementWithUnknownCharacterIdentifier(identifier, contingencyId);
+                new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
+            case ELEMENT_WITH_UNKNOWN_CHARACTER -> new ElementWithUnknownCharacterIdentifier(identifier, contingencyId);
         };
     }
 }
