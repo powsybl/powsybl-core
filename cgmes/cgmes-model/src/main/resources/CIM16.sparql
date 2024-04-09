@@ -356,6 +356,10 @@ WHERE {
             cim:Bay.VoltageLevel ?VoltageLevel .
         ?VoltageLevel cim:VoltageLevel.Substation ?Substation
     }
+    OPTIONAL {
+        ?ConnectivityNodeContainer a cim:Substation ;
+        BIND ( ?ConnectivityNodeContainer AS ?Substation )
+    }
 }
 
 # query: voltages
