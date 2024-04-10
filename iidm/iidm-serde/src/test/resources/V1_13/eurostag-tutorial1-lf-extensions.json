@@ -136,6 +136,7 @@
       "ratioTapChanger" : {
         "regulating" : true,
         "lowTapPosition" : 0,
+        "initialTapPosition" : 1,
         "tapPosition" : 1,
         "targetDeadband" : 0.0,
         "loadTapChangingCapabilities" : true,

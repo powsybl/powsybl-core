@@ -453,6 +453,7 @@
       "phaseTapChanger" : {
         "regulating" : false,
         "lowTapPosition" : 0,
+        "initialTapPosition" : 22,
         "tapPosition" : 22,
         "regulationMode" : "CURRENT_LIMITER",
         "regulationValue" : 930.6667,

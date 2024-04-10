@@ -66,7 +66,7 @@
                                      ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2"
                                      voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD"
                                      voltageLevelId2="VLLOAD">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0"
+            <iidm:ratioTapChanger lowTapPosition="0" initialTapPosition="1" tapPosition="1" targetDeadband="0.0"
                                   loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE"
                                   regulationValue="158.0">
                 <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>

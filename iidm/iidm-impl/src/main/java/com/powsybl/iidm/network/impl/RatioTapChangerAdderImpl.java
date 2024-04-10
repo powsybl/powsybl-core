@@ -45,6 +45,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
+    private Integer initialTapPosition;
+
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
@@ -118,6 +120,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
+    public RatioTapChangerAdder setInitialTapPosition(int tapPosition) {
+        this.initialTapPosition = tapPosition;
+        return this;
+    }
+
+    @Override
     public RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         return this;
@@ -171,6 +179,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     public RatioTapChanger add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
+            tapPosition = initialTapPosition;
+        }
+        if (initialTapPosition == null) {
+            initialTapPosition = tapPosition;
+        }
+        if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
@@ -192,7 +206,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband, initialTapPosition);
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());

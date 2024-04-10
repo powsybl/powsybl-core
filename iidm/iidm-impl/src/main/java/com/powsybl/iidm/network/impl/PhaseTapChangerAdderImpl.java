@@ -31,6 +31,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private Integer tapPosition;
 
+    private Integer initialTapPosition;
+
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
@@ -124,6 +126,12 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
+    public PhaseTapChangerAdder setInitialTapPosition(int initialTapPosition) {
+        this.initialTapPosition = initialTapPosition;
+        return this;
+    }
+
+    @Override
     public PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
@@ -162,6 +170,12 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     public PhaseTapChanger add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
+            tapPosition = initialTapPosition;
+        }
+        if (initialTapPosition == null) {
+            initialTapPosition = tapPosition;
+        }
+        if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
@@ -182,7 +196,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating,
                 targetDeadband, network.getMinValidationLevel()));
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband, initialTapPosition);
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());

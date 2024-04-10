@@ -584,6 +584,7 @@
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="initialTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
@@ -604,6 +605,7 @@
             <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="initialTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
