@@ -88,7 +88,7 @@ public class JsonActionTest extends AbstractSerDeTest {
     }
 
     @Test
-    void actionsReadV10() throws IOException {
+    void actionsReadV10() {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             actionList.writeJsonOutputStream(bos);
