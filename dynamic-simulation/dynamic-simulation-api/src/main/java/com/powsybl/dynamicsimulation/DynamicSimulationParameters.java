@@ -7,6 +7,8 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -136,8 +138,10 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     }
 
     protected Map<String, Object> toMap() {
-        return Map.of("startTime", startTime,
-            "stopTime", stopTime);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("startTime", startTime);
+        map.put("stopTime", stopTime);
+        return Collections.unmodifiableMap(map);
     }
 
     public DynamicSimulationParameters copy() {

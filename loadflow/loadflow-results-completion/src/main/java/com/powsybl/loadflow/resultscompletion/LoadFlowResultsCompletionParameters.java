@@ -9,6 +9,8 @@ package com.powsybl.loadflow.resultscompletion;
 
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -65,9 +67,11 @@ public class LoadFlowResultsCompletionParameters {
     }
 
     protected Map<String, Object> toMap() {
-        return Map.of("epsilonX", epsilonX,
-            "applyReactanceCorrection", applyReactanceCorrection,
-            "z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("epsilonX", epsilonX);
+        map.put("applyReactanceCorrection", applyReactanceCorrection);
+        map.put("z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
+        return Collections.unmodifiableMap(map);
     }
 
     @Override
