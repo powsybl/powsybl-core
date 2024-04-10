@@ -93,21 +93,26 @@ public class JsonActionTest extends AbstractSerDeTest {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             actionList.writeJsonOutputStream(bos);
             ComparisonUtils.compareTxt(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        } catch (Exception e) {
+            // Should not happen
+            fail();
         }
     }
 
     @Test
-    void wrongActions() {
-        final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json");
-        assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
+    void wrongActions() throws IOException {
+        try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
+            assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
                 " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream)).getMessage());
+        }
 
-        final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json");
-        assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
+        try (final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json")) {
+            assertTrue(assertThrows(UncheckedIOException.class, () -> ActionList
                 .readJsonInputStream(inputStream3))
                 .getMessage()
                 .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
+        }
     }
 
     @Test
