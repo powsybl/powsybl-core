@@ -25,6 +25,9 @@ import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.ConditionalActions;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -32,6 +35,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.BiConsumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -111,21 +115,18 @@ class ExporterTest extends AbstractSerDeTest {
         assertEquals(3.3, result.getPreContingencyResult().getNetworkResult().getBranchResult("branch1").getI2(), 0.01);
     }
 
-    @Test
-    void testCompatibilityV12Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.2.json"));
-        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
+    private static Stream<Arguments> provideArguments() {
+        return Stream.of(
+            Arguments.of("/SecurityAnalysisResultV1.2.json"),
+            Arguments.of("/SecurityAnalysisResultV1.3.json"),
+            Arguments.of("/SecurityAnalysisResultV1.4.json")
+        );
     }
 
-    @Test
-    void testCompatibilityV13Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.3.json"));
-        assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
-    }
-
-    @Test
-    void testCompatibilityV14Deserialization() {
-        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.4.json"));
+    @ParameterizedTest
+    @MethodSource("provideArguments")
+    void testCompatibilityV12To14Deserialization(String jsonFileName) {
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream(jsonFileName));
         assertEquals(PostContingencyComputationStatus.CONVERGED, result.getPostContingencyResults().get(0).getStatus());
     }
 
