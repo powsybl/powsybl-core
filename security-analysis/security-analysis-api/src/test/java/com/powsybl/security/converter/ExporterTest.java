@@ -143,15 +143,15 @@ class ExporterTest extends AbstractSerDeTest {
 
         roundTripTest(result, ExporterTest::writeJson, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, path, "JSON");
-        };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, path, "JSON");
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
-        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get(""), "JSON"));
+        Path path = Paths.get("");
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, path, "JSON"));
         // Check invalid format
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, tmpDir.resolve("data"), "XXX"));
+        Path pathInvalidFormat = tmpDir.resolve("data");
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, pathInvalidFormat, "XXX"));
     }
 
     @Test
@@ -160,15 +160,15 @@ class ExporterTest extends AbstractSerDeTest {
 
         roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, null, path, "JSON");
-        };
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> SecurityAnalysisResultExporters.export(res, null, path, "JSON");
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         // Check invalid path
-        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get(""), "JSON"));
+        Path emptyPath = Paths.get("");
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, emptyPath, "JSON"));
         // Check invalid format
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, tmpDir.resolve("data"), "XXX"));
+        Path pathInvalidFormat = tmpDir.resolve("data");
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, pathInvalidFormat, "XXX"));
     }
 
     private static void writeJson(SecurityAnalysisResult result, Path path) {
