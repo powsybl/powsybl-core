@@ -19,6 +19,8 @@ import java.io.StringWriter;
 import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -26,23 +28,27 @@ import java.util.Random;
 class GraphvizConnectivityTest extends AbstractSerDeTest {
 
     @Test
-    void test() throws IOException, NoSuchAlgorithmException {
+    void test() {
         Network network = EurostagTutorialExample1Factory.create();
         try (StringWriter writer = new StringWriter()) {
             new GraphvizConnectivity(network, new Random(0)).write(writer);
             writer.flush();
             ComparisonUtils.compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1.dot"), writer.toString());
+        } catch (Exception e) {
+            fail(e);
         }
     }
 
     @Test
-    void testCountryCluster() throws IOException {
+    void testCountryCluster() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         try (StringWriter writer = new StringWriter()) {
             new GraphvizConnectivity(network, new Random(0)).setCountryCluster(true).write(writer);
             writer.flush();
             String dot = writer.toString().replaceAll("\\s+// scope=(.*)", ""); // to remove unstable comments
             ComparisonUtils.compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-country-cluster.dot"), dot);
+        } catch (Exception e) {
+            fail(e);
         }
     }
 }
