@@ -346,7 +346,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             updateCache();
             CalculatedBus bus = busCache.getBus(id);
             if (throwException && bus == null) {
-                throw new PowsyblException("Bus " + id + " not found");
+                throw new PowsyblException(getExceptionMessageElementNotFound("Bus", id));
             }
             return bus;
         }
@@ -616,7 +616,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private static PowsyblException createSwitchNotFoundException(String switchId) {
-        return new PowsyblException("Switch " + switchId + " not found");
+        return new PowsyblException(getExceptionMessageElementNotFound("Switch", switchId));
     }
 
     CalculatedBusBreakerTopology getCalculatedBusBreakerTopology() {
@@ -1058,7 +1058,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
             if (buses.isEmpty()) {
-                throw new PowsyblException("Bus " + mergedBusId + " not found");
+                throw new PowsyblException(getExceptionMessageElementNotFound("Bus", mergedBusId));
             }
             return buses;
         }
@@ -1505,5 +1505,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 edge.style(aSwitch.isOpen() ? "dotted" : "solid");
             }
         }
+    }
+
+    private static String getExceptionMessageElementNotFound(String element, String id) {
+        return element + " " + id + " not found";
     }
 }
