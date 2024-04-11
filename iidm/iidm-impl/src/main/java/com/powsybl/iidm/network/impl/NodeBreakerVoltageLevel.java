@@ -1346,7 +1346,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             addNextTerminals(terminal, nextTerminals);
 
             int node = terminal.getNode();
-            boolean traverseTerminated = traverseOtherBuses(node, nextTerminals, traverser, visitedTerminals, traversalType);
+            boolean traverseTerminated = traverseOtherNodes(node, nextTerminals, traverser, visitedTerminals, traversalType);
             if (traverseTerminated) {
                 return false;
             }
@@ -1361,7 +1361,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return true;
     }
 
-    private boolean traverseOtherBuses(int node, List<TerminalExt> nextTerminals,
+    private boolean traverseOtherNodes(int node, List<TerminalExt> nextTerminals,
                                        Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
         return !graph.traverse(node, traversalType, (v1, e, v2) -> {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
