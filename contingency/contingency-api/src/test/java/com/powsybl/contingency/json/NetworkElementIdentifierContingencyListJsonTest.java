@@ -28,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
@@ -63,6 +65,8 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
             ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            fail();
         }
     }
 
@@ -76,6 +80,8 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
             ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } catch (Exception e) {
+            fail();
         }
     }
 
