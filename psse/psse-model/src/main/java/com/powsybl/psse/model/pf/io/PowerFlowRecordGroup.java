@@ -44,8 +44,14 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     SWITCHED_SHUNT("swshunt", "SWITCHED SHUNT"),
     GNE_DEVICE("gne", "GNE DEVICE"),
     INDUCTION_MACHINE("indmach", "INDUCTION MACHINE"),
-    SUBSTATION("sub");
-
+    SUBSTATION("sub", "SUBSTATION"),
+    INTERNAL_SUBSTATION_NODE("subnode"),
+    INTERNAL_SUBSTATION_SWITCHING_DEVICE("subswd"),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL("subterm"),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START("subterm"),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS("subterm"),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES("subterm"),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES("subterm");
     private final String rawxNodeName;
     private final String rawName;
 
