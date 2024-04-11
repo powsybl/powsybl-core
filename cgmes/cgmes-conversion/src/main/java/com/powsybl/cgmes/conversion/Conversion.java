@@ -530,9 +530,9 @@ public class Conversion {
                                                               Supplier<String> terminalId2,
                                                               Map<String, VoltageLevel> nominalVoltageByLineContainerId,
                                                               Context context) {
-        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId("VoltageLevel",
+        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId(VOLTAGE_LEVEL,
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
-                .orElseGet(() -> context.namingStrategy().getIidmId("VoltageLevel",
+                .orElseGet(() -> context.namingStrategy().getIidmId(VOLTAGE_LEVEL,
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
         if (vlId != null) {
             VoltageLevel vl = context.network().getVoltageLevel(vlId);
@@ -606,7 +606,7 @@ public class Conversion {
         vldata.lineName = lineSegment.get("lineName");
         CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
         vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-        String vlId = context.namingStrategy().getIidmId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        String vlId = context.namingStrategy().getIidmId(VOLTAGE_LEVEL, context.cgmes().voltageLevel(t, context.nodeBreaker()));
         vldata.vl = context.network().getVoltageLevel(
                 Objects.requireNonNullElseGet(vlId, () -> getFictitiousVoltageLevelForNodeInContainer(vldata.lineId, vldata.nodeId)));
         return vldata;
@@ -1073,6 +1073,8 @@ public class Conversion {
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
+
+    private static final String VOLTAGE_LEVEL = "VoltageLevel";
 
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
