@@ -156,35 +156,8 @@ public class LocalComputationManager implements ComputationManager {
             Command command = commandExecution.getCommand();
             CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
             IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx ->
-                    executionSubmitter.execute(() -> {
-                        try {
-                            enter();
-                            if (LOGGER.isDebugEnabled()) {
-                                LOGGER.debug("Executing command {} in working directory {}",
-                                        command.toString(idx), workingDir);
-                            }
-                            preProcess(workingDir, command, idx);
-                            Stopwatch stopwatch = null;
-                            if (LOGGER.isDebugEnabled()) {
-                                stopwatch = Stopwatch.createStarted();
-                            }
-                            int exitValue = process(workingDir, commandExecution, idx, variables, computationParameters);
-                            if (stopwatch != null) {
-                                stopwatch.stop();
-                                LOGGER.debug("Command {} executed in {} ms",
-                                        command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-                            }
-                            postProcess(workingDir, commandExecution, idx, exitValue, errors, monitor);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                            LOGGER.warn(e.getMessage(), e);
-                        } catch (Exception e) {
-                            LOGGER.warn(e.getMessage(), e);
-                        } finally {
-                            latch.countDown();
-                            exit();
-                        }
-                    })
+                executeIteration(new IterationParameters(workingDir, commandExecution, variables, computationParameters, executionSubmitter,
+                    command, latch, errors, monitor), idx)
             );
             latch.await();
         }
@@ -199,6 +172,46 @@ public class LocalComputationManager implements ComputationManager {
         }
 
         return new DefaultExecutionReport(workingDir, errors);
+    }
+
+    private record IterationParameters(Path workingDir, CommandExecution commandExecution,
+                                       Map<String, String> variables, ComputationParameters computationParameters,
+                                       ExecutorService executionSubmitter, Command command, CountDownLatch latch,
+                                       List<ExecutionError> errors, ExecutionMonitor monitor) {
+    }
+
+    private void executeIteration(IterationParameters iterationParameters, int idx) {
+        iterationParameters.executionSubmitter.execute(() -> {
+            try {
+                enter();
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Executing command {} in working directory {}",
+                        iterationParameters.command.toString(idx), iterationParameters.workingDir);
+                }
+                preProcess(iterationParameters.workingDir, iterationParameters.command, idx);
+                Stopwatch stopwatch = null;
+                if (LOGGER.isDebugEnabled()) {
+                    stopwatch = Stopwatch.createStarted();
+                }
+                int exitValue = process(iterationParameters.workingDir, iterationParameters.commandExecution, idx,
+                    iterationParameters.variables, iterationParameters.computationParameters);
+                if (stopwatch != null) {
+                    stopwatch.stop();
+                    LOGGER.debug("Command {} executed in {} ms",
+                        iterationParameters.command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                }
+                postProcess(iterationParameters.workingDir, iterationParameters.commandExecution, idx, exitValue,
+                    iterationParameters.errors, iterationParameters.monitor);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                LOGGER.warn(e.getMessage(), e);
+            } catch (Exception e) {
+                LOGGER.warn(e.getMessage(), e);
+            } finally {
+                iterationParameters.latch.countDown();
+                exit();
+            }
+        });
     }
 
     private void preProcess(Path workingDir, Command command, int executionIndex) throws IOException {
