@@ -27,9 +27,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class PropertiesPlatformConfigTest extends MapModuleConfigTest {
+class PropertiesPlatformConfigTestAbstract extends AbstractMapModuleConfigTest {
 
-    PropertiesPlatformConfigTest() {
+    PropertiesPlatformConfigTestAbstract() {
     }
 
     @Test

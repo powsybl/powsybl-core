@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-abstract class MapModuleConfigTest {
+abstract class AbstractMapModuleConfigTest {
 
     protected FileSystem fileSystem;
 
