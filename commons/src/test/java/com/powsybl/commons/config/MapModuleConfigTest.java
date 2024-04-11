@@ -11,7 +11,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -33,7 +32,7 @@ abstract class MapModuleConfigTest {
     protected FileSystem fileSystem;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
