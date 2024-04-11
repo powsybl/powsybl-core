@@ -310,31 +310,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
         busBrussels21.setV(21.987000);
         busBrussels21.setAngle(-6.650800);
-        {
-            double p = -118;
-            double targetQ = 18.720301;
-            double q = -92.612077;
-
-            Generator genBrussels21 = vlBrussels21.newGenerator()
-                    .setId("550ebe0d-f2b2-48c1-991f-cebea43a21aa")
-                    .setName("BE-G2")
-                    .setConnectableBus(busBrussels21.getId())
-                    .setBus(busBrussels21.getId())
-                    .setMinP(50)
-                    .setMaxP(200)
-                    .setTargetP(-p)
-                    .setTargetQ(targetQ)
-                    .setTargetV(21.987)
-                    .setVoltageRegulatorOn(true)
-                    .setRatedS(300)
-                    .add();
-            genBrussels21.newMinMaxReactiveLimits()
-                    .setMinQ(-200)
-                    .setMaxQ(200)
-                    .add();
-            genBrussels21.getTerminal().setP(p);
-            genBrussels21.getTerminal().setQ(q);
-        }
+        addGenBrussels21(vlBrussels21, busBrussels21);
         Bus busBrussels10 = vlBrussels10.getBusBreakerView().newBus()
                 .setId("a81d08ed-f51d-4538-8d1e-fb2d0dbd128e")
                 .setName("BE-Busbar_4")
@@ -434,394 +410,447 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        {
-            double u1 = 110.34375;
-            double u2 = 10.5;
-            double rho = u2 / u1;
-            double rho2 = rho * rho;
-            double r1 = 0.104711;
-            double x1 = 5.843419;
-            double g1 = 1.73295e-5;
-            double b1 = -8.30339e-5;
-            double r2 = 0.0;
-            double x2 = 0.0;
-            double g2 = 0.0;
-            double b2 = 0.0;
-            double r = r1 * rho2 + r2;
-            double x = x1 * rho2 + x2;
-            double g = g1 / rho2 + g2;
-            double b = b1 / rho2 + b2;
-            TwoWindingsTransformer tx = sBrussels.newTwoWindingsTransformer()
-                    .setId("e482b89a-fa84-4ea9-8e70-a83d44790957")
-                    .setName("BE-TR2_3")
-                    .setR(r)
-                    .setX(x)
-                    .setG(g)
-                    .setB(b)
-                    .setConnectableBus1(busBrussels110.getId())
-                    .setBus1(busBrussels110.getId())
-                    .setConnectableBus2(busBrussels10.getId())
-                    .setBus2(busBrussels10.getId())
-                    .setVoltageLevel1(vlBrussels110.getId())
-                    .setVoltageLevel2(vlBrussels10.getId())
-                    .setRatedU1(u1)
-                    .setRatedU2(u2)
-                    .add();
-            tx.newCurrentLimits1().setPermanentLimit(1308.1)
-                    .beginTemporaryLimit()
-                        .setName(CL_0)
-                        .setValue(1408.1)
-                        .setAcceptableDuration(20)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setName(CL_1)
-                        .setValue(1508.1)
-                        .setAcceptableDuration(10)
-                    .endTemporaryLimit()
-                    .add();
-            tx.newCurrentLimits2().setPermanentLimit(13746.4)
-                    .beginTemporaryLimit()
-                        .setName(CL_0)
-                        .setValue(14746.4)
-                        .setAcceptableDuration(20)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setName(CL_1)
-                        .setValue(15746.4)
-                        .setAcceptableDuration(10)
-                    .endTemporaryLimit()
-                    .add();
-            int low = 1;
-            int high = 33;
-            int neutral = 17;
-            double voltageInc = 0.8;
-            TwoSides side = TwoSides.TWO;
-            RatioTapChangerAdder rtca = tx.newRatioTapChanger()
-                    .setLowTapPosition(low)
-                    .setTapPosition(14)
-                    .setTargetDeadband(0.5);
-            for (int k = low; k <= high; k++) {
-                int n = k - neutral;
-                double du = voltageInc / 100;
-                double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
-                double dz = 0;
-                double dy = 0;
-                if (side.equals(TwoSides.TWO)) {
-                    double rhok2 = rhok * rhok;
-                    dz = (rhok2 - 1) * 100;
-                    dy = (1 / rhok2 - 1) * 100;
-                }
-                rtca.beginStep()
-                        .setRho(rhok)
-                        .setR(dz)
-                        .setX(dz)
-                        .setG(dy)
-                        .setB(dy)
-                        .endStep();
-            }
-            rtca.setLoadTapChangingCapabilities(true)
-                    .setRegulating(true)
-                    .setTargetV(10.815)
-                    // TODO Set the right regulation terminal
-                    .setRegulationTerminal(tx.getTerminal(side));
-            rtca.add();
-        }
-        {
-            double u1 = 220.0;
-            double u2 = 110.0;
-            double rho = u2 / u1;
-            double rho2 = rho * rho;
-            double r1 = 0.8228;
-            double x1 = 11.138883;
-            double g1 = 0.0;
-            double b1 = 0.0;
-            double r2 = 0.0;
-            double x2 = 0.0;
-            double g2 = 0.0;
-            double b2 = 0.0;
-            double r = r1 * rho2 + r2;
-            double x = x1 * rho2 + x2;
-            double g = g1 / rho2 + g2;
-            double b = b1 / rho2 + b2;
-            TwoWindingsTransformer txBE22 = sBrussels.newTwoWindingsTransformer()
-                    .setId(TWT_ID_1)
-                    .setName("BE-TR2_2")
-                    .setR(r)
-                    .setX(x)
-                    .setG(g)
-                    .setB(b)
-                    .setConnectableBus1(busBrussels225.getId())
-                    .setBus1(busBrussels225.getId())
-                    .setConnectableBus2(busBrussels110.getId())
-                    .setBus2(busBrussels110.getId())
-                    .setVoltageLevel1(vlBrussels225.getId())
-                    .setVoltageLevel2(vlBrussels110.getId())
-                    .setRatedU1(u1)
-                    .setRatedU2(u2)
-                    .add();
-            txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
-                    .beginTemporaryLimit()
-                        .setName(CL_0)
-                        .setValue(3611.6)
-                        .setAcceptableDuration(20)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setName(CL_1)
-                        .setValue(3811.6)
-                        .setAcceptableDuration(10)
-                    .endTemporaryLimit()
-                    .add();
-            int low = 1;
-            int high = 25;
-            int neutral = 13;
-            double voltageInc = 1.25;
-            TwoSides side = TwoSides.ONE;
-            RatioTapChangerAdder rtca = txBE22.newRatioTapChanger()
-                    .setLowTapPosition(low)
-                    .setTapPosition(10);
-            for (int k = low; k <= high; k++) {
-                int n = k - neutral;
-                double du = voltageInc / 100;
-                double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
-                rtca.beginStep()
-                        .setRho(rhok)
-                        .setR(0)
-                        .setX(0)
-                        .setG(0)
-                        .setB(0)
-                        .endStep();
-            }
-            rtca.setLoadTapChangingCapabilities(true)
-                    .setRegulating(false)
-                    .setTargetV(0.0)
-                    .setTargetDeadband(0.5)
-                    .setRegulationTerminal(txBE22.getTerminal2());
-            rtca.add();
-        }
-        TwoWindingsTransformer txBE21;
-        {
-            double u1 = 400.0;
-            double u2 = 110.0;
-            double rho0 = u2 / u1;
-            double rho02 = rho0 * rho0;
-            double r1 = 2.707692;
-            double x1 = 14.518904;
-            double g1 = 0.0;
-            double b1 = 0.0;
-            double r2 = 0.0;
-            double x2 = 0.0;
-            double g2 = 0.0;
-            double b2 = 0.0;
-            double r = r1 * rho02 + r2;
-            double x = x1 * rho02 + x2;
-            double g = g1 / rho02 + g2;
-            double b = b1 / rho02 + b2;
-            txBE21 = sBrussels.newTwoWindingsTransformer()
-                    .setId(TWT_ID_2)
-                    .setName("BE-TR2_1")
-                    .setR(r)
-                    .setX(x)
-                    .setG(g)
-                    .setB(b)
-                    .setConnectableBus1(busBrussels380.getId())
-                    .setBus1(busBrussels380.getId())
-                    .setConnectableBus2(busBrussels110.getId())
-                    .setBus2(busBrussels110.getId())
-                    .setVoltageLevel1(vlBrussels380.getId())
-                    .setVoltageLevel2(vlBrussels110.getId())
-                    .setRatedU1(u1)
-                    .setRatedU2(u2)
-                    .add();
-            txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
-                    .beginTemporaryLimit()
-                        .setName(CL_0)
-                        .setValue(3611.6)
-                        .setAcceptableDuration(20)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setName(CL_1)
-                        .setValue(3811.6)
-                        .setAcceptableDuration(10)
-                    .endTemporaryLimit()
-                    .add();
-            int low = 1;
-            int high = 25;
-            int neutral = 13;
-            int position = 10;
-            double xmin = 14.518904;
-            double xmax = 14.518904;
-            double voltageInc = 1.25;
-            double windingConnectionAngle = 90;
-            addPhaseTapChanger(txBE21,
-                    PhaseTapChangerType.ASYMMETRICAL,
-                    low, high, neutral, position,
-                    xmin, xmax,
-                    voltageInc, windingConnectionAngle,
-                    PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL,
-                    true, -65.0, 35.0);
-        }
-        {
-            double p = -90;
-            double targetQ = 100.256;
-            double q = 51.115627;
-            Generator genBrussels10 = vlBrussels10.newGenerator()
-                    .setId("3a3b27be-b18b-4385-b557-6735d733baf0")
-                    .setName("BE-G1")
-                    .setConnectableBus(busBrussels10.getId())
-                    .setBus(busBrussels10.getId())
-                    .setMinP(50)
-                    .setMaxP(200)
-                    .setTargetP(-p)
-                    .setTargetQ(targetQ)
-                    .setTargetV(115.5)
-                    .setVoltageRegulatorOn(true)
-                    // This generator regulates one end point of a power transformer
-                    // (110 kV side of BE-TR2_1)
-                    .setRegulatingTerminal(txBE21.getTerminal(TwoSides.TWO))
-                    .setRatedS(300)
-                    .add();
-            ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();
-            rcca.beginPoint()
-                    .setP(-100.0)
-                    .setMinQ(-200.0)
-                    .setMaxQ(200.0)
-                    .endPoint();
-            rcca.beginPoint()
-                    .setP(0.0)
-                    .setMinQ(-300.0)
-                    .setMaxQ(300.0)
-                    .endPoint();
-            rcca.beginPoint()
-                    .setP(100.0)
-                    .setMinQ(-200.0)
-                    .setMaxQ(200.0)
-                    .endPoint();
-            rcca.add();
-            genBrussels10.getTerminal().setP(p);
-            genBrussels10.getTerminal().setQ(q);
-        }
-
-        ThreeWindingsTransformer txBETR3;
-        {
-            double ratedU1 = 400.0;
-            double ratedU2 = 220.0;
-            double ratedU3 = 21.0;
-            double ratedU0 = ratedU1;
-            double r1 = 0.898462;
-            double x1 = 17.204128;
-            double g1 = 0.0;
-            double b1 = 0.0000024375;
-            double r2 = 0.323908;
-            double x2 = 5.949086;
-            double g2 = 0.0;
-            double b2 = 0.0;
-            double r3 = 0.013332;
-            double x3 = 0.059978;
-            double g3 = 0.0;
-            double b3 = 0.0;
-            txBETR3 = sBrussels.newThreeWindingsTransformer()
-                .setId("84ed55f4-61f5-4d9d-8755-bba7b877a246")
-                .setName("BE-TR3_1")
-                .newLeg1()
-                    .setRatedU(ratedU1)
-                    .setR(r1)
-                    .setX(x1)
-                    .setG(g1)
-                    .setB(b1)
-                    .setConnectableBus(busBrussels380.getId())
-                    .setBus(busBrussels380.getId())
-                    .setVoltageLevel(vlBrussels380.getId())
-                .add()
-                .newLeg2()
-                    .setRatedU(ratedU2)
-                    .setR(r2 * (ratedU0 / ratedU2) * (ratedU0 / ratedU2))
-                    .setX(x2 * (ratedU0 / ratedU2) * (ratedU0 / ratedU2))
-                    .setG(g2)
-                    .setB(b2)
-                    .setConnectableBus(busBrussels225.getId())
-                    .setBus(busBrussels225.getId())
-                    .setVoltageLevel(vlBrussels225.getId())
-                .add()
-                .newLeg3()
-                    .setRatedU(ratedU3)
-                    .setR(r3 * (ratedU0 / ratedU3) * (ratedU0 / ratedU3))
-                    .setX(x3 * (ratedU0 / ratedU3) * (ratedU0 / ratedU3))
-                    .setG(g3)
-                    .setB(b3)
-                    .setConnectableBus(busBrussels21.getId())
-                    .setBus(busBrussels21.getId())
-                    .setVoltageLevel(vlBrussels21.getId())
-                .add()
-            .add();
-            txBETR3.getLeg1().newCurrentLimits()
-                    .setPermanentLimit(938.2)
-                    .beginTemporaryLimit()
-                        .setAcceptableDuration(20)
-                        .setName(CL_0)
-                        .setValue(968.2)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setAcceptableDuration(10)
-                        .setName(CL_1)
-                        .setValue(998.2)
-                    .endTemporaryLimit()
-                    .add();
-            txBETR3.getLeg2().newCurrentLimits()
-                    .setPermanentLimit(1705.8)
-                    .beginTemporaryLimit()
-                        .setAcceptableDuration(20)
-                        .setName(CL_0)
-                        .setValue(1805.8)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setAcceptableDuration(10)
-                        .setName(CL_1)
-                        .setValue(1905.8)
-                    .endTemporaryLimit()
-                    .add();
-            txBETR3.getLeg3().newCurrentLimits()
-                    .setPermanentLimit(17870.4)
-                    .beginTemporaryLimit()
-                        .setAcceptableDuration(20)
-                        .setName(CL_0)
-                        .setValue(18870.4)
-                    .endTemporaryLimit()
-                    .beginTemporaryLimit()
-                        .setAcceptableDuration(10)
-                        .setName(CL_1)
-                        .setValue(19870.4)
-                    .endTemporaryLimit()
-                    .add();
-
-            int low = 1;
-            int high = 33;
-            int neutral = 17;
-            int position = 17;
-            double voltageInc = 0.625;
-            RatioTapChangerAdder rtca = txBETR3.getLeg2().newRatioTapChanger()
-                .setLowTapPosition(low)
-                .setTapPosition(position);
-            for (int k = low; k <= high; k++) {
-                int n = k - neutral;
-                double du = voltageInc / 100;
-                double rhok = 1 / (1 + n * du);
-                double dz = 0;
-                double dy = 0;
-                rtca.beginStep()
-                    .setRho(rhok)
-                    .setR(dz)
-                    .setX(dz)
-                    .setG(dy)
-                    .setB(dy)
-                    .endStep();
-            }
-            rtca.setLoadTapChangingCapabilities(true)
-                .setRegulating(false)
-                .setTargetV(0.0)
-                .setTargetDeadband(0.5);
-            rtca.add();
-        }
+        addTransformerBrussels110Brussels10(sBrussels, busBrussels110, busBrussels10, vlBrussels110, vlBrussels10);
+        addTransformerBrussels225Brussels110(sBrussels, busBrussels225, busBrussels110, vlBrussels225, vlBrussels110);
+        TwoWindingsTransformer txBE21 = addTransformerBrussels380Brussels110(sBrussels, busBrussels380, busBrussels110, vlBrussels380, vlBrussels110);
+        addGeneratorBrussels10(vlBrussels10, busBrussels10, txBE21);
+        ThreeWindingsTransformer txBETR3 = addTWTBrussels380Brussels225Brussels21(sBrussels,
+            busBrussels380, busBrussels225, busBrussels21,
+            vlBrussels380, vlBrussels225, vlBrussels21);
         return network;
+    }
+
+    private static void addGenBrussels21(VoltageLevel vlBrussels21, Bus busBrussels21) {
+        double p = -118;
+        double targetQ = 18.720301;
+        double q = -92.612077;
+
+        Generator genBrussels21 = vlBrussels21.newGenerator()
+            .setId("550ebe0d-f2b2-48c1-991f-cebea43a21aa")
+            .setName("BE-G2")
+            .setConnectableBus(busBrussels21.getId())
+            .setBus(busBrussels21.getId())
+            .setMinP(50)
+            .setMaxP(200)
+            .setTargetP(-p)
+            .setTargetQ(targetQ)
+            .setTargetV(21.987)
+            .setVoltageRegulatorOn(true)
+            .setRatedS(300)
+            .add();
+        genBrussels21.newMinMaxReactiveLimits()
+            .setMinQ(-200)
+            .setMaxQ(200)
+            .add();
+        genBrussels21.getTerminal().setP(p);
+        genBrussels21.getTerminal().setQ(q);
+    }
+
+    private static Generator addGeneratorBrussels10(VoltageLevel vlBrussels10, Bus busBrussels10, TwoWindingsTransformer txBE21) {
+        double p = -90;
+        double targetQ = 100.256;
+        double q = 51.115627;
+        Generator genBrussels10 = vlBrussels10.newGenerator()
+            .setId("3a3b27be-b18b-4385-b557-6735d733baf0")
+            .setName("BE-G1")
+            .setConnectableBus(busBrussels10.getId())
+            .setBus(busBrussels10.getId())
+            .setMinP(50)
+            .setMaxP(200)
+            .setTargetP(-p)
+            .setTargetQ(targetQ)
+            .setTargetV(115.5)
+            .setVoltageRegulatorOn(true)
+            // This generator regulates one end point of a power transformer
+            // (110 kV side of BE-TR2_1)
+            .setRegulatingTerminal(txBE21.getTerminal(TwoSides.TWO))
+            .setRatedS(300)
+            .add();
+        ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();
+        rcca.beginPoint()
+            .setP(-100.0)
+            .setMinQ(-200.0)
+            .setMaxQ(200.0)
+            .endPoint();
+        rcca.beginPoint()
+            .setP(0.0)
+            .setMinQ(-300.0)
+            .setMaxQ(300.0)
+            .endPoint();
+        rcca.beginPoint()
+            .setP(100.0)
+            .setMinQ(-200.0)
+            .setMaxQ(200.0)
+            .endPoint();
+        rcca.add();
+        genBrussels10.getTerminal().setP(p);
+        genBrussels10.getTerminal().setQ(q);
+
+        return genBrussels10;
+    }
+
+    private static TwoWindingsTransformer addTransformerBrussels110Brussels10(Substation sBrussels,
+                                                            Bus busBrussels110, Bus busBrussels10,
+                                                            VoltageLevel vlBrussels110, VoltageLevel vlBrussels10) {
+        double u1 = 110.34375;
+        double u2 = 10.5;
+        double rho = u2 / u1;
+        double rho2 = rho * rho;
+        double r1 = 0.104711;
+        double x1 = 5.843419;
+        double g1 = 1.73295e-5;
+        double b1 = -8.30339e-5;
+        double r2 = 0.0;
+        double x2 = 0.0;
+        double g2 = 0.0;
+        double b2 = 0.0;
+        double r = r1 * rho2 + r2;
+        double x = x1 * rho2 + x2;
+        double g = g1 / rho2 + g2;
+        double b = b1 / rho2 + b2;
+        TwoWindingsTransformer tx = sBrussels.newTwoWindingsTransformer()
+            .setId("e482b89a-fa84-4ea9-8e70-a83d44790957")
+            .setName("BE-TR2_3")
+            .setR(r)
+            .setX(x)
+            .setG(g)
+            .setB(b)
+            .setConnectableBus1(busBrussels110.getId())
+            .setBus1(busBrussels110.getId())
+            .setConnectableBus2(busBrussels10.getId())
+            .setBus2(busBrussels10.getId())
+            .setVoltageLevel1(vlBrussels110.getId())
+            .setVoltageLevel2(vlBrussels10.getId())
+            .setRatedU1(u1)
+            .setRatedU2(u2)
+            .add();
+        tx.newCurrentLimits1().setPermanentLimit(1308.1)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(1408.1)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(1508.1)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+        tx.newCurrentLimits2().setPermanentLimit(13746.4)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(14746.4)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(15746.4)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+        int low = 1;
+        int high = 33;
+        int neutral = 17;
+        double voltageInc = 0.8;
+        TwoSides side = TwoSides.TWO;
+        RatioTapChangerAdder rtca = tx.newRatioTapChanger()
+            .setLowTapPosition(low)
+            .setTapPosition(14)
+            .setTargetDeadband(0.5);
+        for (int k = low; k <= high; k++) {
+            int n = k - neutral;
+            double du = voltageInc / 100;
+            double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+            double dz = 0;
+            double dy = 0;
+            if (side.equals(TwoSides.TWO)) {
+                double rhok2 = rhok * rhok;
+                dz = (rhok2 - 1) * 100;
+                dy = (1 / rhok2 - 1) * 100;
+            }
+            rtca.beginStep()
+                .setRho(rhok)
+                .setR(dz)
+                .setX(dz)
+                .setG(dy)
+                .setB(dy)
+                .endStep();
+        }
+        rtca.setLoadTapChangingCapabilities(true)
+            .setRegulating(true)
+            .setTargetV(10.815)
+            // TODO Set the right regulation terminal
+            .setRegulationTerminal(tx.getTerminal(side));
+        rtca.add();
+
+        return tx;
+    }
+
+    private static TwoWindingsTransformer addTransformerBrussels225Brussels110(Substation sBrussels,
+                                                             Bus busBrussels225, Bus busBrussels110,
+                                                             VoltageLevel vlBrussels225, VoltageLevel vlBrussels110) {
+        double u1 = 220.0;
+        double u2 = 110.0;
+        double rho = u2 / u1;
+        double rho2 = rho * rho;
+        double r1 = 0.8228;
+        double x1 = 11.138883;
+        double g1 = 0.0;
+        double b1 = 0.0;
+        double r2 = 0.0;
+        double x2 = 0.0;
+        double g2 = 0.0;
+        double b2 = 0.0;
+        double r = r1 * rho2 + r2;
+        double x = x1 * rho2 + x2;
+        double g = g1 / rho2 + g2;
+        double b = b1 / rho2 + b2;
+        TwoWindingsTransformer txBE22 = sBrussels.newTwoWindingsTransformer()
+            .setId(TWT_ID_1)
+            .setName("BE-TR2_2")
+            .setR(r)
+            .setX(x)
+            .setG(g)
+            .setB(b)
+            .setConnectableBus1(busBrussels225.getId())
+            .setBus1(busBrussels225.getId())
+            .setConnectableBus2(busBrussels110.getId())
+            .setBus2(busBrussels110.getId())
+            .setVoltageLevel1(vlBrussels225.getId())
+            .setVoltageLevel2(vlBrussels110.getId())
+            .setRatedU1(u1)
+            .setRatedU2(u2)
+            .add();
+        txBE22.newCurrentLimits2().setPermanentLimit(3411.6)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(3611.6)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(3811.6)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+        int low = 1;
+        int high = 25;
+        int neutral = 13;
+        double voltageInc = 1.25;
+        TwoSides side = TwoSides.ONE;
+        RatioTapChangerAdder rtca = txBE22.newRatioTapChanger()
+            .setLowTapPosition(low)
+            .setTapPosition(10);
+        for (int k = low; k <= high; k++) {
+            int n = k - neutral;
+            double du = voltageInc / 100;
+            double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+            rtca.beginStep()
+                .setRho(rhok)
+                .setR(0)
+                .setX(0)
+                .setG(0)
+                .setB(0)
+                .endStep();
+        }
+        rtca.setLoadTapChangingCapabilities(true)
+            .setRegulating(false)
+            .setTargetV(0.0)
+            .setTargetDeadband(0.5)
+            .setRegulationTerminal(txBE22.getTerminal2());
+        rtca.add();
+
+        return txBE22;
+    }
+
+    private static TwoWindingsTransformer addTransformerBrussels380Brussels110(Substation sBrussels,
+                                                                               Bus busBrussels380, Bus busBrussels110,
+                                                                               VoltageLevel vlBrussels380, VoltageLevel vlBrussels110) {
+        double u1 = 400.0;
+        double u2 = 110.0;
+        double rho0 = u2 / u1;
+        double rho02 = rho0 * rho0;
+        double r1 = 2.707692;
+        double x1 = 14.518904;
+        double g1 = 0.0;
+        double b1 = 0.0;
+        double r2 = 0.0;
+        double x2 = 0.0;
+        double g2 = 0.0;
+        double b2 = 0.0;
+        double r = r1 * rho02 + r2;
+        double x = x1 * rho02 + x2;
+        double g = g1 / rho02 + g2;
+        double b = b1 / rho02 + b2;
+        TwoWindingsTransformer txBE21 = sBrussels.newTwoWindingsTransformer()
+            .setId(TWT_ID_2)
+            .setName("BE-TR2_1")
+            .setR(r)
+            .setX(x)
+            .setG(g)
+            .setB(b)
+            .setConnectableBus1(busBrussels380.getId())
+            .setBus1(busBrussels380.getId())
+            .setConnectableBus2(busBrussels110.getId())
+            .setBus2(busBrussels110.getId())
+            .setVoltageLevel1(vlBrussels380.getId())
+            .setVoltageLevel2(vlBrussels110.getId())
+            .setRatedU1(u1)
+            .setRatedU2(u2)
+            .add();
+        txBE21.newCurrentLimits2().setPermanentLimit(3411.6)
+            .beginTemporaryLimit()
+            .setName(CL_0)
+            .setValue(3611.6)
+            .setAcceptableDuration(20)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setName(CL_1)
+            .setValue(3811.6)
+            .setAcceptableDuration(10)
+            .endTemporaryLimit()
+            .add();
+        int low = 1;
+        int high = 25;
+        int neutral = 13;
+        int position = 10;
+        double xmin = 14.518904;
+        double xmax = 14.518904;
+        double voltageInc = 1.25;
+        double windingConnectionAngle = 90;
+        addPhaseTapChanger(txBE21,
+            PhaseTapChangerType.ASYMMETRICAL,
+            low, high, neutral, position,
+            xmin, xmax,
+            voltageInc, windingConnectionAngle,
+            PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL,
+            true, -65.0, 35.0);
+
+        return txBE21;
+    }
+
+    private static ThreeWindingsTransformer addTWTBrussels380Brussels225Brussels21(Substation sBrussels,
+                                                                                   Bus busBrussels380, Bus busBrussels225, Bus busBrussels21,
+                                                                                   VoltageLevel vlBrussels380, VoltageLevel vlBrussels225, VoltageLevel vlBrussels21) {
+        double ratedU1 = 400.0;
+        double ratedU2 = 220.0;
+        double ratedU3 = 21.0;
+        double ratedU0 = ratedU1;
+        double r1 = 0.898462;
+        double x1 = 17.204128;
+        double g1 = 0.0;
+        double b1 = 0.0000024375;
+        double r2 = 0.323908;
+        double x2 = 5.949086;
+        double g2 = 0.0;
+        double b2 = 0.0;
+        double r3 = 0.013332;
+        double x3 = 0.059978;
+        double g3 = 0.0;
+        double b3 = 0.0;
+        ThreeWindingsTransformer txBETR3 = sBrussels.newThreeWindingsTransformer()
+            .setId("84ed55f4-61f5-4d9d-8755-bba7b877a246")
+            .setName("BE-TR3_1")
+            .newLeg1()
+            .setRatedU(ratedU1)
+            .setR(r1)
+            .setX(x1)
+            .setG(g1)
+            .setB(b1)
+            .setConnectableBus(busBrussels380.getId())
+            .setBus(busBrussels380.getId())
+            .setVoltageLevel(vlBrussels380.getId())
+            .add()
+            .newLeg2()
+            .setRatedU(ratedU2)
+            .setR(r2 * (ratedU0 / ratedU2) * (ratedU0 / ratedU2))
+            .setX(x2 * (ratedU0 / ratedU2) * (ratedU0 / ratedU2))
+            .setG(g2)
+            .setB(b2)
+            .setConnectableBus(busBrussels225.getId())
+            .setBus(busBrussels225.getId())
+            .setVoltageLevel(vlBrussels225.getId())
+            .add()
+            .newLeg3()
+            .setRatedU(ratedU3)
+            .setR(r3 * (ratedU0 / ratedU3) * (ratedU0 / ratedU3))
+            .setX(x3 * (ratedU0 / ratedU3) * (ratedU0 / ratedU3))
+            .setG(g3)
+            .setB(b3)
+            .setConnectableBus(busBrussels21.getId())
+            .setBus(busBrussels21.getId())
+            .setVoltageLevel(vlBrussels21.getId())
+            .add()
+            .add();
+        txBETR3.getLeg1().newCurrentLimits()
+            .setPermanentLimit(938.2)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(20)
+            .setName(CL_0)
+            .setValue(968.2)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setAcceptableDuration(10)
+            .setName(CL_1)
+            .setValue(998.2)
+            .endTemporaryLimit()
+            .add();
+        txBETR3.getLeg2().newCurrentLimits()
+            .setPermanentLimit(1705.8)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(20)
+            .setName(CL_0)
+            .setValue(1805.8)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setAcceptableDuration(10)
+            .setName(CL_1)
+            .setValue(1905.8)
+            .endTemporaryLimit()
+            .add();
+        txBETR3.getLeg3().newCurrentLimits()
+            .setPermanentLimit(17870.4)
+            .beginTemporaryLimit()
+            .setAcceptableDuration(20)
+            .setName(CL_0)
+            .setValue(18870.4)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+            .setAcceptableDuration(10)
+            .setName(CL_1)
+            .setValue(19870.4)
+            .endTemporaryLimit()
+            .add();
+
+        int low = 1;
+        int high = 33;
+        int neutral = 17;
+        int position = 17;
+        double voltageInc = 0.625;
+        RatioTapChangerAdder rtca = txBETR3.getLeg2().newRatioTapChanger()
+            .setLowTapPosition(low)
+            .setTapPosition(position);
+        for (int k = low; k <= high; k++) {
+            int n = k - neutral;
+            double du = voltageInc / 100;
+            double rhok = 1 / (1 + n * du);
+            double dz = 0;
+            double dy = 0;
+            rtca.beginStep()
+                .setRho(rhok)
+                .setR(dz)
+                .setX(dz)
+                .setG(dy)
+                .setB(dy)
+                .endStep();
+        }
+        rtca.setLoadTapChangingCapabilities(true)
+            .setRegulating(false)
+            .setTargetV(0.0)
+            .setTargetDeadband(0.5);
+        rtca.add();
+
+        return txBETR3;
     }
 
     public static Network microBaseCaseBE() {
@@ -992,23 +1021,7 @@ public final class CgmesConformity1NetworkCatalog {
 
         TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer(TWT_ID_1);
         txBE22.getRatioTapChanger().remove();
-        {
-            int low = 1;
-            int high = 25;
-            int neutral = 13;
-            int position = 10;
-            double xmin = 10.396291;
-            double xmax = 11.881475;
-            double voltageInc = 1.25;
-            double windingConnectionAngle = 5;
-            addPhaseTapChanger(txBE22,
-                    PhaseTapChangerType.ASYMMETRICAL,
-                    low, high, neutral, position,
-                    xmin, xmax,
-                    voltageInc, windingConnectionAngle,
-                    PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, false,
-                    0.0, 0.5);
-        }
+        addPhaseTapChangerOnTxBE22(txBE22);
         txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
                     .setName(CL_2)
@@ -1036,24 +1049,7 @@ public final class CgmesConformity1NetworkCatalog {
 
         TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer(TWT_ID_2);
         txBE21.getPhaseTapChanger().remove();
-        {
-            int low = 1;
-            int high = 25;
-            int neutral = 13;
-            int position = 10;
-            double xmin = 12.099087;
-            double xmax = 16.938722;
-            double voltageInc = 1.25;
-            // winding connection angle property is only defined for Asymmetrical
-            double windingConnectionAngle = Double.NaN;
-            addPhaseTapChanger(txBE21,
-                    PhaseTapChangerType.SYMMETRICAL,
-                    low, high, neutral, position,
-                    xmin, xmax,
-                    voltageInc, windingConnectionAngle,
-                    PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, true,
-                    -65.0, 35.0);
-        }
+        addPhaseTapChangerOnTxBE21(txBE21);
         txBE21.newCurrentLimits1().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
                     .setName(CL_2)
@@ -1143,6 +1139,43 @@ public final class CgmesConformity1NetworkCatalog {
                 .setVoltageRegulatorOn(false)
                 .add();
         return network;
+    }
+
+    private static void addPhaseTapChangerOnTxBE22(TwoWindingsTransformer txBE22) {
+        int low = 1;
+        int high = 25;
+        int neutral = 13;
+        int position = 10;
+        double xmin = 10.396291;
+        double xmax = 11.881475;
+        double voltageInc = 1.25;
+        double windingConnectionAngle = 5;
+        addPhaseTapChanger(txBE22,
+            PhaseTapChangerType.ASYMMETRICAL,
+            low, high, neutral, position,
+            xmin, xmax,
+            voltageInc, windingConnectionAngle,
+            PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, false,
+            0.0, 0.5);
+    }
+
+    private static void addPhaseTapChangerOnTxBE21(TwoWindingsTransformer txBE21) {
+        int low = 1;
+        int high = 25;
+        int neutral = 13;
+        int position = 10;
+        double xmin = 12.099087;
+        double xmax = 16.938722;
+        double voltageInc = 1.25;
+        // winding connection angle property is only defined for Asymmetrical
+        double windingConnectionAngle = Double.NaN;
+        addPhaseTapChanger(txBE21,
+            PhaseTapChangerType.SYMMETRICAL,
+            low, high, neutral, position,
+            xmin, xmax,
+            voltageInc, windingConnectionAngle,
+            PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, true,
+            -65.0, 35.0);
     }
 
     enum PhaseTapChangerType {
