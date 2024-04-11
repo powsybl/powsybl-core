@@ -17,30 +17,40 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * @author imagrid team {@literal <rte-mco-imagrid at rte-france.com>}
  */
 class EncodingTest {
 
     @Test
-    void testEncodingISO88591ToISO88591() throws IOException {
-        Network network = NetworkSerDe.read(getClass().getResourceAsStream("/encoding/network.xml"));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ExportOptions options = new ExportOptions();
-        options.setCharset(StandardCharsets.ISO_8859_1);
-        NetworkSerDe.write(network, options, baos);
-        InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+    void testEncodingISO88591ToISO88591() {
+        try {
+            Network network = NetworkSerDe.read(getClass().getResourceAsStream("/encoding/network.xml"));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ExportOptions options = new ExportOptions();
+            options.setCharset(StandardCharsets.ISO_8859_1);
+            NetworkSerDe.write(network, options, baos);
+            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+            ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
-    void testEncodingISO88591ToUTF8() throws IOException {
-        Network network = NetworkSerDe.read(getClass().getResourceAsStream("/encoding/network.xml"));
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ExportOptions options = new ExportOptions();
-        options.setCharset(StandardCharsets.UTF_8);
-        NetworkSerDe.write(network, options, baos);
-        InputStream is = new ByteArrayInputStream(baos.toByteArray());
-        ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+    void testEncodingISO88591ToUTF8() {
+        try {
+            Network network = NetworkSerDe.read(getClass().getResourceAsStream("/encoding/network.xml"));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ExportOptions options = new ExportOptions();
+            options.setCharset(StandardCharsets.UTF_8);
+            NetworkSerDe.write(network, options, baos);
+            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+            ComparisonUtils.compareXml(getClass().getResourceAsStream("/encoding/network.xml"), is);
+        } catch (Exception e) {
+            fail();
+        }
     }
 }
