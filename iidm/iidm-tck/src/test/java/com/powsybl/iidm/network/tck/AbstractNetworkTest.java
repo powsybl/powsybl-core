@@ -575,7 +575,11 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testCreate() {
         // check default implementation is used
-        Network.create("test", "test");
+        try {
+            Network.create("test", "test");
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     @Test
