@@ -23,6 +23,14 @@ public final class CgmesConformity1NetworkCatalog {
     private static final String CL_0 = "CL-0";
     private static final String CL_1 = "CL-1";
     private static final String CL_2 = "CL-2";
+    private static final String VOLTAGE_LEVEL_ID_1 = "469df5f7-058f-4451-a998-57a48e8a56fe";
+    private static final String VOLTAGE_LEVEL_ID_2 = "d0486169-2205-40b2-895e-b672ecb9e5fc";
+    private static final String BUS_ID_1 = "f70f6bad-eb8d-4b8f-8431-4ab93581514e";
+    private static final String BUS_ID_2 = "99b219f3-4593-428b-a4da-124a54630178";
+    private static final String DANGLING_LINE_ID_1 = "17086487-56ba-4979-b8de-064025a6b4da";
+    private static final String SHUNT_ID_1 = "002b0a40-3957-46db-b84a-30420083558f";
+    private static final String TWT_ID_1 = "b94318f6-6d24-4f56-96b9-df2531ad6543";
+    private static final String TWT_ID_2 = "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0";
 
     private CgmesConformity1NetworkCatalog() {
     }
@@ -69,7 +77,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         VoltageLevel vlBrussels380 = sBrussels.newVoltageLevel()
-                .setId("469df5f7-058f-4451-a998-57a48e8a56fe")
+                .setId(VOLTAGE_LEVEL_ID_1)
                 .setName("380.0")
                 .setNominalV(380.0)
                 .setLowVoltageLimit(342.0)
@@ -85,7 +93,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         VoltageLevel vlAnvers220 = sAnvers.newVoltageLevel()
-                .setId("d0486169-2205-40b2-895e-b672ecb9e5fc")
+                .setId(VOLTAGE_LEVEL_ID_2)
                 .setName("220.0")
                 .setNominalV(225.0)
                 .setLowVoltageLimit(202.5)
@@ -93,7 +101,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
         Bus busAnvers220 = vlAnvers220.getBusBreakerView().newBus()
-                .setId("f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .setId(BUS_ID_1)
                 .setName("BE-Busbar_2")
                 .add();
         busAnvers220.setV(224.871595);
@@ -135,7 +143,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
 
         DanglingLine be1 = vlAnvers220.newDanglingLine()
-                .setId("17086487-56ba-4979-b8de-064025a6b4da")
+                .setId(DANGLING_LINE_ID_1)
                 .setName("BE-Line_1")
                 .setConnectableBus(busAnvers220.getId())
                 .setBus(busAnvers220.getId())
@@ -149,7 +157,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .add();
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
-                .setId("99b219f3-4593-428b-a4da-124a54630178")
+                .setId(BUS_ID_2)
                 .setName("BE_TR_BUS4")
                 .add();
         busBrussels225.setV(224.315268);
@@ -157,8 +165,8 @@ public final class CgmesConformity1NetworkCatalog {
         Load loadBrussels225 = vlBrussels225.newLoad()
                 .setId("1c6beed6-1acf-42e7-ba55-0cc9f04bddd8")
                 .setName("BE-Load_2")
-                .setConnectableBus("99b219f3-4593-428b-a4da-124a54630178")
-                .setBus("99b219f3-4593-428b-a4da-124a54630178")
+                .setConnectableBus(BUS_ID_2)
+                .setBus(BUS_ID_2)
                 .setP0(200.0)
                 .setQ0(50.0)
                 .add();
@@ -187,7 +195,7 @@ public final class CgmesConformity1NetworkCatalog {
         busBrussels380.setV(412.989001);
         busBrussels380.setAngle(-6.780710);
         ShuntCompensator shBrussels380 = vlBrussels380.newShuntCompensator()
-                .setId("002b0a40-3957-46db-b84a-30420083558f")
+                .setId(SHUNT_ID_1)
                 .setName("BE_S2")
                 .setConnectableBus(busBrussels380.getId())
                 .setBus(busBrussels380.getId())
@@ -335,7 +343,7 @@ public final class CgmesConformity1NetworkCatalog {
         busBrussels10.setAngle(-7.057180);
         // TODO Consider lines that are touching boundaries
         // expected.newLine()
-        // .setId("17086487-56ba-4979-b8de-064025a6b4da")
+        // .setId(DANGLING_LINE_ID_1)
         // .add();
         Line lineBE2 = network.newLine()
                 .setId("b58bf21a-096a-4dae-9a01-3f03b60c24c7")
@@ -536,7 +544,7 @@ public final class CgmesConformity1NetworkCatalog {
             double g = g1 / rho2 + g2;
             double b = b1 / rho2 + b2;
             TwoWindingsTransformer txBE22 = sBrussels.newTwoWindingsTransformer()
-                    .setId("b94318f6-6d24-4f56-96b9-df2531ad6543")
+                    .setId(TWT_ID_1)
                     .setName("BE-TR2_2")
                     .setR(r)
                     .setX(x)
@@ -609,7 +617,7 @@ public final class CgmesConformity1NetworkCatalog {
             double g = g1 / rho02 + g2;
             double b = b1 / rho02 + b2;
             txBE21 = sBrussels.newTwoWindingsTransformer()
-                    .setId("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
+                    .setId(TWT_ID_2)
                     .setName("BE-TR2_1")
                     .setR(r)
                     .setX(x)
@@ -819,7 +827,7 @@ public final class CgmesConformity1NetworkCatalog {
     public static Network microBaseCaseBE() {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
         Network network = microBE(modelId);
-        DanglingLine be1 = network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da");
+        DanglingLine be1 = network.getDanglingLine(DANGLING_LINE_ID_1);
         be1.newCurrentLimits().setPermanentLimit(1443)
                 .beginTemporaryLimit()
                     .setName("CL-4")
@@ -842,7 +850,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer(TWT_ID_2);
         txBE21.newCurrentLimits1().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
                     .setName(CL_0)
@@ -855,7 +863,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-        TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+        TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer(TWT_ID_1);
         txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
                     .setName(CL_0)
@@ -911,7 +919,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setAngle(-19.642100);
 
         Bus busBrussels380 = network
-                .getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe")
+                .getVoltageLevel(VOLTAGE_LEVEL_ID_1)
                 .getBusBreakerView()
                 .getBus("e44141af-f1dc-44d3-bfa4-b674e5c953d7")
                 .setV(414.114413)
@@ -920,23 +928,23 @@ public final class CgmesConformity1NetworkCatalog {
         Bus busBrussels225 = network
                 .getVoltageLevel("b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c")
                 .getBusBreakerView()
-                .getBus("99b219f3-4593-428b-a4da-124a54630178")
+                .getBus(BUS_ID_2)
                 .setV(224.156562)
                 .setAngle(-21.796200);
 
         Bus busAnvers220 = network
-                .getVoltageLevel("d0486169-2205-40b2-895e-b672ecb9e5fc")
+                .getVoltageLevel(VOLTAGE_LEVEL_ID_2)
                 .getBusBreakerView()
-                .getBus("f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .getBus(BUS_ID_1)
                 .setV(223.435281)
                 .setAngle(-17.412200);
 
-        VoltageLevel vlAnvers220 = network.getVoltageLevel("d0486169-2205-40b2-895e-b672ecb9e5fc");
+        VoltageLevel vlAnvers220 = network.getVoltageLevel(VOLTAGE_LEVEL_ID_2);
         vlAnvers220.newStaticVarCompensator()
                 .setId("3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
                 .setName("SVC-1230797516")
-                .setBus("f70f6bad-eb8d-4b8f-8431-4ab93581514e")
-                .setConnectableBus("f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .setBus(BUS_ID_1)
+                .setConnectableBus(BUS_ID_1)
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
@@ -982,7 +990,7 @@ public final class CgmesConformity1NetworkCatalog {
         network.getTwoWindingsTransformer("e482b89a-fa84-4ea9-8e70-a83d44790957")
                 .getRatioTapChanger().setTapPosition(14);
 
-        TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer("b94318f6-6d24-4f56-96b9-df2531ad6543");
+        TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer(TWT_ID_1);
         txBE22.getRatioTapChanger().remove();
         {
             int low = 1;
@@ -1026,7 +1034,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .add();
 
-        TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer(TWT_ID_2);
         txBE21.getPhaseTapChanger().remove();
         {
             int low = 1;
@@ -1074,7 +1082,7 @@ public final class CgmesConformity1NetworkCatalog {
         network.getDanglingLine("a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
                 .setP0(-86.814383)
                 .setQ0(4.958972);
-        network.getDanglingLine("17086487-56ba-4979-b8de-064025a6b4da")
+        network.getDanglingLine(DANGLING_LINE_ID_1)
                 .setP0(-89.462903)
                 .setQ0(1.519011)
                 .newCurrentLimits()
@@ -1100,10 +1108,10 @@ public final class CgmesConformity1NetworkCatalog {
                 .setP0(-11.518776)
                 .setQ0(67.377544);
 
-        network.getShuntCompensator("002b0a40-3957-46db-b84a-30420083558f").remove();
-        network.getVoltageLevel("469df5f7-058f-4451-a998-57a48e8a56fe")
+        network.getShuntCompensator(SHUNT_ID_1).remove();
+        network.getVoltageLevel(VOLTAGE_LEVEL_ID_1)
                 .newShuntCompensator()
-                    .setId("002b0a40-3957-46db-b84a-30420083558f")
+                    .setId(SHUNT_ID_1)
                     .setName("BE_S2")
                     .setConnectableBus(busBrussels380.getId())
                     .setBus(busBrussels380.getId())
