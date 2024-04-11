@@ -284,14 +284,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
-                    Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals, getBusFromTerminal);
-                    id2bus.put(busId, bus);
-                    for (int i = 0; i < nodes.size(); i++) {
-                        node2bus[nodes.getQuick(i)] = bus;
-                    }
+                    addBus(nodes, id2bus, node2bus, busId, terminals);
                 }
+            }
+        }
+
+        private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
+                            String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
+            String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
+            Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals, getBusFromTerminal);
+            id2bus.put(busId, bus);
+            for (int i = 0; i < nodes.size(); i++) {
+                node2bus[nodes.getQuick(i)] = bus;
             }
         }
 
