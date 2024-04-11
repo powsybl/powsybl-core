@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-class MapModuleConfigTest {
+abstract class MapModuleConfigTest {
 
     protected FileSystem fileSystem;
 
@@ -40,11 +40,6 @@ class MapModuleConfigTest {
     @AfterEach
     void tearDown() throws IOException {
         fileSystem.close();
-    }
-
-    @Test
-    void emptyTest() {
-        // sonar issue
     }
 
     protected void assertModConfig(ModuleConfig modConfig) {
