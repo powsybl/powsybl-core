@@ -14,9 +14,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.GraphvizConnectivity;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.io.StringWriter;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.fail;
