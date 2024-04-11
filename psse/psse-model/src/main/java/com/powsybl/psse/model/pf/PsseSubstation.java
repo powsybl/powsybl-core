@@ -27,10 +27,10 @@ import com.univocity.parsers.annotations.Parsed;
 
 public class PsseSubstation {
 
-    public PsseSubstation(PsseSubstationRecord record,
+    public PsseSubstation(PsseSubstationRecord srecord,
                           List<PsseSubstationNode> nodes, List<PsseSubstationSwitchingDevice> switchingDevices,
                           List<PsseSubstationEquipmentTerminal> equipmentTerminals) {
-        this.srecord = record;
+        this.srecord = srecord;
         this.nodes = nodes;
         this.switchingDevices = switchingDevices;
         this.equipmentTerminals = equipmentTerminals;

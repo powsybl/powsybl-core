@@ -54,13 +54,13 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             if (!reader.isQRecordFound()) {
                 String line = reader.readRecordLine();
                 while (!reader.endOfBlock(line)) {
-                    PsseSubstationRecord record = recordData.readFromStrings(Collections.singletonList(line), context).get(0);
+                    PsseSubstationRecord srecord = recordData.readFromStrings(Collections.singletonList(line), context).get(0);
 
                     List<PsseSubstationNode> nodeList = new SubstationNodeData().read(reader, context);
                     List<PsseSubstationSwitchingDevice> switchingDeviceList = new SubstationSwitchingDeviceData().read(reader, context);
                     List<PsseSubstationEquipmentTerminal> equipmentTerminalList = readEquipmentTerminalData(reader, context);
 
-                    PsseSubstation substation = new PsseSubstation(record, nodeList, switchingDeviceList, equipmentTerminalList);
+                    PsseSubstation substation = new PsseSubstation(srecord, nodeList, switchingDeviceList, equipmentTerminalList);
                     substationList.add(substation);
 
                     line = reader.readRecordLine();
@@ -262,12 +262,12 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                                                                     List<PsseSubstationEquipmentTerminalx> equipmentTerminalxList) {
 
             List<PsseSubstation> substationList = new ArrayList<>();
-            for (PsseSubstationRecord record : recordList) {
-                List<PsseSubstationNode> nodeList = nodexList.stream().filter(n -> n.getIsub() == record.getIs()).map(PsseSubstationNodex::getNode).collect(Collectors.toList());
-                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == record.getIs()).map(PsseSubstationSwitchingDevicex::getSwitchingDevice).collect(Collectors.toList());
-                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == record.getIs()).map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).collect(Collectors.toList());
+            for (PsseSubstationRecord srecord : recordList) {
+                List<PsseSubstationNode> nodeList = nodexList.stream().filter(n -> n.getIsub() == srecord.getIs()).map(PsseSubstationNodex::getNode).collect(Collectors.toList());
+                List<PsseSubstationSwitchingDevice> switchingDeviceList = switchingDevicexList.stream().filter(sd -> sd.getIsub() == srecord.getIs()).map(PsseSubstationSwitchingDevicex::getSwitchingDevice).collect(Collectors.toList());
+                List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalxList.stream().filter(eq -> eq.getIsub() == srecord.getIs()).map(PsseSubstationEquipmentTerminalx::getEquipmentTerminal).collect(Collectors.toList());
 
-                substationList.add(new PsseSubstation(record, nodeList, switchingDeviceList, equipmentTerminalList));
+                substationList.add(new PsseSubstation(srecord, nodeList, switchingDeviceList, equipmentTerminalList));
             }
             return substationList;
         }
