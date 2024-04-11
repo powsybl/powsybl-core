@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class SkipExtensionTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testSkipExtension() throws IOException {
+    void testSkipExtension() {
         Network network = NetworkSerDe.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmVersion.V_1_0));
 
         Properties properties = new Properties();
