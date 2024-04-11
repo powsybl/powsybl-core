@@ -275,17 +275,21 @@ public class Conversion {
                 if (terminalBoundaryId == null) {
                     LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
                 } else {
-                    CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-                    if (terminalBoundary == null) {
-                        LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-                    } else {
-                        if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                            LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                            dl.getTerminal().disconnect();
-                        }
-                    }
+                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
                 }
+            }
+        }
+    }
+
+    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
+        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
+        if (terminalBoundary == null) {
+            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
+        } else {
+            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
+                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                dl.getTerminal().disconnect();
             }
         }
     }
