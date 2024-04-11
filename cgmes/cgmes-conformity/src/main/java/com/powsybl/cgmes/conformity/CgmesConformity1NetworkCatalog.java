@@ -142,7 +142,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .add();
 
-        DanglingLine be1 = vlAnvers220.newDanglingLine()
+        vlAnvers220.newDanglingLine()
                 .setId(DANGLING_LINE_ID_1)
                 .setName("BE-Line_1")
                 .setConnectableBus(busAnvers220.getId())
@@ -414,7 +414,7 @@ public final class CgmesConformity1NetworkCatalog {
         addTransformerBrussels225Brussels110(sBrussels, busBrussels225, busBrussels110, vlBrussels225, vlBrussels110);
         TwoWindingsTransformer txBE21 = addTransformerBrussels380Brussels110(sBrussels, busBrussels380, busBrussels110, vlBrussels380, vlBrussels110);
         addGeneratorBrussels10(vlBrussels10, busBrussels10, txBE21);
-        ThreeWindingsTransformer txBETR3 = addTWTBrussels380Brussels225Brussels21(sBrussels,
+        addTWTBrussels380Brussels225Brussels21(sBrussels,
             busBrussels380, busBrussels225, busBrussels21,
             vlBrussels380, vlBrussels225, vlBrussels21);
         return network;
@@ -446,7 +446,7 @@ public final class CgmesConformity1NetworkCatalog {
         genBrussels21.getTerminal().setQ(q);
     }
 
-    private static Generator addGeneratorBrussels10(VoltageLevel vlBrussels10, Bus busBrussels10, TwoWindingsTransformer txBE21) {
+    private static void addGeneratorBrussels10(VoltageLevel vlBrussels10, Bus busBrussels10, TwoWindingsTransformer txBE21) {
         double p = -90;
         double targetQ = 100.256;
         double q = 51.115627;
@@ -485,11 +485,9 @@ public final class CgmesConformity1NetworkCatalog {
         rcca.add();
         genBrussels10.getTerminal().setP(p);
         genBrussels10.getTerminal().setQ(q);
-
-        return genBrussels10;
     }
 
-    private static TwoWindingsTransformer addTransformerBrussels110Brussels10(Substation sBrussels,
+    private static void addTransformerBrussels110Brussels10(Substation sBrussels,
                                                             Bus busBrussels110, Bus busBrussels10,
                                                             VoltageLevel vlBrussels110, VoltageLevel vlBrussels10) {
         double u1 = 110.34375;
@@ -582,11 +580,9 @@ public final class CgmesConformity1NetworkCatalog {
             // TODO Set the right regulation terminal
             .setRegulationTerminal(tx.getTerminal(side));
         rtca.add();
-
-        return tx;
     }
 
-    private static TwoWindingsTransformer addTransformerBrussels225Brussels110(Substation sBrussels,
+    private static void addTransformerBrussels225Brussels110(Substation sBrussels,
                                                              Bus busBrussels225, Bus busBrussels110,
                                                              VoltageLevel vlBrussels225, VoltageLevel vlBrussels110) {
         double u1 = 220.0;
@@ -660,7 +656,6 @@ public final class CgmesConformity1NetworkCatalog {
             .setRegulationTerminal(txBE22.getTerminal2());
         rtca.add();
 
-        return txBE22;
     }
 
     private static TwoWindingsTransformer addTransformerBrussels380Brussels110(Substation sBrussels,
@@ -729,9 +724,9 @@ public final class CgmesConformity1NetworkCatalog {
         return txBE21;
     }
 
-    private static ThreeWindingsTransformer addTWTBrussels380Brussels225Brussels21(Substation sBrussels,
-                                                                                   Bus busBrussels380, Bus busBrussels225, Bus busBrussels21,
-                                                                                   VoltageLevel vlBrussels380, VoltageLevel vlBrussels225, VoltageLevel vlBrussels21) {
+    private static void addTWTBrussels380Brussels225Brussels21(Substation sBrussels,
+                                                               Bus busBrussels380, Bus busBrussels225, Bus busBrussels21,
+                                                               VoltageLevel vlBrussels380, VoltageLevel vlBrussels225, VoltageLevel vlBrussels21) {
         double ratedU1 = 400.0;
         double ratedU2 = 220.0;
         double ratedU3 = 21.0;
@@ -849,8 +844,6 @@ public final class CgmesConformity1NetworkCatalog {
             .setTargetV(0.0)
             .setTargetDeadband(0.5);
         rtca.add();
-
-        return txBETR3;
     }
 
     public static Network microBaseCaseBE() {
@@ -928,25 +921,26 @@ public final class CgmesConformity1NetworkCatalog {
                 .setV(223.435281)
                 .setAngle(-17.412200);
 
-        Bus busBrussels21 = network
-                .getVoltageLevel("929ba893-c9dc-44d7-b1fd-30834bd3ab85")
+        // Bus Brussels 21
+        network.getVoltageLevel("929ba893-c9dc-44d7-b1fd-30834bd3ab85")
                 .getBusBreakerView()
                 .getBus("f96d552a-618d-4d0c-a39a-2dea3c411dee")
                 .setV(21.987000)
                 .setAngle(-20.588300);
-        Bus busBrussels110 = network
-                .getVoltageLevel("8bbd7e74-ae20-4dce-8780-c20f8e18c2e0")
+        // Bus Brussels 110
+        network.getVoltageLevel("8bbd7e74-ae20-4dce-8780-c20f8e18c2e0")
                 .getBusBreakerView()
                 .getBus("5c74cb26-ce2f-40c6-951d-89091eb781b6")
                 .setV(115.5)
                 .setAngle(-22.029800);
-        Bus busBrussels10 = network
-                .getVoltageLevel("4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386")
+        // Bus Brussels 10
+        network.getVoltageLevel("4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386")
                 .getBusBreakerView()
                 .getBus("a81d08ed-f51d-4538-8d1e-fb2d0dbd128e")
                 .setV(10.816961)
                 .setAngle(-19.642100);
 
+        // Bus Brussels 380
         Bus busBrussels380 = network
                 .getVoltageLevel(VOLTAGE_LEVEL_ID_1)
                 .getBusBreakerView()
@@ -954,13 +948,14 @@ public final class CgmesConformity1NetworkCatalog {
                 .setV(414.114413)
                 .setAngle(-21.526500);
 
-        Bus busBrussels225 = network
-                .getVoltageLevel("b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c")
+        // Bus Brussels 225
+        network.getVoltageLevel("b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c")
                 .getBusBreakerView()
                 .getBus(BUS_ID_2)
                 .setV(224.156562)
                 .setAngle(-21.796200);
 
+        // Bus Anvers 220
         Bus busAnvers220 = network
                 .getVoltageLevel(VOLTAGE_LEVEL_ID_2)
                 .getBusBreakerView()
@@ -998,8 +993,8 @@ public final class CgmesConformity1NetworkCatalog {
                 .setTargetQ(targetQ);
         genBrussels10.getTerminal().setP(p).setQ(q);
 
-        // Line _df16b3dd comes from a SeriesCompensator in CGMES model
-        Line scAnvers = network.newLine()
+        // Line _df16b3dd (scAnvers) comes from a SeriesCompensator in CGMES model
+        network.newLine()
                 .setId("df16b3dd-c905-4a6f-84ee-f067be86f5da")
                 .setName("SER-RLC-1230822986")
                 .setR(0)
@@ -1180,7 +1175,7 @@ public final class CgmesConformity1NetworkCatalog {
 
     enum PhaseTapChangerType {
         ASYMMETRICAL, SYMMETRICAL
-    };
+    }
 
     private static void addPhaseTapChanger(
             TwoWindingsTransformer tx,
