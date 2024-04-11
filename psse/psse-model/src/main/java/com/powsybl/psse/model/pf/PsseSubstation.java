@@ -30,39 +30,39 @@ public class PsseSubstation {
     public PsseSubstation(PsseSubstationRecord record,
                           List<PsseSubstationNode> nodes, List<PsseSubstationSwitchingDevice> switchingDevices,
                           List<PsseSubstationEquipmentTerminal> equipmentTerminals) {
-        this.record = record;
+        this.srecord = record;
         this.nodes = nodes;
         this.switchingDevices = switchingDevices;
         this.equipmentTerminals = equipmentTerminals;
     }
 
-    private final PsseSubstationRecord record;
+    private final PsseSubstationRecord srecord;
     private final List<PsseSubstationNode> nodes;
     private final List<PsseSubstationSwitchingDevice> switchingDevices;
     private final List<PsseSubstationEquipmentTerminal> equipmentTerminals;
 
     public int getIs() {
-        return record.is;
+        return srecord.is;
     }
 
     public String getName() {
-        return record.name;
+        return srecord.name;
     }
 
     public double getLati() {
-        return record.lati;
+        return srecord.lati;
     }
 
     public double getLong() {
-        return record.longi;
+        return srecord.longi;
     }
 
     public double getSrg() {
-        return record.srg;
+        return srecord.srg;
     }
 
     public PsseSubstationRecord getRecord() {
-        return record;
+        return srecord;
     }
 
     public List<PsseSubstationNode> getNodes() {
@@ -78,7 +78,7 @@ public class PsseSubstation {
     }
 
     public PsseSubstation copy() {
-        PsseSubstationRecord copyRecord = this.record.copy();
+        PsseSubstationRecord copyRecord = this.srecord.copy();
 
         List<PsseSubstationNode> copyNodes = new ArrayList<>();
         this.nodes.forEach(node -> copyNodes.add(node.copy()));

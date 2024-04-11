@@ -48,6 +48,7 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     INTERNAL_SUBSTATION_NODE("subnode"),
     INTERNAL_SUBSTATION_SWITCHING_DEVICE("subswd"),
     INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL("subterm"),
+    // only needed in raw format, not used in rawx format
     INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START(),
     INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS(),
     INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES(),
