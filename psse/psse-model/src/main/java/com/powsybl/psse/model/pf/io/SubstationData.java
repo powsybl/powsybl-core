@@ -91,13 +91,9 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                 line = reader.readRecordLine();
             }
 
-            List<PsseSubstationEquipmentTerminalOneBus> equipmentTerminalOneBusList = new SubstationEquipmentTerminalDataOneBus().readFromStrings(equipmentTerminalOneBusRecords, context);
-            List<PsseSubstationEquipmentTerminalTwoBuses> equipmentTerminalTwoBusesList = new SubstationEquipmentTerminalDataTwoBuses().readFromStrings(equipmentTerminalTwoBusesRecords, context);
-            List<PsseSubstationEquipmentTerminalThreeBuses> equipmentTerminalThreeBusesList = new SubstationEquipmentTerminalDataThreeBuses().readFromStrings(equipmentTerminalThreeBusesRecords, context);
-
-            List<PsseSubstationEquipmentTerminal> equipmentTerminalList = equipmentTerminalOneBusList.stream().map(PsseSubstationEquipmentTerminalOneBus::convertToEquipmentTerminal).collect(Collectors.toList());
-            equipmentTerminalList.addAll(equipmentTerminalTwoBusesList.stream().map(PsseSubstationEquipmentTerminalTwoBuses::convertToEquipmentTerminal).toList());
-            equipmentTerminalList.addAll(equipmentTerminalThreeBusesList.stream().map(PsseSubstationEquipmentTerminalThreeBuses::convertToEquipmentTerminal).toList());
+            List<PsseSubstationEquipmentTerminal> equipmentTerminalList = new SubstationEquipmentTerminalDataOneBus().readFromStrings(equipmentTerminalOneBusRecords, context);
+            equipmentTerminalList.addAll(new SubstationEquipmentTerminalDataTwoBuses().readFromStrings(equipmentTerminalTwoBusesRecords, context));
+            equipmentTerminalList.addAll(new SubstationEquipmentTerminalDataThreeBuses().readFromStrings(equipmentTerminalThreeBusesRecords, context));
 
             return equipmentTerminalList;
         }
@@ -131,9 +127,9 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
 
         private List<String> writeEquipmentTerminalData(List<PsseSubstationEquipmentTerminal> equipmentTerminalList, Context context) {
 
-            List<PsseSubstationEquipmentTerminalOneBus> eqOneBus = equipmentTerminalList.stream().filter(eq -> isOneBus(eq.getType())).map(PsseSubstationEquipmentTerminal::convertToEquipmentTerminalOneBus).collect(Collectors.toList());
-            List<PsseSubstationEquipmentTerminalTwoBuses> eqTwoBuses = equipmentTerminalList.stream().filter(eq -> isTwoBuses(eq.getType())).map(PsseSubstationEquipmentTerminal::convertToEquipmentTerminalTwoBuses).collect(Collectors.toList());
-            List<PsseSubstationEquipmentTerminalThreeBuses> eqThreeBuses = equipmentTerminalList.stream().filter(eq -> isThreeBuses(eq.getType())).map(PsseSubstationEquipmentTerminal::convertToEquipmentTerminalThreeBuses).collect(Collectors.toList());
+            List<PsseSubstationEquipmentTerminal> eqOneBus = equipmentTerminalList.stream().filter(eq -> isOneBus(eq.getType())).collect(Collectors.toList());
+            List<PsseSubstationEquipmentTerminal> eqTwoBuses = equipmentTerminalList.stream().filter(eq -> isTwoBuses(eq.getType())).collect(Collectors.toList());
+            List<PsseSubstationEquipmentTerminal> eqThreeBuses = equipmentTerminalList.stream().filter(eq -> isThreeBuses(eq.getType())).collect(Collectors.toList());
 
             SubstationEquipmentTerminalDataOneBus oneBusData = new SubstationEquipmentTerminalDataOneBus();
             List<String> strings = oneBusData.buildRecords(eqOneBus, context.getFieldNames(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS), oneBusData.quotedFields(), context);
@@ -183,39 +179,39 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             }
         }
 
-        private static class SubstationEquipmentTerminalDataOneBus extends AbstractRecordGroup<PsseSubstationEquipmentTerminalOneBus> {
+        private static class SubstationEquipmentTerminalDataOneBus extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataOneBus() {
                 super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, "i", "ni", "type", "id");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
             @Override
-            public Class<PsseSubstationEquipmentTerminalOneBus> psseTypeClass() {
-                return PsseSubstationEquipmentTerminalOneBus.class;
+            public Class<PsseSubstationEquipmentTerminal> psseTypeClass() {
+                return PsseSubstationEquipmentTerminal.class;
             }
         }
 
-        private static class SubstationEquipmentTerminalDataTwoBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminalTwoBuses> {
+        private static class SubstationEquipmentTerminalDataTwoBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataTwoBuses() {
                 super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, "i", "ni", "type", "j", "id");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
             @Override
-            public Class<PsseSubstationEquipmentTerminalTwoBuses> psseTypeClass() {
-                return PsseSubstationEquipmentTerminalTwoBuses.class;
+            public Class<PsseSubstationEquipmentTerminal> psseTypeClass() {
+                return PsseSubstationEquipmentTerminal.class;
             }
         }
 
-        private static class SubstationEquipmentTerminalDataThreeBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminalThreeBuses> {
+        private static class SubstationEquipmentTerminalDataThreeBuses extends AbstractRecordGroup<PsseSubstationEquipmentTerminal> {
             SubstationEquipmentTerminalDataThreeBuses() {
                 super(INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, "i", "ni", "type", "j", "k", "id");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
             @Override
-            public Class<PsseSubstationEquipmentTerminalThreeBuses> psseTypeClass() {
-                return PsseSubstationEquipmentTerminalThreeBuses.class;
+            public Class<PsseSubstationEquipmentTerminal> psseTypeClass() {
+                return PsseSubstationEquipmentTerminal.class;
             }
         }
     }

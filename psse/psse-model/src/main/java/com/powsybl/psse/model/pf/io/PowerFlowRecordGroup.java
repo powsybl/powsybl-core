@@ -48,12 +48,17 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     INTERNAL_SUBSTATION_NODE("subnode"),
     INTERNAL_SUBSTATION_SWITCHING_DEVICE("subswd"),
     INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL("subterm"),
-    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START("subterm"),
-    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS("subterm"),
-    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES("subterm"),
-    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES("subterm");
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_COMMON_START(),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS(),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES(),
+    INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES();
     private final String rawxNodeName;
     private final String rawName;
+
+    PowerFlowRecordGroup() {
+        this.rawxNodeName = name();
+        this.rawName = name();
+    }
 
     PowerFlowRecordGroup(String rawxNodeName) {
         this.rawxNodeName = rawxNodeName;
