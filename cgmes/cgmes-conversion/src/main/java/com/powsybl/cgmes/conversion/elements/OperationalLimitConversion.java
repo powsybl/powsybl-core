@@ -53,18 +53,23 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForVoltageLimits(terminalId);
             }
-            if (terminal != null) {
-                vl = terminal.getVoltageLevel();
-            } else if (equipmentId != null) {
-                Identifiable<?> i = context.network().getIdentifiable(equipmentId);
-                if (i == null) {
-                    vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
-                } else if (i instanceof Injection<?> injection) {
-                    vl = injection.getTerminal().getVoltageLevel();
-                }
-            }
+            setVoltageLevelForVoltageLimit(terminal);
         } else {
             notAssigned();
+        }
+    }
+
+    private void setVoltageLevelForVoltageLimit(Terminal terminal) {
+        if (terminal != null) {
+            vl = terminal.getVoltageLevel();
+        } else if (equipmentId != null) {
+            Identifiable<?> i = context.network().getIdentifiable(equipmentId);
+            if (i == null) {
+                // Happens in BusBranch when the voltage limit is linked to a busbarSection
+                vl = context.network().getVoltageLevel(p.getId("EquipmentContainer"));
+            } else if (i instanceof Injection<?> injection) {
+                vl = injection.getTerminal().getVoltageLevel();
+            }
         }
     }
 
