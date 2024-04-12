@@ -11,10 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -32,14 +29,10 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
-            case SV:
-                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
-            default:
-                throw new PowsyblException("Unexpected profile used for initial values");
-        }
+        return switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
+            case SSH -> fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
+            case SV -> fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+        };
     }
 
     @Override
@@ -84,5 +77,16 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         PowerFlow f = powerFlowSV();
         context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
+    }
+
+    @Override
+    public void update(Network network) {
+        super.update(network);
+        int sections = getSections(p, -1);
+        ShuntCompensator shunt = network.getShuntCompensator(id);
+        if (sections >= 0) {
+            shunt.setSectionCount(sections);
+        }
+        updateTerminalConnectedStatus(shunt);
     }
 }
