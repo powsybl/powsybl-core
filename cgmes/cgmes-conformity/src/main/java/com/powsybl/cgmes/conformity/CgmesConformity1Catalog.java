@@ -8,10 +8,7 @@
 
 package com.powsybl.cgmes.conformity;
 
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.InMemoryCgmesModel;
-import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.cgmes.model.GridModelReferenceResources;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.ResourceSet;
 
 import java.util.Arrays;
@@ -45,6 +42,23 @@ public final class CgmesConformity1Catalog {
                         MICRO_GRID_BE_SV,
                         MICRO_GRID_BE_TP),
                 microGridBaseCaseBoundaries());
+    }
+
+    public static GridModelReferenceResources microGridBaseCaseBEonlyEQ() {
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-BE-only-EQ",
+                null,
+                new ResourceSet(MICRO_GRID_BE_BASE,
+                        MICRO_GRID_BE_EQ,
+                        MICRO_GRID_BE_TP),
+                microGridBaseCaseBoundaries());
+    }
+
+    public static GridModelReferenceResources microGridBaseCaseBEonlySSH() {
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-BE-only-EQ",
+                null,
+                new ResourceSet(MICRO_GRID_BE_BASE, MICRO_GRID_BE_SSH));
     }
 
     public static GridModelReference microGridType4BE() {

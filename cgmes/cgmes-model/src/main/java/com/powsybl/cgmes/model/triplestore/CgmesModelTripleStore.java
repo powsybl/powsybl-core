@@ -43,6 +43,10 @@ import static com.powsybl.cgmes.model.CgmesNamespace.CIM_100_EQ_PROFILE;
 public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore) {
+        this(cimNamespace, tripleStore, "");
+    }
+
+    public CgmesModelTripleStore(String cimNamespace, TripleStore tripleStore, String queryCatalogName) {
         super();
         this.cimNamespace = cimNamespace;
         this.cimVersion = cimVersionFromCimNamespace(cimNamespace);
@@ -50,7 +54,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         tripleStore.defineQueryPrefix("cim", cimNamespace);
         tripleStore.defineQueryPrefix("entsoe", CgmesNamespace.ENTSOE_NAMESPACE);
         tripleStore.defineQueryPrefix("eu", CgmesNamespace.EU_NAMESPACE);
-        queryCatalog = queryCatalogFor(cimVersion);
+        queryCatalog = queryCatalogFor(cimVersion, queryCatalogName);
         Objects.requireNonNull(queryCatalog);
     }
 
@@ -509,6 +513,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags allSynchronousMachines() {
+        return namedQuery("allSynchronousMachines");
+    }
+
+    @Override
     public PropertyBags synchronousMachinesGenerators() {
         return namedQuery("synchronousMachinesGenerators");
     }
@@ -768,11 +777,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return modelId() + "_" + subset + ".xml";
     }
 
-    private QueryCatalog queryCatalogFor(int cimVersion) {
+    private QueryCatalog queryCatalogFor(int cimVersion, String name) {
         QueryCatalog qc = null;
         String resourceName = null;
         if (cimVersion > 0) {
-            resourceName = String.format("CIM%d.sparql", cimVersion);
+            resourceName = String.format("CIM%d%s.sparql", cimVersion, name);
         }
         if (resourceName != null) {
             qc = new QueryCatalog(resourceName);

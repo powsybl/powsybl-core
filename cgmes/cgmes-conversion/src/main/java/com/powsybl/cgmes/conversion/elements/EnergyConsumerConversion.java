@@ -10,10 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.ZipLoadModelAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -50,6 +47,15 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         setLoadDetail(loadKind, load);
 
         addSpecificProperties(load, loadKind);
+    }
+
+    @Override
+    public void update(Network network) {
+        super.update(network);
+        Load load = network.getLoad(id)
+                .setP0(p0())
+                .setQ0(q0());
+        updateTerminalConnectedStatus(load);
     }
 
     private static void addSpecificProperties(Load load, String loadKind) {

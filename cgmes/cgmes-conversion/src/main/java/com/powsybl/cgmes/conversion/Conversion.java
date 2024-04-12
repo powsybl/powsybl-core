@@ -268,6 +268,33 @@ public class Conversion {
         return network;
     }
 
+    public void update(Network network, ReportNode reportNode) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(reportNode);
+        Context context = createContext(network, reportNode);
+
+        // FIXME(Luma) Inspect the contents of the loaded data
+        if (LOG.isDebugEnabled()) {
+            PropertyBags nts = cgmes.numObjectsByType();
+            LOG.debug("CGMES objects read for the update:");
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s%n", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> {
+                PropertyBags objs = cgmes.allObjectsOfType(nt.getLocal("Type"));
+                LOG.debug(objs.tabulateLocals());
+            });
+        }
+
+        update(network, cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
+        update(network, cgmes.energySources(), es -> new EnergySourceConversion(es, context));
+        update(network, cgmes.equivalentInjections(), eqi -> new EquivalentInjectionConversion(eqi, context));
+        update(network, cgmes.externalNetworkInjections(), eni -> new ExternalNetworkInjectionConversion(eni, context));
+        update(network, cgmes.shuntCompensators(), sh -> new ShuntConversion(sh, context));
+        update(network, cgmes.equivalentShunts(), es -> new EquivalentShuntConversion(es, context));
+        update(network, cgmes.staticVarCompensators(), svc -> new StaticVarCompensatorConversion(svc, context));
+        update(network, cgmes.asynchronousMachines(), asm -> new AsynchronousMachineConversion(asm, context));
+        update(network, cgmes.allSynchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
+    }
+
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
             for (DanglingLine dl : network.getDanglingLines()) {
@@ -392,6 +419,24 @@ public class Conversion {
             } else if (c.valid()) {
                 c.convert();
             }
+        }
+    }
+
+    private void update(
+            Network network,
+            PropertyBags elements,
+            Function<PropertyBag, AbstractObjectConversion> f) {
+        String logTitle = null;
+        for (PropertyBag element : elements) {
+            AbstractObjectConversion c = f.apply(element);
+            if (LOG.isTraceEnabled()) {
+                if (logTitle == null) {
+                    logTitle = c.getClass().getSimpleName();
+                    logTitle = logTitle.replace("Conversion", "");
+                }
+                LOG.trace(element.tabulateLocals(logTitle));
+            }
+            c.update(network);
         }
     }
 

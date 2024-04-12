@@ -169,37 +169,46 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         PropertyBags results = new PropertyBags();
         try (RepositoryConnection conn = repo.getConnection()) {
             // Default language is SPARQL
-            TupleQuery q = conn.prepareTupleQuery(query1);
+            try {
+                TupleQuery q = conn.prepareTupleQuery(query1);
 
-            // Print the optimization plan for the query
-            // Explaining queries take some time, so we change the execution timeout
-            if (EXPLAIN_QUERIES && LOGGER.isDebugEnabled()) {
-                Explanation explanation = q.explain(Explanation.Level.Timed);
-                LOGGER.debug("Query explanation:\n{}\n{}", query, explanation);
-            }
+                // Print the optimization plan for the query
+                // Explaining queries take some time, so we change the execution timeout
+                if (EXPLAIN_QUERIES && LOGGER.isDebugEnabled()) {
+                    Explanation explanation = q.explain(Explanation.Level.Timed);
+                    LOGGER.debug("Query explanation:\n{}\n{}", query, explanation);
+                }
 
-            // Duplicated triplets are returned in queries
-            // when an object is defined in a file and referenced in another (rdf:ID and
-            // rdf:about)
-            // and data has been added to repository with contexts
-            // and we query without using explicit GRAPH clauses
-            // This means that we have to filter distinct results
-            try (TupleQueryResult r = QueryResults.distinctResults(q.evaluate())) {
-                List<String> names = r.getBindingNames();
-                while (r.hasNext()) {
-                    BindingSet s = r.next();
-                    PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers(), getOptions().unescapeIdentifiers());
+                // Duplicated triplets are returned in queries
+                // when an object is defined in a file and referenced in another (rdf:ID and
+                // rdf:about)
+                // and data has been added to repository with contexts
+                // and we query without using explicit GRAPH clauses
+                // This means that we have to filter distinct results
+                try (TupleQueryResult r = QueryResults.distinctResults(q.evaluate())) {
+                    List<String> names = r.getBindingNames();
+                    while (r.hasNext()) {
+                        BindingSet s = r.next();
+                        PropertyBag result = new PropertyBag(names, getOptions().isRemoveInitialUnderscoreForIdentifiers(), getOptions().unescapeIdentifiers());
 
-                    names.forEach(name -> {
-                        if (s.hasBinding(name)) {
-                            String value = s.getBinding(name).getValue().stringValue();
-                            result.put(name, value);
+                        names.forEach(name -> {
+                            if (s.hasBinding(name)) {
+                                String value = s.getBinding(name).getValue().stringValue();
+                                result.put(name, value);
+                            }
+                        });
+                        if (result.size() > 0) {
+                            results.add(result);
                         }
-                    });
-                    if (result.size() > 0) {
-                        results.add(result);
                     }
                 }
+            } catch (MalformedQueryException x) {
+                int line = 1;
+                for (String s : query1.split("\n")) {
+                    LOGGER.error(String.format("%3d  %s%n", line, s));
+                    line++;
+                }
+                throw x;
             }
         }
         return results;

@@ -77,6 +77,22 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addSpecificProperties(g, p);
     }
 
+    @Override
+    public void update(Network network) {
+        super.update(network);
+        PowerFlow f = powerFlow();
+        double targetP = 0;
+        double targetQ = 0;
+        if (f.defined()) {
+            targetP = -f.p();
+            targetQ = -f.q();
+        }
+        Generator generator = network.getGenerator(id)
+                .setTargetP(targetP)
+                .setTargetQ(targetQ);
+        updateTerminalConnectedStatus(generator);
+    }
+
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
         generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
         String type = p.getLocal("type");

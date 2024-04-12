@@ -37,27 +37,27 @@ import java.util.Optional;
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
     protected AbstractConductingEquipmentConversion(
-        String type,
-        PropertyBag p,
-        Context context) {
+            String type,
+            PropertyBag p,
+            Context context) {
         super(type, p, context);
         numTerminals = 1;
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
         steadyStatePowerFlow = new PowerFlow(p, "p", "q");
     }
 
     protected AbstractConductingEquipmentConversion(
-        String type,
-        PropertyBag p,
-        Context context,
-        int numTerminals) {
+            String type,
+            PropertyBag p,
+            Context context,
+            int numTerminals) {
         super(type, p, context);
         // Information about each terminal is in properties of the unique property bag
         if (numTerminals > 3) {
             throw new IllegalArgumentException("Invalid number of terminals at " + id + ": " + numTerminals);
         }
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         this.numTerminals = numTerminals;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
@@ -67,14 +67,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected AbstractConductingEquipmentConversion(
-        String type,
-        PropertyBags ps,
-        Context context) {
+            String type,
+            PropertyBags ps,
+            Context context) {
         super(type, ps, context);
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         if (numTerminals > 3) {
             throw new IllegalStateException("numTerminals should be less or equal to 3 but is " + numTerminals);
         }
@@ -141,13 +141,40 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             if (voltageLevel(k).isEmpty()) {
                 missing(String.format("VoltageLevel of terminal %d %s (iidm %s)",
-                    k,
-                    cgmesVoltageLevelId(k),
-                    iidmVoltageLevelId(k)));
+                        k,
+                        cgmesVoltageLevelId(k),
+                        iidmVoltageLevelId(k)));
                 return false;
             }
         }
         return true;
+    }
+
+    @Override
+    public void update(Network network) {
+        // FIXME(Luma) we try to gather terminal data for this equipment ...
+        //  do we have to take into account the eventual cgmes naming strategy??
+        Identifiable<?> idable = network.getIdentifiable(id);
+        String terminalId = idable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
+        terminals[0] = TerminalData.createFromTerminalId(terminalId, context);
+    }
+
+    protected void updateTerminalConnectedStatus(Connectable<?> c) {
+        for (int k = 1; k < numTerminals; k++) {
+            boolean connectedInUpdate = terminalConnected(k);
+            // FIXME(Luma) Terminals read from SSH have ordered using the aliases for CGMES.Terminal1, CGMES.Terminal2,
+            //  so we expect here that the numbers of IIDM terminals are consistent with order of terminal ids read for the update.
+            //  but there is the possibility of transformer ends being swapped, so this should be reviewed to be sure
+            Terminal t = c.getTerminals().get(k - 1);
+            boolean connectedInCurrent = t.isConnected();
+            if (connectedInCurrent != connectedInUpdate) {
+                if (connectedInUpdate) {
+                    t.connect();
+                } else {
+                    t.disconnect();
+                }
+            }
+        }
     }
 
     boolean validNodes() {
@@ -509,30 +536,47 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         private final String iidmVoltageLevelId;
         private final VoltageLevel voltageLevel;
 
+        static TerminalData createFromTerminalId(String terminalId, Context context) {
+            return new TerminalData(context.cgmes().terminal(terminalId), context);
+        }
+
         TerminalData(String terminalPropertyName, PropertyBag p, Context context) {
-            t = context.cgmes().terminal(p.getId(terminalPropertyName));
-            String nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-            this.busId = context.namingStrategy().getIidmId("Bus", nodeId);
-            if (context.config().convertBoundary()
-                && context.boundary().containsNode(nodeId)) {
-                cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
+            this(context.cgmes().terminal(p.getId(terminalPropertyName)), context);
+        }
+
+        private TerminalData(CgmesTerminal t, Context context) {
+            this.t = t;
+
+            // FIXME(Luma) the read model may contain incomplete terminal definitions (SSH only has been read)
+            if (t == null) {
+                busId = null;
+                cgmesVoltageLevelId = null;
+                iidmVoltageLevelId = null;
+                voltageLevel = null;
             } else {
-                // cgmesVoltageLevelId may be null if terminal is contained in a Line
-                // (happens in boundaries)
-                cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
-            }
-            if (cgmesVoltageLevelId != null) {
-                String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
-                iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
-                voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
-            } else {
-                // if terminal is contained in a Line Container, a fictitious voltage level is created,
-                // its ID is composed by its connectivity node ID + '_VL' sufix
-                voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
-                if (voltageLevel != null) {
-                    iidmVoltageLevelId = nodeId + "_VL";
+                String nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
+                this.busId = context.namingStrategy().getIidmId("Bus", nodeId);
+                if (context.config().convertBoundary()
+                        && context.boundary().containsNode(nodeId)) {
+                    cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
                 } else {
-                    iidmVoltageLevelId = null;
+                    // cgmesVoltageLevelId may be null if terminal is contained in a Line
+                    // (happens in boundaries)
+                    cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
+                }
+                if (cgmesVoltageLevelId != null) {
+                    String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
+                    iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
+                    voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
+                } else {
+                    // if terminal is contained in a Line Container, a fictitious voltage level is created,
+                    // its ID is composed by its connectivity node ID + '_VL' sufix
+                    voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
+                    if (voltageLevel != null) {
+                        iidmVoltageLevelId = nodeId + "_VL";
+                    } else {
+                        iidmVoltageLevelId = null;
+                    }
                 }
             }
         }

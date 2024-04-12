@@ -33,6 +33,11 @@ public final class CgmesModelFactory {
         return create(dataSource, alternativeDataSourceForBoundary, implementation, ReportNode.NO_OP);
     }
 
+    public static CgmesModel create(ReadOnlyDataSource dataSource, ReportNode reportNode) {
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        return create(dataSource, alternativeDataSourceForBoundary, TripleStoreFactory.DEFAULT_IMPLEMENTATION, reportNode);
+    }
+
     public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation, ReportNode reportNode) {
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
         return create(dataSource, alternativeDataSourceForBoundary, implementation, reportNode);
@@ -66,7 +71,7 @@ public final class CgmesModelFactory {
         // Only triple store implementations are available
         TripleStore tripleStore = TripleStoreFactory.create(implementation, tripleStoreOptions);
         String cimNamespace = obtainCimNamespace(ds, alternativeDataSourceForBoundary);
-        return new CgmesModelTripleStore(cimNamespace, tripleStore);
+        return new CgmesModelTripleStore(cimNamespace, tripleStore, tripleStoreOptions.queryCatalog());
     }
 
     private static String obtainCimNamespace(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary) {

@@ -122,6 +122,11 @@ public interface CgmesModel {
         return synchronousMachinesGenerators();
     }
 
+    // FIXME(Luma) we need to query all sync machines to perform updates, we may un-deprecate the previous func
+    default PropertyBags allSynchronousMachines() {
+        return new PropertyBags();
+    }
+
     default PropertyBags synchronousMachinesGenerators() {
         return new PropertyBags();
     }
