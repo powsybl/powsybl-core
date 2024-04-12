@@ -41,12 +41,12 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
-final class ExportXmlCompare {
+public final class ExportXmlCompare {
 
     private ExportXmlCompare() {
     }
 
-    static boolean compareNetworks(Path expected, Path actual) {
+    public static boolean compareNetworks(Path expected, Path actual) {
         try (InputStream expectedIs = Files.newInputStream(expected);
             InputStream actualIs = Files.newInputStream(actual)) {
             return compareNetworks(expectedIs, actualIs);
@@ -55,7 +55,7 @@ final class ExportXmlCompare {
         }
     }
 
-    static boolean compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) {
+    public static boolean compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
             return compareNetworks(expectedIs, actualIs, knownDiffs);
@@ -261,7 +261,7 @@ final class ExportXmlCompare {
         return onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
+    public static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
         // FIXME(Luma) Refactoring in progress. cgmes metadata models should be serialized in the same way, maybe we could check something else
         if (result == ComparisonResult.DIFFERENT) {
             String xpath = comparison.getControlDetails().getXPath();

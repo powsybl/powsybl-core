@@ -10,13 +10,16 @@ package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.test.export.ExportXmlCompare;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
+import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.DifferenceEvaluators;
+
+import java.nio.file.Path;
+import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,29 +29,50 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NetworkUpdateTest extends AbstractSerDeTest {
 
-    void print(Network network, String message) {
-        double totalLoad = network
-                .getLoadStream()
-                .mapToDouble(Load::getP0)
-                .sum();
-        double totalGeneration = network
-                .getGeneratorStream()
-                .mapToDouble(Generator::getTargetP)
-                .sum();
-        System.out.println(message);
-        System.out.printf("total load          = %10.2f%n", totalLoad);
-        System.out.printf("total generation    = %10.2f%n", totalGeneration);
-        System.out.printf("network valid level = %s%n", network.getValidationLevel());
-        System.out.println();
+    static class Summary {
+        final double totalLoad;
+        final double totalGeneration;
+        final double totalBShunts;
+
+        Summary(Network network) {
+            totalLoad = network
+                    .getLoadStream()
+                    .mapToDouble(Load::getP0)
+                    .sum();
+            totalGeneration = network
+                    .getGeneratorStream()
+                    .mapToDouble(Generator::getTargetP)
+                    .sum();
+            totalBShunts = network
+                    .getShuntCompensatorStream()
+                    .mapToDouble(s -> s.findSectionCount().isPresent() ? s.getB() : Double.NaN)
+                    .sum();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+            Summary summary = (Summary) o;
+            return Double.compare(totalLoad, summary.totalLoad) == 0 && Double.compare(totalGeneration, summary.totalGeneration) == 0 && Double.compare(totalBShunts, summary.totalBShunts) == 0;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(totalLoad, totalGeneration, totalBShunts);
+        }
     }
 
     @Test
     void testReadSSH() {
-        Network network0 = Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
-        print(network0, "reading everything at once (EQ+SSH)");
+        Network expected = Network.read(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource());
+        Summary sexpected = new Summary(expected);
 
         Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseBEonlyEQ().dataSource());
-        print(network, "after read");
 
         // reset default values and ensure we do not have ssh validation level, but equipment, the lowest
         network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
@@ -57,17 +81,32 @@ class NetworkUpdateTest extends AbstractSerDeTest {
             l.setQ0(Double.NaN);
         });
         network.getGeneratorStream().forEach(g -> g.setTargetP(Double.NaN));
-        network.runValidationChecks(false);
-        print(network, "after reset default values");
+        network.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSectionCount);
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 
         // Now import only SSH data over the current network
         CgmesImport importer = new CgmesImport();
         importer.update(network, CgmesConformity1Catalog.microGridBaseCaseBEonlySSH().dataSource(), null, ReportNode.NO_OP);
-        print(network, "after update with SSH");
-
-        network.runValidationChecks(false);
-        print(network, "after checks for SSH");
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        Summary snetwork = new Summary(network);
+
+        assertEquals(sexpected, snetwork);
+        // FIXME(Luma) In addition to comparing the summary, ...
+        //  assertTrue(compareNetworks(expected, network));
+    }
+
+    private boolean compareNetworks(Network expected, Network actual) {
+        // FIXME(Luma) remove properties before comparison
+        expected.getPropertyNames().stream().toList().forEach(expected::removeProperty);
+        actual.getPropertyNames().stream().toList().forEach(actual::removeProperty);
+
+        Path pexpected = tmpDir.resolve("expected.xiidm");
+        Path pactual = tmpDir.resolve("actual.xiidm");
+        expected.write("XIIDM", null, pexpected);
+        actual.write("XIIDM", null, pactual);
+        DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::ignoringCgmesMetadataModels);
+        return ExportXmlCompare.compareNetworks(pexpected, pactual, knownDiffsXiidm);
     }
 }

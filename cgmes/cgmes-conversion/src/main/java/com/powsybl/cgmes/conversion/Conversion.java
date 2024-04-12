@@ -277,11 +277,8 @@ public class Conversion {
         if (LOG.isDebugEnabled()) {
             PropertyBags nts = cgmes.numObjectsByType();
             LOG.debug("CGMES objects read for the update:");
-            nts.forEach(nt -> LOG.debug(String.format("  %5d %s%n", nt.asInt("numObjects"), nt.getLocal("Type"))));
-            nts.forEach(nt -> {
-                PropertyBags objs = cgmes.allObjectsOfType(nt.getLocal("Type"));
-                LOG.debug(objs.tabulateLocals());
-            });
+            nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
+            nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
 
         update(network, cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
@@ -934,12 +931,10 @@ public class Conversion {
 
         public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
             switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
-                case "SSH":
-                case "SV":
-                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
-                    break;
-                default:
-                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
+                case "SSH", "SV" ->
+                        this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
+                default ->
+                        throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
             }
             return this;
         }
