@@ -109,18 +109,11 @@ class SwitchConverter extends AbstractConverter {
             SwitchKind switchKind;
 
             if (aUsage.isPresent()) {
-                switch (aUsage.get()) {
-                    case "cbk":
-                    case "swt":
-                        switchKind = SwitchKind.BREAKER;
-                        break;
-                    case "dct":
-                    case "sdc":
-                        switchKind = SwitchKind.DISCONNECTOR;
-                        break;
-                    default:
-                        throw new PowerFactoryException("Unknown switch type: " + aUsage);
-                }
+                switchKind = switch (aUsage.get()) {
+                    case "cbk", "swt" -> SwitchKind.BREAKER;
+                    case "dct", "sdc" -> SwitchKind.DISCONNECTOR;
+                    default -> throw new PowerFactoryException("Unknown switch type: " + aUsage);
+                };
             } else {
                 switchKind = SwitchKind.BREAKER;
             }

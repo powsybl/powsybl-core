@@ -34,7 +34,7 @@ public abstract class AbstractMoveConnectableNotifTest {
         Load cf = network.getLoad("CF");
         cf.getTerminal().getNodeBreakerView().moveConnectable(3, "C");
         assertNotNull(obj.getValue());
-        assertTrue(obj.getValue() instanceof NodeTopologyPoint);
+        assertInstanceOf(NodeTopologyPoint.class, obj.getValue());
         NodeTopologyPoint topologyPoint = (NodeTopologyPoint) obj.getValue();
         assertSame(TopologyKind.NODE_BREAKER, topologyPoint.getTopologyKind());
         assertEquals("C", topologyPoint.getVoltageLevelId());
@@ -54,7 +54,7 @@ public abstract class AbstractMoveConnectableNotifTest {
         Load load = network.getLoad("LOAD");
         load.getTerminal().getBusBreakerView().moveConnectable("NGEN", true);
         assertNotNull(obj.getValue());
-        assertTrue(obj.getValue() instanceof BusTopologyPoint);
+        assertInstanceOf(BusTopologyPoint.class, obj.getValue());
         BusTopologyPoint topologyPoint = (BusTopologyPoint) obj.getValue();
         assertSame(TopologyKind.BUS_BREAKER, topologyPoint.getTopologyKind());
         assertEquals("VLGEN", topologyPoint.getVoltageLevelId());

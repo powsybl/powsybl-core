@@ -238,7 +238,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {
-                assertTrue(exception.getCause() instanceof ComputationException);
+                assertInstanceOf(ComputationException.class, exception.getCause());
                 assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
                 assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }

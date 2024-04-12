@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -86,16 +85,16 @@ public abstract class AbstractSwitchSetRetainedTest {
         assertTrue(b1.isRetained());
         assertFalse(b1.isOpen());
 
-        List<Bus> buses0 = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+        List<Bus> buses0 = vl.getBusBreakerView().getBusStream().toList();
 
         b1.setOpen(true);
 
-        List<Bus> buses1 = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+        List<Bus> buses1 = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(buses0, buses1);
 
         b1.setOpen(false);
 
-        List<Bus> buses2 = vl.getBusBreakerView().getBusStream().collect(Collectors.toList());
+        List<Bus> buses2 = vl.getBusBreakerView().getBusStream().toList();
         assertEquals(buses0, buses2);
     }
 }

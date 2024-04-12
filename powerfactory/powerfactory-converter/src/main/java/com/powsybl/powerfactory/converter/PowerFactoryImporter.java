@@ -12,7 +12,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -49,11 +48,6 @@ public class PowerFactoryImporter implements Importer {
     @Override
     public String getFormat() {
         return FORMAT;
-    }
-
-    @Override
-    public List<Parameter> getParameters() {
-        return Collections.emptyList();
     }
 
     @Override

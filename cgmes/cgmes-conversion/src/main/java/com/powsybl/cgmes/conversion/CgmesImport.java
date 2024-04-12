@@ -725,5 +725,5 @@ public class CgmesImport implements Importer {
     // Parameters of importers are only passed to importData method,
     // but to decide if we are importers also for CIM 14 files
     // we must implement the exists method, that has not access to parameters
-    private boolean importCim14 = false;
+    private final boolean importCim14 = false;
 }

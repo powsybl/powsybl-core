@@ -215,6 +215,6 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
     public Optional<List<Path>> getOptionalPathListProperty(String name) {
         return getOptionalStringListProperty(name).flatMap(strings -> Optional.of(strings.stream()
                 .map(fs::getPath)
-                .collect(Collectors.toList())));
+                .toList()));
     }
 }

@@ -23,7 +23,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
 
     private final NetworkPredicate predicate;
 
-    private Set<String> vlIds = new HashSet<>();
+    private final Set<String> vlIds = new HashSet<>();
 
     public AbstractNetworkReducer(NetworkPredicate predicate) {
         this.predicate = Objects.requireNonNull(predicate);

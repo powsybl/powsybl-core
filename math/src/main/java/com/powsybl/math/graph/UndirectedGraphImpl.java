@@ -272,7 +272,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     @Override
     public void removeAllEdges() {
-        Collection<E> allEdges = edges.stream().filter(Objects::nonNull).map(Edge::getObject).collect(Collectors.toList());
+        Collection<E> allEdges = edges.stream().filter(Objects::nonNull).map(Edge::getObject).toList();
         notifyAllEdgesBeforeRemoval(allEdges);
         edges.clear();
         removedEdges.clear();

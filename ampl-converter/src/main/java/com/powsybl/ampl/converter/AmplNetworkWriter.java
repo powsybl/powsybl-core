@@ -202,18 +202,12 @@ public class AmplNetworkWriter {
     }
 
     private boolean isOnlyMainCc() {
-        switch (config.getExportScope()) {
-            case ONLY_MAIN_CC:
-            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS:
-            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS:
-                return true;
-
-            case ALL:
-                return false;
-
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (config.getExportScope()) {
+            case ONLY_MAIN_CC, ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS, ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS ->
+                true;
+            case ALL -> false;
+            default -> throw new IllegalStateException();
+        };
     }
 
     private boolean connectedComponentToExport(int numCC) {
@@ -337,20 +331,27 @@ public class AmplNetworkWriter {
             Terminal t2 = l.getTerminal2();
             Bus bus1 = AmplUtil.getBus(t1);
             Bus bus2 = AmplUtil.getBus(t2);
-            if (bus1 != null && bus2 != null && bus1 == bus2) {
-                LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
+            if (warnLineConnectedOnSameBus(context, t1, t2, bus1, bus2, l.getId())) {
                 continue;
             }
-            String bus1Id = AmplUtil.getBusId(bus1);
-            String bus2Id = AmplUtil.getBusId(bus2);
-            if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
-                continue;
-            }
-            context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
-            context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
             columnsExporter.writeLinesToFormatter(formatter, l);
             addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
         }
+    }
+
+    private boolean warnLineConnectedOnSameBus(AmplExportContext context, Terminal t1, Terminal t2, Bus bus1, Bus bus2, String id) {
+        if (bus2 != null && bus1 == bus2) {
+            LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", id);
+            return true;
+        }
+        String bus1Id = AmplUtil.getBusId(bus1);
+        String bus2Id = AmplUtil.getBusId(bus2);
+        if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
+            return true;
+        }
+        context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
+        context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
+        return false;
     }
 
     private void writeTieLines(AmplExportContext context, TableFormatter formatter) throws IOException {
@@ -359,17 +360,9 @@ public class AmplNetworkWriter {
             Terminal t2 = l.getDanglingLine2().getTerminal();
             Bus bus1 = AmplUtil.getBus(t1);
             Bus bus2 = AmplUtil.getBus(t2);
-            if (bus1 != null && bus2 != null && bus1 == bus2) {
-                LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", l.getId());
+            if (warnLineConnectedOnSameBus(context, t1, t2, bus1, bus2, l.getId())) {
                 continue;
             }
-            String bus1Id = AmplUtil.getBusId(bus1);
-            String bus2Id = AmplUtil.getBusId(bus2);
-            if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
-                continue;
-            }
-            context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
-            context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
             columnsExporter.writeTieLineToFormatter(formatter, l);
             addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
         }
@@ -517,16 +510,10 @@ public class AmplNetworkWriter {
     }
 
     private boolean exportLoad(AmplExportContext context, String busId) {
-        switch (config.getExportScope()) {
-            case ALL:
-            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS:
-                return true;
-            case ONLY_MAIN_CC:
-            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS:
-                return isBusExported(context, busId);
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (config.getExportScope()) {
+            case ALL, ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS -> true;
+            case ONLY_MAIN_CC, ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS -> isBusExported(context, busId);
+        };
     }
 
     private void writeLoads(AmplExportContext context) throws IOException {
@@ -570,17 +557,12 @@ public class AmplNetworkWriter {
     }
 
     private boolean exportGeneratorOrShunt(AmplExportContext context, String busId, String conBusId) {
-        switch (config.getExportScope()) {
-            case ALL:
-                return true;
-            case ONLY_MAIN_CC:
-                return isBusExported(context, busId);
-            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS:
-            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS:
-                return isBusExported(context, conBusId);
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (config.getExportScope()) {
+            case ALL -> true;
+            case ONLY_MAIN_CC -> isBusExported(context, busId);
+            case ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS, ONLY_MAIN_CC_AND_CONNECTABLE_GENERATORS_AND_SHUNTS_AND_ALL_LOADS ->
+                isBusExported(context, conBusId);
+        };
     }
 
     private void writeShunts(AmplExportContext context) throws IOException {
@@ -748,7 +730,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getLccConverterStationsColumns())) {
 
-            for (HvdcConverterStation hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
+            for (HvdcConverterStation<?> hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
                 if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
                     LccConverterStation lccStation = (LccConverterStation) hvdcStation;
                     columnsExporter.writeLccConverterStationToFormatter(formatter, lccStation);
@@ -768,7 +750,7 @@ public class AmplNetworkWriter {
                  AmplConstants.LOCALE,
                  columnsExporter.getVscConverterStationsColumns())) {
 
-            for (HvdcConverterStation hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
+            for (HvdcConverterStation<?> hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
                 if (hvdcStation.getHvdcType().equals(HvdcType.VSC)) {
                     VscConverterStation vscStation = (VscConverterStation) hvdcStation;
                     columnsExporter.writeVscConverterStationToFormatter(formatter, vscStation);

@@ -49,7 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -159,7 +158,7 @@ class SecurityAnalysisTest {
         LimitViolation violation1 = postcontingencyResult.getLimitViolationsResult().getLimitViolations().get(1);
         assertEquals(LimitViolationType.LOW_VOLTAGE_ANGLE, violation1.getLimitType());
         assertEquals("VoltageAngleLimit_NHV1_NHV2_1", violation1.getSubjectId());
-        assertEquals(null, violation1.getSide());
+        assertNull(violation1.getSide());
 
         assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
         assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
@@ -242,7 +241,7 @@ class SecurityAnalysisTest {
         // Testing all contingencies at once
         ContingenciesProvider contingenciesProvider = n -> n.getBranchStream()
             .map(b -> new Contingency(b.getId(), new BranchContingency(b.getId())))
-            .collect(Collectors.toList());
+            .toList();
 
         SecurityAnalysisParameters saParameters = new SecurityAnalysisParameters();
 

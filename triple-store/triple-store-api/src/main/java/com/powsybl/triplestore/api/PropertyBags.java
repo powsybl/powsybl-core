@@ -115,14 +115,12 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         String columnSeparator = " \t ";
         String lineSeparator = System.lineSeparator();
 
-        StringBuilder s = new StringBuilder(size() * 80);
-        s.append(names.stream().collect(Collectors.joining(columnSeparator)));
-        s.append(lineSeparator);
-        s.append(stream()
+        return String.join(columnSeparator, names) +
+            lineSeparator +
+            stream()
                 .map(r -> names.stream()
-                        .map(n -> r.containsKey(n) ? getValue.apply(r, n) : "N/A")
-                        .collect(Collectors.joining(columnSeparator)))
-                .collect(Collectors.joining(lineSeparator)));
-        return s.toString();
+                    .map(n -> r.containsKey(n) ? getValue.apply(r, n) : "N/A")
+                    .collect(Collectors.joining(columnSeparator)))
+                .collect(Collectors.joining(lineSeparator));
     }
 }

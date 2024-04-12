@@ -118,11 +118,11 @@ public abstract class AbstractToolTest {
             });
         }
         if (expectedErr != null) {
-            assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8.name()));
+            assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8));
         }
         assertEquals(expectedStatus, status);
         if (expectedOut != null) {
-            assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8.name()));
+            assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8));
         }
     }
 

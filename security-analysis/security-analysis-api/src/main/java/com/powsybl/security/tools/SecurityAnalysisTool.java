@@ -55,7 +55,6 @@ import java.util.Arrays;
 import java.util.Properties;
 import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.tools.ConversionToolUtils.*;
 import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
@@ -173,7 +172,7 @@ public class SecurityAnalysisTool implements Tool {
             .ifPresent(inputs::setContingenciesSource);
 
         options.getValues(LIMIT_TYPES_OPTION)
-            .map(types -> types.stream().map(LimitViolationType::valueOf).collect(Collectors.toList()))
+            .map(types -> types.stream().map(LimitViolationType::valueOf).toList())
             .ifPresent(inputs::addViolationTypes);
 
         options.getValues(WITH_EXTENSIONS_OPTION)

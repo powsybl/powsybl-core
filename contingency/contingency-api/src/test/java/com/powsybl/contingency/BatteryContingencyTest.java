@@ -27,7 +27,7 @@ class BatteryContingencyTest {
         assertEquals(ContingencyElementType.BATTERY, batContingency.getType());
 
         assertNotNull(batContingency.toModification());
-        assertTrue(batContingency.toModification() instanceof BatteryTripping);
+        assertInstanceOf(BatteryTripping.class, batContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new BatteryContingency("foo"), new BatteryContingency("foo"))
@@ -42,7 +42,7 @@ class BatteryContingencyTest {
         assertNotNull(battery);
         ContingencyElement element = ContingencyElement.of(battery);
         assertNotNull(element);
-        assertTrue(element instanceof BatteryContingency);
+        assertInstanceOf(BatteryContingency.class, element);
         assertEquals("BAT", element.getId());
         assertEquals(ContingencyElementType.BATTERY, element.getType());
     }

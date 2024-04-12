@@ -18,7 +18,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -62,30 +61,31 @@ public class StudyCase extends AbstractPowerFactoryData {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        JsonUtil.parseObject(parser, fieldName -> {
-            switch (fieldName) {
-                case "name":
-                    context.name = parser.nextTextValue();
-                    return true;
-                case "time":
-                    context.time = Instant.parse(parser.nextTextValue());
-                    return true;
-                case "classes":
-                    context.scheme = DataScheme.parseJson(parser);
-                    return true;
-                case "objects":
-                    JsonUtil.parseObjectArray(parser, obj -> { },
-                        parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
-                    return true;
-                case "elmNets":
-                    context.elmNets = JsonUtil.parseLongArray(parser).stream()
-                            .map(id -> context.index.getDataObjectById(id)
-                                    .orElseThrow(() -> new PowerFactoryException("ElmNet object " + id + " not found")))
-                            .collect(Collectors.toList());
-                    return true;
-                default:
-                    return false;
+        JsonUtil.parseObject(parser, fieldName -> switch (fieldName) {
+            case "name" -> {
+                context.name = parser.nextTextValue();
+                yield true;
             }
+            case "time" -> {
+                context.time = Instant.parse(parser.nextTextValue());
+                yield true;
+            }
+            case "classes" -> {
+                context.scheme = DataScheme.parseJson(parser);
+                yield true;
+            }
+            case "objects" -> {
+                JsonUtil.parseObjectArray(parser, obj -> { }, parser2 -> DataObject.parseJson(parser2, context.index, context.scheme));
+                yield true;
+            }
+            case "elmNets" -> {
+                context.elmNets = JsonUtil.parseLongArray(parser).stream()
+                    .map(id -> context.index.getDataObjectById(id)
+                        .orElseThrow(() -> new PowerFactoryException("ElmNet object " + id + " not found")))
+                    .toList();
+                yield true;
+            }
+            default -> false;
         });
         return new StudyCase(context.name, context.time, context.elmNets, context.index);
     }

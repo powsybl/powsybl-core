@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +37,7 @@ import java.util.stream.Stream;
  * two or more regulating controls are enabled.
  *
  * <p>
- *  Characteristics
+ * Characteristics
  * </p>
  * <table style="border: 1px solid black; border-collapse: collapse">
  *     <thead>
@@ -118,7 +116,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Transformer leg
      *
      * <p>
-     *     Characteristics
+     * Characteristics
      * </p>
      *
      * <table style="border: 1px solid black; border-collapse: collapse">
@@ -324,16 +322,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Leg getLeg3();
 
     default Leg getLeg(ThreeSides side) {
-        switch (side) {
-            case ONE:
-                return getLeg1();
-            case TWO:
-                return getLeg2();
-            case THREE:
-                return getLeg3();
-            default:
-                throw new PowsyblException("Can't get leg from side. Unsupported Side \"" + side + "\"");
-        }
+        return switch (side) {
+            case ONE -> getLeg1();
+            case TWO -> getLeg2();
+            case THREE -> getLeg3();
+        };
     }
 
     /**

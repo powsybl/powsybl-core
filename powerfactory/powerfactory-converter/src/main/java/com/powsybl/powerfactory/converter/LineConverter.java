@@ -7,6 +7,7 @@
  */
 package com.powsybl.powerfactory.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
@@ -75,7 +76,9 @@ class LineConverter extends AbstractConverter {
 
         NodeRef end1 = nodeRefs.get(0);
         NodeRef end2 = nodeRefs.get(1);
-
+        if (lineModel.isEmpty()) {
+            throw new PowsyblException("line Model cant be null to create a Line");
+        }
         createLine(end1, end2, elmLne.getLocName(), lineModel.get());
     }
 
@@ -148,7 +151,7 @@ class LineConverter extends AbstractConverter {
         }
 
         private static Optional<LineModel> createFromElmTow(DataObject elmTow, DataObject elmLne) {
-            Float dline = elmLne.getFloatAttributeValue("dline");
+            float dline = elmLne.getFloatAttributeValue("dline");
             DataObject typTow = getTypeTow(elmTow);
 
             double r = typTow.getDoubleMatrixAttributeValue("R_c1").getEntry(0, 0) * dline;

@@ -169,9 +169,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         double bAdd = 0.0;
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
         if (!psseReactorBlocks.isEmpty()) {
-            for (int i = 0; i < psseReactorBlocks.size(); i++) {
-                for (int j = 0; j < psseReactorBlocks.get(i).getN(); j++) {
-                    bAdd = bAdd + psseReactorBlocks.get(i).getB();
+            for (ShuntBlock psseReactorBlock : psseReactorBlocks) {
+                for (int j = 0; j < psseReactorBlock.getN(); j++) {
+                    bAdd = bAdd + psseReactorBlock.getB();
                     shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
                 }
             }
@@ -182,9 +182,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
 
         if (!psseCapacitorBlocks.isEmpty()) {
-            for (int i = 0; i < psseCapacitorBlocks.size(); i++) {
-                for (int j = 0; j < psseCapacitorBlocks.get(i).getN(); j++) {
-                    bAdd = bAdd + psseCapacitorBlocks.get(i).getB();
+            for (ShuntBlock psseCapacitorBlock : psseCapacitorBlocks) {
+                for (int j = 0; j < psseCapacitorBlock.getN(); j++) {
+                    bAdd = bAdd + psseCapacitorBlock.getB();
                     shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
                 }
             }

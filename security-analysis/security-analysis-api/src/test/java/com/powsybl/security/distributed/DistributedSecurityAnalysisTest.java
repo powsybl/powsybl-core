@@ -17,7 +17,6 @@ import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
@@ -42,9 +40,7 @@ class DistributedSecurityAnalysisTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
-    private ComputationManager cm = mock(ComputationManager.class);
-    private Network network = EurostagTutorialExample1Factory.create();
-    private ContingenciesProvider contingencies = newContingenciesProvider();
+    private final ComputationManager cm = mock(ComputationManager.class);
 
     @BeforeEach
     void setUp() throws IOException {
@@ -64,7 +60,7 @@ class DistributedSecurityAnalysisTest {
             public List<Contingency> getContingencies(Network network) {
                 return IntStream.range(1, 6)
                         .mapToObj(i -> new Contingency("contingency-" + i))
-                        .collect(Collectors.toList());
+                        .toList();
             }
 
             @Override

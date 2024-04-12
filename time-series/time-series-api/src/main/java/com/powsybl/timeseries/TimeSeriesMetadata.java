@@ -87,7 +87,7 @@ public class TimeSeriesMetadata {
     private static class JsonParsingContext {
         private String name;
         private TimeSeriesDataType dataType;
-        private Map<String, String> tags = new LinkedHashMap<>();
+        private final Map<String, String> tags = new LinkedHashMap<>();
         private TimeSeriesIndex index;
         private boolean insideTags = false;
 

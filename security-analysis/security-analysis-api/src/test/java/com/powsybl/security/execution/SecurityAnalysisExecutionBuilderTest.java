@@ -73,7 +73,7 @@ class SecurityAnalysisExecutionBuilderTest {
     @Test
     void checkLocal() {
         SecurityAnalysisExecution execution = builder.build();
-        assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
+        assertInstanceOf(SecurityAnalysisExecutionImpl.class, execution);
 
         execution.execute(Mockito.mock(ComputationManager.class), input);
 
@@ -84,26 +84,26 @@ class SecurityAnalysisExecutionBuilderTest {
     @Test
     void checkForwarded() {
         builder.forward(true);
-        assertTrue(builder.build() instanceof ForwardedSecurityAnalysisExecution);
+        assertInstanceOf(ForwardedSecurityAnalysisExecution.class, builder.build());
     }
 
     @Test
     void checkDistributedForwarded() {
         builder.forward(true)
                 .distributed(12);
-        assertTrue(builder.build() instanceof ForwardedSecurityAnalysisExecution);
+        assertInstanceOf(ForwardedSecurityAnalysisExecution.class, builder.build());
     }
 
     @Test
     void checkDistributed() {
         builder.distributed(12);
-        assertTrue(builder.build() instanceof DistributedSecurityAnalysisExecution);
+        assertInstanceOf(DistributedSecurityAnalysisExecution.class, builder.build());
     }
 
     @Test
     void checkSubtaskHasOnly5Contingencies() {
         SecurityAnalysisExecution execution = builder.subTask(new Partition(1, 2)).build();
-        assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
+        assertInstanceOf(SecurityAnalysisExecutionImpl.class, execution);
 
         execution.execute(Mockito.mock(ComputationManager.class), input);
 
