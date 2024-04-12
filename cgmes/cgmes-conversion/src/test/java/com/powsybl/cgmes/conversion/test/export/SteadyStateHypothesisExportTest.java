@@ -275,10 +275,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         SshExportedControlArea sshExportedControlArea = sshExportedControlAreas.iterator().next();
         assertEquals(473.9596, sshExportedControlArea.netInterchange, 1e-10);
         assertEquals(5, sshExportedControlArea.pTolerance, 1e-10);
-
-        // Check that SSH full model contains a reference to the original SSH that is superseding
-        String modelSupersedes = readSshModelSupersedes(outputPath.resolve("BE_SSH.xml"));
-        assertEquals("urn:uuid:1b092ff0-f8a0-49da-82d3-75eff5f1e820", modelSupersedes);
     }
 
     static class SshExportedControlArea {

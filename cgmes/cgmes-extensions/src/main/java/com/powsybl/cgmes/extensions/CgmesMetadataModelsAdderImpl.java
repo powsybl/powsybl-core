@@ -84,9 +84,6 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
             if (subset == null) {
                 throw new PowsyblException("Model subset is undefined");
             }
-            if (id == null) {
-                throw new PowsyblException("Model id is undefined");
-            }
             if (modelingAuthoritySet == null) {
                 throw new PowsyblException("Model modelingAuthoritySet is undefined");
             }

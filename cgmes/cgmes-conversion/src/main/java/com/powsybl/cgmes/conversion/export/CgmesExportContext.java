@@ -66,11 +66,9 @@ public class CgmesExportContext {
     private String modelVersion = null;
     private String boundaryEqId = null;
     private String boundaryTpId = null;
-    private Boolean modelUpdate = MODEL_UPDATE_VALUE;
     private List<String> profiles = null;
     private String baseName = null;
     public static final boolean CGM_EXPORT_VALUE = false;
-    public static final boolean MODEL_UPDATE_VALUE = true;
     public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
     public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
     public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
@@ -758,15 +756,6 @@ public class CgmesExportContext {
 
     public CgmesExportContext setBoundaryTpId(String boundaryTpId) {
         this.boundaryTpId = boundaryTpId;
-        return this;
-    }
-
-    public Boolean getModelUpdate() {
-        return modelUpdate;
-    }
-
-    public CgmesExportContext setModelUpdate(Boolean modelUpdate) {
-        this.modelUpdate = modelUpdate;
         return this;
     }
 
