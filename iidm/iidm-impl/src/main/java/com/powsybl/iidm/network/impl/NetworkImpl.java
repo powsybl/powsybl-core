@@ -67,6 +67,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private final Map<String, SubnetworkImpl> subnetworks = new LinkedHashMap<>();
 
+    private Map<AreaType, Map<String, Area>> areas = new HashMap<>();
+
     @Override
     public Collection<Network> getSubnetworks() {
         return subnetworks.values().stream().map(Network.class::cast).toList();
@@ -252,6 +254,25 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public int getCountryCount() {
         return getCountries().size();
+    }
+
+    @Override
+    public Area getArea(AreaType areaType, String id) {
+        return areas.get(areaType).get(id);
+    }
+
+    @Override
+    public Set<Area> getAreas(AreaType areaType) {
+        return new HashSet<>(areas.get(areaType).values());
+    }
+
+    @Override
+    public AreaAdder newArea(AreaType areaType) {
+        return new AreaAdderImpl(ref, areaType);
+    }
+
+    protected Map<AreaType, Map<String, Area>> getAllAreasMap() {
+        return areas;
     }
 
     @Override

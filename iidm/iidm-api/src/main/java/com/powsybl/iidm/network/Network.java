@@ -618,6 +618,12 @@ public interface Network extends Container<Network> {
      */
     int getCountryCount();
 
+    Area getArea(AreaType areaType, String id);
+
+    Set<Area> getAreas(AreaType areaType);
+
+    AreaAdder newArea(AreaType areaType);
+
     /**
      * Get a builder to create a new substation.
      * @return a builder to create a new substation

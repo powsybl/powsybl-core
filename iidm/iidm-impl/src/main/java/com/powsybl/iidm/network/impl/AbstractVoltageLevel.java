@@ -15,9 +15,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +39,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     private double lowVoltageLimit;
 
     private double highVoltageLimit;
+
+    private Map<AreaType, Area> areasByAreaType;
 
     private boolean removed = false;
 
@@ -83,6 +83,35 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             throw new PowsyblException("Cannot access substation of removed voltage level " + id);
         }
         return Optional.ofNullable(substation);
+    }
+
+    @Override
+    public Optional<Set<Area>> getAreas() {
+        if (removed) {
+            throw new PowsyblException("Cannot access area of removed voltage level " + id);
+        }
+        if (areasByAreaType == null || areasByAreaType.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.of(new HashSet<>(areasByAreaType.values()));
+        }
+    }
+
+    @Override
+    public Optional<Area> getArea(AreaType areaType) {
+        if (removed) {
+            throw new PowsyblException("Cannot access area of removed voltage level " + id);
+        }
+        if (areasByAreaType == null || areasByAreaType.isEmpty()) {
+            return Optional.empty();
+        } else {
+            return Optional.ofNullable(areasByAreaType.get(areaType));
+        }
+    }
+
+    @Override
+    public Map<AreaType, Area> getAreasByType() {
+        return areasByAreaType;
     }
 
     @Override

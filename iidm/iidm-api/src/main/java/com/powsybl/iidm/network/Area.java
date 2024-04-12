@@ -7,9 +7,15 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Set;
+
 public interface Area extends Identifiable<Area> {
 
     AreaType getAreaType();
+
+    Set<VoltageLevel> getVoltageLevels();
+
+    void addVoltageLevel(VoltageLevel voltageLevel);
 
     @Override
     default IdentifiableType getType() {

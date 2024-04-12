@@ -15,10 +15,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -899,6 +896,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     }
 
     Optional<Substation> getSubstation();
+
+    Optional<Set<Area>> getAreas();
+
+    Optional<Area> getArea(AreaType areaType);
+
+    Map<AreaType, Area> getAreasByType();
 
     default Substation getNullableSubstation() {
         return getSubstation().orElse(null);

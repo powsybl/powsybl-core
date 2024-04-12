@@ -106,6 +106,28 @@ public class SubnetworkImpl extends AbstractNetwork {
         return (int) getCountryStream().count();
     }
 
+    @Override
+    public Area getArea(AreaType areaType, String id) {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public Set<Area> getAreas(AreaType areaType) {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public AreaAdder newArea(AreaType areaType) {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    private void throwAreasNotSupported() {
+        throw new PowsyblException("Areas are not supported in subnetworks");
+    }
+
     private Stream<Country> getCountryStream() {
         return getNetwork().getSubstationStream()
                 .filter(this::contains)
