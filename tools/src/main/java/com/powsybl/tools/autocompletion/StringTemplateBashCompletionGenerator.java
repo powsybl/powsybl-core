@@ -24,6 +24,7 @@ import java.util.List;
 public class StringTemplateBashCompletionGenerator implements BashCompletionGenerator {
 
     public StringTemplateBashCompletionGenerator() {
+        // Empty body
     }
 
     private STGroup createTemplateGroup() throws IOException {
