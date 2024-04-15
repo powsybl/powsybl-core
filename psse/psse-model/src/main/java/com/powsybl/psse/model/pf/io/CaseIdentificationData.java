@@ -26,10 +26,12 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
+    private static final String STR_TITLE_1 = "title1";
+    private static final String STR_TITLE_2 = "title2";
 
     CaseIdentificationData() {
-        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2");
-        withQuotedFields("title1", "title2");
+        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2);
+        withQuotedFields(STR_TITLE_1, STR_TITLE_2);
         withIO(LEGACY_TEXT, new CaseIdentificationLegacyText(this));
         withIO(JSON, new CaseIdentificationJson(this));
     }
@@ -63,7 +65,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         public void writeHead(PsseCaseIdentification caseIdentification, Context context, OutputStream outputStream) {
             // Adapt headers of case identification record
             // title1 and title2 go in separate lines in legacy text format
-            String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), "title1", "title2");
+            String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), STR_TITLE_1, STR_TITLE_2);
             String[] quotedFields = recordGroup.quotedFields();
             write(Collections.singletonList(caseIdentification), headers, Util.retainAll(quotedFields, headers), context, outputStream);
             writeLine(caseIdentification.getTitle1(), outputStream);
