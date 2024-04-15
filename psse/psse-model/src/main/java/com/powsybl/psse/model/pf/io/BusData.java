@@ -23,13 +23,21 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class BusData extends AbstractRecordGroup<PsseBus> {
+    private static final String STR_NAME = "name";
+    private static final String STR_BASKV = "baskv";
+    private static final String STR_IDE = "ide";
+    private static final String STR_AREA = "area";
+    private static final String STR_ZONE = "zone";
+    private static final String STR_OWNER = "owner";
+    private static final String STR_VM = "vm";
+    private static final String STR_VA = "va";
 
     BusData() {
         super(PowerFlowRecordGroup.BUS);
-        withFieldNames(V32, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va");
-        withFieldNames(V33, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
-        withFieldNames(V35, "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
-        withQuotedFields("name");
+        withFieldNames(V32, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA);
+        withFieldNames(V33, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
+        withFieldNames(V35, "ibus", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
+        withQuotedFields(STR_NAME);
         withIO(LEGACY_TEXT, new BusLegacyText(this));
     }
 
