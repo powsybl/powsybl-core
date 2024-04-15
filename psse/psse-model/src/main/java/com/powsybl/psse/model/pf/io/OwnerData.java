@@ -20,14 +20,15 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class OwnerData extends AbstractRecordGroup<PsseOwner> {
 
-    private static final String[] FIELD_NAMES_32_33 = {"i", "owname"};
+    private static final String STR_OWNAME = "owname";
+    private static final String[] FIELD_NAMES_32_33 = {"i", STR_OWNAME};
 
     OwnerData() {
         super(PowerFlowRecordGroup.OWNER);
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, "iowner", "owname");
-        withQuotedFields("owname");
+        withFieldNames(V35, "iowner", STR_OWNAME);
+        withQuotedFields(STR_OWNAME);
     }
 
     @Override

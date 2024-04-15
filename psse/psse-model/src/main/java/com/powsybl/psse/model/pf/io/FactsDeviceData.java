@@ -21,17 +21,18 @@ import com.powsybl.psse.model.pf.PsseFacts;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class FactsDeviceData extends AbstractRecordGroup<PsseFacts> {
+    private static final String STR_MNAME = "mname";
 
     private static final String[] FIELD_NAMES_32_33 = {"name", "i", "j", "mode", "pdes", "qdes", "vset", "shmx", "trmx", "vtmn", "vtmx", "vxmx", "imx", "linx",
-        "rmpct", "owner", "set1", "set2", "vsref", "remot", "mname"};
+        "rmpct", "owner", "set1", "set2", "vsref", "remot", STR_MNAME};
 
     FactsDeviceData() {
         super(FACTS_CONTROL_DEVICE);
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
         withFieldNames(V35, "name", "ibus", "jbus", "mode", "pdes", "qdes", "vset", "shmx", "trmx", "vtmn", "vtmx", "vxmx", "imx", "linx",
-            "rmpct", "owner", "set1", "set2", "vsref", "fcreg", "nreg", "mname");
-        withQuotedFields("name", "mname");
+            "rmpct", "owner", "set1", "set2", "vsref", "fcreg", "nreg", STR_MNAME);
+        withQuotedFields("name", STR_MNAME);
     }
 
     @Override

@@ -33,16 +33,34 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
  */
 class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
+    private static final String STR_CKT = "ckt";
+    private static final String STR_CW = "cw";
+    private static final String STR_CZ = "cz";
+    private static final String STR_CM = "cm";
+    private static final String STR_MAG1 = "mag1";
+    private static final String STR_MAG2 = "mag2";
+    private static final String STR_NAME = "name";
+    private static final String STR_STAT = "stat";
+    private static final String STR_O1 = "o1";
+    private static final String STR_F1 = "f1";
+    private static final String STR_O2 = "o2";
+    private static final String STR_F2 = "f2";
+    private static final String STR_O3 = "o3";
+    private static final String STR_F3 = "f3";
+    private static final String STR_O4 = "o4";
+    private static final String STR_F4 = "f4";
+    private static final String STR_WINDV = "windv";
+    private static final String STR_VECGRP = "vecgrp";
     private static final String[] FIELD_NAMES_T2W_IMPEDANCES_RECORD = {"r12", "x12", "sbase12"};
-    private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {"windv", "nomv"};
-    private static final String[] FIELD_NAMES_WINDING_32_33 = {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
+    private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {STR_WINDV, "nomv"};
+    private static final String[] FIELD_NAMES_WINDING_32_33 = {STR_WINDV, "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
 
     TransformerData() {
         super(TRANSFORMER);
-        withFieldNames(V32, "i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
-        withFieldNames(V33, "i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp");
-        withFieldNames(V35, "ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp", "zcod");
-        withQuotedFields("ckt", "name", "vecgrp");
+        withFieldNames(V32, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4);
+        withFieldNames(V33, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP);
+        withFieldNames(V35, "ibus", "jbus", "kbus", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmet", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, "zcod");
+        withQuotedFields(STR_CKT, STR_NAME, STR_VECGRP);
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 
@@ -182,7 +200,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 super(INTERNAL_TRANSFORMER_WINDING);
                 withFieldNames(V32, FIELD_NAMES_WINDING_32_33);
                 withFieldNames(V33, FIELD_NAMES_WINDING_32_33);
-                withFieldNames(V35, "windv", "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
+                withFieldNames(V35, STR_WINDV, "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
             }
 
             @Override
