@@ -181,12 +181,16 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void readNetwork() throws IOException {
-        ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
-                mock(ComputationManager.class), mock(ComputationManager.class));
+    void readNetwork() {
+        try {
+            ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
+                    mock(ComputationManager.class), mock(ComputationManager.class));
 
-        CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-        SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+            CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
+            SecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
+        } catch (Exception e) {
+            fail(e);
+        }
     }
 
     @Test
