@@ -143,27 +143,31 @@ public class MatpowerImporter implements Importer {
 
         // set voltage limits
         for (var e : voltageLimitsByVoltageLevelId.entrySet()) {
-            String voltageLevelId = e.getKey();
-            double lowVoltageLimit = e.getValue().getFirst();
-            double highVoltageLimit = e.getValue().getSecond();
-            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-            if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit)) {
-                if (highVoltageLimit >= lowVoltageLimit) {
-                    voltageLevel.setLowVoltageLimit(lowVoltageLimit)
-                            .setHighVoltageLimit(highVoltageLimit);
-                } else {
-                    LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
-                            lowVoltageLimit, highVoltageLimit, voltageLevelId);
-                    voltageLevel.setLowVoltageLimit(highVoltageLimit)
-                            .setHighVoltageLimit(lowVoltageLimit);
-                }
+            setVoltageLimits(e, network);
+        }
+    }
+
+    private static void setVoltageLimits(Map.Entry<String, Pair<Double, Double>> entry, Network network) {
+        String voltageLevelId = entry.getKey();
+        double lowVoltageLimit = entry.getValue().getFirst();
+        double highVoltageLimit = entry.getValue().getSecond();
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit)) {
+            if (highVoltageLimit >= lowVoltageLimit) {
+                voltageLevel.setLowVoltageLimit(lowVoltageLimit)
+                    .setHighVoltageLimit(highVoltageLimit);
             } else {
-                if (!Double.isNaN(lowVoltageLimit)) {
-                    voltageLevel.setLowVoltageLimit(lowVoltageLimit);
-                }
-                if (!Double.isNaN(highVoltageLimit)) {
-                    voltageLevel.setHighVoltageLimit(highVoltageLimit);
-                }
+                LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
+                    lowVoltageLimit, highVoltageLimit, voltageLevelId);
+                voltageLevel.setLowVoltageLimit(highVoltageLimit)
+                    .setHighVoltageLimit(lowVoltageLimit);
+            }
+        } else {
+            if (!Double.isNaN(lowVoltageLimit)) {
+                voltageLevel.setLowVoltageLimit(lowVoltageLimit);
+            }
+            if (!Double.isNaN(highVoltageLimit)) {
+                voltageLevel.setHighVoltageLimit(highVoltageLimit);
             }
         }
     }
