@@ -216,8 +216,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             return windingRecord;
         }
 
-        private static boolean is3Winding(String record) {
-            try (Scanner scanner = new Scanner(record)) {
+        private static boolean is3Winding(String recordStr) {
+            try (Scanner scanner = new Scanner(recordStr)) {
                 // Valid delimiters surrounded by any number of whitespace
                 scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
                 int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
