@@ -19,15 +19,15 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
-
-    private static final String[] FIELD_NAMES_32_33 = {"i", "isw", "pdes", "ptol", "arname"};
+    private static final String ARNAME = "arname";
+    private static final String[] FIELD_NAMES_32_33 = {"i", "isw", "pdes", "ptol", ARNAME};
 
     AreaInterchangeData() {
         super(PowerFlowRecordGroup.AREA_INTERCHANGE);
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, "iarea", "isw", "pdes", "ptol", "arname");
-        withQuotedFields("arname");
+        withFieldNames(V35, "iarea", "isw", "pdes", "ptol", ARNAME);
+        withQuotedFields(ARNAME);
     }
 
     @Override
