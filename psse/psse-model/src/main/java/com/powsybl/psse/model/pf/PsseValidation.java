@@ -289,43 +289,43 @@ public class PsseValidation {
 
     private void validateTransformerX(String id, double x, String xTag) {
         if (x == 0.0) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f", id, xTag, x));
+            warnings.add(getWarningTransformer1Parameter(id, xTag, x));
             validCase = false;
         }
     }
 
     private void validateTransformerRatio(String id, double ratio, String ratioTag) {
         if (ratio <= 0.0) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f", id, ratioTag, ratio));
+            warnings.add(getWarningTransformer1Parameter(id, ratioTag, ratio));
             validCase = false;
         }
     }
 
     private void validateTransformerSbase(String id, int cz, int cm, double sbase, String sbaseTag) {
         if ((cz == 2 || cz == 3 || cm == 2) && sbase <= 0.0) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f", id, sbaseTag, sbase));
+            warnings.add(getWarningTransformer1Parameter(id, sbaseTag, sbase));
             validCase = false;
         }
     }
 
     private void validateTransformerWindingVmiVma(String id, int cod, double windingVmi, double windingVma, String windingVmiVmaTag) {
         if (Math.abs(cod) == 1 && (windingVmi <= 0.0 || windingVma <= 0.0 || windingVma < windingVmi)) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingVmiVmaTag, windingVmi, windingVma));
+            warnings.add(getWarningTransformer2Parameters(id, windingVmiVmaTag, windingVmi, windingVma));
             validCase = false;
         }
         if ((Math.abs(cod) == 2 || Math.abs(cod) == 3 || Math.abs(cod) == 5) && windingVma < windingVmi) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingVmiVmaTag, windingVmi, windingVma));
+            warnings.add(getWarningTransformer2Parameters(id, windingVmiVmaTag, windingVmi, windingVma));
             validCase = false;
         }
     }
 
     private void validateTransformerWindingRmiRma(String id, int cod, double windingRmi, double windingRma, String windingRmiRmaTag) {
         if ((Math.abs(cod) == 1 || Math.abs(cod) == 2) && (windingRmi <= 0.0 || windingRma <= 0.0 || windingRma < windingRmi)) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingRmiRmaTag, windingRmi, windingRma));
+            warnings.add(getWarningTransformer2Parameters(id, windingRmiRmaTag, windingRmi, windingRma));
             validCase = false;
         }
         if ((Math.abs(cod) == 3 || Math.abs(cod) == 5) && windingRma < windingRmi) {
-            warnings.add(String.format(Locale.US, "Transformer: %s Unexpected %s: %.5f %.5f", id, windingRmiRmaTag, windingRmi, windingRma));
+            warnings.add(getWarningTransformer2Parameters(id, windingRmiRmaTag, windingRmi, windingRma));
             validCase = false;
         }
     }
@@ -488,7 +488,18 @@ public class PsseValidation {
         }
     }
 
+    private String getWarningTransformer1Parameter(String id, String tag, double param) {
+        return String.format(Locale.US, WARNING_TRANSFORMER_1_PARAMETER, id, tag, param);
+    }
+
+    private String getWarningTransformer2Parameters(String id, String tag, double param1, double param2) {
+        return String.format(Locale.US, WARNING_TRANSFORMER_2_PARAMETERS, id, tag, param1, param2);
+    }
+
     private final List<String> warnings;
     private boolean validCase;
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseValidation.class);
+
+    private static final String WARNING_TRANSFORMER_1_PARAMETER = "Transformer: %s Unexpected %s: %.5f";
+    private static final String WARNING_TRANSFORMER_2_PARAMETERS = "Transformer: %s Unexpected %s: %.5f %.5f";
 }
