@@ -428,26 +428,22 @@ public final class ValidationUtil {
             return ValidationLevel.EQUIPMENT;
         }
         switch (regulationMode) {
-            case VOLTAGE:
+            case VOLTAGE -> {
                 if (Double.isNaN(voltageSetpoint)) {
                     throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, throwException, reportNode);
                     return ValidationLevel.EQUIPMENT;
                 }
-                break;
-
-            case REACTIVE_POWER:
+            }
+            case REACTIVE_POWER -> {
                 if (Double.isNaN(reactivePowerSetpoint)) {
                     throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", throwException, reportNode);
                     return ValidationLevel.EQUIPMENT;
                 }
-                break;
-
-            case OFF:
+            }
+            case OFF -> {
                 // nothing to check
-                break;
-
-            default:
-                throw new IllegalStateException();
+            }
+            default -> throw new IllegalStateException();
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }

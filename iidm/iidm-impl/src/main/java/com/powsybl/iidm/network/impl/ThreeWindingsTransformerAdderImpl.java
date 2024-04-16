@@ -165,17 +165,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
             switch (side) {
-                case ONE:
-                    legAdder1 = this;
-                    break;
-                case TWO:
-                    legAdder2 = this;
-                    break;
-                case THREE:
-                    legAdder3 = this;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected side: " + side);
+                case ONE -> legAdder1 = this;
+                case TWO -> legAdder2 = this;
+                case THREE -> legAdder3 = this;
+                default -> throw new IllegalStateException("Unexpected side: " + side);
             }
             return ThreeWindingsTransformerAdderImpl.this;
         }

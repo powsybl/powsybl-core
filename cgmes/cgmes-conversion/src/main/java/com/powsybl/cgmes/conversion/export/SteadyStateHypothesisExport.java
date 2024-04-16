@@ -230,7 +230,6 @@ public final class SteadyStateHypothesisExport {
             String shuntType = switch (s.getModelType()) {
                 case LINEAR -> "Linear";
                 case NON_LINEAR -> "Nonlinear";
-                default -> throw new IllegalStateException("Unexpected shunt model type: " + s.getModelType());
             };
             boolean controlEnabled = s.isVoltageRegulatorOn();
 

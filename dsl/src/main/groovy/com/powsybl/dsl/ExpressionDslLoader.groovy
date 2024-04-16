@@ -79,21 +79,14 @@ class ExpressionDslLoader extends DslLoader {
         // comparison
 
         java.lang.Object.metaClass.compareTo2 = { Object value, String op ->
-            switch (op) {
-                case ">":
-                    return delegate > value
-                case ">=":
-                    return delegate >= value
-                case "<":
-                    return delegate < value
-                case "<=":
-                    return delegate <= value
-                case "==":
-                    return delegate == value
-                case "!=":
-                    return delegate != value
-                default:
-                    throw createUnexpectedOperatorException(op)
+            return switch (op) {
+                case ">" -> delegate > value
+                case ">=" -> delegate >= value
+                case "<" -> delegate < value
+                case "<=" -> delegate <= value
+                case "==" -> delegate == value
+                case "!=" -> delegate != value
+                default -> throw createUnexpectedOperatorException(op)
             }
         }
 
@@ -161,21 +154,14 @@ class ExpressionDslLoader extends DslLoader {
     }
 
     private static ExpressionNode nodeCompareToNode(ExpressionNode left, ExpressionNode right, String op) {
-        switch (op) {
-            case ">":
-                return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.GREATER_THAN)
-            case ">=":
-                return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.GREATER_THAN_OR_EQUALS_TO)
-            case "<":
-                return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.LESS_THAN)
-            case "<=":
-                return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.LESS_THAN_OR_EQUALS_TO)
-            case "==":
-                return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.EQUALS)
-            case "!=":
-                return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.NOT_EQUALS)
-            default:
-                throw createUnexpectedOperatorException(op)
+        return switch (op) {
+            case ">" -> ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.GREATER_THAN)
+            case ">=" -> ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.GREATER_THAN_OR_EQUALS_TO)
+            case "<" -> ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.LESS_THAN)
+            case "<=" -> ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.LESS_THAN_OR_EQUALS_TO)
+            case "==" -> ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.EQUALS)
+            case "!=" -> ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.NOT_EQUALS)
+            default -> throw createUnexpectedOperatorException(op)
         }
     }
 
