@@ -102,21 +102,24 @@ public class UcteRegulation implements UcteRecord {
             }
         }
         if (angleRegulation != null) {
-            UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reportNode);
-            // FIXME: N should be stricly positive and NP in [-n, n]
-            if (angleRegulation.getN() == null || angleRegulation.getN() == 0
-                    || angleRegulation.getNp() == null || Double.isNaN(angleRegulation.getDu())
-                    || Double.isNaN(angleRegulation.getTheta())) {
-                LOGGER.warn("Angle regulation of transformer '{}' removed because incomplete", transfoId);
-                angleRegulation = null;
-            } else {
-                // FIXME: type should not be null
-                if (angleRegulation.getType() == null) {
-                    LOGGER.warn("Type is missing for angle regulation of transformer '{}', default to {}", transfoId, UcteAngleRegulationType.ASYM);
-                    angleRegulation.setType(UcteAngleRegulationType.ASYM);
-                }
-            }
+            angleRegulation(reportNode);
         }
     }
 
+    private void angleRegulation(ReportNode reportNode) {
+        UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reportNode);
+        // FIXME: N should be stricly positive and NP in [-n, n]
+        if (angleRegulation.getN() == null || angleRegulation.getN() == 0
+            || angleRegulation.getNp() == null || Double.isNaN(angleRegulation.getDu())
+            || Double.isNaN(angleRegulation.getTheta())) {
+            LOGGER.warn("Angle regulation of transformer '{}' removed because incomplete", transfoId);
+            angleRegulation = null;
+        } else {
+            // FIXME: type should not be null
+            if (angleRegulation.getType() == null) {
+                LOGGER.warn("Type is missing for angle regulation of transformer '{}', default to {}", transfoId, UcteAngleRegulationType.ASYM);
+                angleRegulation.setType(UcteAngleRegulationType.ASYM);
+            }
+        }
+    }
 }
