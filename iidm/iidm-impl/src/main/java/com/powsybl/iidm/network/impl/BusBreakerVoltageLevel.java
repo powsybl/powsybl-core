@@ -207,7 +207,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     case GROUND -> {
                         // Do nothing
                     }
-                    case BUSBAR_SECTION, default -> throw new IllegalStateException();
+                    default -> throw new IllegalStateException();
                 }
             }
             return Networks.isBusValid(feederCount);
