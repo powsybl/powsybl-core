@@ -204,10 +204,6 @@ final class NodeBreakerValidation {
         return busEquipmentTerminals.containsKey(bus) ? busEquipmentTerminals.get(bus) : new ArrayList<>();
     }
 
-    private static boolean isOutOfService(PsseSubstation expectedSubstation, int node) {
-        return expectedSubstation.getNodes().stream().anyMatch(n -> n.getNi() == node && n.getStatus() != 1);
-    }
-
     static final class NodeBreakerControl {
         private final String equipmentId;
         private final int node;

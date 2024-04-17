@@ -42,7 +42,7 @@ class VoltageLevelConverter extends AbstractConverter {
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
 
         if (voltageLevel == null) {
-            double nominalV = getNominalV(psseBus, perUnitContext.isIgnoreBaseVoltage());
+            double nominalV = getNominalV(psseBus, perUnitContext.ignoreBaseVoltage());
             boolean isNodeBreakerValid = nodeBreakerValidation.isNodeBreakerSubstationCoherent(getContainersMapping().getBusesSet(voltageLevelId));
 
             TopologyKind topologyKind = isNodeBreakerValid ? TopologyKind.NODE_BREAKER : TopologyKind.BUS_BREAKER;

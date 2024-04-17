@@ -250,10 +250,10 @@ public class PsseImporter implements Importer {
 
         return ContainersMapping.create(psseModel.getBuses(), edges,
                 PsseBus::getI,
-                Edge::getBus1,
-                Edge::getBus2,
-                Edge::isZeroImpedance,
-                Edge::isTransformer,
+                Edge::bus1,
+                Edge::bus2,
+                Edge::zeroImpedance,
+                Edge::transformer,
                 busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
                 AbstractConverter::getVoltageLevelId,
                 substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty substationNums")));
@@ -263,7 +263,7 @@ public class PsseImporter implements Importer {
         if (!busNumToPsseBus.containsKey(busNumber)) { // never should happen
             throw new PsseException("busId without PsseBus" + busNumber);
         }
-        return VoltageLevelConverter.getNominalV(busNumToPsseBus.get(busNumber), perUnitContext.isIgnoreBaseVoltage());
+        return VoltageLevelConverter.getNominalV(busNumToPsseBus.get(busNumber), perUnitContext.ignoreBaseVoltage());
     }
 
     private static NodeBreakerImport createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,
@@ -282,51 +282,9 @@ public class PsseImporter implements Importer {
         return nodeBreakerImport;
     }
 
-    private static final class Edge {
-        private final int bus1;
-        private final int bus2;
-        private final boolean transformer;
-        private final boolean zeroImpedance;
-
-        private Edge(int bus1, int bus2, boolean transformer, boolean zeroImpedance) {
-            this.bus1 = bus1;
-            this.bus2 = bus2;
-            this.transformer = transformer;
-            this.zeroImpedance = zeroImpedance;
-        }
-
-        private int getBus1() {
-            return bus1;
-        }
-
-        private int getBus2() {
-            return bus2;
-        }
-
-        private boolean isTransformer() {
-            return transformer;
-        }
-
-        private boolean isZeroImpedance() {
-            return zeroImpedance;
-        }
+    private record Edge(int bus1, int bus2, boolean transformer, boolean zeroImpedance) {
     }
 
-    static final class PerUnitContext {
-        private final double sb;
-        private final boolean ignoreBaseVoltage;
-
-        PerUnitContext(double sb, boolean ignoreBaseVoltage) {
-            this.sb = sb;
-            this.ignoreBaseVoltage = ignoreBaseVoltage;
-        }
-
-        double getSb() {
-            return sb;
-        }
-
-        boolean isIgnoreBaseVoltage() {
-            return ignoreBaseVoltage;
-        }
+    record PerUnitContext(double sb, boolean ignoreBaseVoltage) {
     }
 }

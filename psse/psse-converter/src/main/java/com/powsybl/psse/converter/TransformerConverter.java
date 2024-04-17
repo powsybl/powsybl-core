@@ -85,8 +85,8 @@ class TransformerConverter extends AbstractConverter {
         Complex ysh = defineShuntAdmittance(id, psseTransformer.getMag1(), psseTransformer.getMag2(), sbase, sbase12, baskv1, nomV1, psseTransformer.getCm());
 
         // To engineering units
-        z = impedanceToEngineeringUnits(z, voltageLevel2.getNominalV(), perUnitContext.getSb());
-        ysh = admittanceToEngineeringUnits(ysh, voltageLevel2.getNominalV(), perUnitContext.getSb());
+        z = impedanceToEngineeringUnits(z, voltageLevel2.getNominalV(), perUnitContext.sb());
+        ysh = admittanceToEngineeringUnits(ysh, voltageLevel2.getNominalV(), perUnitContext.sb());
 
         // move w2 to side 1
         z = impedanceAdjustmentAfterMovingRatio(z, w2);
@@ -186,10 +186,10 @@ class TransformerConverter extends AbstractConverter {
         double v0 = 1.0;
 
         // To engineering units
-        z1 = impedanceToEngineeringUnits(z1, v0, perUnitContext.getSb());
-        z2 = impedanceToEngineeringUnits(z2, v0, perUnitContext.getSb());
-        z3 = impedanceToEngineeringUnits(z3, v0, perUnitContext.getSb());
-        ysh = admittanceToEngineeringUnits(ysh, v0, perUnitContext.getSb());
+        z1 = impedanceToEngineeringUnits(z1, v0, perUnitContext.sb());
+        z2 = impedanceToEngineeringUnits(z2, v0, perUnitContext.sb());
+        z3 = impedanceToEngineeringUnits(z3, v0, perUnitContext.sb());
+        ysh = admittanceToEngineeringUnits(ysh, v0, perUnitContext.sb());
 
         // move ysh between w1 and z
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChanger1);
