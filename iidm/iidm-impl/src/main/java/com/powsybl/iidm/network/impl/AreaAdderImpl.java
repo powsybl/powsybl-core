@@ -5,9 +5,6 @@ import com.powsybl.iidm.network.AreaAdder;
 import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.HashMap;
-import java.util.stream.Collectors;
-
 class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> implements AreaAdder {
 
     private final Ref<NetworkImpl> networkRef;
