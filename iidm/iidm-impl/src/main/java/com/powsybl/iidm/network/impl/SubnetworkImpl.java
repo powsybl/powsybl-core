@@ -107,19 +107,25 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Area getArea(AreaType areaType, String id) {
+    public Area getArea(String id) {
         throwAreasNotSupported();
         return null;
     }
 
     @Override
-    public Set<Area> getAreas(AreaType areaType) {
+    public Iterable<Area> getAreas() {
         throwAreasNotSupported();
         return null;
     }
 
     @Override
-    public AreaAdder newArea(AreaType areaType) {
+    public Stream<Area> getAreaStream() {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public AreaAdder newArea() {
         throwAreasNotSupported();
         return null;
     }
