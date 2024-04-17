@@ -22,9 +22,11 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_BRANCH;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -32,11 +34,12 @@ import java.util.Objects;
  */
 class LineConverter extends AbstractConverter {
 
-    LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version) {
+    LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version, NodeBreakerImport nodeBreakerImport) {
         super(containerMapping, network);
         this.psseLine = Objects.requireNonNull(psseLine);
         this.perUnitContext = Objects.requireNonNull(perUnitContext);
         this.version = Objects.requireNonNull(version);
+        this.nodeBreakerImport = nodeBreakerImport;
     }
 
     void create() {
@@ -62,9 +65,7 @@ class LineConverter extends AbstractConverter {
         LineAdder adder = getNetwork().newLine()
             .setId(id)
             .setEnsureIdUnicity(true)
-            .setConnectableBus1(bus1Id)
             .setVoltageLevel1(voltageLevel1Id)
-            .setConnectableBus2(bus2Id)
             .setVoltageLevel2(voltageLevel2Id)
             .setR(rEu)
             .setX(xEu)
@@ -73,8 +74,21 @@ class LineConverter extends AbstractConverter {
             .setG2(g2Eu)
             .setB2(b2Eu);
 
-        adder.setBus1(psseLine.getSt() == 1 ? bus1Id : null);
-        adder.setBus2(psseLine.getSt() == 1 ? bus2Id : null);
+        String equipmentId = getNodeBreakerEquipmentId(PSSE_BRANCH, psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
+        OptionalInt node1 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getI()));
+        if (node1.isPresent()) {
+            adder.setNode1(node1.getAsInt());
+        } else {
+            adder.setConnectableBus1(bus1Id);
+            adder.setBus1(psseLine.getSt() == 1 ? bus1Id : null);
+        }
+        OptionalInt node2 = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentId, psseLine.getJ()));
+        if (node2.isPresent()) {
+            adder.setNode2(node2.getAsInt());
+        } else {
+            adder.setConnectableBus2(bus2Id);
+            adder.setBus2(psseLine.getSt() == 1 ? bus2Id : null);
+        }
         Line line = adder.add();
 
         defineOperationalLimits(line, voltageLevel1.getNominalV(), voltageLevel2.getNominalV());
@@ -118,20 +132,27 @@ class LineConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new lines and antenna lines are exported as open
-    static void updateLines(Network network, PssePowerFlowModel psseModel) {
+    static void updateLines(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine);
             Line line = network.getLine(lineId);
+            String equipmentId = getNodeBreakerEquipmentId(PSSE_BRANCH, psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
+            int busI = obtainBus(nodeBreakerExport, equipmentId, psseLine.getI());
+            int busJ = obtainBus(nodeBreakerExport, equipmentId, psseLine.getJ());
+
             if (line == null) {
                 psseLine.setSt(0);
             } else {
                 psseLine.setSt(getStatus(line));
             }
+            psseLine.setI(busI);
+            psseLine.setJ(busJ);
         });
     }
 
     private static int getStatus(Line line) {
-        if (line.getTerminal1().isConnected() && line.getTerminal2().isConnected()) {
+        if (line.getTerminal1().isConnected() && line.getTerminal1().getBusBreakerView().getBus() != null
+                && line.getTerminal2().isConnected() && line.getTerminal2().getBusBreakerView().getBus() != null) {
             return 1;
         } else {
             return 0;
@@ -141,6 +162,7 @@ class LineConverter extends AbstractConverter {
     private final PsseNonTransformerBranch psseLine;
     private final PerUnitContext perUnitContext;
     private final PsseVersion version;
+    private final NodeBreakerImport nodeBreakerImport;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LineConverter.class);
 }

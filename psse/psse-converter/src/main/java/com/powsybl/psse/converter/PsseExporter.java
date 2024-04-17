@@ -111,21 +111,26 @@ public class PsseExporter implements Exporter {
 
     // New equipment is not supported
     // Antennas (Branches connected only at one end) are exported as out of service (both sides open)
+    // New buses are created in voltageLevels with nodeBreaker topology when buses are split
     private static PssePowerFlowModel createUpdatePsseModel(Network network, PssePowerFlowModel psseModel) {
         // Only the updated blocks are copied, non-updated blocks are referenced
-        PssePowerFlowModel referencedAndCopiedPsseModel = psseModel.referenceAndCopyPssePowerFlowModel();
-        updateModifiedBlocks(network, referencedAndCopiedPsseModel);
-        return referencedAndCopiedPsseModel;
+        PssePowerFlowModel updatedPsseModel = psseModel.referenceAndCopyPssePowerFlowModel();
+        updateModifiedBlocks(network, updatedPsseModel);
+        return updatedPsseModel;
     }
 
-    private static void updateModifiedBlocks(Network network, PssePowerFlowModel referencedAndCopiedPsseModel) {
+    private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
+        NodeBreakerExport nodeBreakerExport = VoltageLevelConverter.mapSubstations(network, updatedPsseModel);
 
-        BusConverter.updateBuses(network, referencedAndCopiedPsseModel);
-        LoadConverter.updateLoads(network, referencedAndCopiedPsseModel);
-        FixedShuntCompensatorConverter.updateFixedShunts(network, referencedAndCopiedPsseModel);
-        GeneratorConverter.updateGenerators(network, referencedAndCopiedPsseModel);
-        LineConverter.updateLines(network, referencedAndCopiedPsseModel);
-        TransformerConverter.updateTransformers(network, referencedAndCopiedPsseModel);
-        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, referencedAndCopiedPsseModel);
+        // Only after mapping all substations, the substation data can be updated
+        VoltageLevelConverter.updateSubstations(network, updatedPsseModel, nodeBreakerExport);
+
+        BusConverter.updateBuses(network, updatedPsseModel, nodeBreakerExport);
+        LoadConverter.updateLoads(network, updatedPsseModel, nodeBreakerExport);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel, nodeBreakerExport);
+        GeneratorConverter.updateGenerators(network, updatedPsseModel, nodeBreakerExport);
+        LineConverter.updateLines(network, updatedPsseModel, nodeBreakerExport);
+        TransformerConverter.updateTransformers(network, updatedPsseModel, nodeBreakerExport);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, nodeBreakerExport);
     }
 }

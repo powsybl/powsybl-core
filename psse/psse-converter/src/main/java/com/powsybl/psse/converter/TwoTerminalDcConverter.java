@@ -13,8 +13,10 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
+import static com.powsybl.psse.converter.AbstractConverter.PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE;
 
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -24,9 +26,10 @@ class TwoTerminalDcConverter extends AbstractConverter {
 
     private static final double DEFAULT_MAXP_FACTOR = 1.2;
 
-    TwoTerminalDcConverter(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContainersMapping containerMapping, Network network) {
+    TwoTerminalDcConverter(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContainersMapping containerMapping, Network network, NodeBreakerImport nodeBreakerImport) {
         super(containerMapping, network);
         this.psseTwoTerminalDc = Objects.requireNonNull(psseTwoTerminalDc);
+        this.nodeBreakerImport = nodeBreakerImport;
     }
 
     void create() {
@@ -37,10 +40,17 @@ class TwoTerminalDcConverter extends AbstractConverter {
         LccConverterStationAdder adderR = voltageLevelR.newLccConverterStation()
             .setId(getLccConverterId(psseTwoTerminalDc, psseTwoTerminalDc.getRectifier()))
             .setName(psseTwoTerminalDc.getName())
-            .setConnectableBus(busIdR)
             .setLossFactor((float) lossFactor)
-            .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getRectifier()))
-            .setBus(psseTwoTerminalDc.getMdc() == 0 ? null : busIdR);
+            .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getRectifier()));
+
+        String equipmentIdR = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getRectifier().getIp(), psseTwoTerminalDc.getName());
+        OptionalInt nodeR = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentIdR, psseTwoTerminalDc.getRectifier().getIp()));
+        if (nodeR.isPresent()) {
+            adderR.setNode(nodeR.getAsInt());
+        } else {
+            adderR.setConnectableBus(busIdR);
+            adderR.setBus(psseTwoTerminalDc.getMdc() == 0 ? null : busIdR);
+        }
         LccConverterStation cR = adderR.add();
 
         String busIdI = getBusId(psseTwoTerminalDc.getInverter().getIp());
@@ -48,10 +58,17 @@ class TwoTerminalDcConverter extends AbstractConverter {
         LccConverterStationAdder adderI = voltageLevelI.newLccConverterStation()
             .setId(getLccConverterId(psseTwoTerminalDc, psseTwoTerminalDc.getInverter()))
             .setName(psseTwoTerminalDc.getName())
-            .setConnectableBus(busIdI)
             .setLossFactor((float) lossFactor)
-            .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getInverter()))
-            .setBus(psseTwoTerminalDc.getMdc() == 0 ? null : busIdI);
+            .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getInverter()));
+
+        String equipmentIdI = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getInverter().getIp(), psseTwoTerminalDc.getName());
+        OptionalInt nodeI = nodeBreakerImport.getNode(getNodeBreakerEquipmentIdBus(equipmentIdI, psseTwoTerminalDc.getInverter().getIp()));
+        if (nodeI.isPresent()) {
+            adderI.setNode(nodeI.getAsInt());
+        } else {
+            adderI.setConnectableBus(busIdI);
+            adderI.setBus(psseTwoTerminalDc.getMdc() == 0 ? null : busIdI);
+        }
         LccConverterStation cI = adderI.add();
 
         HvdcLineAdder adder = getNetwork().newHvdcLine()
@@ -100,4 +117,5 @@ class TwoTerminalDcConverter extends AbstractConverter {
     }
 
     private final PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc;
+    private final NodeBreakerImport nodeBreakerImport;
 }
