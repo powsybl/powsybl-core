@@ -255,8 +255,28 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public Area getArea(String id) {
-        return index.get(id, AreaImpl.class);
+    public AreaTypeAdder newAreaType() {
+        return new AreaTypeAdderImpl(ref);
+    }
+
+    @Override
+    public Iterable<AreaType> getAreaTypes() {
+        return Iterables.concat(index.getAll(AreaTypeImpl.class));
+    }
+
+    @Override
+    public Stream<AreaType> getAreaTypeStream() {
+        return index.getAll(AreaTypeImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public AreaType getAreaType(String id) {
+        return index.get(id, AreaTypeImpl.class);
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(ref);
     }
 
     @Override
@@ -270,8 +290,8 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
-    public AreaAdder newArea() {
-        return new AreaAdderImpl(ref);
+    public Area getArea(String id) {
+        return index.get(id, AreaImpl.class);
     }
 
     @Override

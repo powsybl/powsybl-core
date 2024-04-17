@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.*;
+import java.util.stream.Stream;
 
 public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
@@ -44,8 +45,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public Set<VoltageLevel> getVoltageLevels() {
-        return voltagelevels;
+    public Stream<VoltageLevel> getVoltageLevelsStream() {
+        return voltagelevels.stream();
     }
 
     /**
@@ -63,7 +64,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
             // Add the VoltageLevel to the Area
             // (do this even if the voltageLevel already has this area as an attribute, to make sure it is in the voltagelevels set)
             voltagelevels.add(voltageLevel);
-            voltageLevel.addArea(this);
+            voltageLevel.addToArea(this);
         }
     }
 

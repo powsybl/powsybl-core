@@ -107,7 +107,31 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public Area getArea(String id) {
+    public AreaTypeAdder newAreaType() {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public Iterable<AreaType> getAreaTypes() {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public Stream<AreaType> getAreaTypeStream() {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public AreaType getAreaType(String id) {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public AreaAdder newArea() {
         throwAreasNotSupported();
         return null;
     }
@@ -125,7 +149,7 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public AreaAdder newArea() {
+    public Area getArea(String id) {
         throwAreasNotSupported();
         return null;
     }
