@@ -897,11 +897,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Substation> getSubstation();
 
-    Stream<Area> getAreaStream();
+    Stream<Area> getAreasStream();
 
     Optional<Area> getArea(AreaType areaType);
 
-    void addArea(Area area);
+    void addToArea(Area area);
 
     default Substation getNullableSubstation() {
         return getSubstation().orElse(null);

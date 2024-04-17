@@ -7,13 +7,13 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Set;
+import java.util.stream.Stream;
 
 public interface Area extends Identifiable<Area> {
 
     AreaType getAreaType();
 
-    Set<VoltageLevel> getVoltageLevels();
+    Stream<VoltageLevel> getVoltageLevelsStream();
 
     void addVoltageLevel(VoltageLevel voltageLevel);
 
