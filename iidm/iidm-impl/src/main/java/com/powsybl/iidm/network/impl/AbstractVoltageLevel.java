@@ -40,7 +40,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
-    private Map<AreaType, Area> areasByAreaType;
+    private Set<Area> areas = new LinkedHashSet<>();
 
     private boolean removed = false;
 
@@ -86,15 +86,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Optional<Set<Area>> getAreas() {
+    public Stream<Area> getAreaStream() {
         if (removed) {
             throw new PowsyblException("Cannot access area of removed voltage level " + id);
         }
-        if (areasByAreaType == null || areasByAreaType.isEmpty()) {
-            return Optional.empty();
-        } else {
-            return Optional.of(new HashSet<>(areasByAreaType.values()));
-        }
+        return areas.stream();
     }
 
     @Override
@@ -102,16 +98,18 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         if (removed) {
             throw new PowsyblException("Cannot access area of removed voltage level " + id);
         }
-        if (areasByAreaType == null || areasByAreaType.isEmpty()) {
-            return Optional.empty();
-        } else {
-            return Optional.ofNullable(areasByAreaType.get(areaType));
-        }
+        return areas.stream()
+                .filter(area -> area.getAreaType() == areaType)
+                .findFirst();
     }
 
     @Override
-    public Map<AreaType, Area> getAreasByType() {
-        return areasByAreaType;
+    public void addArea(Area area){
+        if (area.getVoltageLevels().contains(this)){
+            areas.add(area);
+        } else {
+            area.addVoltageLevel(this);
+        }
     }
 
     @Override

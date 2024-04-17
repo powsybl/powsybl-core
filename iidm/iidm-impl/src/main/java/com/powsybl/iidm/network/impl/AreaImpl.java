@@ -10,19 +10,17 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaType;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
     private final AreaType areaType;
 
-    private final Set<VoltageLevel> voltagelevels = new HashSet<>();
+    private final Set<VoltageLevel> voltagelevels = new LinkedHashSet<>();
 
     public AreaImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, AreaType areaType) {
         super(id, name, fictitious);
@@ -51,19 +49,27 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     /**
-     * Adds a VoltageLevel to this Area. If the VoltageLevel was previously in another Area of the same type,
-     * it is removed from that Area. The VoltageLevel's reference to an Area of this type is updated to this Area.
-     *
+     * Adds a VoltageLevel to this Area.
+     * @throws PowsyblException if the VoltageLevel is already in another Area of the same type
      * @param voltageLevel the VoltageLevel to be added to this Area
      */
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
+        checkNetwork(voltageLevel);
         Optional<Area> previousArea = voltageLevel.getArea(this.getAreaType());
-        if (voltageLevel.getNetwork() != this.getNetwork()) {
-            throw new PowsyblException("VoltageLevel must belong to the same network as the Area");
+        if (previousArea.isPresent() && previousArea.get() != this) {
+                throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " is already in Area " + this.getId());
+        } else {
+            // Add the VoltageLevel to the Area
+            // (do this even if the voltageLevel already has this area as an attribute, to make sure it is in the voltagelevels set)
+            voltagelevels.add(voltageLevel);
+            voltageLevel.addArea(this);
         }
-        previousArea.ifPresent(area -> area.getVoltageLevels().remove(voltageLevel));
-        voltageLevel.getAreasByType().put(this.getAreaType(), this);
-        voltagelevels.add(voltageLevel);
+    }
+
+    private void checkNetwork(Identifiable<?> identifiable) {
+        if (identifiable.getNetwork() != this.getNetwork()) {
+            throw new PowsyblException("Identifiable " + identifiable.getId() + " must belong to the same network as the Area to which it is added");
+        }
     }
 }
