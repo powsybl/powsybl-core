@@ -12,24 +12,25 @@ class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> implements 
 
     private final Ref<NetworkImpl> networkRef;
 
-    private final AreaType areaType;
+    private AreaType areaType;
 
-    AreaAdderImpl(Ref<NetworkImpl> networkRef, AreaType areaType) {
+    AreaAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
+    }
+
+    @Override
+    public AreaAdder setAreaType(AreaType areaType) {
         this.areaType = areaType;
+        return this;
     }
 
     @Override
     public Area add() {
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(networkRef, id, getName(), isFictitious(), areaType);
-        getNetwork().getAllAreasMap().computeIfAbsent(areaType, k -> new HashMap<>()).put(id, area);
+        getNetwork().getIndex().checkAndAdd(area);
+        getNetwork().getListeners().notifyCreation(area);
         return area;
-    }
-
-    @Override
-    protected String checkAndGetUniqueId() {
-        return checkAndGetUniqueId(getNetwork().getAllAreasMap().values().stream().flatMap(v -> v.keySet().stream()).collect(Collectors.toSet())::contains);
     }
 
     @Override
