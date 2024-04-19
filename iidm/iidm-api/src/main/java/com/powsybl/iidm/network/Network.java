@@ -640,8 +640,6 @@ public interface Network extends Container<Network> {
 
     Stream<AicArea> getAicAreaStream();
 
-    AicArea getAicArea(String id);
-
     /**
      * Get a builder to create a new substation.
      * @return a builder to create a new substation
