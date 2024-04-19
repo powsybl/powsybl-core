@@ -1,10 +1,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Area;
-import com.powsybl.iidm.network.AreaType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
@@ -12,16 +9,22 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class AreasTest {
+class AreasTests {
 
     final Network network = createEurostagExampleWithAreas();
 
+    final Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
+
     final AreaType biddingZone = network.getAreaType("bz");
     final AreaType region = network.getAreaType("rg");
+
+    final AreaType aic = network.getAreaType("aic");
     final Area biddingZoneA = network.getArea("bza");
     final Area biddingZoneB = network.getArea("bzb");
     final Area regionA = network.getArea("rga");
     final Area regionB = network.getArea("rgb");
+
+    final AicArea aicA = network.getAicArea("aic_a");
 
     @Test
     void checkAreasCreated() {
@@ -49,7 +52,26 @@ class AreasTest {
         assertEquals(region, regionB.getAreaType());
 
         assertEquals(List.of(biddingZoneA, biddingZoneB, regionA, regionB), network.getAreaStream().toList());
-        assertEquals(List.of(biddingZone, region), network.getAreaTypeStream().toList());
+        assertEquals(List.of(aicA), network.getAicAreaStream().toList());
+        assertEquals(List.of(biddingZone, region, aic), network.getAreaTypeStream().toList());
+    }
+
+    @Test
+    void chekSubnetworkAreasNotSupported() {
+        List<? extends Throwable> exceptions = List.of(
+                assertThrows(PowsyblException.class, subnetwork::newArea),
+                assertThrows(PowsyblException.class, subnetwork::newAicArea),
+                assertThrows(PowsyblException.class, subnetwork::newAreaType),
+                assertThrows(PowsyblException.class, subnetwork::getAreaTypeStream),
+                assertThrows(PowsyblException.class, subnetwork::getAreaStream),
+                assertThrows(PowsyblException.class, subnetwork::getAicAreaStream),
+                assertThrows(PowsyblException.class, subnetwork::getAreas),
+                assertThrows(PowsyblException.class, subnetwork::getAicAreas),
+                assertThrows(PowsyblException.class, subnetwork::getAreaTypes),
+                assertThrows(PowsyblException.class, () -> subnetwork.getAreaType("type")),
+                assertThrows(PowsyblException.class, () -> subnetwork.getArea("area")),
+                assertThrows(PowsyblException.class, () -> subnetwork.getAicArea("aic")));
+        exceptions.forEach(ex -> assertEquals("Areas are not supported in subnetworks", ex.getMessage()));
     }
 
     @Test
@@ -100,6 +122,10 @@ class AreasTest {
                 .setId("rg")
                 .setName("Region")
                 .add();
+        final AreaType aic = network.newAreaType()
+                .setId("aic")
+                .setName("AIC")
+                .add();
 
         network.newArea()
                 .setId("bza")
@@ -121,6 +147,13 @@ class AreasTest {
                 .setId("rgb")
                 .setName("Region_B")
                 .setAreaType(region)
+                .add();
+        network.newAicArea()
+                .setAcNetInterchangeTarget(0.0)
+                .setAcNetInterchangeTolerance(0.0)
+                .setId("aic_a")
+                .setName("Aic_A")
+                .setAreaType(aic)
                 .add();
         return network;
     }
