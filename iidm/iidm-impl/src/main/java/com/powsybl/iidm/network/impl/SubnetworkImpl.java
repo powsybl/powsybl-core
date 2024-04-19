@@ -108,72 +108,57 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public AreaTypeAdder newAreaType() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().newAreaType();
     }
 
     @Override
     public Iterable<AreaType> getAreaTypes() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getAreaTypes();
     }
 
     @Override
     public Stream<AreaType> getAreaTypeStream() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getAreaTypeStream();
     }
 
     @Override
     public AreaType getAreaType(String id) {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getAreaType(id);
     }
 
     @Override
     public AreaAdder newArea() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().newArea();
     }
 
     @Override
     public Iterable<Area> getAreas() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getAreas();
     }
 
     @Override
     public Stream<Area> getAreaStream() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getAreaStream();
     }
 
     @Override
     public Area getArea(String id) {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getArea(id);
     }
 
     @Override
     public AicAreaAdder newAicArea() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().newAicArea();
     }
 
     @Override
     public Iterable<AicArea> getAicAreas() {
-        throwAreasNotSupported();
-        return null;
+        return getNetwork().getAicAreas();
     }
 
     @Override
     public Stream<AicArea> getAicAreaStream() {
-        throwAreasNotSupported();
-        return null;
-    }
-
-    private void throwAreasNotSupported() {
-        throw new PowsyblException("Areas are not supported in subnetworks");
+        return getNetwork().getAicAreaStream();
     }
 
     private Stream<Country> getCountryStream() {
