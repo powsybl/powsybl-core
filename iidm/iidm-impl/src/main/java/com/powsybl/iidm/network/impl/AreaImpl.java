@@ -42,7 +42,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public Stream<VoltageLevel> getVoltageLevelsStream() {
+    public Iterable<VoltageLevel> getVoltageLevels() {
+        return voltagelevels;
+    }
+
+    @Override
+    public Stream<VoltageLevel> getVoltageLevelStream() {
         return voltagelevels.stream();
     }
 
@@ -56,12 +61,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         checkNetwork(voltageLevel);
         Optional<Area> previousArea = voltageLevel.getArea(this.getAreaType());
         if (previousArea.isPresent() && previousArea.get() != this) {
-            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " is already in Area " + this.getId());
-        } else {
-            // Add the VoltageLevel to the Area
-            // (do this even if the voltageLevel already has this area as an attribute, to make sure it is in the voltagelevels set)
-            voltagelevels.add(voltageLevel);
-            voltageLevel.addToArea(this);
+            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " is already in Area of the same type=" + previousArea.get().getAreaType().getNameOrId() + " with id=" + previousArea.get().getId());
+        }
+        voltagelevels.add(voltageLevel);
+        if (previousArea.isEmpty()) {
+            voltageLevel.addArea(this);
         }
     }
 

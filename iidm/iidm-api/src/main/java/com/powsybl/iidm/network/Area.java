@@ -13,7 +13,9 @@ public interface Area extends Identifiable<Area> {
 
     AreaType getAreaType();
 
-    Stream<VoltageLevel> getVoltageLevelsStream();
+    Iterable<VoltageLevel> getVoltageLevels();
+
+    Stream<VoltageLevel> getVoltageLevelStream();
 
     void addVoltageLevel(VoltageLevel voltageLevel);
 

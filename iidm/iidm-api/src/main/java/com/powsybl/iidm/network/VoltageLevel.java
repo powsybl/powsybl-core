@@ -901,7 +901,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Area> getArea(AreaType areaType);
 
-    void addToArea(Area area);
+    void addArea(Area area);
 
     default Substation getNullableSubstation() {
         return getSubstation().orElse(null);

@@ -104,8 +104,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public void addToArea(Area area) {
-        if (area.getVoltageLevelsStream().toList().contains(this)) {
+    public void addArea(Area area) {
+        if (area.getVoltageLevelStream().anyMatch(v -> v.equals(this))) {
             areas.add(area);
         } else {
             area.addVoltageLevel(this);
