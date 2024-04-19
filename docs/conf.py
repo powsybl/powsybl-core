@@ -42,7 +42,8 @@ extensions = ['sphinx.ext.autodoc',
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
-    "dollarmath"
+    "dollarmath",
+    "attrs_inline"
 ]
 myst_heading_anchors = 6
 
@@ -68,15 +69,12 @@ html_short_title = 'core'
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
+html_context = {
+    # TODO : replace next option with "https://powsybl.readthedocs.org" when website is published
+    "sidebar_logo_href": "https://www.powsybl.org/"
+}
+
 html_theme_options = {
-    "icon_links": [
-        {
-            "name": "GitHub",
-            "url": "https://github.com/powsybl/powsybl-core",
-            "icon": "fab fa-github-square",
-        }
-    ],
-    "navbar_start": ["navbar-brand-powsybl-core"],
     # the following 3 lines enable edit button
     "source_repository": "https://github.com/powsybl/powsybl-core/",
     "source_branch": "main",
@@ -93,9 +91,8 @@ todo_include_todos = True
 
 # Links to external documentations : python 3 and pandas
 intersphinx_mapping = {
-    'python': ('https://docs.python.org/3', None),
-    'pandas': ('https://pandas.pydata.org/docs', None),
 }
+intersphinx_disabled_reftypes = ["*"]
 
 # Generate one file per method
 autosummary_generate = True
