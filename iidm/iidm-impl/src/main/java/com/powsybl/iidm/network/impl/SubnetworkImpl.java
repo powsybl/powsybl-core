@@ -161,12 +161,6 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public AicArea getAicArea(String id) {
-        throwAreasNotSupported();
-        return null;
-    }
-
-    @Override
     public Iterable<AicArea> getAicAreas() {
         throwAreasNotSupported();
         return null;
