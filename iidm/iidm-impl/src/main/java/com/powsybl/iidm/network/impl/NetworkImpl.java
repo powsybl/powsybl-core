@@ -292,9 +292,9 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public Area getArea(String id) {
         Area area = index.get(id, AreaImpl.class);
-            if (area == null) {
-                area = index.get(id, AicAreaImpl.class);
-            }
+        if (area == null) {
+            area = index.get(id, AicAreaImpl.class);
+        }
         return area;
     }
 
