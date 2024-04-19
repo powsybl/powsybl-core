@@ -7,9 +7,9 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> implements AreaAdder {
 
-    private final Ref<NetworkImpl> networkRef;
+    protected final Ref<NetworkImpl> networkRef;
 
-    private AreaType areaType;
+    protected AreaType areaType;
 
     AreaAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;

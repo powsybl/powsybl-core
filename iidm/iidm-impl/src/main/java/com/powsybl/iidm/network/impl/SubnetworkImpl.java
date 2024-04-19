@@ -154,6 +154,30 @@ public class SubnetworkImpl extends AbstractNetwork {
         return null;
     }
 
+    @Override
+    public AicAreaAdder newAicArea() {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public AicArea getAicArea(String id) {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public Iterable<AicArea> getAicAreas() {
+        throwAreasNotSupported();
+        return null;
+    }
+
+    @Override
+    public Stream<AicArea> getAicAreaStream() {
+        throwAreasNotSupported();
+        return null;
+    }
+
     private void throwAreasNotSupported() {
         throw new PowsyblException("Areas are not supported in subnetworks");
     }

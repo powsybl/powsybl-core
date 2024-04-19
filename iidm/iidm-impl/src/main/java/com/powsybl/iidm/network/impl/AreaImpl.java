@@ -8,10 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Area;
-import com.powsybl.iidm.network.AreaType;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.*;

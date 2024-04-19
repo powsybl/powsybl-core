@@ -295,6 +295,26 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public AicAreaAdder newAicArea() {
+        return new AicAreaAdderImpl(ref);
+    }
+
+    @Override
+    public Iterable<AicArea> getAicAreas() {
+        return Iterables.concat(index.getAll(AicAreaImpl.class));
+    }
+
+    @Override
+    public Stream<AicArea> getAicAreaStream() {
+        return index.getAll(AicAreaImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public AicArea getAicArea(String id) {
+        return index.get(id, AicAreaImpl.class);
+    }
+
+    @Override
     public SubstationAdder newSubstation() {
         return new SubstationAdderImpl(ref, subnetworkRef);
     }

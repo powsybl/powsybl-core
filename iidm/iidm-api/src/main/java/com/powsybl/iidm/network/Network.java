@@ -634,6 +634,14 @@ public interface Network extends Container<Network> {
 
     Area getArea(String id);
 
+    AicAreaAdder newAicArea();
+
+    Iterable<AicArea> getAicAreas();
+
+    Stream<AicArea> getAicAreaStream();
+
+    AicArea getAicArea(String id);
+
     /**
      * Get a builder to create a new substation.
      * @return a builder to create a new substation
