@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.ucte.network.io.UcteReader;
 import com.powsybl.ucte.network.io.UcteWriter;
 import org.junit.jupiter.api.Test;
@@ -26,7 +27,7 @@ class UcteFileReadWriteTest extends AbstractSerDeTest {
 
     private static UcteNetwork create() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(UcteFileReadWriteTest.class.getResourceAsStream(REFERENCE)))) {
-            return new UcteReader().read(br, Reporter.NO_OP);
+            return new UcteReader().read(br, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -42,7 +43,7 @@ class UcteFileReadWriteTest extends AbstractSerDeTest {
 
     private static UcteNetwork read(Path file) {
         try (BufferedReader br = Files.newBufferedReader(file)) {
-            return new UcteReader().read(br, Reporter.NO_OP);
+            return new UcteReader().read(br, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

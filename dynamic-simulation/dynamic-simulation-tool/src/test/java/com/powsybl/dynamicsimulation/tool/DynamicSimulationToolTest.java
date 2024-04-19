@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynamicsimulation.tool;
 
@@ -83,7 +84,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
     void testDynamicSimulationWithOutputFile() throws IOException {
         String expectedOut = String.join(System.lineSeparator(),
                 "Loading network '/network.xiidm'",
-                "+ Dynamic Simulation Tool",
+                "Dynamic Simulation Tool",
                 "Writing results to 'outputTest.json'" + System.lineSeparator());
         String expectedOutputFile = """
                         {
@@ -107,7 +108,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                 "+--------+",
                 "| true   |",
                 "+--------+");
-        String expectedOutputFile = "+ Dynamic Simulation Tool\n";
+        String expectedOutputFile = "Dynamic Simulation Tool\n";
         assertCommand(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest.log"}, 0, expectedOut, "");
         ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
     }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -13,10 +14,10 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
-import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -41,7 +42,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier2"));
         networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1",
                 "vl2", '1', "contingencyId2"));
-        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new
+        networkElementIdentifiers.add(new NetworkElementIdentifierContingencyList(Collections.singletonList(new
                 IdBasedNetworkElementIdentifier("identifier")), "contingencyId3"));
         return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }

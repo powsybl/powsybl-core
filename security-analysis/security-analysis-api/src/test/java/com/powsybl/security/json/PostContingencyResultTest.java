@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.Contingency;
@@ -75,6 +77,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
             OutputStream out = Files.newOutputStream(jsonFile);
             JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule())
                 .writerWithDefaultPrettyPrinter()
                 .writeValue(out, postContingencyResult);
         } catch (IOException e) {
@@ -86,6 +89,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         try {
             return JsonUtil.createObjectMapper()
                 .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule())
                 .readerFor(PostContingencyResult.class)
                 .readValue(Files.newInputStream(jsonFile));
         } catch (IOException e) {

@@ -13,7 +13,7 @@ import com.google.common.io.ByteSource;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
@@ -27,7 +27,7 @@ import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisReport;
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
@@ -312,7 +312,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     @AutoService(DynamicSecurityAnalysisProvider.class)
     public static class DynamicSecurityAnalysisExceptionProviderMock implements DynamicSecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, DynamicSecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, DynamicSecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, ReportNode reportNode) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

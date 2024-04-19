@@ -90,6 +90,15 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
                         }));
     }
 
+    /**
+     * Transfer the properties of a network to another one.
+     * @param fromNetwork the network whose properties must be transferred
+     * @param toNetwork the destination network
+     */
+    protected static void transferProperties(AbstractNetwork fromNetwork, AbstractNetwork toNetwork) {
+        fromNetwork.getProperties().forEach((key, value) -> toNetwork.setProperty(key.toString(), value.toString()));
+    }
+
     abstract class AbstractBusBreakerViewImpl implements BusBreakerView {
         @Override
         public Iterable<Bus> getBuses() {

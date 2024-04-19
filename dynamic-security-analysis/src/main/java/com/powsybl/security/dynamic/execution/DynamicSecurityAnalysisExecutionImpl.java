@@ -7,7 +7,7 @@
  */
 package com.powsybl.security.dynamic.execution;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
@@ -74,6 +74,6 @@ public class DynamicSecurityAnalysisExecutionImpl implements DynamicSecurityAnal
                 data.getOperatorStrategies(),
                 data.getActions(),
                 data.getMonitors(),
-                Reporter.NO_OP);
+                ReportNode.NO_OP);
     }
 }

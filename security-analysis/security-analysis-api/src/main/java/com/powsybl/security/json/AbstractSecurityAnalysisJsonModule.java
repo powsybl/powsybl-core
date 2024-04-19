@@ -7,17 +7,11 @@
  */
 package com.powsybl.security.json;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.Module;
-import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
-import com.powsybl.security.action.*;
 import com.powsybl.security.condition.Condition;
-import com.powsybl.security.json.action.*;
 import com.powsybl.security.results.*;
 import com.powsybl.security.strategy.ConditionalActions;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -39,13 +33,6 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
         return new ServiceLoaderCache<>(SecurityAnalysisJsonPlugin.class).getServices();
     }
 
-    /**
-     * Deserializer for actions will be chosen based on the "type" property.
-     */
-    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", include = JsonTypeInfo.As.EXISTING_PROPERTY, visible = true)
-    interface ActionMixIn {
-    }
-
     protected AbstractSecurityAnalysisJsonModule(Collection<SecurityAnalysisJsonPlugin> plugins) {
         Objects.requireNonNull(plugins);
         this.plugins = List.copyOf(plugins);
@@ -59,10 +46,10 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
         addSerializer(BranchResult.class, new BranchResultSerializer());
         addSerializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultSerializer());
         addSerializer(OperatorStrategyResult.class, new OperatorStrategyResultSerializer());
+        addSerializer(OperatorStrategyResult.ConditionalActionsResult.class, new ConditionalActionsResultSerializer());
         addSerializer(OperatorStrategy.class, new OperatorStrategySerializer());
         addSerializer(OperatorStrategyList.class, new OperatorStrategyListSerializer());
         addSerializer(ConditionalActions.class, new ConditionalActionsSerializer());
-        addSerializer(ActionList.class, new ActionListSerializer());
         addSerializer(Condition.class, new ConditionSerializer());
         addSerializer(ConnectivityResult.class, new ConnectivityResultSerializer());
 
@@ -77,47 +64,13 @@ public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJson
         addDeserializer(ThreeWindingsTransformerResult.class, new ThreeWindingsTransformerResultDeserializer());
         addDeserializer(SecurityAnalysisParameters.class, new SecurityAnalysisParametersDeserializer());
         addDeserializer(OperatorStrategyResult.class, new OperatorStrategyResultDeserializer());
+        addDeserializer(OperatorStrategyResult.ConditionalActionsResult.class, new ConditionalActionsResultDeserializer());
         addDeserializer(OperatorStrategy.class, new OperatorStrategyDeserializer());
         addDeserializer(OperatorStrategyList.class, new OperatorStrategyListDeserializer());
         addDeserializer(ConditionalActions.class, new ConditionalActionsDeserializer());
-        addDeserializer(ActionList.class, new ActionListDeserializer());
         addDeserializer(Condition.class, new ConditionDeserializer());
         addDeserializer(NetworkResult.class, new NetworkResultDeserializer());
         addDeserializer(ConnectivityResult.class, new ConnectivityResultDeserializer());
-
-        configureActionsSerialization();
-    }
-
-    private void configureActionsSerialization() {
-        setMixInAnnotation(Action.class, ActionMixIn.class);
-        registerActionType(SwitchAction.class, SwitchAction.NAME,
-                new SwitchActionSerializer(), new SwitchActionDeserializer());
-        registerActionType(TerminalsConnectionAction.class, TerminalsConnectionAction.NAME,
-                new TerminalsConnectionActionSerializer(), new TerminalsConnectionActionDeserializer());
-        registerActionType(MultipleActionsAction.class, MultipleActionsAction.NAME,
-                new MultipleActionsActionSerializer(), new MultipleActionsActionDeserializer());
-        registerActionType(PhaseTapChangerTapPositionAction.class, PhaseTapChangerTapPositionAction.NAME,
-                new PhaseTapChangerTapPositionActionSerializer(), new PhaseTapChangerTapPositionActionDeserializer());
-        registerActionType(RatioTapChangerTapPositionAction.class, RatioTapChangerTapPositionAction.NAME,
-                new RatioTapChangerTapPositionActionSerializer(), new RatioTapChangerTapPositionActionDeserializer());
-        registerActionType(PhaseTapChangerRegulationAction.class, PhaseTapChangerRegulationAction.NAME,
-                new PhaseTapChangerRegulationActionSerializer(), new PhaseTapChangerRegulationActionDeserializer());
-        registerActionType(RatioTapChangerRegulationAction.class, RatioTapChangerRegulationAction.NAME,
-                new RatioTapChangerRegulationActionSerializer(), new RatioTapChangerRegulationActionDeserializer());
-        registerActionType(LoadAction.class, LoadAction.NAME, new LoadActionSerializer(), new LoadActionDeserializer());
-        registerActionType(HvdcAction.class, HvdcAction.NAME, new HvdcActionSerializer(), new HvdcActionDeserializer());
-        registerActionType(GeneratorAction.class, GeneratorAction.NAME,
-                new GeneratorActionSerializer(), new GeneratorActionDeserializer());
-        registerActionType(ShuntCompensatorPositionAction.class, ShuntCompensatorPositionAction.NAME,
-                new ShuntCompensatorPositionActionSerializer(), new ShuntCompensatorPositionActionDeserializer());
-        registerActionType(StaticVarCompensatorAction.class, StaticVarCompensatorAction.NAME,
-                new StaticVarCompensatorActionSerializer(), new StaticVarCompensatorActionDeserializer());
-    }
-
-    private <T> void registerActionType(Class<T> actionClass, String typeName, JsonSerializer<T> serializer, JsonDeserializer<T> deserializer) {
-        registerSubtypes(new NamedType(actionClass, typeName));
-        addDeserializer(actionClass, deserializer);
-        addSerializer(actionClass, serializer);
     }
 
     @Override

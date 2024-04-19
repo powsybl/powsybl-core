@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -40,6 +41,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
     @Override
     public Contingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String id = null;
+        String name = null;
         List<ContingencyElement> elements = Collections.emptyList();
 
         List<Extension<Contingency>> extensions = Collections.emptyList();
@@ -47,6 +49,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "id" -> id = parser.nextTextValue();
+                case "name" -> name = parser.nextTextValue();
                 case "elements" -> {
                     parser.nextToken();
                     elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
@@ -58,8 +61,7 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        Contingency contingency = new Contingency(id, elements);
+        Contingency contingency = new Contingency(id, name, elements);
         SUPPLIER.get().addExtensions(contingency, extensions);
 
         return contingency;

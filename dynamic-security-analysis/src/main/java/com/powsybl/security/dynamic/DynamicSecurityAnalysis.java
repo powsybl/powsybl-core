@@ -7,11 +7,12 @@
  */
 package com.powsybl.security.dynamic;
 
+import com.powsybl.action.Action;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -22,7 +23,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisReport;
-import com.powsybl.security.action.Action;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
@@ -69,7 +69,7 @@ public final class DynamicSecurityAnalysis {
                                                                   List<OperatorStrategy> operatorStrategies,
                                                                   List<Action> actions,
                                                                   List<StateMonitor> monitors,
-                                                                  Reporter reporter) {
+                                                                  ReportNode reportNode) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(dynamicModelsSupplier, "Dynamic model supplier should not be null");
             Objects.requireNonNull(eventModelsSupplier, "Event models supplier should not be null");
@@ -80,8 +80,8 @@ public final class DynamicSecurityAnalysis {
             Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
             Objects.requireNonNull(parameters, "Security analysis parameters should not be null");
             Objects.requireNonNull(interceptors, "Interceptor list should not be null");
-            Objects.requireNonNull(reporter, "Reporter should not be null");
-            return provider.run(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors, operatorStrategies, actions, monitors, reporter);
+            Objects.requireNonNull(reportNode, "ReportNode should not be null");
+            return provider.run(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors, operatorStrategies, actions, monitors, reportNode);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network,
@@ -95,11 +95,11 @@ public final class DynamicSecurityAnalysis {
                                           List<SecurityAnalysisInterceptor> interceptors,
                                           List<OperatorStrategy> operatorStrategies,
                                           List<Action> actions) {
-            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Collections.emptyList(), Reporter.NO_OP);
+            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Collections.emptyList(), ReportNode.NO_OP);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
-            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, new DefaultLimitViolationDetector(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Reporter.NO_OP);
+            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, new DefaultLimitViolationDetector(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), ReportNode.NO_OP);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager) {
@@ -127,8 +127,8 @@ public final class DynamicSecurityAnalysis {
                                           List<OperatorStrategy> operatorStrategies,
                                           List<Action> actions,
                                           List<StateMonitor> monitors,
-                                          Reporter reporter) {
-            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, reporter).join();
+                                          ReportNode reportNode) {
+            return runAsync(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, reportNode).join();
         }
 
         public SecurityAnalysisReport run(Network network,
@@ -142,7 +142,7 @@ public final class DynamicSecurityAnalysis {
                                           List<SecurityAnalysisInterceptor> interceptors,
                                           List<OperatorStrategy> operatorStrategies,
                                           List<Action> actions) {
-            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Collections.emptyList(), Reporter.NO_OP).join();
+            return runAsync(network, dynamicModelsSupplier, EventModelsSupplier.empty(), workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Collections.emptyList(), ReportNode.NO_OP).join();
         }
 
         public SecurityAnalysisReport run(Network network, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisParameters parameters, ComputationManager computationManager, LimitViolationFilter filter) {
@@ -208,8 +208,8 @@ public final class DynamicSecurityAnalysis {
                                                                      List<OperatorStrategy> operatorStrategies,
                                                                      List<Action> actions,
                                                                      List<StateMonitor> monitors,
-                                                                     Reporter reporter) {
-        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, reporter);
+                                                                     ReportNode reportNode) {
+        return find().runAsync(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, reportNode);
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network,
@@ -259,8 +259,8 @@ public final class DynamicSecurityAnalysis {
                                              List<OperatorStrategy> operatorStrategies,
                                              List<Action> actions,
                                              List<StateMonitor> monitors,
-                                             Reporter reporter) {
-        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, reporter);
+                                             ReportNode reportNode) {
+        return find().run(network, dynamicModelsSupplier, eventModelsSupplier, workingStateId, contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, reportNode);
     }
 
     public static SecurityAnalysisReport run(Network network,

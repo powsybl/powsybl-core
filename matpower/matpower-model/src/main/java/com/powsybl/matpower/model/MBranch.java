@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -70,7 +71,7 @@ public class MBranch {
     /**
      * initial branch status, 1 = in-service, 0 = out-of-service
      */
-    private double status;
+    private int status;
 
     /**
      * minimum angle difference, ThetaF - ThetaT (degrees)
@@ -162,11 +163,11 @@ public class MBranch {
         this.phaseShiftAngle = phaseShiftAngle;
     }
 
-    public double getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(double status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 

@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,9 +80,9 @@ public class UcteRegulation implements UcteRecord {
     }
 
     @Override
-    public void fix(Reporter reporter) {
+    public void fix(ReportNode reportNode) {
         if (phaseRegulation != null) {
-            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId, reporter);
+            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId, reportNode);
             if (phaseRegulation.getU() <= 0) {
                 LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
                         transfoId, phaseRegulation.getU());
@@ -101,7 +102,7 @@ public class UcteRegulation implements UcteRecord {
             }
         }
         if (angleRegulation != null) {
-            UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reporter);
+            UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reportNode);
             // FIXME: N should be stricly positive and NP in [-n, n]
             if (angleRegulation.getN() == null || angleRegulation.getN() == 0
                     || angleRegulation.getNp() == null || Double.isNaN(angleRegulation.getDu())

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.tools;
 
@@ -12,7 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
@@ -20,11 +21,12 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
@@ -269,7 +271,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
@@ -294,7 +296,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisExceptionProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

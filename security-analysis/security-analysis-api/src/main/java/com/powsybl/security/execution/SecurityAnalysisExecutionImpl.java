@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisInput;
@@ -68,6 +69,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                 data.getOperatorStrategies(),
                 data.getActions(),
                 data.getMonitors(),
-                Reporter.NO_OP);
+                data.getLimitReductions(),
+                ReportNode.NO_OP);
     }
 }

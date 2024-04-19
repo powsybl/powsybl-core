@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -13,6 +14,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -128,7 +130,8 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         Objects.requireNonNull(is);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule());
         try {
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
         } catch (IOException e) {

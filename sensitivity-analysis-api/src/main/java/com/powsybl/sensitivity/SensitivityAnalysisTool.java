@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -15,7 +16,7 @@ import com.google.common.base.Stopwatch;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
@@ -222,7 +223,7 @@ public class SensitivityAnalysisTool implements Tool {
                         factors.add(new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)));
                 SensitivityAnalysisResult result = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                         factors, contingencies, variableSets, params,
-                        computationManager, Reporter.NO_OP);
+                        computationManager, ReportNode.NO_OP);
                 ObjectMapper sensiObjectMapper = JsonUtil.createObjectMapper().registerModule(new SensitivityJsonModule());
                 JsonUtil.writeJson(outputFile, result, sensiObjectMapper);
             } else {
@@ -234,7 +235,7 @@ public class SensitivityAnalysisTool implements Tool {
                         SensitivityResultWriter valuesWriter = new SensitivityResultCsvWriter(formatter, formatterStatus, contingencies);
                         SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                                 factorsReader, valuesWriter, contingencies, variableSets, params,
-                                computationManager, Reporter.NO_OP);
+                                computationManager, ReportNode.NO_OP);
                     }
                 } else {
                     JsonFactory factory = JsonUtil.createJsonFactory();
@@ -244,7 +245,7 @@ public class SensitivityAnalysisTool implements Tool {
                         generator.useDefaultPrettyPrinter();
                         SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                                 factorsReader, valuesWriter, contingencies, variableSets, params,
-                                computationManager, Reporter.NO_OP);
+                                computationManager, ReportNode.NO_OP);
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }

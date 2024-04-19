@@ -8,10 +8,11 @@
 package com.powsybl.security.execution;
 
 import com.google.common.io.ByteSource;
+import com.powsybl.action.Action;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.action.Action;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -31,6 +32,7 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
     private final List<OperatorStrategy> operatorStrategies = new ArrayList<>();
     private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
+    private final List<LimitReduction> limitReductions = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -58,6 +60,10 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
 
     public List<StateMonitor> getMonitors() {
         return Collections.unmodifiableList(monitors);
+    }
+
+    public List<LimitReduction> getLimitReductions() {
+        return Collections.unmodifiableList(limitReductions);
     }
 
     public boolean isWithLogs() {
@@ -122,6 +128,13 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         Objects.requireNonNull(monitors);
         this.monitors.clear();
         this.monitors.addAll(monitors);
+        return self();
+    }
+
+    public T setLimitReductions(List<LimitReduction> limitReductions) {
+        Objects.requireNonNull(limitReductions);
+        this.limitReductions.clear();
+        this.limitReductions.addAll(limitReductions);
         return self();
     }
 

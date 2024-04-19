@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -12,28 +13,17 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractMinMaxNodeCalc implements NodeCalc {
-
-    protected NodeCalc child;
+public abstract class AbstractMinMaxNodeCalc extends AbstractSingleChildNodeCalc {
 
     protected final double value;
 
     protected AbstractMinMaxNodeCalc(NodeCalc child, double value) {
-        this.child = Objects.requireNonNull(child);
+        super(child);
         this.value = value;
-    }
-
-    public NodeCalc getChild() {
-        return child;
-    }
-
-    public void setChild(NodeCalc child) {
-        this.child = Objects.requireNonNull(child);
     }
 
     protected abstract String getJsonName();

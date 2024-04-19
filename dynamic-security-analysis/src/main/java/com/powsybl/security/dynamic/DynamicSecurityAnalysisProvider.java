@@ -8,12 +8,13 @@
 package com.powsybl.security.dynamic;
 
 import com.google.common.collect.Lists;
+import com.powsybl.action.Action;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
@@ -22,7 +23,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisReport;
-import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -52,7 +52,7 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
                                                   List<OperatorStrategy> operatorStrategies,
                                                   List<Action> actions,
                                                   List<StateMonitor> monitors,
-                                                  Reporter reporter);
+                                                  ReportNode reportNode);
 
     default Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
         return Optional.empty();

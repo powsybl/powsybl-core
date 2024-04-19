@@ -15,12 +15,12 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>15</version>
+        <version>18</version>
         <relativePath/>
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>6.3.0-SNAPSHOT</version>
+    <version>6.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -49,7 +49,8 @@
     </developers>
 
     <modules>
-        <module>action</module>
+        <module>action-api</module>
+        <module>action-ial</module>
         <module>ampl-converter</module>
         <module>ampl-executor</module>
         <module>cgmes</module>
@@ -99,8 +100,8 @@
         <assertj.version>3.24.2</assertj.version>
         <autoservice.version>1.1.1</autoservice.version>
         <commonscli.version>1.5.0</commonscli.version>
-        <commonscompress.version>1.24.0</commonscompress.version>
-        <commons-configuration2.version>2.9.0</commons-configuration2.version>
+        <commonscompress.version>1.26.0</commonscompress.version>
+        <commons-configuration2.version>2.10.1</commons-configuration2.version>
         <commonsio.version>2.13.0</commonsio.version>
         <commonslang3.version>3.13.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
@@ -194,27 +195,32 @@
             <!-- project artifacts -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-action</artifactId>
+                <artifactId>powsybl-action-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-action-dsl</artifactId>
+                <artifactId>powsybl-action-ial</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-action-dsl-spi</artifactId>
+                <artifactId>powsybl-action-ial-dsl</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-action-simulator</artifactId>
+                <artifactId>powsybl-action-ial-dsl-spi</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-action-util</artifactId>
+                <artifactId>powsybl-action-ial-simulator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-action-ial-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
@@ -400,6 +406,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-comparator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-iidm-criteria</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-security-analysis</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-security-analysis-default</artifactId>
@@ -43,6 +43,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-action-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

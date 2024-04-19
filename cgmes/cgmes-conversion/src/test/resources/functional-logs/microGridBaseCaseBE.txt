@@ -1,15 +1,15 @@
 + Test importing MicroGrid-BaseCase-BE
-  + Reading CGMES Triplestore
-     Instance file MicroGridTestConfiguration_EQ_BD.xml
-     Instance file MicroGridTestConfiguration_TP_BD.xml
-     Instance file MicroGridTestConfiguration_BC_BE_TP_V2.xml
-     Instance file MicroGridTestConfiguration_BC_BE_EQ_V2.xml
-     Instance file MicroGridTestConfiguration_BC_BE_SV_V2.xml
-     Instance file MicroGridTestConfiguration_BC_BE_DL_V2.xml
-     Instance file MicroGridTestConfiguration_BC_BE_GL_V2.xml
-     Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
-     Instance file MicroGridTestConfiguration_BC_BE_DY_V2.xml
-  + Importing CGMES file(s)
-     Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0
-     Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0
-     CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.
+   + Reading CGMES Triplestore
+      Instance file MicroGridTestConfiguration_EQ_BD.xml
+      Instance file MicroGridTestConfiguration_TP_BD.xml
+      Instance file MicroGridTestConfiguration_BC_BE_TP_V2.xml
+      Instance file MicroGridTestConfiguration_BC_BE_EQ_V2.xml
+      Instance file MicroGridTestConfiguration_BC_BE_SV_V2.xml
+      Instance file MicroGridTestConfiguration_BC_BE_DL_V2.xml
+      Instance file MicroGridTestConfiguration_BC_BE_GL_V2.xml
+      Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
+      Instance file MicroGridTestConfiguration_BC_BE_DY_V2.xml
+   + Importing CGMES file(s)
+      Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0
+      Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0
+      CGMES network urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73 is imported.

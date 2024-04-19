@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -15,12 +16,8 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
@@ -483,7 +480,10 @@ class CgmesExportTest {
             ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
-            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            CgmesMetadataModel sshMetadata = network2
+                    .getExtension(CgmesMetadataModels.class)
+                    .getModelForSubset(CgmesSubset.STATE_VARIABLES)
+                    .orElseThrow();
             assertEquals(modelDescription, sshMetadata.getDescription());
         }
     }
@@ -500,10 +500,10 @@ class CgmesExportTest {
             ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
-            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
-            assertEquals(9, sshMetadata.getSshVersion());
-            CgmesSvMetadata svMetadata = network2.getExtension(CgmesSvMetadata.class);
-            assertEquals(9, svMetadata.getSvVersion());
+            CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+            assertEquals(9, sshMetadata.getVersion());
+            CgmesMetadataModel svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STATE_VARIABLES).orElseThrow();
+            assertEquals(9, svMetadata.getVersion());
         }
     }
 
@@ -525,8 +525,10 @@ class CgmesExportTest {
             // check network can be reimported and that ModelDescription still includes end-tag
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
 
-            CgmesSshMetadata sshMetadata = network2.getExtension(CgmesSshMetadata.class);
+            CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             assertEquals(modelDescription, sshMetadata.getDescription());
+            CgmesMetadataModel svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STATE_VARIABLES).orElseThrow();
+            assertEquals(modelDescription, svMetadata.getDescription());
         }
 
     }
@@ -602,6 +604,72 @@ class CgmesExportTest {
         Generator actualEquivalentInjection = (Generator) eqAtEnd2;
         assertEquals(expected.getP0(), -actualEquivalentInjection.getTargetP(), EPSILON);
         assertEquals(expected.getQ0(), -actualEquivalentInjection.getTargetQ(), EPSILON);
+    }
+
+    @Test
+    void testCanGeneratorControl() throws IOException {
+        ReadOnlyDataSource dataSource = CgmesConformity1Catalog.microGridBaseCaseBE().dataSource();
+        Network network = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), new Properties());
+
+        Generator generatorNoRcc = network.getGenerator("550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        Generator generatorRcc = network.getGenerator("3a3b27be-b18b-4385-b557-6735d733baf0");
+
+        generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+
+        String exportFolder = "/test-generator-control";
+        String baseName = "testGeneratorControl";
+
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+            // network.write("CGMES", null, tmpDir.resolve(baseName));
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+
+            // Check that RC are exported properly
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+
+            // RC shouldn't be exported without targetV
+            double rccTargetV = generatorRcc.getTargetV();
+            generatorRcc.setVoltageRegulatorOn(false);
+            generatorRcc.setTargetV(Double.NaN);
+
+            double noRccTargetV = generatorNoRcc.getTargetV();
+            generatorNoRcc.setVoltageRegulatorOn(false);
+            generatorNoRcc.setTargetV(Double.NaN);
+
+            //network.write("CGMES", null, tmpDir.resolve(baseName));
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+
+            generatorRcc.setTargetV(rccTargetV);
+            generatorRcc.setVoltageRegulatorOn(true);
+            generatorNoRcc.setTargetV(noRccTargetV);
+            generatorNoRcc.setVoltageRegulatorOn(true);
+
+            // RC shouldn't be exported when Qmin and Qmax are the same
+            ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
+            ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
+            rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
+            rccAdder.add();
+            MinMaxReactiveLimitsAdder mmrlAdder = generatorNoRcc.newMinMaxReactiveLimits();
+            MinMaxReactiveLimits mmrl = (MinMaxReactiveLimits) generatorNoRcc.getReactiveLimits();
+            mmrlAdder.setMinQ(mmrl.getMinQ());
+            mmrlAdder.setMaxQ(mmrl.getMinQ());
+            mmrlAdder.add();
+
+            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
+            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+        }
     }
 
     private static final double EPSILON = 1e-10;

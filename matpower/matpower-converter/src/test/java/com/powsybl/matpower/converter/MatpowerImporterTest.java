@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.converter;
 
@@ -140,6 +141,11 @@ class MatpowerImporterTest extends AbstractSerDeTest {
     @Test
     void testCase9zeroimpedance() throws IOException {
         testCase(MatpowerModelFactory.create9zeroimpedance());
+    }
+
+    @Test
+    void testCase9DcLine() throws IOException {
+        testCase(MatpowerModelFactory.create9Dcline());
     }
 
     @Test

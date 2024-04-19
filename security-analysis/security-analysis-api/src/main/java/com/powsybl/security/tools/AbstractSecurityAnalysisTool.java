@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.tools;
 
+import com.powsybl.action.ActionList;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -18,10 +19,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.action.ActionList;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
+import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategyList;
 import com.powsybl.tools.ToolOptions;
@@ -138,6 +139,8 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
                 .ifPresent(operatorStrategyFilePath -> inputs.setOperatorStrategies(OperatorStrategyList.read(operatorStrategyFilePath).getOperatorStrategies()));
         options.getPath(ACTIONS_FILE)
                 .ifPresent(actionFilePath -> inputs.setActions(ActionList.readJsonFile(actionFilePath).getActions()));
+        options.getPath(LIMIT_REDUCTIONS_FILE)
+                .ifPresent(limitReductionsFilePath -> inputs.setLimitReductions(LimitReductionListSerDeUtil.read(limitReductionsFilePath).getLimitReductions()));
     }
 
     protected SecurityAnalysisReport runSecurityAnalysisWithLog(Supplier<SecurityAnalysisReport> supplier, Path logPath) {

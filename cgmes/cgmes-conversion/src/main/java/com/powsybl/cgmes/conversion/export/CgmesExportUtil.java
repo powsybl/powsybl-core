@@ -3,17 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.extensions.CgmesTapChangersAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
@@ -34,8 +35,7 @@ import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
-import static com.powsybl.cgmes.model.CgmesNames.PHASE_TAP_CHANGER;
-import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -114,7 +114,7 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
         // The ref to build a unique model id must contain:
         // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
@@ -126,12 +126,12 @@ public final class CgmesExportUtil {
             ref(context.getBusinessProcess()),
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-        modelDescription.setIds(modelId);
+        modelDescription.setId(modelId);
         context.updateDependencies();
 
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReporter().report("CgmesId", modelId);
+        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelId).add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();
@@ -146,17 +146,19 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
         writer.writeCharacters(format(modelDescription.getVersion()));
         writer.writeEndElement();
-        for (String dependency : modelDescription.getDependencies()) {
+        for (String dependentOn : modelDescription.getDependentOn()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependentOn);
         }
-        if (modelDescription.getSupersedes() != null) {
+        for (String supersedes : modelDescription.getSupersedes()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.SUPERSEDES);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, modelDescription.getSupersedes());
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, supersedes);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
-        writer.writeCharacters(modelDescription.getProfile());
-        writer.writeEndElement();
+        for (String profile : modelDescription.getProfiles()) {
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+            writer.writeCharacters(profile);
+            writer.writeEndElement();
+        }
         if (subset == CgmesSubset.EQUIPMENT && context.getTopologyKind().equals(CgmesTopologyKind.NODE_BREAKER) && context.getCimVersion() < 100) {
             // From CGMES 3 EquipmentOperation is not required to write operational limits, connectivity nodes
             writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
@@ -276,17 +278,9 @@ public final class CgmesExportUtil {
         };
     }
 
-    public static int getTerminalSequenceNumber(Terminal t, List<DanglingLine> boundaryDanglingLines) {
+    public static int getTerminalSequenceNumber(Terminal t) {
         Connectable<?> c = t.getConnectable();
         if (c.getTerminals().size() == 1) {
-            if (c instanceof DanglingLine dl && !boundaryDanglingLines.contains(dl)) {
-                // TODO(Luma) Export tie line components instead of a single equipment
-                // If this dangling line is part of a tie line we will be exporting the tie line as a single equipment
-                // We need to return the proper terminal of the single tie line that will be exported
-                // When we change the export and write the two dangling lines as separate equipment,
-                // then we should always return 1 and forget about special case
-                return dl.getTieLine().map(tl -> tl.getDanglingLine1() == dl ? 1 : 2).orElse(1);
-            }
             return 1;
         } else {
             if (c instanceof Branch<?> branch) {
@@ -437,7 +431,7 @@ public final class CgmesExportUtil {
         if (c instanceof DanglingLine) {
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1;
         } else {
-            int sequenceNumber = getTerminalSequenceNumber(t, Collections.emptyList()); // never a dangling line here
+            int sequenceNumber = getTerminalSequenceNumber(t);
             aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber;
         }
         return context.getNamingStrategy().getCgmesIdFromAlias(c, aliasType);
@@ -457,5 +451,51 @@ public final class CgmesExportUtil {
                     && shuntCompensator.getSectionCount() == 0;
         }
         return false;
+    }
+
+    static <I extends ReactiveLimitsHolder & Injection<I>> ReactiveCapabilityCurve obtainCurve(I i) {
+        return i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE) ? i.getReactiveLimits(ReactiveCapabilityCurve.class) : null;
+    }
+
+    // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
+    // calculated synchronous machine kind is based on the present limits
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve) {
+        String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, kind);
+        if (kind == null) {
+            return calculatedKind;
+        } else if (calculatedKind.contains(kind)) {
+            return kind;
+        } else {
+            LOG.warn("original synchronousMachineKind {} has been modified to {} according to the limits", kind, calculatedKind);
+            return calculatedKind;
+        }
+    }
+
+    // we cannot discriminate between generatorOrMotor and generatorOrCondenserOrMotor so,
+    // we preserve the original kind if it is available
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, String originalKind) {
+        double min = curve != null ? curve.getMinP() : minP;
+        double max = curve != null ? curve.getMaxP() : maxP;
+
+        String kind;
+        if (min > 0) {
+            kind = "generator";
+        } else if (max < 0) {
+            kind = "motor";
+        } else if (min == 0 && max == 0) {
+            kind = "condenser";
+        } else if (min == 0) {
+            kind = "generatorOrCondenser";
+        } else if (max == 0) {
+            kind = "motorOrCondenser";
+        } else {
+            kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
+        }
+        return kind;
+    }
+
+    public static boolean isMinusOrMaxValue(double value) {
+        return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
 }

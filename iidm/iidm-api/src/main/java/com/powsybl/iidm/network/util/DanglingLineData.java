@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -73,12 +74,12 @@ public class DanglingLineData {
         boundaryBusTheta = vBoundaryBus.getArgument();
     }
 
-    private static double getV(DanglingLine danglingLine) {
+    static double getV(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
             : Double.NaN;
     }
 
-    private static double getTheta(DanglingLine danglingLine) {
+    static double getTheta(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected()
             ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
             : Double.NaN;

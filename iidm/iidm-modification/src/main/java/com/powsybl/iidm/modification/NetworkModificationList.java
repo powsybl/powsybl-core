@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
@@ -32,7 +33,7 @@ public class NetworkModificationList extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
-        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reporter));
+                      ComputationManager computationManager, ReportNode reportNode) {
+        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
     }
 }

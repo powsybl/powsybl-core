@@ -3,22 +3,21 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -600,15 +599,17 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
-        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
-        List<ReporterModel> subReporters = reporter.getSubReporters();
-        assertEquals(1, subReporters.size());
-        ReporterModel subReporter = subReporters.get(0);
-        assertEquals("IIDMValidation", subReporter.getTaskKey());
-        assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
-        Collection<Report> reports = subReporter.getReports();
-        assertFalse(reports.isEmpty());
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
+
+        List<ReportNode> children = reportNode.getChildren();
+        assertEquals(1, children.size());
+        ReportNode reportNodeChild = children.get(0);
+        assertEquals("IIDMValidation", reportNodeChild.getMessageKey());
+        assertEquals("Running validation checks on IIDM network scada", reportNodeChild.getMessage());
+
+        List<ReportNode> messageNodes = reportNodeChild.getChildren();
+        assertFalse(messageNodes.isEmpty());
 
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 
@@ -625,5 +626,63 @@ public abstract class AbstractNetworkTest {
         } catch (ValidationException e) {
             // Ignore
         }
+    }
+
+    @Test
+    public void testPermanentLimitOnSelectedOperationalLimitsGroup() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        ValidationException e = assertThrows(ValidationException.class, () -> network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN));
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN);
+        assertTrue(Double.isNaN(network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().getPermanentLimit()));
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    public void testPermanentLimitViaAdder() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        OperationalLimitsGroup unselectedGroup = network.getLine("NHV1_NHV2_1").newOperationalLimitsGroup1("unselectedGroup");
+        assertNotEquals("unselectedGroup", network.getLine("NHV1_NHV2_1").getSelectedOperationalLimitsGroupId1().orElseThrow());
+        CurrentLimitsAdder adder = unselectedGroup.newCurrentLimits()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(300)
+                .setValue(1000)
+                .endTemporaryLimit();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        adder.add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    public void testPermanentLimitOnUnselectedOperationalLimitsGroup() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        OperationalLimitsGroup unselectedGroup = network.getLine("NHV1_NHV2_1").newOperationalLimitsGroup1("unselectedGroup");
+        assertNotEquals("unselectedGroup", network.getLine("NHV1_NHV2_1").getSelectedOperationalLimitsGroupId1().orElseThrow());
+        CurrentLimitsAdder adder = unselectedGroup.newCurrentLimits()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                    .setName("5'")
+                    .setAcceptableDuration(300)
+                    .setValue(1000)
+                .endTemporaryLimit();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        CurrentLimits currentLimits = adder.setPermanentLimit(1000).add();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+
+        e = assertThrows(ValidationException.class, () -> currentLimits.setPermanentLimit(Double.NaN));
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        currentLimits.setPermanentLimit(Double.NaN);
+        assertTrue(Double.isNaN(currentLimits.getPermanentLimit()));
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
     }
 }

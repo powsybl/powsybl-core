@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
@@ -87,7 +88,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
     public static final boolean DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = true;
-    public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
+    public static final boolean DEFAULT_WRITE_SLACK_BUS = true;
     public static final boolean DEFAULT_DC = false;
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;

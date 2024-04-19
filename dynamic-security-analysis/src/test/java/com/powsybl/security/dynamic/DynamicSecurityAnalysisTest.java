@@ -7,7 +7,8 @@
  */
 package com.powsybl.security.dynamic;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.action.Action;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
@@ -16,7 +17,6 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationFilter;
 import com.powsybl.security.SecurityAnalysisReport;
-import com.powsybl.security.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -47,7 +47,7 @@ class DynamicSecurityAnalysisTest {
     private static List<OperatorStrategy> strategies;
     private static List<Action> actions;
     private static List<StateMonitor> monitors;
-    private static Reporter reporter;
+    private static ReportNode reportNode;
 
     @BeforeAll
     static void setUp() {
@@ -64,7 +64,7 @@ class DynamicSecurityAnalysisTest {
         strategies = List.of(Mockito.mock(OperatorStrategy.class));
         actions = List.of(Mockito.mock(Action.class));
         monitors = List.of(Mockito.mock(StateMonitor.class));
-        reporter = Mockito.mock(Reporter.class);
+        reportNode = Mockito.mock(ReportNode.class);
     }
 
     @Test
@@ -92,7 +92,7 @@ class DynamicSecurityAnalysisTest {
         assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), contingenciesProvider, parameters, computationManager));
         assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), contingenciesProvider, parameters, computationManager, filter));
         assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, detector, interceptors, strategies, actions));
-        assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, detector, interceptors, strategies, actions, monitors, reporter));
+        assertNotNull(DynamicSecurityAnalysis.run(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, detector, interceptors, strategies, actions, monitors, reportNode));
     }
 
     @Test
@@ -102,6 +102,6 @@ class DynamicSecurityAnalysisTest {
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), contingenciesProvider, parameters, computationManager).get());
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), contingenciesProvider, parameters, computationManager, filter).get());
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, detector, interceptors, strategies, actions).get());
-        assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, detector, interceptors, strategies, actions, monitors, reporter).get());
+        assertNotNull(DynamicSecurityAnalysis.runAsync(network, DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), network.getVariantManager().getWorkingVariantId(), contingenciesProvider, parameters, computationManager, filter, detector, interceptors, strategies, actions, monitors, reportNode).get());
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.executor;
 
@@ -24,6 +25,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This executionHandler will run an ampl model on a network.
@@ -96,7 +98,11 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
 
     private void exportNetworkAsAmpl(Path workingDir) {
         DataSource networkExportDataSource = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
-        new AmplExporter().export(network, null, networkExportDataSource);
+        if (parameters.getAmplExportConfig() != null) {
+            new AmplExporter().export(network, parameters.getAmplExportConfig(), networkExportDataSource);
+        } else {
+            new AmplExporter().export(network, new Properties(), networkExportDataSource);
+        }
     }
 
     /**

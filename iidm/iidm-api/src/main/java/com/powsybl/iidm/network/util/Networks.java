@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -12,7 +13,7 @@ import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.HorizontalAlignment;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
@@ -413,41 +414,41 @@ public final class Networks {
     }
 
     /**
-     * Set a {@link Reporter} in the reporter context of the given network, execute a runnable then restore the reporter context.
+     * Set a {@link ReportNode} in the reportNode context of the given network, execute a runnable then restore the reportNode context.
      *
      * @param network a network
-     * @param reporter the reporter to use
+     * @param reportNode the reportNode to use
      * @param runnable the runnable to execute
      */
-    public static void executeWithReporter(Network network, Reporter reporter, Runnable runnable) {
-        network.getReporterContext().pushReporter(reporter);
+    public static void executeWithReportNode(Network network, ReportNode reportNode, Runnable runnable) {
+        network.getReportNodeContext().pushReportNode(reportNode);
         try {
             runnable.run();
         } finally {
-            network.getReporterContext().popReporter();
+            network.getReportNodeContext().popReportNode();
         }
     }
 
     /**
-     * Returns a {@link ReporterContext} containing the same reporters as the given one,
+     * Returns a {@link ReportNodeContext} containing the same reportNodes as the given one,
      * but reconfigured to allow it, or not, to be accessed simultaneously by different threads.
-     * When this option is activated, the reporter context can have a different content
+     * When this option is activated, the reportNode context can have a different content
      * for each thread.
      *
-     * @param reporterContext the ReporterContext to reconfigure
-     * @param allow allow multi-thread access to the ReporterContext
-     * @return the reconfigured ReporterContext
+     * @param reportNodeContext the ReportNodeContext to reconfigure
+     * @param allow allow multi-thread access to the ReportNodeContext
+     * @return the reconfigured ReportNodeContext
      */
-    public static AbstractReporterContext allowReporterContextMultiThreadAccess(AbstractReporterContext reporterContext, boolean allow) {
-        AbstractReporterContext newReporterContext = null;
-        if (allow && !(reporterContext instanceof MultiThreadReporterContext)) {
-            newReporterContext = new MultiThreadReporterContext(reporterContext);
-        } else if (!allow && !(reporterContext instanceof SimpleReporterContext)) {
-            newReporterContext = new SimpleReporterContext(reporterContext);
-            if (reporterContext instanceof MultiThreadReporterContext multiThreadReporterContext) {
-                multiThreadReporterContext.close(); // to avoid memory leaks
+    public static AbstractReportNodeContext allowReportNodeContextMultiThreadAccess(AbstractReportNodeContext reportNodeContext, boolean allow) {
+        AbstractReportNodeContext newReportNodeContext = null;
+        if (allow && !(reportNodeContext instanceof MultiThreadReportNodeContext)) {
+            newReportNodeContext = new MultiThreadReportNodeContext(reportNodeContext);
+        } else if (!allow && !(reportNodeContext instanceof SimpleReportNodeContext)) {
+            newReportNodeContext = new SimpleReportNodeContext(reportNodeContext);
+            if (reportNodeContext instanceof MultiThreadReportNodeContext multiThreadReportNodeContext) {
+                multiThreadReportNodeContext.close(); // to avoid memory leaks
             }
         }
-        return newReporterContext != null ? newReporterContext : reporterContext;
+        return newReportNodeContext != null ? newReportNodeContext : reportNodeContext;
     }
 }

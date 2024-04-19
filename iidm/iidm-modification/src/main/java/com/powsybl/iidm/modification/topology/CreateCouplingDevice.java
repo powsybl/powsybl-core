@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -73,18 +74,18 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
-        if (failBbs(busOrBbs1, busOrBbs2, reporter, throwException)) {
+        if (failBbs(busOrBbs1, busOrBbs2, reportNode, throwException)) {
             return;
         }
 
-        VoltageLevel voltageLevel1 = getVoltageLevel(busOrBbs1, reporter, throwException);
-        VoltageLevel voltageLevel2 = getVoltageLevel(busOrBbs2, reporter, throwException);
+        VoltageLevel voltageLevel1 = getVoltageLevel(busOrBbs1, reportNode, throwException);
+        VoltageLevel voltageLevel2 = getVoltageLevel(busOrBbs2, reportNode, throwException);
         if (voltageLevel1 == null || voltageLevel2 == null) {
             LOGGER.error("Voltage level associated to {} or {} not found.", busOrBbs1, busOrBbs2);
-            notFoundBusOrBusbarSectionVoltageLevelReport(reporter, busOrBbsId1, busOrBbsId2);
+            notFoundBusOrBusbarSectionVoltageLevelReport(reportNode, busOrBbsId1, busOrBbsId2);
             if (throwException) {
                 throw new PowsyblException(String.format("Voltage level associated to %s or %s not found.", busOrBbs1, busOrBbs2));
             }
@@ -92,7 +93,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
         if (voltageLevel1 != voltageLevel2) {
             LOGGER.error("{} and {} are in two different voltage levels.", busOrBbsId1, busOrBbsId2);
-            unexpectedDifferentVoltageLevels(reporter, busOrBbsId1, busOrBbsId2);
+            unexpectedDifferentVoltageLevels(reportNode, busOrBbsId1, busOrBbsId2);
             if (throwException) {
                 throw new PowsyblException(String.format("%s and %s are in two different voltage levels.", busOrBbsId1, busOrBbsId2));
             }
@@ -106,16 +107,16 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             createBusBreakerSwitch(busOrBbsId1, busOrBbsId2, namingStrategy.getSwitchId(switchPrefixId), voltageLevel1.getBusBreakerView());
         } else if (busOrBbs1 instanceof BusbarSection bbs1 && busOrBbs2 instanceof BusbarSection bbs2) {
             // busbar sections exist: voltage level is NODE_BREAKER
-            applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, namingStrategy, reporter);
+            applyOnBusbarSections(voltageLevel1, voltageLevel2, bbs1, bbs2, namingStrategy, reportNode);
         }
         LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1, busOrBbs2);
-        newCouplingDeviceAddedReport(reporter, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
+        newCouplingDeviceAddedReport(reportNode, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
     }
 
     /**
      * Apply the modification on the two specified busbar sections
      */
-    private void applyOnBusbarSections(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BusbarSection bbs1, BusbarSection bbs2, NamingStrategy namingStrategy, Reporter reporter) {
+    private void applyOnBusbarSections(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2, BusbarSection bbs1, BusbarSection bbs2, NamingStrategy namingStrategy, ReportNode reportNode) {
         if (switchPrefixId == null) {
             switchPrefixId = namingStrategy.getSwitchBaseId(voltageLevel1, bbs1, bbs2);
         }
@@ -147,7 +148,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         } else {
             createDisconnectorTopology(voltageLevel1, breakerNode1, namingStrategy, switchPrefixId, List.of(bbs1), bbs1);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs1.getId());
-            noBusbarSectionPositionExtensionReport(reporter, bbs1);
+            noBusbarSectionPositionExtensionReport(reportNode, bbs1);
         }
         if (position2 != null) {
             // List of the bars for the second section and creation of the topology
@@ -157,12 +158,12 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         } else {
             createDisconnectorTopology(voltageLevel2, breakerNode2, namingStrategy, switchPrefixId, List.of(bbs2), bbs2);
             LOGGER.warn("No busbar section position extension found on {}, only one disconnector is created.", bbs2.getId());
-            noBusbarSectionPositionExtensionReport(reporter, bbs2);
+            noBusbarSectionPositionExtensionReport(reportNode, bbs2);
         }
 
         if (nbOpenDisconnectors > 0) {
             LOGGER.info("{} open disconnectors created on parallel busbar section in voltage level {}", nbOpenDisconnectors, voltageLevel1.getId());
-            openDisconnectorsAddedReport(reporter, voltageLevel1.getId(), nbOpenDisconnectors);
+            openDisconnectorsAddedReport(reportNode, voltageLevel1.getId(), nbOpenDisconnectors);
         }
     }
 
@@ -218,18 +219,18 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         return bbsList;
     }
 
-    private boolean failBbs(Identifiable<?> bbs1, Identifiable<?> bbs2, Reporter reporter, boolean throwException) {
+    private boolean failBbs(Identifiable<?> bbs1, Identifiable<?> bbs2, ReportNode reportNode, boolean throwException) {
         if (bbs1 == null) {
-            busOrBbsDoesNotExist(busOrBbsId1, reporter, throwException);
+            busOrBbsDoesNotExist(busOrBbsId1, reportNode, throwException);
             return true;
         }
         if (bbs2 == null) {
-            busOrBbsDoesNotExist(busOrBbsId2, reporter, throwException);
+            busOrBbsDoesNotExist(busOrBbsId2, reportNode, throwException);
             return true;
         }
         if (bbs1 == bbs2) {
             LOGGER.error("No coupling device can be created on a same busbar section or bus ({})", busOrBbsId1);
-            noCouplingDeviceOnSameBusOrBusbarSection(reporter, busOrBbsId1);
+            noCouplingDeviceOnSameBusOrBusbarSection(reportNode, busOrBbsId1);
             if (throwException) {
                 throw new PowsyblException(String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
             }
@@ -238,7 +239,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         return false;
     }
 
-    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, Reporter reporter, boolean throwException) {
+    private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, ReportNode reportNode, boolean throwException) {
         if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();
         }
@@ -246,7 +247,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
             return bbs.getTerminal().getVoltageLevel();
         }
         LOGGER.error("Unexpected type of identifiable {}: {}", identifiable.getId(), identifiable.getType());
-        unexpectedIdentifiableType(reporter, identifiable);
+        unexpectedIdentifiableType(reportNode, identifiable);
         if (throwException) {
             throw new PowsyblException("Unexpected type of identifiable " + identifiable.getId() + ": " + identifiable.getType());
         }

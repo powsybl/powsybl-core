@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -164,10 +165,10 @@ class CalculatedTimeSeriesTest {
         }
 
         assertEquals(4, timeSeriesList.size());
-        assertTrue(timeSeriesList.get(0) instanceof StoredDoubleTimeSeries);
-        assertTrue(timeSeriesList.get(1) instanceof CalculatedTimeSeries);
-        assertTrue(timeSeriesList.get(2) instanceof CalculatedTimeSeries);
-        assertTrue(timeSeriesList.get(3) instanceof CalculatedTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, timeSeriesList.get(0));
+        assertInstanceOf(CalculatedTimeSeries.class, timeSeriesList.get(1));
+        assertInstanceOf(CalculatedTimeSeries.class, timeSeriesList.get(2));
+        assertInstanceOf(CalculatedTimeSeries.class, timeSeriesList.get(3));
         assertArrayEquals(new double[] {1d, 2d}, ((DoubleTimeSeries) timeSeriesList.get(0)).toArray(), 0d);
         assertArrayEquals(new double[] {2d, 3d}, ((DoubleTimeSeries) timeSeriesList.get(1)).toArray(), 0d);
         assertArrayEquals(new double[] {0d, 2d}, ((DoubleTimeSeries) timeSeriesList.get(2)).toArray(), 0d);

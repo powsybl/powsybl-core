@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -27,10 +28,15 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
 
     // VERSION = 1.0
     // VERSION = 1.1 IncreasedViolationsParameters adding.
-    public static final String VERSION = "1.1";
+    // VERSION = 1.2 intermediateResultsInOperatorStrategy
+    public static final String VERSION = "1.2";
 
     private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
     private IncreasedViolationsParameters increasedViolationsParameters = new IncreasedViolationsParameters();
+
+    static final boolean DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY = false;
+
+    private boolean intermediateResultsInOperatorStrategy = DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY;
 
     public static class IncreasedViolationsParameters {
 
@@ -163,7 +169,11 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
         platformConfig.getOptionalModuleConfig("security-analysis-default-parameters")
-                .ifPresent(config -> parameters.getIncreasedViolationsParameters().load(config));
+                .ifPresent(config -> {
+                    parameters.setIntermediateResultsInOperatorStrategy(config.getBooleanProperty("intermediate-results-in-operator-strategy", DEFAULT_INTERMEDIATE_RESULTS_IN_OPERATOR_STRATEGY));
+                    parameters.getIncreasedViolationsParameters().load(config);
+                });
+
         parameters.readExtensions(platformConfig);
         return parameters;
     }
@@ -173,15 +183,6 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
             provider.loadSpecificParameters(platformConfig).ifPresent(securityAnalysisParametersExtension ->
                     addExtension((Class) securityAnalysisParametersExtension.getClass(), securityAnalysisParametersExtension));
         }
-    }
-
-    public LoadFlowParameters getLoadFlowParameters() {
-        return loadFlowParameters;
-    }
-
-    public SecurityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
-        this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
-        return this;
     }
 
     public IncreasedViolationsParameters getIncreasedViolationsParameters() {
@@ -196,6 +197,24 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
     @Override
     public void write(Path parametersPath) {
         JsonSecurityAnalysisParameters.write(this, parametersPath);
+    }
+
+    public SecurityAnalysisParameters setIntermediateResultsInOperatorStrategy(boolean intermediateResultsInOperatorStrategy) {
+        this.intermediateResultsInOperatorStrategy = intermediateResultsInOperatorStrategy;
+        return this;
+    }
+
+    public boolean getIntermediateResultsInOperatorStrategy() {
+        return intermediateResultsInOperatorStrategy;
+    }
+
+    public LoadFlowParameters getLoadFlowParameters() {
+        return loadFlowParameters;
+    }
+
+    public SecurityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+        this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
+        return this;
     }
 
     @Override

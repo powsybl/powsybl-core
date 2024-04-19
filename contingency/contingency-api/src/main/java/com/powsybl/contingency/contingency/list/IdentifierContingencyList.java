@@ -3,17 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.contingency.list;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.Network;
 
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -58,14 +58,32 @@ public class IdentifierContingencyList implements ContingencyList {
                             .stream()
                             .map(ContingencyElement::of)
                             .collect(Collectors.toList());
-                    String contingencyId = identifier.getContingencyId().orElse("Contingency : " +
-                            contingencyElements
-                                    .stream()
-                                    .map(ContingencyElement::getId)
-                                    .collect(Collectors.joining(" + ")));
+                    String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(contingencyElements));
                     return new Contingency(contingencyId, contingencyElements);
                 })
                 .filter(contingency -> contingency.isValid(network))
                 .collect(Collectors.toList());
+    }
+
+    public Map<String, Set<String>> getNotFoundElements(Network network) {
+        Map<String, Set<String>> notFoundElementsMap = new HashMap<>();
+        networkElementIdentifiers.forEach(identifier -> {
+            Set<String> notFoundElements = identifier.getNotFoundElements(network);
+            if (!notFoundElements.isEmpty()) {
+                String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(identifier.filterIdentifiable(network)
+                        .stream()
+                        .map(ContingencyElement::of).toList()));
+                notFoundElementsMap.put(contingencyId, notFoundElements);
+            }
+
+        });
+        return notFoundElementsMap;
+    }
+
+    private String getGeneratedContingencyId(List<ContingencyElement> contingencyElements) {
+        return "Contingency : " + contingencyElements
+                        .stream()
+                        .map(ContingencyElement::getId)
+                        .collect(Collectors.joining(" + "));
     }
 }

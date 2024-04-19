@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.converter;
 
@@ -17,7 +18,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.*;
@@ -1033,7 +1034,7 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
         try {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
@@ -1042,7 +1043,7 @@ public class UcteImporter implements Importer {
 
                 boolean combinePhaseAngleRegulation = Parameter.readBoolean(getFormat(), parameters, COMBINE_PHASE_ANGLE_REGULATION_PARAMETER, defaultValueConfig);
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, reporter), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, reportNode), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);

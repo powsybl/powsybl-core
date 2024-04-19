@@ -3,13 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
-import com.powsybl.contingency.contingency.list.identifier.*;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -37,6 +36,12 @@ class NetworkElementIdentifierContingencyListTest {
         assertEquals(2, contingencies.size());
         assertEquals(new Contingency("LINE_S2S3", new LineContingency("LINE_S2S3")), contingencies.get(0));
         assertEquals(new Contingency("LINE_S3S4", new LineContingency("LINE_S3S4")), contingencies.get(1));
+
+        // test not found elements in network
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(2, notFoundElements.size());
+        assertEquals(Set.of("test"), notFoundElements.get("test"));
+        assertEquals(Set.of("LINE_S4S1"), notFoundElements.get("LINE_S4S1"));
     }
 
     @Test
@@ -46,20 +51,20 @@ class NetworkElementIdentifierContingencyListTest {
         List<NetworkElementIdentifier> subNetworkElementIdentifiers = new ArrayList<>();
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "2-same-elements-contingency"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierContingencyList(subNetworkElementIdentifiers, "2-same-elements-contingency"));
         subNetworkElementIdentifiers = new ArrayList<>();
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S2S3"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GH1"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("HVDC1"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LD4"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "4-different-elements-contingency"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierContingencyList(subNetworkElementIdentifiers, "4-different-elements-contingency"));
         subNetworkElementIdentifiers = new ArrayList<>();
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("LINE_S3S4"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("Unknown"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "test-one-unexpected-element"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierContingencyList(subNetworkElementIdentifiers, "test-one-unexpected-element"));
         subNetworkElementIdentifiers = new ArrayList<>();
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("test"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers, "test"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierContingencyList(subNetworkElementIdentifiers, "test"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(3, contingencies.size());
@@ -71,6 +76,12 @@ class NetworkElementIdentifierContingencyListTest {
                 new HvdcLineContingency("HVDC1"),
                 new LoadContingency("LD4")), contingencies.get(1));
         assertEquals(new Contingency("test-one-unexpected-element", new LineContingency("LINE_S3S4")), contingencies.get(2));
+
+        // test not found elements in network
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(2, notFoundElements.size());
+        assertEquals(Set.of("test"), notFoundElements.get("test"));
+        assertEquals(Set.of("Unknown"), notFoundElements.get("test-one-unexpected-element"));
     }
 
     @Test
@@ -82,6 +93,10 @@ class NetworkElementIdentifierContingencyListTest {
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
         assertEquals(new Contingency("contingencyId", new LineContingency("NHV1_NHV2_1")), contingencies.get(0));
+
+        // test not found elements in network
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(0, notFoundElements.size());
     }
 
     @Test
@@ -93,11 +108,16 @@ class NetworkElementIdentifierContingencyListTest {
         networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2", "NHV1_NHV2"));
         networkElementIdentifierListElements.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '2', "contingencyId"));
         networkElementIdentifierListElements.add(new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1', "contingencyId"));
-        networkElementIdentifierList.add(new NetworkElementIdentifierList(networkElementIdentifierListElements, "contingency"));
+        networkElementIdentifierList.add(new NetworkElementIdentifierContingencyList(networkElementIdentifierListElements, "contingency"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierList);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
         assertEquals(new Contingency("contingency", Arrays.asList(new LineContingency("NHV1_NHV2_2"), new LineContingency("NHV1_NHV2_1"))), contingencies.get(0));
+
+        // test not found elements in network
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(1, notFoundElements.size());
+        assertEquals(Set.of("test", "NHV1_NHV2"), notFoundElements.get("contingency"));
     }
 
     @Test
@@ -111,11 +131,11 @@ class NetworkElementIdentifierContingencyListTest {
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
         networkElementIdentifierListElements.add(
-                new NetworkElementIdentifierList(List.of(
-                        new NetworkElementIdentifierList(
+                new NetworkElementIdentifierContingencyList(List.of(
+                        new NetworkElementIdentifierContingencyList(
                                 subNetworkElementIdentifiers
                         ),
-                        new NetworkElementIdentifierList(
+                        new NetworkElementIdentifierContingencyList(
                                 subNetworkElementIdentifiersBis
                         )
                 ), "contingencyId1")
@@ -124,9 +144,9 @@ class NetworkElementIdentifierContingencyListTest {
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
         networkElementIdentifierListElements.add(
-                new NetworkElementIdentifierList(List.of(
-                        new NetworkElementIdentifierList(List.of(
-                                new NetworkElementIdentifierList(
+                new NetworkElementIdentifierContingencyList(List.of(
+                        new NetworkElementIdentifierContingencyList(List.of(
+                                new NetworkElementIdentifierContingencyList(
                                         subNetworkElementIdentifiers
                                 )))
                 ), "contingencyId2")
@@ -138,6 +158,10 @@ class NetworkElementIdentifierContingencyListTest {
                 new LineContingency("NHV1_NHV2_2"), new GeneratorContingency("GEN"))), contingencies.get(0));
         assertEquals(new Contingency("contingencyId2", List.of(new LineContingency("NHV1_NHV2_2"),
                 new GeneratorContingency("GEN"))), contingencies.get(1));
+
+        // test not found elements in network
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(0, notFoundElements.size());
     }
 
     @Test
@@ -147,12 +171,16 @@ class NetworkElementIdentifierContingencyListTest {
         List<NetworkElementIdentifier> subNetworkElementIdentifiers = new ArrayList<>();
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_2"));
         subNetworkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("GEN"));
-        networkElementIdentifierListElements.add(new NetworkElementIdentifierList(subNetworkElementIdentifiers));
+        networkElementIdentifierListElements.add(new NetworkElementIdentifierContingencyList(subNetworkElementIdentifiers));
         networkElementIdentifierListElements.add(new IdBasedNetworkElementIdentifier("NHV1_NHV2_1"));
         IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
         List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(2, contingencies.size());
         assertEquals("Contingency : NHV1_NHV2_2 + GEN", contingencies.get(0).getId());
         assertEquals("Contingency : NHV1_NHV2_1", contingencies.get(1).getId());
+
+        // test not found elements in network
+        Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
+        assertEquals(0, notFoundElements.size());
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.dsl;
 
@@ -245,10 +246,10 @@ class CalculatedTimeSeriesGroovyDslTest {
         assertEquals(2, split.size());
         assertEquals(2, split.get(0).size());
         assertEquals(2, split.get(1).size());
-        assertTrue(split.get(0).get(0) instanceof StoredDoubleTimeSeries);
-        assertTrue(split.get(1).get(0) instanceof StoredDoubleTimeSeries);
-        assertTrue(split.get(0).get(1) instanceof CalculatedTimeSeries);
-        assertTrue(split.get(1).get(1) instanceof CalculatedTimeSeries);
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(0).get(0));
+        assertInstanceOf(StoredDoubleTimeSeries.class, split.get(1).get(0));
+        assertInstanceOf(CalculatedTimeSeries.class, split.get(0).get(1));
+        assertInstanceOf(CalculatedTimeSeries.class, split.get(1).get(1));
         assertArrayEquals(new double[]{1d, 2d, Double.NaN}, split.get(0).get(0).toArray(), 0d);
         assertArrayEquals(new double[]{Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
         // next check could surprising but it is because of calculated time series with infinite indexes which

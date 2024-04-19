@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.impl;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManagerFactory;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -14,7 +15,7 @@ import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
@@ -74,7 +75,7 @@ class SecurityAnalysisProviderTest {
 
     @Test
     void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, Reporter.NO_OP);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, ReportNode.NO_OP);
         assertNotNull(report.get());
     }
 
@@ -104,7 +105,7 @@ class SecurityAnalysisProviderTest {
 
     @Test
     void testSyncDefaultProviderMonitor() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, Reporter.NO_OP);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, parameters, computationManager, filter, detector, interceptors, operatorStrategies, actions, monitors, ReportNode.NO_OP);
         assertNotNull(report);
     }
 

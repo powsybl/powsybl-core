@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.dsl
 
@@ -12,13 +13,14 @@ import com.powsybl.timeseries.ReadOnlyTimeSeriesStore
 import com.powsybl.timeseries.TimeSeriesException
 import com.powsybl.timeseries.TimeSeriesFilter
 import com.powsybl.timeseries.ast.*
-import com.powsybl.timeseries.dsl.CalculatedTimeSeriesGroovyDslAstTransformation
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import java.time.ZonedDateTime
+
+import static com.powsybl.timeseries.ast.NodeCalcCacheCreator.cacheDuplicated
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -134,6 +136,11 @@ class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoad
         shell.evaluate(dslSrc)
 
         LOGGER.trace("Calculated time series DSL loaded in {} ms", (System.currentTimeMillis() -start))
+
+        // Check for duplication
+        start = System.currentTimeMillis()
+        nodes.forEach {key, node -> cacheDuplicated(node)}
+        LOGGER.trace("Check for duplication done in {} ms", (System.currentTimeMillis() -start))
 
         nodes
     }
