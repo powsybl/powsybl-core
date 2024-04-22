@@ -4,7 +4,7 @@ import com.powsybl.iidm.network.AicArea;
 import com.powsybl.iidm.network.AicAreaAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-public class AicAreaAdderImpl extends AreaAdderImpl implements AicAreaAdder {
+public class AicAreaAdderImpl extends AbstractAreaAdder<AicAreaAdderImpl> implements AicAreaAdder {
 
     private double acNetInterchangeTarget;
 
@@ -29,7 +29,7 @@ public class AicAreaAdderImpl extends AreaAdderImpl implements AicAreaAdder {
     @Override
     public AicArea add() {
         String id = checkAndGetUniqueId();
-        AicAreaImpl aicArea = new AicAreaImpl(networkRef, id, getName(), isFictitious(), areaType, acNetInterchangeTarget, acNetInterchangeTolerance);
+        AicAreaImpl aicArea = new AicAreaImpl(getNetworkRef(), id, getName(), isFictitious(), getAreaType(), acNetInterchangeTarget, acNetInterchangeTolerance);
         getNetwork().getIndex().checkAndAdd(aicArea);
         getNetwork().getListeners().notifyCreation(aicArea);
         return aicArea;

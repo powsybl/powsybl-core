@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
+public interface AreaAdder extends AbstractAreaAdder<Area, AreaAdder> {
 
     AreaAdder setAreaType(AreaType areaType);
 

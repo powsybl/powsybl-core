@@ -1,6 +1,6 @@
 package com.powsybl.iidm.network;
 
-public interface AicAreaAdder extends AreaAdder {
+public interface AicAreaAdder extends AbstractAreaAdder<AicArea, AicAreaAdder> {
 
     AicAreaAdder setAcNetInterchangeTarget(double acNetInterchangeTarget);
 
