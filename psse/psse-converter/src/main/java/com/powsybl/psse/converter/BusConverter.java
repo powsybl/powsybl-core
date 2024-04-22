@@ -81,7 +81,7 @@ class BusConverter extends AbstractConverter {
             addedBuses.add(psseBus);
         });
 
-        psseModel.addBuses(addedBuses.stream().sorted(Comparator.comparingInt(psseBus -> psseBus.getI())).toList());
+        psseModel.addBuses(addedBuses.stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
     }
 
     private static PsseBus createNewBus(int copyBus, int newBus, Map<Integer, PsseBus> busNumToPsseBus) {

@@ -74,7 +74,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         LccConverterStation cI = adderI.add();
 
         HvdcLineAdder adder = getNetwork().newHvdcLine()
-            .setId(getTwoTerminalDcId(getNetwork(), psseTwoTerminalDc))
+            .setId(getTwoTerminalDcId(psseTwoTerminalDc))
             .setName(psseTwoTerminalDc.getName())
             .setR(psseTwoTerminalDc.getRdc())
             .setNominalV(psseTwoTerminalDc.getVschd())
@@ -103,7 +103,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return getTwoTerminalDcActivePowerSetpoint(psseTwoTerminalDc) * DEFAULT_MAXP_FACTOR;
     }
 
-    // power factor calculated under assumption that that the maximum overlap angle is 60 degree (see Kimbark's book)
+    // power factor calculated under assumption that the maximum overlap angle is 60 degree (see Kimbark's book)
     private static double getLccConverterPowerFactor(PsseTwoTerminalDcConverter converter) {
         return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
@@ -113,13 +113,13 @@ class TwoTerminalDcConverter extends AbstractConverter {
             id -> getNetwork().getLccConverterStation(id) != null);
     }
 
-    private static String getTwoTerminalDcId(Network network, PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {
+    private static String getTwoTerminalDcId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {
         return "TwoTerminalDc-" + psseTwoTerminalDc.getRectifier().getIp() + "-" + psseTwoTerminalDc.getInverter().getIp() + "-" + psseTwoTerminalDc.getName();
     }
 
     static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
         psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDc -> {
-            String hvdcId = getTwoTerminalDcId(network, psseTwoTerminalDc);
+            String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc);
             HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
 
             String equipmentIdRectifier = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getRectifier().getIp(), psseTwoTerminalDc.getName());
