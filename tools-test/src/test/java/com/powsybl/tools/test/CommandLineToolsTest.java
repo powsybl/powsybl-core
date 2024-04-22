@@ -161,7 +161,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         assertCommandSuccessful(new String[] {"tool1", "--option1", "file.txt"}, "result1");
 
         // command failure
-        assertCommandErrorMatch(new String[] {"tool2"}, "com.powsybl.commons.PowsyblException: error2.*");
+        assertCommandErrorMatch(new String[] {"tool2"}, "com.powsybl.commons.PowsyblException: error2");
 
         // invalid option
         assertCommandError(new String[] {"tool1", "--optionA", "file.txt"}, CommandLineTools.INVALID_COMMAND_STATUS,

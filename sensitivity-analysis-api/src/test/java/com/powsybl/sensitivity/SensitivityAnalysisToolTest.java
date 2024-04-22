@@ -205,7 +205,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--factors-file", "factors.json",
             "--output-file", "output.csv",
             "--output-contingency-file", "outputContingency.json"},
-                "output-file and output-contingency-file files must have the same format.");
+                "output-file and output-contingency-file files must have the same format (csv).");
     }
 
     @Test
