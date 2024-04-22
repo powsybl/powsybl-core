@@ -8,12 +8,12 @@ package com.powsybl.iidm.import_;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import org.junit.Test;
+import com.powsybl.iidm.network.*;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -23,13 +23,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImporterFindIssueTest {
+class ImporterFindIssueTest {
 
     static class FooImporter implements Importer {
 
@@ -53,7 +52,7 @@ public class ImporterFindIssueTest {
         }
 
         @Override
-        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
             throw new UnsupportedOperationException();
         }
     }
@@ -80,13 +79,13 @@ public class ImporterFindIssueTest {
         }
 
         @Override
-        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
+        public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, ReportNode reportNode) {
             throw new UnsupportedOperationException();
         }
     }
 
     @Test
-    public void test() throws IOException {
+    void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path workingDir = fileSystem.getPath("/work");
             Path fooFile = workingDir.resolve("test.foo");
@@ -94,11 +93,11 @@ public class ImporterFindIssueTest {
             Files.createFile(fooFile);
             Files.createFile(barFile);
 
-            var dataSource = Importers.createDataSource(barFile);
+            var dataSource = DataSourceUtil.createDataSource(barFile.getParent(), barFile.getFileName().toString());
             ComputationManager computationManager = Mockito.mock(ComputationManager.class);
             var importer = Importer.find(dataSource, new ImportersLoaderList(new FooImporter(), new BarImporter()), computationManager, new ImportConfig());
             assertNotNull(importer);
-            assertTrue(importer instanceof BarImporter);
+            assertInstanceOf(BarImporter.class, importer);
         }
     }
 }
