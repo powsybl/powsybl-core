@@ -32,11 +32,11 @@ class VersionToolTest extends AbstractToolTest {
     }
 
     @Test
-    void run() throws Exception {
-        assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "",
+    void run() {
+        assertCommandErrorMatch(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS,
                 "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator());
-        assertCommand(new String[] {"version"}, CommandLineTools.COMMAND_OK_STATUS, Version.getTableString(platformConfig) + System.lineSeparator(), "");
+        assertCommandSuccessful(new String[] {"version"}, Version.getTableString(platformConfig) + System.lineSeparator());
     }
 
 }
