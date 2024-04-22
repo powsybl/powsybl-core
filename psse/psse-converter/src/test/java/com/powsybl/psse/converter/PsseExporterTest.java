@@ -264,6 +264,38 @@ class PsseExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void importExportTestRawFiveBusNodeBreaker() throws IOException {
+        Network network = importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
+        exportTest(network, "five_bus_nodeBreaker_rev35_exported", "five_bus_nodeBreaker_rev35_exported.raw");
+    }
+
+    @Test
+    void importExportTestRawFiveBusNodeBreakerSplitBus() throws IOException {
+        Network network = importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
+
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        vl1.getNodeBreakerView().getSwitch("VL1-Sw-1-2-1 ").setOpen(true);
+
+        VoltageLevel vl2 = network.getVoltageLevel("VL2");
+        vl2.getNodeBreakerView().getSwitch("VL2-Sw-1-2-1 ").setOpen(true);
+        vl2.getNodeBreakerView().getSwitch("VL2-Sw-1-4-1 ").setOpen(true);
+
+        VoltageLevel vl3 = network.getVoltageLevel("VL3");
+        vl3.getNodeBreakerView().getSwitch("VL3-Sw-1-2-1 ").setOpen(true);
+        vl3.getNodeBreakerView().getSwitch("VL3-Sw-2-5-1 ").setOpen(true);
+
+        VoltageLevel vl4 = network.getVoltageLevel("VL4");
+        vl4.getNodeBreakerView().getSwitch("VL4-Sw-1-2-1 ").setOpen(true);
+        vl4.getNodeBreakerView().getSwitch("VL4-Sw-2-4-1 ").setOpen(true);
+
+        VoltageLevel vl5 = network.getVoltageLevel("VL5");
+        vl5.getNodeBreakerView().getSwitch("VL5-Sw-1-2-1 ").setOpen(true);
+        vl5.getNodeBreakerView().getSwitch("VL5-Sw-1-4-1 ").setOpen(true);
+
+        exportTest(network, "five_bus_nodeBreaker_rev35_split_buses_exported", "five_bus_nodeBreaker_rev35_split_buses_exported.raw");
+    }
+
+    @Test
     void exportDataTest() throws IOException {
         PsseExporter psseExporter = new PsseExporter();
 

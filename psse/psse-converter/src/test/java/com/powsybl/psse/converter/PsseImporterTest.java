@@ -294,4 +294,9 @@ class PsseImporterTest extends AbstractSerDeTest {
     void importTest14NodeBreaker() throws IOException {
         importTest("IEEE_14_bus_nodeBreaker_rev35", "IEEE_14_bus_nodeBreaker_rev35.raw", false);
     }
+
+    @Test
+    void importFiveBusNodeBreaker() throws IOException {
+        importTest("five_bus_nodeBreaker_rev35", "five_bus_nodeBreaker_rev35.raw", false);
+    }
 }

@@ -102,6 +102,10 @@ public class PsseTransformerWinding extends PsseVersioned {
         return cod;
     }
 
+    public void setCont(int cont) {
+        this.cont = cont;
+    }
+
     public int getCont() {
         return cont;
     }

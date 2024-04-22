@@ -141,6 +141,7 @@ class GeneratorConverter extends AbstractConverter {
             String genId = getGeneratorId(getBusId(psseGen.getI()), psseGen.getId());
             Generator gen = network.getGenerator(genId);
             int bus = obtainBus(nodeBreakerExport, getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGen.getI(), psseGen.getId()), psseGen.getI());
+            int regulatingBus = obtainRegulatingBus(nodeBreakerExport, gen.getRegulatingTerminal(), psseGen.getIreg());
 
             if (gen == null) {
                 psseGen.setStat(0);
@@ -150,7 +151,15 @@ class GeneratorConverter extends AbstractConverter {
                 psseGen.setQg(getQ(gen));
             }
             psseGen.setI(bus);
+            if (regulatingBusMustBeChanged(bus, regulatingBus, psseGen.getIreg())) {
+                psseGen.setIreg(regulatingBus);
+            }
         });
+    }
+
+    // zero can be used for local regulation
+    private static boolean regulatingBusMustBeChanged(int bus, int newRegulatingBus, int regulatingBus) {
+        return !(bus == newRegulatingBus && regulatingBus == 0);
     }
 
     private static int getStatus(Generator gen) {

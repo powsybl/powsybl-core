@@ -145,6 +145,10 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public List<T> readFromStrings(List<String> records, Context context) {
+        // fieldNames should not be updated when recordsList is empty
+        if (records.isEmpty()) {
+            return new ArrayList<>();
+        }
         String[] allFieldNames = fieldNames(context.getVersion());
         List<T> psseObjects = parseRecords(records, allFieldNames, context);
         String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());

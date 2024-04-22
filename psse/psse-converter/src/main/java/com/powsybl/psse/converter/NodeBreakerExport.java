@@ -17,7 +17,8 @@ import java.util.*;
  */
 final class NodeBreakerExport {
     private int maxPsseBus;
-    private final Map<Integer, NodeBreakerNewBus> newBuses;
+    private final Map<Integer, NodeBreakerNewBus> newMappedBuses; // New buses mapped to iidm buses
+    private final Map<Integer, Integer> newNotMappedBuses; // New buses not mapped to iidm buses
     private final Map<Integer, Pair<String, Integer>> buses;
     private final Set<Integer> isolatedBuses;
     private final Map<String, Pair<Integer, Boolean>> nodeBus;
@@ -25,7 +26,8 @@ final class NodeBreakerExport {
 
     NodeBreakerExport(int maxPsseBus) {
         this.maxPsseBus = maxPsseBus;
-        this.newBuses = new HashMap<>();
+        this.newMappedBuses = new HashMap<>();
+        this.newNotMappedBuses = new HashMap<>();
         this.buses = new HashMap<>();
         this.isolatedBuses = new HashSet<>();
         this.nodeBus = new HashMap<>();
@@ -36,24 +38,37 @@ final class NodeBreakerExport {
         return ++maxPsseBus;
     }
 
-    void addNewBus(int newBus, int copyBus, String busBreakerBusId, int type) {
-        newBuses.put(newBus, new NodeBreakerNewBus(copyBus, busBreakerBusId, type));
+    void addNewMappedBus(int newBus, int copyBus, String busBreakerBusId, int type) {
+        newMappedBuses.put(newBus, new NodeBreakerNewBus(copyBus, busBreakerBusId, type));
     }
 
-    Set<Integer> getNewBusesSet() {
-        return newBuses.keySet();
+    void addNewNotMappedBus(int newBus, int copyBus) {
+        newNotMappedBuses.put(newBus, copyBus);
     }
 
-    OptionalInt getNewBusCopyBus(int newBus) {
-        return newBuses.containsKey(newBus) ? OptionalInt.of(newBuses.get(newBus).busCopy) : OptionalInt.empty();
+    Set<Integer> getNewMappedBusesSet() {
+        return newMappedBuses.keySet();
     }
 
-    Optional<String> getNewBusBusBreakerId(int newBus) {
-        return newBuses.containsKey(newBus) ? Optional.of(newBuses.get(newBus).busBreakerId) : Optional.empty();
+    OptionalInt getNewMappedBusCopyBus(int newBus) {
+        return newMappedBuses.containsKey(newBus) ? OptionalInt.of(newMappedBuses.get(newBus).busCopy) : OptionalInt.empty();
     }
 
-    OptionalInt getNewBusType(int newBus) {
-        return newBuses.containsKey(newBus) ? OptionalInt.of(newBuses.get(newBus).type) : OptionalInt.empty();
+    Optional<String> getNewMappedBusBusBreakerId(int newBus) {
+        // New Isolated buses do not have busBreakerId. Null is considered
+        return newMappedBuses.containsKey(newBus) ? Optional.ofNullable(newMappedBuses.get(newBus).busBreakerId) : Optional.empty();
+    }
+
+    OptionalInt getNewMappedBusType(int newBus) {
+        return newMappedBuses.containsKey(newBus) ? OptionalInt.of(newMappedBuses.get(newBus).type) : OptionalInt.empty();
+    }
+
+    Set<Integer> getNewNotMappedBusesSet() {
+        return newNotMappedBuses.keySet();
+    }
+
+    OptionalInt getNewNotMappedBusCopyBus(int newBus) {
+        return newNotMappedBuses.containsKey(newBus) ? OptionalInt.of(newNotMappedBuses.get(newBus)) : OptionalInt.empty();
     }
 
     void addBusMapping(int bus, String busBreakerBusId, int type) {

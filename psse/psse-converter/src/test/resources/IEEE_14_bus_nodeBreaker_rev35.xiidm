@@ -3,6 +3,8 @@
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL1-Busbar-1" node="1"/>
+                <iidm:busbarSection id="VL1-Busbar-2" node="2"/>
                 <iidm:switch id="VL1-Sw-1-2-1 " name="Sw-BusBars" kind="BREAKER" retained="false" open="false" node1="1" node2="2"/>
                 <iidm:switch id="VL1-Sw-1-3-1 " name="Sw-BranchToBus2" kind="BREAKER" retained="false" open="false" node1="1" node2="3"/>
                 <iidm:switch id="VL1-Sw-2-4-1 " name="Sw-BranchToBus5" kind="BREAKER" retained="false" open="false" node1="2" node2="4"/>
@@ -16,6 +18,8 @@
     <iidm:substation id="S2">
         <iidm:voltageLevel id="VL2" nominalV="138.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="VL2-Busbar-1" node="1"/>
+                <iidm:busbarSection id="VL2-Busbar-2" node="2"/>
                 <iidm:switch id="VL2-Sw-1-2-1 " name="Sw-BusBars" kind="BREAKER" retained="false" open="false" node1="1" node2="2"/>
                 <iidm:switch id="VL2-Sw-1-6-1 " name="Sw-BranchToBus1" kind="BREAKER" retained="false" open="false" node1="1" node2="6"/>
                 <iidm:switch id="VL2-Sw-1-7-1 " name="Sw-Gen1" kind="BREAKER" retained="false" open="false" node1="1" node2="7"/>

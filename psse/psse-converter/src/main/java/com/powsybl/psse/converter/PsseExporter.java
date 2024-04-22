@@ -131,6 +131,7 @@ public class PsseExporter implements Exporter {
         GeneratorConverter.updateGenerators(network, updatedPsseModel, nodeBreakerExport);
         LineConverter.updateLines(network, updatedPsseModel, nodeBreakerExport);
         TransformerConverter.updateTransformers(network, updatedPsseModel, nodeBreakerExport);
+        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, nodeBreakerExport);
         SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, nodeBreakerExport);
     }
 }

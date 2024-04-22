@@ -63,18 +63,25 @@ class BusConverter extends AbstractConverter {
 
         // create new psse buses
         List<PsseBus> addedBuses = new ArrayList<>();
-        nodeBreakerExport.getNewBusesSet().stream().sorted().forEach(newBus -> {
-            int copyBus = nodeBreakerExport.getNewBusCopyBus(newBus).orElseThrow();
-            String busBreakerId = nodeBreakerExport.getNewBusBusBreakerId(newBus).orElseThrow();
-            int type = nodeBreakerExport.getNewBusType(newBus).orElseThrow();
+        nodeBreakerExport.getNewMappedBusesSet().stream().sorted().forEach(newBus -> {
+            int copyBus = nodeBreakerExport.getNewMappedBusCopyBus(newBus).orElseThrow();
+            String busBreakerId = nodeBreakerExport.getNewMappedBusBusBreakerId(newBus).orElse(null);
+            int type = nodeBreakerExport.getNewMappedBusType(newBus).orElseThrow();
 
             PsseBus psseBus = createNewBus(copyBus, newBus, busNumToPsseBus);
             updatePsseBus(network, busBreakerId, psseBus, type);
-
             addedBuses.add(psseBus);
         });
 
-        psseModel.addBuses(addedBuses);
+        nodeBreakerExport.getNewNotMappedBusesSet().stream().sorted().forEach(newBus -> {
+            int copyBus = nodeBreakerExport.getNewNotMappedBusCopyBus(newBus).orElseThrow();
+
+            PsseBus psseBus = createNewBus(copyBus, newBus, busNumToPsseBus);
+            updateIsolatedPsseBus(psseBus);
+            addedBuses.add(psseBus);
+        });
+
+        psseModel.addBuses(addedBuses.stream().sorted(Comparator.comparingInt(psseBus -> psseBus.getI())).toList());
     }
 
     private static PsseBus createNewBus(int copyBus, int newBus, Map<Integer, PsseBus> busNumToPsseBus) {
@@ -105,17 +112,21 @@ class BusConverter extends AbstractConverter {
         }
     }
 
-    private static void updatePsseBus(Network network, String busId, PsseBus psseBus, int type) {
-        Bus bus = network.getBusBreakerView().getBus(busId);
+    private static void updatePsseBus(Network network, String busBreakerId, PsseBus psseBus, int type) {
+        Bus bus = network.getBusBreakerView().getBus(busBreakerId);
         if (bus == null) {
-            psseBus.setVm(0.0);
-            psseBus.setVa(0.0);
-            psseBus.setIde(4);
+            updateIsolatedPsseBus(psseBus);
         } else {
             psseBus.setVm(getVm(bus));
             psseBus.setVa(getVa(bus));
             psseBus.setIde(type);
         }
+    }
+
+    private static void updateIsolatedPsseBus(PsseBus psseBus) {
+        psseBus.setVm(0.0);
+        psseBus.setVa(0.0);
+        psseBus.setIde(4);
     }
 
     private static double getVm(Bus bus) {

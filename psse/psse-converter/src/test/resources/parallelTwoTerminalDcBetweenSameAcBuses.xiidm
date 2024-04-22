@@ -177,8 +177,8 @@
             <iidm:currentLimits permanentLimit="2509.967539837856"/>
         </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:hvdcLine id="TwoTerminalDc-4-8" name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4" converterStation2="LccConverter-4-8-8"/>
-    <iidm:hvdcLine id="TwoTerminalDc-4-8#0" name="EATL P2     " r="7.265" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4#0" converterStation2="LccConverter-4-8-8#0"/>
+    <iidm:hvdcLine id="TwoTerminalDc-4-8-EATL P1     " name="EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4" converterStation2="LccConverter-4-8-8"/>
+    <iidm:hvdcLine id="TwoTerminalDc-4-8-EATL P2     " name="EATL P2     " r="7.265" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4#0" converterStation2="LccConverter-4-8-8#0"/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>

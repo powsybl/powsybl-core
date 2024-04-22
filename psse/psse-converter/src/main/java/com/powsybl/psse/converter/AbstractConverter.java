@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
@@ -34,7 +35,7 @@ public abstract class AbstractConverter {
         PSSE_BRANCH("B"),
         PSSE_TWO_WINDING("2"),
         PSSE_THREE_WINDING("3"),
-        PSSE_SWITCHED_SHUNT("s"),
+        PSSE_SWITCHED_SHUNT("S"),
         PSSE_INDUCTION_MACHINE("I"),
         PSSE_TWO_TERMINAL_DC_LINE("D"),
         PSSE_VSC_DC_LINE("V"),
@@ -47,7 +48,7 @@ public abstract class AbstractConverter {
             this.textCode = textCode;
         }
 
-        private String getTextCode() {
+        String getTextCode() {
             return textCode;
         }
     }
@@ -90,7 +91,7 @@ public abstract class AbstractConverter {
         } else if (bus1 == 0) {
             return type + "." + bus2 + "." + bus3 + "." + id;
         } else {
-            return type + "." + bus1 + "." + bus2 + "." + "." + bus3 + id;
+            return type + "." + bus1 + "." + bus2 + "." + bus3 + "." + id;
         }
     }
 
@@ -115,6 +116,19 @@ public abstract class AbstractConverter {
 
     static int obtainBus(NodeBreakerExport nodeBreakerExport, String equipmentId, int bus) {
         return nodeBreakerExport.getEquipmentIdBusBus(getNodeBreakerEquipmentIdBus(equipmentId, bus)).orElseGet(() -> bus);
+    }
+
+    // the psse control node always is identical to the iidm node (not affected by internal connections)
+    static int obtainRegulatingBus(NodeBreakerExport nodeBreakerExport, Terminal regulatingTerminal, int bus) {
+        if (regulatingTerminal == null) {
+            return bus;
+        }
+        if (regulatingTerminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+            return bus;
+        }
+        String voltageLevelId = regulatingTerminal.getVoltageLevel().getId();
+        int node = regulatingTerminal.getNodeBreakerView().getNode();
+        return nodeBreakerExport.getNodeBus(voltageLevelId, node).orElseGet(() -> bus);
     }
 
     static Terminal obtainTerminalNode(Network network, String voltageLevelId, int node) {

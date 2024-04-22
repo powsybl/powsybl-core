@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.network.util.TerminalFinder;
@@ -32,22 +33,24 @@ class SlackConverter extends AbstractConverter {
     }
 
     void create() {
-        for (PsseBus psseBus : psseBusList) {
-            if (psseBus.getIde() == 3) {
-                Bus bus;
-                Optional<NodeBreakerImport.NodeBreakerControlNode> slackControlNode = nodeBreakerImport.getSlackControlNode(psseBus.getI());
-                if (slackControlNode.isPresent()) {
-                    Terminal terminal = obtainTerminalNode(getNetwork(), slackControlNode.get().getVoltageLevelId(), slackControlNode.get().getNode());
-                    bus = terminal != null ? terminal.getBusBreakerView().getBus() : null;
-                } else {
-                    String busId = AbstractConverter.getBusId(psseBus.getI());
-                    bus = getNetwork().getBusBreakerView().getBus(busId);
+        psseBusList.stream().filter(psseBus -> psseBus.getIde() == 3).forEach(psseBus -> {
+
+            Optional<NodeBreakerImport.NodeBreakerControlNode> slackControlNode = nodeBreakerImport.getSlackControlNode(psseBus.getI());
+            if (slackControlNode.isPresent()) {
+                Terminal terminal = obtainTerminalNode(getNetwork(), slackControlNode.get().getVoltageLevelId(), slackControlNode.get().getNode());
+                VoltageLevel voltageLevel = getNetwork().getVoltageLevel(slackControlNode.get().getVoltageLevelId());
+
+                if (voltageLevel != null && terminal != null) {
+                    SlackTerminal.reset(voltageLevel, terminal);
                 }
+            } else {
+                String busId = AbstractConverter.getBusId(psseBus.getI());
+                Bus bus = getNetwork().getBusBreakerView().getBus(busId);
                 if (slackBusIsValidForIidm(bus)) {
                     SlackTerminal.attach(bus);
                 }
             }
-        }
+        });
     }
 
     private static boolean slackBusIsValidForIidm(Bus bus) {
