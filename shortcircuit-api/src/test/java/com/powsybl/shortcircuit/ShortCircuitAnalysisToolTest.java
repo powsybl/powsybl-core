@@ -99,8 +99,10 @@ class ShortCircuitAnalysisToolTest extends AbstractToolTest {
     @Test
     void test() {
         String expectedOut = """
-                Loading fault list 'faultsFile.json'
                 Loading network 'network.xiidm'
+                Loading input 'faults.json'
+                Loading parameters 'parameters.json'
+                Loading fault parameters 'faultParameters.json'
                 Short circuit analysis:
                 +----+---------------------------+
                 | ID | Three Phase Fault Current |
@@ -111,6 +113,6 @@ class ShortCircuitAnalysisToolTest extends AbstractToolTest {
                 +----+---------------+---------+--------------+------------+-------+-------+
                 """;
 
-        assertCommandSuccessfulMatch(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--fault-parameters-file", "faultParameters.json"}, expectedOut);
+        assertCommandSuccessful(new String[] {COMMAND_NAME, "--input-file", "faults.json", "--case-file", "network.xiidm", "--parameters-file", "parameters.json", "--fault-parameters-file", "faultParameters.json"}, expectedOut);
     }
 }
