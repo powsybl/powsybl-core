@@ -57,7 +57,7 @@ class AreasTests {
     }
 
     @Test
-    void checkSubnetworkGetAreasMethods() {
+    void checkSubnetworkGetAreas() {
         Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
         assertEquals(biddingZone, subnetwork.getAreaType("bz"));
         assertEquals(biddingZoneA, subnetwork.getArea("bza"));
@@ -70,6 +70,33 @@ class AreasTests {
         assertEquals(List.of(biddingZoneA, biddingZoneB, regionA, aicA), subnetwork.getAreaStream().toList());
         assertEquals(List.of(aicA), subnetwork.getAicAreaStream().toList());
         assertEquals(List.of(biddingZone, region, aic), subnetwork.getAreaTypeStream().toList());
+    }
+
+    @Test
+    void checkSubnetworkNewAreas() {
+        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
+        AreaType areaType = subnetwork.newAreaType()
+                .setId("areatype")
+                .setName("AreaType")
+                .add();
+        Area area = subnetwork.newArea()
+                .setId("area")
+                .setName("Area")
+                .setAreaType(areaType)
+                .add();
+
+        AicArea aicArea = subnetwork.newAicArea()
+                .setAcNetInterchangeTolerance(0.1)
+                .setAcNetInterchangeTarget(10.0)
+                .setId("aicarea")
+                .setName("AicArea")
+                .setAreaType(areaType)
+                .add();
+
+        assertTrue(Iterables.contains(network.getAreaTypes(), areaType));
+        assertTrue(Iterables.contains(network.getAreas(), area));
+        assertTrue(Iterables.contains(network.getAicAreas(), aicArea));
+
     }
 
     @Test
