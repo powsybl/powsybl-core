@@ -122,7 +122,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     /**
      * Append the chunk with the one given in argument, and return the result. "This" dataChunk and the one in argument remain unchanged.
      * The two chunks have to be successive, i.e : this.getOffset() + this.length() = otherChunk.getOffset()
-     * @param otherChunk : the chunk to append with this object. It has to be the same implementation as this object.
+     * @param otherChunk the chunk to append with this object. It has to be the same implementation as this object.
      */
     A append(A otherChunk);
 
