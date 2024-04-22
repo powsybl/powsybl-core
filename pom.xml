@@ -112,8 +112,8 @@
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>4.0.14</groovy.version>
         <guava.version>32.1.2-jre</guava.version>
-        <jackson.version>2.15.2</jackson.version>
-        <jackson-databind.version>2.15.2</jackson-databind.version>
+        <jackson.version>2.17.0</jackson.version>
+        <jackson-databind.version>2.17.0</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jgrapht.version>1.5.2</jgrapht.version>
         <jimfs.version>1.3.0</jimfs.version>
