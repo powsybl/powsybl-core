@@ -103,4 +103,29 @@ public class GeneratorAction extends AbstractAction {
         getTargetV().ifPresent(modifs::setTargetV);
         return new GeneratorModification(getGeneratorId(), modifs);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        GeneratorAction that = (GeneratorAction) o;
+        return Objects.equals(generatorId, that.generatorId)
+                && Objects.equals(activePowerRelativeValue, that.activePowerRelativeValue)
+                && Objects.equals(activePowerValue, that.activePowerValue)
+                && Objects.equals(voltageRegulatorOn, that.voltageRegulatorOn)
+                && Objects.equals(targetV, that.targetV)
+                && Objects.equals(targetQ, that.targetQ);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), generatorId, activePowerRelativeValue, activePowerValue, voltageRegulatorOn, targetV, targetQ);
+    }
 }

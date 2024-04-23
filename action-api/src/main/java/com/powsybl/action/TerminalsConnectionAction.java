@@ -69,6 +69,7 @@ public class TerminalsConnectionAction extends AbstractAction {
     /**
      * The side is optional. Empty means that all the terminals of the element will be operated
      * in the action with the defined open or close status.
+     *
      * @return the optional side of the connection/disconnection action.
      */
     public Optional<ThreeSides> getSide() {
@@ -89,5 +90,25 @@ public class TerminalsConnectionAction extends AbstractAction {
         // not obvious how to map on ConnectableConnection/PlannedDisconnection/... especially if there is a side selected
         return getSide().map(value -> new TerminalsConnectionModification(getElementId(), value, isOpen()))
                 .orElse(new TerminalsConnectionModification(getElementId(), isOpen()));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        TerminalsConnectionAction that = (TerminalsConnectionAction) o;
+        return open == that.open && Objects.equals(elementId, that.elementId) && side == that.side;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), elementId, side, open);
     }
 }

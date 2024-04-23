@@ -57,4 +57,23 @@ public class SwitchAction extends AbstractAction {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        SwitchAction that = (SwitchAction) o;
+        return open == that.open && Objects.equals(switchId, that.switchId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), switchId, open);
+    }
 }

@@ -57,4 +57,24 @@ public class DanglingLineAction extends AbstractLoadAction {
                 getReactivePowerValue().stream().boxed().findFirst().orElse(null)
         );
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        DanglingLineAction that = (DanglingLineAction) o;
+        return Objects.equals(danglingLineId, that.danglingLineId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), danglingLineId);
+    }
 }
