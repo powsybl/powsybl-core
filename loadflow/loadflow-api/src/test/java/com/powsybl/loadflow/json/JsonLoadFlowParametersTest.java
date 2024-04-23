@@ -129,7 +129,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void readJsonVersion17() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion17.json"));
-        assertTrue(parameters.isHvdcAcEmulation());
+        assertFalse(parameters.isHvdcAcEmulation());
     }
 
     @Test
