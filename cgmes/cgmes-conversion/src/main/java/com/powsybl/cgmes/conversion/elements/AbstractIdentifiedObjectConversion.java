@@ -18,21 +18,23 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectConversion {
 
-    public AbstractIdentifiedObjectConversion(String type, PropertyBag properties, Context context) {
+    protected AbstractIdentifiedObjectConversion(String type, PropertyBag properties, Context context) {
         super(type, properties, context);
 
         this.id = properties.getId(type);
         this.name = p.get("name");
+        // FIXME(Luma) all names are missing when we convert for update
         if (this.name == null) {
             missing("name");
         }
     }
 
-    public AbstractIdentifiedObjectConversion(String type, PropertyBags propertiess, Context context) {
+    protected AbstractIdentifiedObjectConversion(String type, PropertyBags propertiess, Context context) {
         super(type, propertiess, context);
 
         this.id = ps.get(0).getId(type);
         this.name = ps.get(0).get("name");
+        // FIXME(Luma) all names are missing when we convert for update
         if (this.name == null) {
             missing("name");
         }

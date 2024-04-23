@@ -184,273 +184,96 @@ SELECT *
     }
 }
 
-
-# FIXME(Luma) update the rest of these queries to handle only data for updates (SSH, SV)
-
-
 # query: equivalentInjections
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?EquivalentInjection
-        a cim:EquivalentInjection ;
-        cim:IdentifiedObject.name ?name .
-    ?Terminal cim:Terminal.ConductingEquipment ?EquivalentInjection .
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.minP ?minP }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxP ?maxP }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.minQ ?minQ }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxQ ?maxQ }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
-    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.ReactiveCapabilityCurve ?ReactiveCapabilityCurve }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?EquivalentInjection
+{
+    ?EquivalentInjection a cim:EquivalentInjection ;
         cim:EquivalentInjection.p ?p ;
         cim:EquivalentInjection.q ?q .
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
-}}
-}
-
-# query: equivalentShunts
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?EquivalentShunt
-        a cim:EquivalentShunt ;
-        cim:IdentifiedObject.name ?name ;
-        cim:EquivalentShunt.b ?b ;
-        cim:EquivalentShunt.g ?g .
-    ?Terminal cim:Terminal.ConductingEquipment ?EquivalentShunt .
-}}
 }
 
 # query: svInjections
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?SvInjection
-        a cim:SvInjection ;
+{
+    ?SvInjection a cim:SvInjection ;
         cim:SvInjection.TopologicalNode ?TopologicalNode ;
         cim:SvInjection.pInjection ?pInjection .
-        OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
-}}
-}
-
-# query: reactiveCapabilityCurveData
-SELECT *
-WHERE {
-    ?CurveData
-        a cim:CurveData ;
-        cim:CurveData.Curve ?ReactiveCapabilityCurve ;
-        cim:CurveData.xvalue ?xvalue ;
-        cim:CurveData.y1value ?y1value .
-    OPTIONAL { ?CurveData cim:CurveData.y2value ?y2value }
+    OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
 }
 
 # query: externalNetworkInjections
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?ExternalNetworkInjection
-        a cim:ExternalNetworkInjection ;
-        cim:IdentifiedObject.name ?name ;
-        cim:ExternalNetworkInjection.minP ?minP ;
-        cim:ExternalNetworkInjection.maxP ?maxP .
-    ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
-    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.governorSCD ?governorSCD }
-    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
-    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
-    OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?ExternalNetworkInjection
+{
+    ?ExternalNetworkInjection  a cim:ExternalNetworkInjection ;
         cim:ExternalNetworkInjection.p ?p ;
         cim:ExternalNetworkInjection.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
 }
 
 # query: staticVarCompensators
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?StaticVarCompensator
-        a cim:StaticVarCompensator ;
-        cim:IdentifiedObject.name ?name ;
-        cim:StaticVarCompensator.capacitiveRating ?capacitiveRating ;
-        cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
-        cim:StaticVarCompensator.slope ?slope ;
-        cim:StaticVarCompensator.sVCControlMode ?controlMode ;
-        cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint .
-    ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
-    OPTIONAL {
-        ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
-    }
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?StaticVarCompensator
+{
+    ?StaticVarCompensator a cim:StaticVarCompensator ;
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
 }
 
 # query: asynchronousMachines
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?AsynchronousMachine
-        a cim:AsynchronousMachine ;
-        cim:IdentifiedObject.name ?name .
-    ?Terminal cim:Terminal.ConductingEquipment ?AsynchronousMachine .
-}}
-OPTIONAL { GRAPH ?graphSSH  {
-    ?AsynchronousMachine
+{
+    ?AsynchronousMachine a cim:AsynchronousMachine ;
         cim:AsynchronousMachine.asynchronousMachineType ?type ;
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
-}}
 }
 
 # query: controlAreas
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?ControlArea
-        a cim:ControlArea ;
-        cim:IdentifiedObject.name ?name ;
-        cim:ControlArea.type ?controlAreaType .
-        OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
-    FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
-
-}}
-{ OPTIONAL { GRAPH ?graphSSH {
-    ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
+{
+    ?ControlArea a cim:ControlArea ;
+        cim:ControlArea.netInterchange ?netInterchange .
     OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
-}}}
 }
 
 # query: acDcConverters
 SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?ACDCConverter
-        a ?type ;
-        cim:IdentifiedObject.name ?name ;
-        cim:ACDCConverter.ratedUdc ?ratedUdc .
-    ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
-    # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
+{
+    ?ACDCConverter a ?type .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
-    OPTIONAL {
-        ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
-    }
-    OPTIONAL {
-        ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
-    }
-}}
-OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
         cim:ACDCConverter.targetPpcc ?targetPpcc ;
         cim:ACDCConverter.p ?p ;
         cim:ACDCConverter.q ?q .
-}}
-OPTIONAL { GRAPH ?graphSV {
-    ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
-}}
-# For Current Source Converter
-OPTIONAL {
-    ?ACDCConverter a cim:CsConverter .
-    ?ACDCConverter
-        cim:CsConverter.operatingMode ?operatingMode ;
-        cim:CsConverter.pPccControl ?controlMode .
-       OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
-}
-# For Voltage Source Converter
-OPTIONAL {
-    ?ACDCConverter a cim:VsConverter .
-    ?ACDCConverter
-       cim:VsConverter.qPccControl ?qPccControl ;
-       cim:VsConverter.pPccControl ?pPccControl .
-    OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
-    OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
-}
+    # From SV, for all converters
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
+    }
+    # For Current Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:CsConverter ;
+            cim:CsConverter.operatingMode ?operatingMode ;
+            cim:CsConverter.pPccControl ?controlMode .
+        OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+    }
+    # For Voltage Source Converter
+    OPTIONAL {
+        ?ACDCConverter a cim:VsConverter ;
+           cim:VsConverter.qPccControl ?qPccControl ;
+           cim:VsConverter.pPccControl ?pPccControl .
+        OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+        OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+    }
 }
 
 # query: dcTerminals
 SELECT *
-WHERE {
 {
-{ GRAPH ?graph {
-    ?DCTerminal
-        a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCConductingEquipment .
-    ?DCConductingEquipment a ?dcConductingEquipmentType .
-    OPTIONAL { ?DCTerminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
-}}
-UNION
-{ GRAPH ?graphACDC {
-    ?DCTerminal
-        a cim:ACDCConverterDCTerminal ;
-        cim:ACDCConverterDCTerminal.DCConductingEquipment ?DCConductingEquipment .
-    ?DCConductingEquipment a ?dcConductingEquipmentType .
-    OPTIONAL { ?DCTerminal cim:ACDCTerminal.sequenceNumber ?sequenceNumber }
-}}
-}
-OPTIONAL { ?DCTerminal cim:IdentifiedObject.name ?name }
-OPTIONAL { GRAPH ?graphSSH {
-    ?DCTerminal cim:ACDCTerminal.connected ?connected
-}}
-OPTIONAL { GRAPH ?graphCN {
-?DCTerminal cim:DCBaseTerminal.DCNode ?DCNode .
-}}
-OPTIONAL { GRAPH ?graphTPT {
-?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode .
-}}
-}
-
-# query: dcLineSegments
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?DCLineSegment
-        a cim:DCLineSegment ;
-        cim:IdentifiedObject.name ?name .
-    OPTIONAL { ?DCLineSegment cim:DCLineSegment.resistance ?r }
-    OPTIONAL { ?DCLineSegment cim:DCLineSegment.inductance ?l }
-    OPTIONAL { ?DCLineSegment cim:DCLineSegment.capacitance ?c }
-    OPTIONAL { ?DCLineSegment cim:DCLineSegment.length ?length }
-    ?DCTerminal1
-        a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
-    OPTIONAL { ?DCTerminal1 cim:ACDCTerminal.sequenceNumber ?seq1 }
-    ?DCTerminal2
-        a cim:DCTerminal ;
-        cim:DCTerminal.DCConductingEquipment ?DCLineSegment .
-    OPTIONAL { ?DCTerminal2 cim:ACDCTerminal.sequenceNumber ?seq2 }
-    FILTER ( bound(?seq1) && ?seq1 = "1" && bound(?seq2) && ?seq2 = "2"
-        || !bound(?seq1) && !bound(?seq2) && str(?DCTerminal1) < str(?DCTerminal2) )
-}}
-}
-
-# query: tieFlows
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?TieFlow
-        a cim:TieFlow ;
-        cim:TieFlow.Terminal ?terminal ;
-        cim:TieFlow.ControlArea ?ControlArea
-}}
-}
-
-# query: grounds
-SELECT *
-WHERE {
-{ GRAPH ?graph {
-    ?Ground
-        a cim:Ground ;
-        cim:IdentifiedObject.name ?name .
-    ?Terminal cim:Terminal.ConductingEquipment ?Ground .
-}}
+    ?DCTerminal a cim:DCTerminal ;
+        cim:ACDCTerminal.connected ?connected
+    OPTIONAL {
+        ?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode .
+    }
 }

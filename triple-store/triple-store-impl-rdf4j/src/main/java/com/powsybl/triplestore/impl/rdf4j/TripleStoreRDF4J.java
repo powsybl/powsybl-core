@@ -205,7 +205,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             } catch (MalformedQueryException x) {
                 int line = 1;
                 for (String s : query1.split("\n")) {
-                    LOGGER.error(String.format("%3d  %s%n", line, s));
+                    LOGGER.error(String.format("%3d  %s", line, s));
                     line++;
                 }
                 throw x;
