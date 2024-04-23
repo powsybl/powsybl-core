@@ -110,9 +110,6 @@ SELECT *
     {
         ?RegulatingControl a cim:TapChangerControl
     }
-    ?RegulatingControl
-        cim:RegulatingControl.mode ?mode ;
-        cim:RegulatingControl.Terminal ?Terminal .
     OPTIONAL {
         ?RegulatingControl
             cim:RegulatingControl.enabled ?enabled ;
