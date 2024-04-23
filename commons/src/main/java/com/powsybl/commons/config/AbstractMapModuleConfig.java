@@ -29,7 +29,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
 
     private static PowsyblException createUnexpectedPropertyTypeException(String name, Class<?> type, Class<?>[] expectedTypes) {
         return new PowsyblException("Unexpected value type " + type.getName()
-                + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
+            + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
     }
 
     private static PowsyblException createPropertyIsNotException(String name, String what, Exception e) {
@@ -49,7 +49,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
      * ({@link Date} or {@link Float} for instance).
      *
      * @param propertyName The name of the property to be looked up
-     * @return             The value of the specified property it it exists, {@code null} otherwise.
+     * @return The value of the specified property it it exists, {@code null} otherwise.
      */
     protected abstract Object getValue(String propertyName);
 
@@ -61,7 +61,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
             return Optional.empty();
         }
         if (!(value instanceof String)) {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{String.class});
         }
         return Optional.of((String) value).map(PlatformEnv::substitute);
     }
@@ -83,7 +83,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
             } else if (value instanceof List) {
                 return Optional.of(((List<String>) value).stream().map(PlatformEnv::substitute).collect(Collectors.toList()));
             } else {
-                throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, List.class});
+                throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{String.class, List.class});
             }
         }
     }
@@ -104,7 +104,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
                 throw createPropertyIsNotException(name, "an integer", e);
             }
         } else {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, Integer.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{String.class, Integer.class});
         }
     }
 
@@ -126,7 +126,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
                 throw createPropertyIsNotException(name, "a long", e);
             }
         } else {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, Long.class, Integer.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{String.class, Long.class, Integer.class});
         }
     }
 
@@ -146,7 +146,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
                 throw createPropertyIsNotException(name, "a float", e);
             }
         } else {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Number.class, String.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{Number.class, String.class});
         }
     }
 
@@ -166,7 +166,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
                 throw createPropertyIsNotException(name, "a double", e);
             }
         } else {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Number.class, String.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{Number.class, String.class});
         }
     }
 
@@ -182,7 +182,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         } else if (value instanceof String val) {
             return Optional.of(Boolean.parseBoolean(val));
         } else {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Boolean.class, String.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{Boolean.class, String.class});
         }
     }
 
@@ -202,7 +202,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
                 throw createPropertyIsNotException(name, "an ISO date time", e);
             }
         } else {
-            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Date.class, String.class});
+            throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[]{Date.class, String.class});
         }
     }
 
@@ -214,7 +214,7 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
     @Override
     public Optional<List<Path>> getOptionalPathListProperty(String name) {
         return getOptionalStringListProperty(name).flatMap(strings -> Optional.of(strings.stream()
-                .map(fs::getPath)
-                .toList()));
+            .map(fs::getPath)
+            .collect(Collectors.toList())));
     }
 }

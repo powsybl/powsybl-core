@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * Provides access to the list of known candidate computations.
@@ -40,7 +41,7 @@ public final class CandidateComputations {
      * Get the list of all known candidate computations names.
      */
     public static List<String> getComputationsNames() {
-        return getComputations().stream().map(CandidateComputation::getName).toList();
+        return getComputations().stream().map(CandidateComputation::getName).collect(Collectors.toList());
     }
 
     /**

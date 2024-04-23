@@ -443,7 +443,6 @@ public final class ValidationUtil {
             case OFF -> {
                 // nothing to check
             }
-            default -> throw new IllegalStateException();
         }
         return ValidationLevel.STEADY_STATE_HYPOTHESIS;
     }
