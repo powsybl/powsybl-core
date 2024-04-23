@@ -501,7 +501,7 @@ public class MatpowerImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource.exists(null, MatpowerConstants.EXT);
+            return dataSource.exists(null, MatpowerConstants.EXT, true);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

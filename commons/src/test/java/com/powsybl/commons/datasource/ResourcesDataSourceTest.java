@@ -9,6 +9,7 @@ package com.powsybl.commons.datasource;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -19,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ResourcesDataSourceTest {
 
     @Test
-    void test() {
+    void test() throws IOException {
         ResourceDataSource dataSource = new ResourceDataSource("foo", new ResourceSet("/test/", "foo.txt"));
         assertEquals("foo", dataSource.getBaseName());
         assertTrue(dataSource.exists("foo.txt"));

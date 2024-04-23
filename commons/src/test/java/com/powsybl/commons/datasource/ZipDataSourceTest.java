@@ -64,7 +64,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
     @Test
     void fakeZipTest() throws IOException {
         Files.createFile(testDir.resolve("fake.zip"));
-        assertFalse(new ZipDataSource(testDir, "fake", "", null).exists("e"));
+        assertFalse(new ZipDataSource(testDir, "fake", "", (DataSourceObserver) null).exists("e"));
     }
 
     @Test

@@ -7,6 +7,8 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ResourceDataSource implements ReadOnlyDataSource {
+public class ResourceDataSource extends AbstractReadOnlyDataSource {
 
     private final String baseName;
 
@@ -39,24 +41,28 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext) {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     @Override
-    public boolean exists(String fileName) {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
-        return resourceSets.stream().anyMatch(resourceSet -> resourceSet.getFileNames().contains(fileName));
+        return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName))
+            && resourceSets.stream().anyMatch(resourceSet -> resourceSet.getFileNames().contains(fileName));
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) {
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     @Override
-    public InputStream newInputStream(String fileName) {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
+        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(fileName)) {
+            throw new PowsyblException(String.format("File %s is inconsistent with the ResourceDataSource", fileName));
+        }
         return resourceSets.stream().filter(resourceSet -> resourceSet.exists(fileName))
                 .map(resourceSet -> resourceSet.newInputStream(fileName))
                 .findFirst()
@@ -66,6 +72,7 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     @Override
     public Set<String> listNames(String regex) {
         Pattern p = Pattern.compile(regex);
+        // TODO: Should the list implement a filter based on basename ?
         return resourceSets.stream()
                 .flatMap(resourceSet -> resourceSet.getFileNames().stream())
                 .filter(name -> p.matcher(name).matches())

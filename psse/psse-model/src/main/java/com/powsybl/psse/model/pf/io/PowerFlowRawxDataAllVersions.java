@@ -36,7 +36,7 @@ public class PowerFlowRawxDataAllVersions implements PowerFlowData {
 
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext, true)))) {
             Context context = new Context();
             context.setFileFormat(JSON);
             LegacyTextReader reader = new LegacyTextReader(bReader);

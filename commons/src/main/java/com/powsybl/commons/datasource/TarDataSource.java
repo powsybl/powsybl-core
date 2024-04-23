@@ -107,23 +107,25 @@ public class TarDataSource extends AbstractArchiveDataSource {
      * <p>{@code <basename><suffix>.<ext>}</p>
      * @param suffix Suffix to add to the basename of the datasource
      * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     /**
      * Check if a file exists in the archive.
      * @param fileName Name of the file
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String fileName) {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
         Path tarFilePath = getArchiveFilePath();
-        return entryExists(tarFilePath, fileName);
+        return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && entryExists(tarFilePath, fileName);
     }
 
     @Override
@@ -143,15 +145,17 @@ public class TarDataSource extends AbstractArchiveDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         Objects.requireNonNull(fileName);
         Path tarFilePath = getArchiveFilePath();
-
+        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(fileName)) {
+            throw new PowsyblException(String.format("File %s is inconsistent with the ArchiveDataSource", fileName));
+        }
         try {
             InputStream fis = Files.newInputStream(tarFilePath);
             BufferedInputStream bis = new BufferedInputStream(fis);

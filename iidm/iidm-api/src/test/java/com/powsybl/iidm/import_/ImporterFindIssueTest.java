@@ -45,7 +45,7 @@ class ImporterFindIssueTest {
         @Override
         public boolean exists(ReadOnlyDataSource dataSource) {
             try {
-                return dataSource.exists(null, "foo");
+                return dataSource.exists(null, "foo", true);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -72,7 +72,7 @@ class ImporterFindIssueTest {
         @Override
         public boolean exists(ReadOnlyDataSource dataSource) {
             try {
-                return dataSource.exists(null, "bar");
+                return dataSource.exists(null, "bar", true);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

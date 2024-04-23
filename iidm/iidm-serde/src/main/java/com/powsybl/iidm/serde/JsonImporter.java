@@ -48,7 +48,7 @@ public class JsonImporter extends AbstractTreeDataImporter {
     @Override
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
         if (ext != null) {
-            try (InputStream is = dataSource.newInputStream(null, ext)) {
+            try (InputStream is = dataSource.newInputStream(null, ext, true)) {
                 // check the first element is START_OBJECT and second element 'version' key
                 try (JsonParser parser = JsonUtil.createJsonFactory().createParser(is)) {
                     if (parser.nextToken() != JsonToken.START_OBJECT) {

@@ -965,7 +965,7 @@ public class UcteImporter implements Importer {
         try {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext, true)))) {
                     return new UcteReader().checkHeader(reader);
                 }
             }

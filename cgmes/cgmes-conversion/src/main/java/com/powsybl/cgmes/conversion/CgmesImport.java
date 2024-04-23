@@ -15,10 +15,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterScope;
@@ -170,7 +167,7 @@ public class CgmesImport implements Importer {
         return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
-    static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
+    static class FilteredReadOnlyDataSource extends AbstractReadOnlyDataSource {
         private final ReadOnlyDataSource ds;
         private final Predicate<String> filter;
 
@@ -185,27 +182,27 @@ public class CgmesImport implements Importer {
         }
 
         @Override
-        public boolean exists(String suffix, String ext) throws IOException {
-            return ds.exists(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+            return ds.exists(suffix, ext, checkConsistencyWithDataSource) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
         }
 
         @Override
-        public boolean exists(String fileName) throws IOException {
-            return ds.exists(fileName) && filter.test(fileName);
+        public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+            return ds.exists(fileName, checkConsistencyWithDataSource) && filter.test(fileName);
         }
 
         @Override
-        public InputStream newInputStream(String suffix, String ext) throws IOException {
+        public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
             if (filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext))) {
-                return ds.newInputStream(suffix, ext);
+                return ds.newInputStream(suffix, ext, checkConsistencyWithDataSource);
             }
             throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
         }
 
         @Override
-        public InputStream newInputStream(String fileName) throws IOException {
+        public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
             if (filter.test(fileName)) {
-                return ds.newInputStream(fileName);
+                return ds.newInputStream(fileName, checkConsistencyWithDataSource);
             }
             throw new IOException(fileName + " not found");
         }

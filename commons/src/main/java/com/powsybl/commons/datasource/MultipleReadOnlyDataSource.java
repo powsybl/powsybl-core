@@ -20,7 +20,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
+public class MultipleReadOnlyDataSource extends AbstractReadOnlyDataSource {
 
     private final List<ReadOnlyDataSource> dataSources;
 
@@ -41,10 +41,10 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         return dataSources.stream().anyMatch(dataSource -> {
             try {
-                return dataSource.exists(suffix, ext);
+                return dataSource.exists(suffix, ext, checkConsistencyWithDataSource);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -52,10 +52,10 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         return dataSources.stream().anyMatch(dataSource -> {
             try {
-                return dataSource.exists(fileName);
+                return dataSource.exists(fileName, checkConsistencyWithDataSource);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -63,9 +63,9 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         for (var dataSource : dataSources) {
-            if (dataSource.exists(suffix, ext)) {
+            if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
                 return dataSource.newInputStream(suffix, ext);
             }
         }
@@ -73,9 +73,9 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         for (var dataSource : dataSources) {
-            if (dataSource.exists(fileName)) {
+            if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
                 return dataSource.newInputStream(fileName);
             }
         }

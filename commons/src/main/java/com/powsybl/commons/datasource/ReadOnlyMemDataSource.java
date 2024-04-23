@@ -8,6 +8,7 @@
 package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * @author Giovanni Ferrari {@literal <giovanni.ferrari@techrain.it>}
  */
-public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
+public class ReadOnlyMemDataSource extends AbstractReadOnlyDataSource {
 
     private final Map<String, byte[]> data = new HashMap<>();
 
@@ -63,24 +64,27 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         Objects.requireNonNull(fileName);
-        return data.containsKey(fileName);
+        return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && data.containsKey(fileName);
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         Objects.requireNonNull(fileName);
+        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(fileName)) {
+            throw new PowsyblException(String.format("File %s is inconsistent with the ReadOnlyMemDataSource", fileName));
+        }
         byte[] ba = data.get(fileName);
         if (ba == null) {
             throw new IOException(fileName + " does not exist");
@@ -91,6 +95,7 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
     @Override
     public Set<String> listNames(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
+        // TODO: Should the list implement a filter based on basename ?
         return data.keySet().stream()
                 .filter(name -> p.matcher(name).matches())
                 .collect(Collectors.toSet());

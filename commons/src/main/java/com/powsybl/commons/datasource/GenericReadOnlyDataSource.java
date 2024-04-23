@@ -17,19 +17,21 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
+public class GenericReadOnlyDataSource extends AbstractReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
     public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new FileDataSource(directory, baseName, observer),
-            new ZstdFileDataSource(directory, baseName, observer),
-            new ZipFileDataSource(directory),
-            new ZipFileDataSource(directory, baseName + ".zip", baseName, observer),
-            new XZFileDataSource(directory, baseName, observer),
-            new GzFileDataSource(directory, baseName, observer),
-            new Bzip2FileDataSource(directory, baseName, observer)
+            new DirectoryDataSource(directory, baseName, "", observer),
+            new ZstdDataSource(directory, baseName, "", observer),
+            new ZipDataSource(directory, baseName, "", observer),
+            new ZipDataSource(directory, baseName + ".zip", baseName, "", observer),
+            new TarDataSource(directory, baseName, CompressionFormat.GZIP, "", observer),
+            new TarDataSource(directory, baseName + ".tar.gz", baseName, CompressionFormat.GZIP, "", observer),
+            new XZDataSource(directory, baseName, "", observer),
+            new GzDataSource(directory, baseName, "", observer),
+            new Bzip2DataSource(directory, baseName, "", observer)
         };
     }
 
@@ -50,9 +52,9 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(suffix, ext)) {
+            if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
                 return true;
             }
         }
@@ -60,9 +62,9 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(fileName)) {
+            if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
                 return true;
             }
         }
@@ -70,20 +72,20 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(suffix, ext)) {
-                return dataSource.newInputStream(suffix, ext);
+            if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
+                return dataSource.newInputStream(suffix, ext, checkConsistencyWithDataSource);
             }
         }
         throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(fileName)) {
-                return dataSource.newInputStream(fileName);
+            if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
+                return dataSource.newInputStream(fileName, checkConsistencyWithDataSource);
             }
         }
         throw new IOException(fileName + " not found");

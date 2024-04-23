@@ -34,7 +34,7 @@ public class TestImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource == null || dataSource.exists(null, "tst");
+            return dataSource == null || dataSource.exists(null, "tst", true);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

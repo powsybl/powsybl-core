@@ -7,8 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.Cgmes3Catalog;
+import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -20,23 +20,21 @@ import com.powsybl.cgmes.conversion.export.EquipmentExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.network.util.BranchData;
-import com.powsybl.iidm.network.util.TwtData;
-
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -205,7 +203,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         exportToCgmesEQ(network);
         exportToCgmesTP(network);
         // Import EQ & TP file, no additional information (boundaries) are required
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(tmpDir, "", "exported"), NetworkFactory.findDefault(), null);
 
         // The xiidm file does not contain ratedS values, but during the cgmes export process default values
         // are exported for each transformer that are reading in the import process.
@@ -223,7 +221,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         exportToCgmesEQ(network, true);
         exportToCgmesTP(network);
         // Import EQ & TP file, no additional information (boundaries) are required
-        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exported"), NetworkFactory.findDefault(), null);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(tmpDir, "", "exported"), NetworkFactory.findDefault(), null);
         // Before comparing, interchange ends in twoWindingsTransformers that do not follow the high voltage at end1 rule
         prepareNetworkForSortedTransformerEndsComparison(network);
 
@@ -350,7 +348,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         ThreeWindingsTransformer expected = network.getThreeWindingsTransformer(t3id);
 
         // The 3-winding transformer has a ratio and phase tap changer at every end
-        Network network1 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        Network network1 = new CgmesImport().importData(DataSourceUtil.createDataSource(tmpDir, "", "exportedEq"), NetworkFactory.findDefault(), null);
         ThreeWindingsTransformer actual1 = network1.getThreeWindingsTransformer(t3id);
         for (int k = 1; k <= 3; k++) {
             String aliasType;
@@ -367,7 +365,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         // Export an IIDM Network that has been imported from CGMES,
         // identifiers for tap changers must be preserved
         exportToCgmesEQ(network1);
-        Network network2 = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), null);
+        Network network2 = new CgmesImport().importData(DataSourceUtil.createDataSource(tmpDir, "", "exportedEq"), NetworkFactory.findDefault(), null);
         ThreeWindingsTransformer actual2 = network2.getThreeWindingsTransformer(t3id);
         for (int k = 1; k <= 3; k++) {
             String aliasType;
@@ -641,11 +639,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridEquivalentShunt";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
 
         ShuntCompensator expectedEquivalentShunt = network.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
@@ -663,11 +661,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridEquivalentShunt";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
 
         ShuntCompensator actualEquivalentShunt = actual.getShuntCompensator("d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertTrue(equivalentShuntsAreEqual(equivalentShunt, actualEquivalentShunt));
@@ -725,11 +723,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineControl";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("e8a7eaec-51d6-4571-b3d9-c36d52073c33");
 
         assertEquals(twtNetwork.getPhaseTapChanger().getRegulationMode().name(), twtActual.getPhaseTapChanger().getRegulationMode().name());
@@ -770,11 +768,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChanger";
-        network.write("CGMES", null, new FileDataSource(outputPath, baseName));
+        network.write("CGMES", null, DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
         TwoWindingsTransformer twtActual = actual.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
 
         assertEquals(twtNetwork.getRatioTapChanger().getTargetV(), twtActual.getRatioTapChanger().getTargetV());
@@ -797,11 +795,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg1";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("84ed55f4-61f5-4d9d-8755-bba7b877a246");
 
         checkLeg(twtNetwork.getLeg1(), twtActual.getLeg1());
@@ -818,11 +816,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg2";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
 
         checkLeg(twtNetwork.getLeg2(), twtActual.getLeg2());
@@ -839,11 +837,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridTapChangerDefineRatioTapChangerAndPhaseTapChangerLeg3";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
         ThreeWindingsTransformer twtActual = actual.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
 
         checkLeg(twtNetwork.getLeg3(), twtActual.getLeg3());
@@ -897,10 +895,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "oneGeneratorFossilFuel";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), new Properties());
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the fuelType property
@@ -922,10 +920,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "oneGeneratorFossilHydroPowerPlant";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), new Properties());
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the storage kind property
@@ -949,10 +947,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "oneGeneratorSynchronousMachineKind";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), new Properties());
         Generator actualGenerator = actual.getGenerator("generator1");
 
         // check the synchronous machine kind

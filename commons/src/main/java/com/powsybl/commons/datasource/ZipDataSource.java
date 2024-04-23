@@ -27,17 +27,32 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.google.common.io.Files.getNameWithoutExtension;
+
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ZipDataSource extends AbstractArchiveDataSource {
 
+    public ZipDataSource(Path directory, String zipFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
+        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
+    }
+
     public ZipDataSource(Path directory, String baseName, String sourceFormat, DataSourceObserver observer) {
         super(directory, baseName + sourceFormat + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
     }
 
-    public ZipDataSource(Path directory, String zipFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
-        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
+    public ZipDataSource(Path directory, String zipFileName, String baseName, String sourceFormat) {
+        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, null);
+    }
+
+    public ZipDataSource(Path directory, String baseName, String sourceFormat) {
+        super(directory, baseName + sourceFormat + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, null);
+    }
+
+    public ZipDataSource(Path zipFile) {
+        this(zipFile.getParent(), zipFile.getFileName().toString(),
+            getNameWithoutExtension(zipFile.getFileName().toString()), "", null);
     }
 
     /**
@@ -86,23 +101,25 @@ public class ZipDataSource extends AbstractArchiveDataSource {
      * <p>{@code <basename><suffix>.<ext>}</p>
      * @param suffix Suffix to add to the basename of the datasource
      * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     /**
      * Check if a file exists in the archive.
      * @param fileName Name of the file
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String fileName) {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getArchiveFilePath();
-        return entryExists(zipFilePath, fileName);
+        return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && entryExists(zipFilePath, fileName);
     }
 
     @Override
@@ -122,15 +139,15 @@ public class ZipDataSource extends AbstractArchiveDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getArchiveFilePath();
-        if (entryExists(zipFilePath, fileName)) {
+        if ((!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && entryExists(zipFilePath, fileName)) {
             InputStream is = new ZipEntryInputStream(ZipFile.builder().setSeekableByteChannel(Files.newByteChannel(zipFilePath)).get(), fileName);
             return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
         }

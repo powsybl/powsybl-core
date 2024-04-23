@@ -72,7 +72,8 @@ public class DirectoryDataSource extends AbstractDataSource {
 
     private Path getPath(String fileName) {
         Objects.requireNonNull(fileName);
-        return directory.resolve(fileName + getCompressionExtension());
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName);
     }
 
     /**
@@ -81,24 +82,27 @@ public class DirectoryDataSource extends AbstractDataSource {
      * with the compression extension being optional and depending on how the datasource is configured.
      * @param suffix Suffix to add to the basename of the datasource
      * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     /**
      * Check if a file exists in the datasource. The file name will be constructed as:
      * <p>{@code <directory>/<fileName>.<compression_ext>}</p>
      * with the compression extension being optional and depending on how the datasource is configured.
-     * @param fileName Name of the file (excluding the compression extension)
+     * @param fileName Name of the file (with or without the compression extension)
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String fileName) {
+    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
         Path path = getPath(fileName);
-        return Files.isRegularFile(path);
+        return (!checkConsistencyWithDataSource || isConsistentWithDataSource(path.getFileName().toString()))
+            && Files.isRegularFile(path);
     }
 
     @Override
@@ -114,13 +118,16 @@ public class DirectoryDataSource extends AbstractDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         Path path = getPath(fileName);
+        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(path.getFileName().toString())) {
+            return null;
+        }
         InputStream is = getCompressedInputStream(Files.newInputStream(path));
         return observer != null ? new ObservableInputStream(is, path.toString(), observer) : is;
     }
@@ -137,5 +144,13 @@ public class DirectoryDataSource extends AbstractDataSource {
      */
     protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
         return os;
+    }
+
+    @Override
+    public boolean isConsistentWithDataSource(String fileName) {
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return fileName.startsWith(baseName) &&
+            (sourceFormat.isEmpty() || fileInformation.getSourceFormat().equals(sourceFormat)) &&
+            (compressionFormat == null || fileInformation.getCompressionFormat().equals(compressionFormat));
     }
 }

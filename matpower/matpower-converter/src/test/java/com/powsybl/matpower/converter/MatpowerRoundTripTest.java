@@ -9,7 +9,7 @@ package com.powsybl.matpower.converter;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -62,8 +62,8 @@ class MatpowerRoundTripTest {
         Network network = EurostagTutorialExample1Factory.create();
         Properties parameters = new Properties();
         parameters.setProperty("matpower.import.ignore-base-voltage", "false");
-        new MatpowerExporter().export(network, parameters, new FileDataSource(dir, "test"));
-        Network network2 = new MatpowerImporter().importData(new FileDataSource(dir, "test"), NetworkFactory.findDefault(), parameters);
+        new MatpowerExporter().export(network, parameters, DataSourceUtil.createDataSource(dir, "", "test"));
+        Network network2 = new MatpowerImporter().importData(DataSourceUtil.createDataSource(dir, "", "test"), NetworkFactory.findDefault(), parameters);
         assertEquals(calculateRatio(network, "NGEN_NHV1"), calculateRatio(network2, "TWT-1-2"), 1e-16);
         assertEquals(calculateRatio(network, "NHV2_NLOAD"), calculateRatio(network2, "TWT-3-4"), 1e-16);
     }

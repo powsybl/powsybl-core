@@ -15,7 +15,7 @@ import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
@@ -357,11 +357,11 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), importParams);
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
         String actualSsh = exportSshAsString(actual, 5);
@@ -392,11 +392,11 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "miniGridCgmesExportPreservingOriginalClasses";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        new CgmesExport().export(network, new Properties(), DataSourceUtil.createDataSource(outputPath, "", baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(DataSourceUtil.createDataSource(outputPath, "", baseName), NetworkFactory.findDefault(), new Properties());
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
         String actualSsh = exportSshAsString(actual, 5);

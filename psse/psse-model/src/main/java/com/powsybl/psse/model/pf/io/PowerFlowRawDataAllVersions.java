@@ -31,7 +31,7 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
 
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String extension) throws IOException {
-        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
+        try (BufferedReader bReader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension, true)))) {
             LegacyTextReader reader = new LegacyTextReader(bReader);
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
             caseIdentification.validate();

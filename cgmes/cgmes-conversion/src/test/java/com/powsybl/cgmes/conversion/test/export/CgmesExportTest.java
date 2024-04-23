@@ -477,9 +477,9 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipDataSource zip = new ZipDataSource(tmpDir.resolve("."), "output", "");
             new CgmesExport().export(network, params, zip);
-            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
+            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
             CgmesMetadataModel sshMetadata = network2
                     .getExtension(CgmesMetadataModels.class)
                     .getModelForSubset(CgmesSubset.STATE_VARIABLES)
@@ -497,9 +497,9 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipDataSource zip = new ZipDataSource(tmpDir.resolve("."), "output", "");
             new CgmesExport().export(network, params, zip);
-            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
+            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
             CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             assertEquals(9, sshMetadata.getVersion());
             CgmesMetadataModel svMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STATE_VARIABLES).orElseThrow();
@@ -519,11 +519,11 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipDataSource zip = new ZipDataSource(tmpDir.resolve("."), "output", "");
             new CgmesExport().export(network, params, zip);
 
             // check network can be reimported and that ModelDescription still includes end-tag
-            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
+            Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
 
             CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             assertEquals(modelDescription, sshMetadata.getDescription());
@@ -561,7 +561,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             // It is enough to check that the MAS has been set correctly in the EQ instance file
             exportParams.put(CgmesExport.PROFILES, "EQ");
-            new CgmesExport(platformConfig).export(network, exportParams, new FileDataSource(tmpDir, network.getNameOrId()));
+            new CgmesExport(platformConfig).export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, "", network.getNameOrId()));
 
             String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
             assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
@@ -625,7 +625,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
             // network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, "", baseName));
             String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
 
             // Check that RC are exported properly
@@ -644,7 +644,7 @@ class CgmesExportTest {
             generatorNoRcc.setTargetV(Double.NaN);
 
             //network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, "", baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
@@ -665,7 +665,7 @@ class CgmesExportTest {
             mmrlAdder.setMaxQ(mmrl.getMinQ());
             mmrlAdder.add();
 
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, "", baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
