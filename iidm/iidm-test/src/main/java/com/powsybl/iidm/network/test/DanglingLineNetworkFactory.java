@@ -58,7 +58,7 @@ public final class DanglingLineNetworkFactory {
                 .setTargetP(440)
                 .setMaxP(900)
                 .setMinP(0)
-                .setTargetV(400)
+                .setTargetV(101)
                 .setVoltageRegulationOn(true)
                 .add()
                 .add();

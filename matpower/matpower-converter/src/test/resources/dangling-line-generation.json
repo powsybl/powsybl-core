@@ -61,7 +61,7 @@
     "reactivePowerOutput" : "NaN",
     "maximumReactivePowerOutput" : 46.25,
     "minimumReactivePowerOutput" : -54.55,
-    "voltageMagnitudeSetpoint" : 4.0,
+    "voltageMagnitudeSetpoint" : 1.01,
     "totalMbase" : 0.0,
     "status" : 1,
     "maximumRealPowerOutput" : 900.0,

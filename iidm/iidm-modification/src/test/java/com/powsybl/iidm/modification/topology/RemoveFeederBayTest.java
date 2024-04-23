@@ -8,7 +8,9 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportConstants;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.powsybl.iidm.modification.topology.TopologyTestUtils.VLTEST;
@@ -145,6 +148,12 @@ class RemoveFeederBayTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> removeBbs.apply(network, true, reportNode));
         assertEquals("BusbarSection connectables are not allowed as RemoveFeederBay input: BBS_TEST_1_1", e.getMessage());
         assertEquals("removeBayBusbarSectionConnectable", reportNode.getChildren().get(0).getMessageKey());
+        assertEquals("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection", reportNode.getChildren().get(0).getMessageTemplate());
+        Map<String, TypedValue> values = reportNode.getChildren().get(0).getValues();
+        assertEquals(2, values.size());
+        assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.REPORT_SEVERITY_KEY));
+        assertEquals("BBS_TEST_1_1", values.get("connectableId").getValue());
+        assertEquals(TypedValue.UNTYPED, values.get("connectableId").getType());
     }
 
     private Network createNetwork2Feeders() {

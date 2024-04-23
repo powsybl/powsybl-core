@@ -6,12 +6,13 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static com.powsybl.iidm.network.HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
 import static org.junit.jupiter.api.Assertions.*;
@@ -99,7 +100,7 @@ public class JsonActionTest extends AbstractSerDeTest {
     void wrongActions() {
         final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json");
         assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
-                " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
+            " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream)).getMessage());
 
         final InputStream inputStream3 = getClass().getResourceAsStream("/ActionFileTestWrongVersion.json");
@@ -107,5 +108,16 @@ public class JsonActionTest extends AbstractSerDeTest {
                 .readJsonInputStream(inputStream3))
                 .getMessage()
                 .contains("actions. Tag: value is not valid for version 1.1. Version should be <= 1.0"));
+    }
+
+    @Test
+    void identifierActionList() throws IOException {
+        Map<ActionBuilder, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
+        elementIdentifierMap.put(new TerminalsConnectionActionBuilder().withId("lineConnectionActionId").withOpen(true).withSide(ThreeSides.ONE),
+            new VoltageLevelAndOrderNetworkElementIdentifier("VLHV1", "VLHV2", '1'));
+        elementIdentifierMap.put(new SwitchActionBuilder().withId("switchActionId").withOpen(true),
+            new IdBasedNetworkElementIdentifier("switch 1 id"));
+        IdentifierActionList identifierActionList = new IdentifierActionList(Collections.emptyList(), elementIdentifierMap);
+        roundTripTest(identifierActionList, ActionList::writeJsonFile, ActionList::readJsonFile, "/IdentifierActionListTest.json");
     }
 }

@@ -35,7 +35,7 @@ public class TerminalsConnectionAction extends AbstractAction {
     public TerminalsConnectionAction(String id, String elementId, ThreeSides side, boolean open) {
         super(id);
         this.elementId = Objects.requireNonNull(elementId);
-        this.side = Objects.requireNonNull(side);
+        this.side = side;
         this.open = open;
     }
 
