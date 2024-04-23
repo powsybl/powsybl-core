@@ -16,4 +16,5 @@ matpower/matpower.md
 psse/psse.md
 ucte/ucte.md
 xiidm/xiidm.md
+xiidm/extensions.md
 ```
