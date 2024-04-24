@@ -514,20 +514,20 @@ class TransformerConversionTest {
         double tol = 0.00001;
         // Comparison fails if actual has NaN values
         return Math.abs(expected.p1 - actual.p1) <= tol &&
-                Math.abs(expected.q1 - actual.q1) <= tol &&
-                Math.abs(expected.p2 - actual.p2) <= tol &&
-                Math.abs(expected.q2 - actual.q2) <= tol;
+            Math.abs(expected.q1 - actual.q1) <= tol &&
+            Math.abs(expected.p2 - actual.p2) <= tol &&
+            Math.abs(expected.q2 - actual.q2) <= tol;
     }
 
     private boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
         // Comparison fails if actual has NaN values
         return Math.abs(expected.p1 - actual.p1) <= tol &&
-                Math.abs(expected.q1 - actual.q1) <= tol &&
-                Math.abs(expected.p2 - actual.p2) <= tol &&
-                Math.abs(expected.q2 - actual.q2) <= tol &&
-                Math.abs(expected.p3 - actual.p3) <= tol &&
-                Math.abs(expected.q3 - actual.q3) <= tol;
+            Math.abs(expected.q1 - actual.q1) <= tol &&
+            Math.abs(expected.p2 - actual.p2) <= tol &&
+            Math.abs(expected.q2 - actual.q2) <= tol &&
+            Math.abs(expected.p3 - actual.p3) <= tol &&
+            Math.abs(expected.q3 - actual.q3) <= tol;
     }
 
     private LoadFlowParameters defineLoadflowParameters(LoadFlowParameters loadFlowParameters, Conversion.Config config) {
@@ -555,7 +555,7 @@ class TransformerConversionTest {
 
         if (t2wtSplitShuntAdmittance != t3wtSplitShuntAdmittance) {
             throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
-                    t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
+                t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
         }
         boolean twtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
 
