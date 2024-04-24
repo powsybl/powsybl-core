@@ -18,14 +18,12 @@ import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,362 +38,362 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class TransformerConversionTest {
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntDefault() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntDefault() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntEnd1() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntEnd1() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntEnd2() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntEnd2() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntEnd1End2() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntEnd1End2() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.END1_END2);
         // Same result as End1, IIDM model and LoadFlowParameters does not allow this configuration
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2ShuntSplit() throws IOException {
+    void microGridBaseCaseBExfmr2ShuntSplit() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.970891, -15.839366, 94.275697, 20.952066);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseDefault() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseDefault() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseEnd1() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseEnd1() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -91.807775, 98.389959, 92.184500, -89.747219);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -91.807775, 98.389959, 92.184500, -89.747219);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseEnd2() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseEnd2() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseEnd1End2() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseEnd1End2() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.END1_END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2RatioPhaseX() throws IOException {
+    void microGridBaseCaseBExfmr2RatioPhaseX() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2RatioPhase(Xfmr2RatioPhaseInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 58.877292, -201.626411, -58.176878, 205.382102);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0Default() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0Default() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0End1() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0End1() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -0.849849, -0.138409, 0.852591, 0.184615);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -0.849849, -0.138409, 0.852591, 0.184615);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 70.106993, -25.657663, -68.935391, 31.939905);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 70.106993, -25.657663, -68.935391, 31.939905);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0End2() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0End2() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr2Ratio0X() throws IOException {
+    void microGridBaseCaseBExfmr2Ratio0X() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2StructuralRatio(Xfmr2StructuralRatioInterpretationAlternative.X);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
         // RatioTapChanger
-        boolean ok = t2xCompareFlow(n, "_e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
+        boolean ok = t2xCompareFlow(n, "e482b89a-fa84-4ea9-8e70-a83d44790957", -93.855301, -15.285520, 94.158074, 20.388478);
         assertTrue(ok);
         // PhaseTapChanger
-        ok = t2xCompareFlow(n, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
+        ok = t2xCompareFlow(n, "a708c3bc-465d-4fe7-b6ef-6fa6408a62b0", 927.034612, -339.274880, -911.542354, 422.345850);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntDefault() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntDefault() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntNetworkSide() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntNetworkSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntStarBusSide() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntStarBusSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3ShuntSplit() throws IOException {
+    void microGridBaseCaseBExfmr3ShuntSplit() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr2Shunt(Xfmr2ShuntInterpretationAlternative.SPLIT);
         config.setXfmr3Shunt(Xfmr3ShuntInterpretationAlternative.SPLIT);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.231950, 2.876479, -216.194348, -85.558437, 117.981856, 92.439531);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseDefault() throws IOException {
+    void microGridBaseCaseBExfmr3RatioPhaseDefault() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() throws IOException {
+    void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() throws IOException {
+    void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0Default() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0Default() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0StarBusSide() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0StarBusSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.STAR_BUS_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0NetworkSide() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0NetworkSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.NETWORK_SIDE);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.000166, -0.000842, -0.006802, -0.004135, 0.006989, 0.005353);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End1() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0End1() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END1);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -26.608872, -134.702971, -1088.277421, -661.570093, 1118.294368, 856.437794);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End2() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0End2() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END2);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -8.049184, -40.747649, -329.203920, -200.124953, 338.284046, 259.072433);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBExfmr3Ratio0End3() throws IOException {
+    void microGridBaseCaseBExfmr3Ratio0End3() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3StructuralRatio(Xfmr3StructuralRatioInterpretationAlternative.END3);
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "_84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557);
+        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", -0.073341, -0.371275, -2.999565, -1.823453, 3.082299, 2.360557);
         assertTrue(ok);
     }
 
     @Test
-    void miniBusBranchPhaseAngleClock() throws IOException {
+    void miniBusBranchPhaseAngleClock() {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
         Network n = networkModel(CgmesConformity1Catalog.miniBusBranch(), config, postProcessors);
 
-        boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
+        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
         assertTrue(ok);
-        ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285);
+        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -7.505045, -1.896561, -288.380946, 1216.566903, 351.090362, 1199.878285);
         assertTrue(ok);
     }
 
     @Test
-    void miniBusBranchPhaseAngleClockZero() throws IOException {
+    void miniBusBranchPhaseAngleClockZero() {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchPhaseAngleClockZero(), config, postProcessors);
 
-        boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -0.087780, -0.178561, 0.087782, 0.178613);
+        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -0.087780, -0.178561, 0.087782, 0.178613);
         assertTrue(ok);
-        ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045);
+        ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -0.000001, -0.000022, 0.000002, 0.000068, -0.000001, -0.000045);
         assertTrue(ok);
     }
 
     @Test
-    void miniBusBranchT2xPhaseAngleClock1NonZero() throws IOException {
+    void miniBusBranchT2xPhaseAngleClock1NonZero() {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT2xPhaseAngleClock1NonZero(), config, postProcessors);
 
-        boolean ok = t2xCompareFlow(n, "_f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
+        boolean ok = t2xCompareFlow(n, "f1e72854-ec35-46e9-b614-27db354e8dbb", -318.691633, 1424.484145, 436.204160, 1393.367311);
         assertTrue(ok);
     }
 
     @Test
-    void miniBusBranchT3xAllPhaseAngleClockNonZero() throws IOException {
+    void miniBusBranchT3xAllPhaseAngleClockNonZero() {
         Conversion.Config config = new Conversion.Config();
         List<CgmesImportPostProcessor> postProcessors = new ArrayList<>();
         postProcessors.add(new PhaseAngleClock());
 
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniBusBranchT3xAllPhaseAngleClockNonZero(), config, postProcessors);
 
-        boolean ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
+        boolean ok = t3xCompareFlow(n, "5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
         assertTrue(ok);
     }
 
     @Test
-    void microGridBaseCaseBEPhaseTapChangerXMin() throws IOException {
+    void microGridBaseCaseBEPhaseTapChangerXMin() {
         Network n = networkModel(Cgmes3ModifiedCatalog.microGridBaseCasePhaseTapChangerXMin(), new Conversion.Config());
 
         TwoWindingsTransformer twt1 = n.getTwoWindingsTransformer("a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
@@ -425,7 +423,7 @@ class TransformerConversionTest {
             LOG.error(String.format("TransformerConversionTest: TwoWindingsTransformer id %s ===", id));
             LOG.error(String.format("Expected P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f", expected.p1, expected.q1, expected.p2, expected.q2));
             LOG.error(String.format("Actual   P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f", actual.p1, actual.q1, actual.p2, actual.q2));
-            LOG.error(String.format("======================", id));
+            LOG.error("======================");
         }
         return ok;
     }
@@ -445,7 +443,7 @@ class TransformerConversionTest {
                 expected.q1, expected.p2, expected.q2, expected.p3, expected.q3));
             LOG.error(String.format("Actual   P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f P3 %12.6f Q3 %12.6f", actual.p1,
                 actual.q1, actual.p2, actual.q2, actual.p3, actual.q3));
-            LOG.error(String.format("======================", id));
+            LOG.error("======================");
         }
         return ok;
     }
@@ -521,26 +519,22 @@ class TransformerConversionTest {
 
     private boolean sameFlow(T2xFlow expected, T2xFlow actual) {
         double tol = 0.00001;
-        if (Math.abs(expected.p1 - actual.p1) > tol ||
-            Math.abs(expected.q1 - actual.q1) > tol ||
-            Math.abs(expected.p2 - actual.p2) > tol ||
-            Math.abs(expected.q2 - actual.q2) > tol) {
-            return false;
-        }
-        return true;
+        // Comparison fails if actual has NaN values
+        return Math.abs(expected.p1 - actual.p1) <= tol &&
+                Math.abs(expected.q1 - actual.q1) <= tol &&
+                Math.abs(expected.p2 - actual.p2) <= tol &&
+                Math.abs(expected.q2 - actual.q2) <= tol;
     }
 
     private boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
-        if (Math.abs(expected.p1 - actual.p1) > tol ||
-            Math.abs(expected.q1 - actual.q1) > tol ||
-            Math.abs(expected.p2 - actual.p2) > tol ||
-            Math.abs(expected.q2 - actual.q2) > tol ||
-            Math.abs(expected.p3 - actual.p3) > tol ||
-            Math.abs(expected.q3 - actual.q3) > tol) {
-            return false;
-        }
-        return true;
+        // Comparison fails if actual has NaN values
+        return Math.abs(expected.p1 - actual.p1) <= tol &&
+                Math.abs(expected.q1 - actual.q1) <= tol &&
+                Math.abs(expected.p2 - actual.p2) <= tol &&
+                Math.abs(expected.q2 - actual.q2) <= tol &&
+                Math.abs(expected.p3 - actual.p3) <= tol &&
+                Math.abs(expected.q3 - actual.q3) <= tol;
     }
 
     private LoadFlowParameters defineLoadflowParameters(LoadFlowParameters loadFlowParameters, Conversion.Config config) {
@@ -565,15 +559,12 @@ class TransformerConversionTest {
             case SPLIT:
                 t3wtSplitShuntAdmittance = true;
         }
-        boolean twtSplitShuntAdmittance = false;
-        if (!t2wtSplitShuntAdmittance && !t3wtSplitShuntAdmittance) {
-            twtSplitShuntAdmittance = false;
-        } else if (t2wtSplitShuntAdmittance && t3wtSplitShuntAdmittance) {
-            twtSplitShuntAdmittance = true;
-        } else {
+
+        if (t2wtSplitShuntAdmittance != t3wtSplitShuntAdmittance) {
             throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
-                t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
+                    t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
         }
+        boolean twtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
 
         copyLoadFlowParameters.setTwtSplitShuntAdmittance(twtSplitShuntAdmittance);
 
@@ -594,77 +585,6 @@ class TransformerConversionTest {
         double q2 = Double.NaN;
         double p3 = Double.NaN;
         double q3 = Double.NaN;
-    }
-
-    private static void logAllTwoWindingsTransformer(Network n) {
-        n.getTwoWindingsTransformerStream().forEach(TransformerConversionTest::logTwoWindingsTransformerAttributes);
-    }
-
-    private static void logTwoWindingsTransformerAttributes(TwoWindingsTransformer twt) {
-        LOG.info("TwoWindingsTransformer {} ============", twt.getId());
-        LOG.info("G {}", twt.getG());
-        LOG.info("B {}", twt.getB());
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        logRatioTapChangerAttributes(rtc);
-        PhaseTapChanger ptc = twt.getPhaseTapChanger();
-        logPhaseTapChangerAttributes(ptc);
-    }
-
-    private static void logAllThreeWindingsTransformer(Network n) {
-        n.getThreeWindingsTransformerStream().forEach(TransformerConversionTest::logThreeWindingsTransformerAttributes);
-    }
-
-    private static void logThreeWindingsTransformerAttributes(ThreeWindingsTransformer twt) {
-        LOG.info("ThreeWindingsTransformer {} ============", twt.getId());
-        LOG.info("RatedU0 {}", twt.getRatedU0());
-        LOG.info("Leg1 ------");
-        logLegAttributes(twt.getLeg1());
-        LOG.info("Leg2 ------");
-        logLegAttributes(twt.getLeg2());
-        LOG.info("Leg3 ------");
-        logLegAttributes(twt.getLeg3());
-    }
-
-    private static void logLegAttributes(Leg leg) {
-        LOG.info("G {}", leg.getG());
-        LOG.info("B {}", leg.getB());
-        RatioTapChanger rtc = leg.getRatioTapChanger();
-        logRatioTapChangerAttributes(rtc);
-        PhaseTapChanger ptc = leg.getPhaseTapChanger();
-        logPhaseTapChangerAttributes(ptc);
-    }
-
-    private static void logRatioTapChangerAttributes(RatioTapChanger rtc) {
-        if (rtc == null) {
-            LOG.info("RatioTapChanger: null");
-            return;
-        }
-
-        int tapPosition = rtc.getTapPosition();
-        RatioTapChangerStep step = rtc.getStep(tapPosition);
-        LOG.info("RatioTapChanger: TapPosition {}", tapPosition);
-        LOG.info("RatioTapChanger: Step Ratio {}", 1 / step.getRho());
-        LOG.info("RatioTapChanger: Step R {}", step.getR());
-        LOG.info("RatioTapChanger: Step X {}", step.getX());
-        LOG.info("RatioTapChanger: Step G {}", step.getG());
-        LOG.info("RatioTapChanger: Step B {}", step.getB());
-    }
-
-    private static void logPhaseTapChangerAttributes(PhaseTapChanger ptc) {
-        if (ptc == null) {
-            LOG.info("PhaseTapChanger: null");
-            return;
-        }
-
-        int tapPosition = ptc.getTapPosition();
-        PhaseTapChangerStep step = ptc.getStep(tapPosition);
-        LOG.info("PhaseTapChanger: TapPosition {}", tapPosition);
-        LOG.info("PhaseTapChanger: Step Ratio {}", 1 / step.getRho());
-        LOG.info("PhaseTapChanger: Step Angle {}", -step.getAlpha());
-        LOG.info("PhaseTapChanger: Step R {}", step.getR());
-        LOG.info("PhaseTapChanger: Step X {}", step.getX());
-        LOG.info("PhaseTapChanger: Step G {}", step.getG());
-        LOG.info("PhaseTapChanger: Step B {}", step.getB());
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(TransformerConversionTest.class);
