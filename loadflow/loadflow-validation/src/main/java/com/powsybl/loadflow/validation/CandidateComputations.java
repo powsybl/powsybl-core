@@ -31,6 +31,7 @@ public final class CandidateComputations {
 
     /**
      * Get the list of all known candidate computations implementations.
+     * The returned list is immutable.
      */
     public static List<CandidateComputation> getComputations() {
         return COMPUTATIONS.get();
@@ -38,6 +39,7 @@ public final class CandidateComputations {
 
     /**
      * Get the list of all known candidate computations names.
+     * The returned list is immutable.
      */
     public static List<String> getComputationsNames() {
         return getComputations().stream().map(CandidateComputation::getName).toList();

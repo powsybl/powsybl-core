@@ -352,7 +352,7 @@ public final class JsonUtil {
         Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
-        if (parser.currentToken() != com.fasterxml.jackson.core.JsonToken.START_OBJECT) {
+        if (parser.currentToken() != JsonToken.START_OBJECT) {
             throw new PowsyblException("Error updating extensions, \"extensions\" field expected START_OBJECT, got "
                     + parser.currentToken());
         }
@@ -504,7 +504,7 @@ public final class JsonUtil {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
         try {
-            com.fasterxml.jackson.core.JsonToken token = parser.currentToken();
+            JsonToken token = parser.currentToken();
             if (!polymorphic && token != JsonToken.START_OBJECT) {
                 throw new PowsyblException("Start object token was expected instead got: " + token);
             }
