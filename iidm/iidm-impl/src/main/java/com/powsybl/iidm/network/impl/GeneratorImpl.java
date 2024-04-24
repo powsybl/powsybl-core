@@ -235,7 +235,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
+    public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
         return reactiveLimits.getReactiveLimits(type);
     }
 

@@ -810,9 +810,10 @@ public class Conversion {
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
-                .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
-                .toList()
-                .forEach(Connectable::remove);
+                .forEach(converter -> {
+                    context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found.");
+                    converter.remove();
+                });
     }
 
     private void debugTopology(Context context) {

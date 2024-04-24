@@ -9,6 +9,7 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.exceptions.UncheckedNoSuchMethodException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -29,6 +31,10 @@ class ComponentDefaultConfigTest {
     }
 
     static class B implements A {
+    }
+
+    static class C implements A {
+        C(String a, String b) { }
     }
 
     private FileSystem fileSystem;
@@ -68,5 +74,12 @@ class ComponentDefaultConfigTest {
     @Test
     void newFactoryImplDefaultTest() throws IOException {
         assertTrue(config.newFactoryImpl(A.class, B.class) instanceof B);
+    }
+
+    @Test
+    void newFactoryExceptionTest() {
+        moduleConfig.setClassProperty(C.class.getSimpleName(), C.class);
+        assertThrows(UncheckedNoSuchMethodException.class, () -> config.newFactoryImpl(C.class));
+        assertThrows(UncheckedNoSuchMethodException.class, () -> config.newFactoryImpl(A.class, C.class));
     }
 }
