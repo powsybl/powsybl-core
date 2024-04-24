@@ -85,7 +85,7 @@ class StringToIntMapperTest {
             Files.createDirectories(testDir);
             Path outputFile = testDir.resolve("output.txt");
             try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-                writer.write("TYPE;value1;1\n");
+                writer.write("TYPE;value1;1" + System.lineSeparator());
             }
 
             StringToIntMapper<TestSubset> mapper = new StringToIntMapper<>(TestSubset.class);
@@ -102,7 +102,7 @@ class StringToIntMapperTest {
             Files.createDirectories(testDir);
             Path outputFile = testDir.resolve("output.txt");
             try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-                writer.write("TYPE;value1;1;5\n");
+                writer.write("TYPE;value1;1;5" + System.lineSeparator());
             }
 
             StringToIntMapper<TestSubset> mapper = new StringToIntMapper<>(TestSubset.class);

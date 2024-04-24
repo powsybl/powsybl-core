@@ -34,7 +34,7 @@ class ComponentDefaultConfigTest {
     }
 
     static class C implements A {
-        C(String a, String b) {}
+        C(String a, String b) { }
     }
 
     private FileSystem fileSystem;
