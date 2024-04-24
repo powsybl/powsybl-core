@@ -7,12 +7,10 @@
  */
 package com.powsybl.commons.util;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -20,11 +18,9 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.TestUtil;
-import org.junit.jupiter.api.Test;
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
