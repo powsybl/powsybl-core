@@ -7,16 +7,20 @@
  */
 package com.powsybl.commons.util;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
-
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -50,6 +54,60 @@ class StringToIntMapperTest {
             mapper.reset(null);
             fail();
         } catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    @Test
+    void testDump() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path testDir = fileSystem.getPath("/tmp");
+            Files.createDirectories(testDir);
+            Path outputFile = testDir.resolve("output.txt");
+
+            StringToIntMapper<TestSubset> mapper = new StringToIntMapper<>(TestSubset.class);
+            String value = "value1";
+            mapper.newInt(TestSubset.TYPE, value);
+            mapper.dump(outputFile);
+
+            String expectedStr = "TYPE;value1;1" + System.lineSeparator();
+            try (InputStream in = Files.newInputStream(outputFile)) {
+                compareTxt(expectedStr, in);
+            } catch (Exception e) {
+                fail(e);
+            }
+        }
+    }
+
+    @Test
+    void testLoad() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path testDir = fileSystem.getPath("/tmp");
+            Files.createDirectories(testDir);
+            Path outputFile = testDir.resolve("output.txt");
+            try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
+                writer.write("TYPE;value1;1" + System.lineSeparator());
+            }
+
+            StringToIntMapper<TestSubset> mapper = new StringToIntMapper<>(TestSubset.class);
+            mapper.load(outputFile);
+
+            assertEquals(1, mapper.getInt(TestSubset.TYPE, "value1"));
+        }
+    }
+
+    @Test
+    void testLoadException() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path testDir = fileSystem.getPath("/tmp");
+            Files.createDirectories(testDir);
+            Path outputFile = testDir.resolve("output.txt");
+            try (BufferedWriter writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
+                writer.write("TYPE;value1;1;5" + System.lineSeparator());
+            }
+
+            StringToIntMapper<TestSubset> mapper = new StringToIntMapper<>(TestSubset.class);
+            PowsyblException exception = assertThrows(PowsyblException.class, () -> mapper.load(outputFile));
+            assertEquals("Bad format: TYPE;value1;1;5", exception.getMessage());
         }
     }
 

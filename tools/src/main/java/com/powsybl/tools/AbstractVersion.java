@@ -7,8 +7,8 @@
  */
 package com.powsybl.tools;
 
-import com.google.common.collect.ImmutableMap;
-
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -61,11 +61,13 @@ public abstract class AbstractVersion implements Version {
     }
 
     public Map<String, String> toMap() {
-        return ImmutableMap.of("repositoryName", repositoryName,
-                               "mavenProjectVersion", mavenProjectVersion,
-                               "gitVersion", gitVersion,
-                               "gitBranch", gitBranch,
-                               "buildTimestamp", Version.convertBuildTimestamp(buildTimestamp));
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("repositoryName", repositoryName);
+        map.put("mavenProjectVersion", mavenProjectVersion);
+        map.put("gitVersion", gitVersion);
+        map.put("gitBranch", gitBranch);
+        map.put("buildTimestamp", Version.convertBuildTimestamp(buildTimestamp));
+        return Collections.unmodifiableMap(map);
     }
 
     @Override

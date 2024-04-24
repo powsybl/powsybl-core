@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -23,6 +22,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -79,12 +79,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                             }
                         }
                     } finally {
-                        try {
-                            xmlsr.close();
-                            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
-                        } catch (XMLStreamException e) {
-                            LOGGER.error(e.toString(), e);
-                        }
+                        cleanClose(xmlsr);
                     }
                 }
             }
@@ -92,6 +87,15 @@ public class XMLImporter extends AbstractTreeDataImporter {
         } catch (XMLStreamException e) {
             // not a valid xml file
             return false;
+        }
+    }
+
+    private void cleanClose(XMLStreamReader xmlStreamReader) {
+        try {
+            xmlStreamReader.close();
+            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+        } catch (XMLStreamException e) {
+            LOGGER.error(e.toString(), e);
         }
     }
 }

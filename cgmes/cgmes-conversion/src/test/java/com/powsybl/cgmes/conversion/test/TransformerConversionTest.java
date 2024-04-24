@@ -17,7 +17,10 @@ import com.powsybl.cgmes.conversion.Conversion.*;
 import com.powsybl.cgmes.conversion.PhaseAngleClock;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TransformerConversionTest {
+
+    private static final String EQUALS_LINE = "======================";
 
     @Test
     void microGridBaseCaseBExfmr2ShuntDefault() {
@@ -199,8 +204,16 @@ class TransformerConversionTest {
         assertTrue(ok);
     }
 
+    /**
+     * Default test for:
+     * <ul>
+     *     <li>microGridBaseCaseBExfmr3Shunt</ul>
+     *     <li>microGridBaseCaseBExfmr3RatioPhase</ul>
+     *     <li>microGridBaseCaseBExfmr3Ratio0</ul>
+     * </ul>
+     */
     @Test
-    void microGridBaseCaseBExfmr3ShuntDefault() {
+    void microGridBaseCaseDefault() {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
@@ -244,16 +257,6 @@ class TransformerConversionTest {
     }
 
     @Test
-    void microGridBaseCaseBExfmr3RatioPhaseDefault() {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
-    }
-
-    @Test
     void microGridBaseCaseBExfmr3RatioPhaseNetworkSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.NETWORK_SIDE);
@@ -268,16 +271,6 @@ class TransformerConversionTest {
     void microGridBaseCaseBExfmr3RatioPhaseStarBusSide() {
         Conversion.Config config = new Conversion.Config();
         config.setXfmr3RatioPhase(Xfmr3RatioPhaseInterpretationAlternative.STAR_BUS_SIDE);
-        Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
-
-        // RatioTapChanger
-        boolean ok = t3xCompareFlow(n, "84ed55f4-61f5-4d9d-8755-bba7b877a246", 99.227288, 2.747147, -216.195867, -85.490493, 117.988318, 92.500849);
-        assertTrue(ok);
-    }
-
-    @Test
-    void microGridBaseCaseBExfmr3Ratio0Default() {
-        Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1Catalog.microGridBaseCaseBE(), config);
 
         // RatioTapChanger
@@ -423,7 +416,7 @@ class TransformerConversionTest {
             LOG.error(String.format("TransformerConversionTest: TwoWindingsTransformer id %s ===", id));
             LOG.error(String.format("Expected P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f", expected.p1, expected.q1, expected.p2, expected.q2));
             LOG.error(String.format("Actual   P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f", actual.p1, actual.q1, actual.p2, actual.q2));
-            LOG.error("======================");
+            LOG.error(EQUALS_LINE);
         }
         return ok;
     }
@@ -443,7 +436,7 @@ class TransformerConversionTest {
                 expected.q1, expected.p2, expected.q2, expected.p3, expected.q3));
             LOG.error(String.format("Actual   P1 %12.6f Q1 %12.6f P2 %12.6f Q2 %12.6f P3 %12.6f Q3 %12.6f", actual.p1,
                 actual.q1, actual.p2, actual.q2, actual.p3, actual.q3));
-            LOG.error("======================");
+            LOG.error(EQUALS_LINE);
         }
         return ok;
     }
@@ -521,20 +514,20 @@ class TransformerConversionTest {
         double tol = 0.00001;
         // Comparison fails if actual has NaN values
         return Math.abs(expected.p1 - actual.p1) <= tol &&
-                Math.abs(expected.q1 - actual.q1) <= tol &&
-                Math.abs(expected.p2 - actual.p2) <= tol &&
-                Math.abs(expected.q2 - actual.q2) <= tol;
+            Math.abs(expected.q1 - actual.q1) <= tol &&
+            Math.abs(expected.p2 - actual.p2) <= tol &&
+            Math.abs(expected.q2 - actual.q2) <= tol;
     }
 
     private boolean sameFlow(T3xFlow expected, T3xFlow actual) {
         double tol = 0.00001;
         // Comparison fails if actual has NaN values
         return Math.abs(expected.p1 - actual.p1) <= tol &&
-                Math.abs(expected.q1 - actual.q1) <= tol &&
-                Math.abs(expected.p2 - actual.p2) <= tol &&
-                Math.abs(expected.q2 - actual.q2) <= tol &&
-                Math.abs(expected.p3 - actual.p3) <= tol &&
-                Math.abs(expected.q3 - actual.q3) <= tol;
+            Math.abs(expected.q1 - actual.q1) <= tol &&
+            Math.abs(expected.p2 - actual.p2) <= tol &&
+            Math.abs(expected.q2 - actual.q2) <= tol &&
+            Math.abs(expected.p3 - actual.p3) <= tol &&
+            Math.abs(expected.q3 - actual.q3) <= tol;
     }
 
     private LoadFlowParameters defineLoadflowParameters(LoadFlowParameters loadFlowParameters, Conversion.Config config) {
@@ -562,7 +555,7 @@ class TransformerConversionTest {
 
         if (t2wtSplitShuntAdmittance != t3wtSplitShuntAdmittance) {
             throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
-                    t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
+                t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
         }
         boolean twtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
 
