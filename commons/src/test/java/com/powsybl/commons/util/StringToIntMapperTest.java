@@ -69,7 +69,7 @@ class StringToIntMapperTest {
             mapper.newInt(TestSubset.TYPE, value);
             mapper.dump(outputFile);
 
-            String expectedStr = "TYPE;value1;1\n";
+            String expectedStr = "TYPE;value1;1" + System.lineSeparator();
             try (InputStream in = Files.newInputStream(outputFile)) {
                 compareTxt(expectedStr, in);
             } catch (Exception e) {

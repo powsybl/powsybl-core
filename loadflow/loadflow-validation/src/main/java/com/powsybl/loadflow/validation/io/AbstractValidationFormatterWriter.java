@@ -76,10 +76,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         try {
             TableFormatterFactory factory = formatterFactoryClass.getDeclaredConstructor().newInstance();
             return factory.create(writer, id + " " + validationType + " check", formatterConfig, getColumns());
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
             throw new IllegalArgumentException(e);
-        } catch (InvocationTargetException | NoSuchMethodException e) {
-            throw new PowsyblException(e);
         }
     }
 
