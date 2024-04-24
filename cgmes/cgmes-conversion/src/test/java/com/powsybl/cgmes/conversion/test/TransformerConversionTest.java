@@ -559,7 +559,11 @@ class TransformerConversionTest {
             case SPLIT:
                 t3wtSplitShuntAdmittance = true;
         }
-        boolean twtSplitShuntAdmittance;
+         if (t2wtSplitShuntAdmittance != t3wtSplitShuntAdmittance) {
+            throw new PowsyblException(String.format("Unexpected SplitShuntAdmittance configuration %s %s",
+                t2wtSplitShuntAdmittance, t3wtSplitShuntAdmittance));
+        }
+        boolean twtSplitShuntAdmittance = t2wtSplitShuntAdmittance;
         if (!t2wtSplitShuntAdmittance && !t3wtSplitShuntAdmittance) {
             twtSplitShuntAdmittance = false;
         } else if (t2wtSplitShuntAdmittance && t3wtSplitShuntAdmittance) {
