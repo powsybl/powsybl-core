@@ -7,7 +7,7 @@ on:
       - 'release-v**'
       - 'full-sonar-analysis-**'
     tags:
-      - 'v*.*.*'
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
   pull_request:
 
 permissions: {}
