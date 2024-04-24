@@ -23,7 +23,7 @@ public class UncheckedInvocationTargetException extends RuntimeException {
     }
 
     @Override
-    public synchronized InstantiationException getCause() {
-        return (InstantiationException) super.getCause();
+    public synchronized InvocationTargetException getCause() {
+        return (InvocationTargetException) super.getCause();
     }
 }

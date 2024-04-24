@@ -22,7 +22,7 @@ public class UncheckedNoSuchMethodException extends RuntimeException {
     }
 
     @Override
-    public synchronized InstantiationException getCause() {
-        return (InstantiationException) super.getCause();
+    public synchronized NoSuchMethodException getCause() {
+        return (NoSuchMethodException) super.getCause();
     }
 }
