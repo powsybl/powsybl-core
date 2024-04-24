@@ -62,7 +62,7 @@ public class IdentifierContingencyList implements ContingencyList {
                 return new Contingency(contingencyId, contingencyElements);
             })
             .filter(contingency -> contingency.isValid(network))
-            .toList();
+            .collect(Collectors.toList());
     }
 
     public Map<String, Set<String>> getNotFoundElements(Network network) {

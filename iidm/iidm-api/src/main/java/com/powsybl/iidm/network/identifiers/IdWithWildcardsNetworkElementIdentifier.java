@@ -12,27 +12,32 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.IdentifierType.ELEMENT_WITH_UNKNOWN_CHARACTER;
+import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.IdentifierType.ID_WITH_WILDCARDS;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
+ *
+ * identifier that allows to get a identifiable that have some unknown character
+ * for example when a number changer in an id of an Identifiable
+ *
  */
-public class ElementWithUnknownCharacterIdentifier implements NetworkElementIdentifier {
+public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementIdentifier {
     private String identifier;
-    public static final String SEPARATOR = "?";
-    public static final int SEPARATOR_NUMBER_ALLOWED = 5;
+    public static final char WILDCARD = '?';
+    public static final int ALLOWED_WILDCARDS_NUMBER = 5;
     private final String contingencyId;
 
-    public ElementWithUnknownCharacterIdentifier(String identifier) {
+    public IdWithWildcardsNetworkElementIdentifier(String identifier) {
         this(identifier, null);
     }
 
-    public ElementWithUnknownCharacterIdentifier(String identifier, String contingencyId) {
+    public IdWithWildcardsNetworkElementIdentifier(String identifier, String contingencyId) {
         this.identifier = Objects.requireNonNull(identifier);
         this.contingencyId = contingencyId;
         initialize();
@@ -42,13 +47,16 @@ public class ElementWithUnknownCharacterIdentifier implements NetworkElementIden
         String allowedCharactersRegex = "^[A-Za-z0-9_?.-]*$";
 
         if (!identifier.matches(allowedCharactersRegex)) {
-            throw new PowsyblException("Only characters allowed for this identifier are letters, numbers, \'_\', \'?\', \'.\' and \'-\'");
+            throw new PowsyblException("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'");
         }
-        int separatorNumber = StringUtils.countMatches(identifier, "?");
-        if (separatorNumber > SEPARATOR_NUMBER_ALLOWED) {
-            throw new PowsyblException("there can be maximum " + SEPARATOR_NUMBER_ALLOWED + " \'?\'");
+        int separatorNumber = StringUtils.countMatches(identifier, WILDCARD);
+        if (separatorNumber > ALLOWED_WILDCARDS_NUMBER) {
+            throw new PowsyblException("There can be a maximum of " + ALLOWED_WILDCARDS_NUMBER + " wildcards ('?')");
         }
-        identifier = identifier.replace(".", "\\.").replace(SEPARATOR, ".");
+        if (separatorNumber == 0) {
+            throw new PowsyblException("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead");
+        }
+        identifier = identifier.replace(".", "\\.").replace(WILDCARD, '.');
     }
 
     @Override
@@ -61,16 +69,13 @@ public class ElementWithUnknownCharacterIdentifier implements NetworkElementIden
 
     @Override
     public Set<String> getNotFoundElements(Network network) {
-        return network.getIdentifiables()
-            .stream()
-            .map(Identifiable::getId)
-            .filter(id -> !identifier.matches(id))
-            .collect(Collectors.toUnmodifiableSet());
+        Identifiable<?> identifiable = network.getIdentifiable(identifier);
+        return identifiable == null ? Collections.singleton(identifier) : Collections.emptySet();
     }
 
     @Override
     public IdentifierType getType() {
-        return ELEMENT_WITH_UNKNOWN_CHARACTER;
+        return ID_WITH_WILDCARDS;
     }
 
     @Override

@@ -25,7 +25,7 @@ public interface NetworkElementIdentifier {
         ID_BASED,
         VOLTAGE_LEVELS_AND_ORDER,
         LIST,
-        ELEMENT_WITH_UNKNOWN_CHARACTER
+        ID_WITH_WILDCARDS
     }
 
     IdentifierType getType();

@@ -73,7 +73,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
                 new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
-            case ELEMENT_WITH_UNKNOWN_CHARACTER -> new ElementWithUnknownCharacterIdentifier(identifier, contingencyId);
+            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, contingencyId);
         };
     }
 }

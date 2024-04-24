@@ -23,8 +23,8 @@
       "identifier" : "identifier"
     } ]
   }, {
-    "type" : "ELEMENT_WITH_UNKNOWN_CHARACTER",
+    "type" : "ID_WITH_WILDCARDS",
     "contingencyId" : "contingencyId4",
-    "identifier" : "identifier"
+    "identifier" : "identifier?"
   } ]
 }

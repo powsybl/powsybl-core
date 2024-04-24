@@ -41,7 +41,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                 "vl2", '1', "contingencyId2"));
         networkElementIdentifiers.add(new NetworkElementIdentifierContingencyList(Collections.singletonList(new
                 IdBasedNetworkElementIdentifier("identifier")), "contingencyId3"));
-        networkElementIdentifiers.add(new ElementWithUnknownCharacterIdentifier("identifier", "contingencyId4"));
+        networkElementIdentifiers.add(new IdWithWildcardsNetworkElementIdentifier("identifier?", "contingencyId4"));
         return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }
 
