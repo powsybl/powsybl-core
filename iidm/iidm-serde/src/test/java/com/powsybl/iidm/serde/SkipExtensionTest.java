@@ -15,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 /**
@@ -37,7 +37,7 @@ class SkipExtensionTest extends AbstractIidmSerDeTest {
 
         // Compare
         try {
-            compareXml(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
+            assertXmlEquals(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
         } catch (Exception e) {
             fail();
         }

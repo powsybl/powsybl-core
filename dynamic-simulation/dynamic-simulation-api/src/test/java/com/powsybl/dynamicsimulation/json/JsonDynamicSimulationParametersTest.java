@@ -39,7 +39,7 @@ class JsonDynamicSimulationParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         DynamicSimulationParameters parameters = new DynamicSimulationParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonDynamicSimulationParameters::write, ComparisonUtils::compareTxt, "/DynamicSimulationParametersWithExtension.json");
+        writeTest(parameters, JsonDynamicSimulationParameters::write, ComparisonUtils::assertTxtEquals, "/DynamicSimulationParametersWithExtension.json");
     }
 
     @Test
