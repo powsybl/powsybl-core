@@ -13,6 +13,7 @@ import com.powsybl.psse.model.pf.PsseSwitchedShunt;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_RMIDNT;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -20,7 +21,6 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
 
-    private static final String STR_RMIDNT = "rmidnt";
     private static final String[] FIELD_NAMES_32_33 = {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", STR_RMIDNT, "binit", "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
 
     SwitchedShuntData() {

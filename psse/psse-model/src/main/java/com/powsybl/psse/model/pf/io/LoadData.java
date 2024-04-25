@@ -13,22 +13,13 @@ import com.powsybl.psse.model.pf.PsseLoad;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class LoadData extends AbstractRecordGroup<PsseLoad> {
-    private static final String STR_ID = "id";
-    private static final String STR_AREA = "area";
-    private static final String STR_ZONE = "zone";
-    private static final String STR_PL = "pl";
-    private static final String STR_QL = "ql";
-    private static final String STR_IP = "ip";
-    private static final String STR_IQ = "iq";
-    private static final String STR_YP = "yp";
-    private static final String STR_OWNER = "owner";
-    private static final String STR_SCALE = "scale";
 
     LoadData() {
         super(PowerFlowRecordGroup.LOAD);

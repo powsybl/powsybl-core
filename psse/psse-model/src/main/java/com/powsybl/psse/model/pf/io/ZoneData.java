@@ -13,6 +13,7 @@ import com.powsybl.psse.model.pf.PsseZone;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_ZONAME;
 
 /**
  *
@@ -21,7 +22,6 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class ZoneData extends AbstractRecordGroup<PsseZone> {
 
-    private static final String STR_ZONAME = "zoname";
     private static final String[] FIELD_NAMES_32_33 = {"i", STR_ZONAME};
 
     ZoneData() {

@@ -254,7 +254,7 @@ public class MatpowerExporter implements Exporter {
         createTransformerStarBuses(network, model, context);
     }
 
-    private static double getVoltageLimit(Double voltageLimit, Double nominalV) {
+    private static double getVoltageLimit(double voltageLimit, double nominalV) {
         return Double.isNaN(voltageLimit) ? 0 : voltageLimit / nominalV;
     }
 

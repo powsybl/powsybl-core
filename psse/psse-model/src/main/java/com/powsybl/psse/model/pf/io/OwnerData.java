@@ -13,6 +13,7 @@ import com.powsybl.psse.model.pf.PsseOwner;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.STR_OWNAME;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -20,7 +21,6 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class OwnerData extends AbstractRecordGroup<PsseOwner> {
 
-    private static final String STR_OWNAME = "owname";
     private static final String[] FIELD_NAMES_32_33 = {"i", STR_OWNAME};
 
     OwnerData() {

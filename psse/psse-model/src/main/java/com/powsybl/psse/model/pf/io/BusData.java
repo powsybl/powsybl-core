@@ -17,20 +17,13 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class BusData extends AbstractRecordGroup<PsseBus> {
-    private static final String STR_NAME = "name";
-    private static final String STR_BASKV = "baskv";
-    private static final String STR_IDE = "ide";
-    private static final String STR_AREA = "area";
-    private static final String STR_ZONE = "zone";
-    private static final String STR_OWNER = "owner";
-    private static final String STR_VM = "vm";
-    private static final String STR_VA = "va";
 
     BusData() {
         super(PowerFlowRecordGroup.BUS);

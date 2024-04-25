@@ -26,6 +26,7 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -33,24 +34,6 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
  */
 class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
-    private static final String STR_CKT = "ckt";
-    private static final String STR_CW = "cw";
-    private static final String STR_CZ = "cz";
-    private static final String STR_CM = "cm";
-    private static final String STR_MAG1 = "mag1";
-    private static final String STR_MAG2 = "mag2";
-    private static final String STR_NAME = "name";
-    private static final String STR_STAT = "stat";
-    private static final String STR_O1 = "o1";
-    private static final String STR_F1 = "f1";
-    private static final String STR_O2 = "o2";
-    private static final String STR_F2 = "f2";
-    private static final String STR_O3 = "o3";
-    private static final String STR_F3 = "f3";
-    private static final String STR_O4 = "o4";
-    private static final String STR_F4 = "f4";
-    private static final String STR_WINDV = "windv";
-    private static final String STR_VECGRP = "vecgrp";
     private static final String[] FIELD_NAMES_T2W_IMPEDANCES_RECORD = {"r12", "x12", "sbase12"};
     private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {STR_WINDV, "nomv"};
     private static final String[] FIELD_NAMES_WINDING_32_33 = {STR_WINDV, "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};

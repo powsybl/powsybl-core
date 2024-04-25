@@ -20,14 +20,13 @@ import java.util.List;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
-    private static final String STR_TITLE_1 = "title1";
-    private static final String STR_TITLE_2 = "title2";
 
     CaseIdentificationData() {
         super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2);

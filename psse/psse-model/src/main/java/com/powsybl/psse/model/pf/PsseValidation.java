@@ -28,6 +28,13 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 public class PsseValidation {
 
+    private final List<String> warnings;
+    private boolean validCase;
+    private static final Logger LOGGER = LoggerFactory.getLogger(PsseValidation.class);
+
+    private static final String WARNING_TRANSFORMER_1_PARAMETER = "Transformer: %s Unexpected %s: %.5f";
+    private static final String WARNING_TRANSFORMER_2_PARAMETERS = "Transformer: %s Unexpected %s: %.5f %.5f";
+
     public PsseValidation(PssePowerFlowModel model, PsseVersion psseVersion) {
         Objects.requireNonNull(model);
         warnings = new ArrayList<>();
@@ -495,11 +502,4 @@ public class PsseValidation {
     private String getWarningTransformer2Parameters(String id, String tag, double param1, double param2) {
         return String.format(Locale.US, WARNING_TRANSFORMER_2_PARAMETERS, id, tag, param1, param2);
     }
-
-    private final List<String> warnings;
-    private boolean validCase;
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsseValidation.class);
-
-    private static final String WARNING_TRANSFORMER_1_PARAMETER = "Transformer: %s Unexpected %s: %.5f";
-    private static final String WARNING_TRANSFORMER_2_PARAMETERS = "Transformer: %s Unexpected %s: %.5f %.5f";
 }
