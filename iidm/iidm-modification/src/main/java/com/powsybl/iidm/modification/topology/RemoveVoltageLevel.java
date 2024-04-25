@@ -17,8 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.notFoundVoltageLevelReport;
-import static com.powsybl.iidm.modification.util.ModificationReports.removedVoltageLevelReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.*;
 
 /**
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
@@ -52,7 +51,10 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.getConnectables().forEach(connectable -> {
             if (connectable instanceof Injection) {
+                String connectableId = connectable.getId();
                 connectable.remove();
+                removedConnectableReport(reportNode, connectableId);
+                LOGGER.info("Connectable {} removed", connectableId);
             } else {
                 new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
             }
