@@ -96,20 +96,7 @@ public final class SteadyStateHypothesisExport {
     private static final String ALIAS_TYPE_TERMINAL_1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1";
     private static final String ALIAS_TYPE_TERMINAL_2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2";
 
-    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
-            if (context.isExportedEquipment(c)) {
-                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
-                    // Equivalent shunts do not have a section count in SSH, SV profiles,
-                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
-                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
-                } else {
-                    for (Terminal t : c.getTerminals()) {
-                        writeTerminal(t, cimNamespace, writer, context);
-                    }
-                }
-            }
-        }
+    private static void writeTerminalForSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 // Terminals for switches are exported as always connected
@@ -124,6 +111,9 @@ public final class SteadyStateHypothesisExport {
                 }
             }
         }
+    }
+
+    private static void writeTerminalForDanglingLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
@@ -134,16 +124,38 @@ public final class SteadyStateHypothesisExport {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary"), true, cimNamespace, writer, context);
             }
         }
-        // If we are performing an updated export, write recorded busbar section terminals as connected
-        if (!context.isExportEquipment()) {
-            for (Bus b : network.getBusBreakerView().getBuses()) {
-                String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
-                if (!bbsTerminals.isEmpty()) {
-                    for (String bbsTerminal : bbsTerminals.split(",")) {
-                        writeTerminal(bbsTerminal, true, cimNamespace, writer, context);
+    }
+
+    private static void writeTerminalForBuses(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (Bus b : network.getBusBreakerView().getBuses()) {
+            String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+            if (!bbsTerminals.isEmpty()) {
+                for (String bbsTerminal : bbsTerminals.split(",")) {
+                    writeTerminal(bbsTerminal, true, cimNamespace, writer, context);
+                }
+            }
+        }
+    }
+
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
+            if (context.isExportedEquipment(c)) {
+                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
+                    // Equivalent shunts do not have a section count in SSH, SV profiles,
+                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
+                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
+                } else {
+                    for (Terminal t : c.getTerminals()) {
+                        writeTerminal(t, cimNamespace, writer, context);
                     }
                 }
             }
+        }
+        writeTerminalForSwitches(network, cimNamespace, writer, context);
+        writeTerminalForDanglingLines(network, cimNamespace, writer, context);
+        // If we are performing an updated export, write recorded busbar section terminals as connected
+        if (!context.isExportEquipment()) {
+            writeTerminalForBuses(network, cimNamespace, writer, context);
         }
     }
 

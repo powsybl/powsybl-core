@@ -164,7 +164,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                     return false;
                 }
                 // Store or update in the hashmap the next available node for the current voltage level
-                int connectableNode = firstAvailableNodes.compute(voltageLevel, (vl, node) -> node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1);
+                int connectableNode = firstAvailableNodes.compute(voltageLevel, this::getNextAvailableNode);
                 setNode(side, connectableNode, voltageLevel.getId());
             } else {
                 LOGGER.error("Unsupported type {} for identifiable {}", busOrBusbarSection.getType(), busOrBusbarSectionId);
@@ -176,6 +176,10 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             }
         }
         return true;
+    }
+
+    private int getNextAvailableNode(VoltageLevel vl, Integer node) {
+        return node == null ? vl.getNodeBreakerView().getMaximumNodeIndex() + 1 : node + 1;
     }
 
     private static boolean checkNetworks(Connectable<?> connectable, Network network, ReportNode reportNode, boolean throwException) {

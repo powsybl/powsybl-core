@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
 /**
  *
@@ -49,7 +49,7 @@ class RunLoadFlowToolTest extends AbstractSerDeTest {
         try (StringWriter writer = new StringWriter()) {
             RunLoadFlowTool.printLoadFlowResult(result, writer, new AsciiTableFormatterFactory(), new TableFormatterConfig(Locale.US, "inv"));
             writer.flush();
-            compareTxt(getClass().getResourceAsStream("/LoadFlowResultResult.txt"), writer.toString());
+            assertTxtEquals(getClass().getResourceAsStream("/LoadFlowResultResult.txt"), writer.toString());
         }
     }
 }
