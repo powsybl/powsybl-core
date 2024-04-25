@@ -79,7 +79,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                             }
                         }
                     } finally {
-                        closeStreamReader(xmlsr);
+                        cleanClose(xmlsr);
                     }
                 }
             }
@@ -90,9 +90,9 @@ public class XMLImporter extends AbstractTreeDataImporter {
         }
     }
 
-    private void closeStreamReader(XMLStreamReader xmlsr) {
+    private void cleanClose(XMLStreamReader xmlStreamReader) {
         try {
-            xmlsr.close();
+            xmlStreamReader.close();
             XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
         } catch (XMLStreamException e) {
             LOGGER.error(e.toString(), e);

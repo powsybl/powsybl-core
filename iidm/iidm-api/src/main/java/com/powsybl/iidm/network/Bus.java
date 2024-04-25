@@ -12,9 +12,8 @@ import java.util.stream.Stream;
 
 /**
  * A bus is a set of equipments connected together through a closed switch.
- *
- * It could be a configured object ot a result of a computation depending of the
- * context.
+ * <p>It could be a configured object ot a result of a computation depending of the
+ * context.</p>
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */

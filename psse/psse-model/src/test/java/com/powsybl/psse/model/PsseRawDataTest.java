@@ -37,7 +37,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -506,7 +506,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         assertNotNull(rawData);
         rawData33.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_exported.raw"), is);
         }
     }
 
@@ -519,7 +519,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_rev35_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.raw"), is);
         }
     }
 
@@ -532,7 +532,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawXData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "MinimalExample_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "MinimalExample_exported.rawx"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "MinimalExample_exported.rawx"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "MinimalExample_exported.rawx"), is);
         }
     }
 
@@ -545,7 +545,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawXData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_rev35_exported.rawx"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.rawx"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.rawx"), is);
         }
     }
 
@@ -558,7 +558,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         assertNotNull(rawData);
         rawData33.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_whitespaceAsDelimiter_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"), is);
         }
     }
 
@@ -571,7 +571,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         assertNotNull(rawData);
         rawData33.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_isolated_buses_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_isolated_buses_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_isolated_buses_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_isolated_buses_exported.raw"), is);
         }
     }
 
@@ -641,7 +641,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawData33.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_24_bus_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_24_bus_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_24_bus_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_24_bus_exported.raw"), is);
         }
     }
 
@@ -654,7 +654,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_24_bus_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_24_bus_rev35_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_24_bus_rev35_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_24_bus_rev35_exported.raw"), is);
         }
     }
 
@@ -667,7 +667,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawxData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_24_bus_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_24_bus_rev35_exported.rawx"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_24_bus_rev35_exported.rawx"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_24_bus_rev35_exported.rawx"), is);
         }
     }
 
@@ -728,7 +728,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawData33.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_completed_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_exported.raw"), is);
         }
     }
 
@@ -741,7 +741,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_completed_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.raw"), is);
         }
     }
 
@@ -754,7 +754,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
 
         rawxData35.write(rawData, context, DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "IEEE_14_bus_completed_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.rawx"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.rawx"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.rawx"), is);
         }
     }
 
@@ -786,7 +786,7 @@ class PsseRawDataTest extends AbstractSerDeTest {
         rawData32.write(rawData, context,
             DataSourceUtil.createDataSource(fileSystem.getPath("/work/"), "", "ExampleVersion32_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "ExampleVersion32_exported.raw"))) {
-            compareTxt(getClass().getResourceAsStream("/" + "ExampleVersion32_exported.raw"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + "ExampleVersion32_exported.raw"), is);
         }
     }
 

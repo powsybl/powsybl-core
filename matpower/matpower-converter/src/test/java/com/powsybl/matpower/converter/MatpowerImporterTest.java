@@ -35,7 +35,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -175,7 +175,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path file = tmpDir.resolve(fileName);
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + fileName), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 
