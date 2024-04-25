@@ -111,13 +111,13 @@ public class CgmesExport implements Exporter {
         Map<Network, IgmModelsForCgm> igmModels = new HashMap<>();
         for (Network subnetwork : network.getSubnetworks()) {
             IgmModelsForCgm igmModelsForCgm = new IgmModelsForCgm(
-                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, Boolean.FALSE, Boolean.FALSE),
-                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, Boolean.FALSE, Boolean.TRUE),
-                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, Boolean.FALSE, Boolean.FALSE)
+                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
+                    initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, true),
+                    initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false)
             );
             igmModels.put(subnetwork, igmModelsForCgm);
         }
-        CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(network, CgmesSubset.STATE_VARIABLES, context, Boolean.TRUE, Boolean.TRUE);
+        CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(network, CgmesSubset.STATE_VARIABLES, context, true, true);
 
         // Update dependencies
         updateDependenciesCGM(igmModels.values(), updatedCgmSvModel);
@@ -152,7 +152,7 @@ public class CgmesExport implements Exporter {
         Map<CgmesSubset, CgmesMetadataModel> subsetModels = new EnumMap<>(CgmesSubset.class);
         for (CgmesSubset exportableSubset : List.of(
                 CgmesSubset.EQUIPMENT, CgmesSubset.TOPOLOGY, CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)) {
-            CgmesMetadataModel subsetModel = initializeModelForExport(network, exportableSubset, context, Boolean.TRUE, Boolean.FALSE);
+            CgmesMetadataModel subsetModel = initializeModelForExport(network, exportableSubset, context, true, false);
             subsetModels.put(exportableSubset, subsetModel);
         }
 
@@ -183,7 +183,7 @@ public class CgmesExport implements Exporter {
      * @return A model with all necessary metadata information for the export.
      */
     public static CgmesMetadataModel initializeModelForExport(
-            Network network, CgmesSubset subset, CgmesExportContext context, Boolean mainNetwork, Boolean modelUpdate) {
+            Network network, CgmesSubset subset, CgmesExportContext context, boolean mainNetwork, boolean modelUpdate) {
         // Initialize a new model for the export
         CgmesMetadataModel modelForExport = new CgmesMetadataModel(subset, CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
         modelForExport.setProfile(context.getCim().getProfileUri(subset.getIdentifier()));
@@ -202,18 +202,18 @@ public class CgmesExport implements Exporter {
 
         // Use parameters if they have been defined.
         // It doesn't apply to subnetworks, except for the version of updated SSH of a CGM export
-        if ((mainNetwork.equals(Boolean.TRUE) || modelUpdate.equals(Boolean.TRUE)) && context.getModelDescription() != null) {
+        if ((mainNetwork || modelUpdate) && context.getModelDescription() != null) {
             modelForExport.setDescription(context.getModelDescription());
         }
-        if ((mainNetwork.equals(Boolean.TRUE) || modelUpdate.equals(Boolean.TRUE)) && context.getModelVersion() != null) {
+        if ((mainNetwork || modelUpdate) && context.getModelVersion() != null) {
             modelForExport.setVersion(Integer.parseInt(context.getModelVersion()));
         }
-        if (mainNetwork.equals(Boolean.TRUE) && context.getModelingAuthoritySet() != null) {
+        if (mainNetwork && context.getModelingAuthoritySet() != null) {
             modelForExport.setModelingAuthoritySet(context.getModelingAuthoritySet());
         }
 
         // Initialize the model id in the case of an updated SSH/SV of a CGM export, or if it isn't present
-        if (modelUpdate.equals(Boolean.TRUE) || modelForExport.getId() == null) {
+        if (modelUpdate || modelForExport.getId() == null) {
             CgmesExportUtil.initializeModelId(network, modelForExport, context);
         }
 
