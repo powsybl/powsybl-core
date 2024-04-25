@@ -32,6 +32,7 @@ public class TimeSeriesMetadata {
     private final TimeSeriesIndex index;
 
     public TimeSeriesMetadata(String name, TimeSeriesDataType dataType, TimeSeriesIndex index) {
+        // The order of the Map.of() elements is not constant/predictable so we have to build an unmodifiableMap LinkedHashMap ourselves
         this(name, dataType, Collections.unmodifiableMap(new LinkedHashMap<>()), index);
     }
 

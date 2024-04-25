@@ -10,6 +10,8 @@ package com.powsybl.commons.config;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
+import com.powsybl.commons.exceptions.UncheckedInvocationTargetException;
+import com.powsybl.commons.exceptions.UncheckedNoSuchMethodException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
@@ -75,8 +77,10 @@ public interface ComponentDefaultConfig {
                 throw new UncheckedIllegalAccessException(e);
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
-            } catch (InvocationTargetException | NoSuchMethodException e) {
-                throw new PowsyblException(e);
+            } catch (NoSuchMethodException e) {
+                throw new UncheckedNoSuchMethodException(e);
+            } catch (InvocationTargetException e) {
+                throw new UncheckedInvocationTargetException(e);
             }
         }
 
@@ -88,8 +92,10 @@ public interface ComponentDefaultConfig {
                 throw new UncheckedIllegalAccessException(e);
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
-            } catch (NoSuchMethodException | InvocationTargetException e) {
-                throw new PowsyblException(e);
+            } catch (NoSuchMethodException e) {
+                throw new UncheckedNoSuchMethodException(e);
+            } catch (InvocationTargetException e) {
+                throw new UncheckedInvocationTargetException(e);
             }
         }
     }

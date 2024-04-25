@@ -487,6 +487,28 @@ public final class CgmesConformity1NetworkCatalog {
         genBrussels10.getTerminal().setQ(q);
     }
 
+    private static void addTapSteps(RatioTapChangerAdder rtca, TwoSides side, int low, int high, int neutral, double voltageInc) {
+        for (int k = low; k <= high; k++) {
+            int n = k - neutral;
+            double du = voltageInc / 100;
+            double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
+            double dz = 0;
+            double dy = 0;
+            if (side.equals(TwoSides.TWO)) {
+                double rhok2 = rhok * rhok;
+                dz = (rhok2 - 1) * 100;
+                dy = (1 / rhok2 - 1) * 100;
+            }
+            rtca.beginStep()
+                    .setRho(rhok)
+                    .setR(dz)
+                    .setX(dz)
+                    .setG(dy)
+                    .setB(dy)
+                    .endStep();
+        }
+    }
+
     private static void addTransformerBrussels110Brussels10(Substation sBrussels,
                                                             Bus busBrussels110, Bus busBrussels10,
                                                             VoltageLevel vlBrussels110, VoltageLevel vlBrussels10) {
@@ -555,25 +577,7 @@ public final class CgmesConformity1NetworkCatalog {
             .setLowTapPosition(low)
             .setTapPosition(14)
             .setTargetDeadband(0.5);
-        for (int k = low; k <= high; k++) {
-            int n = k - neutral;
-            double du = voltageInc / 100;
-            double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
-            double dz = 0;
-            double dy = 0;
-            if (side.equals(TwoSides.TWO)) {
-                double rhok2 = rhok * rhok;
-                dz = (rhok2 - 1) * 100;
-                dy = (1 / rhok2 - 1) * 100;
-            }
-            rtca.beginStep()
-                .setRho(rhok)
-                .setR(dz)
-                .setX(dz)
-                .setG(dy)
-                .setB(dy)
-                .endStep();
-        }
+        addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
             .setRegulating(true)
             .setTargetV(10.815)
@@ -637,18 +641,7 @@ public final class CgmesConformity1NetworkCatalog {
         RatioTapChangerAdder rtca = txBE22.newRatioTapChanger()
             .setLowTapPosition(low)
             .setTapPosition(10);
-        for (int k = low; k <= high; k++) {
-            int n = k - neutral;
-            double du = voltageInc / 100;
-            double rhok = side.equals(TwoSides.ONE) ? 1 / (1 + n * du) : (1 + n * du);
-            rtca.beginStep()
-                .setRho(rhok)
-                .setR(0)
-                .setX(0)
-                .setG(0)
-                .setB(0)
-                .endStep();
-        }
+        addTapSteps(rtca, side, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
             .setRegulating(false)
             .setTargetV(0.0)
@@ -825,20 +818,7 @@ public final class CgmesConformity1NetworkCatalog {
         RatioTapChangerAdder rtca = txBETR3.getLeg2().newRatioTapChanger()
             .setLowTapPosition(low)
             .setTapPosition(position);
-        for (int k = low; k <= high; k++) {
-            int n = k - neutral;
-            double du = voltageInc / 100;
-            double rhok = 1 / (1 + n * du);
-            double dz = 0;
-            double dy = 0;
-            rtca.beginStep()
-                .setRho(rhok)
-                .setR(dz)
-                .setX(dz)
-                .setG(dy)
-                .setB(dy)
-                .endStep();
-        }
+        addTapSteps(rtca, TwoSides.ONE, low, high, neutral, voltageInc);
         rtca.setLoadTapChangingCapabilities(true)
             .setRegulating(false)
             .setTargetV(0.0)

@@ -395,11 +395,11 @@ public final class StateVariablesExport {
         });
 
         if (context.exportFlowsForSwitches()) {
-            network.getVoltageLevelStream().forEach(vl -> writePowerFlowForVoltageLevel(vl, cimNamespace, writer, context));
+            network.getVoltageLevelStream().forEach(vl -> writePowerFlowForSwitchesInVoltageLevel(vl, cimNamespace, writer, context));
         }
     }
 
-    private static void writePowerFlowForVoltageLevel(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+    private static void writePowerFlowForSwitchesInVoltageLevel(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         SlackTerminal st = vl.getExtension(SlackTerminal.class);
         Terminal slackTerminal = st != null && !st.isEmpty() ? st.getTerminal() : null;
         SwitchesFlow swflows = new SwitchesFlow(vl, slackTerminal);
