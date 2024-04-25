@@ -63,7 +63,7 @@ public class PsseExporter implements Exporter {
         Context context = network.getExtension(PsseConversionContextExtension.class).getContext();
         PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
         if (context.getFileFormat() == FileFormat.JSON) {
-            if (version.major() == PsseVersion.Major.V35) {
+            if (Objects.requireNonNull(version.major()) == PsseVersion.Major.V35) {
                 PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
                 try {
                     rawXData35.write(updatePsseModel, context, dataSource);
