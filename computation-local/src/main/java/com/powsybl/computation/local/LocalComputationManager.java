@@ -155,10 +155,9 @@ public class LocalComputationManager implements ComputationManager {
         for (CommandExecution commandExecution : commandExecutionList) {
             Command command = commandExecution.getCommand();
             CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
-            IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx ->
-                executeIteration(new IterationParameters(workingDir, commandExecution, variables, computationParameters, executionSubmitter,
-                    command, latch, errors, monitor), idx)
-            );
+            ExecutionParameters executionParameters = new ExecutionParameters(workingDir, commandExecution, variables, computationParameters, executionSubmitter,
+                command, latch, errors, monitor);
+            IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx -> performSingleExecution(executionParameters, idx));
             latch.await();
         }
 
@@ -174,41 +173,41 @@ public class LocalComputationManager implements ComputationManager {
         return new DefaultExecutionReport(workingDir, errors);
     }
 
-    private record IterationParameters(Path workingDir, CommandExecution commandExecution,
+    private record ExecutionParameters(Path workingDir, CommandExecution commandExecution,
                                        Map<String, String> variables, ComputationParameters computationParameters,
                                        ExecutorService executionSubmitter, Command command, CountDownLatch latch,
                                        List<ExecutionError> errors, ExecutionMonitor monitor) {
     }
 
-    private void executeIteration(IterationParameters iterationParameters, int idx) {
-        iterationParameters.executionSubmitter.execute(() -> {
+    private void performSingleExecution(ExecutionParameters executionParameters, int idx) {
+        executionParameters.executionSubmitter.execute(() -> {
             try {
                 enter();
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Executing command {} in working directory {}",
-                        iterationParameters.command.toString(idx), iterationParameters.workingDir);
+                        executionParameters.command.toString(idx), executionParameters.workingDir);
                 }
-                preProcess(iterationParameters.workingDir, iterationParameters.command, idx);
+                preProcess(executionParameters.workingDir, executionParameters.command, idx);
                 Stopwatch stopwatch = null;
                 if (LOGGER.isDebugEnabled()) {
                     stopwatch = Stopwatch.createStarted();
                 }
-                int exitValue = process(iterationParameters.workingDir, iterationParameters.commandExecution, idx,
-                    iterationParameters.variables, iterationParameters.computationParameters);
+                int exitValue = process(executionParameters.workingDir, executionParameters.commandExecution, idx,
+                    executionParameters.variables, executionParameters.computationParameters);
                 if (stopwatch != null) {
                     stopwatch.stop();
                     LOGGER.debug("Command {} executed in {} ms",
-                        iterationParameters.command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                        executionParameters.command.toString(idx), stopwatch.elapsed(TimeUnit.MILLISECONDS));
                 }
-                postProcess(iterationParameters.workingDir, iterationParameters.commandExecution, idx, exitValue,
-                    iterationParameters.errors, iterationParameters.monitor);
+                postProcess(executionParameters.workingDir, executionParameters.commandExecution, idx, exitValue,
+                    executionParameters.errors, executionParameters.monitor);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 LOGGER.warn(e.getMessage(), e);
             } catch (Exception e) {
                 LOGGER.warn(e.getMessage(), e);
             } finally {
-                iterationParameters.latch.countDown();
+                executionParameters.latch.countDown();
                 exit();
             }
         });
