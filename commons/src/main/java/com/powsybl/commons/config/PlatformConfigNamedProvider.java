@@ -10,12 +10,7 @@ package com.powsybl.commons.config;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
@@ -54,13 +49,12 @@ public interface PlatformConfigNamedProvider {
      * @author Jon harper {@literal <jon.harper at rte-france.com>}
      * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
      */
-    static final class Finder {
+    final class Finder {
 
         private Finder() {
         }
 
         private static final String DEFAULT_SERVICE_IMPL_NAME_PROPERTY = "default-impl-name";
-        private static final String LEGACY_SERVICE_IMPL_NAME_PROPERTY = "default";
 
         private static final Map<Class<? extends PlatformConfigNamedProvider>, List<? extends PlatformConfigNamedProvider>> PROVIDERS = new ConcurrentHashMap<>();
 
@@ -74,7 +68,7 @@ public interface PlatformConfigNamedProvider {
         public static <T extends PlatformConfigNamedProvider> T findDefault(String moduleName,
                 Class<T> clazz, PlatformConfig platformConfig) {
             return find(null, moduleName,
-                    Arrays.asList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
+                List.of(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
                     platformConfig);
         }
 
@@ -87,42 +81,8 @@ public interface PlatformConfigNamedProvider {
         public static <T extends PlatformConfigNamedProvider> T find(String name, String moduleName,
                 Class<T> clazz, PlatformConfig platformConfig) {
             return find(name, moduleName,
-                    Arrays.asList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
+                List.of(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
                     platformConfig);
-        }
-
-        /**
-         * Find the default provider configured in the standard field or the legacy
-         * field of {@code moduleName} in {@code platformConfig} among the
-         * {@code providers} arguments based on its name.
-         *
-         * @deprecated Use {@link #findDefault} instead
-         *
-         * @return the provider
-         */
-        @Deprecated(since = "3.2.0")
-        public static <T extends PlatformConfigNamedProvider> T findDefaultBackwardsCompatible(
-                String moduleName, Class<T> clazz, PlatformConfig platformConfig) {
-            return find(null, moduleName,
-                    Arrays.asList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY,
-                    LEGACY_SERVICE_IMPL_NAME_PROPERTY), clazz, platformConfig);
-        }
-
-        /**
-         * Find the provider among the {@code providers} based on its {@code name}, or
-         * if {@code name} is null find the default provider like @{link
-         * findDefaultBackwardsCompatible}
-         *
-         * @deprecated Use {@link #find} instead
-         *
-         * @return the provider
-         */
-        @Deprecated(since = "3.2.0")
-        public static <T extends PlatformConfigNamedProvider> T findBackwardsCompatible(String name,
-                String moduleName, Class<T> clazz, PlatformConfig platformConfig) {
-            return find(name, moduleName,
-                    Arrays.asList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY, LEGACY_SERVICE_IMPL_NAME_PROPERTY),
-                    clazz, platformConfig);
         }
 
         private static Optional<String> getOptionalFirstProperty(ModuleConfig moduleConfig,
@@ -173,7 +133,7 @@ public interface PlatformConfigNamedProvider {
             T provider;
             if (providers.size() == 1 && finalName == null) {
                 // no information to select the implementation but only one provider, so we can
-                // use it by default (that is be the most common use case)
+                // use it by default (that is the most common use case)
                 provider = providers.get(0);
             } else {
                 if (providers.size() > 1 && finalName == null) {
