@@ -218,7 +218,9 @@ public class LocalComputationManager implements ComputationManager {
                         break;
                     case ARCHIVE_UNZIP:
                         // extract the archive
-                        try (ZipFile zipFile = new ZipFile(Files.newByteChannel(path))) {
+                        try (ZipFile zipFile = ZipFile.builder()
+                            .setSeekableByteChannel(Files.newByteChannel(path))
+                            .get()) {
                             for (ZipArchiveEntry ze : Collections.list(zipFile.getEntries())) {
                                 Files.copy(zipFile.getInputStream(zipFile.getEntry(ze.getName())), workingDir.resolve(ze.getName()), REPLACE_EXISTING);
                             }

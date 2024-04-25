@@ -16,15 +16,15 @@ import com.powsybl.iidm.network.ValidationException;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class MinMaxReactiveLimitsAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements MinMaxReactiveLimitsAdder {
+class MinMaxReactiveLimitsAdderImpl<O extends ReactiveLimitsOwner & Validable> implements MinMaxReactiveLimitsAdder {
 
-    private final OWNER owner;
+    private final O owner;
 
     private double minQ = Double.NaN;
 
     private double maxQ = Double.NaN;
 
-    MinMaxReactiveLimitsAdderImpl(OWNER owner) {
+    MinMaxReactiveLimitsAdderImpl(O owner) {
         this.owner = owner;
     }
 

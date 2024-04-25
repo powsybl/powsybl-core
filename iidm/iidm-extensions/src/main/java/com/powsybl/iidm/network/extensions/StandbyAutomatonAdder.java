@@ -37,14 +37,6 @@ public interface StandbyAutomatonAdder extends ExtensionAdder<StaticVarCompensat
     StandbyAutomatonAdder withHighVoltageSetpoint(double highVoltageSetpoint);
 
     /**
-     * @deprecated Use {@link #withHighVoltageSetpoint(double)} instead.
-     */
-    @Deprecated(since = "4.11.0")
-    default StandbyAutomatonAdder withHighVoltageSetPoint(float highVoltageSetpoint) {
-        return withHighVoltageSetpoint(highVoltageSetpoint);
-    }
-
-    /**
      * Define the high voltage threshold (in kV). Above this value, the static var compensator controls voltage at high voltage setpoint.
      */
     StandbyAutomatonAdder withHighVoltageThreshold(double highVoltageThreshold);
@@ -53,14 +45,6 @@ public interface StandbyAutomatonAdder extends ExtensionAdder<StaticVarCompensat
      * Define the voltage setpoint (in kV) used when the low voltage threshold is reached.
      */
     StandbyAutomatonAdder withLowVoltageSetpoint(double lowVoltageSetpoint);
-
-    /**
-     * @deprecated Use {@link #withLowVoltageSetpoint(double)} instead.
-     */
-    @Deprecated(since = "4.11.0")
-    default StandbyAutomatonAdder withLowVoltageSetPoint(float lowVoltageSetpoint) {
-        return withLowVoltageSetpoint(lowVoltageSetpoint);
-    }
 
     /**
      * Define the low voltage threshold (in kV). Under this value, the static var compensator controls voltage at low voltage setpoint.
