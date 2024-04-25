@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author imagrid team {@literal <rte-mco-imagrid at rte-france.com>}
