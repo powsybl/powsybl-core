@@ -47,7 +47,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
         String version = null;
         List<Extension<LoadFlowParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -137,38 +137,38 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "balanceType":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.getCurrentName(), version, "1.4");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setBalanceType(JsonUtil.readValue(deserializationContext, parser, BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.getCurrentName(), version, "1.5");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
                     parser.nextToken();
                     parameters.setDcUseTransformerRatio(parser.readValueAs(Boolean.class));
                     break;
 
                 case "countriesToBalance":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.getCurrentName(), version, "1.5");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
                     parser.nextToken();
                     Set<Country> countries = JsonUtil.readSet(deserializationContext, parser, Country.class);
                     parameters.setCountriesToBalance(countries);
                     break;
 
                 case "connectedComponentMode":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.getCurrentName(), version, "1.5");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAGS + parser.currentName(), version, "1.5");
                     parser.nextToken();
                     parameters.setConnectedComponentMode(JsonUtil.readValue(deserializationContext, parser, LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
                 case "hvdcAcEmulation":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: hvdcAcEmulation" + parser.getCurrentName(), version, "1.7");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: hvdcAcEmulation" + parser.currentName(), version, "1.7");
                     parser.nextToken();
                     parameters.setHvdcAcEmulation(parser.readValueAs(Boolean.class));
                     break;
 
                 case "dcPowerFactor":
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: dcPowerFactor" + parser.getCurrentName(), version, "1.9");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: dcPowerFactor" + parser.currentName(), version, "1.9");
                     parser.nextToken();
                     parameters.setDcPowerFactor(parser.readValueAs(Double.class));
                     break;
@@ -179,7 +179,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));
