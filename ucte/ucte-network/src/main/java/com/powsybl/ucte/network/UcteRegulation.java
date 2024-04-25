@@ -82,31 +82,35 @@ public class UcteRegulation implements UcteRecord {
     @Override
     public void fix(ReportNode reportNode) {
         if (phaseRegulation != null) {
-            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId, reportNode);
-            if (phaseRegulation.getU() <= 0) {
-                LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
-                        transfoId, phaseRegulation.getU());
-                phaseRegulation.setU(Double.NaN);
-            }
-            double nominalVoltage = transfoId.getNodeCode2().getVoltageLevelCode().getVoltageLevel();
-            if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (phaseRegulation.getU() < LOW_VOLTAGE_FACTOR * nominalVoltage
-                    || phaseRegulation.getU() > HIGH_VOLTAGE_FACTOR * nominalVoltage)) {
-                LOGGER.warn("Phase regulation of transformer '{}' has a target voltage {} kV too far from nominal voltage",
-                        transfoId, phaseRegulation.getU());
-            }
-            // FIXME: N should be stricly positive and NP in [-n, n]
-            if (phaseRegulation.getN() == null || phaseRegulation.getN() == 0
-                || phaseRegulation.getNp() == null || Double.isNaN(phaseRegulation.getDu())) {
-                LOGGER.warn("Phase regulation of transformer '{}' removed because incomplete", transfoId);
-                phaseRegulation = null;
-            }
+            fixPhaseRegulation(reportNode);
         }
         if (angleRegulation != null) {
-            angleRegulation(reportNode);
+            fixAngleRegulation(reportNode);
         }
     }
 
-    private void angleRegulation(ReportNode reportNode) {
+    private void fixPhaseRegulation(ReportNode reportNode) {
+        UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId, reportNode);
+        if (phaseRegulation.getU() <= 0) {
+            LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
+                transfoId, phaseRegulation.getU());
+            phaseRegulation.setU(Double.NaN);
+        }
+        double nominalVoltage = transfoId.getNodeCode2().getVoltageLevelCode().getVoltageLevel();
+        if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (phaseRegulation.getU() < LOW_VOLTAGE_FACTOR * nominalVoltage
+            || phaseRegulation.getU() > HIGH_VOLTAGE_FACTOR * nominalVoltage)) {
+            LOGGER.warn("Phase regulation of transformer '{}' has a target voltage {} kV too far from nominal voltage",
+                transfoId, phaseRegulation.getU());
+        }
+        // FIXME: N should be stricly positive and NP in [-n, n]
+        if (phaseRegulation.getN() == null || phaseRegulation.getN() == 0
+            || phaseRegulation.getNp() == null || Double.isNaN(phaseRegulation.getDu())) {
+            LOGGER.warn("Phase regulation of transformer '{}' removed because incomplete", transfoId);
+            phaseRegulation = null;
+        }
+    }
+
+    private void fixAngleRegulation(ReportNode reportNode) {
         UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reportNode);
         // FIXME: N should be stricly positive and NP in [-n, n]
         if (angleRegulation.getN() == null || angleRegulation.getN() == 0

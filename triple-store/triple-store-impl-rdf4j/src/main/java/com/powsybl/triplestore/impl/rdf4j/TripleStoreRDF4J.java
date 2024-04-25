@@ -363,12 +363,12 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 throw new TripleStoreException(message);
             }
             // Then all the other statements
-            handleStatement(model, writer, subject);
+            writeSubjectStatements(model, writer, subject);
         }
         writer.endRDF();
     }
 
-    private void handleStatement(Model model, RDFWriter writer, Resource subject) {
+    private void writeSubjectStatements(Model model, RDFWriter writer, Resource subject) {
         for (final Statement st : model.filter(subject, null, null)) {
             if (st.getPredicate().equals(RDF.TYPE)) {
                 continue;
