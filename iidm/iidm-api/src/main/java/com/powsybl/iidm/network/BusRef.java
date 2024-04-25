@@ -15,7 +15,9 @@ import java.util.Optional;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = IdBasedBusRef.class)
 })
-@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
+@JsonTypeInfo(
+    use = JsonTypeInfo.Id.NAME,
+    property = "@c")
 public interface BusRef {
 
     /**

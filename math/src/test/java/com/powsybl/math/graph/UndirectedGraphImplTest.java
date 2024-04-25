@@ -119,7 +119,7 @@ class UndirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         graph.removeVertex(1);
-        assertEquals(3, graph.getMaxVertex());
+        assertEquals(3, graph.getVertexCapacity());
     }
 
     @Test

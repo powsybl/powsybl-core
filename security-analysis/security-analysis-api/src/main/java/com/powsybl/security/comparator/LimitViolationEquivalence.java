@@ -34,7 +34,7 @@ public class LimitViolationEquivalence extends Equivalence<LimitViolation> {
                && Math.abs(violation1.getAcceptableDuration() - violation2.getAcceptableDuration()) <= threshold
                && Math.abs(violation1.getLimitReduction() - violation2.getLimitReduction()) <= threshold
                && Math.abs(violation1.getValue() - violation2.getValue()) <= threshold
-               && (violation1.getLimitType() == LimitViolationType.CURRENT ? violation1.getSide() == violation2.getSide() : true);
+               && (violation1.getLimitType() != LimitViolationType.CURRENT || violation1.getSide() == violation2.getSide());
     }
 
     @Override
