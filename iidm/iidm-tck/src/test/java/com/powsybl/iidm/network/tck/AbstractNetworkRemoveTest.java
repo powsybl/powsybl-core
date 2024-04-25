@@ -140,10 +140,6 @@ public abstract class AbstractNetworkRemoveTest {
     public void removeSwitch() {
         extend(network);
         VoltageLevel vl = network.getVoltageLevel(VLLOAD);
-        try {
-            vl.getBusBreakerView().removeSwitch("COUPL");
-        } catch (Exception ignored) {
-            fail();
-        }
+        assertDoesNotThrow(() -> vl.getBusBreakerView().removeSwitch("COUPL"));
     }
 }

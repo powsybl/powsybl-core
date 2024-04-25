@@ -271,7 +271,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return false;
     }
 
-    private String getPropertyStringForNotification(String key) {
+    private static String getPropertyStringForNotification(String key) {
         return "properties[" + key + "]";
     }
 }
