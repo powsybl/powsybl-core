@@ -36,7 +36,7 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     private static final String PROPERTY_ARRAY = "properties";
 
     public DiscreteMeasurementsSerDe() {
-        super("discreteMeasurements", "network", DiscreteMeasurements.class,
+        super(DISCRETE_MEASUREMENT_ARRAY, "network", DiscreteMeasurements.class,
                 "discreteMeasurements.xsd", "http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0", "dm");
     }
 

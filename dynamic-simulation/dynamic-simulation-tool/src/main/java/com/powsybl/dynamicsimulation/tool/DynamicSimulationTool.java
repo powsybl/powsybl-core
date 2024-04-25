@@ -47,6 +47,7 @@ public class DynamicSimulationTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_LOG_FILE = "output-log-file";
+    private static final String GROOVY = "groovy";
 
     @Override
     public Command getCommand() {
@@ -175,7 +176,7 @@ public class DynamicSimulationTool implements Tool {
 
     private DynamicModelsSupplier createDynamicModelsSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals("groovy")) {
+        if (extension.equals(GROOVY)) {
             return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported dynamic model format: " + extension);
@@ -184,7 +185,7 @@ public class DynamicSimulationTool implements Tool {
 
     private EventModelsSupplier createEventModelsSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals("groovy")) {
+        if (extension.equals(GROOVY)) {
             return new GroovyEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported events format: " + extension);
@@ -193,7 +194,7 @@ public class DynamicSimulationTool implements Tool {
 
     private CurvesSupplier createCurvesSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals("groovy")) {
+        if (extension.equals(GROOVY)) {
             return new GroovyCurvesSupplier(path, GroovyExtension.find(CurveGroovyExtension.class, providerName));
         } else {
             throw new PowsyblException("Unsupported curves format: " + extension);

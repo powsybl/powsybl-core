@@ -18,7 +18,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -71,7 +71,7 @@ class StringToIntMapperTest {
 
             String expectedStr = "TYPE;value1;1" + System.lineSeparator();
             try (InputStream in = Files.newInputStream(outputFile)) {
-                compareTxt(expectedStr, in);
+                assertTxtEquals(expectedStr, in);
             } catch (Exception e) {
                 fail(e);
             }
