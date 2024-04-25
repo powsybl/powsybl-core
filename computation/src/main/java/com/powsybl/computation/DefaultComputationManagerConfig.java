@@ -8,10 +8,7 @@
 package com.powsybl.computation;
 
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.exceptions.UncheckedClassCastExceptionException;
-import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
-import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
-import com.powsybl.commons.exceptions.UncheckedInstantiationException;
+import com.powsybl.commons.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
