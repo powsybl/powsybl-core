@@ -11,12 +11,12 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 class SkipExtensionTest extends AbstractIidmSerDeTest {
 
     @Test
-    void testSkipExtension() {
+    void testSkipExtension() throws IOException {
         Network network = NetworkSerDe.read(getVersionedNetworkAsStream("multiple-extensions.xml", IidmVersion.V_1_0));
 
         Properties properties = new Properties();
@@ -36,10 +36,6 @@ class SkipExtensionTest extends AbstractIidmSerDeTest {
         network.write("XIIDM", properties, networkFile);
 
         // Compare
-        try {
-            assertXmlEquals(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
-        } catch (Exception e) {
-            fail();
-        }
+        assertXmlEquals(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
     }
 }
