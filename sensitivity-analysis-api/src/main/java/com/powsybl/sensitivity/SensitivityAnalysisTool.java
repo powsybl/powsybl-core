@@ -227,7 +227,7 @@ public class SensitivityAnalysisTool implements Tool {
                                                        boolean csv) {
     }
 
-    private void run(CommandLine line, SensitivityAnalysisParametersRecord parametersRecord) throws IOException, PowsyblException {
+    private void run(CommandLine line, SensitivityAnalysisParametersRecord parametersRecord) {
         if (line.hasOption(SINGLE_OUTPUT)) {
             if (parametersRecord.csv) {
                 throw new PowsyblException("Unsupported " + SINGLE_OUTPUT + " option does not support csv file as argument of " + OUTPUT_FILE_OPTION + ". Must be json.");
@@ -250,6 +250,8 @@ public class SensitivityAnalysisTool implements Tool {
                     SensitivityAnalysis.run(parametersRecord.network, parametersRecord.network.getVariantManager().getWorkingVariantId(),
                         parametersRecord.factorsReader, valuesWriter, parametersRecord.contingencies, parametersRecord.variableSets, parametersRecord.params,
                         parametersRecord.computationManager, ReportNode.NO_OP);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
                 }
             } else {
                 JsonFactory factory = JsonUtil.createJsonFactory();
