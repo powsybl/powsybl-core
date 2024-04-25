@@ -41,13 +41,11 @@ import static com.powsybl.security.LimitViolationType.*;
 class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
 
     @Test
-    void operatorStrategyReadV10() {
+    void operatorStrategyReadV10() throws IOException {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             operatorStrategies.write(bos);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
-        } catch (Exception e) {
-            fail(e);
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
         }
     }
 

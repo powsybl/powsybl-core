@@ -28,8 +28,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.fail;
-
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
  */
@@ -62,11 +60,9 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                         .getResourceAsStream("/identifierContingencyListv1_1.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (Exception e) {
-            fail();
         }
     }
 
@@ -77,11 +73,9 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                         .getResourceAsStream("/identifierContingencyListv1_0.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (Exception e) {
-            fail();
         }
     }
 

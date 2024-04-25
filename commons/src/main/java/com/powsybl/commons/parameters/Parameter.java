@@ -180,7 +180,7 @@ public class Parameter {
             }
         }
         // if none, use configured parameters
-        if (isPresent.test(value) && value != null) {
+        if (value != null && isPresent.test(value)) {
             return value;
         }
         return defaultValue;

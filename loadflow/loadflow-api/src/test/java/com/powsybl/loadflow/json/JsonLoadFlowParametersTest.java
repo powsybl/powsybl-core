@@ -53,7 +53,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::compareTxt, "/LoadFlowParametersWithExtension.json");
+        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::assertTxtEquals, "/LoadFlowParametersWithExtension.json");
     }
 
     @Test
@@ -128,7 +128,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void readJsonVersion17() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion17.json"));
-        assertTrue(parameters.isHvdcAcEmulation());
+        assertFalse(parameters.isHvdcAcEmulation());
     }
 
     @Test

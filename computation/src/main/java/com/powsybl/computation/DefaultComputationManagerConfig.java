@@ -7,12 +7,8 @@
  */
 package com.powsybl.computation;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.exceptions.UncheckedClassCastExceptionException;
-import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
-import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
-import com.powsybl.commons.exceptions.UncheckedInstantiationException;
+import com.powsybl.commons.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,8 +76,10 @@ public class DefaultComputationManagerConfig {
             throw new UncheckedInstantiationException(e);
         } catch (IllegalAccessException e) {
             throw new UncheckedIllegalAccessException(e);
-        } catch (InvocationTargetException | NoSuchMethodException e) {
-            throw new PowsyblException(e);
+        } catch (NoSuchMethodException e) {
+            throw new UncheckedNoSuchMethodException(e);
+        } catch (InvocationTargetException e) {
+            throw new UncheckedInvocationTargetException(e);
         }
     }
 

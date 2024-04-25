@@ -92,7 +92,7 @@ public class JsonActionTest extends AbstractSerDeTest {
         ActionList actionList = ActionList.readJsonInputStream(getClass().getResourceAsStream("/ActionFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             actionList.writeJsonOutputStream(bos);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/ActionFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (Exception e) {
             // Should not happen
             fail();
@@ -103,7 +103,7 @@ public class JsonActionTest extends AbstractSerDeTest {
     void wrongActions() throws IOException {
         try (final InputStream inputStream = getClass().getResourceAsStream("/WrongActionFileTest.json")) {
             assertEquals("com.fasterxml.jackson.databind.JsonMappingException: for phase tap changer tap position action relative value field can't be null\n" +
-                " at [Source: (BufferedInputStream); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
+                " at [Source: REDACTED (`StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION` disabled); line: 8, column: 3] (through reference chain: java.util.ArrayList[0])", assertThrows(UncheckedIOException.class, () ->
                 ActionList.readJsonInputStream(inputStream)).getMessage());
         }
 
