@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
 
-    private final List<SecurityAnalysisJsonPlugin> plugins;
+    private final transient List<SecurityAnalysisJsonPlugin> plugins;
 
     public SecurityAnalysisJsonModule() {
         this(getServices());
