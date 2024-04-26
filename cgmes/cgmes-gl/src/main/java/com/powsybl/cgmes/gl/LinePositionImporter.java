@@ -58,7 +58,7 @@ public class LinePositionImporter {
     private void importPosition(PropertyBag linePositionData, Map<Line, SortedMap<Integer, Coordinate>> lineCoordinates,
                                 Map<DanglingLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates) {
         Objects.requireNonNull(linePositionData);
-        if (!CgmesGLUtils.checkCoordinateSystem(linePositionData.getId("crsName"), linePositionData.getId("crsUrn"))) {
+        if (!CgmesGLUtils.checkCoordinateSystem(linePositionData.getId("crsUrn"))) {
             throw new PowsyblException("Unsupported coodinates system: " + linePositionData.getId("crsName"));
         }
         String lineId = linePositionData.getId("powerSystemResource");
