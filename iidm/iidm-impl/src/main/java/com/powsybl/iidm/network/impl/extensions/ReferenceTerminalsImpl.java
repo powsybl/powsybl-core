@@ -36,7 +36,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
         super(network);
         this.terminalsPerVariant = new ArrayList<>(
-                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), null));
+                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));
         setReferenceTerminals(terminals);
         this.referenceTerminalsListener = new ReferenceTerminalsListener();
         network.addListener(this.referenceTerminalsListener);
@@ -91,7 +91,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        terminalsPerVariant.set(index, null);
+        terminalsPerVariant.set(index, new LinkedHashSet<>());
     }
 
     @Override

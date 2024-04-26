@@ -45,13 +45,11 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
         future.run();
         try {
             complete(future.get());
-        } catch (ExecutionException exc) {
-            completeExceptionally(exc.getCause());
         } catch (InterruptedException exc) {
             Thread.currentThread().interrupt();
             completeExceptionally(exc);
-        } catch (Throwable exc) {
-            completeExceptionally(exc);
+        } catch (Exception exc) {
+            completeExceptionally(exc.getCause());
         }
     }
 

@@ -8,7 +8,6 @@
 
 package com.powsybl.cgmes.model;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.xml.XmlUtil;
 
@@ -19,6 +18,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}

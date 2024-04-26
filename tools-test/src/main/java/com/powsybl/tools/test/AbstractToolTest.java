@@ -10,6 +10,7 @@ package com.powsybl.tools.test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineTools;
@@ -22,7 +23,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.opentest4j.AssertionFailedError;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -32,10 +32,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Objects;
-import java.util.regex.Pattern;
+import java.util.function.BiConsumer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -47,6 +46,14 @@ public abstract class AbstractToolTest {
     protected InMemoryPlatformConfig platformConfig;
 
     private CommandLineTools tools;
+
+    private static final String ASSERT_MATCH_TEXT_BLOCK = """
+                         Actual output does not contains expected output
+                         Expected:
+                         %s
+                         Actual:
+                         %s
+                         """;
 
     @BeforeEach
     public void setUp() throws Exception {
@@ -71,20 +78,52 @@ public abstract class AbstractToolTest {
 
     protected abstract Iterable<Tool> getTools();
 
-    private void assertMatches(String expected, String actual) {
-        //The empty string is matched exactly, other strings as regexs
-        if (!actual.equals(expected) && ("".equals(expected) || !Pattern.compile(expected).matcher(actual).find())) {
-            throw new AssertionFailedError("", expected, actual);
+    private void assertMatches(String expected, ByteArrayOutputStream actualStream, BiConsumer<String, String> comparisonFunction) {
+        if (expected != null) {
+            String actual = actualStream.toString(StandardCharsets.UTF_8);
+            if (expected.isEmpty()) {
+                assertTrue(actual.isEmpty(), () -> "Expected output is empty but actual output = " + actual);
+            } else {
+                comparisonFunction.accept(expected, actual);
+            }
         }
     }
 
-    protected void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr) throws IOException {
+    public static void containsTxt(String expected, String actual) {
+        assertTrue(actual.contains(expected), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
+    }
+
+    protected void assertCommandSuccessful(String[] args) {
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
+    }
+
+    protected void assertCommandSuccessful(String[] args, String expectedOut) {
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::assertTxtEquals);
+    }
+
+    protected void assertCommandSuccessfulMatch(String[] args, String expectedOut) {
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
+    }
+
+    protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
+        assertCommand(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
+    }
+
+    protected void assertCommandErrorMatch(String[] args, int expectedStatus, String expectedErr) {
+        assertCommand(args, expectedStatus, null, expectedErr, AbstractToolTest::containsTxt);
+    }
+
+    protected void assertCommandErrorMatch(String[] args, String expectedErr) {
+        assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
+    }
+
+    private void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
         int status;
         try (PrintStream out = new PrintStream(bout);
-             PrintStream err = new PrintStream(berr)) {
-            ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+             PrintStream err = new PrintStream(berr);
+             ComputationManager computationManager = Mockito.mock(ComputationManager.class)) {
             status = tools.run(args, new ToolInitializationContext() {
                 @Override
                 public PrintStream getOutputStream() {
@@ -117,12 +156,12 @@ public abstract class AbstractToolTest {
                 }
             });
         }
-        if (expectedErr != null) {
-            assertMatches(expectedErr, berr.toString(StandardCharsets.UTF_8.name()));
-        }
         assertEquals(expectedStatus, status);
         if (expectedOut != null) {
-            assertMatches(expectedOut, bout.toString(StandardCharsets.UTF_8.name()));
+            assertMatches(expectedOut, bout, comparisonFunction);
+        }
+        if (expectedErr != null) {
+            assertMatches(expectedErr, berr, comparisonFunction);
         }
     }
 

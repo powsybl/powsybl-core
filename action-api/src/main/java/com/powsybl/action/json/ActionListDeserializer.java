@@ -8,15 +8,21 @@
 package com.powsybl.action.json;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.action.ActionBuilder;
+import com.powsybl.action.IdentifierActionList;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.action.Action;
 import com.powsybl.action.ActionList;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -29,9 +35,11 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
         super(ActionList.class);
     }
 
-    private static class ParsingContext {
+    public static class ParsingContext {
         String version;
         List<Action> actions;
+        Map<String, NetworkElementIdentifier> elementIdentifierMap = new HashMap<>();
+        Map<String, ActionBuilder> actionBuilderMap = new HashMap<>();
     }
 
     @Override
@@ -45,7 +53,18 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
                     return true;
                 case "actions":
                     parser.nextToken();
-                    context.actions = JsonUtil.readList(deserializationContext, parser, Action.class);
+                    List<ActionBuilder> actionBuilders = JsonUtil.readList(deserializationContext, parser, ActionBuilder.class);
+                    context.actions = actionBuilders.stream().map(ActionBuilder::build).toList();
+                    return true;
+                case "elementIdentifiers":
+                    parser.nextToken();
+                    context.elementIdentifierMap = parser.readValueAs(new TypeReference<HashMap<String, NetworkElementIdentifier>>() {
+                    });
+                    return true;
+                case "actionBuilders":
+                    parser.nextToken();
+                    context.actionBuilderMap = parser.readValueAs(new TypeReference<HashMap<String, ActionBuilder>>() {
+                    });
                     return true;
                 default:
                     return false;
@@ -55,6 +74,18 @@ public class ActionListDeserializer extends StdDeserializer<ActionList> {
             throw new JsonMappingException(parser, "version is missing");
         }
         JsonUtil.assertLessThanOrEqualToReferenceVersion("actions", "Tag: tapPosition", context.version, ActionList.VERSION);
+        if (!context.actionBuilderMap.isEmpty()) {
+            if (context.elementIdentifierMap.size() != context.actionBuilderMap.size()) {
+                throw new IOException("map elementIdentifiers and actionBuilders must have the same size");
+            }
+            if (!context.actionBuilderMap.keySet().containsAll(context.elementIdentifierMap.keySet())) {
+                throw new IOException("keys in elementIdentifiers are different from actionBuilders");
+            }
+            Map<ActionBuilder, NetworkElementIdentifier> actionBuilderNetworkElementIdentifierMap = new HashMap<>();
+            context.elementIdentifierMap.forEach((actionId, identifier) ->
+                actionBuilderNetworkElementIdentifierMap.put(context.actionBuilderMap.get(actionId), identifier));
+            return new IdentifierActionList(context.actions, actionBuilderNetworkElementIdentifierMap);
+        }
         return new ActionList(context.actions);
     }
 }

@@ -24,7 +24,7 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import java.time.ZonedDateTime;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -59,7 +59,7 @@ class PsseExporterTest extends AbstractSerDeTest {
         new PsseExporter().export(network, properties, dataSource);
 
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + fileName), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 
