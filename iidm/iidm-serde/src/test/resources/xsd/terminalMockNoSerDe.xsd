@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema version="1.6"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_12"
            elementFormDefault="qualified">
-    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_12" schemaLocation="iidm_V1_12.xsd"/>
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_13" schemaLocation="iidm_V1_12.xsd"/>
     <xs:element name="terminalMockNoSerDe">
         <xs:complexType>
             <xs:sequence>

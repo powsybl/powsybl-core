@@ -30,5 +30,6 @@ class GroundSerDeTest extends AbstractIidmSerDeTest {
 
         // backward compatibility
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ground.xml", IidmVersion.V_1_11);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("ground.xml", IidmVersion.V_1_12);
     }
 }

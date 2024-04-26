@@ -35,6 +35,7 @@ class EurostagJsonTest extends AbstractIidmSerDeTest {
 
         //backward compatibility
         roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.json", IidmVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf.json", IidmVersion.V_1_12);
     }
 
     @Test
@@ -51,5 +52,6 @@ class EurostagJsonTest extends AbstractIidmSerDeTest {
 
         //backward compatibility
         roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.json", IidmVersion.V_1_11);
+        roundTripVersionedJsonFromMinToCurrentVersionTest("eurostag-tutorial1-lf-extensions.json", IidmVersion.V_1_13);
     }
 }
