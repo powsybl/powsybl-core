@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2024, Coreso SA (https://www.coreso.eu/) and TSCNET Services GmbH (https://www.tscnet.eu/)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,6 +9,10 @@ package com.powsybl.iidm.network;
 
 import java.util.stream.Stream;
 
+/**
+ * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
+ * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
+ */
 public interface Area extends Identifiable<Area> {
 
     AreaType getAreaType();
