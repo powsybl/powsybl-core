@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
-class AreasTests {
+public abstract class AbstractAreaTest {
 
     final Network network = createEurostagExampleWithAreas();
 
