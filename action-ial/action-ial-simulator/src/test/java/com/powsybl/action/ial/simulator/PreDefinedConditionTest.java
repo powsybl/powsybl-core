@@ -10,6 +10,8 @@ package com.powsybl.action.ial.simulator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.fail;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -32,6 +34,11 @@ class PreDefinedConditionTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     void test() {
-        engine.start(actionDb);
+        try {
+            engine.start(actionDb);
+        } catch (Exception e) {
+            // Should not happen
+            fail();
+        }
     }
 }

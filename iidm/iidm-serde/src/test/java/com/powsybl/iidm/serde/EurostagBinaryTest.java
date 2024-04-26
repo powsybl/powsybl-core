@@ -42,7 +42,7 @@ class EurostagBinaryTest extends AbstractIidmSerDeTest {
                         throw new UncheckedIOException(e);
                     }
                 },
-                ComparisonUtils::compareBytes,
+                ComparisonUtils::assertBytesEquals,
                 getVersionedNetworkPath(fileName, CURRENT_IIDM_VERSION));
 
         //backward compatibility
@@ -60,7 +60,7 @@ class EurostagBinaryTest extends AbstractIidmSerDeTest {
         roundTripTest(network,
                 (n, binFile) -> NetworkSerDe.write(n, exportOptions, binFile),
                 binFile -> NetworkSerDe.read(binFile, importOptions),
-                ComparisonUtils::compareBytes,
+                ComparisonUtils::assertBytesEquals,
                 getVersionedNetworkPath("eurostag-tutorial1-lf-extensions.bin", CURRENT_IIDM_VERSION));
 
         //backward compatibility
