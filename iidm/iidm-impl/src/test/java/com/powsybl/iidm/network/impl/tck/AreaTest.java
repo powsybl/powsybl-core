@@ -13,4 +13,4 @@ import com.powsybl.iidm.network.tck.AbstractAreaTest;
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
-class AreaTests extends AbstractAreaTest { }
+class AreaTest extends AbstractAreaTest { }
