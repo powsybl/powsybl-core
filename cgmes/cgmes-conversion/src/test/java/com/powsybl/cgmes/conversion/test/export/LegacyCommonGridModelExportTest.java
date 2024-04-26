@@ -7,7 +7,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -17,7 +17,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
@@ -35,10 +34,7 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
 
     @Test
     void testExportCgmSvDependenciesOnNetworkProperties() throws IOException {
-        tmpDir = Path.of("/Users/zamarrenolm/Downloads");
-
-        // FIXME(Luma) create a modified SV with modeling authority set
-        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSvWithMas().dataSource();
         Network network = Network.read(ds);
 
         // This is the legacy way of preparing dependencies for SV externally,
