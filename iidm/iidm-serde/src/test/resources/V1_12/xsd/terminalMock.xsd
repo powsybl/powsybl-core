@@ -4,7 +4,7 @@
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_12"
            elementFormDefault="qualified">
-    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_13" schemaLocation="iidm_V1_12.xsd"/>
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_12" schemaLocation="iidm_V1_12.xsd"/>
     <xs:element name="terminalMock">
         <xs:complexType>
             <xs:sequence>
