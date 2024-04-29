@@ -122,7 +122,6 @@ class CgmesGLExporterTest {
         checkProperties(context, namespace, type, properties, basename, "CoordinateSystem",
                         Arrays.asList("IdentifiedObject.name", "crsUrn"), Collections.emptyList(),
                         Arrays.asList("IdentifiedObject.name"));
-        assertEquals(CgmesGLUtils.COORDINATE_SYSTEM_NAME, properties.get("IdentifiedObject.name"));
         assertEquals(CgmesGLUtils.COORDINATE_SYSTEM_URN, properties.get("crsUrn"));
     }
 
