@@ -67,11 +67,6 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds, ReportNode reportNode) {
         Objects.requireNonNull(network);
-        String baseName = baseName(params, ds, network);
-        String filenameEq = baseName + "_EQ.xml";
-        String filenameTp = baseName + "_TP.xml";
-        String filenameSsh = baseName + "_SSH.xml";
-        String filenameSv = baseName + "_SV.xml";
 
         // Reference data (if required) will come from imported boundaries
         // We may have received a sourcing actor as a parameter
@@ -141,6 +136,17 @@ public class CgmesExport implements Exporter {
             context.getExportedSSHModel().setVersion(Integer.parseInt(modelVersion));
             context.getExportedSVModel().setVersion(Integer.parseInt(modelVersion));
         }
+
+        // Export the file according to the profile
+        writeFiles(context, params, ds, network);
+    }
+
+    private void writeFiles(CgmesExportContext context, Properties params, DataSource ds, Network network) {
+        String baseName = baseName(params, ds, network);
+        String filenameEq = baseName + "_EQ.xml";
+        String filenameTp = baseName + "_TP.xml";
+        String filenameSsh = baseName + "_SSH.xml";
+        String filenameSv = baseName + "_SV.xml";
 
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);

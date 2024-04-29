@@ -575,7 +575,8 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testCreate() {
         // check default implementation is used
-        Network.create("test", "test");
+        Network network = assertDoesNotThrow(() -> Network.create("test", "test"));
+        assertNotNull(network);
     }
 
     @Test

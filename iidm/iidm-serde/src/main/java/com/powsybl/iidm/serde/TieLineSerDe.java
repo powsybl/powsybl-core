@@ -27,6 +27,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
 
     static final String ROOT_ELEMENT_NAME = "tieLine";
     static final String ARRAY_ELEMENT_NAME = "tieLines";
+    static final String X_NODE_P = "xnodeP_";
+    static final String X_NODE_Q = "xnodeQ_";
 
     @Override
     protected String getRootElementName() {
@@ -45,8 +47,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         context.getWriter().writeDoubleAttribute("g2_" + side, danglingLine.getG() / 2);
         context.getWriter().writeDoubleAttribute("b2_" + side, danglingLine.getB() / 2);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
-            context.getWriter().writeDoubleAttribute("xnodeP_" + side, boundary.getP());
-            context.getWriter().writeDoubleAttribute("xnodeQ_" + side, boundary.getQ());
+            context.getWriter().writeDoubleAttribute(X_NODE_P + side, boundary.getP());
+            context.getWriter().writeDoubleAttribute(X_NODE_Q + side, boundary.getQ());
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> context.getWriter().writeBooleanAttribute("fictitious_" + side, danglingLine.isFictitious(), false));
@@ -106,8 +108,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         double[] halfBoundaryP = new double[1];
         double[] halfBoundaryQ = new double[1];
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
-            halfBoundaryP[0] = context.getReader().readDoubleAttribute("xnodeP_" + side);
-            halfBoundaryQ[0] = context.getReader().readDoubleAttribute("xnodeQ_" + side);
+            halfBoundaryP[0] = context.getReader().readDoubleAttribute(X_NODE_P + side);
+            halfBoundaryQ[0] = context.getReader().readDoubleAttribute(X_NODE_Q + side);
         });
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
@@ -118,8 +120,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
         DanglingLine dl = adder.add();
 
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_4, context, () -> {
-            checkBoundaryValue(halfBoundaryP[0], dl.getBoundary().getP(), "xnodeP_" + side, pairingKey);
-            checkBoundaryValue(halfBoundaryQ[0], dl.getBoundary().getQ(), "xnodeQ_" + side, pairingKey);
+            checkBoundaryValue(halfBoundaryP[0], dl.getBoundary().getP(), X_NODE_P + side, pairingKey);
+            checkBoundaryValue(halfBoundaryQ[0], dl.getBoundary().getQ(), X_NODE_Q + side, pairingKey);
         });
 
         return dl;
