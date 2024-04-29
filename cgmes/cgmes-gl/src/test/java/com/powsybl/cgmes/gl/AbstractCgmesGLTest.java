@@ -27,35 +27,32 @@ abstract class AbstractCgmesGLTest {
 
     @BeforeEach
     void setUp() {
-        substationsPropertyBags = new PropertyBags(Arrays.asList(createSubstationPropertyBag(namespace + "Substation1", "Substation1",
-                        CgmesGLUtils.COORDINATE_SYSTEM_URN, SUBSTATION_1.getLongitude(), SUBSTATION_1.getLatitude()),
-                                                                 createSubstationPropertyBag(namespace + "Substation2", "Substation2",
-                                                                         CgmesGLUtils.COORDINATE_SYSTEM_URN, SUBSTATION_2.getLongitude(), SUBSTATION_2.getLatitude())));
-        linesPropertyBags = new PropertyBags(Arrays.asList(createLinePropertyBag(namespace + "Line", "Line", CgmesGLUtils.COORDINATE_SYSTEM_URN,
-                                                                                 SUBSTATION_1.getLongitude(), SUBSTATION_1.getLatitude(), 1),
-                                                           createLinePropertyBag(namespace + "Line", "Line", CgmesGLUtils.COORDINATE_SYSTEM_URN,
-                                                                                 LINE_1.getLongitude(), LINE_1.getLatitude(), 2),
-                                                           createLinePropertyBag(namespace + "Line", "Line", CgmesGLUtils.COORDINATE_SYSTEM_URN,
-                                                                                 LINE_2.getLongitude(), LINE_2.getLatitude(), 3),
-                                                           createLinePropertyBag(namespace + "Line", "Line", CgmesGLUtils.COORDINATE_SYSTEM_URN,
-                                                                                 SUBSTATION_2.getLongitude(), SUBSTATION_2.getLatitude(), 4)));
+        substationsPropertyBags = new PropertyBags(Arrays.asList(
+                createSubstationPropertyBag(namespace + "Substation1", "Substation1", SUBSTATION_1.getLongitude(), SUBSTATION_1.getLatitude()),
+                createSubstationPropertyBag(namespace + "Substation2", "Substation2", SUBSTATION_2.getLongitude(), SUBSTATION_2.getLatitude())));
+        String lineName = "Line";
+        linesPropertyBags = new PropertyBags(Arrays.asList(
+                createLinePropertyBag(lineName, SUBSTATION_1.getLongitude(), SUBSTATION_1.getLatitude(), 1),
+                createLinePropertyBag(lineName, LINE_1.getLongitude(), LINE_1.getLatitude(), 2),
+                createLinePropertyBag(lineName, LINE_2.getLongitude(), LINE_2.getLatitude(), 3),
+                createLinePropertyBag(lineName, SUBSTATION_2.getLongitude(), SUBSTATION_2.getLatitude(), 4)));
     }
 
-    protected PropertyBag createSubstationPropertyBag(String powerSystemResource, String name, String crsUrn, double x, double y) {
+    protected PropertyBag createSubstationPropertyBag(String powerSystemResource, String substationName, double x, double y) {
         PropertyBag propertyBag = new PropertyBag(Arrays.asList("powerSystemResource", "name", "crsName", "crsUrn", "x", "y"), true);
         propertyBag.put("powerSystemResource", powerSystemResource);
-        propertyBag.put("name", name);
-        propertyBag.put("crsUrn", crsUrn);
+        propertyBag.put("name", substationName);
+        propertyBag.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
         propertyBag.put("x", Double.toString(x));
         propertyBag.put("y", Double.toString(y));
         return propertyBag;
     }
 
-    protected PropertyBag createLinePropertyBag(String powerSystemResource, String name, String crsUrn, double x, double y, int seq) {
+    protected PropertyBag createLinePropertyBag(String lineName, double x, double y, int seq) {
         PropertyBag propertyBag = new PropertyBag(Arrays.asList("powerSystemResource", "name", "crsName", "crsUrn", "x", "y", "seq"), true);
-        propertyBag.put("powerSystemResource", powerSystemResource);
-        propertyBag.put("name", name);
-        propertyBag.put("crsUrn", crsUrn);
+        propertyBag.put("powerSystemResource", "http://network#Line");
+        propertyBag.put("name", lineName);
+        propertyBag.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
         propertyBag.put("x", Double.toString(x));
         propertyBag.put("y", Double.toString(y));
         propertyBag.put("seq", Integer.toString(seq));

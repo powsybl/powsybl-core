@@ -26,7 +26,7 @@ public class SubstationPositionImporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubstationPositionImporter.class);
 
-    private Network network;
+    private final Network network;
 
     public SubstationPositionImporter(Network network) {
         this.network = Objects.requireNonNull(network);

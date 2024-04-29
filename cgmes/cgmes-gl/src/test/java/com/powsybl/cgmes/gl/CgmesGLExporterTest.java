@@ -120,17 +120,17 @@ class CgmesGLExporterTest {
 
     private void checkCoordinateSystem(String context, String namespace, String type, PropertyBag properties, String basename) {
         checkProperties(context, namespace, type, properties, basename, "CoordinateSystem",
-                        Arrays.asList("IdentifiedObject.name", "crsUrn"), Collections.emptyList(),
-                        Arrays.asList("IdentifiedObject.name"));
+                Arrays.asList("IdentifiedObject.name", "crsUrn"), Collections.emptyList(),
+                List.of("IdentifiedObject.name"));
         assertEquals(CgmesGLUtils.COORDINATE_SYSTEM_URN, properties.get("crsUrn"));
     }
 
     private void checkLocation(String context, String namespace, String type, PropertyBag properties, String basename,
                                String expectedName, String expectedPowerSystemResource) {
         checkProperties(context, namespace, type, properties, basename, "Location",
-                        Arrays.asList("IdentifiedObject.name", "CoordinateSystem", "PowerSystemResources"),
-                        Arrays.asList("CoordinateSystem", "PowerSystemResources"),
-                        Arrays.asList("IdentifiedObject.name"));
+                Arrays.asList("IdentifiedObject.name", "CoordinateSystem", "PowerSystemResources"),
+                Arrays.asList("CoordinateSystem", "PowerSystemResources"),
+                List.of("IdentifiedObject.name"));
         assertEquals(expectedName, properties.get("IdentifiedObject.name"));
         assertEquals("CoordinateSystemId", properties.get("CoordinateSystem"));
         assertEquals(expectedPowerSystemResource, properties.get("PowerSystemResources"));
@@ -139,8 +139,8 @@ class CgmesGLExporterTest {
     private void checkPositionPoint(String context, String namespace, String type, PropertyBag properties, String basename,
                                     Coordinate expectedCoordinate, int expectedSeq) {
         checkProperties(context, namespace, type, properties, basename, "PositionPoint",
-                        expectedSeq == -1 ? Arrays.asList("xPosition", "yPosition", "Location") : Arrays.asList("xPosition", "yPosition", "sequenceNumber", "Location"),
-                        Arrays.asList("Location"), Collections.emptyList());
+                expectedSeq == -1 ? Arrays.asList("xPosition", "yPosition", "Location") : Arrays.asList("xPosition", "yPosition", "sequenceNumber", "Location"),
+                List.of("Location"), Collections.emptyList());
         assertEquals(expectedCoordinate.getLongitude(), properties.asDouble("xPosition"), 0);
         assertEquals(expectedCoordinate.getLatitude(), properties.asDouble("yPosition"), 0);
         if (expectedSeq != -1) {
