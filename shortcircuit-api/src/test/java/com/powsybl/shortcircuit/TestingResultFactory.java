@@ -8,6 +8,7 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
@@ -63,7 +64,7 @@ public final class TestingResultFactory {
         LimitViolation limitViolation = new LimitViolation(subjectId, limitType, limit, limitReductionValue, value);
         limitViolations.add(limitViolation);
         List<FaultResult> faultResults = new ArrayList<>();
-        MagnitudeFeederResult feederResult = new MagnitudeFeederResult("connectableId", 1);
+        MagnitudeFeederResult feederResult = new MagnitudeFeederResult("connectableId", 1, ThreeSides.ONE);
         MagnitudeFaultResult faultResult = new MagnitudeFaultResult(fault, 0.1, Collections.singletonList(feederResult), limitViolations,
                 1.0, Collections.emptyList(), Duration.ofSeconds(1), FortescueFaultResult.Status.SUCCESS);
         faultResults.add(faultResult);

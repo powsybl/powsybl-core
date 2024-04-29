@@ -7,6 +7,9 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
+
 import java.util.Objects;
 
 /**
@@ -15,13 +18,27 @@ import java.util.Objects;
 abstract class AbstractFeederResult implements FeederResult {
 
     private final String connectableId;
+    private final ThreeSides side;
 
     protected AbstractFeederResult(String connectableId) {
+        this(connectableId, null);
+    }
+
+    protected AbstractFeederResult(String connectableId, ThreeSides side) {
         this.connectableId = Objects.requireNonNull(connectableId);
+        this.side = side;
     }
 
     public String getConnectableId() {
         return connectableId;
+    }
+
+    public ThreeSides getSide() {
+        return side;
+    }
+
+    public TwoSides getSideAsTwoSides() {
+        return Objects.requireNonNull(side).toTwoSides();
     }
 
 }
