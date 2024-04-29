@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.export.ExportXmlCompare;
 import com.powsybl.commons.report.ReportNode;
@@ -87,6 +88,34 @@ class NetworkUpdateTest extends AbstractSerDeTest {
         // Now import only SSH data over the current network
         CgmesImport importer = new CgmesImport();
         importer.update(network, CgmesConformity1Catalog.microGridBaseCaseBEonlySSH().dataSource(), null, ReportNode.NO_OP);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        Summary snetwork = new Summary(network);
+
+        assertEquals(sexpected, snetwork);
+        // FIXME(Luma) In addition to comparing the summary, ...
+        //  assertTrue(compareNetworks(expected, network));
+    }
+
+    @Test
+    void testReadSSH3() {
+        Network expected = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Summary sexpected = new Summary(expected);
+
+        Network network = Network.read(CgmesConformity3Catalog.microGridBaseCaseBEonlyEQ().dataSource());
+
+        // reset default values and ensure we do not have ssh validation level, but equipment, the lowest
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        network.getLoadStream().forEach(l -> {
+            l.setP0(Double.NaN);
+            l.setQ0(Double.NaN);
+        });
+        network.getGeneratorStream().forEach(g -> g.setTargetP(Double.NaN));
+        network.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSectionCount);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        // Now import only SSH data over the current network
+        CgmesImport importer = new CgmesImport();
+        importer.update(network, CgmesConformity3Catalog.microGridBaseCaseBEonlySSH().dataSource(), null, ReportNode.NO_OP);
         assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
         Summary snetwork = new Summary(network);
 

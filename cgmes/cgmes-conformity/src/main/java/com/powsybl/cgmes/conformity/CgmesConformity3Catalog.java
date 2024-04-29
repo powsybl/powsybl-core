@@ -17,6 +17,9 @@ import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
  */
 public final class CgmesConformity3Catalog {
 
+    private static final String MICRO_GRID_3_BE_SSH = "20210325T1530Z_1D_BE_SSH_001.xml";
+    private static final String MICRO_GRID_3_BE_EQ = "20210325T1530Z_1D_BE_EQ_001.xml";
+
     private CgmesConformity3Catalog() {
     }
 
@@ -30,14 +33,29 @@ public final class CgmesConformity3Catalog {
                 null,
                 new ResourceSet(MICRO_GRID_3_BE_BASE,
                         "20210325T1530Z_1D_BE_DL_001.xml",
-                        "20210325T1530Z_1D_BE_EQ_001.xml",
+                        MICRO_GRID_3_BE_EQ,
                         "20210325T1530Z_1D_BE_GL_001.xml",
-                        "20210325T1530Z_1D_BE_SSH_001.xml",
+                        MICRO_GRID_3_BE_SSH,
                         "20210325T1530Z_1D_BE_SV_001.xml",
                         "20210325T1530Z_1D_BE_TP_001.xml",
                         "20210420T1730Z_1D_BE_DY_001.xml"
                 ),
                 microGridBaseCaseBoundaries());
+    }
+
+    public static GridModelReferenceResources microGridBaseCaseBEonlyEQ() {
+        return new GridModelReferenceResources(
+                "MicroGrid-3-BaseCase-BE-only-EQ",
+                null,
+                new ResourceSet(MICRO_GRID_3_BE_BASE, MICRO_GRID_3_BE_EQ),
+                microGridBaseCaseBoundaries());
+    }
+
+    public static GridModelReferenceResources microGridBaseCaseBEonlySSH() {
+        return new GridModelReferenceResources(
+                "MicroGrid-3-BaseCase-BE-only-SSH",
+                null,
+                new ResourceSet(MICRO_GRID_3_BE_BASE, MICRO_GRID_3_BE_SSH));
     }
 
     public static GridModelReferenceResources microGridBaseCaseNL() {
@@ -61,8 +79,8 @@ public final class CgmesConformity3Catalog {
                 "MicroGrid-3-BaseCase-Assembled",
                 null,
                 new ResourceSet(MICRO_GRID_3_MERGED_BASE,
-                        "20210325T1530Z_1D_BE_EQ_001.xml",
-                        "20210325T1530Z_1D_BE_SSH_001.xml",
+                        MICRO_GRID_3_BE_EQ,
+                        MICRO_GRID_3_BE_SSH,
                         "20210325T1530Z_1D_NL_EQ_001.xml",
                         "20210325T1530Z_1D_NL_SSH_001.xml",
                         "20210325T1530Z_1D_ASSEMBLED_TP_001.xml",
