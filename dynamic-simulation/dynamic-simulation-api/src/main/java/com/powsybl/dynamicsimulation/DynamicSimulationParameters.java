@@ -38,7 +38,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     public static final String VERSION = "1.0";
 
     public static final int DEFAULT_START_TIME = 0;
-    public static final int DEFAULT_STOP_TIME = 1;
+    public static final int DEFAULT_STOP_TIME = 10;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
         .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));

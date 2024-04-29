@@ -34,7 +34,7 @@ class JsonDynamicSecurityAnalysisParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         DynamicSecurityAnalysisParameters parameters = new DynamicSecurityAnalysisParameters();
         parameters.addExtension(DynamicSecurityDummyExtension.class, new DynamicSecurityDummyExtension());
-        writeTest(parameters, JsonDynamicSecurityAnalysisParameters::write, ComparisonUtils::compareTxt, "/DynamicSecurityAnalysisParametersWithExtension.json");
+        writeTest(parameters, JsonDynamicSecurityAnalysisParameters::write, ComparisonUtils::assertTxtEquals, "/DynamicSecurityAnalysisParametersWithExtension.json");
     }
 
     @Test
