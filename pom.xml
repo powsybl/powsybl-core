@@ -355,6 +355,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-dynamic-security-analysis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+           <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-dynamic-simulation</artifactId>
                 <version>${project.version}</version>
             </dependency>
