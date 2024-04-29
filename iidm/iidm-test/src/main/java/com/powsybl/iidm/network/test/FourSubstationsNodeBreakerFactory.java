@@ -25,6 +25,8 @@ import java.util.Objects;
 
 public final class FourSubstationsNodeBreakerFactory {
 
+    public static final String S3VL1 = "S3VL1";
+
     private FourSubstationsNodeBreakerFactory() {
     }
 
@@ -97,7 +99,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setId("S3")
                 .add();
         VoltageLevel s3vl1 = s3.newVoltageLevel()
-                .setId("S3VL1")
+                .setId(S3VL1)
                 .setNominalV(400.0)
                 .setLowVoltageLimit(390.0)
                 .setHighVoltageLimit(440.0)
@@ -478,7 +480,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode1(6)
                 .setVoltageLevel1("S2VL1")
                 .setNode2(2)
-                .setVoltageLevel2("S3VL1")
+                .setVoltageLevel2(S3VL1)
                 .add();
         lineS2S3.getTerminal1().setP(109.8893).setQ(190.0229);
         lineS2S3.getTerminal2().setP(-109.8864).setQ(-184.5171);
@@ -537,7 +539,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setG2(0.0)
                 .setB2(0.0)
                 .setNode1(8)
-                .setVoltageLevel1("S3VL1")
+                .setVoltageLevel1(S3VL1)
                 .setNode2(6)
                 .setVoltageLevel2("S4VL1")
                 .add();

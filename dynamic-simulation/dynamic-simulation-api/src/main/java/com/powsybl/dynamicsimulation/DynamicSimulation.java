@@ -131,7 +131,7 @@ public final class DynamicSimulation {
     }
 
     public static Runner find(String name) {
-        return new Runner(PlatformConfigNamedProvider.Finder.findBackwardsCompatible(name,
+        return new Runner(PlatformConfigNamedProvider.Finder.find(name,
                 "dynamic-simulation", DynamicSimulationProvider.class,
                 PlatformConfig.defaultConfig()));
     }

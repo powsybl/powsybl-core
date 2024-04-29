@@ -28,7 +28,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +45,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getVersionedNetworkAsStream(xmlFileName, version), is);
+            assertXmlEquals(getVersionedNetworkAsStream(xmlFileName, version), is);
         }
     }
 

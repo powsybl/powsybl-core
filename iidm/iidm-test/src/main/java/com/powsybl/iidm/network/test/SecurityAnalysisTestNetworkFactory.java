@@ -1,5 +1,3 @@
-package com.powsybl.iidm.network.test;
-
 /**
  * Copyright (c) 2023, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -7,6 +5,7 @@ package com.powsybl.iidm.network.test;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
+package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 import java.time.ZonedDateTime;
@@ -137,7 +136,7 @@ public final class SecurityAnalysisTestNetworkFactory {
         createSwitch(s2vl1, "S2VL2_BBS_LINES1S2V1_1_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 16);
         createSwitch(s2vl1, "S2VL2_LINES1S2V1_1_BREAKER", SwitchKind.BREAKER, false, 16, 17);
         network.newLine()
-                .setId("LINE_S1S2V1_1")
+                .setId(LINE_S1S2V1_1)
                 .setR(0.01)
                 .setX(50)
                 .setG1(0.0)
@@ -154,7 +153,7 @@ public final class SecurityAnalysisTestNetworkFactory {
         createSwitch(s2vl1, "S2VL2_BBS_LINES1S2V1_2_DISCONNECTOR", SwitchKind.DISCONNECTOR, false, 0, 14);
         createSwitch(s2vl1, "S2VL2_LINES1S2V1_2_BREAKER", SwitchKind.BREAKER, false, 14, 15);
         network.newLine()
-                .setId("LINE_S1S2V1_2")
+                .setId(LINE_S1S2V1_2)
                 .setR(0.01)
                 .setX(50)
                 .setG1(0.0)

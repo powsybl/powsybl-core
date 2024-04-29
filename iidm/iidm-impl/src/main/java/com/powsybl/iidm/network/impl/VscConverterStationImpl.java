@@ -124,7 +124,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
+    public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
         return reactiveLimits.getReactiveLimits(type);
     }
 

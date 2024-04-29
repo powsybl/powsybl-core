@@ -7,17 +7,18 @@
  */
 package com.powsybl.dynamicsimulation;
 
-import java.util.Map;
-import java.util.Objects;
-
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
@@ -31,16 +32,16 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      * @param <E> The extension class
      */
     public interface ConfigLoader<E extends Extension<DynamicSimulationParameters>>
-            extends ExtensionConfigLoader<DynamicSimulationParameters, E> {
+        extends ExtensionConfigLoader<DynamicSimulationParameters, E> {
     }
 
     public static final String VERSION = "1.0";
 
     public static final int DEFAULT_START_TIME = 0;
-    public static final int DEFAULT_STOP_TIME = 10;
+    public static final int DEFAULT_STOP_TIME = 1;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER = Suppliers
-            .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));
+        .memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "dynamic-simulation-parameters"));
 
     public static DynamicSimulationParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -63,10 +64,10 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         Objects.requireNonNull(platformConfig);
 
         platformConfig.getOptionalModuleConfig("dynamic-simulation-default-parameters")
-                .ifPresent(config -> {
-                    parameters.setStartTime(config.getIntProperty("startTime", DEFAULT_START_TIME));
-                    parameters.setStopTime(config.getIntProperty("stopTime", DEFAULT_STOP_TIME));
-                });
+            .ifPresent(config -> {
+                parameters.setStartTime(config.getIntProperty("startTime", DEFAULT_START_TIME));
+                parameters.setStopTime(config.getIntProperty("stopTime", DEFAULT_STOP_TIME));
+            });
     }
 
     private int startTime;
@@ -139,8 +140,10 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     }
 
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("startTime", startTime,
-                "stopTime", stopTime);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("startTime", startTime);
+        map.put("stopTime", stopTime);
+        return Collections.unmodifiableMap(map);
     }
 
     public DynamicSimulationParameters copy() {
@@ -157,4 +160,5 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
     }
+
 }

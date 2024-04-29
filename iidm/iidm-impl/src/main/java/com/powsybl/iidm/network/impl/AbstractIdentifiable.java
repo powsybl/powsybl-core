@@ -199,9 +199,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public String setProperty(String key, String value) {
         String oldValue = (String) properties.put(key, value);
         if (Objects.isNull(oldValue)) {
-            getNetwork().getListeners().notifyElementAdded(this, () -> "properties[" + key + "]", value);
+            getNetwork().getListeners().notifyElementAdded(this, () -> getPropertyStringForNotification(key), value);
         } else {
-            getNetwork().getListeners().notifyElementReplaced(this, () -> "properties[" + key + "]", oldValue, value);
+            getNetwork().getListeners().notifyElementReplaced(this, () -> getPropertyStringForNotification(key), oldValue, value);
         }
         return oldValue;
     }
@@ -210,7 +210,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public boolean removeProperty(String key) {
         Object oldValue = properties.remove(key);
         if (oldValue != null) {
-            getNetwork().getListeners().notifyElementRemoved(this, () -> "properties[" + key + "]", oldValue);
+            getNetwork().getListeners().notifyElementRemoved(this, () -> getPropertyStringForNotification(key), oldValue);
             return true;
         }
         return false;
@@ -269,5 +269,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
             return true;
         }
         return false;
+    }
+
+    private static String getPropertyStringForNotification(String key) {
+        return "properties[" + key + "]";
     }
 }

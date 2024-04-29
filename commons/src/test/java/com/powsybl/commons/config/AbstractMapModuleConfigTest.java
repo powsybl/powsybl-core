@@ -11,7 +11,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -28,23 +27,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-class MapModuleConfigTest {
+abstract class AbstractMapModuleConfigTest {
 
     protected FileSystem fileSystem;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
 
     @AfterEach
     void tearDown() throws IOException {
         fileSystem.close();
-    }
-
-    @Test
-    void emptyTest() {
-        // sonar issue
     }
 
     protected void assertModConfig(ModuleConfig modConfig) {

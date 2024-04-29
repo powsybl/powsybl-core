@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public abstract class AbstractSecurityAnalysisJsonModule extends ContingencyJsonModule {
 
-    private final List<SecurityAnalysisJsonPlugin> plugins;
+    private final transient List<SecurityAnalysisJsonPlugin> plugins;
 
     protected static List<SecurityAnalysisJsonPlugin> getServices() {
         return new ServiceLoaderCache<>(SecurityAnalysisJsonPlugin.class).getServices();
