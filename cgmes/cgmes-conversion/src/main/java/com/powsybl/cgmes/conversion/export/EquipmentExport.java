@@ -49,6 +49,7 @@ public final class EquipmentExport {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
+    private static final String RATIO_TAP_CHANGER_REGULATION_MODE_REACTIVE_POWER = "reactivePower";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
@@ -955,8 +956,11 @@ public final class EquipmentExport {
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
                 if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
-                    // Regulating control mode is always "voltage"
-                    TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE, terminalId, cimNamespace, writer, context);
+                    String tccMode = RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE;
+                    if (rtc.getRegulationMode() == RatioTapChanger.RegulationMode.REACTIVE_POWER) {
+                        tccMode = RATIO_TAP_CHANGER_REGULATION_MODE_REACTIVE_POWER;
+                    }
+                    TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, tccMode, terminalId, cimNamespace, writer, context);
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
             }

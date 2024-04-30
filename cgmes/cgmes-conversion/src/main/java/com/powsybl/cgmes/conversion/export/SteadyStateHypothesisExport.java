@@ -465,14 +465,21 @@ public final class SteadyStateHypothesisExport {
             RegulatingControlView rcv = null;
             if (tc instanceof RatioTapChanger ratioTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(ratioTapChanger)) {
+                String unitMultiplier = switch (ratioTapChanger.getRegulationMode()) {
+                    case VOLTAGE -> {
+                        yield "k";
+                    }
+                    case REACTIVE_POWER -> {
+                        yield "M";
+                    }
+                };
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,
                         true,
                         ratioTapChanger.isRegulating(),
                         ratioTapChanger.getTargetDeadband(),
-                        ratioTapChanger.getTargetV(),
-                        // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
-                        "k");
+                        ratioTapChanger.getRegulationValue(),
+                        unitMultiplier);
             } else if (tc instanceof PhaseTapChanger phaseTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(phaseTapChanger)) {
                 boolean valid;
