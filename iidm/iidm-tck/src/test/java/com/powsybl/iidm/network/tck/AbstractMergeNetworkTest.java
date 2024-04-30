@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -139,6 +140,27 @@ public abstract class AbstractMergeNetworkTest {
     private void checkSubstationAndVoltageLevelCounts(Network n, long substationCount, long voltageLevelCount) {
         assertEquals(substationCount, n.getSubstationCount());
         assertEquals(voltageLevelCount, n.getVoltageLevelCount());
+    }
+
+    @Test
+    public void testMergeAndDetachWithProperties() {
+        // Create 2 networks with a Property
+        Network n1 = Network.create("network1", "manual");
+        n1.setProperty("property_name1", "property_value1");
+        Network n2 = Network.create("network2", "manual");
+        n2.setProperty("property_name2", "property_value2");
+
+        // Merge the networks and check that the properties have been transferred to subnetworks
+        Network merged = Network.merge(n1, n2);
+        assertFalse(merged.hasProperty());
+        assertEquals("property_value1", merged.getSubnetwork("network1").getProperty("property_name1"));
+        assertEquals("property_value2", merged.getSubnetwork("network2").getProperty("property_name2"));
+
+        // Detach the subnetworks and check that the properties have been transferred to the detached networks
+        Network detached1 = merged.getSubnetwork("network1").detach();
+        Network detached2 = merged.getSubnetwork("network2").detach();
+        assertEquals("property_value1", detached1.getProperty("property_name1"));
+        assertEquals("property_value2", detached2.getProperty("property_name2"));
     }
 
     @Test

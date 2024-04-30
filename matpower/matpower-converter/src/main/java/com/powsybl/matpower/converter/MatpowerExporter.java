@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.converter;
 
@@ -242,8 +243,8 @@ public class MatpowerExporter implements Exporter {
                 mBus.setShuntSusceptance(bSum);
                 mBus.setVoltageMagnitude(checkAndFixVoltageMagnitude(bus.getV() / vl.getNominalV()));
                 mBus.setVoltageAngle(checkAndFixVoltageAngle(bus.getAngle()));
-                mBus.setMinimumVoltageMagnitude(Double.isNaN(vl.getLowVoltageLimit()) ? 0 : vl.getLowVoltageLimit() / vl.getNominalV());
-                mBus.setMaximumVoltageMagnitude(Double.isNaN(vl.getHighVoltageLimit()) ? 0 : vl.getHighVoltageLimit() / vl.getNominalV());
+                mBus.setMinimumVoltageMagnitude(getVoltageLimit(vl.getLowVoltageLimit(), vl.getNominalV()));
+                mBus.setMaximumVoltageMagnitude(getVoltageLimit(vl.getHighVoltageLimit(), vl.getNominalV()));
                 model.addBus(mBus);
                 context.mBusesNumbersByIds.put(bus.getId(), mBus.getNumber());
             }
@@ -251,6 +252,10 @@ public class MatpowerExporter implements Exporter {
 
         createDanglingLineBuses(network, model, context);
         createTransformerStarBuses(network, model, context);
+    }
+
+    private static double getVoltageLimit(double voltageLimit, double nominalV) {
+        return Double.isNaN(voltageLimit) ? 0 : voltageLimit / nominalV;
     }
 
     private static boolean isEmergencyLimit(LoadingLimits.TemporaryLimit limit) {
@@ -424,49 +429,53 @@ public class MatpowerExporter implements Exporter {
 
     private void createTransformers2(Network network, MatpowerModel model, Context context) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            Terminal t1 = twt.getTerminal1();
-            Terminal t2 = twt.getTerminal2();
-            Bus bus1 = t1.getBusView().getBus();
-            Bus bus2 = t2.getBusView().getBus();
-            if (isExported(bus1) && isExported(bus2)) {
-                if (!bus1.getId().equals(bus2.getId())) {
-                    VoltageLevel vl1 = t1.getVoltageLevel();
-                    VoltageLevel vl2 = t2.getVoltageLevel();
-                    MBranch mBranch = new MBranch();
-                    mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
-                    mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
-                    mBranch.setStatus(CONNECTED_STATUS);
-                    double r = twt.getR();
-                    double x = twt.getX();
-                    double b = twt.getB();
-                    double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
-                    var rtc = twt.getRatioTapChanger();
-                    if (rtc != null) {
-                        rho *= rtc.getCurrentStep().getRho();
-                        r *= 1 + rtc.getCurrentStep().getR() / 100;
-                        x *= 1 + rtc.getCurrentStep().getX() / 100;
-                        b *= 1 + rtc.getCurrentStep().getB() / 100;
-                    }
-                    var ptc = twt.getPhaseTapChanger();
-                    if (ptc != null) {
-                        mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
-                        rho *= ptc.getCurrentStep().getRho();
-                        r *= 1 + ptc.getCurrentStep().getR() / 100;
-                        x *= 1 + ptc.getCurrentStep().getX() / 100;
-                        b *= 1 + ptc.getCurrentStep().getB() / 100;
-                    }
-                    mBranch.setRatio(1d / rho);
-                    double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
-                    double rpu = r / zb;
-                    double xpu = x / zb;
-                    setBranchRX(twt.getId(), mBranch, rpu, xpu);
-                    mBranch.setB(b * zb);
-                    createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(twt, TwoSides.TWO)),
-                            t1.getVoltageLevel(), mBranch);
-                    model.addBranch(mBranch);
-                } else {
-                    LOGGER.warn("Skip branch between connected to same bus '{}' at both sides", bus1.getId());
+            createTransformer(twt, model, context);
+        }
+    }
+
+    private void createTransformer(TwoWindingsTransformer twt, MatpowerModel model, Context context) {
+        Terminal t1 = twt.getTerminal1();
+        Terminal t2 = twt.getTerminal2();
+        Bus bus1 = t1.getBusView().getBus();
+        Bus bus2 = t2.getBusView().getBus();
+        if (isExported(bus1) && isExported(bus2)) {
+            if (!bus1.getId().equals(bus2.getId())) {
+                VoltageLevel vl1 = t1.getVoltageLevel();
+                VoltageLevel vl2 = t2.getVoltageLevel();
+                MBranch mBranch = new MBranch();
+                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
+                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
+                mBranch.setStatus(CONNECTED_STATUS);
+                double r = twt.getR();
+                double x = twt.getX();
+                double b = twt.getB();
+                double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
+                var rtc = twt.getRatioTapChanger();
+                if (rtc != null) {
+                    rho *= rtc.getCurrentStep().getRho();
+                    r *= 1 + rtc.getCurrentStep().getR() / 100;
+                    x *= 1 + rtc.getCurrentStep().getX() / 100;
+                    b *= 1 + rtc.getCurrentStep().getB() / 100;
                 }
+                var ptc = twt.getPhaseTapChanger();
+                if (ptc != null) {
+                    mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
+                    rho *= ptc.getCurrentStep().getRho();
+                    r *= 1 + ptc.getCurrentStep().getR() / 100;
+                    x *= 1 + ptc.getCurrentStep().getX() / 100;
+                    b *= 1 + ptc.getCurrentStep().getB() / 100;
+                }
+                mBranch.setRatio(1d / rho);
+                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
+                double rpu = r / zb;
+                double xpu = x / zb;
+                setBranchRX(twt.getId(), mBranch, rpu, xpu);
+                mBranch.setB(b * zb);
+                createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(twt, TwoSides.TWO)),
+                    t1.getVoltageLevel(), mBranch);
+                model.addBranch(mBranch);
+            } else {
+                LOGGER.warn("Skip branch between connected to same bus '{}' at both sides", bus1.getId());
             }
         }
     }

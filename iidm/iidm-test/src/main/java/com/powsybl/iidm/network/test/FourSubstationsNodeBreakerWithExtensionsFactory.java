@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
@@ -18,6 +19,9 @@ import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class FourSubstationsNodeBreakerWithExtensionsFactory {
+
+    public static final String LINE_S2S3 = "LINE_S2S3";
+    public static final String LINE_S3S4 = "LINE_S3S4";
 
     private FourSubstationsNodeBreakerWithExtensionsFactory() {
     }
@@ -193,26 +197,26 @@ public final class FourSubstationsNodeBreakerWithExtensionsFactory {
                     .add()
                 .add();
 
-        network.getLine("LINE_S2S3").newExtension(ConnectablePositionAdder.class)
+        network.getLine(LINE_S2S3).newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
-                    .withName("LINE_S2S3")
+                    .withName(LINE_S2S3)
                     .withDirection(ConnectablePosition.Direction.BOTTOM)
                     .withOrder(30)
                     .add()
                 .newFeeder2()
-                    .withName("LINE_S2S3")
+                    .withName(LINE_S2S3)
                     .withDirection(ConnectablePosition.Direction.BOTTOM)
                     .withOrder(10)
                     .add()
                 .add();
-        network.getLine("LINE_S3S4").newExtension(ConnectablePositionAdder.class)
+        network.getLine(LINE_S3S4).newExtension(ConnectablePositionAdder.class)
                 .newFeeder1()
-                    .withName("LINE_S3S4")
+                    .withName(LINE_S3S4)
                     .withDirection(ConnectablePosition.Direction.BOTTOM)
                     .withOrder(40)
                     .add()
                 .newFeeder2()
-                    .withName("LINE_S3S4")
+                    .withName(LINE_S3S4)
                     .withDirection(ConnectablePosition.Direction.TOP)
                     .withOrder(30)
                     .add()

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -13,7 +14,6 @@ import com.powsybl.psse.model.pf.PsseTransformer.TransformerImpedances;
 import com.powsybl.psse.model.pf.PsseTransformerWinding;
 import com.univocity.parsers.annotations.Nested;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -26,6 +26,7 @@ import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -34,15 +35,15 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     private static final String[] FIELD_NAMES_T2W_IMPEDANCES_RECORD = {"r12", "x12", "sbase12"};
-    private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {"windv", "nomv"};
-    private static final String[] FIELD_NAMES_WINDING_32_33 = {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
+    private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {STR_WINDV, "nomv"};
+    private static final String[] FIELD_NAMES_WINDING_32_33 = {STR_WINDV, "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
 
     TransformerData() {
         super(TRANSFORMER);
-        withFieldNames(V32, "i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
-        withFieldNames(V33, "i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp");
-        withFieldNames(V35, "ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp", "zcod");
-        withQuotedFields("ckt", "name", "vecgrp");
+        withFieldNames(V32, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4);
+        withFieldNames(V33, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP);
+        withFieldNames(V35, "ibus", "jbus", "kbus", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmet", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, "zcod");
+        withQuotedFields(STR_CKT, STR_NAME, STR_VECGRP);
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
 
@@ -58,21 +59,21 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         }
 
         @Override
-        public List<PsseTransformer> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseTransformer> read(LegacyTextReader reader, Context context) throws IOException {
             List<String> mainRecords = new ArrayList<>();
             List<String> impedanceRecords = new ArrayList<>();
             List<String> windingRecords = new ArrayList<>();
-            if (!isQRecordFound()) {
-                String line = readRecordLine(reader);
-                while (!endOfBlock(line)) {
+            if (!reader.isQRecordFound()) {
+                String line = reader.readRecordLine();
+                while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
-                    impedanceRecords.add(readRecordLine(reader));
-                    windingRecords.add(readRecordLine(reader));
-                    windingRecords.add(readRecordLine(reader));
+                    impedanceRecords.add(reader.readRecordLine());
+                    windingRecords.add(reader.readRecordLine());
+                    windingRecords.add(reader.readRecordLine());
                     if (is3Winding(line)) {
-                        windingRecords.add(readRecordLine(reader));
+                        windingRecords.add(reader.readRecordLine());
                     }
-                    line = readRecordLine(reader);
+                    line = reader.readRecordLine();
                 }
             }
 
@@ -182,7 +183,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 super(INTERNAL_TRANSFORMER_WINDING);
                 withFieldNames(V32, FIELD_NAMES_WINDING_32_33);
                 withFieldNames(V33, FIELD_NAMES_WINDING_32_33);
-                withFieldNames(V35, "windv", "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
+                withFieldNames(V35, STR_WINDV, "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
             }
 
             @Override
@@ -198,8 +199,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             return windingRecord;
         }
 
-        private static boolean is3Winding(String record) {
-            try (Scanner scanner = new Scanner(record)) {
+        private static boolean is3Winding(String recordStr) {
+            try (Scanner scanner = new Scanner(recordStr)) {
                 // Valid delimiters surrounded by any number of whitespace
                 scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
                 int i = scanner.hasNextInt() ? scanner.nextInt() : 0;

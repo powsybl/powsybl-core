@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
@@ -16,10 +17,8 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -27,7 +26,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.GeneratorEntsoeCategory;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -40,7 +40,9 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.time.Duration;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -509,9 +511,11 @@ class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), importParams);
         assertEquals(0, network.getForecastDistance());
         assertTrue(Duration.between(ZonedDateTime.now(), network.getCaseDate()).toMinutes() < 10);
-        CgmesSvMetadata cgmesSvMetadata = network.getExtension(CgmesSvMetadata.class);
-        assertNotNull(cgmesSvMetadata);
-        assertEquals(1, cgmesSvMetadata.getSvVersion());
+        CgmesMetadataModels cgmesMetadata = network.getExtension(CgmesMetadataModels.class);
+        assertNotNull(cgmesMetadata);
+        Optional<CgmesMetadataModel> svModel = cgmesMetadata.getModelForSubset(CgmesSubset.STATE_VARIABLES);
+        assertTrue(svModel.isPresent());
+        assertEquals(1, svModel.get().getVersion());
     }
 
     @Test
@@ -956,12 +960,12 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void microGridBaseCaseNLMultipleSlacks() {
-        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLMultipleSlacks().dataSource(), importParams);
-        Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e-bis");
-        SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
-        assertNotNull(st);
-        assertEquals(g.getTerminal().getConnectable().getId(), st.getTerminal().getConnectable().getId());
+    void microGridBaseCaseNLMultipleReferencePriorities() {
+        Network network = Importers.importData("CGMES", CgmesConformity1ModifiedCatalog.microGridBaseCaseNLMultipleReferencePriorities().dataSource(), importParams);
+        List<ReferencePriority> referencePriorities = ReferencePriorities.get(network);
+        assertEquals(2, referencePriorities.size());
+        assertEquals("9c3b8f97-7972-477d-9dc8-87365cc0ad0e", referencePriorities.get(0).getTerminal().getConnectable().getId());
+        assertEquals("9c3b8f97-7972-477d-9dc8-87365cc0ad0e-bis", referencePriorities.get(1).getTerminal().getConnectable().getId());
     }
 
     @Test

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -11,13 +12,12 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
-import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 
+import com.powsybl.triplestore.api.PropertyBag;
+import static com.powsybl.cgmes.model.CgmesNames.SYNCHRONOUS_MACHINE;
 import java.util.Arrays;
 
 /**
@@ -28,7 +28,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     private final boolean isCondenser;
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
-        super("SynchronousMachine", sm, context);
+        super(SYNCHRONOUS_MACHINE, sm, context);
         String type = p.getLocal("type");
         isCondenser = type != null && type.endsWith("Kind.condenser");
     }
@@ -65,24 +65,27 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
-        convertReferencePriority(g);
+        int referencePriority = p.asInt("referencePriority", 0);
+        if (referencePriority > 0) {
+            ReferencePriority.set(g, referencePriority);
+        }
         if (!isCondenser) {
             convertGenerator(g);
         }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
+        addSpecificProperties(g, p);
     }
 
-    private void convertReferencePriority(Generator g) {
-        if (p.asInt("referencePriority", 0) > 0) {
-            // We could find multiple generators with the same priority,
-            // we will only change the terminal of the slack extension if the previous was not connected
-            SlackTerminal st = g.getTerminal().getVoltageLevel().getExtension(SlackTerminal.class);
-            if (st == null) {
-                SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
-            } else if (!st.getTerminal().isConnected()) {
-                st.setTerminal(g.getTerminal());
-            }
+    private static void addSpecificProperties(Generator generator, PropertyBag p) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
+        String type = p.getLocal("type");
+        if (type != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
+        }
+        String operatingMode = p.getLocal("operatingMode");
+        if (operatingMode != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
         }
     }
 

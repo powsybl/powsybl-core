@@ -3,20 +3,23 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.contingency.*;
+import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.GeneratorContingency;
+import com.powsybl.contingency.HvdcLineContingency;
 import com.powsybl.contingency.contingency.list.*;
-import com.powsybl.contingency.contingency.list.criterion.*;
-import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
-import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.criteria.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.IdentifiableType;
 import org.junit.jupiter.api.Test;
@@ -42,19 +45,19 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         TwoCountriesCriterion countriesCriterion = new TwoCountriesCriterion(Collections.singletonList(Country.FR),
                 Collections.singletonList(Country.BE));
         SingleCountryCriterion countryCriterion = new SingleCountryCriterion(Collections.singletonList(Country.DE));
-        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true));
-        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true),
-                new SingleNominalVoltageCriterion
-                .VoltageInterval(100.0, 120.0, true, true));
-        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true), null);
+        SingleNominalVoltageCriterion nominalVoltageCriterion = new SingleNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion = new TwoNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true),
+                VoltageInterval.between(100.0, 120.0, true, true));
+        TwoNominalVoltageCriterion twoNominalVoltageCriterion1 = new TwoNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true),
+                null);
 
-        ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(new SingleNominalVoltageCriterion
-                .VoltageInterval(200.0, 230.0, true, true), null,
-                new SingleNominalVoltageCriterion.VoltageInterval(380.0, 430.0,
-                        true, true));
+        ThreeNominalVoltageCriterion threeNominalVoltageCriterion = new ThreeNominalVoltageCriterion(
+                VoltageInterval.between(200.0, 230.0, true, true),
+                null,
+                VoltageInterval.between(380.0, 430.0, true, true));
         RegexCriterion regexCriterion = new RegexCriterion("regex");
         contingencyLists.add(new LineCriterionContingencyList("list1", countriesCriterion, twoNominalVoltageCriterion1,
                 Collections.emptyList(), regexCriterion));
@@ -74,7 +77,7 @@ class ListOfContingencyListsJsonTest extends AbstractSerDeTest {
         networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("VL1",
                 "VL2", '1', "contingency1"));
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingency2"));
-        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections
+        networkElementIdentifiers.add(new NetworkElementIdentifierContingencyList(Collections
                 .singletonList(new IdBasedNetworkElementIdentifier("identifier2")), "contingency3"));
         contingencyLists.add(new IdentifierContingencyList("identifierlist", networkElementIdentifiers));
         contingencyLists.add(new TieLineCriterionContingencyList("tieLineContingencyList",

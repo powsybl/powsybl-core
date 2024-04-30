@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export;
 
@@ -44,7 +45,7 @@ public final class TopologyExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, context.getTpModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.TOPOLOGY, writer, context.getExportedTPModel(), context);
             }
 
             writeTopologicalNodes(network, cimNamespace, writer, context);
@@ -98,9 +99,13 @@ public final class TopologyExport {
 
     private static void writeBoundaryTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             writeBoundaryTerminal(dl, exported, cimNamespace, writer, context);
         }
+    }
+
+    private static String getBusCgmesId(VoltageLevel vl, Bus bus, int node, CgmesExportContext context) {
+        return bus == null ? findOrCreateTopologicalNode(vl, node, context) : context.getNamingStrategy().getCgmesId(bus);
     }
 
     private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -126,12 +131,12 @@ public final class TopologyExport {
             } else {
                 int node1 = vl.getNodeBreakerView().getNode1(sw.getId());
                 bus1 = getBusForBusBreakerViewBus(vl, node1);
-                tn1 = bus1 == null ? findOrCreateTopologicalNode(vl, node1, context) : context.getNamingStrategy().getCgmesId(bus1);
+                tn1 = getBusCgmesId(vl, bus1, node1, context);
                 tname1 = bus1 == null ? tn1 : bus1.getNameOrId();
 
                 int node2 = vl.getNodeBreakerView().getNode2(sw.getId());
                 bus2 = getBusForBusBreakerViewBus(vl, node2);
-                tn2 = bus2 == null ? findOrCreateTopologicalNode(vl, node2, context) : context.getNamingStrategy().getCgmesId(bus2);
+                tn2 = getBusCgmesId(vl, bus2, node2, context);
                 tname2 = bus2 == null ? tn2 : bus2.getNameOrId();
             }
             writeTopologicalNode(tn1, tname1, bus1, vl, cimNamespace, writer, context);
@@ -270,7 +275,7 @@ public final class TopologyExport {
     }
 
     private static void writeDanglingLineTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
             if (topologicalNodeId == null) {
                 // If no information about original boundary has been preserved in the IIDM model,

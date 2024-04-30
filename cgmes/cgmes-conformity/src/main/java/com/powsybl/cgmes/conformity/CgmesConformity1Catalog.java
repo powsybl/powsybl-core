@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conformity;
@@ -23,6 +24,10 @@ import static com.powsybl.cgmes.conformity.CgmesCatalogsConstants.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1Catalog {
+
+    private static final String UUID_STR_1 = "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66";
+    private static final String UUID_STR_2 = "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66";
+    private static final String UUID_STR_3 = "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66";
 
     private CgmesConformity1Catalog() {
     }
@@ -441,9 +446,9 @@ public final class CgmesConformity1Catalog {
                 .synchronousMachinesGenerators("3a3b27be-b18b-4385-b557-6735d733baf0",
                         "550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                 .modelProfiles("urn:uuid:0eb1540d-5ca3-40ab-9bf7-c91ec4c5d7c3",
-                        "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66",
+                        UUID_STR_1,
+                        UUID_STR_1,
+                        UUID_STR_2,
                         "urn:uuid:239caf0a-38bf-468b-a4d8-15f619886c58",
                         "urn:uuid:52b712d1-f3b0-4a59-9191-79f2fb1e4c4e",
                         "urn:uuid:9e383122-10cf-4da3-9785-f404b3541588",
@@ -940,12 +945,12 @@ public final class CgmesConformity1Catalog {
                 .asynchronousMachines("062ece1f-ade5-4d20-9c3a-fd8f12d12ec1",
                         "ba62884d-8800-41a8-9c26-698297d7ebaa",
                         "f184d87b-5565-45ee-89b4-29e8a42d3ad1")
-                .modelProfiles("urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
-                        "urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66",
+                .modelProfiles(UUID_STR_1,
+                        UUID_STR_1,
+                        UUID_STR_2,
+                        UUID_STR_3,
+                        UUID_STR_3,
+                        UUID_STR_3,
                         "urn:uuid:239scbd7-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239tcbd4-9a39-11e0-aa80-0800200c9a66",
                         "urn:uuid:239vcbd3-9a39-11e0-aa80-0800200c9a66");
@@ -1124,9 +1129,9 @@ public final class CgmesConformity1Catalog {
         m.staticVarCompensators("3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         m.modelProfiles().clear();
         m.modelProfiles("urn:uuid:1a64ce59-b28c-4b43-bf21-50b51865d777",
-                "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
-                "urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66",
-                "urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66",
+                UUID_STR_1,
+                UUID_STR_1,
+                UUID_STR_2,
                 "urn:uuid:75271ec4-af11-4a87-8137-d6d2b43b594d",
                 "urn:uuid:806f9f1b-ff69-4fb5-80f9-a8f393d31ebb",
                 "urn:uuid:80f1fec9-412f-4ca5-8706-d0d3382e9a71",

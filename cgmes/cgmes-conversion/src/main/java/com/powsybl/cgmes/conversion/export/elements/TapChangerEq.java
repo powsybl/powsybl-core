@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export.elements;
 
@@ -84,8 +85,10 @@ public final class TapChangerEq {
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
         writeSteps(lowStep, highStep, neutralStep, normalStep, neutralU, ltcFlag, cimNamespace, writer);
-        writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
+        if (context.getCim().writeTculControlMode()) {
+            writer.writeEmptyElement(cimNamespace, "RatioTapChanger.tculControlMode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "TransformerControlMode", controlMode));
+        }
         CgmesExportUtil.writeReference(EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE, ratioTapChangerTableId, cimNamespace, writer, context);
         if (cgmesRegulatingControlId != null) {
             CgmesExportUtil.writeReference("TapChanger.TapChangerControl", cgmesRegulatingControlId, cimNamespace, writer, context);

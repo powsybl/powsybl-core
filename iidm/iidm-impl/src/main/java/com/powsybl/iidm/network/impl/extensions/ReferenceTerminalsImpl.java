@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -35,7 +36,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
         super(network);
         this.terminalsPerVariant = new ArrayList<>(
-                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), null));
+                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));
         setReferenceTerminals(terminals);
         this.referenceTerminalsListener = new ReferenceTerminalsListener();
         network.addListener(this.referenceTerminalsListener);
@@ -90,7 +91,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        terminalsPerVariant.set(index, null);
+        terminalsPerVariant.set(index, new LinkedHashSet<>());
     }
 
     @Override

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
@@ -13,9 +14,10 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.detectors.LimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.jupiter.api.BeforeAll;
@@ -78,7 +80,7 @@ class SecurityAnalysisExecutionImplTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
             assertSame(SecurityAnalysisExecutionImplTest.network, network);
             assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
             assertSame(SecurityAnalysisExecutionImplTest.detector, detector);
@@ -89,6 +91,7 @@ class SecurityAnalysisExecutionImplTest {
             assertTrue(interceptors.isEmpty());
             assertTrue(operatorStrategies.isEmpty());
             assertTrue(actions.isEmpty());
+            assertTrue(limitReductions.isEmpty());
             throw new PowsyblException("run");
         }
 

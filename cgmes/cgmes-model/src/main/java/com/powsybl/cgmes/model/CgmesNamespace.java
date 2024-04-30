@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.model;
 
@@ -99,6 +100,8 @@ public final class CgmesNamespace {
         boolean writeGeneratingUnitInitialP();
 
         boolean writeConnectivityNodes();
+
+        boolean writeTculControlMode();
     }
 
     private abstract static class AbstractCim implements Cim {
@@ -181,6 +184,11 @@ public final class CgmesNamespace {
         @Override
         public boolean writeConnectivityNodes() {
             return false;
+        }
+
+        @Override
+        public boolean writeTculControlMode() {
+            return true;
         }
 
         private Cim14() {
@@ -272,6 +280,11 @@ public final class CgmesNamespace {
             return false;
         }
 
+        @Override
+        public boolean writeTculControlMode() {
+            return true;
+        }
+
         private Cim16() {
             super(16, CIM_16_NAMESPACE, "entsoe", ENTSOE_NAMESPACE,
                     "value",
@@ -298,6 +311,11 @@ public final class CgmesNamespace {
         @Override
         public boolean writeConnectivityNodes() {
             return true;
+        }
+
+        @Override
+        public boolean writeTculControlMode() {
+            return false;
         }
 
         private Cim100() {

@@ -3,11 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -166,7 +168,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         } else if (!insideBoundary()) {
             String containerId = p.getId("ConnectivityNodeContainer");
             String cgmesId = context.cgmes().container(containerId).voltageLevel();
-
+            if (cgmesId == null) {
+                // A CGMES Voltage Level can not be obtained from the connectivity node container
+                // The connectivity node container is a cim:Line, and
+                // the conversion has created a fictitious voltage level in IIDM
+                cgmesId = Conversion.getFictitiousVoltageLevelForNodeInContainer(containerId, this.id);
+            }
             String iidm = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
             String iidmId = context.substationIdMapping().voltageLevelIidm(iidm);
             return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;

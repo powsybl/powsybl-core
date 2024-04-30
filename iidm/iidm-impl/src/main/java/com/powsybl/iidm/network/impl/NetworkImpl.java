@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -1045,6 +1046,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         SubnetworkImpl sn = new SubnetworkImpl(
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
+        transferProperties(original, sn);
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }

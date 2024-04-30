@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
@@ -107,7 +108,7 @@ public final class LoadFlow {
      */
     public static Runner find(String name) {
         return new Runner(PlatformConfigNamedProvider.Finder
-                .findBackwardsCompatible(name, "load-flow", LoadFlowProvider.class,
+                .find(name, "load-flow", LoadFlowProvider.class,
                 PlatformConfig.defaultConfig()));
     }
 

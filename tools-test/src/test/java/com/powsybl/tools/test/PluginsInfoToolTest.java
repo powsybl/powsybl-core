@@ -3,10 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.test;
 
-import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.PluginsInfoTool;
 import com.powsybl.tools.Tool;
 import org.junit.jupiter.api.Test;
@@ -38,7 +38,7 @@ class PluginsInfoToolTest extends AbstractToolTest {
     }
 
     @Test
-    void run() throws Exception {
-        assertCommand(new String[] {"plugins-info"}, CommandLineTools.COMMAND_OK_STATUS, "dummy", "");
+    void run() {
+        assertCommandSuccessfulMatch(new String[] {"plugins-info"}, "dummy");
     }
 }

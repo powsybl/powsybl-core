@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.impl;
 
@@ -22,8 +23,8 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.SwitchAction;
+import com.powsybl.action.Action;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.detectors.LimitViolationDetector;

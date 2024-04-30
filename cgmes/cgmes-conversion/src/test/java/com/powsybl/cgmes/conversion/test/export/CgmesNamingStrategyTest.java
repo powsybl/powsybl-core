@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -97,7 +98,7 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         checkAllIdentifiersAreValidCimCgmesIdentifiers(network1);
         // Also, all Identifiables that do not have a valid CIM mRID must have a valid UUID alias
         for (Identifiable<?> i : network1.getIdentifiables()) {
-            if (!i.isFictitious() && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
+            if (!i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE) && !CgmesExportUtil.isValidCimMasterRID(i.getId())) {
                 Optional<String> uuid = i.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "UUID");
                 assertTrue(uuid.isPresent());
                 assertTrue(CgmesExportUtil.isValidCimMasterRID(uuid.get()));
@@ -128,7 +129,7 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
     private void checkAllIdentifiersAreValidCimCgmesIdentifiers(Network network) {
         CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
         Supplier<Stream<String>> badIds = () -> Stream.of(
-                        network.getIdentifiables().stream().filter(i -> !i.isFictitious()).map(Identifiable::getId),
+                        network.getIdentifiables().stream().filter(i -> !i.isFictitious() && !i.getType().equals(IdentifiableType.TIE_LINE)).map(Identifiable::getId),
                         // Some CGMES identifiers do not end as Network identifiables
                         cgmes.terminals().stream().map(o -> o.getId(CgmesNames.TERMINAL)),
                         cgmes.connectivityNodes().stream().map(o -> o.getId(CgmesNames.CONNECTIVITY_NODE)),
@@ -231,6 +232,12 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
         if (eqbd != null) {
             try (InputStream is = originalDataSource.newInputStream(eqbd)) {
                 Files.copy(is, outputFolder.resolve(baseName + "_EQ_BD.xml"));
+            }
+        }
+        String tpbd = originalDataSource.listNames(".*TP_BD.*").stream().findFirst().orElse(null);
+        if (tpbd != null) {
+            try (InputStream is = originalDataSource.newInputStream(tpbd)) {
+                Files.copy(is, outputFolder.resolve(baseName + "_TP_BD.xml"));
             }
         }
     }

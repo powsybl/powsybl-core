@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -65,12 +66,14 @@ class SecurityAnalysisParametersTest {
             moduleConfig.setStringProperty("increased-high-voltage-violations-proportional-threshold", "0.2");
             moduleConfig.setStringProperty("increased-low-voltage-violations-absolute-threshold", "20");
             moduleConfig.setStringProperty("increased-high-voltage-violations-absolute-threshold", "25");
+            moduleConfig.setStringProperty("intermediate-results-in-operator-strategy", "true");
             SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(platformConfig);
             assertEquals(0.3, parameters.getIncreasedViolationsParameters().getFlowProportionalThreshold(), EPS);
             assertEquals(0.4, parameters.getIncreasedViolationsParameters().getLowVoltageProportionalThreshold(), EPS);
             assertEquals(0.2, parameters.getIncreasedViolationsParameters().getHighVoltageProportionalThreshold(), EPS);
             assertEquals(20, parameters.getIncreasedViolationsParameters().getLowVoltageAbsoluteThreshold(), EPS);
             assertEquals(25, parameters.getIncreasedViolationsParameters().getHighVoltageAbsoluteThreshold(), EPS);
+            assertTrue(parameters.getIntermediateResultsInOperatorStrategy());
         }
     }
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -19,6 +20,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.network.util.TieLineUtil;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -286,10 +288,36 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         double v = dl.getBoundary().getV();
         double angle = dl.getBoundary().getAngle();
 
-        if (!Double.isNaN(v) && !Double.isNaN(angle)) {
-            dl.setProperty("v", Double.toString(v));
-            dl.setProperty("angle", Double.toString(angle));
+        if (isVoltageDefined(v, angle)) {
+            setVoltageProperties(dl, v, angle);
         }
+    }
+
+    public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl1, DanglingLine dl2) {
+        double v = TieLineUtil.getBoundaryV(dl1, dl2);
+        double angle = TieLineUtil.getBoundaryAngle(dl1, dl2);
+
+        if (!isVoltageDefined(v, angle)) {
+            v = dl1.getBoundary().getV();
+            angle = dl1.getBoundary().getAngle();
+        }
+        if (!isVoltageDefined(v, angle)) {
+            v = dl2.getBoundary().getV();
+            angle = dl2.getBoundary().getAngle();
+        }
+        if (isVoltageDefined(v, angle)) {
+            setVoltageProperties(dl1, v, angle);
+            setVoltageProperties(dl2, v, angle);
+        }
+    }
+
+    private static boolean isVoltageDefined(double v, double angle) {
+        return !Double.isNaN(v) && !Double.isNaN(angle);
+    }
+
+    private static void setVoltageProperties(DanglingLine dl, double v, double angle) {
+        dl.setProperty("v", Double.toString(v));
+        dl.setProperty("angle", Double.toString(angle));
     }
 
     private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {

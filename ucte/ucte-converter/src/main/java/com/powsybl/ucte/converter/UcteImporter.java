@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.converter;
 
@@ -50,6 +51,8 @@ public class UcteImporter implements Importer {
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
     public static final String COMBINE_PHASE_ANGLE_REGULATION = "ucte.import.combine-phase-angle-regulation";
+    public static final String UNEXPECTED_UCTE_ELEMENT_STATUS = "Unexpected UcteElementStatus value: ";
+    public static final String X_NODE = "_XNode";
 
     private static final Parameter COMBINE_PHASE_ANGLE_REGULATION_PARAMETER
             = new Parameter(COMBINE_PHASE_ANGLE_REGULATION, ParameterType.BOOLEAN, "Combine phase and angle regulation", false);
@@ -93,7 +96,7 @@ public class UcteImporter implements Importer {
             case BUSBAR_COUPLER_OUT_OF_OPERATION:
                 return false;
             default:
-                throw new IllegalStateException("Unexpected UcteElementStatus value: " + ucteElement.getStatus());
+                throw new IllegalStateException(UNEXPECTED_UCTE_ELEMENT_STATUS + ucteElement.getStatus());
         }
     }
 
@@ -483,7 +486,7 @@ public class UcteImporter implements Importer {
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
+                    throw new IllegalStateException(UNEXPECTED_UCTE_ELEMENT_STATUS + ucteLine.getStatus());
             }
         }
     }
@@ -744,7 +747,7 @@ public class UcteImporter implements Importer {
                 break;
 
             default:
-                throw new IllegalStateException("Unexpected UcteElementStatus value: " + ucteElement.getStatus());
+                throw new IllegalStateException(UNEXPECTED_UCTE_ELEMENT_STATUS + ucteElement.getStatus());
         }
         return connected;
     }
@@ -909,11 +912,11 @@ public class UcteImporter implements Importer {
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable identifiable) {
-        identifiable.setProperty(STATUS_PROPERTY_KEY + "_XNode", ucteNode.getStatus().toString());
+        identifiable.setProperty(STATUS_PROPERTY_KEY + X_NODE, ucteNode.getStatus().toString());
     }
 
     private static void addXnodeStatusProperty(Map<String, String> properties, DanglingLine danglingLine) {
-        properties.put(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getProperty(STATUS_PROPERTY_KEY + "_XNode"));
+        properties.put(STATUS_PROPERTY_KEY + X_NODE, danglingLine.getProperty(STATUS_PROPERTY_KEY + X_NODE));
     }
 
     private static void addDanglingLineCouplerProperty(UcteLine ucteLine, DanglingLine danglingLine) {
