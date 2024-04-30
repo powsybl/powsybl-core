@@ -76,6 +76,17 @@ public interface TapChanger<
     }
 
     /**
+     * Set the solved tap position, which is the position after a load flow.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    C setSolvedTapPosition(int solvedTapPosition);
+
+
+    /**
      * Set the current tap position.
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
