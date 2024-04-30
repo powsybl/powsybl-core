@@ -7,6 +7,7 @@
  */
 package com.powsybl.cgmes.gl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -20,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  *
@@ -28,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CgmesGLImportPostProcessorTest {
 
     @Test
-    void process() {
+    void test() {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
         ReadOnlyDataSource ds = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "importGL_GL.xml"));
@@ -57,7 +59,18 @@ class CgmesGLImportPostProcessorTest {
 
         assertEquals(49.224448, linePosition.getCoordinates().get(3).getLatitude(), 0);
         assertEquals(-2.136596, linePosition.getCoordinates().get(3).getLongitude(), 0);
-
     }
 
+    @Test
+    void testUnsupportedCoordinateSystem() {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
+        ReadOnlyDataSource ds1 = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "unsupportedSubstationCrs_GL.xml"));
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> Network.read(ds1, properties));
+        assertEquals("Unsupported coodinates system: urn:ogc:def:crs:OGC:2:84", e1.getMessage());
+
+        ReadOnlyDataSource ds2 = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "unsupportedLineCrs_GL.xml"));
+        PowsyblException e2 = assertThrows(PowsyblException.class, () -> Network.read(ds2, properties));
+        assertEquals("Unsupported coodinates system: urn:ogc:def:crs:OGC:2:84", e2.getMessage());
+    }
 }
