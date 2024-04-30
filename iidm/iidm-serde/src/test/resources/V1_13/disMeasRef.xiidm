@@ -84,13 +84,13 @@
             <iidm:lccConverterStation id="LCC1" name="LCC1" lossFactor="1.1" powerFactor="0.6" node="21" p="80.88"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="400.0" node1="4" voltageLevelId1="S1VL1" node2="3" voltageLevelId2="S1VL2" p1="-80.0" q1="-10.0" p2="80.0809" q2="5.4857" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
-            <iidm:ratioTapChanger lowTapPosition="0" initialTapPosition="1" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="225.0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="225.0">
                 <iidm:terminalRef id="TWT" side="ONE"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.85"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.15"/>
             </iidm:ratioTapChanger>
-            <iidm:phaseTapChanger lowTapPosition="0" initialTapPosition="15" tapPosition="15" regulationMode="FIXED_TAP">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="15" regulationMode="FIXED_TAP">
                 <iidm:terminalRef id="TWT" side="ONE"/>
                 <iidm:step r="39.78473" x="29.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>
                 <iidm:step r="31.720245" x="21.720242" g="0.0" b="0.0" rho="1.0" alpha="-40.18"/>

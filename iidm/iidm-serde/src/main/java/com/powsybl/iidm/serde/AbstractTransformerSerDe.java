@@ -23,7 +23,7 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static final String ATTR_LOW_TAP_POSITION = "lowTapPosition";
     private static final String ATTR_TAP_POSITION = "tapPosition";
-    private static final String ATTR_INITIAL_TAP_POSITION = "initialTapPosition";
+    private static final String ATTR_SOLVED_TAP_POSITION = "solvedTapPosition";
     private static final String ATTR_REGULATING = "regulating";
     private static final String ELEM_TERMINAL_REF = "terminalRef";
     private static final String ATTR_REGULATION_MODE = "regulationMode";
@@ -67,9 +67,9 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
 
     private static void writeTapChanger(TapChanger<?, ?, ?, ?> tc, NetworkSerializerContext context) {
         context.getWriter().writeIntAttribute(ATTR_LOW_TAP_POSITION, tc.getLowTapPosition());
-        var initialtp = tc.findInitialTapPosition();
+        var solvedtp = tc.findSolvedTapPosition();
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
-            context.getWriter().writeOptionalIntAttribute(ATTR_INITIAL_TAP_POSITION, initialtp.isPresent() ? initialtp.getAsInt() : null));
+            context.getWriter().writeOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION, solvedtp.isPresent() ? solvedtp.getAsInt() : null));
         var tp = tc.findTapPosition();
         context.getWriter().writeOptionalIntAttribute(ATTR_TAP_POSITION, tp.isPresent() ? tp.getAsInt() : null);
         writeTargetDeadband(tc.getTargetDeadband(), context);
@@ -218,8 +218,8 @@ abstract class AbstractTransformerSerDe<T extends Connectable<T>, A extends Iden
         boolean regulating = context.getReader().readOptionalBooleanAttribute(ATTR_REGULATING).orElse(false);
         int lowTapPosition = context.getReader().readIntAttribute(ATTR_LOW_TAP_POSITION);
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () -> {
-            OptionalInt initialTapPosition = context.getReader().readOptionalIntAttribute(ATTR_INITIAL_TAP_POSITION);
-            initialTapPosition.ifPresent(adder::setInitialTapPosition);
+            OptionalInt solvedTapPosition = context.getReader().readOptionalIntAttribute(ATTR_SOLVED_TAP_POSITION);
+            solvedTapPosition.ifPresent(adder::setSolvedTapPosition);
         });
         OptionalInt tapPosition = context.getReader().readOptionalIntAttribute(ATTR_TAP_POSITION);
         double targetDeadband = readTargetDeadband(context, regulating);

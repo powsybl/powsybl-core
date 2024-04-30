@@ -56,7 +56,7 @@
                                      bus1="C_0" connectableBus1="C_0" voltageLevelId1="C" bus2="N_1"
                                      connectableBus2="N_1" voltageLevelId2="N" selectedOperationalLimitsGroupId1="DEFAULT"
                                      selectedOperationalLimitsGroupId2="DEFAULT">
-            <iidm:phaseTapChanger lowTapPosition="0" initialTapPosition="22" tapPosition="22" regulationMode="CURRENT_LIMITER"
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" regulationMode="CURRENT_LIMITER"
                                   regulationValue="930.6667" regulating="false">
                 <iidm:terminalRef id="CI" side="ONE"/>
                 <iidm:step r="39.78473" x="39.784725" g="0.0" b="0.0" rho="1.0" alpha="-42.8"/>

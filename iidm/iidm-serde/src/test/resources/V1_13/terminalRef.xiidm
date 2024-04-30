@@ -25,14 +25,14 @@
             </iidm:generator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="VLY641" r="1.549974799156189" x="58.800025939941406" g="0.0" b="0.0" ratedU1="90.0" ratedU2="225.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6" p1="-35.5088005065918" q1="-0.7908143401145935" p2="35.54349899291992" q2="2.1071410179138184">
-            <iidm:ratioTapChanger lowTapPosition="0" initialTapPosition="1" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" regulationMode="VOLTAGE" regulationValue="91.1280288696289">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" regulationMode="VOLTAGE" regulationValue="91.1280288696289">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.01900005"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.00800002"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.995999992"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="VL642" r="1.8199917078018188" x="62.60034942626953" g="0.0" b="0.0" ratedU1="90.0" ratedU2="225.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6" p1="-33.33860397338867" q1="-2.3741626739501953" p2="33.37482452392578" q2="3.6199276447296143">
-            <iidm:ratioTapChanger lowTapPosition="0" initialTapPosition="1" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" regulationMode="VOLTAGE" regulationValue="91.1280288696289">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" regulationMode="VOLTAGE" regulationValue="91.1280288696289">
                 <iidm:terminalRef id="VL642" side="ONE"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.01600003"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.00399995"/>
@@ -40,7 +40,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="VLY643" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
-            <iidm:phaseTapChanger lowTapPosition="0" initialTapPosition="1" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
                 <iidm:terminalRef id="VLY643" side="TWO"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191" alpha="-1.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666" alpha="0.0"/>
@@ -48,7 +48,7 @@
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="VLY644" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
-            <iidm:phaseTapChanger lowTapPosition="0" initialTapPosition="1" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191" alpha="-1.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666" alpha="0.0"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914" alpha="1.0"/>

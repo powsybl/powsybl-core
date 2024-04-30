@@ -45,7 +45,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    private Integer initialTapPosition;
+    private Integer solvedTapPosition;
 
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
@@ -120,8 +120,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setInitialTapPosition(int tapPosition) {
-        this.initialTapPosition = tapPosition;
+    public RatioTapChangerAdder setSolvedTapPosition(int solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
         return this;
     }
 
@@ -179,12 +179,6 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     public RatioTapChanger add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            tapPosition = initialTapPosition;
-        }
-        if (initialTapPosition == null) {
-            initialTapPosition = tapPosition;
-        }
-        if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
@@ -206,7 +200,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband, initialTapPosition);
+                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband, solvedTapPosition);
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
