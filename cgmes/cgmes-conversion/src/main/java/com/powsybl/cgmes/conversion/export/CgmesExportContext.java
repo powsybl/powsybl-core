@@ -97,6 +97,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final EnumMap<CgmesSubset, List<String>> legacyIdsForSvDependencies = new EnumMap<>(CgmesSubset.class);
 
     /**
      * Update dependencies in a way that:
@@ -121,10 +122,23 @@ public class CgmesExportContext {
                 .clearDependencies()
                 .addDependentOn(eqModelId);
 
-        getExportedSVModel()
-                .clearDependencies()
-                .addDependentOn(getExportedTPModel().getId())
-                .addDependentOn(getExportedSSHModel().getId());
+        getExportedSVModel().clearDependencies();
+        List<String> tpIds = legacyIdsForSvDependencies.get(CgmesSubset.TOPOLOGY);
+        if (tpIds != null) {
+            // If the list of SV dependencies from TP files has been set, even if it is empty,
+            // use it and ignore the exported TP model
+            getExportedSVModel().addDependentOn(tpIds);
+        } else {
+            getExportedSVModel().addDependentOn(getExportedTPModel().getId());
+        }
+        List<String> sshIds = legacyIdsForSvDependencies.get(CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        if (sshIds != null) {
+            // If the list of SV dependencies from SSH files has been set, even if it is empty,
+            // use it and ignore the exported SSH model
+            getExportedSVModel().addDependentOn(sshIds);
+        } else {
+            getExportedSVModel().addDependentOn(getExportedSSHModel().getId());
+        }
 
         if (boundaryEqId != null) {
             getExportedEQModel().addDependentOn(boundaryEqId);
@@ -802,6 +816,10 @@ public class CgmesExportContext {
     public CgmesExportContext setBusinessProcess(String businessProcess) {
         this.businessProcess = businessProcess;
         return this;
+    }
+
+    public void setLegacyIdsForSvDependencies(CgmesSubset subset, List<String> ids) {
+        legacyIdsForSvDependencies.put(subset, ids);
     }
 }
 

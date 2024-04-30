@@ -12,8 +12,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -157,7 +157,7 @@ public class CgmesExport implements Exporter {
                     EquipmentExport.write(network, writer, context);
                 }
             } else {
-                addSubsetIdentifiers(network, "EQ", context.getExportedEQModel());
+                saveLegacyIdsFromPropertiesForSvDependencies(network, CgmesSubset.EQUIPMENT, context);
                 context.getExportedEQModel().setId(context.getNamingStrategy().getCgmesId(network));
             }
             if (profiles.contains("TP")) {
@@ -166,7 +166,7 @@ public class CgmesExport implements Exporter {
                     TopologyExport.write(network, writer, context);
                 }
             } else {
-                addSubsetIdentifiers(network, "TP", context.getExportedTPModel());
+                saveLegacyIdsFromPropertiesForSvDependencies(network, CgmesSubset.TOPOLOGY, context);
             }
             if (profiles.contains("SSH")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
@@ -174,7 +174,7 @@ public class CgmesExport implements Exporter {
                     SteadyStateHypothesisExport.write(network, writer, context);
                 }
             } else {
-                addSubsetIdentifiers(network, "SSH", context.getExportedSSHModel());
+                saveLegacyIdsFromPropertiesForSvDependencies(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context);
             }
             if (profiles.contains("SV")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
@@ -206,11 +206,15 @@ public class CgmesExport implements Exporter {
         return id;
     }
 
-    private static void addSubsetIdentifiers(Network network, String profile, CgmesMetadataModel description) {
-        description.addDependentOn(network.getPropertyNames().stream()
-                .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
+    private static void saveLegacyIdsFromPropertiesForSvDependencies(Network network, CgmesSubset subset, CgmesExportContext context) {
+        String propertyName = String.format("%s%s_ID",
+                Conversion.CGMES_PREFIX_ALIAS_PROPERTIES,
+                subset.getIdentifier());
+        List<String> ids = network.getPropertyNames().stream()
+                .filter(p -> p.startsWith(propertyName))
                 .map(network::getProperty)
-                .toList());
+                .toList();
+        context.setLegacyIdsForSvDependencies(subset, ids);
     }
 
     private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {
