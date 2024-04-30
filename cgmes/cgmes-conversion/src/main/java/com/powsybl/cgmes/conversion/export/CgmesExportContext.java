@@ -79,6 +79,7 @@ public class CgmesExportContext {
     public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     public static final String DEFAULT_BUSINESS_PROCESS = "1D";
+    public static final boolean UPDATE_DEPENDENCIES_DEFAULT_VALUE = true;
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -87,6 +88,7 @@ public class CgmesExportContext {
     private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
+    private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -109,6 +111,9 @@ public class CgmesExportContext {
      *   SV depends on TP_BD
      */
     public void updateDependencies() {
+        if (!updateDependencies) {
+            return;
+        }
         String eqModelId = getExportedEQModel().getId();
         if (eqModelId == null || eqModelId.isEmpty()) {
             return;
@@ -820,6 +825,11 @@ public class CgmesExportContext {
 
     public void setLegacyIdsForSvDependencies(CgmesSubset subset, List<String> ids) {
         legacyIdsForSvDependencies.put(subset, ids);
+    }
+
+    public CgmesExportContext setUpdateDependencies(boolean updateDependencies) {
+        this.updateDependencies = updateDependencies;
+        return this;
     }
 }
 

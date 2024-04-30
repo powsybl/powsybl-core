@@ -9,6 +9,10 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
+import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
@@ -17,15 +21,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.Conversion.CGMES_PREFIX_ALIAS_PROPERTIES;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -52,8 +53,81 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
 
         Set<String> deps = findAll(REGEX_DEPENDENT_ON, Files.readString(tmpDir.resolve(exportBasename + "_SV.xml")));
-        System.out.println("dependencies : " + Arrays.toString(deps.toArray()));
         assertEquals(Set.of("ssh-updated-dep1", "ssh-updated-dep2", "ssh-updated-dep3", "tp-initial-dep1", "tp-initial-dep2", "tp-initial-dep3"), deps);
+    }
+
+    @Test
+    void testExportCgmSvDependenciesOnMetadataModelsExtension() throws IOException {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSvWithMas().dataSource();
+        Network network = Network.read(ds);
+        List<String> initialSshIds = gatherInitialSshIds(network);
+
+        // This test shows how to prepare the dependencies for SV in main network
+        // by directly building the metadata model extension.
+        // We pass only the updated SSH dependencies
+        List<String> updatedSshIds = List.of("ssh-updated-dep1", "ssh-updated-dep2", "ssh-updated-dep3");
+        buildSvDependenciesManaginMetadataModels(network, updatedSshIds);
+
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, "SV");
+        // Because we have built the SV metadata model explicitly,
+        // We do not want the CGMES export module to update dependency information
+        exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, "False");
+        String exportBasename = "tmp-micro-bc-from-CGM";
+        network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
+
+        Set<String> deps = findAll(REGEX_DEPENDENT_ON, Files.readString(tmpDir.resolve(exportBasename + "_SV.xml")));
+        assertTrue(deps.containsAll(updatedSshIds));
+        initialSshIds.forEach(initialSshId -> assertFalse(deps.contains(initialSshId)));
+    }
+
+    private void buildSvDependenciesManaginMetadataModels(Network network, List<String> updateSshIds) {
+        CgmesMetadataModelsAdder networkModelsAdder = network.newExtension(CgmesMetadataModelsAdder.class);
+        CgmesMetadataModelsAdder.ModelAdder svModelExport = networkModelsAdder.newModel();
+        svModelExport.setSubset(CgmesSubset.STATE_VARIABLES);
+        svModelExport.setId("a-unique-id");
+
+        Network subnetwork = (Network) network.getSubnetworks().toArray()[0];
+        CgmesMetadataModels modelsExtension = subnetwork.getExtension(CgmesMetadataModels.class);
+        if (modelsExtension != null) {
+            modelsExtension.getModelForSubset(CgmesSubset.STATE_VARIABLES).ifPresent(
+                    svModel -> {
+                        List<String> initialSvDependantOn = copyListDependencies(svModel);
+                        removeInitialSshFromInitialDependencies(network, initialSvDependantOn);
+                        initialSvDependantOn.forEach(svModelExport::addDependentOn);
+
+                        svModelExport.setModelingAuthoritySet(svModel.getModelingAuthoritySet());
+                        svModel.getProfiles().forEach(svModelExport::addProfile);
+                        svModelExport.setDescription(svModel.getDescription());
+                    }
+            );
+        }
+        updateSshIds.forEach(svModelExport::addDependentOn);
+        svModelExport.add();
+        networkModelsAdder.add();
+    }
+
+    private static List<String> copyListDependencies(CgmesMetadataModel svModel) {
+        if (svModel != null) {
+            return new ArrayList<>(svModel.getDependentOn());
+        }
+        return new ArrayList<>();
+    }
+
+    private static List<String> gatherInitialSshIds(Network network) {
+        return network.getSubnetworks()
+                .stream()
+                .map(subNetwork -> subNetwork.getExtension(CgmesMetadataModels.class))
+                .filter(Objects::nonNull)
+                .map(modelsExtension -> ((CgmesMetadataModels) modelsExtension).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(CgmesMetadataModel::getId)
+                .toList();
+    }
+
+    private static void removeInitialSshFromInitialDependencies(Network network, List<String> initialSvDependantOn) {
+        gatherInitialSshIds(network).forEach(initialSvDependantOn::remove);
     }
 
     private static Set<String> findAll(Pattern pattern, String xml) {
