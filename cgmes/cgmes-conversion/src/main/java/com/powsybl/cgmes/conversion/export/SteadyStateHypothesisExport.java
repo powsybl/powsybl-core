@@ -21,6 +21,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -373,9 +374,21 @@ public final class SteadyStateHypothesisExport {
             // PowSyBl has considered the control as continuous and with targetDeadband of size 0
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = context.getNamingStrategy().getCgmesIdFromProperty(g, REGULATING_CONTROL_PROPERTY);
+
             double targetDeadband = 0;
+            double target;
+            String targetValueUnitMultiplier;
+            RemoteReactivePowerControl rrpc = g.getExtension(RemoteReactivePowerControl.class);
+            if (rrpc != null) {
+                target = rrpc.getTargetQ();
+                targetValueUnitMultiplier = "M";
+            } else {
+                target = g.getTargetV();
+                targetValueUnitMultiplier = "k";
+            }
+
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                g.isVoltageRegulatorOn(), targetDeadband, g.getTargetV(), "k");
+                g.isVoltageRegulatorOn(), targetDeadband, target, targetValueUnitMultiplier);
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
@@ -409,6 +422,7 @@ public final class SteadyStateHypothesisExport {
                 // Regulating control could be reactive power or voltage
                 double targetValue;
                 String multiplier;
+                // FIXME: remove RegulationMode.OFF when #2790 is done
                 if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE
                         || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
                     targetValue = svc.getVoltageSetpoint();
