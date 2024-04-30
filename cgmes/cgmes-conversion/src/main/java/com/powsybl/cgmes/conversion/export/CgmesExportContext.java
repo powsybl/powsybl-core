@@ -15,10 +15,7 @@ import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -63,10 +60,10 @@ public class CgmesExportContext {
     private String boundaryTpId; // may be null
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
-    private final CgmesMetadataModel exportedEQModel = new CgmesMetadataModel(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel exportedTPModel = new CgmesMetadataModel(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel exportedSVModel = new CgmesMetadataModel(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel exportedSSHModel = new CgmesMetadataModel(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedEQModel = new CgmesMetadataModelImpl(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedTPModel = new CgmesMetadataModelImpl(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedSVModel = new CgmesMetadataModelImpl(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedSSHModel = new CgmesMetadataModelImpl(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
