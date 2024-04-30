@@ -19,8 +19,9 @@ import java.util.Objects;
 public final class CgmesGLUtils {
 
     /**
-     * Coordinate system URN for WGS84
+     * Coordinate system WGS84 (World Geodetic System 1984)
      */
+    public static final String COORDINATE_SYSTEM_NAME = "WGS84"; // Not required in import, but used for export
     public static final String COORDINATE_SYSTEM_URN = "urn:ogc:def:crs:EPSG::4326";
 
     private CgmesGLUtils() {
