@@ -31,6 +31,7 @@ import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -93,7 +94,7 @@ public class DefaultSecurityAnalysis {
         this(network, null, filter, computationManager, monitors, reportNode);
     }
 
-    public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
+    public DefaultSecurityAnalysis(Network network, @Nullable LimitViolationDetector detector,
                                    LimitViolationFilter filter, ComputationManager computationManager,
                                    List<StateMonitor> monitors, ReportNode reportNode) {
         this.network = Objects.requireNonNull(network);

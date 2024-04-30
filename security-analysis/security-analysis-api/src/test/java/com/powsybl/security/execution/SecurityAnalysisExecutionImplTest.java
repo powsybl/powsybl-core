@@ -15,7 +15,6 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.action.Action;
-import com.powsybl.security.detectors.LimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
@@ -37,7 +36,6 @@ import static org.mockito.Mockito.*;
 class SecurityAnalysisExecutionImplTest {
 
     private static LimitViolationFilter filter;
-    private static LimitViolationDetector detector;
     private static ContingenciesProvider contingencies;
     private static SecurityAnalysisParameters parameters;
     private static SecurityAnalysisExecution execution;
@@ -48,14 +46,12 @@ class SecurityAnalysisExecutionImplTest {
     @BeforeAll
     static void setUpClass() {
         filter = Mockito.mock(LimitViolationFilter.class);
-        detector = Mockito.mock(LimitViolationDetector.class);
         contingencies = Mockito.mock(ContingenciesProvider.class);
         parameters = Mockito.mock(SecurityAnalysisParameters.class);
 
         execution = new SecurityAnalysisExecutionImpl(SecurityAnalysis.find("ExecutionImplTestProvider"),
             execInput -> new SecurityAnalysisInput(execInput.getNetworkVariant())
                     .setFilter(filter)
-                    .setDetector(detector)
                     .setContingencies(contingencies)
                     .setParameters(parameters)
         );
@@ -83,7 +79,6 @@ class SecurityAnalysisExecutionImplTest {
         public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
             assertSame(SecurityAnalysisExecutionImplTest.network, network);
             assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
-            assertSame(SecurityAnalysisExecutionImplTest.detector, detector);
             assertSame(SecurityAnalysisExecutionImplTest.filter, filter);
             assertSame(SecurityAnalysisExecutionImplTest.computationManager, computationManager);
             assertSame(SecurityAnalysisExecutionImplTest.parameters, parameters);

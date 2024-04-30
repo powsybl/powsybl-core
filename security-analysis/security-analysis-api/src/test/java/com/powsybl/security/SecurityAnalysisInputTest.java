@@ -33,9 +33,6 @@ class SecurityAnalysisInputTest {
         assertThat(inputs.getContingenciesProvider())
                 .isNotNull()
                 .isInstanceOf(EmptyContingencyListProvider.class);
-        assertThat(inputs.getLimitViolationDetector())
-                .isNotNull()
-                .isInstanceOf(DefaultLimitViolationDetector.class);
 
         SecurityAnalysisParameters params = new SecurityAnalysisParameters();
         ContingenciesProvider provider = ContingenciesProviders.emptyProvider();
@@ -43,7 +40,6 @@ class SecurityAnalysisInputTest {
 
         inputs.setParameters(params);
         inputs.setContingencies(provider);
-        inputs.setDetector(detector);
 
         assertThat(inputs.getNetworkVariant().getNetwork())
                 .isSameAs(network);
@@ -53,8 +49,6 @@ class SecurityAnalysisInputTest {
                 .isSameAs(params);
         assertThat(inputs.getContingenciesProvider())
                 .isSameAs(provider);
-        assertThat(inputs.getLimitViolationDetector())
-                .isSameAs(detector);
     }
 
 }
