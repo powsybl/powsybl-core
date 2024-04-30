@@ -53,7 +53,6 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
 
         Set<String> deps = findAll(REGEX_DEPENDENT_ON, Files.readString(tmpDir.resolve(exportBasename + "_SV.xml")));
-        System.out.println("dependencies : " + Arrays.toString(deps.toArray()));
         assertEquals(Set.of("ssh-updated-dep1", "ssh-updated-dep2", "ssh-updated-dep3", "tp-initial-dep1", "tp-initial-dep2", "tp-initial-dep3"), deps);
     }
 
@@ -78,7 +77,6 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
 
         Set<String> deps = findAll(REGEX_DEPENDENT_ON, Files.readString(tmpDir.resolve(exportBasename + "_SV.xml")));
-        System.out.println("dependencies : " + Arrays.toString(deps.toArray()));
         assertTrue(deps.containsAll(updatedSshIds));
         initialSshIds.forEach(initialSshId -> assertFalse(deps.contains(initialSshId)));
     }
