@@ -11,26 +11,25 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
-import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
 import com.powsybl.iidm.network.impl.extensions.LinePositionImpl;
+import com.powsybl.iidm.network.impl.extensions.SubstationPositionImpl;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.TripleStore;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
+import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.powsybl.cgmes.gl.GLTestUtils.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -40,9 +39,60 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  */
 class CgmesGLExporterTest {
 
+    private static final Coordinate SUBSTATION_1 = new Coordinate(51.380348205566406, 0.5492960214614868);
+    private static final Coordinate SUBSTATION_2 = new Coordinate(52.00010299682617, 0.30759671330451965);
+    private static final Coordinate LINE_1 = new Coordinate(51.529258728027344, 0.5132722854614258);
+    private static final Coordinate LINE_2 = new Coordinate(51.944923400878906, 0.4120868146419525);
+
+    private Network network;
+
+    @BeforeEach
+    void setUp() {
+        network = Network.create("Network", "test");
+        network.setCaseDate(ZonedDateTime.parse("2018-01-01T00:30:00.000+01:00"));
+        Substation substation1 = network.newSubstation()
+                .setId("Substation1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel voltageLevel1 = substation1.newVoltageLevel()
+                .setId("VoltageLevel1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        voltageLevel1.getBusBreakerView().newBus()
+                .setId("Bus1")
+                .add();
+        Substation substation2 = network.newSubstation()
+                .setId("Substation2")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel voltageLevel2 = substation2.newVoltageLevel()
+                .setId("VoltageLevel2")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        voltageLevel2.getBusBreakerView().newBus()
+                .setId("Bus2")
+                .add();
+        network.newLine()
+                .setId("Line")
+                .setVoltageLevel1(voltageLevel1.getId())
+                .setBus1("Bus1")
+                .setConnectableBus1("Bus1")
+                .setVoltageLevel2(voltageLevel2.getId())
+                .setBus2("Bus2")
+                .setConnectableBus2("Bus2")
+                .setR(3.0)
+                .setX(33.0)
+                .setG1(0.0)
+                .setB1(386E-6 / 2)
+                .setG2(0.0)
+                .setB2(386E-6 / 2)
+                .add();
+    }
+
     @Test
     void test() {
-        Network network = GLTestUtils.getNetwork();
         Substation substation1 = network.getSubstation("Substation1");
         SubstationPosition substationPosition1 = new SubstationPositionImpl(substation1, SUBSTATION_1);
         substation1.addExtension(SubstationPosition.class, substationPosition1);
@@ -95,7 +145,7 @@ class CgmesGLExporterTest {
         checkPositionPoint(contextCaptor.getAllValues().get(8), nsCaptor.getAllValues().get(8), typeCaptor.getAllValues().get(8),
                            propertiesCaptor.getAllValues().get(8), network.getId().toLowerCase(), LINE_1, 2);
         checkPositionPoint(contextCaptor.getAllValues().get(9), nsCaptor.getAllValues().get(9), typeCaptor.getAllValues().get(9),
-                           propertiesCaptor.getAllValues().get(9), network.getId().toLowerCase(), GLTestUtils.LINE_2, 3);
+                           propertiesCaptor.getAllValues().get(9), network.getId().toLowerCase(), LINE_2, 3);
         checkPositionPoint(contextCaptor.getAllValues().get(10), nsCaptor.getAllValues().get(10), typeCaptor.getAllValues().get(10),
                            propertiesCaptor.getAllValues().get(10), network.getId().toLowerCase(), SUBSTATION_2, 4);
     }
