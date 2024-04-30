@@ -7,7 +7,7 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<xs:schema version="1.12"
+<xs:schema version="1.13"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/equipment/1_13"
            targetNamespace="http://www.powsybl.org/schema/iidm/equipment/1_13"
