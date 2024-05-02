@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.3.0</version>
+        <version>6.3.1-SNAPSHOT</version>
     </parent>
     
     <artifactId>powsybl-computation-local</artifactId>

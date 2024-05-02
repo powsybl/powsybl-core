@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-cgmes</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.3.0</version>
+        <version>6.3.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-model-test</artifactId>
