@@ -94,7 +94,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                           "timeLine" : [ ]
                         }""";
         assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-file", "outputTest.json"}, expectedOut);
-        ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
+        ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.json")));
     }
 
     @Test
@@ -110,7 +110,7 @@ class DynamicSimulationToolTest extends AbstractToolTest {
                 "+---------+" + System.lineSeparator());
         String expectedOutputFile = "Dynamic Simulation Tool\n";
         assertCommandSuccessful(new String[]{"dynamic-simulation", "--case-file", "/network.xiidm", "--dynamic-models-file", "/dynamicModels.groovy", "--output-log-file", "outputTest.log"}, expectedOut);
-        ComparisonUtils.compareTxt(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
+        ComparisonUtils.assertTxtEquals(expectedOutputFile, Files.newInputStream(fileSystem.getPath("outputTest.log")));
     }
 
     @Test
