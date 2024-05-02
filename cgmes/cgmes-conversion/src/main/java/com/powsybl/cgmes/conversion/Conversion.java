@@ -280,6 +280,9 @@ public class Conversion {
             nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
             nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
+        // FIXME(JAM) Use the generating units to obtain normalPF
+        LOG.error("use the generating units to obtain normalPF:");
+        cgmes.generatingUnits().forEach(gu -> LOG.error("{} {}", gu.asDouble("normalPF"), gu.getId("GeneratingUnit")));
 
         update(network, cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         update(network, cgmes.energySources(), es -> new EnergySourceConversion(es, context));

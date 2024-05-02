@@ -184,6 +184,14 @@ SELECT *
     }
 }
 
+# query: generatingUnits
+SELECT *
+{
+    ?GeneratingUnit
+        a ?generatingUnitType ;
+        cim:GeneratingUnit.normalPF ?normalPF
+}
+
 # query: equivalentInjections
 SELECT *
 {

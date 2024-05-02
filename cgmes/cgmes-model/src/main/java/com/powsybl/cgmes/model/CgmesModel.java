@@ -135,6 +135,10 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags generatingUnits() {
+        return new PropertyBags();
+    }
+
     PropertyBags equivalentInjections();
 
     PropertyBags externalNetworkInjections();

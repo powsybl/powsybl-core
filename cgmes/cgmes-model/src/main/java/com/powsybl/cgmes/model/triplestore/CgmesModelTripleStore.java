@@ -524,6 +524,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags generatingUnits() {
+        return namedQuery("generatingUnits");
+    }
+
+    @Override
     public PropertyBags equivalentInjections() {
         return namedQuery("equivalentInjections");
     }
