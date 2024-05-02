@@ -260,12 +260,10 @@ public class DgsParser {
                         context.general = false;
                         readObjectTableHeader(trimmedLine, handler, context);
                     }
+                } else if (context.general) {
+                    readGeneralTableRow(trimmedLine, handler, context);
                 } else {
-                    if (context.general) {
-                        readGeneralTableRow(trimmedLine, handler, context);
-                    } else {
-                        readObjectTableRow(trimmedLine, handler, context);
-                    }
+                    readObjectTableRow(trimmedLine, handler, context);
                 }
             }
         } catch (IOException e) {
