@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class OdreGeoDataCsvLoaderTest {
 
     @Test
-    public void validSubstationsLineParsing() throws URISyntaxException {
+    void validSubstationsLineParsing() throws URISyntaxException {
         Path substationsPath = Paths.get(getClass()
                 .getClassLoader().getResource("valid-line-name/substations.csv").toURI());
         Path undergroundLinesPath = Paths.get(getClass()

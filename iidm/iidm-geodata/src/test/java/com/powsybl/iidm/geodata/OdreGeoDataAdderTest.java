@@ -34,12 +34,12 @@ class OdreGeoDataAdderTest {
     private Network network;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         network = EurostagTutorialExample1Factory.create();
     }
 
     @Test
-    public void addSubstationsPosition() {
+    void addSubstationsPosition() {
         Coordinate coord1 = new Coordinate(1, 2);
         Coordinate coord2 = new Coordinate(3, 4);
         SubstationGeoData p1GeoData = new SubstationGeoData("P1", "FR", coord1);
@@ -60,7 +60,7 @@ class OdreGeoDataAdderTest {
     }
 
     @Test
-    public void addLinesGeoData() {
+    void addLinesGeoData() {
         Coordinate coord1 = new Coordinate(1, 2);
         Coordinate coord2 = new Coordinate(3, 4);
         LineGeoData position = new LineGeoData("NHV1_NHV2_2", "FR", "BE",
@@ -75,7 +75,7 @@ class OdreGeoDataAdderTest {
     }
 
     @Test
-    public void addSubstationsGeoDataFromFile() throws URISyntaxException {
+    void addSubstationsGeoDataFromFile() throws URISyntaxException {
         Path substationsPath = Paths.get(getClass()
                 .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
 
