@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.iidm.geodata;
 
 import com.google.auto.service.AutoService;
@@ -61,7 +68,7 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager) throws Exception {
+    public void process(Network network, ComputationManager computationManager) {
         if (Files.exists(substationsFilePath)) {
             OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath);
             boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
@@ -70,8 +77,8 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
                 OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network,
                         aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath);
             } else {
-                String missingFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
-                missingFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());
+                String missingAerialFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
+                String missingFiles = missingAerialFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());
                 LOGGER.warn("Could not load lines geographical data, file(s) not found : {}", missingFiles);
             }
         } else {

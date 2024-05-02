@@ -10,6 +10,8 @@ package com.powsybl.iidm.geodata;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -28,8 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
@@ -37,11 +38,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class OdreGeoDataAdderPostProcessorTest {
 
     private FileSystem fileSystem;
+    private Network network;
+    private PlatformConfig platformConfig;
+    private OdreGeoDataAdderPostProcessor processor;
+    private ComputationManager computationManager;
 
     @BeforeEach
     void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-
+        network = EurostagTutorialExample1Factory.create();
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+        processor = new OdreGeoDataAdderPostProcessor(platformConfig);
+        computationManager = LocalComputationManager.getDefault();
     }
 
     @AfterEach
@@ -50,8 +58,7 @@ class OdreGeoDataAdderPostProcessorTest {
     }
 
     @Test
-    void test() throws IOException {
-        InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+    void test() {
         OdreGeoDataAdderPostProcessor.DEFAULT_FILE_NAMES.forEach(
                 (name, fileName) -> {
                     Path path = platformConfig.getConfigDir().map(p -> p.resolve(fileName)).orElse(null);
@@ -63,13 +70,8 @@ class OdreGeoDataAdderPostProcessorTest {
                     }
                 });
 
-        OdreGeoDataAdderPostProcessor processor = new OdreGeoDataAdderPostProcessor(platformConfig);
-
-        // Create network
-        Network network = EurostagTutorialExample1Factory.create();
-
         try { // Launch process
-            processor.process(network, LocalComputationManager.getDefault());
+            processor.process(network, computationManager);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -101,6 +103,31 @@ class OdreGeoDataAdderPostProcessorTest {
                         new Coordinate(4, 4),
                         new Coordinate(5, 5)),
                 linePosition2.getCoordinates());
+    }
+
+    @Test
+    void missingFiles() throws IOException {
+        processor.process(network, computationManager);
+        assertNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
+
+        Path path = platformConfig.getConfigDir().map(p -> p.resolve("postes-electriques-rte.csv")).orElse(null);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/postes-electriques-rte.csv"), path);
+        processor.process(network, computationManager);
+
+        assertNotNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
+        assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
+
+        Path aerialLinePath = platformConfig.getConfigDir().map(p -> p.resolve("lignes-aeriennes-rte-nv.csv")).orElse(null);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/lignes-aeriennes-rte-nv.csv"), aerialLinePath);
+        processor.process(network, computationManager);
+
+        assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
+
+        Path undergroundLinePath = platformConfig.getConfigDir().map(p -> p.resolve("lignes-souterraines-rte-nv.csv")).orElse(null);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/lignes-souterraines-rte-nv.csv"), undergroundLinePath);
+        processor.process(network, computationManager);
+
+        assertNotNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
     }
 
 }
