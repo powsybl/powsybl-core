@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
+ * @author Ahmed Bendaamer {@literal <ahmed.bendaamer at rte-france.com>}
  */
 public class FileValidatorTest {
 

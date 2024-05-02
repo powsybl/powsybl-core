@@ -14,6 +14,9 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
+ */
 @AutoService(ImportPostProcessor.class)
 public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
 

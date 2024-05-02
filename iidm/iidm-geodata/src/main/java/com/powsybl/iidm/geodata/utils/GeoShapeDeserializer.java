@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
+ * @author Hugo Marcellin {@literal <hugo.marcelin at rte-france.com>}
  */
 
 public class GeoShapeDeserializer extends StdDeserializer<GeoShape> {

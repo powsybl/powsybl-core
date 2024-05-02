@@ -3,7 +3,7 @@ package com.powsybl.iidm.geodata.dto;
 import com.powsybl.iidm.network.extensions.Coordinate;
 
 /**
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public class SubstationGeoData {
 

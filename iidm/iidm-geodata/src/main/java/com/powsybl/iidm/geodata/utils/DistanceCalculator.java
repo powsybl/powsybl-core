@@ -1,7 +1,7 @@
 package com.powsybl.iidm.geodata.utils;
 
 /**
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public final class DistanceCalculator {
 

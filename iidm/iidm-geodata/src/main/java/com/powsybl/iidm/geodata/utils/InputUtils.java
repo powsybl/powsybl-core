@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
+ * @author Hugo Marcellin {@literal <hugo.marcelin at rte-france.com>}
  */
 public final class InputUtils {
     private InputUtils() {

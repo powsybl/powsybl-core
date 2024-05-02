@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public class SubstationGeoDataTest {
 

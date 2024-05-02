@@ -20,7 +20,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * @author bendaamerahm <ahmed.bendaamer at rte-france.com>
+ * @author Ahmed Bendaamer {@literal <ahmed.bendaamer at rte-france.com>}
  */
 public final class FileValidator {
 

@@ -7,8 +7,7 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import java.util.List;
 
 /**
- * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
+ * @author Hugo Marcellin {@literal <hugo.marcelin at rte-france.com>}
  */
-
 @JsonDeserialize(using = GeoShapeDeserializer.class)
 public record GeoShape(List<Coordinate> coordinates) { }

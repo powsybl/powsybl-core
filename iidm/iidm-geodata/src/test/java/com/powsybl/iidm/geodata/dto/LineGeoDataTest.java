@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public class LineGeoDataTest {
 

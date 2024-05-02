@@ -3,7 +3,7 @@ package com.powsybl.iidm.geodata.utils;
 import org.jgrapht.graph.Pseudograph;
 
 /**
- * @author Hugo Marcellin <hugo.marcelin at rte-france.com>
+ * @author Hugo Marcellin {@literal <hugo.marcelin at rte-france.com>}
  */
 public class LineGraph<V, E> extends Pseudograph<V, E> {
     public LineGraph(Class<? extends E> edgeClass) {

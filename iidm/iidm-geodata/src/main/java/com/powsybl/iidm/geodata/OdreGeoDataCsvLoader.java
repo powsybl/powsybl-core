@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author Hugo Kulesza <hugo.kulesza at rte-france.com>
+ * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
 public class OdreGeoDataCsvLoader {
 

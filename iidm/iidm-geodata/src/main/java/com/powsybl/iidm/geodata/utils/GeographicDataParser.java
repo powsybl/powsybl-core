@@ -26,7 +26,7 @@ import static java.util.Collections.min;
 import static java.util.Collections.reverse;
 
 /**
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public final class GeographicDataParser {
 

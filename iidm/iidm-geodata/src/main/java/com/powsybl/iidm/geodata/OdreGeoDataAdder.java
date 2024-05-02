@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * @author Hugo Kulesza <hugo.kulesza at rte-france.com>
+ * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
 public class OdreGeoDataAdder {
 

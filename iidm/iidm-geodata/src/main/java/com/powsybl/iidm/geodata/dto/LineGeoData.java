@@ -5,8 +5,8 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import java.util.List;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
 public class LineGeoData {
 
