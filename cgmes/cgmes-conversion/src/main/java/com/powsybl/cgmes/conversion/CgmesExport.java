@@ -118,11 +118,13 @@ public class CgmesExport implements Exporter {
         if (sourcingActor.containsKey("masUri") && masUri.equals(CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
             masUri = sourcingActor.get("masUri");
         }
-
-        context.getExportedEQModel().setModelingAuthoritySet(masUri);
-        context.getExportedTPModel().setModelingAuthoritySet(masUri);
-        context.getExportedSSHModel().setModelingAuthoritySet(masUri);
-        context.getExportedSVModel().setModelingAuthoritySet(masUri);
+        // Only update if masUri is not the default value
+        if (!masUri.equals(CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
+            context.getExportedEQModel().setModelingAuthoritySet(masUri);
+            context.getExportedTPModel().setModelingAuthoritySet(masUri);
+            context.getExportedSSHModel().setModelingAuthoritySet(masUri);
+            context.getExportedSVModel().setModelingAuthoritySet(masUri);
+        }
         String modelDescription = Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig);
         if (modelDescription != null) {
             context.getExportedEQModel().setDescription(modelDescription);
