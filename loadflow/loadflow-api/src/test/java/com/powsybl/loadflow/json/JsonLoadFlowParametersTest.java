@@ -53,7 +53,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
     void writeExtension() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::compareTxt, "/LoadFlowParametersWithExtension.json");
+        writeTest(parameters, JsonLoadFlowParameters::write, ComparisonUtils::assertTxtEquals, "/LoadFlowParametersWithExtension.json");
     }
 
     @Test

@@ -246,7 +246,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonShortCircuitParameters::write,
-                ComparisonUtils::compareTxt, "/ShortCircuitParametersWithExtension.json");
+                ComparisonUtils::assertTxtEquals, "/ShortCircuitParametersWithExtension.json");
     }
 
     @Test

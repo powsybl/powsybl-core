@@ -36,7 +36,7 @@ import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -72,7 +72,7 @@ class PsseExporterTest extends AbstractSerDeTest {
         new PsseExporter().export(network, properties, dataSource);
 
         try (InputStream is = Files.newInputStream(file)) {
-            compareTxt(getClass().getResourceAsStream("/" + fileName), is);
+            assertTxtEquals(getClass().getResourceAsStream("/" + fileName), is);
         }
     }
 

@@ -26,7 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -50,7 +50,7 @@ class PsseImporterTest extends AbstractSerDeTest {
         network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 
