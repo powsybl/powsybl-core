@@ -76,9 +76,13 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         String exportBasename = "tmp-micro-bc-from-CGM";
         network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
 
-        Set<String> deps = findAll(REGEX_DEPENDENT_ON, Files.readString(tmpDir.resolve(exportBasename + "_SV.xml")));
+        String sv = Files.readString(tmpDir.resolve(exportBasename + "_SV.xml"));
+
+        Set<String> deps = findAll(REGEX_DEPENDENT_ON, sv);
         assertTrue(deps.containsAll(updatedSshIds));
         initialSshIds.forEach(initialSshId -> assertFalse(deps.contains(initialSshId)));
+
+        assertEquals("MAS1", findFirst(MODELING_AUTHORITY, sv));
     }
 
     private void buildSvDependenciesManaginMetadataModels(Network network, List<String> updateSshIds) {
@@ -139,5 +143,14 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         return found;
     }
 
+    private static String findFirst(Pattern pattern, String xml) {
+        Matcher matcher = pattern.matcher(xml);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        return null;
+    }
+
     private static final Pattern REGEX_DEPENDENT_ON = Pattern.compile("<md:Model.DependentOn rdf:resource=\"(.*?)\"");
+    private static final Pattern MODELING_AUTHORITY = Pattern.compile("<md:Model.modelingAuthoritySet>(.*?)</md:Model.modelingAuthoritySet>");
 }
