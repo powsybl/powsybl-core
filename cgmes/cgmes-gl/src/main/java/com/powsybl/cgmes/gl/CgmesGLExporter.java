@@ -34,8 +34,8 @@ public class CgmesGLExporter {
     private static final Logger LOG = LoggerFactory.getLogger(CgmesGLExporter.class);
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 
-    private final Network network;
-    private final TripleStore tripleStore;
+    private Network network;
+    private TripleStore tripleStore;
 
     private static final String MODEL_SCENARIO_TIME = "Model.scenarioTime";
     private static final String MODEL_CREATED = "Model.created";
@@ -100,7 +100,6 @@ public class CgmesGLExporter {
         PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
-        coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, CgmesGLUtils.COORDINATE_SYSTEM_NAME);
         context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
     }
 
