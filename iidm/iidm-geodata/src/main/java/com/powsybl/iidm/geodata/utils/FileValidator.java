@@ -1,10 +1,3 @@
-/**
- * Copyright (c) 2019, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * SPDX-License-Identifier: MPL-2.0
- */
 package com.powsybl.iidm.geodata.utils;
 
 import org.slf4j.Logger;
@@ -39,21 +32,21 @@ public final class FileValidator {
     static final String COUNTRY_FR = "FR";
     static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
     static final String TYPE = "text/csv";
-    public static final String CODE_LIGNE_1 = "Code ligne 1";
-    public static final String CODE_LIGNE_2 = "Code ligne 2";
-    public static final String CODE_LIGNE_3 = "Code ligne 3";
-    public static final String CODE_LIGNE_4 = "Code ligne 4";
-    public static final String CODE_LIGNE_5 = "Code ligne 5";
+    public static final String CODE_LIGNE_1 = "code_ligne";
+    public static final String CODE_LIGNE_2 = "identification_2";
+    public static final String CODE_LIGNE_3 = "identification_3";
+    public static final String CODE_LIGNE_4 = "identification_4";
+    public static final String CODE_LIGNE_5 = "identification_5";
     public static final String CODE_LIGNE_KEY_1 = "id1";
     public static final String CODE_LIGNE_KEY_2 = "id2";
     public static final String CODE_LIGNE_KEY_3 = "id3";
     public static final String CODE_LIGNE_KEY_4 = "id4";
     public static final String CODE_LIGNE_KEY_5 = "id5";
     static final Map<String, String> IDS_COLUMNS_NAME = Map.of("id1", CODE_LIGNE_1, "id2", CODE_LIGNE_2, "id3", CODE_LIGNE_3, "id4", CODE_LIGNE_4, "id5", CODE_LIGNE_5);
-    public static final String GEO_SHAPE = "Geo Shape";
-    static final String CODE_POSTE = "Code poste";
-    static final String LONGITUDE_POSTE_DD = "Longitude poste (DD)";
-    static final String LATITUDE_POSTE_DD = "Latitude poste (DD)";
+    public static final String GEO_SHAPE = "geo_shape";
+    static final String CODE_POSTE = "code_poste";
+    static final String LONGITUDE_POSTE_DD = "longitude_poste";
+    static final String LATITUDE_POSTE_DD = "latitude_poste";
     private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = List.of(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
     private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
     private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
@@ -85,7 +78,7 @@ public final class FileValidator {
                 final String[] headersString = mapReader.getHeader(true);
                 final List<String> headers = List.of(headersString);
                 Map<String, String> row = mapReader.read(headersString);
-                String typeOuvrage = row.get("Type ouvrage");
+                String typeOuvrage = row.get("type_ouvrage");
                 switch ((typeOuvrage != null) ? typeOuvrage : "NULL") {
                     case "NULL":
                         getIfSubstationsOrLogError(mapResult, path, headers, typeOuvrage);

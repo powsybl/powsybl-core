@@ -6,6 +6,8 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,6 +22,7 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
             "aerial-lines", "lignes-aeriennes-rte-nv.csv",
             "underground-lines", "lignes-souterraines-rte-nv.csv");
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OdreGeoDataAdderPostProcessor.class);
     private final Path substationsFilePath;
     private final Path aerialLinesFilePath;
     private final Path undergroundLinesFilePath;
@@ -58,10 +61,18 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     public void process(Network network, ComputationManager computationManager) throws Exception {
         if (Files.exists(substationsFilePath)) {
             OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath);
-            if (Files.exists(aerialLinesFilePath) && Files.exists(undergroundLinesFilePath)) {
+            boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
+            boolean undergroundLinesPresent = Files.exists(undergroundLinesFilePath);
+            if (aerialLinesPresent && undergroundLinesPresent) {
                 OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network,
                         aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath);
+            } else {
+                String missingFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
+                missingFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());
+                LOGGER.warn("Could not load lines geographical data, file(s) not found : " + missingFiles);
             }
+        } else {
+            LOGGER.warn("Could not load substations geographical data, file not found : " + substationsFilePath.toString());
         }
     }
 }

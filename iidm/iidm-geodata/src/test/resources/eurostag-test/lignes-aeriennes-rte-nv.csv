@@ -1,3 +1,3 @@
-﻿Type ouvrage;Code ligne 1;Nom ligne 1;Propriétaire ligne 1;Etat;TENSION;Source donnée;Geo Shape;Nombre circuit;Code ligne 2;Nom ligne 2;Propriétaire ligne 2;Code ligne 3;Nom ligne 3;Propriétaire ligne 3;Code ligne 4;Nom ligne 4;Propriétaire ligne 4;Code ligne 5;Nom ligne 5;Proprietaire ligne 5;geo_point_2d
+﻿type_ouvrage;code_ligne;nom_ligne;proprietaire_ligne;etat;tension;source;geo_shape;nombre_circuit;identification_2;nom_ouvrage_2;proprietaire_2;identification_3;nom_ouvrage_3;proprietaire_3;identification_4;nom_ouvrage_4;proprietaire_4;identification_5;nom_ouvrage_5;proprietaire_5;geo_point_2d
 AERIEN;NHV1_NHV2_1;NHV1_NHV2_1;RTE;EN EXPLOITATION;400kV;RTE;"{""coordinates"": [[1, 1], [2, 2], [3, 3]], ""type"": ""LineString""}";1;;;;;;;;;;;;;2, 2
 AERIEN;NHV1_NHV2_1;NHV1_NHV2_1;RTE;EN EXPLOITATION;400kV;RTE;"{""coordinates"": [[4, 4], [5, 5]], ""type"": ""LineString""}";1;;;;;;;;;;;;;2, 2
