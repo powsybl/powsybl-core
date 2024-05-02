@@ -275,17 +275,21 @@ public class Conversion {
                 if (terminalBoundaryId == null) {
                     LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
                 } else {
-                    CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-                    if (terminalBoundary == null) {
-                        LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-                    } else {
-                        if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                            LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                            dl.getTerminal().disconnect();
-                        }
-                    }
+                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
                 }
+            }
+        }
+    }
+
+    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
+        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
+        if (terminalBoundary == null) {
+            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
+        } else {
+            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
+                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                dl.getTerminal().disconnect();
             }
         }
     }
@@ -760,9 +764,10 @@ public class Conversion {
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
-                .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
-                .toList()
-                .forEach(Connectable::remove);
+                .forEach(converter -> {
+                    context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found.");
+                    converter.remove();
+                });
     }
 
     private void debugTopology(Context context) {
@@ -1028,6 +1033,8 @@ public class Conversion {
     private final NetworkFactory networkFactory;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
+
+    private static final String VOLTAGE_LEVEL = "VoltageLevel";
 
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";

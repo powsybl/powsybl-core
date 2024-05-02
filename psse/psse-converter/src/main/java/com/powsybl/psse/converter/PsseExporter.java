@@ -8,7 +8,6 @@
 package com.powsybl.psse.converter;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Exporter;
 import com.powsybl.iidm.network.*;
@@ -40,10 +39,10 @@ public class PsseExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.unmodifiableList(STATIC_PARAMETERS);
+        return STATIC_PARAMETERS;
     }
 
-    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of();
+    private static final List<Parameter> STATIC_PARAMETERS = List.of();
 
     @Override
     public String getFormat() {
@@ -62,50 +61,51 @@ public class PsseExporter implements Exporter {
         PssePowerFlowModel updatePsseModel = createUpdatePsseModel(network, psseModel);
 
         Context context = network.getExtension(PsseConversionContextExtension.class).getContext();
+        PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
         if (context.getFileFormat() == FileFormat.JSON) {
-            PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
-            switch (version.major()) {
-                case V35:
-                    PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
-                    try {
-                        rawXData35.write(updatePsseModel, context, dataSource);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                    break;
-                default:
-                    throw new PsseException("Unsupported version " + version);
+            if (Objects.requireNonNull(version.major()) == PsseVersion.Major.V35) {
+                PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
+                try {
+                    rawXData35.write(updatePsseModel, context, dataSource);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            } else {
+                throw new PsseException("Unsupported version " + version);
             }
         } else {
-            PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
-            switch (version.major()) {
-                case V35:
-                    PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
-                    try {
-                        rawData35.write(updatePsseModel, context, dataSource);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                    break;
-                case V33:
-                    PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
-                    try {
-                        rawData33.write(updatePsseModel, context, dataSource);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                    break;
-                case V32:
-                    PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
-                    try {
-                        rawData32.write(updatePsseModel, context, dataSource);
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                    break;
-                default:
-                    throw new PsseException("Unsupported version " + version);
-            }
+            exportNotJson(context, updatePsseModel, version, dataSource);
+        }
+    }
+
+    private void exportNotJson(Context context, PssePowerFlowModel updatePsseModel, PsseVersion version, DataSource dataSource) {
+        switch (version.major()) {
+            case V35:
+                PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
+                try {
+                    rawData35.write(updatePsseModel, context, dataSource);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+                break;
+            case V33:
+                PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+                try {
+                    rawData33.write(updatePsseModel, context, dataSource);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+                break;
+            case V32:
+                PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
+                try {
+                    rawData32.write(updatePsseModel, context, dataSource);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+                break;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 

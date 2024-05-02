@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Yichen TANG {@literal <yichen.tang at rte-france.com>}
  */
-class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
+class EnvironmentModuleConfigRepositoryTest extends AbstractMapModuleConfigTest {
 
     @Test
     void test() {
