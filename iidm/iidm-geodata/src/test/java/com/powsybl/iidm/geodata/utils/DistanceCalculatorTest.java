@@ -8,10 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
-public class DistanceCalculatorTest {
+class DistanceCalculatorTest {
 
     @Test
-    public void test() {
+    void test() {
         double zeroDistance = DistanceCalculator.distance(1, 0, 1, 0);
         assertEquals(0, zeroDistance);
 

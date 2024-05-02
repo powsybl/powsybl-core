@@ -14,10 +14,10 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
-public class SubstationGeoDataTest {
+class SubstationGeoDataTest {
 
     @Test
-    public void test() {
+    void test() {
         SubstationGeoData substationGeoData = new SubstationGeoData("id", "FR", new Coordinate(1, 1));
 
         assertEquals("id", substationGeoData.getId());

@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
-public class OdreGeoDataCsvLoaderTest {
+class OdreGeoDataCsvLoaderTest {
 
     @Test
     public void validSubstationsLineParsing() throws URISyntaxException {

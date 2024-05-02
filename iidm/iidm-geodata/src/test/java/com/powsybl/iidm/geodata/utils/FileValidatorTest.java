@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Ahmed Bendaamer {@literal <ahmed.bendaamer at rte-france.com>}
  */
-public class FileValidatorTest {
+class FileValidatorTest {
 
     @Test
-    public void whenCallingValidate() throws IOException, URISyntaxException {
+    void whenCallingValidate() throws IOException, URISyntaxException {
         Path file = Paths.get(getClass()
                 .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()

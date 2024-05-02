@@ -72,10 +72,10 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
             } else {
                 String missingFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
                 missingFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());
-                LOGGER.warn("Could not load lines geographical data, file(s) not found : " + missingFiles);
+                LOGGER.warn("Could not load lines geographical data, file(s) not found : {}", missingFiles);
             }
         } else {
-            LOGGER.warn("Could not load substations geographical data, file not found : " + substationsFilePath.toString());
+            LOGGER.warn("Could not load substations geographical data, file not found : {}", substationsFilePath);
         }
     }
 }

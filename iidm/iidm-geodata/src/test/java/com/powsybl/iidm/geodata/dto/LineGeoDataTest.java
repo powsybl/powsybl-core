@@ -12,10 +12,10 @@ import static org.junit.Assert.assertTrue;
 /**
  * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
-public class LineGeoDataTest {
+class LineGeoDataTest {
 
     @Test
-    public void test() {
+    void test() {
         LineGeoData lineGeoData = new LineGeoData("l", "FR", "FR", "ALAMO", "CORAL", Collections.<Coordinate>emptyList());
 
         assertEquals("l", lineGeoData.getId());

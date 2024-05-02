@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
-public class OdreGeoDataAdderTest {
+class OdreGeoDataAdderTest {
 
     private Network network;
 
