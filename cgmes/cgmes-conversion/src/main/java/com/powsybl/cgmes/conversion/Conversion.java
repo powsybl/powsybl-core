@@ -1034,8 +1034,6 @@ public class Conversion {
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
-    private static final String VOLTAGE_LEVEL = "VoltageLevel";
-
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
