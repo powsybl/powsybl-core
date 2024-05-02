@@ -8,12 +8,12 @@
 package com.powsybl.cgmes.gl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
+import com.powsybl.triplestore.api.PropertyBag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,47 +37,36 @@ public class LinePositionImporter {
     }
 
     public void importPosition() {
-        Map<Line, SortedMap<Integer, Coordinate>> lineCoordinates = new HashMap<>();
-        Map<DanglingLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates = new HashMap<>();
+        Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates = new HashMap<>();
 
-        cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPosition(propertyBag, lineCoordinates, danglingLineCoordinates));
+        cgmesGLModel.getLinesPositions().forEach(propertyBag -> importPosition(propertyBag, lineOrDanglingLineCoordinates));
 
-        for (Map.Entry<Line, SortedMap<Integer, Coordinate>> e : lineCoordinates.entrySet()) {
-            Line line = e.getKey();
-            SortedMap<Integer, Coordinate> coordinates = e.getValue();
-            line.newExtension(LinePositionAdder.class).withCoordinates(new ArrayList<>(coordinates.values())).add();
-        }
-
-        for (Map.Entry<DanglingLine, SortedMap<Integer, Coordinate>> e : danglingLineCoordinates.entrySet()) {
-            DanglingLine danglingLine = e.getKey();
-            SortedMap<Integer, Coordinate> coordinates = e.getValue();
-            danglingLine.newExtension(LinePositionAdder.class).withCoordinates(new ArrayList<>(coordinates.values())).add();
-        }
+        lineOrDanglingLineCoordinates.forEach((lOrDl, coordinates) ->
+                lOrDl.newExtension(LinePositionAdder.class).withCoordinates(coordinates.values().stream().toList()).add());
     }
 
-    private void importPosition(PropertyBag linePositionData, Map<Line, SortedMap<Integer, Coordinate>> lineCoordinates,
-                                Map<DanglingLine, SortedMap<Integer, Coordinate>> danglingLineCoordinates) {
+    private void importPosition(PropertyBag linePositionData, Map<Identifiable<?>, SortedMap<Integer, Coordinate>> lineOrDanglingLineCoordinates) {
         Objects.requireNonNull(linePositionData);
         String crsUrn = linePositionData.getId("crsUrn");
         if (!CgmesGLUtils.checkCoordinateSystem(crsUrn)) {
-            throw new PowsyblException("Unsupported coodinates system: " + crsUrn);
+            throw new PowsyblException("Unsupported coordinates system: " + crsUrn);
         }
         String lineId = linePositionData.getId("powerSystemResource");
-        Line line = network.getLine(lineId);
-        if (line != null) {
-            lineCoordinates.computeIfAbsent(line, k -> new TreeMap<>())
+        Identifiable<?> lineOrDanglingLine = getLineOrDanglingLine(lineId);
+        if (lineOrDanglingLine != null) {
+            lineOrDanglingLineCoordinates.computeIfAbsent(lineOrDanglingLine, k -> new TreeMap<>())
                     .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
-                     // y <=> lat, x <=> lon
+                    // y <=> lat, x <=> lon
         } else {
-            DanglingLine danglingLine = network.getDanglingLine(lineId);
-            if (danglingLine != null) {
-                danglingLineCoordinates.computeIfAbsent(danglingLine, k -> new TreeMap<>())
-                        .put(linePositionData.asInt("seq"), new Coordinate(linePositionData.asDouble("y"), linePositionData.asDouble("x")));
-                        // y <=> lat, x <=> lon
-            } else {
-                LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
-            }
+            LOG.warn("Cannot find line/dangling {}, name {} in network {}: skipping line position", lineId, linePositionData.get("name"), network.getId());
         }
     }
 
+    private Identifiable<?> getLineOrDanglingLine(String lineId) {
+        Line line = network.getLine(lineId);
+        if (line != null) {
+            return line;
+        }
+        return network.getDanglingLine(lineId);
+    }
 }

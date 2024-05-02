@@ -67,10 +67,10 @@ class CgmesGLImportPostProcessorTest {
         properties.put("iidm.import.cgmes.post-processors", "cgmesGLImport");
         ReadOnlyDataSource ds1 = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "unsupportedSubstationCrs_GL.xml"));
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> Network.read(ds1, properties));
-        assertEquals("Unsupported coodinates system: urn:ogc:def:crs:OGC:2:84", e1.getMessage());
+        assertEquals("Unsupported coordinates system: urn:ogc:def:crs:OGC:2:84", e1.getMessage());
 
         ReadOnlyDataSource ds2 = new ResourceDataSource("importGL", new ResourceSet("/", "importGL_EQ.xml", "unsupportedLineCrs_GL.xml"));
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> Network.read(ds2, properties));
-        assertEquals("Unsupported coodinates system: urn:ogc:def:crs:OGC:2:84", e2.getMessage());
+        assertEquals("Unsupported coordinates system: urn:ogc:def:crs:OGC:2:84", e2.getMessage());
     }
 }

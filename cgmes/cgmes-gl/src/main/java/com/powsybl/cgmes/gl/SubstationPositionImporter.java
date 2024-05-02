@@ -36,7 +36,7 @@ public class SubstationPositionImporter {
         Objects.requireNonNull(substationPositionData);
         String crsUrn = substationPositionData.getId("crsUrn");
         if (!CgmesGLUtils.checkCoordinateSystem(crsUrn)) {
-            throw new PowsyblException("Unsupported coodinates system: " + crsUrn);
+            throw new PowsyblException("Unsupported coordinates system: " + crsUrn);
         }
         String substationId = substationPositionData.getId("powerSystemResource");
         Substation substation = network.getSubstation(substationId);
