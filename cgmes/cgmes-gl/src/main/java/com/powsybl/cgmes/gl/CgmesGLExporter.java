@@ -99,7 +99,6 @@ public class CgmesGLExporter {
     private void addCoordinateSystem(ExportContext context) {
         PropertyBag coordinateSystemProperties = new PropertyBag(Arrays.asList(IDENTIFIED_OBJECT_NAME, "crsUrn"), true);
         coordinateSystemProperties.setClassPropertyNames(Collections.singletonList(IDENTIFIED_OBJECT_NAME));
-        coordinateSystemProperties.put(IDENTIFIED_OBJECT_NAME, CgmesGLUtils.COORDINATE_SYSTEM_NAME);
         coordinateSystemProperties.put("crsUrn", CgmesGLUtils.COORDINATE_SYSTEM_URN);
         context.setCoordinateSystemId(tripleStore.add(context.getGlContext(), CgmesNamespace.CIM_16_NAMESPACE, "CoordinateSystem", coordinateSystemProperties));
     }
