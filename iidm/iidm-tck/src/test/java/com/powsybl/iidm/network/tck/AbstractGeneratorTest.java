@@ -108,20 +108,22 @@ public abstract class AbstractGeneratorTest {
     }
 
     /**
-     * This test goal is to check if targetP is allowed to be freely set outside of the bounds defined by minP and maxP.
+     * This test goal is to check if targetP is allowed to be freely set outside the bounds defined by minP and maxP.
      * <p>
-     * For a Battery it is expected that the current power is between this bounds but it is not mandatory for a Generator
+     * For a Battery it is expected that the current power is between these bounds, but it is not mandatory for a Generator</p>
      */
     @Test
     public void invalidPowerBounds() {
         // targetP < minP
         Generator invalidMinGenerator = createGenerator("invalid_min", EnergySource.HYDRO, 20.0, 10.0, 20.0,
                 0.0, 40.0, false, 20.0);
+        assertEquals(0.0, invalidMinGenerator.getTargetP(), 0.0);
         invalidMinGenerator.remove();
 
         // targetP > maxP
-        createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
+        Generator invalidMaxGenerator = createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
                 30.0, 40.0, false, 20.0);
+        assertEquals(30.0, invalidMaxGenerator.getTargetP(), 0.0);
 
     }
 

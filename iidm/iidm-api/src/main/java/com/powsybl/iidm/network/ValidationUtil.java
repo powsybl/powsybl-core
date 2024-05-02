@@ -726,11 +726,7 @@ public final class ValidationUtil {
             } else if (identifiable instanceof DanglingLine danglingLine) {
                 validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), throwException, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reportNode));
-                DanglingLine.Generation generation = danglingLine.getGeneration();
-                if (generation != null) {
-                    validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reportNode));
-                    validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reportNode));
-                }
+                validationLevel = checkGenerationOnDanglingLine(validationLevel, validable, danglingLine, throwException, reportNode);
                 validationLevel = checkOperationalLimitsGroups(validable, danglingLine.getOperationalLimitsGroups(), validationLevel, throwException, reportNode);
             } else if (identifiable instanceof Generator generator) {
                 validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reportNode));
@@ -744,7 +740,7 @@ public final class ValidationUtil {
             } else if (identifiable instanceof ShuntCompensator shunt) {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), throwException, reportNode));
                 validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), throwException, reportNode));
-                validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.findSectionCount().isPresent() ? shunt.getSectionCount() : null, shunt.getMaximumSectionCount(), throwException, reportNode));
+                validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, getSectionCount(shunt), shunt.getMaximumSectionCount(), throwException, reportNode));
             } else if (identifiable instanceof StaticVarCompensator svc) {
                 validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), throwException, reportNode));
             } else if (identifiable instanceof ThreeWindingsTransformer twt) {
@@ -759,6 +755,20 @@ public final class ValidationUtil {
             }
         }
         return validationLevel;
+    }
+
+    private static ValidationLevel checkGenerationOnDanglingLine(ValidationLevel previous, Validable validable, DanglingLine danglingLine, boolean throwException, ReportNode reportNode) {
+        ValidationLevel validationLevel = previous;
+        DanglingLine.Generation generation = danglingLine.getGeneration();
+        if (generation != null) {
+            validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reportNode));
+            validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reportNode));
+        }
+        return validationLevel;
+    }
+
+    private static Integer getSectionCount(ShuntCompensator shunt) {
+        return shunt.findSectionCount().isPresent() ? shunt.getSectionCount() : null;
     }
 
     private static ValidationLevel checkOperationalLimitsGroups(Validable validable, Collection<OperationalLimitsGroup> operationalLimitsGroupCollection, ValidationLevel previous, boolean throwException, ReportNode reportNode) {
