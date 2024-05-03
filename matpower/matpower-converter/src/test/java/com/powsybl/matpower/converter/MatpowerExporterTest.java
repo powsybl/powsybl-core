@@ -7,14 +7,18 @@
  */
 package com.powsybl.matpower.converter;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.ByteStreams;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
@@ -29,12 +33,9 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Objects;
+import java.text.DecimalFormat;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -42,6 +43,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class MatpowerExporterTest extends AbstractSerDeTest {
 
     private PlatformConfig platformConfig;
+
+    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0#############");
 
     @Override
     @BeforeEach
@@ -62,10 +65,21 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         byte[] mat = dataSource.getData(null, "mat");
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
         String json = new ObjectMapper()
+                // Write all doubles with a maximum precision of 14 decimal places to avoid macOS 14 small diffs in some output
+                .registerModule(new SimpleModule().addSerializer(Double.class, new JsonSerializer<>() {
+                    @Override
+                    public void serialize(Double value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                        if (value == null) {
+                            jsonGenerator.writeNull();
+                        } else {
+                            jsonGenerator.writeNumber(DECIMAL_FORMAT.format(value));
+                        }
+                    }
+                }))
                 .writerWithDefaultPrettyPrinter()
                 .writeValueAsString(model);
-        assertEquals(new String(ByteStreams.toByteArray(Objects.requireNonNull(MatpowerExporterTest.class.getResourceAsStream(refJsonFile))), StandardCharsets.UTF_8),
-                json);
+
+        ComparisonUtils.assertTxtEquals(MatpowerExporterTest.class.getResourceAsStream(refJsonFile), json);
     }
 
     @Test
