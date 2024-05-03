@@ -44,8 +44,6 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
     private PlatformConfig platformConfig;
 
-    private static final DecimalFormat DECIMAL_FORMAT = new DecimalFormat("0.0#############");
-
     @Override
     @BeforeEach
     public void setUp() throws IOException {
@@ -64,6 +62,8 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         new MatpowerExporter(platformConfig).export(network, parameters, dataSource);
         byte[] mat = dataSource.getData(null, "mat");
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
+        DecimalFormat decimal14 = new DecimalFormat("0.0");
+        decimal14.setMaximumFractionDigits(14);
         String json = new ObjectMapper()
                 // Write all doubles with a maximum precision of 14 decimal places to avoid macOS 14 small diffs in some output
                 .registerModule(new SimpleModule().addSerializer(Double.class, new JsonSerializer<>() {
@@ -72,7 +72,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                         if (value == null) {
                             jsonGenerator.writeNull();
                         } else {
-                            jsonGenerator.writeNumber(DECIMAL_FORMAT.format(value));
+                            jsonGenerator.writeNumber(decimal14.format(value));
                         }
                     }
                 }))
