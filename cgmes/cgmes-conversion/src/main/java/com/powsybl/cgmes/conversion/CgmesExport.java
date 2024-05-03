@@ -121,7 +121,9 @@ public class CgmesExport implements Exporter {
         CgmesMetadataModel updatedCgmSvModel = initializeModelForExport(network, CgmesSubset.STATE_VARIABLES, context, true, true);
 
         // Update dependencies
-        updateDependenciesCGM(igmModels.values(), updatedCgmSvModel);
+        if (context.updateDependencies()) {
+            updateDependenciesCGM(igmModels.values(), updatedCgmSvModel);
+        }
 
         // Export the SSH for the IGMs and the SV for the CGM
         String baseName = getBaseName(context, dataSource, network);
@@ -158,7 +160,9 @@ public class CgmesExport implements Exporter {
         }
 
         // Update dependencies
-        updateDependenciesIGM(subsetModels, context.getBoundaryEqId(), context.getBoundaryTpId());
+        if (context.updateDependencies()) {
+            updateDependenciesIGM(subsetModels, context.getBoundaryEqId(), context.getBoundaryTpId());
+        }
 
         // Export requested subsets
         context.setExportEquipment(requestedSubsets.contains(CgmesSubset.EQUIPMENT));

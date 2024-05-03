@@ -100,7 +100,6 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
-    private final EnumMap<CgmesSubset, List<String>> legacyIdsForSvDependencies = new EnumMap<>(CgmesSubset.class);
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
@@ -779,13 +778,13 @@ public class CgmesExportContext {
         return this;
     }
 
-    public void setLegacyIdsForSvDependencies(CgmesSubset subset, List<String> ids) {
-        legacyIdsForSvDependencies.put(subset, ids);
-    }
-
     public CgmesExportContext setUpdateDependencies(boolean updateDependencies) {
         this.updateDependencies = updateDependencies;
         return this;
+    }
+
+    public boolean updateDependencies() {
+        return updateDependencies;
     }
 }
 
