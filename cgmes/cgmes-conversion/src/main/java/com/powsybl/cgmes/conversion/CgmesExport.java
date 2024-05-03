@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.PlatformConfig;
@@ -185,7 +186,7 @@ public class CgmesExport implements Exporter {
     public static CgmesMetadataModel initializeModelForExport(
             Network network, CgmesSubset subset, CgmesExportContext context, boolean mainNetwork, boolean modelUpdate) {
         // Initialize a new model for the export
-        CgmesMetadataModel modelForExport = new CgmesMetadataModel(subset, CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+        CgmesMetadataModel modelForExport = new CgmesMetadataModelImpl(subset, CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
         modelForExport.setProfile(context.getCim().getProfileUri(subset.getIdentifier()));
 
         // If a model extension exists, use it as basis for the export
@@ -413,7 +414,8 @@ public class CgmesExport implements Exporter {
                 .setModelingAuthoritySet(Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig))
                 .setProfiles(Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig))
                 .setBaseName(Parameter.readString(getFormat(), params, BASE_NAME_PARAMETER))
-                .setReportNode(reportNode);
+                .setReportNode(reportNode)
+                .setUpdateDependencies(Parameter.readBoolean(getFormat(), params, UPDATE_DEPENDENCIES_PARAMETER, defaultValueConfig));
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
         PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
@@ -525,6 +527,7 @@ public class CgmesExport implements Exporter {
     public static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
     public static final String MODEL_VERSION = "iidm.export.cgmes.model-version";
     public static final String BUSINESS_PROCESS = "iidm.export.cgmes.business-process";
+    public static final String UPDATE_DEPENDENCIES = "iidm.export.cgmes.update-dependencies";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -640,6 +643,12 @@ public class CgmesExport implements Exporter {
             "Business process",
             CgmesExportContext.DEFAULT_BUSINESS_PROCESS);
 
+    private static final Parameter UPDATE_DEPENDENCIES_PARAMETER = new Parameter(
+            UPDATE_DEPENDENCIES,
+            ParameterType.BOOLEAN,
+            "True if dependencies should be updated automatically. False if the user has already put them in the extension for metadata models",
+            CgmesExportContext.UPDATE_DEPENDENCIES_DEFAULT_VALUE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -660,7 +669,8 @@ public class CgmesExport implements Exporter {
             EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER,
             UUID_NAMESPACE_PARAMETER,
             MODEL_VERSION_PARAMETER,
-            BUSINESS_PROCESS_PARAMETER);
+            BUSINESS_PROCESS_PARAMETER,
+            UPDATE_DEPENDENCIES_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

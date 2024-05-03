@@ -7,9 +7,9 @@
  */
 package com.powsybl.loadflow.tools;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.jupiter.api.Test;

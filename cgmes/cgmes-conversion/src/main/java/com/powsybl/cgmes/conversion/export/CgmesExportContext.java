@@ -15,8 +15,7 @@ import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -81,6 +80,7 @@ public class CgmesExportContext {
     public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     public static final String DEFAULT_BUSINESS_PROCESS = "1D";
+    public static final boolean UPDATE_DEPENDENCIES_DEFAULT_VALUE = true;
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -89,6 +89,7 @@ public class CgmesExportContext {
     private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
+    private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -99,6 +100,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final EnumMap<CgmesSubset, List<String>> legacyIdsForSvDependencies = new EnumMap<>(CgmesSubset.class);
 
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
@@ -774,6 +776,15 @@ public class CgmesExportContext {
 
     public CgmesExportContext setBaseName(String baseName) {
         this.baseName = baseName;
+        return this;
+    }
+
+    public void setLegacyIdsForSvDependencies(CgmesSubset subset, List<String> ids) {
+        legacyIdsForSvDependencies.put(subset, ids);
+    }
+
+    public CgmesExportContext setUpdateDependencies(boolean updateDependencies) {
+        this.updateDependencies = updateDependencies;
         return this;
     }
 }
