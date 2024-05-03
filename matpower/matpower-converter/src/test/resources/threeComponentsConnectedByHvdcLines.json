@@ -22,7 +22,7 @@
     "type" : "PQ",
     "name" : "VL12_0",
     "realPowerDemand" : 5.0,
-    "reactivePowerDemand" : 2.421610861824891,
+    "reactivePowerDemand" : 2.42161086182489,
     "shuntConductance" : 0.0,
     "shuntSusceptance" : 0.0,
     "areaNumber" : 1,

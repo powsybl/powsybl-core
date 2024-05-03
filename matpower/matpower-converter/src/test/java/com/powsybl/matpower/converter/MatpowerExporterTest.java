@@ -277,12 +277,12 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
     }
 
-    static class DecimalFormat15 extends DecimalFormat {
+    static class DecimalFormat14 extends DecimalFormat {
         private final DecimalFormat sci = new DecimalFormat("0.0###############E0");
 
-        DecimalFormat15() {
+        DecimalFormat14() {
             super("0.0");
-            super.setMaximumFractionDigits(15);
+            super.setMaximumFractionDigits(14);
         }
 
         @Override
@@ -300,7 +300,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         Properties parameters = new Properties();
         parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
         // Write all doubles with a maximum precision of 15 fraction digits to avoid macOS 14 small diffs in output
-        exportToMatAndCompareTo(network, "/threeComponentsConnectedByHvdcLines.json", parameters, new DecimalFormat15());
+        exportToMatAndCompareTo(network, "/threeComponentsConnectedByHvdcLines.json", parameters, new DecimalFormat14());
     }
 
     private static Network createThreeComponentsConnectedByHvdcLinesNetwork() {
