@@ -10,6 +10,7 @@ package com.powsybl.security;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
@@ -24,7 +25,7 @@ import java.util.Objects;
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  * @author Sylvain LECLERC {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParameters<SecurityAnalysisParameters> {
+public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnalysisParameters> {
 
     // VERSION = 1.0
     // VERSION = 1.1 IncreasedViolationsParameters adding.
@@ -194,7 +195,6 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
         return this;
     }
 
-    @Override
     public void write(Path parametersPath) {
         JsonSecurityAnalysisParameters.write(this, parametersPath);
     }
@@ -217,7 +217,6 @@ public class SecurityAnalysisParameters extends AbstractSecurityAnalysisParamete
         return this;
     }
 
-    @Override
     public void update(Path parametersPath) {
         JsonSecurityAnalysisParameters.update(this, parametersPath);
     }

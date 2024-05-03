@@ -30,11 +30,10 @@ import java.util.Objects;
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class SecurityAnalysisExecutionInput extends AbstractSecurityAnalysisExecutionInput<SecurityAnalysisExecutionInput, SecurityAnalysisParameters> {
+public class SecurityAnalysisExecutionInput extends AbstractSecurityAnalysisExecutionInput<SecurityAnalysisExecutionInput> {
 
     private SecurityAnalysisParameters parameters;
 
-    @Override
     public SecurityAnalysisParameters getParameters() {
         return parameters;
     }

@@ -44,7 +44,7 @@ import static com.powsybl.tools.ToolConstants.TASK;
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class SecurityAnalysisTool extends AbstractSecurityAnalysisTool<SecurityAnalysisExecutionInput, SecurityAnalysisParameters,
+public class SecurityAnalysisTool extends AbstractSecurityAnalysisTool<SecurityAnalysisExecutionInput,
         SecurityAnalysisExecutionBuilder> implements Tool {
 
     @Override
@@ -98,16 +98,15 @@ public class SecurityAnalysisTool extends AbstractSecurityAnalysisTool<SecurityA
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         run(line, context,
             createBuilder(PlatformConfig.defaultConfig()),
-            SecurityAnalysisParameters::load,
             new ImportersServiceLoader(),
             TableFormatterConfig::load);
     }
 
     @Override
-    protected SecurityAnalysisExecutionInput getExecutionInput(Network network, Supplier<SecurityAnalysisParameters> parametersLoader) {
+    protected SecurityAnalysisExecutionInput getExecutionInput(Network network) {
         return new SecurityAnalysisExecutionInput()
                 .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)
-                .setParameters(parametersLoader.get());
+                .setParameters(SecurityAnalysisParameters.load());
     }
 
     @Override

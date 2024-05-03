@@ -30,8 +30,7 @@ import java.nio.file.Path;
  */
 public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurityAnalysisExecutionHandler<R,
         DynamicSecurityAnalysisExecutionInput,
-        DynamicSecurityAnalysisCommandOptions,
-        DynamicSecurityAnalysisParameters> {
+        DynamicSecurityAnalysisCommandOptions> {
 
     private static final String DYNAMIC_MODELS_FILE = "dynamicModels.groovy";
     private static final String EVENT_MODELS_FILE = "eventModels.groovy";
@@ -56,6 +55,7 @@ public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurity
     @Override
     protected CommandExecution createSecurityAnalysisCommandExecution(Path workingDir) {
         DynamicSecurityAnalysisCommandOptions options = new DynamicSecurityAnalysisCommandOptions();
+        addParametersFile(options, workingDir, input.getParameters());
         mapInputToCommand(workingDir, options);
         addDynamicModelsFile(options, workingDir, input.getDynamicModelsSource());
         input.getEventModelsSource().ifPresent(
@@ -63,6 +63,16 @@ public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurity
         );
 
         return new CommandExecution(options.toCommand(), executionCount);
+    }
+
+    /**
+     * Add parameters file option, and write it as JSON to working directory.
+     */
+    private void addParametersFile(DynamicSecurityAnalysisCommandOptions options, Path workingDir, DynamicSecurityAnalysisParameters parameters) {
+        Path parametersPath = getParametersPath(workingDir);
+        options.parametersFile(parametersPath);
+        LOGGER.debug("Writing parameters to file {}", parametersPath);
+        parameters.write(parametersPath);
     }
 
     private static Path getDynamicModelsPath(Path workingDir) {

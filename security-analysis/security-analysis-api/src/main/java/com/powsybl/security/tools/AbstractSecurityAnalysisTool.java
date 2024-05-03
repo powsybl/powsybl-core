@@ -51,8 +51,7 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAnalysisExecutionInput<T, S>,
-        S extends AbstractSecurityAnalysisParameters<S>,
+public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAnalysisExecutionInput<T>,
         R extends AbstractSecurityAnalysisExecutionBuilder<R>> {
 
     public static Network readNetwork(CommandLine line, ToolRunningContext context, ImportersLoader importersLoader) throws IOException {
@@ -76,7 +75,6 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
 
     public void run(CommandLine line, ToolRunningContext context,
              R executionBuilder,
-             Supplier<S> parametersLoader,
              ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws ParseException, IOException {
 
@@ -87,7 +85,7 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
         String format = getFormat(options, outputFile);
         Network network = readNetwork(line, context, importersLoader);
 
-        T executionInput = getExecutionInput(network, parametersLoader);
+        T executionInput = getExecutionInput(network);
         updateInput(options, executionInput);
 
         Supplier<SecurityAnalysisReport> supplier = getReportSupplier(context, options, executionBuilder, executionInput);
@@ -116,11 +114,9 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
                 : null;
     }
 
-    protected abstract T getExecutionInput(Network network, Supplier<S> parametersLoader);
+    protected abstract T getExecutionInput(Network network);
 
     public void updateInput(ToolOptions options, T inputs) {
-        options.getPath(PARAMETERS_FILE_OPTION)
-                .ifPresent(f -> inputs.getParameters().update(f));
         options.getPath(CONTINGENCIES_FILE_OPTION)
                 .map(FileUtil::asByteSource)
                 .ifPresent(inputs::setContingenciesSource);

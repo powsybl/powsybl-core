@@ -12,7 +12,6 @@ import com.powsybl.action.Action;
 import com.powsybl.action.ActionList;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.serde.NetworkSerDe;
-import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.json.limitreduction.LimitReductionListSerDeUtil;
@@ -40,9 +39,8 @@ import static java.util.Objects.requireNonNull;
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public abstract class AbstractSecurityAnalysisExecutionHandler<R,
-        T extends AbstractSecurityAnalysisExecutionInput<T, V>,
-        S extends AbstractSecurityAnalysisCommandOptions<S>,
-        V extends AbstractSecurityAnalysisParameters<V>> extends AbstractExecutionHandler<R> {
+        T extends AbstractSecurityAnalysisExecutionInput<T>,
+        S extends AbstractSecurityAnalysisCommandOptions<S>> extends AbstractExecutionHandler<R> {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(AbstractSecurityAnalysisExecutionHandler.class);
 
@@ -141,7 +139,6 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
             .violationTypes(input.getViolationTypes());
 
         addCaseFile(options, workingDir, input.getNetworkVariant());
-        addParametersFile(options, workingDir, input.getParameters());
 
         input.getContingenciesSource().ifPresent(
                 source -> addContingenciesFile(options, workingDir, source)
@@ -163,7 +160,7 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         return workingDir.resolve(NETWORK_FILE);
     }
 
-    private static Path getParametersPath(Path workingDir) {
+    protected static Path getParametersPath(Path workingDir) {
         return workingDir.resolve(PARAMETERS_FILE);
     }
 
@@ -201,16 +198,6 @@ public abstract class AbstractSecurityAnalysisExecutionHandler<R,
         options.contingenciesFile(dest);
         LOGGER.debug("Writing contingencies to file {}", dest);
         copySourceToPath(source, dest);
-    }
-
-    /**
-     * Add parameters file option, and write it as JSON to working directory.
-     */
-    private void addParametersFile(S options, Path workingDir, V parameters) {
-        Path parametersPath = getParametersPath(workingDir);
-        options.parametersFile(parametersPath);
-        LOGGER.debug("Writing parameters to file {}", parametersPath);
-        parameters.write(parametersPath);
     }
 
     /**

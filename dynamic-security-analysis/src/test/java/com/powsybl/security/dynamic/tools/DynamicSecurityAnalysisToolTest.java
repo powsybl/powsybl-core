@@ -238,7 +238,6 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
 
             // Check runWithLog execution
             tool.run(cl, context, builderRun,
-                    DynamicSecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
             // Check log-file creation
@@ -251,7 +250,6 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
             when(cl.hasOption("log-file")).thenReturn(false);
 
             tool.run(cl, context, builderRun,
-                    DynamicSecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
 
@@ -266,7 +264,6 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
             ImportersLoaderList importers = new ImportersLoaderList(new NetworkImporterMock());
             try {
                 tool.run(cl, context, builderException,
-                        DynamicSecurityAnalysisParameters::new,
                         importers,
                         TableFormatterConfig::new);
                 fail();

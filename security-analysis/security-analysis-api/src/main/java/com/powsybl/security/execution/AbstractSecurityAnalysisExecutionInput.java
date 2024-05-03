@@ -10,7 +10,6 @@ package com.powsybl.security.execution;
 import com.google.common.io.ByteSource;
 import com.powsybl.action.Action;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
@@ -21,8 +20,7 @@ import java.util.*;
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractSecurityAnalysisExecutionInput<T, S>,
-        S extends AbstractSecurityAnalysisParameters<S>> {
+public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractSecurityAnalysisExecutionInput<T>> {
 
     private NetworkVariant networkVariant;
     private ByteSource contingenciesSource;
@@ -144,6 +142,4 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
     }
 
     protected abstract T self();
-
-    public abstract S getParameters();
 }

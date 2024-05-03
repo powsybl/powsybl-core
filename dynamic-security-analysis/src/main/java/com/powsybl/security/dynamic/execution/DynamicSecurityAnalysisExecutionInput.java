@@ -17,13 +17,12 @@ import java.util.Optional;
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class DynamicSecurityAnalysisExecutionInput extends AbstractSecurityAnalysisExecutionInput<DynamicSecurityAnalysisExecutionInput, DynamicSecurityAnalysisParameters> {
+public class DynamicSecurityAnalysisExecutionInput extends AbstractSecurityAnalysisExecutionInput<DynamicSecurityAnalysisExecutionInput> {
 
     private DynamicSecurityAnalysisParameters parameters;
     private ByteSource dynamicModelsSource;
     private ByteSource eventModelsSource;
 
-    @Override
     public DynamicSecurityAnalysisParameters getParameters() {
         return parameters;
     }

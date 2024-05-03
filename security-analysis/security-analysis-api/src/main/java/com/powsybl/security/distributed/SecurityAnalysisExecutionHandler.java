@@ -28,8 +28,7 @@ import java.nio.file.Path;
  */
 public class SecurityAnalysisExecutionHandler<R> extends AbstractSecurityAnalysisExecutionHandler<R,
         SecurityAnalysisExecutionInput,
-        SecurityAnalysisCommandOptions,
-        SecurityAnalysisParameters> {
+        SecurityAnalysisCommandOptions> {
 
     /**
      * Creates a new security analysis execution handler.
@@ -51,7 +50,18 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractSecurityAnalysi
     @Override
     protected CommandExecution createSecurityAnalysisCommandExecution(Path workingDir) {
         SecurityAnalysisCommandOptions options = new SecurityAnalysisCommandOptions();
+        addParametersFile(options, workingDir, input.getParameters());
         mapInputToCommand(workingDir, options);
         return new CommandExecution(options.toCommand(), executionCount);
+    }
+
+    /**
+     * Add parameters file option, and write it as JSON to working directory.
+     */
+    private void addParametersFile(SecurityAnalysisCommandOptions options, Path workingDir, SecurityAnalysisParameters parameters) {
+        Path parametersPath = getParametersPath(workingDir);
+        options.parametersFile(parametersPath);
+        LOGGER.debug("Writing parameters to file {}", parametersPath);
+        parameters.write(parametersPath);
     }
 }

@@ -205,7 +205,6 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
             // Check runWithLog execution
             tool.run(cl, context, builderRun,
-                    SecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
             // Check log-file creation
@@ -218,7 +217,6 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
             when(cl.hasOption("log-file")).thenReturn(false);
 
             tool.run(cl, context, builderRun,
-                    SecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
 
@@ -231,7 +229,6 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
                 executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
             try {
                 tool.run(cl, context, builderException,
-                        SecurityAnalysisParameters::new,
                         new ImportersLoaderList(new NetworkImporterMock()),
                         TableFormatterConfig::new);
                 fail();

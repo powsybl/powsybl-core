@@ -44,13 +44,14 @@ import java.util.function.Supplier;
 
 import static com.powsybl.security.dynamic.tools.DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION;
 import static com.powsybl.security.tools.SecurityAnalysisToolConstants.DEFAULT_SERVICE_IMPL_NAME_PROPERTY;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.PARAMETERS_FILE_OPTION;
 import static com.powsybl.tools.ToolConstants.TASK;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<DynamicSecurityAnalysisExecutionInput, DynamicSecurityAnalysisParameters,
+public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<DynamicSecurityAnalysisExecutionInput,
         DynamicSecurityAnalysisExecutionBuilder> implements Tool {
 
     @Override
@@ -122,21 +123,22 @@ public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<Dy
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         run(line, context,
             createBuilder(PlatformConfig.defaultConfig()),
-            DynamicSecurityAnalysisParameters::load,
             new ImportersServiceLoader(),
             TableFormatterConfig::load);
     }
 
     @Override
-    protected DynamicSecurityAnalysisExecutionInput getExecutionInput(Network network, Supplier<DynamicSecurityAnalysisParameters> parametersLoader) {
+    protected DynamicSecurityAnalysisExecutionInput getExecutionInput(Network network) {
         return new DynamicSecurityAnalysisExecutionInput()
                 .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)
-                .setParameters(parametersLoader.get());
+                .setParameters(DynamicSecurityAnalysisParameters.load());
     }
 
     @Override
     public void updateInput(ToolOptions options, DynamicSecurityAnalysisExecutionInput inputs) {
         super.updateInput(options, inputs);
+        options.getPath(PARAMETERS_FILE_OPTION)
+                .ifPresent(f -> inputs.getParameters().update(f));
         options.getPath(EVENT_MODELS_FILE_OPTION)
                 .map(FileUtil::asByteSource)
                 .ifPresent(inputs::setEventModelsSource);

@@ -10,9 +10,9 @@ package com.powsybl.security.dynamic;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.dynamicsimulation.DynamicSimulationParameters;
-import com.powsybl.security.AbstractSecurityAnalysisParameters;
 import com.powsybl.security.dynamic.json.JsonDynamicSecurityAnalysisParameters;
 
 import java.nio.file.Path;
@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisParameters<DynamicSecurityAnalysisParameters> {
+public class DynamicSecurityAnalysisParameters extends AbstractExtendable<DynamicSecurityAnalysisParameters> {
 
     public static final String VERSION = "1.0";
 
@@ -112,12 +112,10 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
         return this;
     }
 
-    @Override
     public void write(Path parametersPath) {
         JsonDynamicSecurityAnalysisParameters.write(this, parametersPath);
     }
 
-    @Override
     public void update(Path parametersPath) {
         JsonDynamicSecurityAnalysisParameters.update(this, parametersPath);
     }
