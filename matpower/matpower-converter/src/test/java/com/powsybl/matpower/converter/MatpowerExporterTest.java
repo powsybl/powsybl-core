@@ -35,6 +35,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.text.FieldPosition;
 import java.util.Properties;
 
 /**
@@ -54,30 +55,34 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     private void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         Properties parameters = new Properties();
         parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
-        exportToMatAndCompareTo(network, refJsonFile, parameters);
+        exportToMatAndCompareTo(network, refJsonFile, parameters, null);
     }
 
     private void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters) throws IOException {
+        exportToMatAndCompareTo(network, refJsonFile, parameters, null);
+    }
+
+    private void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters, DecimalFormat decimalFormat) throws IOException {
         MemDataSource dataSource = new MemDataSource();
         new MatpowerExporter(platformConfig).export(network, parameters, dataSource);
         byte[] mat = dataSource.getData(null, "mat");
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
-        DecimalFormat decimal14 = new DecimalFormat("0.0");
-        decimal14.setMaximumFractionDigits(14);
-        String json = new ObjectMapper()
-                // Write all doubles with a maximum precision of 14 decimal places to avoid macOS 14 small diffs in some output
-                .registerModule(new SimpleModule().addSerializer(Double.class, new JsonSerializer<>() {
-                    @Override
-                    public void serialize(Double value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
-                        if (value == null) {
-                            jsonGenerator.writeNull();
-                        } else {
-                            jsonGenerator.writeNumber(decimal14.format(value));
-                        }
+
+        // Map to JSON with a specific serializer for doubles if decimal format is received
+        ObjectMapper jsonMapper = new ObjectMapper();
+        if (decimalFormat != null) {
+            jsonMapper.registerModule(new SimpleModule().addSerializer(double.class, new JsonSerializer<>() {
+                @Override
+                public void serialize(Double value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                    if (value == null) {
+                        jsonGenerator.writeNull();
+                    } else {
+                        jsonGenerator.writeNumber(decimalFormat.format(value));
                     }
-                }))
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(model);
+                }
+            }));
+        }
+        String json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(model);
 
         ComparisonUtils.assertTxtEquals(MatpowerExporterTest.class.getResourceAsStream(refJsonFile), json);
     }
@@ -272,10 +277,30 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
     }
 
+    static class DecimalFormat15 extends DecimalFormat {
+        private final DecimalFormat sci = new DecimalFormat("0.0###############E0");
+
+        DecimalFormat15() {
+            super("0.0");
+            super.setMaximumFractionDigits(15);
+        }
+
+        @Override
+        public StringBuffer format(double number, StringBuffer result, FieldPosition fieldPosition) {
+            if (number != 0.0 && Math.abs(number) < 1e-5 || Math.abs(number) > 1e10) {
+                return sci.format(number, result, fieldPosition);
+            }
+            return super.format(number, result, fieldPosition);
+        }
+    }
+
     @Test
     void testBusesToBeExported() throws IOException {
         Network network = createThreeComponentsConnectedByHvdcLinesNetwork();
-        exportToMatAndCompareTo(network, "/threeComponentsConnectedByHvdcLines.json");
+        Properties parameters = new Properties();
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
+        // Write all doubles with a maximum precision of 15 fraction digits to avoid macOS 14 small diffs in output
+        exportToMatAndCompareTo(network, "/threeComponentsConnectedByHvdcLines.json", parameters, new DecimalFormat15());
     }
 
     private static Network createThreeComponentsConnectedByHvdcLinesNetwork() {
