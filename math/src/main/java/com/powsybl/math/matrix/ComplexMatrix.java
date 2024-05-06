@@ -9,10 +9,14 @@ package com.powsybl.math.matrix;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.util.FastMath;
 
+import java.util.Objects;
+
 /**
  * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  */
 public class ComplexMatrix {
+
+    private static final double EPSILON = 0.00000001;
 
     private final DenseMatrix realPartMatrix;
     private final DenseMatrix imagPartMatrix;
@@ -23,6 +27,7 @@ public class ComplexMatrix {
     }
 
     public void set(int i, int j, Complex complex) {
+        Objects.requireNonNull(complex);
         realPartMatrix.set(i, j, complex.getReal());
         imagPartMatrix.set(i, j, complex.getImaginary());
     }
@@ -35,7 +40,7 @@ public class ComplexMatrix {
         return realPartMatrix.getColumnCount();
     }
 
-    public Complex getTerm(int i, int j) {
+    public Complex get(int i, int j) {
         return new Complex(realPartMatrix.get(i, j), imagPartMatrix.get(i, j));
     }
 
@@ -59,6 +64,7 @@ public class ComplexMatrix {
     }
 
     public ComplexMatrix scale(Complex factor) {
+        Objects.requireNonNull(factor);
         ComplexMatrix scaled = new ComplexMatrix(getRowCount(), getColumnCount());
         for (int i = 0; i < getRowCount(); i++) {
             for (int j = 0; j < getColumnCount(); j++) {
@@ -90,6 +96,7 @@ public class ComplexMatrix {
     }
 
     public static ComplexMatrix fromRealCartesian(DenseMatrix realMatrix) {
+        Objects.requireNonNull(realMatrix);
         int columnCount = realMatrix.getColumnCount();
         int rowCount = realMatrix.getRowCount();
         if (columnCount % 2 != 0 || rowCount % 2 != 0) { // dimensions have to be even
@@ -109,12 +116,11 @@ public class ComplexMatrix {
                 double t21 = realMatrix.get(rowIndexInCartesian + 1, colIndexInCartesian);
                 double t22 = realMatrix.get(rowIndexInCartesian + 1, colIndexInCartesian + 1);
 
-                double epsilon = 0.00000001;
-                if (FastMath.abs(t11 - t22) > epsilon) {
+                if (FastMath.abs(t11 - t22) > EPSILON) {
                     throw new MatrixException("Incompatible bloc matrices terms to build a complex matrix from a real cartesian");
                 }
 
-                if (FastMath.abs(t12 + t21) > epsilon) {
+                if (FastMath.abs(t12 + t21) > EPSILON) {
                     throw new MatrixException("Incompatible bloc matrices terms to build a complex matrix from a real cartesian");
                 }
 
