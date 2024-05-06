@@ -35,7 +35,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.FieldPosition;
+import java.util.Locale;
 import java.util.Properties;
 
 /**
@@ -278,17 +280,18 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     }
 
     static class DecimalFormat14 extends DecimalFormat {
-        private final DecimalFormat sci = new DecimalFormat("0.0###############E0");
+        private static final DecimalFormatSymbols SYMBOLS = DecimalFormatSymbols.getInstance(Locale.US);
+        private static final DecimalFormat SCI = new DecimalFormat("0.0###############E0", SYMBOLS);
 
         DecimalFormat14() {
-            super("0.0");
+            super("0.0", SYMBOLS);
             super.setMaximumFractionDigits(14);
         }
 
         @Override
         public StringBuffer format(double number, StringBuffer result, FieldPosition fieldPosition) {
             if (number != 0.0 && Math.abs(number) < 1e-5 || Math.abs(number) > 1e10) {
-                return sci.format(number, result, fieldPosition);
+                return SCI.format(number, result, fieldPosition);
             }
             return super.format(number, result, fieldPosition);
         }
