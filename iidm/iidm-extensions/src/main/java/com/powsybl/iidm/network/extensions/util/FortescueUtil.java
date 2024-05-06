@@ -51,7 +51,7 @@ public final class FortescueUtil {
         return createComplexMatrix(true).toRealCartesianMatrix();
     }
 
-    public static ComplexMatrix createComplexMatrix(boolean isInverse) {
+    public static ComplexMatrix createComplexMatrix(boolean inverse) {
         // [G1]   [ 1  1  1 ]   [Gh]
         // [G2] = [ 1  a²  a] * [Gd]
         // [G3]   [ 1  a  a²]   [Gi]
@@ -62,7 +62,7 @@ public final class FortescueUtil {
         double t = 1.;
         Complex c1 = a;
         Complex c2 = a2;
-        if (isInverse) {
+        if (inverse) {
             t = 1. / 3.;
             c1 = a2.multiply(t);
             c2 = a.multiply(t);

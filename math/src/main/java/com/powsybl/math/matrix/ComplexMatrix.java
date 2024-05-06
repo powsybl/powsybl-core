@@ -116,11 +116,7 @@ public class ComplexMatrix {
                 double t21 = realMatrix.get(rowIndexInCartesian + 1, colIndexInCartesian);
                 double t22 = realMatrix.get(rowIndexInCartesian + 1, colIndexInCartesian + 1);
 
-                if (FastMath.abs(t11 - t22) > EPSILON) {
-                    throw new MatrixException("Incompatible bloc matrices terms to build a complex matrix from a real cartesian");
-                }
-
-                if (FastMath.abs(t12 + t21) > EPSILON) {
+                if (FastMath.abs(t11 - t22) > EPSILON || FastMath.abs(t12 + t21) > EPSILON) {
                     throw new MatrixException("Incompatible bloc matrices terms to build a complex matrix from a real cartesian");
                 }
 
