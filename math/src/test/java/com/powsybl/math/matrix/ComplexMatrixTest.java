@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  */
-public class ComplexMatrixTest {
+class ComplexMatrixTest {
 
     @Test
     void complexMatrixTest() {
