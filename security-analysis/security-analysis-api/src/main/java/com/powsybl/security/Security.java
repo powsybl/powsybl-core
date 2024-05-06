@@ -69,7 +69,7 @@ public final class Security {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        new DefaultLimitViolationDetector(limitReductionValue, currentLimitTypes).checkAll(network, violations::add);
+        LimitViolationDetection.checkAllViolations(network, violations::add, currentLimitTypes, limitReductionValue);
         return violations;
     }
 
@@ -83,6 +83,7 @@ public final class Security {
             throw new IllegalArgumentException("Invalid DC power factor " + dcPowerFactor);
         }
         List<LimitViolation> violations = new ArrayList<>();
+        //TODO remove this call
         new DefaultLimitViolationDetector(limitReductionValue, EnumSet.allOf(LoadingLimitType.class)).checkAllDc(network, dcPowerFactor, violations::add);
         return violations;
     }

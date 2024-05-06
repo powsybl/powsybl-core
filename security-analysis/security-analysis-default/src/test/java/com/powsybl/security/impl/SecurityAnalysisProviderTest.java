@@ -16,8 +16,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.*;
 import com.powsybl.action.Action;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
-import com.powsybl.security.detectors.LimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -40,7 +38,6 @@ class SecurityAnalysisProviderTest {
     private static final String DEFAULT_PROVIDER_NAME = "DefaultSecurityAnalysis";
 
     private Network network;
-    private LimitViolationDetector detector;
     private LimitViolationFilter filter;
     private ComputationManager computationManager;
     private SecurityAnalysisParameters parameters;
@@ -56,7 +53,6 @@ class SecurityAnalysisProviderTest {
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
-        detector = new DefaultLimitViolationDetector();
         filter = Mockito.mock(LimitViolationFilter.class);
         computationManager = new LocalComputationManagerFactory().create();
         parameters = SecurityAnalysisParameters.load();

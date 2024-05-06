@@ -7,6 +7,7 @@
  */
 package com.powsybl.security.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.report.ReportNode;
@@ -14,11 +15,13 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.security.detectors.LimitViolationDetector;
+import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -140,7 +143,7 @@ public class DefaultSecurityAnalysis {
                     return CompletableFuture
                         .runAsync(() -> {
                             network.getVariantManager().setWorkingVariant(workingVariantId);
-                            setPreContigencyOkAndCheckViolations(resultBuilder);
+                            setPreContingencyOkAndCheckViolations(resultBuilder);
                         }, computationManager.getExecutor())
                         .thenComposeAsync(aVoid ->
                                 submitAllLoadFlows(workingVariantId, contingenciesProvider, postContParameters, resultBuilder),
@@ -152,13 +155,11 @@ public class DefaultSecurityAnalysis {
             .thenApply(aVoid -> new SecurityAnalysisReport(resultBuilder.build()));
     }
 
-    private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
+    private void setPreContingencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder =
                 resultBuilder.preContingency()
                         .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
-        if (violationDetector != null) {
-            violationDetector.checkAll(network, builder::addViolation);
-        }
+        checkPreContingencyViolations(network, builder::addViolation);
         addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         builder.endPreContingency();
@@ -237,9 +238,7 @@ public class DefaultSecurityAnalysis {
                         .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
                         .setConnectivityResult(new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()));
         if (lfResult.isOk()) {
-            if (violationDetector != null) {
-                violationDetector.checkAll(contingency, network, builder::addViolation);
-            }
+            checkPostContingencyViolations(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
             StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitors().get(contingency.getId());
             if (stateMonitor != null) {
@@ -295,4 +294,23 @@ public class DefaultSecurityAnalysis {
                 threeWindingsTransformer.getLeg3().getTerminal().getP(), threeWindingsTransformer.getLeg3().getTerminal().getQ(), threeWindingsTransformer.getLeg3().getTerminal().getI());
     }
 
+    private void checkPreContingencyViolations(Network network, Consumer<LimitViolation> consumer) {
+        if (violationDetector != null) {
+            violationDetector.checkAll(network, consumer);
+        } else {
+            LimitViolationDetection.checkAllViolations(network, consumer, EnumSet.allOf(LoadingLimitType.class), 1.);
+                    // currentLimitTypes, limitReductionValue); //TODO
+        }
+    }
+
+    protected void checkPostContingencyViolations(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
+        if (violationDetector != null) {
+            violationDetector.checkAll(contingency, network, consumer);
+        } else {
+            // TODO For now, contingencies are ignored in the default security analysis
+            // This should change to fully support LimitReductions
+            LimitViolationDetection.checkAllViolations(network, consumer, EnumSet.allOf(LoadingLimitType.class), 1.);
+                    // currentLimitTypes, limitReductionValue); //TODO
+        }
+    }
 }

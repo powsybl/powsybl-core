@@ -26,8 +26,6 @@ import com.powsybl.security.*;
 import com.powsybl.action.Action;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
-import com.powsybl.security.detectors.LimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
@@ -121,7 +119,6 @@ class SecurityAnalysisTest {
         ContingenciesProvider contingenciesProvider = n -> Collections.singletonList(contingencyMock);
 
         LimitViolationFilter filter = new LimitViolationFilter();
-        LimitViolationDetector detector = new DefaultLimitViolationDetector();
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
         List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
         List<OperatorStrategy> operatorStrategies = new ArrayList<>();
@@ -248,7 +245,6 @@ class SecurityAnalysisTest {
         SecurityAnalysisParameters saParameters = new SecurityAnalysisParameters();
 
         LimitViolationFilter filter = new LimitViolationFilter();
-        LimitViolationDetector detector = new DefaultLimitViolationDetector();
 
         List<StateMonitor> monitors = new ArrayList<>();
         monitors.add(new StateMonitor(new ContingencyContext("NHV1_NHV2_1", ContingencyContextType.SPECIFIC),
