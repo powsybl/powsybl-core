@@ -11,10 +11,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -42,18 +39,14 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public boolean isInMainConnectedComponent() {
-        for (ConfiguredBus bus : buses) {
-            return bus.isInMainConnectedComponent();
-        }
-        return false;
+        Optional<ConfiguredBus> bus = buses.stream().findFirst();
+        return bus.isPresent() && bus.get().isInMainConnectedComponent();
     }
 
     @Override
     public boolean isInMainSynchronousComponent() {
-        for (ConfiguredBus bus : buses) {
-            return bus.isInMainSynchronousComponent();
-        }
-        return false;
+        Optional<ConfiguredBus> bus = buses.stream().findFirst();
+        return bus.isPresent() && bus.get().isInMainSynchronousComponent();
     }
 
     @Override

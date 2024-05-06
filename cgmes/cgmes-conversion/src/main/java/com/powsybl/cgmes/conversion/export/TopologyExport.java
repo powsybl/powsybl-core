@@ -104,6 +104,10 @@ public final class TopologyExport {
         }
     }
 
+    private static String getBusCgmesId(VoltageLevel vl, Bus bus, int node, CgmesExportContext context) {
+        return bus == null ? findOrCreateTopologicalNode(vl, node, context) : context.getNamingStrategy().getCgmesId(bus);
+    }
+
     private static void writeSwitchesTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
             if (!context.isExportedEquipment(sw)) {
@@ -127,12 +131,12 @@ public final class TopologyExport {
             } else {
                 int node1 = vl.getNodeBreakerView().getNode1(sw.getId());
                 bus1 = getBusForBusBreakerViewBus(vl, node1);
-                tn1 = bus1 == null ? findOrCreateTopologicalNode(vl, node1, context) : context.getNamingStrategy().getCgmesId(bus1);
+                tn1 = getBusCgmesId(vl, bus1, node1, context);
                 tname1 = bus1 == null ? tn1 : bus1.getNameOrId();
 
                 int node2 = vl.getNodeBreakerView().getNode2(sw.getId());
                 bus2 = getBusForBusBreakerViewBus(vl, node2);
-                tn2 = bus2 == null ? findOrCreateTopologicalNode(vl, node2, context) : context.getNamingStrategy().getCgmesId(bus2);
+                tn2 = getBusCgmesId(vl, bus2, node2, context);
                 tname2 = bus2 == null ? tn2 : bus2.getNameOrId();
             }
             writeTopologicalNode(tn1, tname1, bus1, vl, cimNamespace, writer, context);
