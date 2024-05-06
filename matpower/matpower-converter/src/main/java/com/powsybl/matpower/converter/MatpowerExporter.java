@@ -148,78 +148,60 @@ public class MatpowerExporter implements Exporter {
             this.maxGeneratorReactivePowerLimit = maxGeneratorReactivePowerLimit;
         }
 
-        private void obtainBusesOutsideMainSynchronousComponentToBeConsidered(Network network) {
-            List<Bus> buses = network.getBusView().getBusStream().filter(bus -> bus.isInMainConnectedComponent() && !bus.isInMainSynchronousComponent()).toList();
-            Set<VoltageLevel> voltageLevels = buses.stream().map(Bus::getVoltageLevel).collect(Collectors.toSet());
-            Set<Connectable<?>> connectableSet = voltageLevels.stream().map(Context::obtainValidConnectableList).flatMap(List::stream).collect(Collectors.toSet());
+        // Matpower power flow does not support multiple components
+        // Only Vsc HvdcLines are exported as dcLines. Lcc HvdcLines are exported as loads
+        // then we cannot always include the complete mainConnectedComponent.
+        // Only the synchronousComponents connected to the MainSynchronousComponent using Vsc HvdcLines must be considered.
+        // We built a graph with all synchronousComponents connected by vsc hvdcLines. Only the connectedSets
+        // including the MainSynchronousComponent, must be considered
+        private void findBusesOutsideMainSynchronousComponentToBeConsidered(Network network) {
+            List<Set<Component>> connectedSets = findConnectedSetsOfSynchronousComponents(network);
 
-            List<Set<Bus>> connectedSets = obtainConnectedSets(connectableSet);
-            for (Set<Bus> connectedSet : connectedSets) {
-                if (connectedSet.stream().anyMatch(Bus::isInMainSynchronousComponent)) {
-                    busesOutsideMainSynchronousComponentToBeConsidered.addAll(connectedSet);
+            for (Set<Component> connectedSet : connectedSets) {
+                if (connectedSet.stream().anyMatch(Context::isMainSynchronousComponent)) {
+                    connectedSet.forEach(synchronousComponent -> {
+                        if (!isMainSynchronousComponent(synchronousComponent)) {
+                            busesOutsideMainSynchronousComponentToBeConsidered.addAll(synchronousComponent.getBusStream().collect(Collectors.toSet()));
+                        }
+                    });
                 }
             }
-        }
-
-        private static List<Connectable<?>> obtainValidConnectableList(VoltageLevel voltageLevel) {
-            List<Connectable<?>> connectableList = new ArrayList<>();
-            voltageLevel.getConnectables().forEach(connectable -> {
-                if (isValid(connectable)) {
-                    connectableList.add(connectable);
-                }
-            });
-            return connectableList;
-        }
-
-        private static boolean isValid(Connectable<?> connectable) {
-            if (connectable.getType().equals(IdentifiableType.HVDC_CONVERTER_STATION)) {
-                return ((HvdcConverterStation<?>) connectable).getHvdcType().equals(HvdcConverterStation.HvdcType.VSC);
-            }
-            return connectable.getTerminals().size() >= 2;
         }
 
         // Duplicated vertices and edges are discarded by the graph.
-        // Edges are duplicated when there are VSC HvdcLines between non-main components
-        private static List<Set<Bus>> obtainConnectedSets(Set<Connectable<?>> connectableSet) {
-            Graph<Bus, Pair<Bus, Bus>> mGraph = new Pseudograph<>(null, null, false);
+        private static List<Set<Component>> findConnectedSetsOfSynchronousComponents(Network network) {
+            Graph<Component, Pair<Component, Component>> scGraph = new Pseudograph<>(null, null, false);
 
-            connectableSet.forEach(connectable -> {
-                List<Bus> connectableBuses = obtainConnectableBuses(connectable);
-                if (connectableBuses.size() >= 2) {
-                    connectableBuses.forEach(mGraph::addVertex);
-
-                    Bus bus1 = connectableBuses.get(0);
-                    for (int index = 1; index < connectableBuses.size(); index++) {
-                        Bus bus2 = connectableBuses.get(index);
-                        mGraph.addEdge(bus1, bus2, Pair.of(bus1, bus2));
-                    }
+            // Only Vsc hvdcLines are considered
+            network.getHvdcLines().forEach(hvdcLine -> {
+                if (hvdcLine.getConverterStation1().getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)
+                        && hvdcLine.getConverterStation2().getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
+                    addToGraph(scGraph, hvdcLine);
                 }
             });
 
-            return new ConnectivityInspector<>(mGraph).connectedSets();
+            return new ConnectivityInspector<>(scGraph).connectedSets();
         }
 
-        private static List<Bus> obtainConnectableBuses(Connectable<?> connectable) {
-            List<Bus> connectableBuses = new ArrayList<>();
-            if (connectable.getType().equals(IdentifiableType.HVDC_CONVERTER_STATION)) {
-                HvdcLine hvdcLine = ((HvdcConverterStation<?>) connectable).getHvdcLine();
-                Bus bus1 = hvdcLine.getConverterStation1().getTerminal().getBusView().getBus();
-                if (bus1 != null) {
-                    connectableBuses.add(bus1);
-                }
-                Bus bus2 = hvdcLine.getConverterStation2().getTerminal().getBusView().getBus();
-                if (bus2 != null) {
-                    connectableBuses.add(bus2);
-                }
-            } else {
-                connectable.getTerminals().forEach(terminal -> {
-                    Bus bus = terminal.getBusView().getBus();
-                    if (bus != null) {
-                        connectableBuses.add(bus);
-                    }
-                });
+        private static void addToGraph(Graph<Component, Pair<Component, Component>> scGraph, HvdcLine hvdcLine) {
+            Component synchronousComponent1 = findComponent(hvdcLine.getConverterStation1());
+            Component synchronousComponent2 = findComponent(hvdcLine.getConverterStation2());
+
+            if (synchronousComponent1 != null && synchronousComponent2 != null) {
+                scGraph.addVertex(synchronousComponent1);
+                scGraph.addVertex(synchronousComponent2);
+                scGraph.addEdge(synchronousComponent1, synchronousComponent2, Pair.of(synchronousComponent1, synchronousComponent2));
             }
-            return connectableBuses;
+        }
+
+        private static Component findComponent(HvdcConverterStation<?> hvdcConverterStation) {
+            Terminal terminal = hvdcConverterStation.getTerminal();
+            Bus bus = terminal.getBusView().getBus();
+            return terminal.isConnected() && bus != null ? bus.getSynchronousComponent() : null;
+        }
+
+        private static boolean isMainSynchronousComponent(Component synchronousComponent) {
+            return synchronousComponent.getSize() > 0 && synchronousComponent.getBuses().iterator().next().isInMainSynchronousComponent();
         }
     }
 
@@ -230,6 +212,8 @@ public class MatpowerExporter implements Exporter {
         return bus != null && (bus.isInMainSynchronousComponent() || context.busesOutsideMainSynchronousComponentToBeConsidered.contains(bus));
     }
 
+    // In matpower cases, the bus number is the only way to identify it. During the export process, we preserve the
+    // original ones if the iidm model has been created by importing a matpower model
     private static int preserveBusIds(Network network, Context context) {
         List<Bus> busBreakerViewBuses = network.getVoltageLevelStream()
                 .filter(voltageLevel -> voltageLevel.getTopologyKind().equals(TopologyKind.BUS_BREAKER))
@@ -259,7 +243,7 @@ public class MatpowerExporter implements Exporter {
         return busNumber.matches("[1-9]\\d*") ? OptionalInt.of(Integer.parseInt(busNumber)) : OptionalInt.empty();
     }
 
-    private static int obtainBusNumber(String busId, Context context) {
+    private static int findBusNumber(String busId, Context context) {
         if (context.mBusesNumbersByIds.containsKey(busId)) {
             return context.mBusesNumbersByIds.get(busId);
         }
@@ -275,7 +259,7 @@ public class MatpowerExporter implements Exporter {
             Bus bus3 = twt.getLeg3().getTerminal().getBusView().getBus();
             if (isExported(bus1, context) && isExported(bus2, context) && isExported(bus3, context)) {
                 MBus mBus = new MBus();
-                mBus.setNumber(obtainBusNumber(twt.getId(), context));
+                mBus.setNumber(findBusNumber(twt.getId(), context));
                 mBus.setName(twt.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
@@ -303,7 +287,7 @@ public class MatpowerExporter implements Exporter {
             if (isExported(bus, context)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
-                mBus.setNumber(obtainBusNumber(dl.getId(), context));
+                mBus.setNumber(findBusNumber(dl.getId(), context));
                 mBus.setName(dl.getNameOrId());
                 mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
@@ -329,7 +313,7 @@ public class MatpowerExporter implements Exporter {
             if (isExported(bus, context)) {
                 VoltageLevel vl = bus.getVoltageLevel();
                 MBus mBus = new MBus();
-                mBus.setNumber(obtainBusNumber(bus.getId(), context));
+                mBus.setNumber(findBusNumber(bus.getId(), context));
                 mBus.setName(bus.getNameOrId());
                 mBus.setType(getType(bus, context));
                 mBus.setAreaNumber(AREA_NUMBER);
@@ -842,9 +826,9 @@ public class MatpowerExporter implements Exporter {
 
     private static void createDcLine(VscConverterStation rectifierVscConverterStation, VscConverterStation inverterVscConverterStation, HvdcLine hvdcLine, MatpowerModel model, Context context) {
         Terminal rectifierTerminal = rectifierVscConverterStation.getTerminal();
-        Bus rectifierBus = obtainBus(rectifierTerminal);
+        Bus rectifierBus = findBus(rectifierTerminal);
         Terminal inverterTerminal = inverterVscConverterStation.getTerminal();
-        Bus inverterBus = obtainBus(inverterTerminal);
+        Bus inverterBus = findBus(inverterTerminal);
 
         if (isExported(rectifierBus, context) && isExported(inverterBus, context)) {
             MDcLine mdcLine = new MDcLine();
@@ -863,7 +847,7 @@ public class MatpowerExporter implements Exporter {
             // equal to the negative of the injection of corresponding dummy generator
             mdcLine.setPf(rectifierTargetP);
             mdcLine.setQf(checkAndFixTargetQ(rectifierVscConverterStation.getReactivePowerSetpoint()));
-            mdcLine.setVf(checkAndFixTargetV(obtainTargetV(rectifierVscConverterStation)));
+            mdcLine.setVf(checkAndFixTargetV(findTargetV(rectifierVscConverterStation)));
             double rectifierMinQ = rectifierVscConverterStation.getReactiveLimits().getMinQ(rectifierTargetP);
             double rectifierMaxQ = rectifierVscConverterStation.getReactiveLimits().getMaxQ(rectifierTargetP);
             mdcLine.setQminf(rectifierMinQ);
@@ -872,21 +856,21 @@ public class MatpowerExporter implements Exporter {
             // equal to the injection of the corresponding generator
             mdcLine.setPt(inverterTargetP);
             mdcLine.setQt(checkAndFixTargetQ(inverterVscConverterStation.getReactivePowerSetpoint()));
-            mdcLine.setVt(checkAndFixTargetV(obtainTargetV(inverterVscConverterStation)));
+            mdcLine.setVt(checkAndFixTargetV(findTargetV(inverterVscConverterStation)));
             double inverterMinQ = inverterVscConverterStation.getReactiveLimits().getMinQ(inverterTargetP);
             double inverterMaxQ = inverterVscConverterStation.getReactiveLimits().getMaxQ(inverterTargetP);
             mdcLine.setQmint(inverterMinQ);
             mdcLine.setQmaxt(inverterMaxQ);
 
             double losses = rectifierTargetP - inverterTargetP;
-            double l0 = obtainL0(rectifierVscConverterStation.getLossFactor(), rectifierTargetP, losses);
+            double l0 = calculateL0(rectifierVscConverterStation.getLossFactor(), rectifierTargetP, losses);
             mdcLine.setLoss0(l0);
-            mdcLine.setLoss1(obtainL1(l0, losses, rectifierTargetP));
+            mdcLine.setLoss1(calculateL1(l0, losses, rectifierTargetP));
             model.addDcLine(mdcLine);
         }
     }
 
-    private static Bus obtainBus(Terminal terminal) {
+    private static Bus findBus(Terminal terminal) {
         return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
     }
 
@@ -903,7 +887,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     // matpower only supports local control, all remote control will be localized
-    private static double obtainTargetV(VscConverterStation vscConverterStation) {
+    private static double findTargetV(VscConverterStation vscConverterStation) {
         double nominalV = vscConverterStation.getTerminal().getVoltageLevel().getNominalV();
         if (vscConverterStation.getRegulatingTerminal() != null) {
             nominalV = vscConverterStation.getRegulatingTerminal().getVoltageLevel().getNominalV();
@@ -912,11 +896,11 @@ public class MatpowerExporter implements Exporter {
     }
 
     // According to the import process, to guarantee round-trip
-    private static double obtainL0(double lossFactor, double rectifierTargetP, double losses) {
+    private static double calculateL0(double lossFactor, double rectifierTargetP, double losses) {
         return rectifierTargetP != 0.0 ? lossFactor * rectifierTargetP / 100.0 : losses;
     }
 
-    private static double obtainL1(double l0, double losses, double rectifierTargetP) {
+    private static double calculateL1(double l0, double losses, double rectifierTargetP) {
         return rectifierTargetP != 0.0 ? (losses - l0) / rectifierTargetP : 0.0;
     }
 
@@ -1012,7 +996,7 @@ public class MatpowerExporter implements Exporter {
         model.setVersion(FORMAT_VERSION);
 
         Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
-        context.obtainBusesOutsideMainSynchronousComponentToBeConsidered(network);
+        context.findBusesOutsideMainSynchronousComponentToBeConsidered(network);
         boolean hasSlack = network.getBusView().getBusStream().anyMatch(MatpowerExporter::hasSlackExtension);
         if (!hasSlack) {
             context.refBusId = network.getBusView().getBusStream()
