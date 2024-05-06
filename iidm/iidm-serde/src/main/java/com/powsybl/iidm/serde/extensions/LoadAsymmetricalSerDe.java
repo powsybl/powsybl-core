@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -30,7 +31,7 @@ public class LoadAsymmetricalSerDe extends AbstractExtensionSerDe<Load, LoadAsym
 
     @Override
     public void write(LoadAsymmetrical loadAsym, SerializerContext context) {
-        context.getWriter().writeStringAttribute("connectionType", loadAsym.getConnectionType().name());
+        context.getWriter().writeEnumAttribute("connectionType", loadAsym.getConnectionType());
         context.getWriter().writeDoubleAttribute("deltaPa", loadAsym.getDeltaPa(), 0);
         context.getWriter().writeDoubleAttribute("deltaQa", loadAsym.getDeltaQa(), 0);
         context.getWriter().writeDoubleAttribute("deltaPb", loadAsym.getDeltaPb(), 0);

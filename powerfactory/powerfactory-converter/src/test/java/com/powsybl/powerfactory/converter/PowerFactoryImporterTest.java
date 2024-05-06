@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -27,7 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -81,7 +82,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         network.setCaseDate(ZonedDateTime.parse("2021-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + id + ".xiidm"), is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

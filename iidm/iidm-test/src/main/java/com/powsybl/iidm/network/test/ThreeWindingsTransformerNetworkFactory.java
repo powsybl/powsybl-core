@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
@@ -149,7 +150,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(2)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setTargetV(33.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(33.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(load33.getTerminal())
                 .add();
@@ -179,7 +181,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
-                .setTargetV(11.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(11.0)
                 .setRegulationTerminal(load11.getTerminal())
                 .add();
 
@@ -348,7 +351,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(2)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(true)
-                .setTargetV(33.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(33.0)
                 .setTargetDeadband(0)
                 .setRegulationTerminal(load33.getTerminal())
                 .add();
@@ -378,7 +382,8 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
-                .setTargetV(11.0)
+                .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+                .setRegulationValue(11.0)
                 .setRegulationTerminal(load11.getTerminal())
                 .add();
 

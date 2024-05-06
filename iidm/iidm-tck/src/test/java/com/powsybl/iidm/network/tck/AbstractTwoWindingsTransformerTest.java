@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -234,7 +235,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
 
     private RatioTapChanger createRatioTapChanger(TwoWindingsTransformer transformer, Terminal terminal, boolean regulating) {
         return transformer.newRatioTapChanger()
-                .setTargetV(200.0)
+                .setRegulationValue(200.0)
                 .setLoadTapChangingCapabilities(false)
                 .setLowTapPosition(0)
                 .setTapPosition(0)

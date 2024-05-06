@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -10,14 +11,15 @@ import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.action.Action;
+import com.powsybl.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
 
@@ -80,7 +82,8 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
      * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param reporter the reporter used for functional logs
+     * @param limitReductions list of the limit reductions to apply
+     * @param reportNode the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,
@@ -94,7 +97,8 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   List<OperatorStrategy> operatorStrategies,
                                                   List<Action> actions,
                                                   List<StateMonitor> monitors,
-                                                  Reporter reporter);
+                                                  List<LimitReduction> limitReductions,
+                                                  ReportNode reportNode);
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation

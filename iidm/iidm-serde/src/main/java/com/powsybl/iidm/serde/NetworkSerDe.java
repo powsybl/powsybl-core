@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -10,6 +11,8 @@ import com.google.common.base.Suppliers;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.binary.BinReader;
+import com.powsybl.commons.binary.BinWriter;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
@@ -18,11 +21,12 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
+import com.powsybl.commons.io.TreeDataHeader;
 import com.powsybl.commons.io.TreeDataReader;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.json.JsonReader;
 import com.powsybl.commons.json.JsonWriter;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlReader;
 import com.powsybl.commons.xml.XmlWriter;
 import com.powsybl.iidm.network.*;
@@ -76,6 +80,9 @@ public final class NetworkSerDe {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
     private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
+
+    /** Magic number for binary iidm files ("Binary IIDM" in ASCII) */
+    static final byte[] BIIDM_MAGIC_NUMBER = {0x42, 0x69, 0x6e, 0x61, 0x72, 0x79, 0x20, 0x49, 0x49, 0x44, 0x4d};
 
     private static final Supplier<ExtensionProviders<ExtensionSerDe>> EXTENSIONS_SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionSerDe.class, EXTENSION_CATEGORY_NAME));
@@ -197,7 +204,7 @@ public final class NetworkSerDe {
             }
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e -> canTheExtensionBeWritten(getExtensionSerializer(context.getOptions(), e), context.getVersion(), context.getOptions()))
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (!extensions.isEmpty()) {
                 context.getWriter().writeStartNode(context.getNamespaceURI(), EXTENSION_ROOT_ELEMENT_NAME);
@@ -261,6 +268,11 @@ public final class NetworkSerDe {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static TreeDataWriter createBinWriter(OutputStream os, ExportOptions options) {
+        LOGGER.warn("BETA feature, the resulting binary file is not guaranteed to still be readable in the next releases");
+        return new BinWriter(os, BIIDM_MAGIC_NUMBER, options.getVersion().toString("."));
     }
 
     private static void writeRootElement(Network n, NetworkSerializerContext context) {
@@ -409,6 +421,7 @@ public final class NetworkSerDe {
         return switch (options.getFormat()) {
             case XML -> createXmlWriter(n, os, options);
             case JSON -> createJsonWriter(os, options);
+            case BIN -> createBinWriter(os, options);
         };
     }
 
@@ -495,12 +508,12 @@ public final class NetworkSerDe {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
-        return read(is, config, anonymizer, NetworkFactory.findDefault(), Reporter.NO_OP);
+        return read(is, config, anonymizer, NetworkFactory.findDefault(), ReportNode.NO_OP);
     }
 
-    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, Reporter reporter) {
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory, ReportNode reportNode) {
         try (TreeDataReader reader = createTreeDataReader(is, config)) {
-            return read(reader, config, anonymizer, networkFactory, reporter);
+            return read(reader, config, anonymizer, networkFactory, reportNode);
         }
     }
 
@@ -508,6 +521,7 @@ public final class NetworkSerDe {
         return switch (config.getFormat()) {
             case XML -> createXmlReader(is, config);
             case JSON -> createJsonReader(is, config);
+            case BIN -> new BinReader(is, BIIDM_MAGIC_NUMBER);
         };
     }
 
@@ -553,6 +567,7 @@ public final class NetworkSerDe {
                 Map.entry(LineSerDe.ARRAY_ELEMENT_NAME, LineSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(LoadSerDe.ARRAY_ELEMENT_NAME, LoadSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(NodeBreakerViewInternalConnectionSerDe.ARRAY_ELEMENT_NAME, NodeBreakerViewInternalConnectionSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(OverloadManagementSystemSerDe.ARRAY_ELEMENT_NAME, OverloadManagementSystemSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(PropertiesSerDe.ARRAY_ELEMENT_NAME, PropertiesSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ReactiveLimitsSerDe.POINT_ARRAY_ELEMENT_NAME, ReactiveLimitsSerDe.POINT_ROOT_ELEMENT_NAME),
                 Map.entry(ShuntSerDe.ARRAY_ELEMENT_NAME, ShuntSerDe.ROOT_ELEMENT_NAME),
@@ -565,7 +580,13 @@ public final class NetworkSerDe {
                 Map.entry(VoltageAngleLimitSerDe.ARRAY_ELEMENT_NAME, VoltageAngleLimitSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(VoltageLevelSerDe.ARRAY_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(VoltageLevelSerDe.INJ_ARRAY_ELEMENT_NAME, VoltageLevelSerDe.INJ_ROOT_ELEMENT_NAME),
-                Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME));
+                Map.entry(VscConverterStationSerDe.ARRAY_ELEMENT_NAME, VscConverterStationSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(GroundSerDe.ARRAY_ELEMENT_NAME, GroundSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS, ConnectableSerDeUtil.LIMITS_GROUP),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_1, ConnectableSerDeUtil.LIMITS_GROUP_1),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_2, ConnectableSerDeUtil.LIMITS_GROUP_2),
+                Map.entry(ConnectableSerDeUtil.LIMITS_GROUPS_3, ConnectableSerDeUtil.LIMITS_GROUP_3)
+        );
 
         Map<String, String> extensionsMap = new HashMap<>();
         if (withExtensions) {
@@ -659,57 +680,66 @@ public final class NetworkSerDe {
         network.setCaseDate(date);
         network.setForecastDistance(forecastDistance);
 
-        ValidationLevel[] minValidationLevel = new ValidationLevel[1];
-        minValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
-        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> minValidationLevel[0] = reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
+        ValidationLevel minValidationLevel;
+        Optional<ValidationLevel> optMinimalValidationLevel = context.getOptions().getMinimalValidationLevel();
+        if (optMinimalValidationLevel.isPresent()) {
+            minValidationLevel = optMinimalValidationLevel.get();
+            // Read the minimum validation level (when parsing a JSON file, each attribute must be consumed) but don't use it
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
+        } else {
+            ValidationLevel[] fileMinValidationLevel = new ValidationLevel[1];
+            fileMinValidationLevel[0] = ValidationLevel.STEADY_STATE_HYPOTHESIS;
+            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_7, context, () -> fileMinValidationLevel[0] = reader.readEnumAttribute(MINIMUM_VALIDATION_LEVEL, ValidationLevel.class));
+            IidmSerDeUtil.assertMinimumVersionIfNotDefault(fileMinValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
+            minValidationLevel = fileMinValidationLevel[0];
+            context.setNetworkValidationLevel(minValidationLevel);
+        }
 
-        IidmSerDeUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.STEADY_STATE_HYPOTHESIS, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_7, context);
-        network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
+        network.setMinimumAcceptableValidationLevel(minValidationLevel);
         return network;
     }
 
-    private static void logExtensionsImported(Reporter reporter, Set<String> extensionNamesImported) {
-        DeserializerReports.importedExtension(reporter, extensionNamesImported);
+    private static void logExtensionsImported(ReportNode reportNode, Set<String> extensionNamesImported) {
+        DeserializerReports.importedExtension(reportNode, extensionNamesImported);
     }
 
-    private static void logExtensionsNotFound(Reporter reporter, Set<String> extensionNamesNotFound) {
-        DeserializerReports.extensionNotFound(reporter, extensionNamesNotFound);
+    private static void logExtensionsNotFound(ReportNode reportNode, Set<String> extensionNamesNotFound) {
+        DeserializerReports.extensionNotFound(reportNode, extensionNamesNotFound);
     }
 
     public static Network read(TreeDataReader reader, ImportOptions config, Anonymizer anonymizer,
-                               NetworkFactory networkFactory, Reporter reporter) {
+                               NetworkFactory networkFactory, ReportNode reportNode) {
         Objects.requireNonNull(reader);
         Objects.requireNonNull(networkFactory);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
 
-        IidmVersion iidmVersion = IidmVersion.of(reader.readRootVersion(), ".");
-        Map<String, String> extensionVersions = reader.readVersions();
-
-        NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, extensionVersions);
+        TreeDataHeader header = reader.readHeader();
+        IidmVersion iidmVersion = IidmVersion.of(header.rootVersion(), ".");
+        NetworkDeserializerContext context = new NetworkDeserializerContext(anonymizer, reader, config, iidmVersion, header.extensionVersions());
 
         Network network = initNetwork(networkFactory, context, reader, null);
-        network.getReporterContext().pushReporter(reporter);
+        network.getReportNodeContext().pushReportNode(reportNode);
 
         Set<String> extensionNamesImported = new TreeSet<>();
         Set<String> extensionNamesNotFound = new TreeSet<>();
         Deque<Network> networks = new ArrayDeque<>(2);
         networks.push(network);
 
-        Reporter validationReporter = reporter.createSubReporter("validationWarnings", "Validation warnings");
+        ReportNode validationReportNode = reportNode.newReportNode().withMessageTemplate("validationWarnings", "Validation warnings").add();
         reader.readChildNodes(elementName ->
                 readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
 
         if (!extensionNamesImported.isEmpty()) {
-            Reporter importedExtensionReporter = reporter.createSubReporter("importedExtensions", "Imported extensions");
-            logExtensionsImported(importedExtensionReporter, extensionNamesImported);
+            ReportNode importedExtensionReportNode = reportNode.newReportNode().withMessageTemplate("importedExtensions", "Imported extensions").add();
+            logExtensionsImported(importedExtensionReportNode, extensionNamesImported);
         }
         if (!extensionNamesNotFound.isEmpty()) {
-            Reporter extensionsNotFoundReporter = reporter.createSubReporter("extensionsNotFound", "Not found extensions");
+            ReportNode extensionsNotFoundReportNode = reportNode.newReportNode().withMessageTemplate("extensionsNotFound", "Not found extensions").add();
             throwExceptionIfOption(context.getOptions(), "Extensions " + extensionNamesNotFound + " " + "not found !");
-            logExtensionsNotFound(extensionsNotFoundReporter, extensionNamesNotFound);
+            logExtensionsNotFound(extensionsNotFoundReportNode, extensionNamesNotFound);
         }
 
-        context.executeEndTasks(network, validationReporter);
+        context.executeEndTasks(network, validationReportNode);
 
         return network;
     }
@@ -718,9 +748,9 @@ public final class NetworkSerDe {
         return read(xmlFile, new ImportOptions());
     }
 
-    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt, Reporter reporter) throws IOException {
+    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt, ReportNode reportNode) throws IOException {
         Objects.requireNonNull(dataSource);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
         Network network;
         Anonymizer anonymizer = null;
 
@@ -732,7 +762,7 @@ public final class NetworkSerDe {
         }
         //Read the base file with the extensions declared in the extensions list
         try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
-            network = NetworkSerDe.read(isb, options, anonymizer, networkFactory, reporter);
+            network = NetworkSerDe.read(isb, options, anonymizer, networkFactory, reportNode);
         }
         return network;
     }
@@ -763,19 +793,19 @@ public final class NetworkSerDe {
 
         context.getReader().readChildNodes(extensionName -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
-            // to check for an extension to exist if depth is greater than zero. Furthermore in case of
+            // to check for an extension to exist if depth is greater than zero. Furthermore, in case of
             // missing extension serializer, we must not check for an extension in sub elements.
-            if (!context.getOptions().withExtension(extensionName)) {
-                context.getReader().skipChildNodes();
-            }
-
-            ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionXmlSerializer != null) {
-                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                extensionNamesImported.add(extensionName);
+            if (context.getOptions().withExtension(extensionName)) {
+                ExtensionSerDe extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                    extensionNamesImported.add(extensionName);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
+                    context.getReader().skipChildNodes();
+                }
             } else {
-                extensionNamesNotFound.add(extensionName);
                 context.getReader().skipChildNodes();
             }
         });
@@ -839,7 +869,7 @@ public final class NetworkSerDe {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory, Reporter.NO_OP);
+            return read(is, new ImportOptions(), null, networkFactory, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

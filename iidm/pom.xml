@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -26,14 +26,15 @@
     <modules>
         <module>iidm-api</module>
         <module>iidm-comparator</module>
+        <module>iidm-criteria</module>
         <module>iidm-extensions</module>
         <module>iidm-impl</module>
         <module>iidm-modification</module>
         <module>iidm-reducer</module>
         <module>iidm-scripting</module>
+        <module>iidm-serde</module>
         <module>iidm-tck</module>
         <module>iidm-test</module>
-        <module>iidm-serde</module>
     </modules>
 
 </project>

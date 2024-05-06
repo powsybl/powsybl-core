@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
@@ -30,13 +31,16 @@ class SourceForIidmIdentifiersTest {
     void microGridMasterResourceIdsExplicit() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_MRID);
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertFalse(idf.getId().startsWith("_")));
     }
 
     @Test
     void microGridMasterResourceIdsDefault() {
-        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), null);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertFalse(idf.getId().startsWith("_")));
     }
 
@@ -44,6 +48,7 @@ class SourceForIidmIdentifiersTest {
     void microGridRDFIds() {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.SOURCE_FOR_IIDM_ID, CgmesImport.SOURCE_FOR_IIDM_ID_RDFID);
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         Network network = Importers.importData("CGMES", CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), importParams);
         network.getIdentifiables().forEach(idf -> assertTrue(idf.getId().startsWith("_") || idf.getId().startsWith("urn:uuid:")));
     }

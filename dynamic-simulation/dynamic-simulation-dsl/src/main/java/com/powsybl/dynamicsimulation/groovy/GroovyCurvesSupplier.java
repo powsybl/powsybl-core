@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dsl.ExpressionDslLoader;
 import com.powsybl.dsl.GroovyScripts;
 import com.powsybl.dynamicsimulation.Curve;
@@ -49,15 +50,15 @@ public class GroovyCurvesSupplier implements CurvesSupplier {
     }
 
     @Override
-    public List<Curve> get(Network network, Reporter reporter) {
+    public List<Curve> get(Network network, ReportNode reportNode) {
         List<Curve> curves = new ArrayList<>();
-        Reporter groovyReporter = reporter.createSubReporter("groovyCurves", "Groovy Curves Supplier");
+        ReportNode groovyReportNode = reportNode.newReportNode().withMessageTemplate("groovyCurves", "Groovy Curves Supplier").add();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);
 
         ExpressionDslLoader.prepareClosures(binding);
-        extensions.forEach(e -> e.load(binding, curves::add, groovyReporter));
+        extensions.forEach(e -> e.load(binding, curves::add, groovyReportNode));
 
         GroovyShell shell = new GroovyShell(binding, new CompilerConfiguration());
         shell.evaluate(codeSource);

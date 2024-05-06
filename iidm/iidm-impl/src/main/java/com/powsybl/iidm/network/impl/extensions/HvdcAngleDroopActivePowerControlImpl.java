@@ -48,8 +48,8 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
         this.droop = new TFloatArrayList(variantArraySize);
         this.enabled = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.p0.add(checkP0(p0));
-            this.droop.add(checkDroop(droop));
+            this.p0.add(checkP0(p0, hvdcLine));
+            this.droop.add(checkDroop(droop, hvdcLine));
             this.enabled.add(enabled);
         }
     }
@@ -71,13 +71,13 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
 
     @Override
     public HvdcAngleDroopActivePowerControl setP0(float p0) {
-        this.p0.set(getVariantIndex(), checkP0(p0));
+        this.p0.set(getVariantIndex(), checkP0(p0, this.getExtendable()));
         return this;
     }
 
     @Override
     public HvdcAngleDroopActivePowerControl setDroop(float droop) {
-        this.droop.set(getVariantIndex(), checkDroop(droop));
+        this.droop.set(getVariantIndex(), checkDroop(droop, this.getExtendable()));
         return this;
     }
 
@@ -87,17 +87,21 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractMultiVariantId
         return this;
     }
 
-    private float checkP0(float p0) {
+    private float checkP0(float p0, HvdcLine hvdcLine) {
         if (Float.isNaN(p0)) {
-            throw new IllegalArgumentException("p0 is not set");
+            throw new IllegalArgumentException(String.format("p0 value (%s) is invalid for HVDC line %s",
+                p0,
+                hvdcLine.getId()));
         }
 
         return p0;
     }
 
-    private float checkDroop(float droop) {
+    private float checkDroop(float droop, HvdcLine hvdcLine) {
         if (Float.isNaN(droop)) {
-            throw new IllegalArgumentException("droop is not set");
+            throw new IllegalArgumentException(String.format("droop value (%s) is invalid for HVDC line %s",
+                droop,
+                hvdcLine.getId()));
         }
 
         return droop;

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -85,5 +86,32 @@ class SparseMatrixTest extends AbstractMatrixTest {
             matrix.set(1, 1, 2);
             assertThrows(MatrixException.class, decomposition::update);
         }
+    }
+
+    @Test
+    void initFromArrayIssue() {
+        SparseMatrix a = new SparseMatrix(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 1, 1d);
+        try (LUDecomposition decomposition = a.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+        SparseMatrix m = new SparseMatrix(a.getRowCount(), a.getColumnCount(), a.getColumnStart(), a.getRowIndices(), a.getValues());
+        try (LUDecomposition decomposition = m.decomposeLU()) {
+            double[] x = new double[] {1, 0};
+            decomposition.solve(x);
+            assertArrayEquals(new double[] {0, 1}, x);
+        }
+    }
+
+    @Test
+    void testFromArrayConstructorErrors() {
+        MatrixException e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1}, new int[]{0, 1}, new double[]{0.5, 0.3}));
+        assertEquals("columnStart array length has to be columnCount + 1", e.getMessage());
+        e = assertThrows(MatrixException.class, () -> new SparseMatrix(2, 2, new int[]{0, 1, 1}, new int[]{0, 1, 1}, new double[]{0.5, 0.3}));
+        assertEquals("rowIndices and values arrays must have the same length", e.getMessage());
     }
 }

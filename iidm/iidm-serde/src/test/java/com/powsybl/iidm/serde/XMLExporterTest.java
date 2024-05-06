@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -27,7 +28,7 @@ import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +45,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getVersionedNetworkAsStream(xmlFileName, version), is);
+            assertXmlEquals(getVersionedNetworkAsStream(xmlFileName, version), is);
         }
     }
 
@@ -56,7 +57,7 @@ class XMLExporterTest extends AbstractIidmSerDeTest {
     @Test
     void paramsTest() {
         var xmlExporter = new XMLExporter();
-        assertEquals(10, xmlExporter.getParameters().size());
+        assertEquals(11, xmlExporter.getParameters().size());
         assertEquals("IIDM XML v" + CURRENT_IIDM_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 

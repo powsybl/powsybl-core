@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -56,10 +57,10 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.switchKinds = switchKinds;
     }
 
-    private static boolean checkCountAttributes(Integer count, String type, int min, Reporter reporter, boolean throwException) {
+    private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode, boolean throwException) {
         if (count < min) {
             LOG.error("{} must be >= {}", type, min);
-            countLowerThanMin(reporter, type, min);
+            countLowerThanMin(reportNode, type, min);
             if (throwException) {
                 throw new PowsyblException(type + " must be >= " + min);
             }
@@ -69,18 +70,18 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     private boolean checkCountAttributes(int lowBusOrBusbarIndex, int alignedBusesOrBusbarCount, int lowSectionIndex,
-                                         int sectionCount, boolean throwException, Reporter reporter) {
-        return checkCountAttributes(lowBusOrBusbarIndex, "low busbar index", 0, reporter, throwException) &&
-        checkCountAttributes(alignedBusesOrBusbarCount, "busbar count", 1, reporter, throwException) &&
-        checkCountAttributes(lowSectionIndex, "low section index", 0, reporter, throwException) &&
-        checkCountAttributes(sectionCount, "section count", 1, reporter, throwException);
+                                         int sectionCount, boolean throwException, ReportNode reportNode) {
+        return checkCountAttributes(lowBusOrBusbarIndex, "low busbar index", 0, reportNode, throwException) &&
+        checkCountAttributes(alignedBusesOrBusbarCount, "busbar count", 1, reportNode, throwException) &&
+        checkCountAttributes(lowSectionIndex, "low section index", 0, reportNode, throwException) &&
+        checkCountAttributes(sectionCount, "section count", 1, reportNode, throwException);
     }
 
-    private static boolean checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount, Reporter reporter, boolean throwException) {
+    private static boolean checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount, ReportNode reportNode, boolean throwException) {
         Objects.requireNonNull(switchKinds, "Undefined switch kinds");
         if (switchKinds.size() != sectionCount - 1) {
             LOG.error("Unexpected switch kinds count ({}). Should be {}", switchKinds.size(), sectionCount - 1);
-            unexpectedSwitchKindsCount(reporter, switchKinds.size(), sectionCount - 1);
+            unexpectedSwitchKindsCount(reportNode, switchKinds.size(), sectionCount - 1);
             if (throwException) {
                 throw new PowsyblException("Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
             }
@@ -88,7 +89,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         if (switchKinds.contains(null)) {
             LOG.error("All switch kinds must be defined");
-            undefinedSwitchKind(reporter);
+            undefinedSwitchKind(reportNode);
             if (throwException) {
                 throw new PowsyblException("All switch kinds must be defined");
             }
@@ -96,7 +97,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
             LOG.error("Switch kinds must be DISCONNECTOR or BREAKER");
-            wrongSwitchKind(reporter);
+            wrongSwitchKind(reportNode);
             if (throwException) {
                 throw new PowsyblException("Switch kinds must be DISCONNECTOR or BREAKER");
             }
@@ -130,9 +131,9 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         //checks
-        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reporter)) {
+        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reportNode)) {
             return;
         }
 
@@ -140,7 +141,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOG.error("Voltage level {} is not found", voltageLevelId);
-            notFoundVoltageLevelReport(reporter, voltageLevelId);
+            notFoundVoltageLevelReport(reportNode, voltageLevelId);
             if (throwException) {
                 throw new PowsyblException(String.format("Voltage level %s is not found", voltageLevelId));
             }
@@ -157,7 +158,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             createBusBreakerSwitches(voltageLevel, namingStrategy);
         } else {
             // Check switch kinds
-            if (!checkSwitchKinds(switchKinds, sectionCount, reporter, throwException)) {
+            if (!checkSwitchKinds(switchKinds, sectionCount, reportNode, throwException)) {
                 return;
             }
             // Create busbar sections
@@ -166,7 +167,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
             createSwitches(voltageLevel, namingStrategy);
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
-        createdNewSymmetricalTopology(reporter, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
+        createdNewSymmetricalTopology(reportNode, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -59,7 +60,7 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             }
         }
 
-        Map<Integer, List<DoublePointExt>> points = new TreeMap<>();
+        Map<Integer, List<DoublePointExt>> points = new HashMap<>();
         for (int timeSeriesNum = 0; timeSeriesNum < timeSeriesList.size(); timeSeriesNum++) {
             DoubleTimeSeries timeSeries = timeSeriesList.get(timeSeriesNum);
             for (DoublePoint point : timeSeries) {
@@ -68,7 +69,9 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             }
         }
 
-        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = points.entrySet().iterator();
+        Iterator<Map.Entry<Integer, List<DoublePointExt>>> it = points.entrySet().stream()
+            .sorted(Comparator.comparingInt(Map.Entry::getKey))
+            .iterator();
 
         return new Iterator<DoubleMultiPoint>() {
 

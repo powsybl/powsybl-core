@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
@@ -106,7 +107,7 @@ class LoadFlowParametersTest {
         boolean dcUseTransformerRatio = true;
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
-        boolean hvdcAcEmulation = true;
+        boolean hvdcAcEmulation = false;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("voltageInitMode", "UNIFORM_VALUES");
@@ -293,7 +294,7 @@ class LoadFlowParametersTest {
         boolean dcUseTransformerRatio = true;
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
-        boolean hvdcAcEmulation = true;
+        boolean hvdcAcEmulation = false;
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode)
                 .setTransformerVoltageControlOn(transformerVoltageControlOn)

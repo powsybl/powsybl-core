@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -82,6 +83,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
                 case DANGLING_LINE:
+                case GROUND:
                     // skip
                     break;
                 case GENERATOR:
@@ -113,6 +115,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
                 case DANGLING_LINE:
+                case GROUND:
                     // skip
                     break;
                 case GENERATOR:
@@ -336,6 +339,10 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
                 case HVDC_CONVERTER_STATION:
                     visitor.visitHvdcConverterStation((HvdcConverterStation<?>) connectable);
+                    break;
+
+                case GROUND:
+                    visitor.visitGround((GroundImpl) connectable);
                     break;
 
                 default:

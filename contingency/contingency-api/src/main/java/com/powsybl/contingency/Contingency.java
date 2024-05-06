@@ -3,14 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.contingency.list.ContingencyList;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.modification.NetworkModificationList;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationList;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,13 +31,24 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private final List<ContingencyElement> elements;
 
-    public Contingency(String id, ContingencyElement... elements) {
-        this(id, Arrays.asList(elements));
+    private final String name;
+
+    public Contingency(String id, String name, List<ContingencyElement> elements) {
+        this.id = Objects.requireNonNull(id);
+        this.name = name;
+        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
+    }
+
+    public Contingency(String id, String name, ContingencyElement... elements) {
+        this(id, name, Arrays.asList(elements));
     }
 
     public Contingency(String id, List<ContingencyElement> elements) {
-        this.id = Objects.requireNonNull(id);
-        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
+        this(id, null, elements);
+    }
+
+    public Contingency(String id, ContingencyElement... elements) {
+        this(id, Arrays.asList(elements));
     }
 
     public String getId() {
@@ -49,15 +61,19 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, elements);
+        return Objects.hash(id, name, elements);
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Contingency other) {
-            return id.equals(other.id) && elements.equals(other.elements);
+            return id.equals(other.id) && Objects.equals(name, other.name) && elements.equals(other.elements);
         }
         return false;
+    }
+
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
     }
 
     public void addElement(ContingencyElement element) {
@@ -78,62 +94,27 @@ public class Contingency extends AbstractExtendable<Contingency> {
         Objects.requireNonNull(network);
         boolean valid = true;
         for (ContingencyElement element : elements) {
-            switch (element.getType()) {
-                case GENERATOR:
-                    valid = checkGeneratorContingency(this, (GeneratorContingency) element, network);
-                    break;
-
-                case STATIC_VAR_COMPENSATOR:
-                    valid = checkStaticVarCompensatorContingency(this, (StaticVarCompensatorContingency) element, network);
-                    break;
-
-                case SHUNT_COMPENSATOR:
-                    valid = checkShuntCompensatorContingency(this, (ShuntCompensatorContingency) element, network);
-                    break;
-
-                case BRANCH:
-                    valid = checkBranchContingency(this, (BranchContingency) element, network);
-                    break;
-
-                case HVDC_LINE:
-                    valid = checkHvdcLineContingency(this, (HvdcLineContingency) element, network);
-                    break;
-
-                case BUSBAR_SECTION:
-                    valid = checkBusbarSectionContingency(this, (BusbarSectionContingency) element, network);
-                    break;
-
-                case DANGLING_LINE:
-                    valid = checkDanglingLineContingency(this, (DanglingLineContingency) element, network);
-                    break;
-
-                case LINE:
-                    valid = checkLineContingency(this, (LineContingency) element, network);
-                    break;
-
-                case TWO_WINDINGS_TRANSFORMER:
-                    valid = checkTwoWindingsTransformerContingency(this, (TwoWindingsTransformerContingency) element, network);
-                    break;
-
-                case THREE_WINDINGS_TRANSFORMER:
-                    valid = checkThreeWindingsTransformerContingency(this, (ThreeWindingsTransformerContingency) element, network);
-                    break;
-
-                case LOAD:
-                    valid = checkLoadContingency(this, (LoadContingency) element, network);
-                    break;
-
-                case BUS:
-                    valid = checkBusContingency(this, (BusContingency) element, network);
-                    break;
-
-                case TIE_LINE:
-                    valid = checkTieLineContingency(this, (TieLineContingency) element, network);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unknown contingency element type " + element.getType());
-            }
+            valid = switch (element.getType()) {
+                case GENERATOR -> checkGeneratorContingency(this, (GeneratorContingency) element, network);
+                case STATIC_VAR_COMPENSATOR ->
+                    checkStaticVarCompensatorContingency(this, (StaticVarCompensatorContingency) element, network);
+                case SHUNT_COMPENSATOR ->
+                    checkShuntCompensatorContingency(this, (ShuntCompensatorContingency) element, network);
+                case BRANCH -> checkBranchContingency(this, (BranchContingency) element, network);
+                case HVDC_LINE -> checkHvdcLineContingency(this, (HvdcLineContingency) element, network);
+                case BUSBAR_SECTION -> checkBusbarSectionContingency(this, (BusbarSectionContingency) element, network);
+                case DANGLING_LINE -> checkDanglingLineContingency(this, (DanglingLineContingency) element, network);
+                case LINE -> checkLineContingency(this, (LineContingency) element, network);
+                case TWO_WINDINGS_TRANSFORMER ->
+                    checkTwoWindingsTransformerContingency(this, (TwoWindingsTransformerContingency) element, network);
+                case THREE_WINDINGS_TRANSFORMER ->
+                    checkThreeWindingsTransformerContingency(this, (ThreeWindingsTransformerContingency) element, network);
+                case LOAD -> checkLoadContingency(this, (LoadContingency) element, network);
+                case BUS -> checkBusContingency(this, (BusContingency) element, network);
+                case TIE_LINE -> checkTieLineContingency(this, (TieLineContingency) element, network);
+                case BATTERY -> checkBatteryContingency(this, (BatteryContingency) element, network);
+                default -> throw new IllegalStateException("Unknown contingency element type " + element.getType());
+            };
         }
         if (!valid) {
             LOGGER.warn("Contingency '{}' is invalid", id);
@@ -153,6 +134,14 @@ public class Contingency extends AbstractExtendable<Contingency> {
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {
         if (network.getGenerator(element.getId()) == null) {
             LOGGER.warn("Generator '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkBatteryContingency(Contingency contingency, BatteryContingency element, Network network) {
+        if (network.getBattery(element.getId()) == null) {
+            LOGGER.warn("Battery '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
         return true;

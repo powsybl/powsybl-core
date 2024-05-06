@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
@@ -12,6 +13,7 @@ import com.powsybl.cgmes.conformity.Cgmes3Catalog;
 import com.powsybl.cgmes.conformity.Cgmes3ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Importers;
@@ -23,6 +25,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,6 +37,8 @@ class Cgmes3ModifiedConversionTest {
     @BeforeEach
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach
@@ -43,15 +48,15 @@ class Cgmes3ModifiedConversionTest {
 
     @Test
     void microGridSingleFile() {
-        Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), null);
-        Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), null);
+        Network network0 = Importers.importData("CGMES", Cgmes3Catalog.microGrid().dataSource(), importParams);
+        Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseBESingleFile().dataSource(), importParams);
         assertEquals(6, network.getExtension(CgmesModelExtension.class).getCgmesModel().boundaryNodes().size());
         assertEquals(5, network.getDanglingLineCount());
     }
 
     @Test
     void microGridGeographicalRegionInBoundary() {
-        Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseGeographicalRegionInBoundary().dataSource(), null);
+        Network network = Importers.importData("CGMES", Cgmes3ModifiedCatalog.microGridBaseCaseGeographicalRegionInBoundary().dataSource(), importParams);
         Substation anvers = network.getSubstation("87f7002b-056f-4a6a-a872-1744eea757e3");
         Substation brussels = network.getSubstation("37e14a0f-5e34-4647-a062-8bfd9305fa9d");
         assertNotNull(anvers);
@@ -76,7 +81,7 @@ class Cgmes3ModifiedConversionTest {
 
         // In the base case each line is connected to a different boundary node
         // All have different values of p0, q0
-        Network networkBase = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Network networkBase = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource(), importParams);
         assertEquals(nodeGY11, Conversion.getDanglingLineBoundaryNode(networkBase.getDanglingLine(line5Id)));
         assertEquals(-27.0286, networkBase.getDanglingLine(line5Id).getP0(), 1e-4);
         assertEquals(120.7887, networkBase.getDanglingLine(line5Id).getQ0(), 1e-4);
@@ -90,7 +95,7 @@ class Cgmes3ModifiedConversionTest {
         // We have prepared a modified case where lines 4 and 5 both connect to the same node
         // p0, q0 is adjusted for connected dangling lines
         // p0, q0 of the disconnected is not modified
-        Network network3dls = Network.read(CgmesConformity3ModifiedCatalog.microGridBE3DanglingLinesSameBoundary1Disconnected().dataSource());
+        Network network3dls = Network.read(CgmesConformity3ModifiedCatalog.microGridBE3DanglingLinesSameBoundary1Disconnected().dataSource(), importParams);
         assertEquals(nodeGY11, Conversion.getDanglingLineBoundaryNode(network3dls.getDanglingLine(line5Id)));
         assertEquals(-13.5143, network3dls.getDanglingLine(line5Id).getP0(), 1e-4);
         assertEquals(60.3944, network3dls.getDanglingLine(line5Id).getQ0(), 1e-4);
@@ -103,4 +108,5 @@ class Cgmes3ModifiedConversionTest {
     }
 
     private FileSystem fileSystem;
+    private Properties importParams;
 }

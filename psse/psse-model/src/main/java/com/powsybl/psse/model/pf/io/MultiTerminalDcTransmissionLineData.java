@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -11,7 +12,6 @@ import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine;
 import com.powsybl.psse.model.pf.PsseMultiTerminalDcTransmissionLine.*;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -46,7 +46,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
 
         @Override
-        public List<PsseMultiTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseMultiTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
 
             MultiTerminalDcMainData mainData = new MultiTerminalDcMainData();
             List<PsseMultiTerminalDcTransmissionLine> multiTerminalList = new ArrayList<>();
@@ -55,15 +55,15 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             List<String> busRecords = new ArrayList<>();
             List<String> linkRecords = new ArrayList<>();
 
-            if (!isQRecordFound()) {
-                String line = readRecordLine(reader);
-                while (!endOfBlock(line)) {
+            if (!reader.isQRecordFound()) {
+                String line = reader.readRecordLine();
+                while (!reader.endOfBlock(line)) {
                     PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(line), context).get(0);
 
                     addNextNrecords(reader, converterRecords, main.getNconv());
                     addNextNrecords(reader, busRecords, main.getNdcbs());
                     addNextNrecords(reader, linkRecords, main.getNdcln());
-                    line = readRecordLine(reader);
+                    line = reader.readRecordLine();
 
                     PsseMultiTerminalDcTransmissionLine multiTerminal = new PsseMultiTerminalDcTransmissionLine(main);
                     multiTerminalList.add(multiTerminal);
@@ -86,10 +86,10 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             return multiTerminalList;
         }
 
-        private static void addNextNrecords(BufferedReader reader, List<String> records, int nRecords) throws IOException {
+        private static void addNextNrecords(LegacyTextReader reader, List<String> records, int nRecords) throws IOException {
             int n = 0;
             while (n < nRecords) {
-                records.add(readRecordLine(reader));
+                records.add(reader.readRecordLine());
                 n++;
             }
         }
@@ -205,7 +205,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
 
         @Override
-        public List<PsseMultiTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseMultiTerminalDcTransmissionLine> read(LegacyTextReader reader, Context context) throws IOException {
             if (reader != null) {
                 throw new PsseException("Unexpected reader. Should be null");
             }

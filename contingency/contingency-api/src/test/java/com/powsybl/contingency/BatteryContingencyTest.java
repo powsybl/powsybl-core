@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -27,12 +29,12 @@ class BatteryContingencyTest {
         assertEquals(ContingencyElementType.BATTERY, batContingency.getType());
 
         assertNotNull(batContingency.toModification());
-        assertTrue(batContingency.toModification() instanceof BatteryTripping);
+        assertInstanceOf(BatteryTripping.class, batContingency.toModification());
 
         new EqualsTester()
-                .addEqualityGroup(new BatteryContingency("foo"), new BatteryContingency("foo"))
-                .addEqualityGroup(new BatteryContingency("bar"), new BatteryContingency("bar"))
-                .testEquals();
+            .addEqualityGroup(new BatteryContingency("foo"), new BatteryContingency("foo"))
+            .addEqualityGroup(new BatteryContingency("bar"), new BatteryContingency("bar"))
+            .testEquals();
     }
 
     @Test
@@ -42,8 +44,19 @@ class BatteryContingencyTest {
         assertNotNull(battery);
         ContingencyElement element = ContingencyElement.of(battery);
         assertNotNull(element);
-        assertTrue(element instanceof BatteryContingency);
+        assertInstanceOf(BatteryContingency.class, element);
         assertEquals("BAT", element.getId());
         assertEquals(ContingencyElementType.BATTERY, element.getType());
+    }
+
+    @Test
+    void testContingencyElementNotFound() {
+        Network network = BatteryNetworkFactory.create();
+        ContingencyElement element = new BatteryContingency("id");
+        Contingency contingency = new Contingency("contingencyId", "contingencyName", List.of(element));
+        assertFalse(contingency.isValid(network));
+        ContingencyElement element2 = new BatteryContingency("BAT");
+        Contingency contingency2 = new Contingency("contingencyId2", "contingencyName2", List.of(element2));
+        assertTrue(contingency2.isValid(network));
     }
 }

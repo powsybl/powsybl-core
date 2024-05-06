@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -23,7 +24,9 @@ class ImportOptionsTest {
         ImportOptions options = new ImportOptions();
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
+        options.setWithAutomationSystems(false);
         assertEquals(Boolean.FALSE, options.withNoExtension());
+        assertEquals(Boolean.FALSE, options.isWithAutomationSystems());
 
         options.addExtension("loadBar");
         assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
@@ -34,10 +37,12 @@ class ImportOptionsTest {
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         ImportOptions options = new ImportOptions(Boolean.FALSE);
         options.setExtensions(extensionsList);
+        options.setMissingPermanentLimitPercentage(95.);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(95., options.getMissingPermanentLimitPercentage());
     }
 
     @Test
@@ -48,5 +53,7 @@ class ImportOptionsTest {
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(-1, (int) options.getExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.withAllExtensions());
+        assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
+        assertEquals(100., options.getMissingPermanentLimitPercentage());
     }
 }

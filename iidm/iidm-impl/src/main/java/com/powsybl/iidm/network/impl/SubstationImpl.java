@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -33,6 +34,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
+
+    private final Set<OverloadManagementSystemImpl> overloadManagementSystems = new LinkedHashSet<>();
 
     private boolean removed = false;
 
@@ -166,6 +169,30 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
                 .count());
     }
 
+    void addOverloadManagementSystem(OverloadManagementSystemImpl overloadManagementSystem) {
+        overloadManagementSystems.add(overloadManagementSystem);
+    }
+
+    @Override
+    public OverloadManagementSystemAdderImpl newOverloadManagementSystem() {
+        return new OverloadManagementSystemAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableSet(overloadManagementSystems);
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return overloadManagementSystems.stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return Ints.checkedCast(getOverloadManagementSystemStream().count());
+    }
+
     @Override
     public Set<String> getGeographicalTags() {
         return Collections.unmodifiableSet(geographicalTags);
@@ -214,11 +241,23 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             vl.remove();
         }
 
+        // Remove the overload management systems
+        removeOverloadManagementSystems();
+
         // Remove this substation from the network
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+    }
+
+    void removeOverloadManagementSystems() {
+        overloadManagementSystems.forEach(OverloadManagementSystem::remove);
+    }
+
+    void remove(OverloadManagementSystemImpl overloadManagementSystem) {
+        Objects.requireNonNull(overloadManagementSystem);
+        overloadManagementSystems.remove(overloadManagementSystem);
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {

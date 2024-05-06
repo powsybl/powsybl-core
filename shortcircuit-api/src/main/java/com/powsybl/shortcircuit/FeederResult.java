@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -12,7 +13,7 @@ package com.powsybl.shortcircuit;
 public interface FeederResult {
 
     /**
-     * The ID of the connectable contributing to the three-phase short circuit current.
+     * The ID of the connectable contributing to the three-phase short-circuit current.
      */
     String getConnectableId();
 

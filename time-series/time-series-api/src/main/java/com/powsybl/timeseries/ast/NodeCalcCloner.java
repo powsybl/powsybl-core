@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -38,11 +39,6 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
-    }
-
-    @Override
     public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
         return new UnaryOperation(child, nodeCalc.getOperator());
     }
@@ -73,6 +69,17 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
+    public NodeCalc visit(CachedNodeCalc nodeCalc, A arg, NodeCalc child) {
+        // CachedNodeCalc are not cloned or else the NodeCalc would not be the same anymore
+        return nodeCalc;
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
     public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
         return new TimeNodeCalc(child);
     }
@@ -90,5 +97,20 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     @Override
     public NodeCalc visit(TimeSeriesNumNodeCalc nodeCalc, A arg) {
         return new TimeSeriesNumNodeCalc(nodeCalc.getTimeSeriesNum());
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMinCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return new BinaryMinCalc(left, right);
+    }
+
+    @Override
+    public NodeCalc visit(BinaryMaxCalc nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return new BinaryMaxCalc(left, right);
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 }

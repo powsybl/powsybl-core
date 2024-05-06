@@ -3,17 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements MultiVariantObject {
@@ -26,7 +31,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final Integer relativeNeutralPosition;
 
-    protected final List<S> steps;
+    protected List<S> steps;
 
     private final String type;
 
@@ -113,10 +118,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setTapPosition(int tapPosition) {
         NetworkImpl n = getNetwork();
         if (tapPosition < lowTapPosition
-                || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + getHighTapPosition() + "]");
+            || tapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         int variantIndex = n.getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
@@ -139,11 +142,25 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public S getStep(int tapPosition) {
         if (tapPosition < lowTapPosition || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", " + getHighTapPosition()
-                    + "]");
+            throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         return steps.get(tapPosition - lowTapPosition);
+    }
+
+    protected C setSteps(List<S> steps) {
+        if (steps == null || steps.isEmpty()) {
+            throw new ValidationException(parent, "a tap changer shall have at least one step");
+        }
+        steps.forEach(step -> step.validate(parent));
+
+        // We check if the tap position is still correct
+        int newHighTapPosition = lowTapPosition + steps.size() - 1;
+        if (getTapPosition() > newHighTapPosition) {
+            throwIncorrectTapPosition(getTapPosition(), newHighTapPosition);
+        }
+
+        this.steps = steps;
+        return (C) this;
     }
 
     public S getCurrentStep() {
@@ -233,4 +250,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 
+    private void throwIncorrectTapPosition(int tapPosition, int highTapPosition) {
+        throw new ValidationException(parent, "incorrect tap position "
+            + tapPosition + " [" + lowTapPosition + ", " + highTapPosition
+            + "]");
+    }
 }

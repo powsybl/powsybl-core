@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -19,17 +20,20 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
 
     private int sectionIndex;
 
-    private static int checkIndex(int index) {
+    private static int checkIndex(int index, BusbarSection busbarSection) {
         if (index < 0) {
-            throw new IllegalArgumentException("Busbar index has to be greater or equals to zero");
+            throw new IllegalArgumentException(
+                String.format("Busbar index (%s) has to be greater or equals to zero for busbar section %s",
+                    index,
+                    busbarSection.getId()));
         }
         return index;
     }
 
     public BusbarSectionPositionImpl(BusbarSection busbarSection, int busbarIndex, int sectionIndex) {
         super(busbarSection);
-        this.busbarIndex = checkIndex(busbarIndex);
-        this.sectionIndex = checkIndex(sectionIndex);
+        this.busbarIndex = checkIndex(busbarIndex, busbarSection);
+        this.sectionIndex = checkIndex(sectionIndex, busbarSection);
     }
 
     public int getBusbarIndex() {
@@ -37,7 +41,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
     }
 
     public BusbarSectionPositionImpl setBusbarIndex(int busbarIndex) {
-        this.busbarIndex = checkIndex(busbarIndex);
+        this.busbarIndex = checkIndex(busbarIndex, this.getExtendable());
         return this;
     }
 
@@ -46,7 +50,7 @@ public class BusbarSectionPositionImpl extends AbstractExtension<BusbarSection> 
     }
 
     public BusbarSectionPositionImpl setSectionIndex(int sectionIndex) {
-        this.sectionIndex = checkIndex(sectionIndex);
+        this.sectionIndex = checkIndex(sectionIndex, this.getExtendable());
         return this;
     }
 }

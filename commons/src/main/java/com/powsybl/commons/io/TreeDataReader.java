@@ -3,11 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.io;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,13 +27,13 @@ public interface TreeDataReader extends AutoCloseable {
         void onStartNode(String nodeName);
     }
 
-    String readRootVersion();
-
-    Map<String, String> readVersions();
+    TreeDataHeader readHeader();
 
     double readDoubleAttribute(String name);
 
     double readDoubleAttribute(String name, double defaultValue);
+
+    OptionalDouble readOptionalDoubleAttribute(String name);
 
     float readFloatAttribute(String name);
 
@@ -38,13 +41,17 @@ public interface TreeDataReader extends AutoCloseable {
 
     String readStringAttribute(String name);
 
-    Integer readIntAttribute(String name);
+    int readIntAttribute(String name);
+
+    OptionalInt readOptionalIntAttribute(String name);
 
     int readIntAttribute(String name, int defaultValue);
 
-    Boolean readBooleanAttribute(String name);
+    boolean readBooleanAttribute(String name);
 
     boolean readBooleanAttribute(String name, boolean defaultValue);
+
+    Optional<Boolean> readOptionalBooleanAttribute(String name);
 
     <T extends Enum<T>> T readEnumAttribute(String name, Class<T> clazz);
 

@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.impl;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -84,18 +85,18 @@ public class DefaultSecurityAnalysis {
     private final LimitViolationFilter violationFilter;
     private final List<SecurityAnalysisInterceptor> interceptors;
     private final StateMonitorIndex monitorIndex;
-    private final Reporter reporter;
+    private final ReportNode reportNode;
 
     public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
                                    LimitViolationFilter filter, ComputationManager computationManager,
-                                   List<StateMonitor> monitors, Reporter reporter) {
+                                   List<StateMonitor> monitors, ReportNode reportNode) {
         this.network = Objects.requireNonNull(network);
         this.violationDetector = Objects.requireNonNull(detector);
         this.violationFilter = Objects.requireNonNull(filter);
         this.interceptors = new ArrayList<>();
         this.computationManager = Objects.requireNonNull(computationManager);
         this.monitorIndex = new StateMonitorIndex(monitors);
-        this.reporter = Objects.requireNonNull(reporter);
+        this.reportNode = Objects.requireNonNull(reportNode);
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
@@ -126,7 +127,7 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingVariantId);
 
         return LoadFlow
-            .runAsync(network, workingVariantId, computationManager, loadFlowParameters, reporter)
+            .runAsync(network, workingVariantId, computationManager, loadFlowParameters, reportNode)
             .thenCompose(loadFlowResult -> {
                 if (loadFlowResult.isOk()) {
                     return CompletableFuture
@@ -211,7 +212,7 @@ public class DefaultSecurityAnalysis {
                 applyContingency(workingVariantId, postContVariantId, contingency);
             }, computationManager.getExecutor())
             .thenCompose(aVoid ->
-                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters, reporter)
+                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters, reportNode)
             )
             .thenApplyAsync(lfResult -> {
                 setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, contingency, lfResult);

@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
@@ -16,9 +18,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -66,5 +66,19 @@ class SensitivityVariableSetTest extends AbstractSerDeTest {
         ObjectMapper objectMapper = JsonSensitivityAnalysisParameters.createObjectMapper();
         roundTripTest(variableSet, (variableSet2, jsonFile) -> JsonUtil.writeJson(jsonFile, variableSet, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityVariableSet.class, objectMapper), "/variableSetRef.json");
+
+        String jsonRef = String.join(System.lineSeparator(),
+            "[ {",
+            "   \"id\" : \"id\",",
+            "   \"error\" : [ {",
+            "       \"id\" : \"v1\",",
+            "       \"weight\" : 3.4",
+            "   }, {",
+            "       \"id\" : \"v2\",",
+            "       \"weight\" : 2.1",
+            "   } ]",
+            "}]");
+        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonUtil.parseJson(jsonRef, SensitivityVariableSet::parseJson));
+        assertEquals("Unexpected field: error", e0.getMessage());
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -82,13 +83,14 @@ public interface NodeCalc {
         try {
             NodeCalc nodeCalc = null;
             JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.START_OBJECT) {
-                    // skip
-                } else if (token == JsonToken.END_OBJECT) {
-                    break;
-                } else {
-                    nodeCalc = parseJson(parser, token);
+            boolean continueLoop = true;
+            while (continueLoop && (token = parser.nextToken()) != null) {
+                switch (token) {
+                    case START_OBJECT -> {
+                        // Do nothing
+                    }
+                    case END_OBJECT -> continueLoop = false;
+                    default -> nodeCalc = parseJson(parser, token);
                 }
             }
             return nodeCalc;
@@ -107,38 +109,45 @@ public interface NodeCalc {
         if (token == JsonToken.FIELD_NAME) {
             String fieldName = parser.getCurrentName();
             switch (fieldName) {
-                case IntegerNodeCalc.NAME:
+                case IntegerNodeCalc.NAME -> {
                     return IntegerNodeCalc.parseJson(parser);
-
-                case FloatNodeCalc.NAME:
+                }
+                case FloatNodeCalc.NAME -> {
                     return FloatNodeCalc.parseJson(parser);
-
-                case DoubleNodeCalc.NAME:
+                }
+                case DoubleNodeCalc.NAME -> {
                     return DoubleNodeCalc.parseJson(parser);
-
-                case BigDecimalNodeCalc.NAME:
+                }
+                case BigDecimalNodeCalc.NAME -> {
                     return BigDecimalNodeCalc.parseJson(parser);
-
-                case BinaryOperation.NAME:
+                }
+                case BinaryOperation.NAME -> {
                     return BinaryOperation.parseJson(parser);
-
-                case UnaryOperation.NAME:
+                }
+                case UnaryOperation.NAME -> {
                     return UnaryOperation.parseJson(parser);
-
-                case MinNodeCalc.NAME:
+                }
+                case MinNodeCalc.NAME -> {
                     return MinNodeCalc.parseJson(parser);
-
-                case MaxNodeCalc.NAME:
+                }
+                case MaxNodeCalc.NAME -> {
                     return MaxNodeCalc.parseJson(parser);
-
-                case TimeSeriesNameNodeCalc.NAME:
+                }
+                case TimeSeriesNameNodeCalc.NAME -> {
                     return TimeSeriesNameNodeCalc.parseJson(parser);
-
-                case TimeNodeCalc.NAME:
+                }
+                case TimeNodeCalc.NAME -> {
                     return TimeNodeCalc.parseJson(parser);
-
-                default:
-                    break;
+                }
+                case BinaryMinCalc.NAME -> {
+                    return BinaryMinCalc.parseJson(parser);
+                }
+                case BinaryMaxCalc.NAME -> {
+                    return BinaryMaxCalc.parseJson(parser);
+                }
+                default -> {
+                    // Do nothing
+                }
             }
         }
         throw createUnexpectedToken(token);

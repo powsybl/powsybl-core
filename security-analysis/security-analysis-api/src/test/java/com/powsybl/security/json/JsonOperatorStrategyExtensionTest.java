@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -42,7 +43,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                 new TrueCondition(), Arrays.asList("actionId1", "actionId2", "actionId3"));
         operatorStrategy.addExtension(DummyExtension.class, new DummyExtension());
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(Collections.singletonList(operatorStrategy));
-        writeTest(operatorStrategyList, OperatorStrategyList::write, ComparisonUtils::compareTxt,
+        writeTest(operatorStrategyList, OperatorStrategyList::write, ComparisonUtils::assertTxtEquals,
                 "/OperatorStrategyFileExtensionsTest.json");
     }
 

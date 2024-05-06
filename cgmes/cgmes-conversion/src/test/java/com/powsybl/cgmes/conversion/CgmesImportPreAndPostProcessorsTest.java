@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion;
 
@@ -70,17 +71,18 @@ class CgmesImportPreAndPostProcessorsTest {
     }
 
     private FileSystem fileSystem;
-
     private GridModelReferenceResources modelResources;
+    private Properties importParams;
 
     private final List<String> activatedPreProcessorNames = new ArrayList<>();
-
     private final List<String> activatedPostProcessorNames = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         modelResources = CgmesConformity1Catalog.microGridBaseCaseBE();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach
@@ -102,8 +104,7 @@ class CgmesImportPreAndPostProcessorsTest {
     @Test
     void testEmpty() {
         CgmesImport cgmesImport = new CgmesImport(Collections.emptyList(), Collections.singletonList(new FakeCgmesImportPostProcessor("foo")));
-        Properties properties = new Properties();
-        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), importParams);
         assertTrue(activatedPostProcessorNames.isEmpty());
     }
 
@@ -112,9 +113,8 @@ class CgmesImportPreAndPostProcessorsTest {
         CgmesImport cgmesImport = new CgmesImport(Collections.emptyList(), Arrays.asList(new FakeCgmesImportPostProcessor("foo"),
                                                                                 new FakeCgmesImportPostProcessor("bar"),
                                                                                 new FakeCgmesImportPostProcessor("baz")));
-        Properties properties = new Properties();
-        properties.put(CgmesImport.POST_PROCESSORS, Arrays.asList("foo", "baz"));
-        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
+        importParams.put(CgmesImport.POST_PROCESSORS, "foo,baz");
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), importParams);
         assertEquals(Arrays.asList("foo", "baz"), activatedPostProcessorNames);
     }
 
@@ -123,9 +123,8 @@ class CgmesImportPreAndPostProcessorsTest {
         CgmesImport cgmesImport = new CgmesImport(Arrays.asList(new FakeCgmesImportPreProcessor("foo"),
                 new FakeCgmesImportPreProcessor("bar"),
                 new FakeCgmesImportPreProcessor("baz")), Collections.emptyList());
-        Properties properties = new Properties();
-        properties.put(CgmesImport.PRE_PROCESSORS, Arrays.asList("foo", "baz"));
-        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), properties);
+        importParams.put(CgmesImport.PRE_PROCESSORS, "foo,baz");
+        cgmesImport.importData(modelResources.dataSource(), NetworkFactory.findDefault(), importParams);
         assertEquals(Arrays.asList("foo", "baz"), activatedPreProcessorNames);
     }
 }

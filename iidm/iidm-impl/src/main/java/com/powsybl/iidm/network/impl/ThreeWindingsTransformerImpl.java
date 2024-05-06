@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -36,31 +37,31 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedS;
 
-        private OperationalLimitsHolderImpl operationalLimitsHolder;
+        private OperationalLimitsGroupsImpl operationalLimitsHolder;
 
         private RatioTapChangerImpl ratioTapChanger;
 
         private PhaseTapChangerImpl phaseTapChanger;
 
-        private int legNumber = 0;
+        private final ThreeSides side;
 
-        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, int legNumber) {
+        LegImpl(double r, double x, double g, double b, double ratedU, double ratedS, ThreeSides side) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
-            this.legNumber = legNumber;
+            this.side = Objects.requireNonNull(side);
             this.ratedS = ratedS;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
             this.transformer = transformer;
-            operationalLimitsHolder = new OperationalLimitsHolderImpl(transformer, "limits" + legNumber);
+            operationalLimitsHolder = new OperationalLimitsGroupsImpl(transformer, "limits" + side.getNum());
         }
 
         public TerminalExt getTerminal() {
-            return transformer.terminals.get(legNumber - 1);
+            return transformer.terminals.get(side.getNum() - 1);
         }
 
         public double getR() {
@@ -166,18 +167,43 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public Collection<OperationalLimits> getOperationalLimits() {
-            return operationalLimitsHolder.getOperationalLimits();
+        public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+            return operationalLimitsHolder.getOperationalLimitsGroups();
         }
 
         @Override
-        public Optional<CurrentLimits> getCurrentLimits() {
-            return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        public Optional<String> getSelectedOperationalLimitsGroupId() {
+            return operationalLimitsHolder.getSelectedOperationalLimitsGroupId();
         }
 
         @Override
-        public CurrentLimits getNullableCurrentLimits() {
-            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+        public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+            return operationalLimitsHolder.getOperationalLimitsGroup(id);
+        }
+
+        @Override
+        public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+            return operationalLimitsHolder.getSelectedOperationalLimitsGroup();
+        }
+
+        @Override
+        public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+            return operationalLimitsHolder.newOperationalLimitsGroup(id);
+        }
+
+        @Override
+        public void setSelectedOperationalLimitsGroup(String id) {
+            operationalLimitsHolder.setSelectedOperationalLimitsGroup(id);
+        }
+
+        @Override
+        public void removeOperationalLimitsGroup(String id) {
+            operationalLimitsHolder.removeOperationalLimitsGroup(id);
+        }
+
+        @Override
+        public void cancelSelectedOperationalLimitsGroup() {
+            operationalLimitsHolder.cancelSelectedOperationalLimitsGroup();
         }
 
         @Override
@@ -186,33 +212,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public Optional<ApparentPowerLimits> getApparentPowerLimits() {
-            return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-        }
-
-        @Override
-        public ApparentPowerLimits getNullableApparentPowerLimits() {
-            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            return operationalLimitsHolder.newActivePowerLimits();
         }
 
         @Override
         public ApparentPowerLimitsAdder newApparentPowerLimits() {
             return operationalLimitsHolder.newApparentPowerLimits();
-        }
-
-        @Override
-        public Optional<ActivePowerLimits> getActivePowerLimits() {
-            return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-        }
-
-        @Override
-        public ActivePowerLimits getNullableActivePowerLimits() {
-            return operationalLimitsHolder.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-        }
-
-        @Override
-        public ActivePowerLimitsAdder newActivePowerLimits() {
-            return operationalLimitsHolder.newActivePowerLimits();
         }
 
         protected String getTypeDescription() {
@@ -234,16 +240,16 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public String getTapChangerAttribute() {
-            return String.format("TapChanger%d", legNumber);
+            return String.format("TapChanger%d", side.getNum());
         }
 
         protected String getLegAttribute() {
-            return String.format("leg%d", legNumber);
+            return String.format("leg%d", side.getNum());
         }
 
         @Override
-        public Set<TapChanger<?, ?>> getAllTapChangers() {
-            Set<TapChanger<?, ?>> tapChangers = new HashSet<>();
+        public Set<TapChanger<?, ?, ?, ?>> getAllTapChangers() {
+            Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>();
             transformer.leg1.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
             transformer.leg1.getOptionalPhaseTapChanger().ifPresent(tapChangers::add);
             transformer.leg2.getOptionalRatioTapChanger().ifPresent(tapChangers::add);
@@ -279,7 +285,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public ThreeSides getSide() {
-            return ThreeSides.valueOf(legNumber);
+            return side;
         }
 
         @Override
@@ -445,10 +451,10 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean isOverloaded(float limitReduction) {
-        return checkPermanentLimit1(limitReduction, LimitType.CURRENT)
-                || checkPermanentLimit2(limitReduction, LimitType.CURRENT)
-                || checkPermanentLimit3(limitReduction, LimitType.CURRENT);
+    public boolean isOverloaded(double limitReductionValue) {
+        return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT)
+                || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT)
+                || checkPermanentLimit3(limitReductionValue, LimitType.CURRENT);
     }
 
     @Override
@@ -463,8 +469,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit(ThreeSides side, float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, side, limitReduction, type);
+    public boolean checkPermanentLimit(ThreeSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, side, limitReductionValue, type);
     }
 
     @Override
@@ -473,8 +479,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
-        return checkPermanentLimit(ThreeSides.ONE, limitReduction, type);
+    public boolean checkPermanentLimit1(double limitReductionValue, LimitType type) {
+        return checkPermanentLimit(ThreeSides.ONE, limitReductionValue, type);
     }
 
     @Override
@@ -483,8 +489,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
-        return checkPermanentLimit(ThreeSides.TWO, limitReduction, type);
+    public boolean checkPermanentLimit2(double limitReductionValue, LimitType type) {
+        return checkPermanentLimit(ThreeSides.TWO, limitReductionValue, type);
     }
 
     @Override
@@ -493,8 +499,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public boolean checkPermanentLimit3(float limitReduction, LimitType type) {
-        return checkPermanentLimit(ThreeSides.THREE, limitReduction, type);
+    public boolean checkPermanentLimit3(double limitReductionValue, LimitType type) {
+        return checkPermanentLimit(ThreeSides.THREE, limitReductionValue, type);
     }
 
     @Override
@@ -503,8 +509,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits(ThreeSides side, float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, side, limitReduction, type);
+    public Overload checkTemporaryLimits(ThreeSides side, double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, side, limitReductionValue, type);
     }
 
     @Override
@@ -513,8 +519,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
-        return checkTemporaryLimits(ThreeSides.ONE, limitReduction, type);
+    public Overload checkTemporaryLimits1(double limitReductionValue, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.ONE, limitReductionValue, type);
     }
 
     @Override
@@ -523,8 +529,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
-        return checkTemporaryLimits(ThreeSides.TWO, limitReduction, type);
+    public Overload checkTemporaryLimits2(double limitReductionValue, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.TWO, limitReductionValue, type);
     }
 
     @Override
@@ -533,8 +539,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public Overload checkTemporaryLimits3(float limitReduction, LimitType type) {
-        return checkTemporaryLimits(ThreeSides.THREE, limitReduction, type);
+    public Overload checkTemporaryLimits3(double limitReductionValue, LimitType type) {
+        return checkTemporaryLimits(ThreeSides.THREE, limitReductionValue, type);
     }
 
     @Override

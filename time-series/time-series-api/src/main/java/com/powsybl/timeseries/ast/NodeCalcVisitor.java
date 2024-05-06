@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -29,13 +30,11 @@ public interface NodeCalcVisitor<R, A> {
 
     R visit(BigDecimalNodeCalc nodeCalc, A arg);
 
+    R visit(BinaryOperation nodeCalc, A arg, R left, R right);
+
     R visit(TimeNodeCalc nodeCalc, A arg, R child);
 
     NodeCalc iterate(TimeNodeCalc nodeCalc, A arg);
-
-    R visit(BinaryOperation nodeCalc, A arg, R left, R right);
-
-    Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg);
 
     R visit(UnaryOperation nodeCalc, A arg, R child);
 
@@ -49,7 +48,17 @@ public interface NodeCalcVisitor<R, A> {
 
     NodeCalc iterate(MaxNodeCalc nodeCalc, A arg);
 
+    R visit(CachedNodeCalc nodeCalc, A arg, R child);
+
+    NodeCalc iterate(CachedNodeCalc nodeCalc, A arg);
+
     R visit(TimeSeriesNameNodeCalc nodeCalc, A arg);
 
     R visit(TimeSeriesNumNodeCalc nodeCalc, A arg);
+
+    R visit(BinaryMinCalc nodeCalc, A arg, R left, R right);
+
+    R visit(BinaryMaxCalc nodeCalc, A arg, R left, R right);
+
+    Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, A arg);
 }

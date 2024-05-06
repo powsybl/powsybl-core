@@ -597,7 +597,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -611,7 +611,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -625,7 +625,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -639,7 +639,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -653,7 +653,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -667,7 +667,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -681,7 +681,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -695,7 +695,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -709,7 +709,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -723,7 +723,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -737,7 +737,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -751,7 +751,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -765,7 +765,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -779,7 +779,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -793,7 +793,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -807,7 +807,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -821,7 +821,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -835,7 +835,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -849,7 +849,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -863,7 +863,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -877,7 +877,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -891,7 +891,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -905,7 +905,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -919,7 +919,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -933,7 +933,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -947,7 +947,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -961,7 +961,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -975,7 +975,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -989,7 +989,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1003,7 +1003,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1017,7 +1017,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1031,7 +1031,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1045,7 +1045,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1059,7 +1059,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1073,7 +1073,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1087,7 +1087,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1101,7 +1101,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1115,7 +1115,7 @@
     "rateC" : 0.0,
     "ratio" : 0.978,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1129,7 +1129,7 @@
     "rateC" : 0.0,
     "ratio" : 0.969,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1143,7 +1143,7 @@
     "rateC" : 0.0,
     "ratio" : 0.932,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -1157,8 +1157,9 @@
     "rateC" : 0.0,
     "ratio" : 0.9679999999999999,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
-  } ]
+  } ],
+  "dcLines" : [ ]
 }

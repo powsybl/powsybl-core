@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -32,7 +33,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     private static final String PROPERTY_ARRAY_ELEMENT = "properties";
 
     public MeasurementsSerDe() {
-        super("measurements", "network", Measurements.class, "measurements.xsd",
+        super(MEASUREMENT_ARRAY_ELEMENT, "network", Measurements.class, "measurements.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/measurements/1_0", "m");
     }
 
@@ -48,9 +49,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
         writer.writeStartNodes();
         for (Measurement measurement : extension.getMeasurements()) {
             writer.writeStartNode(getNamespaceUri(), MEASUREMENT_ROOT_ELEMENT);
-            if (measurement.getId() != null) {
-                writer.writeStringAttribute("id", measurement.getId());
-            }
+            writer.writeStringAttribute("id", measurement.getId());
             writer.writeEnumAttribute("type", measurement.getType());
             writer.writeEnumAttribute("side", measurement.getSide());
             writer.writeDoubleAttribute(VALUE, measurement.getValue());

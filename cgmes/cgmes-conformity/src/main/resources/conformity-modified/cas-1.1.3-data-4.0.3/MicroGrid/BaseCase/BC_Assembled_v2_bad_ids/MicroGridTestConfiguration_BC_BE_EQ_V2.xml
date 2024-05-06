@@ -1023,7 +1023,7 @@
 		<cim:CurveData.y2value>200.000000</cim:CurveData.y2value>
 		<cim:CurveData.Curve rdf:resource="#_59ff1e53-0e1a-44c0-ada5-7a0b3a660170"/>
 	</cim:CurveData>
-	<cim:EnergyConsumer rdf:ID="_cb459405-cc14-4215-a45c-416789205904">
+	<cim:EnergyConsumer rdf:ID="_cb459405-cc14-4215-a45c-416789205904badidload">
 		<cim:IdentifiedObject.name>BE-Load_1</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>BE-L_1</entsoe:IdentifiedObject.shortName>
 		<cim:IdentifiedObject.description>Electrabel</cim:IdentifiedObject.description>
@@ -2030,7 +2030,7 @@
 		<entsoe:IdentifiedObject.shortName>BE-L_1</entsoe:IdentifiedObject.shortName>
 		<cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
 		<cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
-		<cim:Terminal.ConductingEquipment rdf:resource="#_cb459405-cc14-4215-a45c-416789205904"/>
+		<cim:Terminal.ConductingEquipment rdf:resource="#_cb459405-cc14-4215-a45c-416789205904badidload"/>
 	</cim:Terminal>
 	<cim:Terminal rdf:ID="_a036b765-1669-4f64-acd3-1e8fbd513312">
 		<cim:IdentifiedObject.name>BE-Load_2 - T1</cim:IdentifiedObject.name>

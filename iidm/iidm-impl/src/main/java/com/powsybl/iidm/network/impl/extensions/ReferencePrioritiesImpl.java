@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -31,7 +32,8 @@ class ReferencePrioritiesImpl<C extends Connectable<C>> extends AbstractMultiVar
 
     ReferencePrioritiesImpl<C> add(ReferencePriority referencePriority) {
         if (!getExtendable().getTerminals().contains(referencePriority.getTerminal())) {
-            throw new PowsyblException("The provided terminal does not belong to this connectable");
+            throw new PowsyblException(String.format("The provided terminal does not belong to the connectable %s",
+                getExtendable().getId()));
         }
         referencePrioritiesPerVariant.get(getVariantIndex()).put(referencePriority.getTerminal(), referencePriority);
         return this;

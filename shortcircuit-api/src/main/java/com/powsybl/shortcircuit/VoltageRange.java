@@ -15,7 +15,7 @@ import java.util.Objects;
 
 /**
  * A class that stores coefficients and nominal voltages to be applied to each nominal voltage of the network in a range.
- * This is used to define the configured initial voltage profile for short circuit calculation.
+ * This is used to define the configured initial voltage profile for the short-circuit current calculation.
  * The voltage attribute allows to modify the nominal voltage to be considered for each nominal voltage of the range.
  * The coefficient is a coefficient that is applied to each nominal voltage.
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}

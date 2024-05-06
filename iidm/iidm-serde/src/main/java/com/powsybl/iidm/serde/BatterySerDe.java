@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -60,7 +61,7 @@ class BatterySerDe extends AbstractSimpleIdentifiableSerDe<Battery, BatteryAdder
                 IidmSerDeUtil.getAttributeName("q0", "targetQ", context.getVersion(), IidmVersion.V_1_8));
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         Battery b = adder.setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setMinP(minP)

@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -90,10 +91,10 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         return this;
     }
 
-    private static Line checkAndGetLine(Network network, String lineId, Reporter reporter, boolean throwException) {
+    private static Line checkAndGetLine(Network network, String lineId, ReportNode reportNode, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {
-            notFoundLineReport(reporter, lineId);
+            notFoundLineReport(reportNode, lineId);
             LOG.error("Line {} is not found", lineId);
             if (throwException) {
                 throw new PowsyblException(String.format(LINE_NOT_FOUND_REPORT_MESSAGE, lineId));
@@ -104,10 +105,10 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
-        Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reporter, throwException);
-        Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reporter, throwException);
-        Line lineToBeDeleted = checkAndGetLine(network, lineToBeDeletedId, reporter, throwException);
+                      ComputationManager computationManager, ReportNode reportNode) {
+        Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reportNode, throwException);
+        Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reportNode, throwException);
+        Line lineToBeDeleted = checkAndGetLine(network, lineToBeDeletedId, reportNode, throwException);
         if (lineToBeMerged1 == null || lineToBeMerged2 == null || lineToBeDeleted == null) {
             return;
         }
@@ -115,7 +116,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         // tee point is the voltage level in common with lineToBeMerged1 and lineToBeMerged2
         VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(lineToBeMerged1, lineToBeMerged2, lineToBeDeleted);
         if (teePoint == null) {
-            noTeePointAndOrTappedVoltageLevelReport(reporter, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
+            noTeePointAndOrTappedVoltageLevelReport(reportNode, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
             LOG.error("Unable to find the tee point and the tapped voltage level from lines {}, {} and {}", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
             if (throwException) {
                 throw new PowsyblException(String.format("Unable to find the attachment point and the tapped voltage level from lines %s, %s and %s", lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId));
@@ -154,31 +155,31 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
         // Remove the three existing lines
         lineToBeMerged1.remove();
-        removedLineReport(reporter, lineToBeMerged1Id);
+        removedLineReport(reportNode, lineToBeMerged1Id);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeMerged1Id);
 
         lineToBeMerged2.remove();
-        removedLineReport(reporter, lineToBeMerged2Id);
+        removedLineReport(reportNode, lineToBeMerged2Id);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeMerged2Id);
 
         lineToBeDeleted.remove();
-        removedLineReport(reporter, lineToBeDeletedId);
+        removedLineReport(reportNode, lineToBeDeletedId);
         LOG.info(LINE_REMOVED_MESSAGE, lineToBeDeletedId);
 
         // Create the new line
         Line line = lineAdder.add();
-        LoadingLimitsBags limitsSide1 = mergeLimits(lineToBeMerged1Id, limitsLineToBeMerged1Side1, limitsLineToBeMerged1Side2, reporter);
-        LoadingLimitsBags limitsSide2 = mergeLimits(lineToBeMerged2Id, limitsLineToBeMerged2Side2, limitsLineToBeMerged2Side1, reporter);
+        LoadingLimitsBags limitsSide1 = mergeLimits(lineToBeMerged1Id, limitsLineToBeMerged1Side1, limitsLineToBeMerged1Side2, reportNode);
+        LoadingLimitsBags limitsSide2 = mergeLimits(lineToBeMerged2Id, limitsLineToBeMerged2Side2, limitsLineToBeMerged2Side1, reportNode);
         addLoadingLimits(line, limitsSide1, TwoSides.ONE);
         addLoadingLimits(line, limitsSide2, TwoSides.TWO);
-        createdLineReport(reporter, mergedLineId);
+        createdLineReport(reportNode, mergedLineId);
         LOG.info("New line {} created, replacing lines {}, {} and {}", mergedLineId, lineToBeMerged1Id, lineToBeMerged2Id, lineToBeDeletedId);
 
         // remove attachment point and attachment point substation, if necessary
-        removeVoltageLevelAndSubstation(teePoint, reporter);
+        removeVoltageLevelAndSubstation(teePoint, reportNode);
 
         // remove attached voltage level and attached substation, if necessary
-        removeVoltageLevelAndSubstation(tappedVoltageLevel, reporter);
+        removeVoltageLevelAndSubstation(tappedVoltageLevel, reportNode);
     }
 
     public String getLineToBeMerged1Id() {

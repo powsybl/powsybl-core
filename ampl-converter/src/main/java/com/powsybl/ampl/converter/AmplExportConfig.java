@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
@@ -50,25 +51,32 @@ public class AmplExportConfig {
 
     private boolean twtSplitShuntAdmittance;
 
+    private boolean exportSorted;
+
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType) {
-        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersion.defaultVersion());
+        this(exportScope, exportXNodes, actionType, false, false, AmplExportVersion.defaultVersion(), false);
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
                             boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance) {
         this(exportScope, exportXNodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance,
-            AmplExportVersion.defaultVersion());
+            AmplExportVersion.defaultVersion(), false);
     }
 
     public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType,
                             boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance,
                             AmplExportVersion version) {
+        this(exportScope, exportXNodes, actionType, exportRatioTapChangerVoltageTarget, twtSplitShuntAdmittance, version, false);
+    }
+
+    public AmplExportConfig(ExportScope exportScope, boolean exportXNodes, ExportActionType actionType, boolean exportRatioTapChangerVoltageTarget, boolean twtSplitShuntAdmittance, AmplExportVersion version, boolean exportSorted) {
         this.exportScope = Objects.requireNonNull(exportScope);
         this.exportXNodes = exportXNodes;
         this.actionType = Objects.requireNonNull(actionType);
         this.exportRatioTapChangerVoltageTarget = exportRatioTapChangerVoltageTarget;
         this.twtSplitShuntAdmittance = twtSplitShuntAdmittance;
         this.version = Objects.requireNonNull(version);
+        this.exportSorted = exportSorted;
     }
 
     public ExportScope getExportScope() {
@@ -122,6 +130,15 @@ public class AmplExportConfig {
 
     public AmplExportConfig setVersion(AmplExportVersion version) {
         this.version = Objects.requireNonNull(version);
+        return this;
+    }
+
+    public boolean isExportSorted() {
+        return exportSorted;
+    }
+
+    public AmplExportConfig setExportSorted(boolean exportSorted) {
+        this.exportSorted = exportSorted;
         return this;
     }
 

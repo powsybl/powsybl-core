@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -650,18 +651,13 @@ public class TimeSeriesTable {
     private void writeTime(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig, int point, int cachedPoint) throws IOException {
         long time = tableIndex.getTimeAt(point + cachedPoint);
         switch (timeSeriesCsvConfig.timeFormat()) {
-            case DATE_TIME:
+            case DATE_TIME -> {
                 ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
                 writer.write(zonedDateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
-                break;
-            case FRACTIONS_OF_SECOND:
-                writer.write(Double.toString(time / 1000.0));
-                break;
-            case MILLIS:
-                writer.write(Long.toString(time));
-                break;
-            default:
-                throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+            }
+            case FRACTIONS_OF_SECOND -> writer.write(Double.toString(time / 1000.0));
+            case MILLIS -> writer.write(Long.toString(time));
+            default -> throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }
 

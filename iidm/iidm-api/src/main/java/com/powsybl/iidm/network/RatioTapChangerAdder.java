@@ -3,48 +3,32 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 /**
- *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface RatioTapChangerAdder {
+public interface RatioTapChangerAdder extends TapChangerAdder<
+    RatioTapChangerAdder,
+    RatioTapChangerStep,
+    RatioTapChangerAdder.StepAdder,
+    RatioTapChangerStepsReplacer.StepAdder,
+    RatioTapChangerStepsReplacer,
+    RatioTapChanger> {
 
-    public interface StepAdder {
-
-        StepAdder setRho(double rho);
-
-        StepAdder setR(double r);
-
-        StepAdder setX(double x);
-
-        StepAdder setG(double g);
-
-        StepAdder setB(double b);
-
-        RatioTapChangerAdder endStep();
+    /**
+     * Interface for classes responsible for building a single step when using {@link RatioTapChangerAdder}.
+     */
+    interface StepAdder extends RatioTapChangerStepAdder<StepAdder, RatioTapChangerAdder> {
     }
 
-    RatioTapChangerAdder setLowTapPosition(int lowTapPosition);
+    RatioTapChangerAdder setRegulationMode(RatioTapChanger.RegulationMode regulationMode);
 
-    RatioTapChangerAdder setTapPosition(int tapPosition);
+    RatioTapChangerAdder setRegulationValue(double regulationValue);
 
     RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
 
-    RatioTapChangerAdder setRegulating(boolean regulating);
-
     RatioTapChangerAdder setTargetV(double targetV);
-
-    RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
-
-    default RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
-        throw new UnsupportedOperationException();
-    }
-
-    StepAdder beginStep();
-
-    RatioTapChanger add();
-
 }

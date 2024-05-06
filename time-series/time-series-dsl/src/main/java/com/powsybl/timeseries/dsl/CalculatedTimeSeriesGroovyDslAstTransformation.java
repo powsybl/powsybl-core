@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.dsl;
 
@@ -37,20 +38,14 @@ public class CalculatedTimeSeriesGroovyDslAstTransformation extends AbstractPows
 
         private Expression transform(BinaryExpression binExpr) {
             String op = binExpr.getOperation().getText();
-            switch (op) {
-                case ">":
-                case ">=":
-                case "<":
-                case "<=":
-                case "==":
-                case "!=":
-                    return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                            "compareToNodeCalc",
-                            new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
-                default:
-                    break;
-            }
-            return null;
+            return switch (op) {
+                case ">", ">=", "<", "<=", "==", "!=" ->
+                    new MethodCallExpression(transform(binExpr.getLeftExpression()),
+                        "compareToNodeCalc",
+                        new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
+                default -> null;
+            };
+
         }
 
         @Override

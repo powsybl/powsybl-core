@@ -148,7 +148,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -162,8 +162,9 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
-  } ]
+  } ],
+  "dcLines" : [ ]
 }

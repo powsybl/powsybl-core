@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
@@ -50,7 +51,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
     private PropertyBags shuntCompensators;
     private PropertyBags staticVarCompensators;
     private PropertyBags equivalentShunts;
-    private PropertyBags synchronousMachines;
+    private PropertyBags synchronousMachinesGenerators;
     private PropertyBags equivalentInjections;
     private PropertyBags externalNetworkInjections;
     private PropertyBags svInjections;
@@ -91,7 +92,7 @@ public final class InMemoryCgmesModel implements CgmesModel {
         shuntCompensators = new PropertyBags();
         equivalentShunts = new PropertyBags();
         staticVarCompensators = new PropertyBags();
-        synchronousMachines = new PropertyBags();
+        synchronousMachinesGenerators = new PropertyBags();
         equivalentInjections = new PropertyBags();
         externalNetworkInjections = new PropertyBags();
         svInjections = new PropertyBags();
@@ -229,8 +230,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
         return this;
     }
 
-    public InMemoryCgmesModel synchronousMachines(String... ids) {
-        fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachines);
+    public InMemoryCgmesModel synchronousMachinesGenerators(String... ids) {
+        fakeObjectsFromIdentifiers("SynchronousMachine", ids, synchronousMachinesGenerators);
         return this;
     }
 
@@ -275,11 +276,6 @@ public final class InMemoryCgmesModel implements CgmesModel {
         p.put("Type", propertyNameId);
         p.put("numObjects", "" + ids.length);
         numObjectsByType.add(p);
-    }
-
-    @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return new PropertyBags();
     }
 
     @Override
@@ -450,8 +446,8 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return synchronousMachines;
+    public PropertyBags synchronousMachinesGenerators() {
+        return synchronousMachinesGenerators;
     }
 
     @Override
@@ -638,17 +634,17 @@ public final class InMemoryCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds, Reporter reporter) {
+    public void read(ReadOnlyDataSource ds, ReportNode reportNode) {
         // Not required by current tests
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, ReportNode reportNode) {
         // Not required by current tests
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
+    public void read(InputStream is, String baseName, String contextName, ReportNode reportNode) {
         // Not required by current tests
     }
 }

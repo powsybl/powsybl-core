@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -68,18 +69,22 @@ public class NodeMapping {
                     .setNode2(iidmNodeForConnectivityNode)
                     .add();
         } else {
-            Switch sw = vl.getNodeBreakerView().newSwitch()
-                    .setFictitious(true)
-                    // Use the id and name of terminal
-                    .setId(t.id() + "_SW_fict")
-                    .setName(t.name())
-                    .setNode1(iidmNodeForConductingEquipment)
-                    .setNode2(iidmNodeForConnectivityNode)
-                    .setOpen(true)
-                    .setKind(SwitchKind.BREAKER)
-                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                    .add();
-            sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
+            // Only add fictitious switches for disconnected terminals if not already added
+            // Use the id and name of terminal
+            String switchId = t.id() + "_SW_fict";
+            if (vl.getNetwork().getSwitch(switchId) == null) {
+                Switch sw = vl.getNodeBreakerView().newSwitch()
+                        .setFictitious(true)
+                        .setId(switchId)
+                        .setName(t.name())
+                        .setNode1(iidmNodeForConductingEquipment)
+                        .setNode2(iidmNodeForConnectivityNode)
+                        .setOpen(true)
+                        .setKind(SwitchKind.BREAKER)
+                        .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                        .add();
+                sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
+            }
         }
 
         return iidmNodeForConductingEquipment;

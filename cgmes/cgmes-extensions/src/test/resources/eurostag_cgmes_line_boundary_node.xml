@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_11" xmlns:clbn="http://www.powsybl.org/schema/iidm/ext/cgmes_line_boundary_node/1_0" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:clbn="http://www.powsybl.org/schema/iidm/ext/cgmes_line_boundary_node/1_0" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
         <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -33,7 +33,7 @@
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0" q="200.0"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0" q2="-200.0">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" targetV="158.0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" regulationMode="VOLTAGE" regulationValue="158.0">
                 <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>

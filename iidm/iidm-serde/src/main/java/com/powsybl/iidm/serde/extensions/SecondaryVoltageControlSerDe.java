@@ -15,12 +15,7 @@ import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlUnit;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
-import org.apache.commons.lang3.mutable.MutableDouble;
+import com.powsybl.iidm.network.extensions.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,7 +51,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
     public void write(SecondaryVoltageControl control, SerializerContext context) {
         TreeDataWriter writer = context.getWriter();
         writer.writeStartNodes();
-        for (SecondaryVoltageControl.ControlZone controlZone : control.getControlZones()) {
+        for (ControlZone controlZone : control.getControlZones()) {
             writer.writeStartNode(getNamespaceUri(), CONTROL_ZONE_ROOT_ELEMENT);
             writer.writeStringAttribute("name", controlZone.getName());
             writePilotPoint(controlZone, writer);
@@ -95,7 +90,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
         SecondaryVoltageControlAdder adder = network.newExtension(SecondaryVoltageControlAdder.class);
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(CONTROL_ZONE_ROOT_ELEMENT)) {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'secondaryVoltageControl'");
+                throw new PowsyblException(getExceptionMessageUnknownElement(elementName, "secondaryVoltageControl"));
             }
             readControlZone(context, adder);
         });
@@ -104,33 +99,43 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
 
     private static void readControlZone(DeserializerContext context, SecondaryVoltageControlAdder adder) {
         String name = context.getReader().readStringAttribute("name");
-        MutableDouble targetV = new MutableDouble(Double.NaN);
-        List<String> busbarSectionsOrBusesIds = new ArrayList<>();
-        List<ControlUnit> controlUnits = new ArrayList<>();
+        ControlZoneAdder controlZoneAdder = adder.newControlZone()
+                .withName(name);
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
-                case PILOT_POINT_ELEMENT -> readPilotPoint(context, targetV, busbarSectionsOrBusesIds);
-                case CONTROL_UNIT_ROOT_ELEMENT -> readControlUnit(context, controlUnits);
-                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlZone'");
+                case PILOT_POINT_ELEMENT -> readPilotPoint(context, controlZoneAdder);
+                case CONTROL_UNIT_ROOT_ELEMENT -> readControlUnit(context, controlZoneAdder);
+                default -> throw new PowsyblException(getExceptionMessageUnknownElement(elementName, "'controlZone'"));
             }
         });
-        PilotPoint pilotPoint = new PilotPoint(busbarSectionsOrBusesIds, targetV.getValue());
-        adder.addControlZone(new ControlZone(name, pilotPoint, controlUnits));
+        controlZoneAdder.add();
     }
 
-    private static void readPilotPoint(DeserializerContext context, MutableDouble targetV, List<String> busbarSectionsOrBusesIds) {
-        targetV.setValue(context.getReader().readDoubleAttribute("targetV"));
+    private static void readPilotPoint(DeserializerContext context, ControlZoneAdder controlZoneAdder) {
+        double targetV = context.getReader().readDoubleAttribute("targetV");
+        List<String> busbarSectionsOrBusesIds = new ArrayList<>();
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT)) {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'pilotPoint'");
+                throw new PowsyblException(getExceptionMessageUnknownElement(elementName, PILOT_POINT_ELEMENT));
             }
             busbarSectionsOrBusesIds.add(context.getReader().readContent());
         });
+        controlZoneAdder.newPilotPoint()
+                .withBusbarSectionsOrBusesIds(busbarSectionsOrBusesIds)
+                .withTargetV(targetV)
+                .add();
     }
 
-    private static void readControlUnit(DeserializerContext context, List<ControlUnit> controlUnits) {
+    private static void readControlUnit(DeserializerContext context, ControlZoneAdder controlZoneAdder) {
         boolean participate = context.getReader().readBooleanAttribute("participate");
         String id = context.getReader().readContent();
-        controlUnits.add(new ControlUnit(id, participate));
+        controlZoneAdder.newControlUnit()
+                .withId(id)
+                .withParticipate(participate)
+                .add();
+    }
+
+    private static String getExceptionMessageUnknownElement(String elementName, String where) {
+        return "Unknown element name '" + elementName + "' in '" + where + "'";
     }
 }

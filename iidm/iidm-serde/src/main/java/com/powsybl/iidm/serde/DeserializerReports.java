@@ -7,9 +7,8 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 
 import java.util.Set;
 
@@ -22,41 +21,38 @@ public final class DeserializerReports {
     }
 
     // INFO
-    public static void importedNetworkReport(Reporter reporter, String networkId, String format) {
-        if (reporter != null) {
-            reporter.report(Report.builder()
-                    .withKey("importedNetwork")
-                    .withDefaultMessage("Network \"${networkId}\" is imported from ${format} format.")
-                    .withValue("networkId", networkId)
-                    .withValue("format", format)
+    public static void importedNetworkReport(ReportNode reportNode, String networkId, String format) {
+        if (reportNode != null) {
+            reportNode.newReportNode()
+                    .withMessageTemplate("importedNetwork", "Network \"${networkId}\" is imported from ${format} format.")
+                    .withUntypedValue("networkId", networkId)
+                    .withUntypedValue("format", format)
                     .withSeverity(TypedValue.INFO_SEVERITY)
-                    .build());
+                    .add();
         }
     }
 
     // INFO
-    public static void importedExtension(Reporter reporter, Set<String> extensionsNameImported) {
-        if (reporter != null) {
+    public static void importedExtension(ReportNode reportNode, Set<String> extensionsNameImported) {
+        if (reportNode != null) {
             extensionsNameImported.forEach(extensionName ->
-                reporter.report(Report.builder()
-                        .withKey("importedExtension")
-                        .withDefaultMessage("Extension ${extensionName} imported.")
-                        .withValue("extensionName", extensionName)
+                reportNode.newReportNode()
+                        .withMessageTemplate("importedExtension", "Extension ${extensionName} imported.")
+                        .withUntypedValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build())
+                        .add()
             );
         }
     }
 
-    public static void extensionNotFound(Reporter reporter, Set<String> extensionsNotFoundName) {
-        if (reporter != null) {
+    public static void extensionNotFound(ReportNode reportNode, Set<String> extensionsNotFoundName) {
+        if (reportNode != null) {
             extensionsNotFoundName.forEach(extensionName ->
-                reporter.report(Report.builder()
-                        .withKey("extensionNotFound")
-                        .withDefaultMessage("Extension ${extensionName} not found.")
-                        .withValue("extensionName", extensionName)
+                reportNode.newReportNode()
+                        .withMessageTemplate("extensionNotFound", "Extension ${extensionName} not found.")
+                        .withUntypedValue("extensionName", extensionName)
                         .withSeverity(TypedValue.INFO_SEVERITY)
-                        .build())
+                        .add()
             );
         }
     }

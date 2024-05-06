@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.math.graph.TraversalType;
@@ -118,8 +120,8 @@ class BusTerminal extends AbstractTerminal {
 
     private final ArrayList<String> connectableBusId;
 
-    BusTerminal(Ref<? extends VariantManagerHolder> network, String connectableBusId, boolean connected) {
-        super(network);
+    BusTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, String connectableBusId, boolean connected) {
+        super(network, side);
         Objects.requireNonNull(connectableBusId);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.connected = new TBooleanArrayList(variantArraySize);
@@ -154,7 +156,7 @@ class BusTerminal extends AbstractTerminal {
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         boolean oldValue = this.connected.set(variantIndex, connected);
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate("connected", variantId, oldValue, connected);
+        getConnectable().notifyUpdate("connected" + getAttributeSideSuffix(), variantId, oldValue, connected);
     }
 
     @Override

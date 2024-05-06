@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -23,7 +24,7 @@ public interface FaultResult extends Extendable<FaultResult> {
          */
         SUCCESS,
         /**
-         * Data useful to short circuit calculation is missing, typically the transient reactance of generators
+         * Data useful to short-circuit current calculation is missing, typically the transient reactance of generators
          */
         NO_SHORT_CIRCUIT_DATA,
         /**

@@ -191,8 +191,9 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setR(0.24 / 1300 * (38 * 38)).setX(Math.sqrt(10 * 10 - 0.24 * 0.24) / 1300 * (38 * 38))
                 .setG(0.0).setB(0.0)
                 .add();
+        String lineId1 = id("line1", networkId);
         n.newLine()
-                .setId(id("line1", networkId))
+                .setId(lineId1)
                 .setVoltageLevel1(id("voltageLevel1", networkId))
                 .setNode1(13)
                 .setVoltageLevel2(id("voltageLevel2", networkId))
@@ -219,6 +220,19 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(17)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .setPairingKey("mergingKey") // when merging both networks, this key will be used to create a tie line
+                .add();
+        substation3.newOverloadManagementSystem()
+                .setId(id("overloadManagementSystem", networkId))
+                .setEnabled(true)
+                .setMonitoredElementId(lineId1)
+                .setMonitoredElementSide(ThreeSides.ONE)
+                .newBranchTripping()
+                    .setKey("branchTripping")
+                    .setCurrentLimit(80.)
+                    .setOpenAction(true)
+                    .setBranchToOperateId(lineId1)
+                    .setSideToOperate(TwoSides.ONE)
+                    .add()
                 .add();
         return n;
     }
@@ -547,6 +561,18 @@ public abstract class AbstractSubnetworksExplorationTest {
                 Network::getBranchStream,
                 Network::getBranchCount,
                 Network::getBranch);
+    }
+
+    @Test
+    public void testExploreOverloadManagementSystems() {
+        var expectedIdsForSubnetwork1 = List.of(id("overloadManagementSystem", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("overloadManagementSystem", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getOverloadManagementSystems,
+                Network::getOverloadManagementSystemStream,
+                Network::getOverloadManagementSystemCount,
+                Network::getOverloadManagementSystem);
     }
 
     @Test

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -51,7 +52,7 @@ public abstract class AbstractCoordinatedReactiveControlTest {
         PowsyblException e = assertThrows(PowsyblException.class, () -> generator.newExtension(CoordinatedReactiveControlAdder.class)
                 .withQPercent(Double.NaN)
                 .add());
-        assertTrue(e.getMessage().contains("Undefined value for qPercent"));
+        assertTrue(e.getMessage().contains("Undefined value (NaN) for qPercent for generator GEN"));
     }
 
     @Test

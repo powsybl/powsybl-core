@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.distributed;
 
@@ -14,15 +15,17 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
-import com.powsybl.security.action.SwitchAction;
+import com.powsybl.action.Action;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.TrueCondition;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
+import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.strategy.OperatorStrategy;
 import org.apache.commons.lang3.SystemUtils;
@@ -119,6 +122,7 @@ class SecurityAnalysisExecutionHandlersTest {
     void forwardedBeforeWithCompleteInput() throws IOException {
         Action action = new SwitchAction("action", "switch", false);
         OperatorStrategy strategy = new OperatorStrategy("strat", ContingencyContext.specificContingency("cont"), new TrueCondition(), List.of("action"));
+        LimitReduction limitReduction = new LimitReduction(LimitType.CURRENT, 0.9);
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
                 .setParameters(new SecurityAnalysisParameters())
@@ -127,7 +131,8 @@ class SecurityAnalysisExecutionHandlersTest {
                 .addResultExtensions(ImmutableList.of("ext1", "ext2"))
                 .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT))
                 .setActions(List.of(action))
-                .setOperatorStrategies(List.of(strategy));
+                .setOperatorStrategies(List.of(strategy))
+                .setLimitReductions(List.of(limitReduction));
         ExecutionHandler<SecurityAnalysisReport> handler = SecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         Path workingDir = fileSystem.getPath("/work");
@@ -142,6 +147,7 @@ class SecurityAnalysisExecutionHandlersTest {
                         "--contingencies-file=/work/contingencies.groovy",
                         "--actions-file=/work/actions.json",
                         "--strategies-file=/work/strategies.json",
+                        "--limit-reductions-file=/work/limit-reductions.json",
                         "--with-extensions=ext1,ext2",
                         "--limit-types=CURRENT",
                         "--task-count=12");
@@ -151,6 +157,7 @@ class SecurityAnalysisExecutionHandlersTest {
         assertThat(workingDir.resolve("contingencies.groovy")).exists();
         assertThat(workingDir.resolve("strategies.json")).exists();
         assertThat(workingDir.resolve("actions.json")).exists();
+        assertThat(workingDir.resolve("limit-reductions.json")).exists();
     }
 
     @Test

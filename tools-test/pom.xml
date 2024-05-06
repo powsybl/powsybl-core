@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>6.4.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-tools-test</artifactId>
@@ -41,11 +41,11 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons-test</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-tools</artifactId>
         </dependency>
 

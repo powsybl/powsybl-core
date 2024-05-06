@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -68,45 +69,49 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                             .add();
                 }
             } else {
-                double pConstantPower = p.asDouble("pConstantPower");
-                double pConstantCurrent = p.asDouble("pConstantCurrent");
-                double pConstantImpedance = p.asDouble("pConstantImpedance");
-                double qConstantPower = p.asDouble("qConstantPower");
-                double qConstantCurrent = p.asDouble("qConstantCurrent");
-                double qConstantImpedance = p.asDouble("qConstantImpedance");
-                // as far as only one of the 3 coefficient is not defined we cannot rely on the others
-                if (!Double.isNaN(pConstantPower) && !Double.isNaN(pConstantCurrent) && !Double.isNaN(pConstantImpedance)
-                        && !Double.isNaN(qConstantPower) && !Double.isNaN(qConstantCurrent) && !Double.isNaN(qConstantImpedance)) {
-                    boolean constantPower = pConstantPower == 1 && pConstantCurrent == 0 && pConstantImpedance == 0
-                            && qConstantPower == 1 && qConstantCurrent == 0 && qConstantImpedance == 0;
-                    if (!constantPower) {
-                        // if sum of coefficient is not equals to one, rescale values
-                        double pSum = pConstantPower + pConstantCurrent + pConstantImpedance;
-                        if (Math.abs(pSum - 1d) > ZipLoadModelAdder.SUM_EPSILON) {
-                            pConstantPower = pConstantPower / pSum;
-                            pConstantCurrent = pConstantCurrent / pSum;
-                            pConstantImpedance = pConstantImpedance / pSum;
-                            fixed("active coefficients of zip load", "sum of pConstantPower, pConstantCurrent and pConstantImpedance is not equals to 1");
-                        }
-                        double qSum = qConstantPower + qConstantCurrent + qConstantImpedance;
-                        if (Math.abs(qSum - 1d) > ZipLoadModelAdder.SUM_EPSILON) {
-                            qConstantPower = qConstantPower / qSum;
-                            qConstantCurrent = qConstantCurrent / qSum;
-                            qConstantImpedance = qConstantImpedance / qSum;
-                            fixed("reactive coefficients of zip load", "sum of qConstantPower, qConstantCurrent and qConstantImpedance is not equals to 1");
-                        }
-                        adder.newZipModel()
-                                .setC0p(pConstantPower)
-                                .setC1p(pConstantCurrent)
-                                .setC2p(pConstantImpedance)
-                                .setC0q(qConstantPower)
-                                .setC1q(qConstantCurrent)
-                                .setC2q(qConstantImpedance)
-                                .add();
-                    }
-                }
+                addZipModel(adder);
             }
         });
+    }
+
+    private void addZipModel(LoadAdder adder) {
+        double pConstantPower = p.asDouble("pConstantPower");
+        double pConstantCurrent = p.asDouble("pConstantCurrent");
+        double pConstantImpedance = p.asDouble("pConstantImpedance");
+        double qConstantPower = p.asDouble("qConstantPower");
+        double qConstantCurrent = p.asDouble("qConstantCurrent");
+        double qConstantImpedance = p.asDouble("qConstantImpedance");
+        // as far as only one of the 3 coefficient is not defined we cannot rely on the others
+        if (!Double.isNaN(pConstantPower) && !Double.isNaN(pConstantCurrent) && !Double.isNaN(pConstantImpedance)
+            && !Double.isNaN(qConstantPower) && !Double.isNaN(qConstantCurrent) && !Double.isNaN(qConstantImpedance)) {
+            boolean constantPower = pConstantPower == 1 && pConstantCurrent == 0 && pConstantImpedance == 0
+                && qConstantPower == 1 && qConstantCurrent == 0 && qConstantImpedance == 0;
+            if (!constantPower) {
+                // if sum of coefficient is not equals to one, rescale values
+                double pSum = pConstantPower + pConstantCurrent + pConstantImpedance;
+                if (Math.abs(pSum - 1d) > ZipLoadModelAdder.SUM_EPSILON) {
+                    pConstantPower = pConstantPower / pSum;
+                    pConstantCurrent = pConstantCurrent / pSum;
+                    pConstantImpedance = pConstantImpedance / pSum;
+                    fixed("active coefficients of zip load", "sum of pConstantPower, pConstantCurrent and pConstantImpedance is not equals to 1");
+                }
+                double qSum = qConstantPower + qConstantCurrent + qConstantImpedance;
+                if (Math.abs(qSum - 1d) > ZipLoadModelAdder.SUM_EPSILON) {
+                    qConstantPower = qConstantPower / qSum;
+                    qConstantCurrent = qConstantCurrent / qSum;
+                    qConstantImpedance = qConstantImpedance / qSum;
+                    fixed("reactive coefficients of zip load", "sum of qConstantPower, qConstantCurrent and qConstantImpedance is not equals to 1");
+                }
+                adder.newZipModel()
+                    .setC0p(pConstantPower)
+                    .setC1p(pConstantCurrent)
+                    .setC2p(pConstantImpedance)
+                    .setC0q(qConstantPower)
+                    .setC1q(qConstantCurrent)
+                    .setC2q(qConstantImpedance)
+                    .add();
+            }
+        }
     }
 
     private static void setLoadDetail(String type, Load load) {
