@@ -187,7 +187,7 @@ public class MatpowerExporter implements Exporter {
             Component synchronousComponent1 = findComponent(hvdcLine.getConverterStation1());
             Component synchronousComponent2 = findComponent(hvdcLine.getConverterStation2());
 
-            if (synchronousComponent1 != null && synchronousComponent2 != null) {
+            if (synchronousComponent1 != null && synchronousComponent2 != null && synchronousComponent1 != synchronousComponent2) {
                 scGraph.addVertex(synchronousComponent1);
                 scGraph.addVertex(synchronousComponent2);
                 scGraph.addEdge(synchronousComponent1, synchronousComponent2, Pair.of(synchronousComponent1, synchronousComponent2));
