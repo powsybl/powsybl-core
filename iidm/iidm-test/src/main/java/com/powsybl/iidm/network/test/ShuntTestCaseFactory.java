@@ -26,18 +26,22 @@ public final class ShuntTestCaseFactory {
         return create(NetworkFactory.findDefault());
     }
 
+    public static Network createWithSolvedSectionCount(Integer solvedSectionCount) {
+        return create(NetworkFactory.findDefault(), 1e-5, solvedSectionCount);
+    }
+
     public static Network create(double bPerSection) {
-        return create(NetworkFactory.findDefault(), bPerSection);
+        return create(NetworkFactory.findDefault(), bPerSection, null);
     }
 
     public static Network create(NetworkFactory networkFactory) {
-        return create(networkFactory, 1e-5);
+        return create(networkFactory, 1e-5, null);
     }
 
-    public static Network create(NetworkFactory networkFactory, double bPerSection) {
+    public static Network create(NetworkFactory networkFactory, double bPerSection, Integer solvedSectionCount) {
         Network network = createBase(networkFactory);
 
-        network.getVoltageLevel("VL1")
+        ShuntCompensatorAdder adder = network.getVoltageLevel("VL1")
                 .newShuntCompensator()
                 .setId(SHUNT)
                 .setBus("B1")
@@ -48,11 +52,15 @@ public final class ShuntTestCaseFactory {
                 .setTargetV(200)
                 .setTargetDeadband(5.0)
                 .newLinearModel()
-                .setMaximumSectionCount(1)
-                .setBPerSection(bPerSection)
-                .add()
-                .add()
-                .addAlias("Alias");
+                    .setMaximumSectionCount(1)
+                    .setBPerSection(bPerSection)
+                    .add();
+
+        if (solvedSectionCount != null) {
+            adder.setSolvedSectionCount(solvedSectionCount);
+        }
+
+        adder.add().addAlias("Alias");
 
         return network;
     }

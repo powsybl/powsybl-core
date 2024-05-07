@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Properties;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -85,6 +86,13 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         Network n2 = NetworkSerDe.read(path);
         ShuntCompensator sc2 = n2.getShuntCompensator("SHUNT");
         assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+    }
+
+    @Test
+    void shuntWithSolvedSectionCountTest() throws IOException {
+        Network network = ShuntTestCaseFactory.createWithSolvedSectionCount(1);
+        network.write("XIIDM", new Properties(), Path.of("/home/piloquetcol/test/shunt.xiidm"));
+        allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     private void write(Network network, String version) {

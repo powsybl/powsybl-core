@@ -521,6 +521,18 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(10, sbNonLinear.getTerminal().getP(), 0.0);
     }
 
+    @Test
+    public void testSolvedSectionCount() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+            .setBPerSection(5.0)
+            .setMaximumSectionCount(10)
+            .add();
+        adder.setSolvedSectionCount(5);
+        ShuntCompensator shuntCompensator = adder.add();
+        assertEquals(5, shuntCompensator.getSolvedSectionCount());
+    }
+
     private ShuntCompensator createLinearShunt(String id, String name, double bPerSection, double gPerSection, int sectionCount, int maxSectionCount, Terminal regulatingTerminal, boolean voltageRegulatorOn, double targetV, double targetDeadband) {
         return createShuntAdder(id, name, sectionCount, regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband)
                 .newLinearModel()

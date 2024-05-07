@@ -31,6 +31,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private boolean voltageRegulatorOn = false;
 
+    private Integer solvedSectionCount;
+
     ShuntCompensatorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
@@ -178,6 +180,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder setSolvedSectionCount(int solvedSectionCount) {
+        this.solvedSectionCount = solvedSectionCount;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         return this;
@@ -219,7 +227,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetworkRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
                 regulatingTerminal == null ? terminal : regulatingTerminal,
-                voltageRegulatorOn, targetV, targetDeadband);
+                voltageRegulatorOn, targetV, targetDeadband, solvedSectionCount);
 
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
