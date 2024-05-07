@@ -91,7 +91,6 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void shuntWithSolvedSectionCountTest() throws IOException {
         Network network = ShuntTestCaseFactory.createWithSolvedSectionCount(1);
-        network.write("XIIDM", new Properties(), Path.of("/home/piloquetcol/test/shunt.xiidm"));
         allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
