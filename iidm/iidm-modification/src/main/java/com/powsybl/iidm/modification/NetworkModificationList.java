@@ -7,10 +7,15 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
 import java.util.Arrays;
 import java.util.List;
@@ -35,5 +40,46 @@ public class NetworkModificationList extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
+    }
+
+    public boolean fullDryRun(Network network) {
+        return fullDryRun(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), ReportNode.NO_OP);
+    }
+
+    public boolean fullDryRun(Network network, NamingStrategy namingStrategy,
+                          ComputationManager computationManager, ReportNode reportNode) {
+        String templateKey = "networkModificationsDryRun-start";
+        String messageTemplate = "DRY-RUN: Checking if network modifications can be applied on network ${networkNameOrId}";
+        ReportNode childReportNode = reportNode.newReportNode()
+                .withMessageTemplate(templateKey, messageTemplate)
+                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+
+        ReportNode dryRunReportNode = ReportNode.newRootReportNode()
+                .withMessageTemplate(templateKey, messageTemplate)
+                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .build();
+        try {
+            //TODO The following copy performs an XML export/import. It will be more performant to change it to the BIN format.
+            Network dryRunNetwork = NetworkSerDe.copy(network);
+            dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
+            apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
+        } catch (PowsyblException powsyblException) {
+            childReportNode.include(dryRunReportNode);
+            childReportNode.newReportNode()
+                    .withMessageTemplate("networkModificationsDryRun-failure",
+                            "DRY-RUN: Network modifications CANNOT successfully be applied on network ${networkNameOrId}")
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+            return false;
+        }
+        childReportNode.include(dryRunReportNode);
+        childReportNode.newReportNode()
+                .withMessageTemplate("networkModificationsDryRun-success",
+                        "DRY-RUN: Network modifications can successfully be applied on network ${networkNameOrId}")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+        return true;
     }
 }
