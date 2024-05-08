@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.*;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -23,6 +25,7 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +36,7 @@ import org.xmlunit.diff.DifferenceEvaluators;
 import javax.xml.stream.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -380,6 +384,67 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringConformLoad,
                 ExportXmlCompare::ignoringChildLookupNull);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
+    }
+
+    @Test
+    void phaseTapChangerTapChangerControlSSHTest() throws IOException {
+        String exportFolder = "/test-pst-tcc";
+        String baseName = "testPstTcc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // PST with FIXED_TAP
+            network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+
+            // PST local with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+
+            // PST local with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+
+            // PST remote with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+
+            // PST remote with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+        }
+    }
+
+    private void testTcTccWithoutAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
+        assertFalse(ssh.contains("cim:TapChangerControl rdf:about=\"#" + rcID + "\""));
+        assertFalse(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
+        assertFalse(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
+        assertFalse(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
+        assertFalse(ssh.contains("<cim:RegulatingControl.targetValue>" + target + "</cim:RegulatingControl.targetValue>"));
+        assertFalse(ssh.contains("UnitMultiplier." + multiplier + "\""));
+    }
+
+    private void testTcTccWithAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
+        assertTrue(ssh.contains("cim:TapChangerControl rdf:about=\"#" + rcID + "\""));
+        assertTrue(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetValue>" + target + "</cim:RegulatingControl.targetValue>"));
+        assertTrue(ssh.contains("UnitMultiplier." + multiplier + "\""));
+    }
+
+    private String getSSH(Network network, String baseName, Path tmpDir, Properties exportParams) throws IOException {
+        new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+        return Files.readString(tmpDir.resolve(baseName + "_SSH.xml"));
     }
 
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {

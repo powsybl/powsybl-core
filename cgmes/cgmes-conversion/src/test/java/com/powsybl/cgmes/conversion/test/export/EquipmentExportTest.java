@@ -29,6 +29,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -51,9 +52,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -1002,6 +1006,63 @@ class EquipmentExportTest extends AbstractSerDeTest {
         assertEquals(expectedSynchronousMachineKind, actualSynchronousMachineKind);
         String actualOperatingMode = actualGenerator.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
         assertEquals(expectedOperatingMode, actualOperatingMode);
+    }
+
+    @Test
+    void phaseTapChangerTapChangerControlEQTest() throws IOException {
+        String exportFolder = "/test-pst-tcc";
+        String baseName = "testPstTcc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // PST with FIXED_TAP
+            network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+
+            // PST local with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "activePower");
+
+            // PST local with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_PS1_PT_T_2", "currentFlow");
+
+            // PST remote with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "currentFlow");
+
+            // PST remote with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
+        }
+    }
+
+    private void testTcTccWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertFalse(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
+        assertFalse(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
+        assertFalse(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertFalse(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private void testTcTccWithAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertTrue(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
+        assertTrue(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
+        assertTrue(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertTrue(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private String getEQ(Network network, String baseName, Path tmpDir, Properties exportParams) throws IOException {
+        new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+        return Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
     }
 
     private Network createOneGeneratorNetwork() {
