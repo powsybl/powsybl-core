@@ -7,13 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import java.util.OptionalInt;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -55,6 +56,50 @@ class TapChangerAttributeTest {
         testPhaseTapChangerStepsReplacement(twt2);
 
         testRatioTapChangerStepsReplacement(twt2);
+    }
+
+    @Test
+    void testSolvedTapPosition() {
+        Network network = NoEquipmentNetworkFactory.create();
+        Substation substation = network.getSubstation("sub");
+
+        //Setter for two-winding transformer
+        TwoWindingsTransformer twt2 = createTwoWindingsTransformer(substation);
+        createPhaseTapChanger(twt2);
+        createRatioTapChanger(twt2);
+        assertEquals(OptionalInt.empty(), twt2.getRatioTapChanger().findSolvedTapPosition());
+        assertEquals(OptionalInt.empty(), twt2.getPhaseTapChanger().findSolvedTapPosition());
+        twt2.getRatioTapChanger().setSolvedTapPosition(1);
+        twt2.getPhaseTapChanger().setSolvedTapPosition(1);
+        assertEquals(1, twt2.getRatioTapChanger().getSolvedTapPosition());
+        assertEquals(1, twt2.getPhaseTapChanger().getSolvedTapPosition());
+
+        //Setter for three-winding transformer
+        ThreeWindingsTransformer twt3 = createThreeWindingsTransformer(substation);
+        createRatioTapChanger(twt3.getLeg2());
+        createPhaseTapChanger(twt3.getLeg3());
+        assertEquals(OptionalInt.empty(), twt3.getLeg2().getRatioTapChanger().findSolvedTapPosition());
+        assertEquals(OptionalInt.empty(), twt3.getLeg3().getPhaseTapChanger().findSolvedTapPosition());
+        twt3.getLeg2().getRatioTapChanger().setSolvedTapPosition(1);
+        twt3.getLeg3().getPhaseTapChanger().setSolvedTapPosition(1);
+        assertEquals(1, twt3.getLeg2().getRatioTapChanger().getSolvedTapPosition());
+        assertEquals(1, twt3.getLeg3().getPhaseTapChanger().getSolvedTapPosition());
+
+        Network network2 = NoEquipmentNetworkFactory.create();
+
+        //Adder for two-winding transformer
+        TwoWindingsTransformer twt2WithSolvedPosition = createTwoWindingsTransformer(network2.getSubstation("sub"));
+        createPhaseTapChangerWithSolvedTapPosition(twt2WithSolvedPosition);
+        createRatioTapChangerWithSolvedTapPosition(twt2WithSolvedPosition);
+        assertEquals(1, twt2WithSolvedPosition.getRatioTapChanger().getSolvedTapPosition());
+        assertEquals(1, twt2WithSolvedPosition.getPhaseTapChanger().getSolvedTapPosition());
+
+        //Adder for two-winding transformer
+        ThreeWindingsTransformer twt3WithSolvedPosition = createThreeWindingsTransformer(network2.getSubstation("sub"));
+        createPhaseTapChangerWithSolvedTapPosition(twt3.getLeg2());
+        createRatioTapChangerWithSolvedTapPosition(twt3.getLeg3());
+        assertEquals(1, twt3.getLeg2().getRatioTapChanger().getSolvedTapPosition());
+        assertEquals(1, twt3.getLeg3().getPhaseTapChanger().getSolvedTapPosition());
     }
 
     private static void testPhaseTapChangerStepsReplacement(TwoWindingsTransformer twt2) {
@@ -212,10 +257,66 @@ class TapChangerAttributeTest {
             .add();
     }
 
+    private void createPhaseTapChangerWithSolvedTapPosition(PhaseTapChangerHolder ptch) {
+        ptch.newPhaseTapChanger()
+            .setTapPosition(1)
+            .setSolvedTapPosition(1)
+            .setLowTapPosition(0)
+            .setRegulating(false)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+            .beginStep()
+            .setR(1.0)
+            .setX(2.0)
+            .setG(3.0)
+            .setB(4.0)
+            .setAlpha(5.0)
+            .setRho(6.0)
+            .endStep()
+            .beginStep()
+            .setR(1.0)
+            .setX(2.0)
+            .setG(3.0)
+            .setB(4.0)
+            .setAlpha(5.0)
+            .setRho(6.0)
+            .endStep()
+            .add();
+    }
+
     private void createRatioTapChanger(RatioTapChangerHolder rtch) {
         rtch.newRatioTapChanger()
             .setLowTapPosition(0)
             .setTapPosition(1)
+            .setLoadTapChangingCapabilities(false)
+            .beginStep()
+            .setR(39.78473)
+            .setX(39.784725)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(1.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78474)
+            .setX(39.784726)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(1.0)
+            .endStep()
+            .beginStep()
+            .setR(39.78475)
+            .setX(39.784727)
+            .setG(0.0)
+            .setB(0.0)
+            .setRho(1.0)
+            .endStep()
+            .add();
+    }
+
+    private void createRatioTapChangerWithSolvedTapPosition(RatioTapChangerHolder rtch) {
+        rtch.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(1)
+            .setSolvedTapPosition(1)
             .setLoadTapChangingCapabilities(false)
             .beginStep()
             .setR(39.78473)

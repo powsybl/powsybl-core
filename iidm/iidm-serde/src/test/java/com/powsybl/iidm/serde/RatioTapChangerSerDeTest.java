@@ -25,6 +25,14 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
+    void roundTripTestWithSolvedTapPosition() throws IOException {
+        Network network = createTestNetwork();
+        network.getTwoWindingsTransformer("T2wT").getRatioTapChanger().setSolvedTapPosition(1);
+        assertEquals(1, network.getTwoWindingsTransformer("T2wT").getRatioTapChanger().getSolvedTapPosition());
+        allFormatsRoundTripTest(network, "ratioTapChangerReactivePowerControlRefWithSolvedTapPosition.xml", CURRENT_IIDM_VERSION);
+    }
+
+    @Test
     void readFaultyVersionRatioTapChangerFile() {
         testForAllPreviousVersions(IidmVersion.V_1_12, version -> {
             InputStream is = getVersionedNetworkAsStream("ratioTapChangerReactivePowerControlRef.xml", version);
@@ -71,11 +79,18 @@ class RatioTapChangerSerDeTest extends AbstractIidmSerDeTest {
 
         t2wt.newRatioTapChanger()
                 .beginStep()
-                .setRho(0.9)
-                .setR(0.1089)
-                .setX(0.01089)
-                .setG(0.8264462809917356)
-                .setB(0.08264462809917356)
+                    .setRho(0.9)
+                    .setR(0.1089)
+                    .setX(0.01089)
+                    .setG(0.8264462809917356)
+                    .setB(0.08264462809917356)
+                .endStep()
+                .beginStep()
+                    .setR(0.1089)
+                    .setX(0.01089)
+                    .setG(0.8264462809917356)
+                    .setB(0.08264462809917356)
+                    .setRho(1.1)
                 .endStep()
                 .setTapPosition(0)
                 .setLoadTapChangingCapabilities(true)

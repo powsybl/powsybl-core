@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="shuntTestCase" caseDate="2019-09-30T16:29:18.263+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="S1" country="FR">
+        <iidm:voltageLevel id="VL1" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B1"/>
+            </iidm:busBreakerTopology>
+            <iidm:shunt id="SHUNT" sectionCount="1" solvedSectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
+                <iidm:alias>Alias</iidm:alias>
+                <iidm:shuntLinearModel bPerSection="1.0E-5" maximumSectionCount="1"/>
+                <iidm:regulatingTerminal id="LOAD"/>
+            </iidm:shunt>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2" country="FR">
+        <iidm:voltageLevel id="VL2" nominalV="220.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B2"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="100.0" q0="50.0" bus="B2" connectableBus="B2"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

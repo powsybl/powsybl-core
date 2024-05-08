@@ -45,6 +45,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
+    private Integer solvedTapPosition;
+
     class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
@@ -114,6 +116,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     @Override
     public RatioTapChangerAdder setTapPosition(int tapPosition) {
         this.tapPosition = tapPosition;
+        return this;
+    }
+
+    @Override
+    public RatioTapChangerAdder setSolvedTapPosition(int solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
         return this;
     }
 
@@ -192,7 +200,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 network.getMinValidationLevel()));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband, solvedTapPosition);
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());

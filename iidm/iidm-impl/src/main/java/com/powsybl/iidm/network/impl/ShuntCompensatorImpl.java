@@ -38,10 +38,13 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* the target deadband */
     private final TDoubleArrayList targetDeadband;
 
+    /* the current number of solved section switched on */
+    private final ArrayList<Integer> solvedSectionCount;
+
     ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          Integer sectionCount, TerminalExt regulatingTerminal, Boolean voltageRegulatorOn,
-                         double targetV, double targetDeadband) {
+                         double targetV, double targetDeadband, Integer solvedSectionCount) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = this.network.get().getVariantManager().getVariantArraySize();
@@ -50,10 +53,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         this.sectionCount = new ArrayList<>(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
+        this.solvedSectionCount = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.sectionCount.add(sectionCount);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
+            this.solvedSectionCount.add(solvedSectionCount);
         }
         this.model = Objects.requireNonNull(model).attach(this);
     }
@@ -76,6 +81,21 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public OptionalInt findSectionCount() {
         Integer section = sectionCount.get(network.get().getVariantIndex());
         return section == null ? OptionalInt.empty() : OptionalInt.of(section);
+    }
+
+    @Override
+    public int getSolvedSectionCount() {
+        Integer solvedSection = solvedSectionCount.get(network.get().getVariantIndex());
+        if (solvedSection == null) {
+            throw ValidationUtil.createUndefinedValueGetterException();
+        }
+        return solvedSection;
+    }
+
+    @Override
+    public OptionalInt findSolvedSectionCount() {
+        Integer solvedSection = solvedSectionCount.get(network.get().getVariantIndex());
+        return solvedSection == null ? OptionalInt.empty() : OptionalInt.of(solvedSection);
     }
 
     @Override
@@ -107,6 +127,21 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("sectionCount", variantId, oldValue, null);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensatorImpl setSolvedSectionCount(int solvedSectionCount) {
+        NetworkImpl n = getNetwork();
+        ValidationUtil.checkSections(this, solvedSectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel());
+        if (solvedSectionCount < 0 || solvedSectionCount > model.getMaximumSectionCount()) {
+            throw new ValidationException(this, "unexpected solved section number (" + solvedSectionCount + "): no existing associated section");
+        }
+        int variantIndex = n.getVariantIndex();
+        Integer oldValue = this.solvedSectionCount.set(variantIndex, solvedSectionCount);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("solvedSectionCount", variantId, oldValue, solvedSectionCount);
         return this;
     }
 
@@ -230,10 +265,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         sectionCount.ensureCapacity(sectionCount.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
+        solvedSectionCount.ensureCapacity(solvedSectionCount.size() + number);
         for (int i = 0; i < number; i++) {
             sectionCount.add(sectionCount.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
             targetDeadband.add(targetDeadband.get(sourceIndex));
+            solvedSectionCount.add(solvedSectionCount.get(sourceIndex));
         }
         regulatingPoint.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
     }
@@ -247,6 +284,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         targetV.remove(targetV.size() - number, number);
         targetDeadband.remove(targetDeadband.size() - number, number);
         regulatingPoint.reduceVariantArraySize(number);
+        List<Integer> tmpSolvedSectionCount = new ArrayList<>(solvedSectionCount.subList(0, solvedSectionCount.size() - number));
+        solvedSectionCount.clear();
+        solvedSectionCount.addAll(tmpSolvedSectionCount);
     }
 
     @Override
@@ -262,6 +302,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             sectionCount.set(index, sectionCount.get(sourceIndex));
             targetV.set(index, targetV.get(sourceIndex));
             targetDeadband.set(index, targetDeadband.get(sourceIndex));
+            solvedSectionCount.set(index, solvedSectionCount.get(sourceIndex));
         }
         regulatingPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }

@@ -87,6 +87,12 @@ class ShuntCompensatorXmlTest extends AbstractIidmSerDeTest {
         assertEquals(Double.MIN_NORMAL, sc2.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
     }
 
+    @Test
+    void shuntWithSolvedSectionCountTest() throws IOException {
+        Network network = ShuntTestCaseFactory.createWithSolvedSectionCount(1);
+        allFormatsRoundTripTest(network, "shuntWithSolvedSectionCountRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    }
+
     private void write(Network network, String version) {
         try {
             ExportOptions options = new ExportOptions().setVersion(version);

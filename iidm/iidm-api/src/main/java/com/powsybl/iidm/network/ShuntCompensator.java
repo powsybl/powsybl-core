@@ -61,12 +61,20 @@ import java.util.OptionalInt;
  *             <td style="border: 1px solid black">The maximum number of sections that may be switched on</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">CurrentSectionCount</td>
+ *             <td style="border: 1px solid black">sectionCount</td>
  *             <td style="border: 1px solid black">integer</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The current number of section that may be switched on</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">solvedSectionCount</td>
+ *             <td style="border: 1px solid black">integer</td>
+ *            <td style="border: 1px solid black">-</td>
+ *            <td style="border: 1px solid black">yes</td>
+ *           <td style="border: 1px solid black"> - </td>
+ *            <td style="border: 1px solid black">The number of section that may be switched on calculated after the load flow</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">RegulatingTerminal</td>
@@ -134,6 +142,28 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     }
 
     /**
+     * Get the count of sections in service as calculated after the load flow.
+     * <p>
+     * It is expected to be greater than one and lesser than or equal to the
+     * maximum section count.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    int getSolvedSectionCount();
+
+    /**
+     * Get the count of sections after the load flow in service if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedSectionCount() {
+        return OptionalInt.of(getSolvedSectionCount());
+    }
+
+    /**
      * Get the maximum number of sections that can be in service
      */
     int getMaximumSectionCount();
@@ -155,6 +185,25 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Note: this can be done <b>only</b> in SCADA validation level.
      */
     default ShuntCompensator unsetSectionCount() {
+        throw ValidationUtil.createUnsetMethodException();
+    }
+
+    /**
+     * Change the solved count of sections in service after the load flow calculation.
+     * <p>
+     * Depends on the working variant.
+     *
+     * @see VariantManager
+     * @param solvedSectionCount the number of sections wanted to be put in service
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setSolvedSectionCount(int solvedSectionCount);
+
+    /**
+     * Unset the solved count of sections in service.
+     * Note: this can be done <b>only</b> in SCADA validation level.
+     */
+    default ShuntCompensator unsetSolvedSectionCount() {
         throw ValidationUtil.createUnsetMethodException();
     }
 

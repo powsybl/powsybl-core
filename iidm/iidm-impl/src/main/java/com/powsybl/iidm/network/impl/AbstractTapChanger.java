@@ -43,9 +43,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TDoubleArrayList targetDeadband;
 
+    protected final ArrayList<Integer> solvedTapPosition;
+
     protected AbstractTapChanger(H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
-                                 Integer tapPosition, boolean regulating, double targetDeadband, String type) {
+                                 Integer tapPosition, boolean regulating, double targetDeadband, String type,
+                                 Integer solvedTapPosition) {
         // The Ref object should be the one corresponding to the subnetwork of the tap changer holder
         // (to avoid errors when the subnetwork is detached)
         this.network = parent.getParentNetwork().getRootNetworkRef();
@@ -58,9 +61,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         regulatingPoint.setRegulatingTerminal(regulationTerminal);
         this.tapPosition = new ArrayList<>(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
+        this.solvedTapPosition = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
             this.targetDeadband.add(targetDeadband);
+            this.solvedTapPosition.add(solvedTapPosition);
         }
         this.type = Objects.requireNonNull(type);
         relativeNeutralPosition = getRelativeNeutralPosition();
@@ -104,9 +109,35 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return position;
     }
 
+    public int getSolvedTapPosition() {
+        Integer initialPosition = solvedTapPosition.get(network.get().getVariantIndex());
+        if (initialPosition == null) {
+            throw ValidationUtil.createUndefinedValueGetterException();
+        }
+        return initialPosition;
+    }
+
+    public C setSolvedTapPosition(int solvedTapPosition) {
+        NetworkImpl n = getNetwork();
+        if (solvedTapPosition < lowTapPosition
+            || solvedTapPosition > getHighTapPosition()) {
+            throwIncorrectTapPosition(solvedTapPosition, getHighTapPosition());
+        }
+        int variantIndex = n.getVariantIndex();
+        Integer oldValue = this.solvedTapPosition.set(variantIndex, solvedTapPosition);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".solvedTapPosition", variantId, oldValue, solvedTapPosition);
+        return (C) this;
+    }
+
     public OptionalInt findTapPosition() {
         Integer position = tapPosition.get(network.get().getVariantIndex());
         return position == null ? OptionalInt.empty() : OptionalInt.of(position);
+    }
+
+    public OptionalInt findSolvedTapPosition() {
+        Integer initialPosition = solvedTapPosition.get(network.get().getVariantIndex());
+        return initialPosition == null ? OptionalInt.empty() : OptionalInt.of(initialPosition);
     }
 
     public OptionalInt getNeutralPosition() {

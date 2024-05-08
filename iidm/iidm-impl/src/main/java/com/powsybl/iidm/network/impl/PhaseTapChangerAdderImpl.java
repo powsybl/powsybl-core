@@ -31,6 +31,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private Integer tapPosition;
 
+    private Integer solvedTapPosition;
+
     private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
@@ -124,6 +126,12 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
+    public PhaseTapChangerAdder setSolvedTapPosition(int solvedTapPosition) {
+        this.solvedTapPosition = solvedTapPosition;
+        return this;
+    }
+
+    @Override
     public PhaseTapChangerAdder setRegulationMode(PhaseTapChanger.RegulationMode regulationMode) {
         this.regulationMode = regulationMode;
         return this;
@@ -182,7 +190,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating,
                 targetDeadband, network.getMinValidationLevel()));
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband, solvedTapPosition);
 
         Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());

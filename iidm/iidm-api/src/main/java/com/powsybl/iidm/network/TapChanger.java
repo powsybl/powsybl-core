@@ -46,6 +46,14 @@ public interface TapChanger<
     int getTapPosition();
 
     /**
+     * Get the solved tap position when loading the network. It is the position after the load flow.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    int getSolvedTapPosition();
+
+    /**
      * Get an optional containing the current tap position if it is defined.
      * Otherwise, get an empty optional.
      * <p>
@@ -55,6 +63,28 @@ public interface TapChanger<
     default OptionalInt findTapPosition() {
         return OptionalInt.of(getTapPosition());
     }
+
+    /**
+     * Get an optional containing the solved tap position if it is defined.
+     * Otherwise, get an empty optional.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default OptionalInt findSolvedTapPosition() {
+        return OptionalInt.of(getSolvedTapPosition());
+    }
+
+    /**
+     * Set the solved tap position, which is the position after a load flow.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    C setSolvedTapPosition(int solvedTapPosition);
+
 
     /**
      * Set the current tap position.
