@@ -1000,7 +1000,7 @@ public class MatpowerExporter implements Exporter {
         return Double.isNaN(voltageAngle) ? 0.0 : voltageAngle;
     }
 
-    // Matpower expects a slack bus for each synchronous component
+    // Matpower needs a slack bus for each synchronous component
     // Slack must be defined in a bus with generation or with dclines
     // to serve the roles of both a voltage angle reference and
     // a real power slack
