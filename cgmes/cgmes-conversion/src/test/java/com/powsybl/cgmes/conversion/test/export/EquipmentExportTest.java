@@ -29,14 +29,10 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.iidm.serde.XMLImporter;
-import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 
@@ -1142,6 +1138,59 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+        }
+    }
+
+    @Test
+    void shuntCompensatorRegulatingControlEQTest() throws IOException {
+        String exportFolder = "/test-sc-rc";
+        String baseName = "testScRc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // SC linear
+            network = ShuntTestCaseFactory.create();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createLocalLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledLocalLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+
+            // SC nonlinear
+            network = ShuntTestCaseFactory.createNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createLocalNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
         }
     }
 

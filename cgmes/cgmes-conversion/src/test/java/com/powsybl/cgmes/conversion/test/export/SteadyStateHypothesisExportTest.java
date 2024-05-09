@@ -27,6 +27,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
@@ -520,6 +521,59 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+        }
+    }
+
+    @Test
+    void shuntCompensatorRegulatingControlSSHTest() throws IOException {
+        String exportFolder = "/test-sc-rc";
+        String baseName = "testScRc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // SC linear
+            network = ShuntTestCaseFactory.create();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledLocalLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SHUNT_RC");
+
+            // SC nonlinear
+            network = ShuntTestCaseFactory.createNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SHUNT_RC");
         }
     }
 
