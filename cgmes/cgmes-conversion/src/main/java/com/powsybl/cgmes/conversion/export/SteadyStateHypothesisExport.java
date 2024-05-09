@@ -467,12 +467,8 @@ public final class SteadyStateHypothesisExport {
             if (tc instanceof RatioTapChanger ratioTapChanger
                     && CgmesExportUtil.regulatingControlIsDefined(ratioTapChanger)) {
                 String unitMultiplier = switch (ratioTapChanger.getRegulationMode()) {
-                    case VOLTAGE -> {
-                        yield "k";
-                    }
-                    case REACTIVE_POWER -> {
-                        yield "M";
-                    }
+                    case VOLTAGE -> "k";
+                    case REACTIVE_POWER -> "M";
                 };
                 rcv = new RegulatingControlView(controlId,
                         RegulatingControlType.TAP_CHANGER_CONTROL,

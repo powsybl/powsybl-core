@@ -928,7 +928,7 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithReactiveTcc() {
         Network network = create();
-        network.getTwoWindingsTransformer("NHV2_NLOAD")
+        network.getTwoWindingsTransformer(NHV2_NLOAD)
                 .getRatioTapChanger()
                 .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
                 .setRegulationValue(100);
@@ -944,7 +944,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     private static Network createRemoteTcc(Network network) {
-        network.getTwoWindingsTransformer("NHV2_NLOAD")
+        network.getTwoWindingsTransformer(NHV2_NLOAD)
                 .getRatioTapChanger()
                 .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
 

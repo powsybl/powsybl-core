@@ -956,10 +956,7 @@ public final class EquipmentExport {
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
                 if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
-                    String tccMode = RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE;
-                    if (rtc.getRegulationMode() == RatioTapChanger.RegulationMode.REACTIVE_POWER) {
-                        tccMode = RATIO_TAP_CHANGER_REGULATION_MODE_REACTIVE_POWER;
-                    }
+                    String tccMode = (rtc.getRegulationMode() == RatioTapChanger.RegulationMode.REACTIVE_POWER) ? RATIO_TAP_CHANGER_REGULATION_MODE_REACTIVE_POWER : RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE;
                     TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, tccMode, terminalId, cimNamespace, writer, context);
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }
