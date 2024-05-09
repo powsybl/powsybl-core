@@ -425,11 +425,11 @@ public final class SteadyStateHypothesisExport {
                 String multiplier;
                 // FIXME: remove RegulationMode.OFF when #2790 is done
                 if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE
-                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
+                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint()) && !isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
                     targetValue = svc.getVoltageSetpoint();
                     multiplier = "k";
                 } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER
-                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
+                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint()) && !isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
                     targetValue = svc.getReactivePowerSetpoint();
                     multiplier = "M";
                 } else {
