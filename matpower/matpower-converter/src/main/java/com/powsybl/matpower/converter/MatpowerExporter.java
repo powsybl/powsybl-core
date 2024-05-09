@@ -31,7 +31,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.DoubleUnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -115,8 +114,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static MBus.Type getType(Bus bus, Context context) {
-        if (context.refBusId != null && context.refBusId.equals(bus.getId())
-                || hasSlackExtension(bus)) {
+        if (context.refBusId.contains(bus.getId()) || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
         for (Generator g : bus.getGenerators()) {
@@ -133,15 +131,14 @@ public class MatpowerExporter implements Exporter {
 
         private final double maxGeneratorReactivePowerLimit;
 
-        String refBusId;
+        final List<String> refBusId = new ArrayList<>();
 
         int num = 0;
 
         final Map<String, Integer> mBusesNumbersByIds = new HashMap<>();
 
         final List<String> generatorIdsConvertedToLoad = new ArrayList<>();
-
-        final Set<Bus> busesOutsideMainSynchronousComponentToBeConsidered = new HashSet<>();
+        final Set<Component> synchronousComponentsToBeExported = new HashSet<>();
 
         public Context(double maxGeneratorActivePowerLimit, double maxGeneratorReactivePowerLimit) {
             this.maxGeneratorActivePowerLimit = maxGeneratorActivePowerLimit;
@@ -149,21 +146,24 @@ public class MatpowerExporter implements Exporter {
         }
 
         // Matpower power flow does not support multiple components
-        // Only Vsc HvdcLines are exported as dcLines. Lcc HvdcLines are exported as loads
+        // Only Vsc HvdcLines with regulation on are exported as dcLines.
+        // Vsc HvdcLines with regulation off and Lcc HvdcLines are exported as loads
         // then we cannot always include the complete mainConnectedComponent.
-        // Only the synchronousComponents connected to the MainSynchronousComponent using Vsc HvdcLines must be considered.
+        // Only the synchronousComponents connected to the MainSynchronousComponent using Vsc HvdcLines with regulation on must be considered.
         // We built a graph with all synchronousComponents connected by vsc hvdcLines. Only the connectedSets
         // including the MainSynchronousComponent, must be considered
-        private void findBusesOutsideMainSynchronousComponentToBeConsidered(Network network) {
+        private void findSynchronousComponentsToBeExported(Network network) {
+            // MainSynchronousComponent is always exported
+            synchronousComponentsToBeExported.add(network.getBusView().getSynchronousComponents().stream()
+                    .filter(Context::isMainSynchronousComponent)
+                    .findAny()
+                    .orElseThrow());
+
             List<Set<Component>> connectedSets = findConnectedSetsOfSynchronousComponents(network);
 
             for (Set<Component> connectedSet : connectedSets) {
                 if (connectedSet.stream().anyMatch(Context::isMainSynchronousComponent)) {
-                    connectedSet.forEach(synchronousComponent -> {
-                        if (!isMainSynchronousComponent(synchronousComponent)) {
-                            busesOutsideMainSynchronousComponentToBeConsidered.addAll(synchronousComponent.getBusStream().collect(Collectors.toSet()));
-                        }
-                    });
+                    synchronousComponentsToBeExported.addAll(connectedSet);
                 }
             }
         }
@@ -175,7 +175,8 @@ public class MatpowerExporter implements Exporter {
             // Only Vsc hvdcLines are considered
             network.getHvdcLines().forEach(hvdcLine -> {
                 if (hvdcLine.getConverterStation1().getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)
-                        && hvdcLine.getConverterStation2().getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)) {
+                        && hvdcLine.getConverterStation2().getHvdcType().equals(HvdcConverterStation.HvdcType.VSC)
+                        && isExportedAsDcLine((VscConverterStation) hvdcLine.getConverterStation1(), (VscConverterStation) hvdcLine.getConverterStation2())) {
                     addToGraph(scGraph, hvdcLine);
                 }
             });
@@ -207,9 +208,10 @@ public class MatpowerExporter implements Exporter {
 
     private static boolean isExported(Bus bus, Context context) {
         // Matpower power flow does not support multiple components
-        // Only Vsc HvdcLines are exported as dcLines. Lcc HvdcLines are exported as loads
+        // Only Vsc HvdcLines with regulation on are exported as dcLines.
+        // Vsc HvdcLines with regulation off and Lcc HvdcLines are exported as loads
         // We cannot always manage the complete mainConnectedComponent
-        return bus != null && (bus.isInMainSynchronousComponent() || context.busesOutsideMainSynchronousComponentToBeConsidered.contains(bus));
+        return bus != null && context.synchronousComponentsToBeExported.contains(bus.getSynchronousComponent());
     }
 
     // In matpower cases, the bus number is the only way to identify it. During the export process, we preserve the
@@ -764,11 +766,10 @@ public class MatpowerExporter implements Exporter {
             Terminal t = g.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
-                VoltageLevel vl = t.getVoltageLevel();
                 String id = g.getId();
                 double targetP = g.getTargetP();
                 double targetQ = g.getTargetQ();
-                double targetV = g.getTargetV();
+                double targetVpu = checkAndFixTargetVpu(findTargetVpu(g));
                 double minP = g.getMinP();
                 double maxP = g.getMaxP();
                 double maxQ = g.getReactiveLimits().getMaxQ(g.getTargetP());
@@ -776,10 +777,15 @@ public class MatpowerExporter implements Exporter {
                 Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = g.isVoltageRegulatorOn();
                 double ratedS = g.getRatedS();
-                addMgen(model, context, bus, vl, id, targetV, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), regulatedBus,
+                addMgen(model, context, bus, id, targetVpu, targetP, minP, maxP, targetQ, Math.min(minQ, maxQ), Math.max(minQ, maxQ), regulatedBus,
                         voltageRegulation, ratedS);
             }
         }
+    }
+
+    // matpower only supports local control, all remote control will be localized with the defined targetVpu
+    private static double findTargetVpu(Generator generator) {
+        return generator.getTargetV() / generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
     private void createStaticVarCompensators(Network network, MatpowerModel model, Context context) {
@@ -787,7 +793,6 @@ public class MatpowerExporter implements Exporter {
             Terminal t = svc.getTerminal();
             Bus bus = t.getBusView().getBus();
             if (isExported(bus, context)) {
-                VoltageLevel vl = t.getVoltageLevel();
                 String id = svc.getId();
                 double targetQ;
                 if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svc.getRegulationMode())) {
@@ -798,13 +803,18 @@ public class MatpowerExporter implements Exporter {
                 double vSquared = bus.getVoltageLevel().getNominalV() * bus.getVoltageLevel().getNominalV(); // approximation
                 double minQ = svc.getBmin() * vSquared;
                 double maxQ = svc.getBmax() * vSquared;
-                double targetV = svc.getVoltageSetpoint();
+                double targetVpu = checkAndFixTargetVpu(findTargetVpu(svc));
                 Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
                 boolean voltageRegulation = StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode());
-                addMgen(model, context, bus, vl, id, targetV, 0, 0, 0, targetQ, minQ,
+                addMgen(model, context, bus, id, targetVpu, 0, 0, 0, targetQ, minQ,
                         maxQ, regulatedBus, voltageRegulation, Double.NaN);
             }
         }
+    }
+
+    // matpower only supports local control, all remote control will be localized with the defined targetVpu
+    private static double findTargetVpu(StaticVarCompensator staticVarCompensator) {
+        return staticVarCompensator.getVoltageSetpoint() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV();
     }
 
     private void createDcLines(Network network, MatpowerModel model, Context context) {
@@ -816,11 +826,24 @@ public class MatpowerExporter implements Exporter {
                     && hvdcConverterStation2 instanceof VscConverterStation vscConverterStation2) {
 
                 if (hvdcLine.getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-                    createDcLine(vscConverterStation1, vscConverterStation2, hvdcLine, model, context);
+                    exportVscHvdcLine(vscConverterStation1, vscConverterStation2, hvdcLine, model, context);
                 } else {
-                    createDcLine(vscConverterStation2, vscConverterStation1, hvdcLine, model, context);
+                    exportVscHvdcLine(vscConverterStation2, vscConverterStation1, hvdcLine, model, context);
                 }
             }
+        }
+    }
+
+    private static boolean isExportedAsDcLine(VscConverterStation vscConverterStation1, VscConverterStation vscConverterStation2) {
+        return vscConverterStation1.isVoltageRegulatorOn() && vscConverterStation2.isVoltageRegulatorOn();
+    }
+
+    private static void exportVscHvdcLine(VscConverterStation rectifierVscConverterStation, VscConverterStation inverterVscConverterStation, HvdcLine hvdcLine, MatpowerModel model, Context context) {
+        if (isExportedAsDcLine(rectifierVscConverterStation, inverterVscConverterStation)) {
+            createDcLine(rectifierVscConverterStation, inverterVscConverterStation, hvdcLine, model, context);
+        } else {
+            createGeneratorOrLoadFromVscConverter(rectifierVscConverterStation, model, context);
+            createGeneratorOrLoadFromVscConverter(inverterVscConverterStation, model, context);
         }
     }
 
@@ -847,18 +870,18 @@ public class MatpowerExporter implements Exporter {
             // equal to the negative of the injection of corresponding dummy generator
             mdcLine.setPf(rectifierTargetP);
             mdcLine.setQf(checkAndFixTargetQ(rectifierVscConverterStation.getReactivePowerSetpoint()));
-            mdcLine.setVf(checkAndFixTargetV(findTargetV(rectifierVscConverterStation)));
-            double rectifierMinQ = rectifierVscConverterStation.getReactiveLimits().getMinQ(rectifierTargetP);
-            double rectifierMaxQ = rectifierVscConverterStation.getReactiveLimits().getMaxQ(rectifierTargetP);
+            mdcLine.setVf(checkAndFixTargetVpu(findTargetVpu(rectifierVscConverterStation)));
+            double rectifierMinQ = checkAndFixMinQ(rectifierVscConverterStation.getReactiveLimits().getMinQ(rectifierTargetP));
+            double rectifierMaxQ = checkAndFixMaxQ(rectifierVscConverterStation.getReactiveLimits().getMaxQ(rectifierTargetP));
             mdcLine.setQminf(rectifierMinQ);
             mdcLine.setQmaxf(rectifierMaxQ);
 
             // equal to the injection of the corresponding generator
             mdcLine.setPt(inverterTargetP);
             mdcLine.setQt(checkAndFixTargetQ(inverterVscConverterStation.getReactivePowerSetpoint()));
-            mdcLine.setVt(checkAndFixTargetV(findTargetV(inverterVscConverterStation)));
-            double inverterMinQ = inverterVscConverterStation.getReactiveLimits().getMinQ(inverterTargetP);
-            double inverterMaxQ = inverterVscConverterStation.getReactiveLimits().getMaxQ(inverterTargetP);
+            mdcLine.setVt(checkAndFixTargetVpu(findTargetVpu(inverterVscConverterStation)));
+            double inverterMinQ = checkAndFixMinQ(inverterVscConverterStation.getReactiveLimits().getMinQ(inverterTargetP));
+            double inverterMaxQ = checkAndFixMaxQ(inverterVscConverterStation.getReactiveLimits().getMaxQ(inverterTargetP));
             mdcLine.setQmint(inverterMinQ);
             mdcLine.setQmaxt(inverterMaxQ);
 
@@ -882,12 +905,22 @@ public class MatpowerExporter implements Exporter {
         return Double.isNaN(targetQ) ? 0.0 : targetQ;
     }
 
-    private static double checkAndFixTargetV(double targetV) {
-        return Double.isNaN(targetV) || targetV <= 0.0 ? 1.0 : targetV;
+    private static double checkAndFixTargetVpu(double targetVpu) {
+        return Double.isNaN(targetVpu) || targetVpu <= 0.0 ? 1.0 : targetVpu;
     }
 
-    // matpower only supports local control, all remote control will be localized
-    private static double findTargetV(VscConverterStation vscConverterStation) {
+    // If minQ is -Double.MAX_VALUE matpower sets the reactive power in dclines to NaN
+    private static double checkAndFixMinQ(double minQ) {
+        return minQ < -Integer.MAX_VALUE ? -Integer.MAX_VALUE : minQ;
+    }
+
+    // If maxQ is Double.MAX_VALUE matpower sets the reactive power in dclines to NaN
+    private static double checkAndFixMaxQ(double maxQ) {
+        return maxQ > Integer.MAX_VALUE ? Integer.MAX_VALUE : maxQ;
+    }
+
+    // matpower only supports local control, all remote control will be localized with the defined targetVpu
+    private static double findTargetVpu(VscConverterStation vscConverterStation) {
         double nominalV = vscConverterStation.getTerminal().getVoltageLevel().getNominalV();
         if (vscConverterStation.getRegulatingTerminal() != null) {
             nominalV = vscConverterStation.getRegulatingTerminal().getVoltageLevel().getNominalV();
@@ -904,8 +937,27 @@ public class MatpowerExporter implements Exporter {
         return rectifierTargetP != 0.0 ? (losses - l0) / rectifierTargetP : 0.0;
     }
 
-    private static void addMgen(MatpowerModel model, Context context, Bus bus, VoltageLevel vl,
-                                String id, double targetV, double targetP, double minP, double maxP, double targetQ,
+    private static void createGeneratorOrLoadFromVscConverter(VscConverterStation vscConverterStation, MatpowerModel model, Context context) {
+        Terminal terminal = vscConverterStation.getTerminal();
+        Bus bus = findBus(terminal);
+
+        if (isExported(bus, context)) {
+            String id = vscConverterStation.getId();
+            double targetQ = checkAndFixTargetQ(vscConverterStation.getReactivePowerSetpoint());
+            double targetVpu = checkAndFixTargetVpu(findTargetVpu(vscConverterStation));
+            Bus regulatedBus = vscConverterStation.getRegulatingTerminal().getBusView().getBus();
+            double targetP = HvdcUtils.getConverterStationTargetP(vscConverterStation);
+            double minQ = checkAndFixMinQ(vscConverterStation.getReactiveLimits().getMinQ(targetP)); // approximation
+            double maxQ = checkAndFixMaxQ(vscConverterStation.getReactiveLimits().getMaxQ(targetP)); // approximation
+            boolean voltageRegulation = vscConverterStation.isVoltageRegulatorOn();
+            double maxP = vscConverterStation.getHvdcLine().getMaxP();
+            addMgen(model, context, bus, id, targetVpu, targetP, -maxP, maxP, targetQ, minQ,
+                    maxQ, regulatedBus, voltageRegulation, Double.NaN);
+        }
+    }
+
+    private static void addMgen(MatpowerModel model, Context context, Bus bus,
+                                String id, double targetVpu, double targetP, double minP, double maxP, double targetQ,
                                 double minQ, double maxQ, Bus regulatedBus, boolean voltageRegulation, double ratedS) {
         int busNum = context.mBusesNumbersByIds.get(bus.getId());
         MBus mBus = model.getBusByNum(busNum);
@@ -924,13 +976,8 @@ public class MatpowerExporter implements Exporter {
             mGen.setRealPowerOutput(targetP);
             mGen.setReactivePowerOutput(Double.isNaN(targetQ) ? 0 : targetQ);
             if (validVoltageRegulation) {
-                double targetVpu = targetV / vl.getNominalV();
                 if (!regulatedBus.getId().equals(bus.getId())) {
-                    double oldTargetV = targetVpu;
-                    targetVpu *= vl.getNominalV() / regulatedBus.getVoltageLevel().getNominalV();
-                    LOGGER.warn(
-                            "Generator remote voltage control not supported in Matpower model, rescale targetV of '{}' from {} to {}",
-                            id, oldTargetV, targetVpu);
+                    LOGGER.warn("Generator remote voltage control not supported in Matpower model, control has been localized {}", id);
                 }
                 mGen.setVoltageMagnitudeSetpoint(targetVpu);
             } else {
@@ -955,30 +1002,53 @@ public class MatpowerExporter implements Exporter {
         return Double.isNaN(voltageAngle) ? 0.0 : voltageAngle;
     }
 
-    private static int getBranchCount(Bus bus) {
-        int[] branchCount = new int[1];
-        bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
-            @Override
-            public void visitLine(Line line, TwoSides side) {
-                branchCount[0]++;
-            }
+    // Matpower expects a slack bus for each synchronous component
+    // Slack must be defined in a bus with generation or with dclines
+    // to serve the roles of both a voltage angle reference and
+    // a real power slack
+    private static void findSlackBusesForEachSynchronousComponent(Context context) {
 
-            @Override
-            public void visitTwoWindingsTransformer(TwoWindingsTransformer transformer, TwoSides side) {
-                branchCount[0]++;
-            }
+        context.synchronousComponentsToBeExported.forEach(synchronousComponent -> {
+            boolean hasSlack = synchronousComponent.getBusStream()
+                    .filter(bus -> isExported(bus, context))
+                    .anyMatch(MatpowerExporter::hasSlackExtension);
 
-            @Override
-            public void visitThreeWindingsTransformer(ThreeWindingsTransformer transformer, ThreeSides side) {
-                branchCount[0]++;
-            }
-
-            @Override
-            public void visitDanglingLine(DanglingLine danglingLine) {
-                branchCount[0]++;
+            if (!hasSlack) {
+                String refBusId = synchronousComponent.getBusStream()
+                        .filter(bus -> isExported(bus, context))
+                        .map(MatpowerExporter::getActivePowerGenerationAndVscCount)
+                        .max(Comparator.comparing(Rc::activePowerGeneration)
+                                .thenComparing(Rc::vscConvertersWithRegulationOn)
+                                .thenComparing(rc -> rc.bus.getId()))
+                        .orElseThrow()
+                        .bus().getId();
+                context.refBusId.add(refBusId);
+                LOGGER.debug("Matpower reference bus automatically selected: {} for synchronousComponent: {}", refBusId, synchronousComponent.getNum());
             }
         });
-        return branchCount[0];
+    }
+
+    private static Rc getActivePowerGenerationAndVscCount(Bus bus) {
+        double[] activePowerGeneration = new double[1];
+        int[] vscConverterCount = new int[1];
+        bus.visitConnectedEquipments(new DefaultTopologyVisitor() {
+            @Override
+            public void visitGenerator(Generator generator) {
+                activePowerGeneration[0] += generator.getMaxP();
+            }
+
+            @Override
+            public void visitHvdcConverterStation(HvdcConverterStation<?> hvdcConverterStation) {
+                if (hvdcConverterStation instanceof VscConverterStation vscConverterStation
+                        && vscConverterStation.isVoltageRegulatorOn()) {
+                        vscConverterCount[0]++;
+                    }
+                }
+        });
+        return new Rc(bus, activePowerGeneration[0], vscConverterCount[0]);
+    }
+
+    private record Rc(Bus bus, double activePowerGeneration, int vscConvertersWithRegulationOn) {
     }
 
     @Override
@@ -996,16 +1066,10 @@ public class MatpowerExporter implements Exporter {
         model.setVersion(FORMAT_VERSION);
 
         Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
-        context.findBusesOutsideMainSynchronousComponentToBeConsidered(network);
-        boolean hasSlack = network.getBusView().getBusStream().anyMatch(MatpowerExporter::hasSlackExtension);
-        if (!hasSlack) {
-            context.refBusId = network.getBusView().getBusStream()
-                    .filter(bus -> isExported(bus, context))
-                    .max(Comparator.comparingInt(MatpowerExporter::getBranchCount))
-                    .orElseThrow()
-                    .getId();
-            LOGGER.debug("Matpower reference bus automatically selected: {}", context.refBusId);
-        }
+        context.findSynchronousComponentsToBeExported(network);
+
+        findSlackBusesForEachSynchronousComponent(context);
+
         context.num = preserveBusIds(network, context);
         createBuses(network, model, context);
         createBranches(network, model, context);
