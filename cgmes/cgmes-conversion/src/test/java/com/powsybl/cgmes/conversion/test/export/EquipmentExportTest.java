@@ -29,6 +29,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.serde.ExportOptions;
@@ -1043,6 +1044,39 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(eq, "_PS1_PTC_RC", "_LD2_EC_T_1", "activePower");
+        }
+    }
+
+    @Test
+    void ratioTapChangerTapChangerControlEQTest() throws IOException {
+        String exportFolder = "/test-rtc-tcc";
+        String baseName = "testRtcTcc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // RTC local with VOLTAGE
+            network = EurostagTutorialExample1Factory.create();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "voltage");
+
+            // RTC local with REACTIVE_POWER
+            network = EurostagTutorialExample1Factory.createWithReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_NHV2_NLOAD_PT_T_2", "reactivePower");
+
+            // RTC remote with VOLTAGE
+            network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "voltage");
+
+            // RTC remote with REACTIVE_POWER
+            network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
         }
     }
 

@@ -923,6 +923,30 @@ public final class EurostagTutorialExample1Factory {
                 .addVoltageLevel(network.getVoltageLevel(VLHV2))
                 .addVoltageLevel(network.getVoltageLevel(VLLOAD))
                 .add();
+        return network;
+    }
+
+    public static Network createWithReactiveTcc() {
+        Network network = create();
+        network.getTwoWindingsTransformer("NHV2_NLOAD")
+                .getRatioTapChanger()
+                .setRegulationMode(RatioTapChanger.RegulationMode.REACTIVE_POWER)
+                .setRegulationValue(100);
+        return network;
+    }
+
+    public static Network createRemoteReactiveTcc() {
+        return createRemoteTcc(createWithReactiveTcc());
+    }
+
+    public static Network createRemoteVoltageTcc() {
+        return createRemoteTcc(create());
+    }
+
+    private static Network createRemoteTcc(Network network) {
+        network.getTwoWindingsTransformer("NHV2_NLOAD")
+                .getRatioTapChanger()
+                .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
 
         return network;
     }
