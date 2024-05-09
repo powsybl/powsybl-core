@@ -146,12 +146,14 @@ public class MatpowerExporter implements Exporter {
         }
 
         // Matpower power flow does not support multiple components
-        // Only Vsc HvdcLines with regulation on are exported as dcLines.
-        // Vsc HvdcLines with regulation off and Lcc HvdcLines are exported as loads
+        // Only Vsc HvdcLines with regulation on at both converters are exported as dcLines.
+        // Vsc converters with regulation on are exported as generators and as loads when regulation is off
+        // All Lcc converters are exported as loads
         // then we cannot always include the complete mainConnectedComponent.
-        // Only the synchronousComponents connected to the MainSynchronousComponent using Vsc HvdcLines with regulation on must be considered.
-        // We built a graph with all synchronousComponents connected by vsc hvdcLines. Only the connectedSets
-        // including the MainSynchronousComponent, must be considered
+        // Only the synchronousComponents connected to the MainSynchronousComponent
+        // using Vsc HvdcLines with regulation on at both converters must be considered.
+        // We built a graph with all synchronousComponents connected by vsc hvdcLines.
+        // Only the connectedSets including the MainSynchronousComponent, must be considered
         private void findSynchronousComponentsToBeExported(Network network) {
             // MainSynchronousComponent is always exported
             synchronousComponentsToBeExported.add(network.getBusView().getSynchronousComponents().stream()
@@ -207,10 +209,6 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isExported(Bus bus, Context context) {
-        // Matpower power flow does not support multiple components
-        // Only Vsc HvdcLines with regulation on are exported as dcLines.
-        // Vsc HvdcLines with regulation off and Lcc HvdcLines are exported as loads
-        // We cannot always manage the complete mainConnectedComponent
         return bus != null && context.synchronousComponentsToBeExported.contains(bus.getSynchronousComponent());
     }
 
