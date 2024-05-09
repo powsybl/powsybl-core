@@ -31,6 +31,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -1080,6 +1081,70 @@ class EquipmentExportTest extends AbstractSerDeTest {
         }
     }
 
+    @Test
+    void staticVarCompensatorRegulatingControlEQTest() throws IOException {
+        String exportFolder = "/test-svc-rc";
+        String baseName = "testSvcRc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // SVC VOLTAGE
+            // Local
+            network = SvcTestCaseFactory.createLocalVoltageControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteVoltageControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+
+            // SVC REACTIVE_POWER
+            // Local
+            network = SvcTestCaseFactory.createLocalReactiveControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "reactivePower");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteReactiveControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+
+            // SVC OFF
+            // Local
+            network = SvcTestCaseFactory.createLocalOffNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            network = SvcTestCaseFactory.createLocalOffReactiveTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            network = SvcTestCaseFactory.createLocalOffVoltageTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            network = SvcTestCaseFactory.createLocalOffBothTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteOffNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
+            network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            network = SvcTestCaseFactory.createRemoteOffBothTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+        }
+    }
+
     private void testTcTccWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
         assertFalse(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
         assertFalse(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
@@ -1090,6 +1155,21 @@ class EquipmentExportTest extends AbstractSerDeTest {
     private void testTcTccWithAttribute(String eq, String rcID, String terID, String rcMode) {
         assertTrue(eq.contains("cim:TapChangerControl rdf:ID=\"" + rcID + "\""));
         assertTrue(eq.contains("cim:TapChanger.TapChangerControl rdf:resource=\"#" + rcID + "\""));
+        assertTrue(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertTrue(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private void testRcEqRCWithoutAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertFalse(eq.contains("cim:RegulatingControl rdf:ID=\"" + rcID + "\""));
+        assertFalse(eq.contains("cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#" + rcID + "\""));
+        // dummy kind is used when false assertion would trigger because other RCs are present from other equipment
+        assertFalse(eq.contains("RegulatingControlModeKind." + rcMode));
+        assertFalse(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
+    }
+
+    private void testRcEqRcWithAttribute(String eq, String rcID, String terID, String rcMode) {
+        assertTrue(eq.contains("cim:RegulatingControl rdf:ID=\"" + rcID + "\""));
+        assertTrue(eq.contains("cim:RegulatingCondEq.RegulatingControl rdf:resource=\"#" + rcID + "\""));
         assertTrue(eq.contains("RegulatingControlModeKind." + rcMode));
         assertTrue(eq.contains("cim:RegulatingControl.Terminal rdf:resource=\"#" + terID + "\""));
     }

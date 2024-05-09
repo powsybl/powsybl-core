@@ -27,6 +27,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -458,6 +459,70 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         }
     }
 
+    @Test
+    void staticVarCompensatorRegulatingControlSSHTest() throws IOException {
+        String exportFolder = "/test-svc-rc";
+        String baseName = "testSvcRc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // SVC VOLTAGE
+            // Local
+            network = SvcTestCaseFactory.createLocalVoltageControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteVoltageControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
+
+            // SVC REACTIVE_POWER
+            // Local
+            network = SvcTestCaseFactory.createLocalReactiveControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteReactiveControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
+
+            // SVC OFF
+            // Local
+            network = SvcTestCaseFactory.createLocalOffNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            network = SvcTestCaseFactory.createLocalOffReactiveTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            network = SvcTestCaseFactory.createLocalOffVoltageTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            network = SvcTestCaseFactory.createLocalOffBothTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteOffNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+            network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            network = SvcTestCaseFactory.createRemoteOffBothTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+        }
+    }
+
     private void testTcTccWithoutAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
         assertFalse(ssh.contains("cim:TapChangerControl rdf:about=\"#" + rcID + "\""));
         assertFalse(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
@@ -469,6 +534,19 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
     private void testTcTccWithAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
         assertTrue(ssh.contains("cim:TapChangerControl rdf:about=\"#" + rcID + "\""));
+        assertTrue(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetValue>" + target + "</cim:RegulatingControl.targetValue>"));
+        assertTrue(ssh.contains("UnitMultiplier." + multiplier + "\""));
+    }
+
+    private void testRcEqRCWithoutAttribute(String ssh, String rcID) {
+        assertFalse(ssh.contains("cim:RegulatingControl rdf:about=\"#" + rcID + "\""));
+    }
+
+    private void testRcEqRcWithAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
+        assertTrue(ssh.contains("cim:RegulatingControl rdf:about=\"#" + rcID + "\""));
         assertTrue(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
         assertTrue(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
         assertTrue(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
