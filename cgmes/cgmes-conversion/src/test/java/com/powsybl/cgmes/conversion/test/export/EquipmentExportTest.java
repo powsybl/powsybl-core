@@ -29,6 +29,7 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -1191,6 +1192,51 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+        }
+    }
+
+    @Test
+    void generatorRegulatingControlEQTest() throws IOException {
+        String exportFolder = "/test-gen-rc";
+        String baseName = "testGenRc";
+        Network network;
+        String eq;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "EQ");
+
+            // Generator local voltage
+            network = EurostagTutorialExample1Factory.create();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
+            // Generator remote voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
+            // Generator with local reactive
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
+
+            // Generator with remote reactive
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
         }
     }
 

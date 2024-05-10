@@ -25,6 +25,7 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
@@ -574,6 +575,51 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRCWithoutAttribute(ssh, "_SHUNT_RC");
+        }
+    }
+
+    @Test
+    void generatorRegulatingControlSSHTest() throws IOException {
+        String exportFolder = "/test-gen-rc";
+        String baseName = "testGenRc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // Generator local voltage
+            network = EurostagTutorialExample1Factory.create();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+
+            // Generator remote voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+
+            // Generator with local reactive
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
+
+            // Generator with remote reactive
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
         }
     }
 

@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import java.time.ZonedDateTime;
 
 /**
@@ -948,6 +949,40 @@ public final class EurostagTutorialExample1Factory {
                 .getRatioTapChanger()
                 .setRegulationTerminal(network.getGenerator("GEN").getTerminal());
 
+        return network;
+    }
+
+    public static Network createWithRemoteVoltageGenerator() {
+        return addRemoteVoltageGenerator(create());
+    }
+
+    public static Network createWithRemoteReactiveGenerator() {
+        return addRemoteReactiveGenerator(create());
+    }
+
+    public static Network createWithLocalReactiveGenerator() {
+        return addLocalReactiveGenerator(create());
+    }
+
+    private static Network addLocalReactiveGenerator(Network network) {
+        return addReactiveGenerator(network, network.getGenerator("GEN").getRegulatingTerminal());
+    }
+
+    private static Network addRemoteReactiveGenerator(Network network) {
+        return addReactiveGenerator(network, network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
+    }
+
+    private static Network addReactiveGenerator(Network network, Terminal terminal) {
+        network.getGenerator("GEN").newExtension(RemoteReactivePowerControlAdder.class)
+                .withRegulatingTerminal(terminal)
+                .withTargetQ(200)
+                .withEnabled(true).add();
+        return network;
+    }
+
+    private static Network addRemoteVoltageGenerator(Network network) {
+        network.getGenerator("GEN")
+                .setRegulatingTerminal(network.getTwoWindingsTransformer(NHV2_NLOAD).getTerminal1());
         return network;
     }
 }
