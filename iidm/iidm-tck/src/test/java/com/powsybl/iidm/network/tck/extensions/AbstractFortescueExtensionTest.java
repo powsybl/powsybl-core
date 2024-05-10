@@ -64,23 +64,16 @@ public abstract class AbstractFortescueExtensionTest {
         LineFortescue fortescue = l.newExtension(LineFortescueAdder.class)
                 .withRz(0.1d)
                 .withXz(2d)
-                .withOpenPhaseA(true)
-                .withOpenPhaseC(true)
                 .add();
 
         assertEquals(0.1d, fortescue.getRz());
         assertEquals(2d, fortescue.getXz());
-        assertTrue(fortescue.isOpenPhaseA());
-        assertFalse(fortescue.isOpenPhaseB());
-        assertTrue(fortescue.isOpenPhaseC());
 
         fortescue.setRz(0.11d);
         fortescue.setXz(2.03d);
-        fortescue.setOpenPhaseA(false);
 
         assertEquals(0.11d, fortescue.getRz());
         assertEquals(2.03d, fortescue.getXz());
-        assertFalse(fortescue.isOpenPhaseA());
     }
 
     @Test

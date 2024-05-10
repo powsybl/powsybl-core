@@ -7,33 +7,18 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Line;
 
 /**
  * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface LineFortescue extends Extension<Line> {
+public interface LineAsymmetricalAdder extends ExtensionAdder<Line, LineAsymmetrical> {
 
-    String NAME = "lineFortescue";
+    LineAsymmetricalAdder withOpenPhaseA(boolean openPhaseA);
 
-    @Override
-    default String getName() {
-        return NAME;
-    }
+    LineAsymmetricalAdder withOpenPhaseB(boolean openPhaseB);
 
-    /**
-     * The zero sequence resistance of the line.
-     */
-    double getRz();
-
-    void setRz(double rz);
-
-    /**
-     * The zero sequence reactance of the line.
-     */
-    double getXz();
-
-    void setXz(double xz);
+    LineAsymmetricalAdder withOpenPhaseC(boolean openPhaseC);
 }
