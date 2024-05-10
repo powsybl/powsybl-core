@@ -379,17 +379,20 @@ public final class SteadyStateHypothesisExport {
             double targetDeadband = 0;
             double target;
             String targetValueUnitMultiplier;
+            boolean enabled;
             RemoteReactivePowerControl rrpc = g.getExtension(RemoteReactivePowerControl.class);
             if (rrpc != null) {
                 target = rrpc.getTargetQ();
                 targetValueUnitMultiplier = "M";
+                enabled = rrpc.isEnabled();
             } else {
                 target = g.getTargetV();
                 targetValueUnitMultiplier = "k";
+                enabled = g.isVoltageRegulatorOn();
             }
 
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                g.isVoltageRegulatorOn(), targetDeadband, target, targetValueUnitMultiplier);
+                enabled, targetDeadband, target, targetValueUnitMultiplier);
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
