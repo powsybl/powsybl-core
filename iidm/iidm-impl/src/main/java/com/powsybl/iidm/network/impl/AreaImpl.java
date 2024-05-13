@@ -63,14 +63,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
         checkNetwork(voltageLevel);
-        Optional<Area> previousArea = voltageLevel.getArea(this.getAreaType());
-        if (previousArea.isPresent() && previousArea.get() != this) {
-            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " is already in Area of the same type=" + previousArea.get().getAreaType().getNameOrId() + " with id=" + previousArea.get().getId());
-        }
         voltagelevels.add(voltageLevel);
-        if (previousArea.isEmpty()) {
-            voltageLevel.addArea(this);
-        }
+        voltageLevel.addArea(this);
     }
 
     private void checkNetwork(Identifiable<?> identifiable) {

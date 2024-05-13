@@ -40,6 +40,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
+    /** Areas associated to this VoltageLevel, with at most one area for each AreaType. */
     private Set<Area> areas = new LinkedHashSet<>();
 
     private boolean removed = false;
@@ -98,18 +99,28 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         if (removed) {
             throw new PowsyblException("Cannot access area of removed voltage level " + id);
         }
-        return areas.stream()
-                .filter(area -> area.getAreaType() == areaType)
-                .findFirst();
+        final Optional<Area> optionalArea = areas.stream().filter(area -> area.getAreaType() == areaType).findFirst();
+        if (optionalArea.isEmpty() && this.getSubstation().isPresent()) {
+            this.getSubstation().get().getArea(areaType);
+        }
+        return optionalArea;
     }
 
     @Override
     public void addArea(Area area) {
-        if (area.getVoltageLevelStream().anyMatch(v -> v.equals(this))) {
-            areas.add(area);
-        } else {
-            area.addVoltageLevel(this);
+        if (areas.contains(area)) {
+            return; // Nothing to do
         }
+        // Check if there is any conflicting area assigned to the containers above this, or the containers and equipment below this
+        final Optional<Area> previousArea = this.getArea(area.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != area) {
+            // One of the containers above this instance already have a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + id + " is already in Area of the same type=" + previousArea.get().getAreaType().getNameOrId() + " with id=" + previousArea.get().getId());
+        }
+        // TODO Error: if any of the equipments below this instance already have a different area with the same AreaType
+        // No conflict, add the area to both sides
+        areas.add(area);
+        area.addVoltageLevel(this);
     }
 
     @Override
