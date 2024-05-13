@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
@@ -29,12 +28,9 @@ public class OdreGeoDataAdder {
 
     public static void fillNetworkSubstationsGeoData(Network network, List<SubstationGeoData> substationsGeoData) {
         substationsGeoData.forEach(geoData -> {
-            Optional<Substation> foundStation = network.getSubstationStream()
-                    .filter(substation -> substation.getId().equals(geoData.getId()))
-                    .findFirst();
-            if (foundStation.isPresent()) {
-                Substation station = foundStation.get();
-                station.newExtension(SubstationPositionAdder.class)
+            Substation foundStation = network.getSubstation(geoData.getId());
+            if (foundStation != null) {
+                foundStation.newExtension(SubstationPositionAdder.class)
                         .withCoordinate(geoData.getCoordinate())
                         .add();
             }
@@ -43,12 +39,9 @@ public class OdreGeoDataAdder {
 
     public static void fillNetworkLinesGeoData(Network network, List<LineGeoData> linesGeoData) {
         linesGeoData.forEach(geoData -> {
-            Optional<Line> foundLine = network.getLineStream()
-                    .filter(line -> line.getId().equals(geoData.getId()))
-                    .findFirst();
-            if (foundLine.isPresent()) {
-                Line line = foundLine.get();
-                line.newExtension(LinePositionAdder.class)
+            Line foundLine = network.getLine(geoData.getId());
+            if (foundLine != null) {
+                foundLine.newExtension(LinePositionAdder.class)
                         .withCoordinates(geoData.getCoordinates())
                         .add();
             }
