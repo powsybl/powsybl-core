@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -12,7 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
@@ -50,32 +51,32 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testSkippedExtension() {
+    void testSkippedExtension() throws IOException {
         // Read file with all extensions included (default ImportOptions)
-        ReporterModel reporter1 = new ReporterModel("root", "Root reporter");
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
         Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
-                new ImportOptions(), null, NetworkFactory.findDefault(), reporter1);
+                new ImportOptions(), null, NetworkFactory.findDefault(), reportNode1);
         Load load1 = networkReadExtensions.getLoad("LOAD");
         assertNotNull(load1.getExtension(LoadBarExt.class));
         assertNotNull(load1.getExtension(LoadZipModel.class));
 
         StringWriter sw1 = new StringWriter();
-        reporter1.export(sw1);
+        reportNode1.print(sw1);
         assertEquals("""
-                + Root reporter
-                  + Validation warnings
-                  + Imported extensions
-                     Extension loadBar imported.
-                     Extension loadZipModel imported.
-                  + Not found extensions
-                     Extension terminalMockNoSerDe not found.
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadBar imported.
+                      Extension loadZipModel imported.
+                   + Not found extensions
+                      Extension terminalMockNoSerDe not found.
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
 
         // Read file with only terminalMockNoSerDe and loadZipModel extensions included
-        ReporterModel reporter2 = new ReporterModel("root", "Root reporter");
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
         ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
         Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
-                notAllExtensions, null, NetworkFactory.findDefault(), reporter2);
+                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
         Load load2 = networkSkippedExtensions.getLoad("LOAD");
         assertNull(load2.getExtension(LoadBarExt.class));
         LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
@@ -83,14 +84,14 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
 
         StringWriter sw2 = new StringWriter();
-        reporter2.export(sw2);
+        reportNode2.print(sw2);
         assertEquals("""
-                + Root reporter
-                  + Validation warnings
-                  + Imported extensions
-                     Extension loadZipModel imported.
-                  + Not found extensions
-                     Extension terminalMockNoSerDe not found.
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadZipModel imported.
+                   + Not found extensions
+                      Extension terminalMockNoSerDe not found.
                 """, TestUtil.normalizeLineSeparator(sw2.toString()));
     }
 

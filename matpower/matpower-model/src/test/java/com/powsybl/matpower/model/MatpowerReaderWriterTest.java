@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -26,7 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  */
 class MatpowerReaderWriterTest {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectWriter mapper = new ObjectMapper()
+            .writerWithDefaultPrettyPrinter();
 
     private FileSystem fileSystem;
 
@@ -49,9 +51,8 @@ class MatpowerReaderWriterTest {
         MatpowerModel model2 = MatpowerReader.read(file, model.getCaseName());
 
         // compare the two models
-        ObjectWriter objectWriter = mapper.writerWithDefaultPrettyPrinter();
-        String json = objectWriter.writeValueAsString(model);
-        String json2 = objectWriter.writeValueAsString(model2);
+        String json = mapper.writeValueAsString(model);
+        String json2 = mapper.writeValueAsString(model2);
         assertEquals(json, json2);
     }
 
@@ -83,6 +84,11 @@ class MatpowerReaderWriterTest {
     @Test
     void testCase300() throws IOException {
         testMatpowerFile(MatpowerModelFactory.create300());
+    }
+
+    @Test
+    void testCase9DcLine() throws IOException {
+        testMatpowerFile(MatpowerModelFactory.create9Dcline());
     }
 
     @Test

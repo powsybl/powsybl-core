@@ -3,8 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.executor;
+
+import com.powsybl.ampl.converter.AmplExportConfig;
 
 import java.util.Collection;
 
@@ -32,4 +35,9 @@ public interface AmplParameters {
      * @return true if debug mode is on, else otherwise
      */
     boolean isDebug();
+
+    /**
+     * Configuration for AmplExporter
+     */
+    AmplExportConfig getAmplExportConfig();
 }

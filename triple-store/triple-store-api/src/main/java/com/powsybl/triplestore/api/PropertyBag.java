@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.api;
@@ -48,6 +49,18 @@ public class PropertyBag extends HashMap<String, String> {
             return null;
         }
         return extractIdentifier(value, false);
+    }
+
+    public String[] getLocals(String property, String separator) {
+        String value = get(property);
+        if (value == null) {
+            return new String[] {};
+        }
+        String[] tokens = value.split(separator);
+        for (int i = 0; i < tokens.length; i++) {
+            tokens[i] = extractIdentifier(tokens[i], false);
+        }
+        return tokens;
     }
 
     public String getId(String property) {

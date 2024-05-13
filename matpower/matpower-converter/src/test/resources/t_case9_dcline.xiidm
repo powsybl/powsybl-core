@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="t_case9_dcline" caseDate="2020-01-01T00:00:00.000Z" forecastDistance="0" sourceFormat="MATPOWER" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="SUB-1">
+        <iidm:voltageLevel id="VL-1" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-1" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN-1" energySource="OTHER" minP="90.0" maxP="250.0" ratedS="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.0" targetQ="0.0" bus="BUS-1" connectableBus="BUS-1">
+                <iidm:minMaxReactiveLimits minQ="-300.0" maxQ="300.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-2">
+        <iidm:voltageLevel id="VL-2" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-2" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN-2" energySource="OTHER" minP="10.0" maxP="300.0" ratedS="100.0" voltageRegulatorOn="true" targetP="163.0" targetV="1.0" targetQ="0.0" bus="BUS-2" connectableBus="BUS-2">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-20.0" maxQ="20.0"/>
+                    <iidm:point p="200.0" minQ="-10.0" maxQ="10.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-30">
+        <iidm:voltageLevel id="VL-30" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-30" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN-30" energySource="OTHER" minP="10.0" maxP="270.0" ratedS="100.0" voltageRegulatorOn="true" targetP="85.0" targetV="1.0" targetQ="0.0" bus="BUS-30" connectableBus="BUS-30">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-30.0" maxQ="30.0"/>
+                    <iidm:point p="200.0" minQ="-15.0" maxQ="15.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:vscConverterStation id="CS1-30-4" voltageRegulatorOn="true" lossFactor="5.5" voltageSetpoint="1.01" bus="BUS-30" connectableBus="BUS-30">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-4">
+        <iidm:voltageLevel id="VL-4" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-4" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="CS2-30-4" voltageRegulatorOn="true" lossFactor="5.820106" voltageSetpoint="1.0" bus="BUS-4" connectableBus="BUS-4">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-5">
+        <iidm:voltageLevel id="VL-5" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-5" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD-5" loadType="UNDEFINED" p0="90.0" q0="30.0" bus="BUS-5" connectableBus="BUS-5"/>
+            <iidm:vscConverterStation id="CS1-5-8" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.0" connectableBus="BUS-5">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+            <iidm:vscConverterStation id="CS1-5-9" voltageRegulatorOn="true" lossFactor="2.5" voltageSetpoint="1.0" bus="BUS-5" connectableBus="BUS-5">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-6">
+        <iidm:voltageLevel id="VL-6" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-6" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-7">
+        <iidm:voltageLevel id="VL-7" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-7" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD-7" loadType="UNDEFINED" p0="100.0" q0="35.0" bus="BUS-7" connectableBus="BUS-7"/>
+            <iidm:vscConverterStation id="CS1-7-9" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.0" bus="BUS-7" connectableBus="BUS-7">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-8">
+        <iidm:voltageLevel id="VL-8" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-8" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:vscConverterStation id="CS2-5-8" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.0" connectableBus="BUS-8">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="SUB-9">
+        <iidm:voltageLevel id="VL-9" nominalV="1.0" lowVoltageLimit="0.9" highVoltageLimit="1.1" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="BUS-9" v="1.0" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="125.0" q0="50.0" bus="BUS-9" connectableBus="BUS-9"/>
+            <iidm:vscConverterStation id="CS2-7-9" voltageRegulatorOn="true" lossFactor="0.0" voltageSetpoint="1.0" bus="BUS-9" connectableBus="BUS-9">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+            <iidm:vscConverterStation id="CS2-5-9" voltageRegulatorOn="true" lossFactor="2.5641026" voltageSetpoint="0.98" bus="BUS-9" connectableBus="BUS-9">
+                <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
+            </iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="LINE-1-4" r="0.0" x="5.76E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-1" bus1="BUS-1" connectableBus1="BUS-1" voltageLevelId2="VL-4" bus2="BUS-4" connectableBus2="BUS-4"/>
+    <iidm:line id="LINE-4-5" r="1.7E-4" x="9.2E-4" g1="0.0" b1="7.9" g2="0.0" b2="7.9" voltageLevelId1="VL-4" bus1="BUS-4" connectableBus1="BUS-4" voltageLevelId2="VL-5" bus2="BUS-5" connectableBus2="BUS-5"/>
+    <iidm:line id="LINE-5-6" r="3.9E-4" x="0.0017000000000000001" g1="0.0" b1="17.9" g2="0.0" b2="17.9" voltageLevelId1="VL-5" bus1="BUS-5" connectableBus1="BUS-5" voltageLevelId2="VL-6" bus2="BUS-6" connectableBus2="BUS-6" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="150.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="150.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="150.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="150.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="150.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="150.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="LINE-30-6" r="0.0" x="5.86E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-30" bus1="BUS-30" connectableBus1="BUS-30" voltageLevelId2="VL-6" bus2="BUS-6" connectableBus2="BUS-6"/>
+    <iidm:line id="LINE-6-7" r="1.19E-4" x="0.001008" g1="0.0" b1="10.45" g2="0.0" b2="10.45" voltageLevelId1="VL-6" bus1="BUS-6" connectableBus1="BUS-6" voltageLevelId2="VL-7" bus2="BUS-7" connectableBus2="BUS-7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="40.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="150.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="150.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="40.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="150.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="150.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="LINE-7-8" r="8.5E-5" x="7.199999999999999E-4" g1="0.0" b1="7.449999999999999" g2="0.0" b2="7.449999999999999" voltageLevelId1="VL-7" bus1="BUS-7" connectableBus1="BUS-7" voltageLevelId2="VL-8" bus2="BUS-8" connectableBus2="BUS-8" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="LINE-8-2" r="0.0" x="6.25E-4" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL-8" bus1="BUS-8" connectableBus1="BUS-8" voltageLevelId2="VL-2" bus2="BUS-2" connectableBus2="BUS-2" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="LINE-8-9" r="3.2E-4" x="0.00161" g1="0.0" b1="15.299999999999999" g2="0.0" b2="15.299999999999999" voltageLevelId1="VL-8" bus1="BUS-8" connectableBus1="BUS-8" voltageLevelId2="VL-9" bus2="BUS-9" connectableBus2="BUS-9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:line id="LINE-9-4" r="1.0E-4" x="8.500000000000001E-4" g1="0.0" b1="8.799999999999999" g2="0.0" b2="8.799999999999999" voltageLevelId1="VL-9" bus1="BUS-9" connectableBus1="BUS-9" voltageLevelId2="VL-4" bus2="BUS-4" connectableBus2="BUS-4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:apparentPowerLimits permanentLimit="250.0">
+                <iidm:temporaryLimit name="RateB" acceptableDuration="1200" value="250.0"/>
+                <iidm:temporaryLimit name="RateC" acceptableDuration="60" value="250.0"/>
+            </iidm:apparentPowerLimits>
+        </iidm:operationalLimitsGroup2>
+    </iidm:line>
+    <iidm:hvdcLine id="HL-30-4" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="10.0" maxP="10.0" converterStation1="CS1-30-4" converterStation2="CS2-30-4"/>
+    <iidm:hvdcLine id="HL-7-9" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="2.0" maxP="10.0" converterStation1="CS1-7-9" converterStation2="CS2-7-9"/>
+    <iidm:hvdcLine id="HL-5-8" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="10.0" converterStation1="CS1-5-8" converterStation2="CS2-5-8"/>
+    <iidm:hvdcLine id="HL-5-9" r="0.0" nominalV="1.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="10.0" maxP="10.0" converterStation1="CS1-5-9" converterStation2="CS2-5-9"/>
+    <iidm:extension id="VL-1">
+        <slt:slackTerminal id="GEN-1"/>
+    </iidm:extension>
+</iidm:network>

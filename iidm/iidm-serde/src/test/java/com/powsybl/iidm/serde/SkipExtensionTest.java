@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.iidm.serde;
@@ -15,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -35,6 +36,6 @@ class SkipExtensionTest extends AbstractIidmSerDeTest {
         network.write("XIIDM", properties, networkFile);
 
         // Compare
-        compareXml(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
+        assertXmlEquals(getVersionedNetworkAsStream("noExtension.xml", IidmVersion.V_1_0), Files.newInputStream(networkFile));
     }
 }

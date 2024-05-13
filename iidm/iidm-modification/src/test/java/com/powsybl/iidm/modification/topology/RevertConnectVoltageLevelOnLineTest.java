@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -40,32 +41,32 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         vl.getNodeBreakerView().newSwitch().setId("breaker4").setName("breaker4").setKind(SwitchKind.BREAKER).setRetained(false).setOpen(true).setFictitious(false).setNode1(0).setNode2(1).add();
         network.newLine().setId("LINE34").setR(0.1).setX(0.1).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setNode1(1).setVoltageLevel1("VL3").setNode2(1).setVoltageLevel2("VL4").add();
 
-        ReporterModel reporter1 = new ReporterModel("reportTestUndefinedLine", "Testing reporter with undefined line1 ID");
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedLine", "Testing reportNode with undefined line1 ID").build();
         final NetworkModification modificationWithError1 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("line1NotFound")
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reporter1), "Line line1NotFound is not found");
-        assertEquals("lineNotFound", reporter1.getReports().iterator().next().getReportKey());
+        assertThrows(PowsyblException.class, () -> modificationWithError1.apply(network, true, reportNode1), "Line line1NotFound is not found");
+        assertEquals("lineNotFound", reportNode1.getChildren().get(0).getMessageKey());
 
-        ReporterModel reporter2 = new ReporterModel("reportTestUndefinedLine", "Testing reporter with undefined line2 ID");
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedLine", "Testing reportNode with undefined line2 ID").build();
         final NetworkModification modificationWithError2 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("line2NotFound")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reporter2), "Line line2NotFound is not found");
-        assertEquals("lineNotFound", reporter2.getReports().iterator().next().getReportKey());
+        assertThrows(PowsyblException.class, () -> modificationWithError2.apply(network, true, reportNode2), "Line line2NotFound is not found");
+        assertEquals("lineNotFound", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReporterModel reporter3 = new ReporterModel("reportTestNoVLInCommon", "Testing reporter with lines having no voltage level in common");
+        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestNoVLInCommon", "Testing reportNode with lines having no voltage level in common").build();
         final NetworkModification modificationWithError3 = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("LINE34")
                 .withLineId("CJ")
                 .build();
-        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reporter3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
-        assertEquals("noVoltageLevelInCommon", reporter3.getReports().iterator().next().getReportKey());
+        assertThrows(PowsyblException.class, () -> modificationWithError3.apply(network, true, reportNode3), "Lines CJ_1 and LINE34 should have one and only one voltage level in common at their extremities");
+        assertEquals("noVoltageLevelInCommon", reportNode3.getChildren().get(0).getMessageKey());
 
         // create limits on tee point side
         Line line1 = network.getLine("CJ_1");
@@ -78,15 +79,15 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
         line2.newApparentPowerLimits1().setPermanentLimit(800.).add();
         line2.newCurrentLimits1().setPermanentLimit(900.).beginTemporaryLimit().setName("limit6").setValue(400).setAcceptableDuration(1200).endTemporaryLimit().add();
 
-        ReporterModel reporter = new ReporterModel("reportTestRevertConnectVoltageLevelOnLine", "Testing reporter to revert connecting a voltage level on a line in node/breaker network");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRevertConnectVoltageLevelOnLine", "Testing reportNode to revert connecting a voltage level on a line in node/breaker network").build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("CJ_1")
                 .withLine2Id("CJ_2")
                 .withLineId("CJ")
                 .build();
-        modification.apply(network, true, reporter);
+        modification.apply(network, true, reportNode);
         writeXmlTest(network, "/fictitious-revert-connect-voltage-level-on-line-vl.xml");
-        testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-nb-report.txt");
+        testReportNode(reportNode, "/reportNode/revert-connect-voltage-level-on-line-nb-report.txt");
     }
 
     @Test
@@ -99,15 +100,15 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
         modification.apply(network);
 
-        ReporterModel reporter = new ReporterModel("reportTestRevertConnectVoltageLevelOnLineNbBb", "Testing reporter to revert connecting a voltage level on a line");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineNbBb", "Testing reportNode to revert connecting a voltage level on a line").build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("NHV1_NHV2_1_1")
                 .withLine2Id("NHV1_NHV2_1_2")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, reporter);
+        modification.apply(network, true, reportNode);
         writeXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-nb-vl.xml");
-        testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-nb-report.txt");
+        testReportNode(reportNode, "/reportNode/revert-connect-voltage-level-on-line-bb-nb-report.txt");
     }
 
     @Test
@@ -120,15 +121,15 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
         modification.apply(network);
 
-        ReporterModel reporter = new ReporterModel("reportTestRevertConnectVoltageLevelOnLineBb", "Testing reporter to revert connecting a voltage level on a line in bus/breaker network");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRevertConnectVoltageLevelOnLineBb", "Testing reportNode to revert connecting a voltage level on a line in bus/breaker network").build();
         modification = new RevertConnectVoltageLevelOnLineBuilder()
                 .withLine1Id("NHV1_NHV2_1_1")
                 .withLine2Id("NHV1_NHV2_1_2")
                 .withLineId("NHV1_NHV2_1")
                 .build();
-        modification.apply(network, true, reporter);
+        modification.apply(network, true, reportNode);
         writeXmlTest(network, "/eurostag-revert-connect-voltage-level-on-line-bb-vl.xml");
-        testReporter(reporter, "/reporter/revert-connect-voltage-level-on-line-bb-report.txt");
+        testReportNode(reportNode, "/reportNode/revert-connect-voltage-level-on-line-bb-report.txt");
     }
 
     @Test

@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -51,38 +52,38 @@ public final class Security {
         return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), 1f);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, float limitReduction) {
-        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitReduction);
+    public static List<LimitViolation> checkLimits(Network network, double limitReductionValue) {
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitReductionValue);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, double limitReductionValue) {
         Objects.requireNonNull(currentLimitType);
-        return checkLimits(network, EnumSet.of(currentLimitType), limitReduction);
+        return checkLimits(network, EnumSet.of(currentLimitType), limitReductionValue);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
         // allow to increase the limits
-        if (limitReduction <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
+        if (limitReductionValue <= 0) {
+            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        new DefaultLimitViolationDetector(limitReduction, currentLimitTypes).checkAll(network, violations::add);
+        new DefaultLimitViolationDetector(limitReductionValue, currentLimitTypes).checkAll(network, violations::add);
         return violations;
     }
 
-    public static List<LimitViolation> checkLimitsDc(Network network, float limitReduction, double dcPowerFactor) {
+    public static List<LimitViolation> checkLimitsDc(Network network, double limitReductionValue, double dcPowerFactor) {
         Objects.requireNonNull(network);
         // allow to increase the limits
-        if (limitReduction <= 0) {
-            throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
+        if (limitReductionValue <= 0) {
+            throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
         if (dcPowerFactor <= 0 || dcPowerFactor > 1) {
             throw new IllegalArgumentException("Invalid DC power factor " + dcPowerFactor);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        new DefaultLimitViolationDetector(limitReduction, EnumSet.allOf(LoadingLimitType.class)).checkAllDc(network, dcPowerFactor, violations::add);
+        new DefaultLimitViolationDetector(limitReductionValue, EnumSet.allOf(LoadingLimitType.class)).checkAllDc(network, dcPowerFactor, violations::add);
         return violations;
     }
 

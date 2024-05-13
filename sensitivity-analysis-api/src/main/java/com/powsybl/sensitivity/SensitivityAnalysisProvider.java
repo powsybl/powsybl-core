@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -12,7 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -56,7 +57,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param variableSets list of variableSets
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
-     * @param reporter a reporter for functional logs
+     * @param reportNode a reportNode for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
     CompletableFuture<Void> run(Network network,
@@ -67,7 +68,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                 List<SensitivityVariableSet> variableSets,
                                 SensitivityAnalysisParameters parameters,
                                 ComputationManager computationManager,
-                                Reporter reporter);
+                                ReportNode reportNode);
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.graph;
 
@@ -115,32 +116,12 @@ public interface UndirectedGraph<V, E> {
 
     /**
      * Return the maximum number of vertices that this graph can contain. The vertex indices are in the range [0, getVertexCapacity[
-     *
      * As the contiguity of the vertices is not mandatory, do not use this method to iterate over the vertices. Use {@link #getVertices()} instead.
-     *
-     * To get the number of vertices in this graph, use {@link #getVertexCount()}.
-     *
-     * @return the maximum number of vertices contained in this graph.
-     *
-     * @deprecated Use {@link #getVertexCapacity} instead.
-     */
-    @Deprecated(since = "2.5.0")
-    default int getMaxVertex() {
-        return getVertexCapacity();
-    }
-
-    /**
-     * Return the maximum number of vertices that this graph can contain. The vertex indices are in the range [0, getVertexCapacity[
-     *
-     * As the contiguity of the vertices is not mandatory, do not use this method to iterate over the vertices. Use {@link #getVertices()} instead.
-     *
      * To get the number of vertices in this graph, use {@link #getVertexCount()}.
      *
      * @return the maximum number of vertices contained in this graph.
      */
-    default int getVertexCapacity() {
-        return getMaxVertex();
-    }
+    int getVertexCapacity();
 
     /**
      * Return an {@link Iterable} to iterate over the values attached to the vertices.
@@ -267,7 +248,6 @@ public interface UndirectedGraph<V, E> {
      * Traverse the entire graph, starting at the specified vertex v.
      * This method relies on a {@link Traverser} instance to know if the traverse of the graph should continue or stop.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the encountered table size is less than the maximum vertex index.
-     *
      * At the end of the method, the encountered array contains {@literal true} for all the traversed vertices, {@literal false} otherwise.
      *
      * @param v the vertex index where the traverse has to start.

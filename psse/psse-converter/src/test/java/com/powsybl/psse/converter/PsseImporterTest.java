@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
@@ -29,7 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -52,7 +53,7 @@ class PsseImporterTest extends AbstractSerDeTest {
         network.setCaseDate(ZonedDateTime.parse("2016-01-01T10:00:00.000+02:00"));
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 

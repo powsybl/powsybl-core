@@ -3,14 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
@@ -195,23 +195,23 @@ public final class TopologyModificationUtils {
         adder.add();
     }
 
-    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, Reporter reporter) {
+    static void removeVoltageLevelAndSubstation(VoltageLevel voltageLevel, ReportNode reportNode) {
         Optional<Substation> substation = voltageLevel.getSubstation();
         String vlId = voltageLevel.getId();
         boolean noMoreEquipments = voltageLevel.getConnectableStream().noneMatch(c -> c.getType() != IdentifiableType.BUSBAR_SECTION);
         if (!noMoreEquipments) {
-            voltageLevelRemovingEquipmentsLeftReport(reporter, vlId);
+            voltageLevelRemovingEquipmentsLeftReport(reportNode, vlId);
             LOGGER.warn("Voltage level {} still contains equipments", vlId);
         }
         voltageLevel.remove();
-        voltageLevelRemovedReport(reporter, vlId);
+        voltageLevelRemovedReport(reportNode, vlId);
         LOGGER.info("Voltage level {} removed", vlId);
 
         substation.ifPresent(s -> {
             if (s.getVoltageLevelStream().count() == 0) {
                 String substationId = s.getId();
                 s.remove();
-                substationRemovedReport(reporter, substationId);
+                substationRemovedReport(reportNode, substationId);
                 LOGGER.info("Substation {} removed", substationId);
             }
         });
@@ -503,16 +503,16 @@ public final class TopologyModificationUtils {
     }
 
     private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders) {
-        addOrderPositions(connectable, voltageLevel, feederPositionsOrders, false, Reporter.NO_OP);
+        addOrderPositions(connectable, voltageLevel, feederPositionsOrders, false, ReportNode.NO_OP);
     }
 
     /**
      * Method adding order position(s) of a connectable on a given voltage level to the given collection.
      */
-    private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, Reporter reporter) {
+    private static void addOrderPositions(Connectable<?> connectable, VoltageLevel voltageLevel, Collection<Integer> feederPositionsOrders, boolean throwException, ReportNode reportNode) {
         ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
         if (position != null) {
-            List<Integer> orders = getOrderPositions(position, voltageLevel, connectable, throwException, reporter);
+            List<Integer> orders = getOrderPositions(position, voltageLevel, connectable, throwException, reportNode);
             feederPositionsOrders.addAll(orders);
         }
     }
@@ -525,14 +525,14 @@ public final class TopologyModificationUtils {
         voltageLevel.getConnectables().forEach(connectable -> {
             ConnectablePosition<?> position = (ConnectablePosition<?>) connectable.getExtension(ConnectablePosition.class);
             if (position != null) {
-                List<ConnectablePosition.Feeder> feeder = getFeeders(position, voltageLevel, connectable, false, Reporter.NO_OP);
+                List<ConnectablePosition.Feeder> feeder = getFeeders(position, voltageLevel, connectable, false, ReportNode.NO_OP);
                 feedersByConnectable.put(connectable.getId(), feeder);
             }
         });
         return feedersByConnectable;
     }
 
-    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
+    private static List<Integer> getOrderPositions(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
         List<ConnectablePosition.Feeder> feeders;
         if (connectable instanceof Injection) {
             feeders = getInjectionFeeder(position);
@@ -542,7 +542,7 @@ public final class TopologyModificationUtils {
             feeders = get3wtFeeders(position, voltageLevel, twt);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
-            connectableNotSupported(reporter, connectable);
+            connectableNotSupported(reportNode, connectable);
             if (throwException) {
                 throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
@@ -556,7 +556,7 @@ public final class TopologyModificationUtils {
         return orders;
     }
 
-    private static List<ConnectablePosition.Feeder> getFeeders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, Reporter reporter) {
+    private static List<ConnectablePosition.Feeder> getFeeders(ConnectablePosition<?> position, VoltageLevel voltageLevel, Connectable<?> connectable, boolean throwException, ReportNode reportNode) {
         if (connectable instanceof Injection) {
             return getInjectionFeeder(position);
         } else if (connectable instanceof Branch) {
@@ -565,7 +565,7 @@ public final class TopologyModificationUtils {
             return get3wtFeeders(position, voltageLevel, twt);
         } else {
             LOGGER.error("Given connectable not supported: {}", connectable.getClass().getName());
-            connectableNotSupported(reporter, connectable);
+            connectableNotSupported(reportNode, connectable);
             if (throwException) {
                 throw new IllegalStateException("Given connectable not supported: " + connectable.getClass().getName());
             }
@@ -628,7 +628,7 @@ public final class TopologyModificationUtils {
     private static Optional<LoadingLimitsBag> mergeLimits(String lineId,
                                                           Optional<LoadingLimitsBag> limits1,
                                                           Optional<LoadingLimitsBag> limitsTeePointSide,
-                                                          Reporter reporter) {
+                                                          ReportNode reportNode) {
         Optional<LoadingLimitsBag> limits;
 
         double permanentLimit = limits1.map(LoadingLimitsBag::getPermanentLimit).orElse(Double.NaN);
@@ -649,12 +649,11 @@ public final class TopologyModificationUtils {
             // temporary limits on both sides : they are ignored, otherwise, we keep temporary limits on side where they are defined
             if (!temporaryLimits1.isEmpty() && !temporaryLimitsTeePointSide.isEmpty()) {
                 LOGGER.warn("Temporary limits on both sides for line {} : They are ignored", lineId);
-                reporter.report(Report.builder()
-                        .withKey("limitsLost")
-                        .withDefaultMessage("Temporary limits on both sides for line ${lineId} : They are ignored")
-                        .withValue("lineId", lineId)
+                reportNode.newReportNode()
+                        .withMessageTemplate("limitsLost", "Temporary limits on both sides for line ${lineId} : They are ignored")
+                        .withUntypedValue("lineId", lineId)
                         .withSeverity(TypedValue.WARN_SEVERITY)
-                        .build());
+                        .add();
             } else {
                 temporaryLimits = !temporaryLimits1.isEmpty() ? temporaryLimits1 : temporaryLimitsTeePointSide;
             }
@@ -665,10 +664,10 @@ public final class TopologyModificationUtils {
         return limits;
     }
 
-    public static LoadingLimitsBags mergeLimits(String lineId, LoadingLimitsBags limits, LoadingLimitsBags limitsTeePointSide, Reporter reporter) {
-        Optional<LoadingLimitsBag> activePowerLimits = mergeLimits(lineId, limits.getActivePowerLimits(), limitsTeePointSide.getActivePowerLimits(), reporter);
-        Optional<LoadingLimitsBag> apparentPowerLimits = mergeLimits(lineId, limits.getApparentPowerLimits(), limitsTeePointSide.getApparentPowerLimits(), reporter);
-        Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reporter);
+    public static LoadingLimitsBags mergeLimits(String lineId, LoadingLimitsBags limits, LoadingLimitsBags limitsTeePointSide, ReportNode reportNode) {
+        Optional<LoadingLimitsBag> activePowerLimits = mergeLimits(lineId, limits.getActivePowerLimits(), limitsTeePointSide.getActivePowerLimits(), reportNode);
+        Optional<LoadingLimitsBag> apparentPowerLimits = mergeLimits(lineId, limits.getApparentPowerLimits(), limitsTeePointSide.getApparentPowerLimits(), reportNode);
+        Optional<LoadingLimitsBag> currentLimits = mergeLimits(lineId, limits.getCurrentLimits(), limitsTeePointSide.getCurrentLimits(), reportNode);
 
         return new LoadingLimitsBags(activePowerLimits.orElse(null), apparentPowerLimits.orElse(null), currentLimits.orElse(null));
     }

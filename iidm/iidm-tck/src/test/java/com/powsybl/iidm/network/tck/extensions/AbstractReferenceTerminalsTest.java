@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -141,6 +142,42 @@ public abstract class AbstractReferenceTerminalsTest {
 
         // test array resize for coverage completeness
         variantManager.removeVariant(variant2);
+    }
+
+    @Test
+    void testVariantsCloning() {
+        // create variants
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        List<String> targetVariantIds = Arrays.asList(variant1, variant2);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+
+        // Add the extension when variant1 is the current variant
+        variantManager.setWorkingVariant("variant1");
+        network.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Set.of(gh1.getTerminal()))
+                .add();
+        ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
+        assertTrue(ext.getReferenceTerminals().contains(gh1.getTerminal()));
+
+        // First copy current working variant (variant1, the extension has data) over variant2
+        variantManager.cloneVariant(variantManager.getWorkingVariantId(), "variant2", true);
+        // Reference terminal should be found in variant2, but not in initial variant
+        variantManager.setWorkingVariant("variant2");
+        assertTrue(ext.getReferenceTerminals().contains(gh1.getTerminal()));
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertFalse(ext.getReferenceTerminals().contains(gh1.getTerminal()));
+
+        // Set again variant1 as the working variant and clone initial over working variant
+        variantManager.setWorkingVariant("variant1");
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variantManager.getWorkingVariantId(), true);
+        // Reference terminal should not be found in current variant
+        assertFalse(ext.getReferenceTerminals().contains(gh1.getTerminal()));
+        // But should still be present in variant2
+        variantManager.setWorkingVariant("variant2");
+        assertTrue(ext.getReferenceTerminals().contains(gh1.getTerminal()));
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertFalse(ext.getReferenceTerminals().contains(gh1.getTerminal()));
     }
 
     @Test

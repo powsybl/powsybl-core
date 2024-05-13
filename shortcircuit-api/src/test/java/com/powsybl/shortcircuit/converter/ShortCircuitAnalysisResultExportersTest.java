@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.converter;
 
@@ -53,7 +54,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void testWriteJson() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResultWithExtension();
-        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-with-extensions-results.json");
+        writeTest(result, this::writeJson, ComparisonUtils::assertTxtEquals, "/shortcircuit-with-extensions-results.json");
     }
 
     @Test
@@ -65,7 +66,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void testJsonWithFeederResult() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults();
-        writeTest(result, this::writeJson, ComparisonUtils::compareTxt, "/shortcircuit-results-with-feeder-result.json");
+        writeTest(result, this::writeJson, ComparisonUtils::assertTxtEquals, "/shortcircuit-results-with-feeder-result.json");
     }
 
     @Test
@@ -105,7 +106,7 @@ class ShortCircuitAnalysisResultExportersTest extends AbstractSerDeTest {
     @Test
     void testWriteCsv() throws IOException {
         ShortCircuitAnalysisResult result = TestingResultFactory.createResult();
-        writeTest(result, this::writeCsv, ComparisonUtils::compareTxt, "/shortcircuit-results.csv");
+        writeTest(result, this::writeCsv, ComparisonUtils::assertTxtEquals, "/shortcircuit-results.csv");
     }
 
     @Test

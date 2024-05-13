@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -10,7 +11,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -29,7 +30,7 @@ import java.util.stream.IntStream;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
+    public CompletableFuture<Void> run(Network network, String workingVariantId, SensitivityFactorReader factorReader, SensitivityResultWriter resultWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, ReportNode reportNode) {
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
             switch (contingencyContext.getContextType()) {

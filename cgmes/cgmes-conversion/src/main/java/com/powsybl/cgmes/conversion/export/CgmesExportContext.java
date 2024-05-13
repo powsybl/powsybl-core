@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export;
 
@@ -14,9 +15,8 @@ import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.cgmes.model.*;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
 import org.apache.commons.lang3.tuple.Pair;
@@ -28,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
@@ -54,14 +55,15 @@ public class CgmesExportContext {
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
-    private Reporter reporter = Reporter.NO_OP;
+    private ReportNode reportNode = ReportNode.NO_OP;
     private String boundaryEqId; // may be null
     private String boundaryTpId; // may be null
+    private String businessProcess = DEFAULT_BUSINESS_PROCESS;
 
-    private final ModelDescription eqModelDescription = new ModelDescription("EQ Model", cim.getProfileUri("EQ"));
-    private final ModelDescription tpModelDescription = new ModelDescription("TP Model", cim.getProfileUri("TP"));
-    private final ModelDescription svModelDescription = new ModelDescription("SV Model", cim.getProfileUri("SV"));
-    private final ModelDescription sshModelDescription = new ModelDescription("SSH Model", cim.getProfileUri("SSH"));
+    private final CgmesMetadataModel exportedEQModel = new CgmesMetadataModelImpl(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedTPModel = new CgmesMetadataModelImpl(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedSVModel = new CgmesMetadataModelImpl(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    private final CgmesMetadataModel exportedSSHModel = new CgmesMetadataModelImpl(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
 
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
 
@@ -74,7 +76,10 @@ public class CgmesExportContext {
     public static final double MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final double MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE = 0.1;
     public static final boolean EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE = true;
-    public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate("powsybl.org");
+    public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
+    public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+    public static final String DEFAULT_BUSINESS_PROCESS = "1D";
+    public static final boolean UPDATE_DEPENDENCIES_DEFAULT_VALUE = true;
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -83,6 +88,7 @@ public class CgmesExportContext {
     private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
+    private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -93,36 +99,57 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final EnumMap<CgmesSubset, List<String>> legacyIdsForSvDependencies = new EnumMap<>(CgmesSubset.class);
 
-    // Update dependencies in a way that:
-    // [EQ.dependentOn EQ_BD]
-    // SV.dependentOn TP, SSH[, TP_BD]
-    // TP.dependentOn EQ
-    // SSH.dependentOn EQ
+    /**
+     * Update dependencies in a way that:
+     *   SV depends on TP and SSH
+     *   TP depends on EQ
+     *   SSH depends on EQ
+     * If the boundaries subset have been defined:
+     *   EQ depends on EQ_BD
+     *   SV depends on TP_BD
+     */
     public void updateDependencies() {
-        Set<String> eqModelIds = getEqModelDescription().getIds();
-        if (!eqModelIds.isEmpty()) {
-            getTpModelDescription()
-                    .clearDependencies()
-                    .addDependencies(eqModelIds);
-            getSshModelDescription()
-                    .clearDependencies()
-                    .addDependencies(eqModelIds);
-            getSvModelDescription().clearDependencies();
-            Set<String> tpModelIds = getTpModelDescription().getIds();
-            if (!tpModelIds.isEmpty()) {
-                getSvModelDescription().addDependencies(tpModelIds);
-            }
-            Set<String> sshModelIds = getSshModelDescription().getIds();
-            if (!sshModelIds.isEmpty()) {
-                getSvModelDescription().addDependencies(sshModelIds);
-            }
-            if (boundaryEqId != null) {
-                getEqModelDescription().addDependency(boundaryEqId);
-            }
-            if (boundaryTpId != null) {
-                getSvModelDescription().addDependency(boundaryTpId);
-            }
+        if (!updateDependencies) {
+            return;
+        }
+        String eqModelId = getExportedEQModel().getId();
+        if (eqModelId == null || eqModelId.isEmpty()) {
+            return;
+        }
+
+        getExportedTPModel()
+                .clearDependencies()
+                .addDependentOn(eqModelId);
+
+        getExportedSSHModel()
+                .clearDependencies()
+                .addDependentOn(eqModelId);
+
+        getExportedSVModel().clearDependencies();
+        List<String> tpIds = legacyIdsForSvDependencies.get(CgmesSubset.TOPOLOGY);
+        if (tpIds != null) {
+            // If the list of SV dependencies from TP files has been set, even if it is empty,
+            // use it and ignore the exported TP model
+            getExportedSVModel().addDependentOn(tpIds);
+        } else {
+            getExportedSVModel().addDependentOn(getExportedTPModel().getId());
+        }
+        List<String> sshIds = legacyIdsForSvDependencies.get(CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        if (sshIds != null) {
+            // If the list of SV dependencies from SSH files has been set, even if it is empty,
+            // use it and ignore the exported SSH model
+            getExportedSVModel().addDependentOn(sshIds);
+        } else {
+            getExportedSVModel().addDependentOn(getExportedSSHModel().getId());
+        }
+
+        if (boundaryEqId != null) {
+            getExportedEQModel().addDependentOn(boundaryEqId);
+        }
+        if (boundaryTpId != null) {
+            getExportedSVModel().addDependentOn(boundaryTpId);
         }
     }
 
@@ -134,110 +161,8 @@ public class CgmesExportContext {
         fictitiousContainers.put(id.getId(), containerId);
     }
 
-    public static final class ModelDescription {
-
-        private String description;
-        private int version = 1;
-        private String supersedes;
-        private final List<String> dependencies = new ArrayList<>();
-        private String modelingAuthoritySet = "powsybl.org";
-        private final Set<String> ids = new HashSet<>();
-
-        // TODO Each model may have a list of profiles, not only one
-        private String profile;
-
-        private ModelDescription(String description, String profile) {
-            this.description = description;
-            this.profile = profile;
-        }
-
-        public String getDescription() {
-            return description;
-        }
-
-        public String getSupersedes() {
-            return supersedes;
-        }
-
-        public ModelDescription setDescription(String description) {
-            this.description = description;
-            return this;
-        }
-
-        public int getVersion() {
-            return version;
-        }
-
-        public ModelDescription setVersion(int version) {
-            this.version = version;
-            return this;
-        }
-
-        public List<String> getDependencies() {
-            return Collections.unmodifiableList(dependencies);
-        }
-
-        public ModelDescription addDependency(String dependency) {
-            dependencies.add(Objects.requireNonNull(dependency));
-            return this;
-        }
-
-        public ModelDescription addDependencies(List<String> dependencies) {
-            this.dependencies.addAll(Objects.requireNonNull(dependencies));
-            return this;
-        }
-
-        public ModelDescription addDependencies(Set<String> dependencies) {
-            this.dependencies.addAll(Objects.requireNonNull(dependencies));
-            return this;
-        }
-
-        public ModelDescription clearDependencies() {
-            this.dependencies.clear();
-            return this;
-        }
-
-        public String getModelingAuthoritySet() {
-            return modelingAuthoritySet;
-        }
-
-        public ModelDescription setModelingAuthoritySet(String modelingAuthoritySet) {
-            this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
-            return this;
-        }
-
-        public String getProfile() {
-            return profile;
-        }
-
-        public ModelDescription setProfile(String profile) {
-            this.profile = profile;
-            return this;
-        }
-
-        public void setIds(List<String> ids) {
-            this.ids.clear();
-            this.ids.addAll(Objects.requireNonNull(ids));
-        }
-
-        public void addId(String id) {
-            this.ids.add(Objects.requireNonNull(id));
-        }
-
-        public void setIds(String... ids) {
-            setIds(Arrays.asList(Objects.requireNonNull(ids)));
-        }
-
-        public Set<String> getIds() {
-            return Collections.unmodifiableSet(ids);
-        }
-
-        public void setSupersedes(String id) {
-            this.supersedes = id;
-        }
-    }
-
     public CgmesExportContext() {
+        initializeExportedModelProfiles(this.cim);
         referenceDataProvider = null;
     }
 
@@ -258,6 +183,7 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
+        initializeExportedModelProfiles(this.cim);
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
@@ -268,24 +194,41 @@ public class CgmesExportContext {
             topologyKind = networkTopologyKind(network);
         }
         scenarioTime = network.getCaseDate();
-        // TODO CgmesSvMetadata and CgmesSshMetadata could be in fact same class
-        // Add multiple instances of CgmesMetadata to Network, one for each profile
-        CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
-        if (svMetadata != null) {
-            svModelDescription.setDescription(svMetadata.getDescription());
-            svModelDescription.setVersion(svMetadata.getSvVersion() + 1);
-            svModelDescription.addDependencies(svMetadata.getDependencies());
-            svModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
-        }
-        CgmesSshMetadata sshMetadata = network.getExtension(CgmesSshMetadata.class);
-        if (sshMetadata != null) {
-            sshModelDescription.setDescription(sshMetadata.getDescription());
-            sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
-            sshModelDescription.setSupersedes(sshMetadata.getId());
-            sshModelDescription.addDependencies(sshMetadata.getDependencies());
-            sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
+        CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
+        if (models != null) {
+            models.getModelForSubset(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(exportedEQModel, eq));
+            models.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(exportedSSHModel, ssh));
+            models.getModelForSubset(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(exportedTPModel, tp));
+            models.getModelForSubset(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(exportedSVModel, sv));
         }
         addIidmMappings(network);
+    }
+
+    /**
+     * Set for each exported model the profile relative to the cim version.
+     * @param cim The cim version from which depends the models profiles uri.
+     */
+    private void initializeExportedModelProfiles(CgmesNamespace.Cim cim) {
+        if (cim.hasProfiles()) {
+            exportedEQModel.setProfile(cim.getProfileUri("EQ"));
+            exportedTPModel.setProfile(cim.getProfileUri("TP"));
+            exportedSVModel.setProfile(cim.getProfileUri("SV"));
+            exportedSSHModel.setProfile(cim.getProfileUri("SSH"));
+        }
+    }
+
+    /**
+     * Update the model used for the export according to the network model.
+     * All the metadata information will be duplicated, except for the version that will be incremented.
+     * @param exportedModel The {@link CgmesMetadataModel} used for the export.
+     * @param fromModel The {@link CgmesMetadataModel} attached to the network.
+     */
+    private void prepareExportedModelFrom(CgmesMetadataModel exportedModel, CgmesMetadataModel fromModel) {
+        exportedModel.setDescription(fromModel.getDescription());
+        exportedModel.setVersion(fromModel.getVersion() + 1);
+        exportedModel.addSupersedes(fromModel.getId());
+        exportedModel.addDependentOn(fromModel.getDependentOn());
+        exportedModel.setModelingAuthoritySet(fromModel.getModelingAuthoritySet());
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
@@ -398,7 +341,7 @@ public class CgmesExportContext {
         for (Connectable<?> c : network.getConnectables()) {
             if (isExportedEquipment(c)) {
                 for (Terminal t : c.getTerminals()) {
-                    addIidmMappingsTerminal(t, c, network);
+                    addIidmMappingsTerminal(t, c);
                 }
             }
         }
@@ -484,7 +427,7 @@ public class CgmesExportContext {
         }
     }
 
-    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c, Network network) {
+    private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
         if (c instanceof DanglingLine) {
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
             if (terminalId == null) {
@@ -504,7 +447,7 @@ public class CgmesExportContext {
                 c.addAlias(boundaryId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
             }
         } else {
-            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t, CgmesExportUtil.getBoundaryDanglingLines(network));
+            int sequenceNumber = CgmesExportUtil.getTerminalSequenceNumber(t);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
             if (terminalId == null) {
                 terminalId = namingStrategy.getCgmesId(refTyped(c), TERMINAL, ref(sequenceNumber));
@@ -513,19 +456,54 @@ public class CgmesExportContext {
         }
     }
 
+    private static boolean isCondenser(Generator generator) {
+        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator)).contains("condenser");
+    }
+
     private void addIidmMappingsGenerators(Network network) {
         for (Generator generator : network.getGenerators()) {
-            String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
-            if (generatingUnit == null) {
-                generatingUnit = namingStrategy.getCgmesId(ref(generator), refGeneratingUnit(generator));
-                generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
+            // Condensers should not have generating units
+            if (!isCondenser(generator)) {
+                String generatingUnit = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT);
+                if (generatingUnit == null) {
+                    generatingUnit = namingStrategy.getCgmesId(ref(generator), refGeneratingUnit(generator));
+                    generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + GENERATING_UNIT, generatingUnit);
+                }
             }
             String regulatingControlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (generator.isVoltageRegulatorOn() || !Objects.equals(generator, generator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && hasVoltageControlCapability(generator)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(generator), Part.REGULATING_CONTROL);
                 generator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
         }
+    }
+
+    private static boolean hasVoltageControlCapability(Generator generator) {
+        if (Double.isNaN(generator.getTargetV()) || generator.getReactiveLimits() == null) {
+            return false;
+        }
+
+        ReactiveLimits reactiveLimits = generator.getReactiveLimits();
+        if (reactiveLimits.getKind() == ReactiveLimitsKind.CURVE) {
+            return hasReactiveCapability((ReactiveCapabilityCurve) reactiveLimits);
+        } else if (reactiveLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+            return hasReactiveCapability((MinMaxReactiveLimits) reactiveLimits);
+        }
+
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(ReactiveCapabilityCurve rcc) {
+        for (ReactiveCapabilityCurve.Point point : rcc.getPoints()) {
+            if (point.getMaxQ() != point.getMinQ()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean hasReactiveCapability(MinMaxReactiveLimits mmrl) {
+        return mmrl.getMaxQ() != mmrl.getMinQ();
     }
 
     private void addIidmMappingsBatteries(Network network) {
@@ -620,7 +598,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsEquivalentInjection(Network network) {
-        for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+        for (DanglingLine danglingLine : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String alias;
             alias = danglingLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (alias == null) {
@@ -659,12 +637,7 @@ public class CgmesExportContext {
 
     public CgmesExportContext setCimVersion(int cimVersion) {
         cim = CgmesNamespace.getCim(cimVersion);
-        if (cim.hasProfiles()) {
-            eqModelDescription.setProfile(cim.getProfileUri("EQ"));
-            tpModelDescription.setProfile(cim.getProfileUri("TP"));
-            svModelDescription.setProfile(cim.getProfileUri("SV"));
-            sshModelDescription.setProfile(cim.getProfileUri("SSH"));
-        }
+        initializeExportedModelProfiles(cim);
         return this;
     }
 
@@ -686,20 +659,20 @@ public class CgmesExportContext {
         return this;
     }
 
-    public ModelDescription getEqModelDescription() {
-        return eqModelDescription;
+    public CgmesMetadataModel getExportedEQModel() {
+        return exportedEQModel;
     }
 
-    public ModelDescription getTpModelDescription() {
-        return tpModelDescription;
+    public CgmesMetadataModel getExportedTPModel() {
+        return exportedTPModel;
     }
 
-    public ModelDescription getSvModelDescription() {
-        return svModelDescription;
+    public CgmesMetadataModel getExportedSVModel() {
+        return exportedSVModel;
     }
 
-    public ModelDescription getSshModelDescription() {
-        return sshModelDescription;
+    public CgmesMetadataModel getExportedSSHModel() {
+        return exportedSSHModel;
     }
 
     public boolean exportBoundaryPowerFlows() {
@@ -814,13 +787,13 @@ public class CgmesExportContext {
         return subRegionsIdsBySubRegionName.inverse().get(subRegionId);
     }
 
-    public CgmesExportContext setReporter(Reporter reporter) {
-        this.reporter = reporter;
+    public CgmesExportContext setReportNode(ReportNode reportNode) {
+        this.reportNode = reportNode;
         return this;
     }
 
-    public Reporter getReporter() {
-        return this.reporter;
+    public ReportNode getReportNode() {
+        return this.reportNode;
     }
 
     public void putTopologicalNode(String tn, Bus bus) {
@@ -836,6 +809,27 @@ public class CgmesExportContext {
             return network.getBusBreakerView().getBusStream().collect(Collectors.toMap(b -> namingStrategy.getCgmesId(b), b -> b));
         }
         return Collections.unmodifiableMap(topologicalNodes);
+    }
+
+    /**
+     * The business process related to the export, used to get a unique ID for EQ, TP, SSH and SV FullModel.
+     */
+    public String getBusinessProcess() {
+        return businessProcess;
+    }
+
+    public CgmesExportContext setBusinessProcess(String businessProcess) {
+        this.businessProcess = businessProcess;
+        return this;
+    }
+
+    public void setLegacyIdsForSvDependencies(CgmesSubset subset, List<String> ids) {
+        legacyIdsForSvDependencies.put(subset, ids);
+    }
+
+    public CgmesExportContext setUpdateDependencies(boolean updateDependencies) {
+        this.updateDependencies = updateDependencies;
+        return this;
     }
 }
 

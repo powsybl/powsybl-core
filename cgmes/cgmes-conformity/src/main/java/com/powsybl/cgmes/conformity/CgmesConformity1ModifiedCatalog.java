@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conformity;
@@ -18,6 +19,11 @@ import static com.powsybl.cgmes.conformity.CgmesConformity1Catalog.microGridBase
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public final class CgmesConformity1ModifiedCatalog {
+
+    private static final String MICROGRID_REF_SWITCH = "/MicroGrid/BaseCase/BC_BE_v2_switch_at_boundary/";
+    private static final String MICROGRID_REF_TRANSFORMER = "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";
+    private static final String MICROGRID_REF_EQBRANCH = "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_at_boundary/";
+    private static final String MICROGRID_CONFIGURATION = "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
 
     private CgmesConformity1ModifiedCatalog() {
     }
@@ -396,7 +402,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBaseCaseBESwitchAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_switch_at_boundary/";
+                + MICROGRID_REF_SWITCH;
         return new GridModelReferenceResources("MicroGrid-BaseCase-BE-SwitchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -410,7 +416,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBaseCaseBETransformerAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";
+                + MICROGRID_REF_TRANSFORMER;
         return new GridModelReferenceResources("MicroGrid-BaseCase-BE-TransformerAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -424,7 +430,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBaseCaseBEEquivalentBranchAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_at_boundary/";
+                + MICROGRID_REF_EQBRANCH;
         return new GridModelReferenceResources("MicroGrid-BaseCase-BE-EquivalentBranchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -600,7 +606,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBaseCaseAssembledSwitchAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_switch_at_boundary/";
+                + MICROGRID_REF_SWITCH;
         return new GridModelReferenceResources("MicroGrid-BaseCase-Assembled-SwitchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -617,7 +623,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBESwitchAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_switch_at_boundary/";
+                + MICROGRID_REF_SWITCH;
         return new GridModelReferenceResources("MicroGrid-BaseCase-BE-SwitchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -631,7 +637,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBETransformerAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";
+                + MICROGRID_REF_TRANSFORMER;
         return new GridModelReferenceResources("MicroGrid-BaseCase-BE-TransformerAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -645,7 +651,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBEEquivalentBranchAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_at_boundary/";
+                + MICROGRID_REF_EQBRANCH;
         return new GridModelReferenceResources("MicroGrid-BaseCase-BE-EquivalentBranchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -659,7 +665,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBaseCaseAssembledTransformerAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";
+                + MICROGRID_REF_TRANSFORMER;
         return new GridModelReferenceResources("MicroGrid-BaseCase-Assembled-TransformerAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -676,7 +682,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static GridModelReferenceResources microGridBaseCaseAssembledEquivalentBranchAtBoundary() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_at_boundary/";
+                + MICROGRID_REF_EQBRANCH;
         return new GridModelReferenceResources("MicroGrid-BaseCase-Assembled-EquivalentBranchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
@@ -1458,7 +1464,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 microGridBaseCaseBoundaries());
     }
 
-    public static GridModelReference microGridBaseCaseNLMultipleSlacks() {
+    public static GridModelReference microGridBaseCaseNLMultipleReferencePriorities() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_multiple_generators_with_reference_priority/";
         return new GridModelReferenceResources(
@@ -1474,7 +1480,7 @@ public final class CgmesConformity1ModifiedCatalog {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_shunt_compensator_g_p/";
         String baseOriginal = ENTSOE_CONFORMITY_1
-                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
+                + MICROGRID_CONFIGURATION;
         return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-NL-sc-g-p",
                 null,
@@ -1489,7 +1495,7 @@ public final class CgmesConformity1ModifiedCatalog {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_switch_without_name/";
         String baseOriginal = ENTSOE_CONFORMITY_1
-                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
+                + MICROGRID_CONFIGURATION;
         return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-NL-switch-no-name",
                 null,
@@ -1503,7 +1509,7 @@ public final class CgmesConformity1ModifiedCatalog {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MicroGrid/BaseCase/BC_NL_v2_switch_type_preserved/";
         String baseOriginal = ENTSOE_CONFORMITY_1
-                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
+                + MICROGRID_CONFIGURATION;
         return new GridModelReferenceResources(
                 "MicroGrid-BaseCase-NL-switch-type-preserved",
                 null,
@@ -1637,5 +1643,27 @@ public final class CgmesConformity1ModifiedCatalog {
                         MINI_GRID_BD_TP));
     }
 
+    public static GridModelReferenceResources microGridBaseCaseAssembledSvWithMas() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_Assembled_v2_sv_with_mas/";
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-Assembled-SvWithMas",
+                null,
+                new ResourceSet(base, MICRO_GRID_ASSEMBLED_SV),
+                new ResourceSet(MICRO_GRID_ASSEMBLED_BASE, "MicroGridTestConfiguration_BC_Assembled_DL_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
+                        MICRO_GRID_BE_EQ,
+                        "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
+                        MICRO_GRID_BE_SSH,
+                        MICRO_GRID_BE_TP,
+                        "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
+                        MICRO_GRID_NL_EQ,
+                        "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
+                        MICRO_GRID_NL_SSH,
+                        MICRO_GRID_NL_TP),
+                microGridBaseCaseBoundaries());
+    }
+
     private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
+
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -150,7 +151,7 @@ class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
-        if (parameters.isConstantPowerFactor()) {
+        if (parameters.isConstantPowerFactor() && oldP0 != 0) {
             l.setQ0(l.getP0() * oldQ0 / oldP0);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
                     l.getId(), oldQ0, l.getQ0());

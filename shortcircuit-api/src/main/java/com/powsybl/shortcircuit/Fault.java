@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -20,7 +21,7 @@ import java.util.List;
 
 /**
  * Interface to describe the characteristics of the fault to be simulated.
- * Used for elementary short-circuit calculation only.
+ * Used for elementary short-circuit analysis only.
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
@@ -52,7 +53,7 @@ public interface Fault {
     // The equipment or bus id where the fault is simulated.
     String getElementId();
 
-    // Characteristics of the short-circuit to ground.
+    // Characteristics of the short circuit to ground.
     double getRToGround();
 
     double getXToGround();

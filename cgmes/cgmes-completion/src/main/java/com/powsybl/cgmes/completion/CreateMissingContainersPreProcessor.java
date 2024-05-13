@@ -24,7 +24,7 @@ import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -130,7 +130,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         LOG.info("Missing voltage levels: {}", missingVoltageLevels);
         if (!missingVoltageLevels.isEmpty()) {
             buildZipFileWithFixes(cgmes, missingVoltageLevels, fixesFile, basename);
-            cgmes.read(new ZipFileDataSource(fixesFile), Reporter.NO_OP);
+            cgmes.read(new ZipFileDataSource(fixesFile), ReportNode.NO_OP);
         }
         Set<String> missingVoltageLevelsAfterFix = findMissingVoltageLevels(cgmes);
         if (!missingVoltageLevelsAfterFix.isEmpty()) {
@@ -220,7 +220,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
         if (context.getCimVersion() >= 16) {
-            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getEqModelDescription(), context);
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getExportedEQModel(), context);
         }
     }
 

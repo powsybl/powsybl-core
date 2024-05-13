@@ -9,7 +9,7 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.action.PhaseTapChangerRegulationAction;
+import com.powsybl.action.PhaseTapChangerRegulationAction;
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -141,6 +142,24 @@ class NodeCalcEqualsTest {
 
         // BinaryMaxCalc and other NodeCal
         NodeCalc node1 = new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node1, node2);
+    }
+
+    @Test
+    void cachedTest() {
+        new EqualsTester()
+            .addEqualityGroup(new CachedNodeCalc(new IntegerNodeCalc(1)), new CachedNodeCalc(new IntegerNodeCalc(1)))
+            .addEqualityGroup(new CachedNodeCalc(new IntegerNodeCalc(2)), new CachedNodeCalc(new IntegerNodeCalc(2)))
+            .testEquals();
+
+        // Different BinaryMaxCalc
+        assertNotEquals(
+            new CachedNodeCalc(new IntegerNodeCalc(1)),
+            new CachedNodeCalc(new IntegerNodeCalc(2)));
+
+        // BinaryMaxCalc and other NodeCal
+        NodeCalc node1 = new CachedNodeCalc(new IntegerNodeCalc(1));
         NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
         assertNotEquals(node1, node2);
     }

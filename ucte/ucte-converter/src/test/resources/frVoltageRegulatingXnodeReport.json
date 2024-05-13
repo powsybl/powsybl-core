@@ -1,94 +1,93 @@
 {
-  "version" : "1.0",
-  "reportTree" : {
-    "taskKey" : "roundTripReporterJsonTest",
-    "reports" : [ {
-      "reportKey" : "novalueReport"
-    } ],
-    "subReporters" : [ {
-      "taskKey" : "UcteReading",
-      "subReporters" : [ {
-        "taskKey" : "fixUcteNodes"
+  "version" : "2.0",
+  "reportRoot" : {
+    "messageKey" : "roundTripReportNodeJsonTest",
+    "children" : [ {
+      "messageKey" : "novalueReport"
+    }, {
+      "messageKey" : "UcteReading",
+      "children" : [ {
+        "messageKey" : "fixUcteNodes"
       }, {
-        "taskKey" : "fixUcteLines",
-        "reports" : [ {
-          "reportKey" : "negativeLineResistance",
+        "messageKey" : "fixUcteLines",
+        "children" : [ {
+          "messageKey" : "negativeLineResistance",
           "values" : {
-            "reportSeverity" : {
-              "value" : "ERROR",
-              "type" : "SEVERITY"
-            },
             "lineId" : {
               "value" : "FFFFFF11 XXXXXX11 1"
             },
             "resistance" : {
               "value" : 0.0,
               "type" : "RESISTANCE"
-            }
-          }
-        }, {
-          "reportKey" : "negativeLineResistance",
-          "values" : {
+            },
             "reportSeverity" : {
               "value" : "ERROR",
               "type" : "SEVERITY"
-            },
+            }
+          }
+        }, {
+          "messageKey" : "negativeLineResistance",
+          "values" : {
             "lineId" : {
               "value" : "FFFFFF11 XXXXXX12 1"
             },
             "resistance" : {
               "value" : 0.0,
               "type" : "RESISTANCE"
-            }
-          }
-        }, {
-          "reportKey" : "negativeLineResistance",
-          "values" : {
+            },
             "reportSeverity" : {
               "value" : "ERROR",
               "type" : "SEVERITY"
-            },
+            }
+          }
+        }, {
+          "messageKey" : "negativeLineResistance",
+          "values" : {
             "lineId" : {
               "value" : "FFFFFF13 XXXXXX13 1"
             },
             "resistance" : {
               "value" : 0.0,
               "type" : "RESISTANCE"
-            }
-          }
-        }, {
-          "reportKey" : "negativeLineResistance",
-          "values" : {
+            },
             "reportSeverity" : {
               "value" : "ERROR",
               "type" : "SEVERITY"
-            },
+            }
+          }
+        }, {
+          "messageKey" : "negativeLineResistance",
+          "values" : {
             "lineId" : {
               "value" : "FFFFFF13 XXXXXX14 1"
             },
             "resistance" : {
               "value" : 0.0,
               "type" : "RESISTANCE"
+            },
+            "reportSeverity" : {
+              "value" : "ERROR",
+              "type" : "SEVERITY"
             }
           }
         } ]
       }, {
-        "taskKey" : "fixUcteTransformer"
+        "messageKey" : "fixUcteTransformer"
       }, {
-        "taskKey" : "fixUcteRegulations"
+        "messageKey" : "fixUcteRegulations"
       } ]
-    } ]
-  },
-  "dics" : {
-    "default" : {
-      "UcteReading" : "Reading UCTE network file",
-      "novalueReport" : "No value report",
-      "fixUcteNodes" : "Fix UCTE nodes",
-      "fixUcteLines" : "Fix UCTE lines",
-      "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct",
-      "fixUcteRegulations" : "Fix UCTE regulations",
-      "fixUcteTransformer" : "Fix UCTE transformers",
-      "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
+    } ],
+    "dictionaries" : {
+      "default" : {
+        "UcteReading" : "Reading UCTE network file",
+        "fixUcteLines" : "Fix UCTE lines",
+        "fixUcteNodes" : "Fix UCTE nodes",
+        "fixUcteRegulations" : "Fix UCTE regulations",
+        "fixUcteTransformer" : "Fix UCTE transformers",
+        "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+        "novalueReport" : "No value report",
+        "roundTripReportNodeJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct"
+      }
     }
   }
 }

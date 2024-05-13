@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.impl.rdf4j;
@@ -362,14 +363,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 throw new TripleStoreException(message);
             }
             // Then all the other statements
-            for (final Statement st : model.filter(subject, null, null)) {
-                if (st.getPredicate().equals(RDF.TYPE)) {
-                    continue;
-                }
-                writer.handleStatement(st);
-            }
+            writeSubjectStatements(model, writer, subject);
         }
         writer.endRDF();
+    }
+
+    private void writeSubjectStatements(Model model, RDFWriter writer, Resource subject) {
+        for (final Statement st : model.filter(subject, null, null)) {
+            if (st.getPredicate().equals(RDF.TYPE)) {
+                continue;
+            }
+            writer.handleStatement(st);
+        }
     }
 
     private static int statementsCount(RepositoryConnection conn, Resource ctx) {

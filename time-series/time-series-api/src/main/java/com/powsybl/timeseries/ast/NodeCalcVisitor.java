@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -46,6 +47,10 @@ public interface NodeCalcVisitor<R, A> {
     R visit(MaxNodeCalc nodeCalc, A arg, R child);
 
     NodeCalc iterate(MaxNodeCalc nodeCalc, A arg);
+
+    R visit(CachedNodeCalc nodeCalc, A arg, R child);
+
+    NodeCalc iterate(CachedNodeCalc nodeCalc, A arg);
 
     R visit(TimeSeriesNameNodeCalc nodeCalc, A arg);
 

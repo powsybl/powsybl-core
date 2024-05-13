@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.export;
 
@@ -17,7 +18,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.*;
 
+import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TERMINALS;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
@@ -51,13 +53,14 @@ public final class SteadyStateHypothesisExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, context.getSshModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, context.getExportedSSHModel(), context);
             }
 
             writeLoads(network, cimNamespace, writer, context);
             writeEquivalentInjections(network, cimNamespace, writer, context);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer, context);
-            writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer, context);
+            writeGenerators(network, cimNamespace, regulatingControlViews, writer, context);
+            writeBatteries(network, cimNamespace, writer, context);
             writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer, context);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer, context);
@@ -85,20 +88,7 @@ public final class SteadyStateHypothesisExport {
     private static final String ALIAS_TYPE_TERMINAL_1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1";
     private static final String ALIAS_TYPE_TERMINAL_2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2";
 
-    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
-            if (context.isExportedEquipment(c)) {
-                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
-                    // Equivalent shunts do not have a section count in SSH, SV profiles,
-                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
-                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
-                } else {
-                    for (Terminal t : c.getTerminals()) {
-                        writeTerminal(t, cimNamespace, writer, context);
-                    }
-                }
-            }
-        }
+    private static void writeTerminalForSwitches(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         for (Switch sw : network.getSwitches()) {
             if (context.isExportedEquipment(sw)) {
                 // Terminals for switches are exported as always connected
@@ -113,7 +103,10 @@ public final class SteadyStateHypothesisExport {
                 }
             }
         }
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+    }
+
+    private static void writeTerminalForDanglingLines(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             // Terminal for equivalent injection at boundary is always connected
             if (dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal") != null) {
                 writeTerminal(context.getNamingStrategy().getCgmesIdFromProperty(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal"), true, cimNamespace, writer, context);
@@ -125,10 +118,44 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
+    private static void writeTerminalForBuses(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (Bus b : network.getBusBreakerView().getBuses()) {
+            String bbsTerminals = b.getProperty(PROPERTY_BUSBAR_SECTION_TERMINALS, "");
+            if (!bbsTerminals.isEmpty()) {
+                for (String bbsTerminal : bbsTerminals.split(",")) {
+                    writeTerminal(bbsTerminal, true, cimNamespace, writer, context);
+                }
+            }
+        }
+    }
+
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
+        for (Connectable<?> c : network.getConnectables()) { // TODO write boundary terminals for tie lines from CGMES
+            if (context.isExportedEquipment(c)) {
+                if (CgmesExportUtil.isEquivalentShuntWithZeroSectionCount(c)) {
+                    // Equivalent shunts do not have a section count in SSH, SV profiles,
+                    // the only way to make output consistent with IIDM section count == 0 is to disconnect its terminal
+                    writeTerminal(CgmesExportUtil.getTerminalId(c.getTerminals().get(0), context), false, cimNamespace, writer, context);
+                } else {
+                    for (Terminal t : c.getTerminals()) {
+                        writeTerminal(t, cimNamespace, writer, context);
+                    }
+                }
+            }
+        }
+        writeTerminalForSwitches(network, cimNamespace, writer, context);
+        writeTerminalForDanglingLines(network, cimNamespace, writer, context);
+        // If we are performing an updated export, write recorded busbar section terminals as connected
+        if (!context.isExportEquipment()) {
+            writeTerminalForBuses(network, cimNamespace, writer, context);
+        }
+    }
+
     private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         // One equivalent injection for every dangling line
         List<String> exported = new ArrayList<>();
-        for (DanglingLine dl : CgmesExportUtil.getBoundaryDanglingLines(network)) {
+
+        for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
             String ei = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.EQUIVALENT_INJECTION);
             if (!exported.contains(ei) && ei != null) {
                 // Ensure equivalent injection identifier is valid
@@ -144,7 +171,6 @@ public final class SteadyStateHypothesisExport {
                 writeEquivalentInjection(cgmesId, dl.getP0(), dl.getQ0(), regulationStatus, regulationTarget, cimNamespace, writer, context);
                 exported.add(ei);
             }
-
         }
     }
 
@@ -243,67 +269,94 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeSynchronousMachines(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
+    private static void writeGenerators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews,
                                                  XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            boolean controlEnabled = g.isVoltageRegulatorOn();
+            String cgmesOriginalClass = g.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
 
-            CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(g), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
-            writer.writeCharacters(Boolean.toString(controlEnabled));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
-            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
-            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
-            // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
-            writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(g.getTargetP(), g.getMinP(), g.getReactiveLimits()));
-            writer.writeEndElement();
-
-            addRegulatingControlView(g, regulatingControlViews, context);
-        }
-        for (Battery b : network.getBatteries()) {
-            CgmesExportUtil.writeStartAbout("SynchronousMachine", context.getNamingStrategy().getCgmesId(b), cimNamespace, writer, context);
-            writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
-            writer.writeCharacters("false"); // TODO handle battery regulation
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
-            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetP()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
-            writer.writeCharacters(CgmesExportUtil.format(-b.getTargetQ()));
-            writer.writeEndElement();
-            writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
-            // reference priority is used for angle reference selection (slack)
-            writer.writeCharacters(isInSlackBus(b) ? "1" : "0");
-            writer.writeEndElement();
-            writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode(b.getTargetP(), b.getMinP(), b.getReactiveLimits()));
-            writer.writeEndElement();
+            switch (cgmesOriginalClass) {
+                case CgmesNames.EQUIVALENT_INJECTION:
+                    writeEquivalentInjection(context.getNamingStrategy().getCgmesId(g), -g.getTargetP(), -g.getTargetQ(),
+                            g.isVoltageRegulatorOn(), g.getTargetV(), cimNamespace, writer, context);
+                    break;
+                case CgmesNames.EXTERNAL_NETWORK_INJECTION:
+                    writeExternalNetworkInjection(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
+                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g),
+                            cimNamespace, writer, context);
+                    addRegulatingControlView(g, regulatingControlViews, context);
+                    break;
+                case CgmesNames.SYNCHRONOUS_MACHINE:
+                    writeSynchronousMachine(context.getNamingStrategy().getCgmesId(g), g.isVoltageRegulatorOn(),
+                            -g.getTargetP(), -g.getTargetQ(), ReferencePriority.get(g), obtainOperatingMode(g, g.getMinP(), g.getMaxP(), g.getTargetP()),
+                            cimNamespace, writer, context);
+                    addRegulatingControlView(g, regulatingControlViews, context);
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected cgmes equipment " + cgmesOriginalClass);
+            }
         }
     }
 
-    private static String mode(double targetP, double minP, ReactiveLimits reactiveLimits) {
+    private static void writeExternalNetworkInjection(String id, boolean controlEnabled, double p, double q, int referencePriority, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(CgmesNames.EXTERNAL_NETWORK_INJECTION, id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
+        writer.writeCharacters(Boolean.toString(controlEnabled));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "ExternalNetworkInjection.referencePriority");
+        writer.writeCharacters(Integer.toString(referencePriority)); // reference priority is used for angle reference selection (slack)
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeSynchronousMachine(String id, boolean controlEnabled, double p, double q, int referencePriority, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        CgmesExportUtil.writeStartAbout(CgmesNames.SYNCHRONOUS_MACHINE, id, cimNamespace, writer, context);
+        writer.writeStartElement(cimNamespace, REGULATING_COND_EQ_CONTROL_ENABLED);
+        writer.writeCharacters(Boolean.toString(controlEnabled));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, ROTATING_MACHINE_P);
+        writer.writeCharacters(CgmesExportUtil.format(p));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, ROTATING_MACHINE_Q);
+        writer.writeCharacters(CgmesExportUtil.format(q));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
+        // reference priority is used for angle reference selection (slack)
+        writer.writeCharacters(Integer.toString(referencePriority));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode." + mode);
+        writer.writeEndElement();
+    }
+
+    private static void writeBatteries(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        for (Battery b : network.getBatteries()) {
+            writeSynchronousMachine(context.getNamingStrategy().getCgmesId(b), false,
+                    -b.getTargetP(), -b.getTargetQ(), ReferencePriority.get(b), obtainOperatingMode(b, b.getMinP(), b.getMaxP(), b.getTargetP()),
+                    cimNamespace, writer, context);
+        }
+    }
+
+    private static <I extends ReactiveLimitsHolder & Injection<I>> String obtainOperatingMode(I i, double minP, double maxP, double targetP) {
+        String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        String operatingMode = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, CgmesExportUtil.obtainCurve(i), kind);
+        String calculatedOperatingMode = obtainOperatingMode(targetP);
+        return operatingMode != null && calculatedKind.contains(operatingMode) ? operatingMode : calculatedOperatingMode;
+    }
+
+    private static String obtainOperatingMode(double targetP) {
         if (targetP < 0) {
             return "motor";
         } else if (targetP > 0) {
             return "generator";
-        } else { // targetP == 0, mode can be motor or generator: we look at constructor reactive capability curve to decide the mode
-            return isMotor(minP, reactiveLimits) ? "motor" : "generator";
-        }
-    }
-
-    private static boolean isMotor(double minP, ReactiveLimits l) {
-        if (l instanceof ReactiveCapabilityCurve curve) {
-            return curve.getMinP() < 0;
         } else {
-            return minP < 0;
+            return "condenser";
         }
     }
 
@@ -365,16 +418,6 @@ public final class SteadyStateHypothesisExport {
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
-    }
-
-    private static boolean isInSlackBus(Injection<?> g) {
-        VoltageLevel vl = g.getTerminal().getVoltageLevel();
-        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-        if (slackTerminal != null) {
-            Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
-            return slackBus == g.getTerminal().getBusBreakerView().getBus();
-        }
-        return false;
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?, ?, ?> tc, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

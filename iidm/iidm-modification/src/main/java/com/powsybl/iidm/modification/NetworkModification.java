@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
@@ -20,43 +21,43 @@ public interface NetworkModification {
 
     void apply(Network network, ComputationManager computationManager);
 
-    void apply(Network network, ComputationManager computationManager, Reporter reporter);
+    void apply(Network network, ComputationManager computationManager, ReportNode reportNode);
 
-    void apply(Network network, Reporter reporter);
-
-    /**
-     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
-     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
-     * in case of error.
-     */
-    void apply(Network network, boolean throwException, Reporter reporter);
+    void apply(Network network, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    void apply(Network network, boolean throwException, ComputationManager computationManager, Reporter reporter);
+    void apply(Network network, boolean throwException, ReportNode reportNode);
+
+    /**
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     */
+    void apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
 
     void apply(Network network, NamingStrategy namingStrategy);
 
     void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager);
 
-    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, Reporter reporter);
+    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
 
-    void apply(Network network, NamingStrategy namingStrategy, Reporter reporter);
-
-    /**
-     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
-     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
-     * in case of error.
-     */
-    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, Reporter reporter);
+    void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter);
+    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode);
+
+    /**
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     */
+    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
 }

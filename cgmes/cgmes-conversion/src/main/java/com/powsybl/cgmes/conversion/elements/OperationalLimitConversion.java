@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -39,7 +40,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         Terminal terminal = null;
         if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
             if (terminalId != null) {
-                terminal = context.terminalMapping().find(terminalId, true);
+                terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }
             if (terminal != null) {
                 createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
@@ -50,20 +51,25 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             }
         } else if (limitSubclass.equals("VoltageLimit")) {
             if (terminalId != null) {
-                terminal = context.terminalMapping().find(terminalId, false);
+                terminal = context.terminalMapping().findForVoltageLimits(terminalId);
             }
-            if (terminal != null) {
-                vl = terminal.getVoltageLevel();
-            } else if (equipmentId != null) {
-                Identifiable<?> i = context.network().getIdentifiable(equipmentId);
-                if (i == null) {
-                    vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
-                } else if (i instanceof Injection<?> injection) {
-                    vl = injection.getTerminal().getVoltageLevel();
-                }
-            }
+            setVoltageLevelForVoltageLimit(terminal);
         } else {
             notAssigned();
+        }
+    }
+
+    private void setVoltageLevelForVoltageLimit(Terminal terminal) {
+        if (terminal != null) {
+            vl = terminal.getVoltageLevel();
+        } else if (equipmentId != null) {
+            Identifiable<?> i = context.network().getIdentifiable(equipmentId);
+            if (i == null) {
+                // Happens in BusBranch when the voltage limit is linked to a busbarSection
+                vl = context.network().getVoltageLevel(p.getId("EquipmentContainer"));
+            } else if (i instanceof Injection<?> injection) {
+                vl = injection.getTerminal().getVoltageLevel();
+            }
         }
     }
 
@@ -146,8 +152,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
-                loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
-                loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
+                loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1", getLoadingLimitAdder1Supplier(limitSubClass, b));
+                loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2", getLoadingLimitAdder2Supplier(limitSubClass, b));
             } else {
                 createLimitsAdder(terminalNumber, limitSubClass, b);
             }
@@ -209,19 +215,15 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
-            if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
-                if (value < vl.getLowVoltageLimit()) {
-                    context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
-                    return;
-                }
+            if (value < vl.getLowVoltageLimit()) {
+                context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
+            } else if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
                 vl.setHighVoltageLimit(value);
             }
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
-            if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
-                if (value > vl.getHighVoltageLimit()) {
-                    context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
-                    return;
-                }
+            if (value > vl.getHighVoltageLimit()) {
+                context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
+            } else if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
                 vl.setLowVoltageLimit(value);
             }
         } else {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -58,6 +59,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
+    public String visit(CachedNodeCalc nodeCalc, Void arg, String child) {
+        return child;
+    }
+
+    @Override
     public String visit(TimeNodeCalc nodeCalc, Void arg, String child) {
         return "(" + child + ").time()";
     }
@@ -99,6 +105,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
 
     @Override
     public NodeCalc iterate(MaxNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, Void arg) {
         return nodeCalc.getChild();
     }
 

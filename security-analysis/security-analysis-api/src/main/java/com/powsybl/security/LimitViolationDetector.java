@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -446,8 +447,8 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for permanent limit checks
      */
-    default void checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
+    default void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReductionValue, value, type)) {
             double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
             consumer.accept(new LimitViolation(branch.getId(),
                     branch.getOptionalName().orElse(null),
@@ -455,7 +456,7 @@ public interface LimitViolationDetector {
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     Integer.MAX_VALUE,
                     limit,
-                    limitReduction,
+                    limitReductionValue,
                     value,
                     side));
         }
@@ -464,8 +465,8 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for permanent limit checks
      */
-    default void checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        if (LimitViolationUtils.checkPermanentLimit(transformer, side, limitReduction, value, type)) {
+    default void checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(transformer, side, limitReductionValue, value, type)) {
             double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
             consumer.accept(new LimitViolation(transformer.getId(),
                     transformer.getOptionalName().orElse(null),
@@ -473,7 +474,7 @@ public interface LimitViolationDetector {
                     LimitViolationUtils.PERMANENT_LIMIT_NAME,
                     Integer.MAX_VALUE,
                     limit,
-                    limitReduction,
+                    limitReductionValue,
                     value,
                     side));
         }
@@ -482,8 +483,8 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for temporary limit checks
      */
-    default void checkTemporary(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+    default void checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(branch.getId(),
                     branch.getOptionalName().orElse(null),
@@ -491,7 +492,7 @@ public interface LimitViolationDetector {
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),
                     overload.getPreviousLimit(),
-                    limitReduction,
+                    limitReductionValue,
                     value,
                     side));
         }
@@ -500,8 +501,8 @@ public interface LimitViolationDetector {
     /**
      * Generic implementation for temporary limit checks
      */
-    default void checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReduction, value, type);
+    default void checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(transformer.getId(),
                     transformer.getOptionalName().orElse(null),
@@ -509,7 +510,7 @@ public interface LimitViolationDetector {
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),
                     overload.getPreviousLimit(),
-                    limitReduction,
+                    limitReductionValue,
                     value,
                     side));
         }

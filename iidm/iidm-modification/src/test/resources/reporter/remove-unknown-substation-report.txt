@@ -1,3 +1,0 @@
-+ Testing reporter on removing unknown substation
-   Substation UNKNOWN is not found
-   Substation UNKNOWN is not found

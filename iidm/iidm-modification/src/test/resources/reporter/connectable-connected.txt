@@ -1,3 +1,0 @@
-+ Testing reporter for connectable connection
-   A terminal of connectable L2 is already connected.
-   Connectable L2 has been connected.

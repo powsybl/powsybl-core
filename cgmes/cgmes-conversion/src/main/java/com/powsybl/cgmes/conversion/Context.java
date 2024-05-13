@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
@@ -13,7 +14,7 @@ import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -33,14 +34,14 @@ import java.util.function.Supplier;
 public class Context {
 
     public Context(CgmesModel cgmes, Config config, Network network) {
-        this(cgmes, config, network, Reporter.NO_OP);
+        this(cgmes, config, network, ReportNode.NO_OP);
     }
 
-    public Context(CgmesModel cgmes, Config config, Network network, Reporter reporter) {
+    public Context(CgmesModel cgmes, Config config, Network network, ReportNode reportNode) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
-        this.reporter = Objects.requireNonNull(reporter);
+        this.reportNode = Objects.requireNonNull(reportNode);
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -206,8 +207,8 @@ public class Context {
 
     // Handling issues found during conversion
 
-    public Reporter getReporter() {
-        return reporter;
+    public ReportNode getReportNode() {
+        return reportNode;
     }
 
     private enum ConversionIssueCategory {
@@ -294,7 +295,7 @@ public class Context {
     private final Network network;
     private final Config config;
 
-    private final Reporter reporter;
+    private final ReportNode reportNode;
 
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;

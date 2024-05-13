@@ -3,10 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.model;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -19,6 +19,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.Reader;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  *
@@ -118,7 +119,7 @@ public class FullModel {
                 ')';
     }
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
 
         private String id;
 

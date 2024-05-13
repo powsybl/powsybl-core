@@ -3,16 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.computation;
 
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
-import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
-import com.powsybl.commons.exceptions.UncheckedInstantiationException;
+import com.powsybl.commons.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Objects;
 
 /**
@@ -43,6 +43,7 @@ public class DefaultComputationManagerConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
+    @SuppressWarnings("unchecked")
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
@@ -57,6 +58,8 @@ public class DefaultComputationManagerConfig {
                         shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
                     } catch (ClassNotFoundException e) {
                         throw new UncheckedClassNotFoundException(e);
+                    } catch (ClassCastException e) {
+                        throw new UncheckedClassCastExceptionException(e);
                     }
                     return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
                 });
@@ -66,39 +69,35 @@ public class DefaultComputationManagerConfig {
         return config;
     }
 
-    public ComputationManager createShortTimeExecutionComputationManager() {
+    private ComputationManager createComputationManager(Class<? extends ComputationManagerFactory> computationManagerFactoryClass) {
         try {
-            return new LazyCreatedComputationManager(shortTimeExecutionComputationManagerFactoryClass.newInstance());
+            return new LazyCreatedComputationManager(computationManagerFactoryClass.getDeclaredConstructor().newInstance());
         } catch (InstantiationException e) {
             throw new UncheckedInstantiationException(e);
         } catch (IllegalAccessException e) {
             throw new UncheckedIllegalAccessException(e);
+        } catch (NoSuchMethodException e) {
+            throw new UncheckedNoSuchMethodException(e);
+        } catch (InvocationTargetException e) {
+            throw new UncheckedInvocationTargetException(e);
         }
     }
 
+    public ComputationManager createShortTimeExecutionComputationManager() {
+        return createComputationManager(shortTimeExecutionComputationManagerFactoryClass);
+    }
+
     public ComputationManager createLongTimeExecutionComputationManager() {
-        if (longTimeExecutionComputationManagerFactoryClass != null) {
-            try {
-                return new LazyCreatedComputationManager(longTimeExecutionComputationManagerFactoryClass.newInstance());
-            } catch (InstantiationException e) {
-                throw new UncheckedInstantiationException(e);
-            } catch (IllegalAccessException e) {
-                throw new UncheckedIllegalAccessException(e);
-            }
-        } else {
-            return createShortTimeExecutionComputationManager();
-        }
+        return longTimeExecutionComputationManagerFactoryClass == null ?
+            createShortTimeExecutionComputationManager() :
+            createComputationManager(longTimeExecutionComputationManagerFactoryClass);
     }
 
     @Override
     public String toString() {
         String str = "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName()
                 + ", longTimeExecutionComputationManagerFactoryClass=";
-        if (longTimeExecutionComputationManagerFactoryClass != null) {
-            str += longTimeExecutionComputationManagerFactoryClass.getName();
-        } else {
-            str += shortTimeExecutionComputationManagerFactoryClass.getName();
-        }
+        str += Objects.requireNonNullElse(longTimeExecutionComputationManagerFactoryClass, shortTimeExecutionComputationManagerFactoryClass).getName();
         str += ")";
         return str;
     }
