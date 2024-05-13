@@ -47,7 +47,7 @@ public class TypedValue {
      * @param value should be an instance of any of the following classes: Integer, Long, Float, Double, Boolean or String
      * @param type a string representing the value type (see the public constants for some generic types)
      */
-    TypedValue(Object value, String type) {
+    public TypedValue(Object value, String type) {
         this.value = Objects.requireNonNull(value);
         this.type = Objects.requireNonNull(type);
         if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
