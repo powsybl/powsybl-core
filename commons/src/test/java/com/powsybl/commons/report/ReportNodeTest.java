@@ -13,8 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -98,6 +97,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
         assertEquals(otherRoot, root.getChildren().get(0));
+        assertEquals(((ReportNodeImpl) root).getRootContext().get(), ((ReportNodeImpl) otherRoot).getRootContext().get());
 
         // Other root is not root anymore and can therefore not be added again
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
@@ -108,6 +108,13 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .add();
         PowsyblException e3 = assertThrows(PowsyblException.class, () -> root.include(child));
         assertEquals("Cannot include non-root reportNode", e3.getMessage());
+
+        ReportNode yetAnotherRoot = ReportNode.newRootReportNode()
+                .withMessageTemplate("newRootAboveAll", "New root above all reportNodes")
+                .build();
+        yetAnotherRoot.include(root);
+        assertEquals(((ReportNodeImpl) root).getRootContext().get(), ((ReportNodeImpl) yetAnotherRoot).getRootContext().get());
+        assertEquals(((ReportNodeImpl) root).getRootContext().get(), ((ReportNodeImpl) otherRoot).getRootContext().get());
 
         roundTripTest(root, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
     }

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.ref.RefObj;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +41,7 @@ public final class ReportNodeImpl implements ReportNode {
     private final List<ReportNodeImpl> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
-    private final RootContext rootContext;
+    private final RefObj<RootContext> rootContext;
     private boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
@@ -47,15 +49,15 @@ public final class ReportNodeImpl implements ReportNode {
         return createChildReportNode(msgKey, message, values, parent.getValuesMapsInheritance(), parent.getRootContext());
     }
 
-    private static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValues, RootContext rootContext) {
+    private static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValues, RefObj<RootContext> rootContext) {
         return new ReportNodeImpl(msgKey, message, values, inheritedValues, rootContext, false);
     }
 
     static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values) {
-        return createRootReportNode(msgKey, message, values, new RootContext());
+        return createRootReportNode(msgKey, message, values, new RefObj<>(new RootContext()));
     }
 
-    private static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values, RootContext rootContext) {
+    private static ReportNodeImpl createRootReportNode(String msgKey, String message, Map<String, TypedValue> values, RefObj<RootContext> rootContext) {
         return new ReportNodeImpl(msgKey, message, values, Collections.emptyList(), rootContext, true);
     }
 
@@ -73,7 +75,7 @@ public final class ReportNodeImpl implements ReportNode {
      * @param inheritedValuesMaps a {@link Collection} of inherited values maps
      * @param rootContext         the {@link RootContext} of the root of corresponding report tree
      */
-    private ReportNodeImpl(String messageKey, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RootContext rootContext, boolean isRoot) {
+    private ReportNodeImpl(String messageKey, String messageTemplate, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RefObj<RootContext> rootContext, boolean isRoot) {
         this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
@@ -81,7 +83,8 @@ public final class ReportNodeImpl implements ReportNode {
         this.inheritedValuesMaps = inheritedValuesMaps;
         this.rootContext = Objects.requireNonNull(rootContext);
         this.isRoot = isRoot;
-        rootContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
+        Objects.requireNonNull(rootContext.get())
+                .addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
     }
 
     private static void checkMap(Map<String, TypedValue> values) {
@@ -98,7 +101,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public String getMessageTemplate() {
-        return rootContext.getDictionary().get(messageKey);
+        return rootContext.get().getDictionary().get(messageKey);
     }
 
     @Override
@@ -108,7 +111,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public String getMessage() {
-        String messageTemplate = rootContext.getDictionary().get(messageKey);
+        String messageTemplate = rootContext.get().getDictionary().get(messageKey);
         return new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate);
     }
 
@@ -116,7 +119,7 @@ public final class ReportNodeImpl implements ReportNode {
         return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
     }
 
-    RootContext getRootContext() {
+    RefObj<RootContext> getRootContext() {
         return rootContext;
     }
 
@@ -157,7 +160,8 @@ public final class ReportNodeImpl implements ReportNode {
         reportNodeImpl.unroot();
         children.add(reportNodeImpl);
 
-        rootContext.merge(reportNodeImpl.rootContext);
+        rootContext.get().merge(reportNodeImpl.rootContext.get());
+        reportNodeImpl.rootContext.set(rootContext.get());
     }
 
     private void unroot() {
@@ -204,10 +208,10 @@ public final class ReportNodeImpl implements ReportNode {
     private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, String dictionaryName) throws IOException {
         RootContext rootContext = new RootContext();
         readDictionary(jsonNode, codec, dictionaryName, rootContext);
-        return parseJsonNode(jsonNode, codec, rootContext, Collections.emptyList(), true);
+        return parseJsonNode(jsonNode, codec, new RefObj<>(rootContext), Collections.emptyList(), true);
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, RootContext rootContext, Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
+    private static ReportNodeImpl parseJsonNode(JsonNode jsonNode, ObjectCodec codec, RefObj<RootContext> rootContext, Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
         JsonNode keyNode = jsonNode.get("messageKey");
         String messageKey = codec.readValue(keyNode.traverse(), String.class);
 
@@ -215,7 +219,7 @@ public final class ReportNodeImpl implements ReportNode {
         Map<String, TypedValue> values = valuesNode == null ? Collections.emptyMap() : codec.readValue(valuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
-        String message = rootContext.getDictionary().getOrDefault(messageKey, "(missing message key in dictionary)");
+        String message = rootContext.get().getDictionary().getOrDefault(messageKey, "(missing message key in dictionary)");
 
         ReportNodeImpl reportNode = rootReportNode
                 ? createRootReportNode(messageKey, message, values, rootContext)
@@ -258,7 +262,7 @@ public final class ReportNodeImpl implements ReportNode {
     public void writeJson(JsonGenerator generator) throws IOException {
         generator.writeStartObject();
         writeReportNodeParametersJson(generator);
-        writeDictionaryEntries(generator, rootContext.getDictionary());
+        writeDictionaryEntries(generator, rootContext.get().getDictionary());
         generator.writeEndObject();
     }
 
