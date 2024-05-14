@@ -13,7 +13,7 @@ package com.powsybl.commons.report;
 public final class ReportConstants {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
-    public static final ReportNodeVersion CURRENT_VERSION = ReportNodeVersion.V_2_0;
+    public static final ReportNodeVersion CURRENT_VERSION = ReportNodeVersion.V_2_1;
 
     private ReportConstants() {
     }

@@ -9,7 +9,7 @@ package com.powsybl.commons.report;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.core.ObjectCodec;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import org.slf4j.Logger;
@@ -20,6 +20,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -37,15 +40,40 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
 
     @Override
     public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
-        ObjectCodec codec = p.getCodec();
-        JsonNode root = codec.readTree(p);
+        ReportNode reportNode = null;
+        ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
+        var parsingContext = new Object() {
+            ReportNodeVersion version;
+            Map<String, String> dictionary;
+        };
+        while (p.nextToken() != JsonToken.END_OBJECT) {
+            switch (p.currentName()) {
+                case "version" -> parsingContext.version = ReportNodeVersion.of(p.nextTextValue());
+                case "dictionaries" -> parsingContext.dictionary = readDictionary(p, objectMapper, getDictionaryName(ctx));
+                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, parsingContext.version, parsingContext.dictionary);
+                default -> throw new IllegalStateException("Unexpected value: " + p.currentName());
+            }
+        }
+        return reportNode;
+    }
 
-        JsonNode versionNode = root.get("version");
-        String versionStr = codec.readValue(versionNode.traverse(), String.class);
-        ReportNodeVersion version = ReportNodeVersion.of(versionStr);
-
-        String dictionaryName = getDictionaryName(ctx);
-        return ReportNodeImpl.parseJsonNode(root.get("reportRoot"), codec, version, dictionaryName);
+    private Map<String, String> readDictionary(JsonParser p, ObjectMapper objectMapper, String dictionaryName) throws IOException {
+        checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
+        TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
+        };
+        HashMap<String, HashMap<String, String>> dictionaries = objectMapper.readValue(p, dictionariesTypeRef);
+        Map<String, String> dictionary = dictionaries.get(dictionaryName);
+        if (dictionary == null) {
+            var dictionaryEntry = dictionaries.entrySet().stream().findFirst().orElse(null);
+            if (dictionaryEntry == null) {
+                LOGGER.warn("No dictionary found! `dictionaries` root entry is empty");
+                return Collections.emptyMap();
+            } else {
+                LOGGER.warn("Cannot find `{}` dictionary, taking first entry (`{}`)", dictionaryName, dictionaryEntry.getKey());
+                dictionary = dictionaryEntry.getValue();
+            }
+        }
+        return dictionary;
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
@@ -95,6 +123,12 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         return mapper;
     }
 
+    static void checkToken(JsonParser p, JsonToken startObject) throws IOException {
+        if (p.nextToken() != startObject) {
+            throw new IllegalStateException("Unexpected token " + p.currentToken());
+        }
+    }
+
     protected static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
         TypedValueDeserializer() {
@@ -107,7 +141,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
             String type = TypedValue.UNTYPED;
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
-                switch (p.getCurrentName()) {
+                switch (p.currentName()) {
                     case "value":
                         p.nextToken();
                         value = p.readValueAs(Object.class);
@@ -118,7 +152,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
                         break;
 
                     default:
-                        throw new IllegalStateException("Unexpected field: " + p.getCurrentName());
+                        throw new IllegalStateException("Unexpected field: " + p.currentName());
                 }
             }
 

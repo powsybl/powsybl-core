@@ -32,7 +32,6 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
     public void serialize(ReportNode reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
-        generator.writeFieldName("reportRoot");
         reportNode.writeJson(generator);
         generator.writeEndObject();
     }
