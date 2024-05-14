@@ -29,9 +29,9 @@ public class RootContext {
 
     private static String mergeEntries(String key, String previousMessageTemplate, String newMessageTemplate) {
         if (!previousMessageTemplate.equals(newMessageTemplate)) {
-            LOGGER.warn("Same key {} for two non-equal message templates: '{}' / '{}'", key, previousMessageTemplate, newMessageTemplate);
+            LOGGER.warn("Same key {} for two non-equal message templates: '{}' / '{}'. Keeping the first one.", key, previousMessageTemplate, newMessageTemplate);
         }
-        return newMessageTemplate;
+        return previousMessageTemplate;
     }
 
     public synchronized void merge(RootContext otherContext) {
