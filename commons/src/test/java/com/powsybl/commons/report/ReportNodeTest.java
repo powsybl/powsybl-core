@@ -116,6 +116,6 @@ class ReportNodeTest extends AbstractSerDeTest {
         assertEquals(((ReportNodeImpl) root).getRootContext().get(), ((ReportNodeImpl) yetAnotherRoot).getRootContext().get());
         assertEquals(((ReportNodeImpl) root).getRootContext().get(), ((ReportNodeImpl) otherRoot).getRootContext().get());
 
-        roundTripTest(root, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
+        roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
     }
 }
