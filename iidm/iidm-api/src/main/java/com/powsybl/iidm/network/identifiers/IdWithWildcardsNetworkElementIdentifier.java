@@ -22,11 +22,10 @@ import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.Iden
 
 /**
  *
- * Identifier that finds a network element that have some unknown character.
- * The character '?' is the wildcard that replace the unknown characters
- * There can be maximum 5 wildcards in the identifier.
- * For example the identifier "GEN_?" allows to find GEN_1
- * the only special characters allowed for the identifier are '_', '-', '.'
+ * <p>Identifier that finds a network element that have some unknown characters.</p>
+ * <p>The unknown characters should be replaced in the identifier by the wildcard character '?'.</p>
+ * <p>There can be a maximum of 5 wildcards in the identifier and the only special characters allowed for the identifier are '_', '-' and '.'.</p>
+ * <p>For example, the identifier "GEN_?" allows to find "GEN_1".</p>
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  *
