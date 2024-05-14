@@ -29,10 +29,10 @@
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="TWT" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" bus2="BUS1" connectableBus2="BUS1"/>
     </iidm:substation>
-    <iidm:extension id="BBS2">
-        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
-    </iidm:extension>
     <iidm:extension id="BBS1">
         <bbsp:busbarSectionPosition busbarIndex="1" sectionIndex="1"/>
+    </iidm:extension>
+    <iidm:extension id="BBS2">
+        <bbsp:busbarSectionPosition busbarIndex="2" sectionIndex="1"/>
     </iidm:extension>
 </iidm:network>
