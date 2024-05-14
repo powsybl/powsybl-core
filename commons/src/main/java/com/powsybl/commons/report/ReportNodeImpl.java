@@ -260,14 +260,6 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public void writeJson(JsonGenerator generator) throws IOException {
-        writeDictionaryEntries(generator, rootContext.get().getDictionary());
-        generator.writeFieldName("reportRoot");
-        generator.writeStartObject();
-        writeReportNodeParametersJson(generator);
-        generator.writeEndObject();
-    }
-
-    private void writeReportNodeParametersJson(JsonGenerator generator) throws IOException {
         generator.writeStringField("messageKey", getMessageKey());
         if (!values.isEmpty()) {
             generator.writeObjectField("values", values);
@@ -277,17 +269,10 @@ public final class ReportNodeImpl implements ReportNode {
             generator.writeStartArray();
             for (ReportNodeImpl messageNode : children) {
                 generator.writeStartObject();
-                messageNode.writeReportNodeParametersJson(generator);
+                messageNode.writeJson(generator);
                 generator.writeEndObject();
             }
             generator.writeEndArray();
         }
-    }
-
-    private void writeDictionaryEntries(JsonGenerator generator, Map<String, String> dictionary) throws IOException {
-        generator.writeFieldName("dictionaries");
-        generator.writeStartObject();
-        generator.writeObjectField("default", dictionary);
-        generator.writeEndObject();
     }
 }

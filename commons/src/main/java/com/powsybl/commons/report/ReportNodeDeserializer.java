@@ -28,7 +28,7 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
+public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeDeserializer.class);
     public static final String DICTIONARY_VALUE_ID = "dictionary";
@@ -39,8 +39,8 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
     }
 
     @Override
-    public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
-        ReportNode reportNode = null;
+    public ReportNodeImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+        ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         var parsingContext = new Object() {
             ReportNodeVersion version;

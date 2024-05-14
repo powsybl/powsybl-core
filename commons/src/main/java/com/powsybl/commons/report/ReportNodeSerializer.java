@@ -22,17 +22,28 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeSerializer extends StdSerializer<ReportNode> {
+public class ReportNodeSerializer extends StdSerializer<ReportNodeImpl> {
 
     ReportNodeSerializer() {
-        super(ReportNode.class);
+        super(ReportNodeImpl.class);
     }
 
     @Override
-    public void serialize(ReportNode reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReportNodeImpl reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
+
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
+
+        generator.writeFieldName("dictionaries");
+        generator.writeStartObject();
+        generator.writeObjectField("default", reportNode.getRootContext().get().getDictionary());
+        generator.writeEndObject();
+
+        generator.writeFieldName("reportRoot");
+        generator.writeStartObject();
         reportNode.writeJson(generator);
+        generator.writeEndObject();
+
         generator.writeEndObject();
     }
 
