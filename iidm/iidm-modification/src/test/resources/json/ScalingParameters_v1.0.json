@@ -3,5 +3,6 @@
   "scalingConvention" : "LOAD",
   "constantPowerFactor" : false,
   "reconnect" : true,
-  "iterative" : false
+  "iterative" : false,
+  "ignoredInjectionIds" : [ "id1", "id2" ]
 }

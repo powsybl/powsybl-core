@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.scalable.ScalingParameters;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -28,7 +29,8 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         ScalingParameters parameters = new ScalingParameters()
                 .setScalingConvention(Scalable.ScalingConvention.LOAD)
-                .setReconnect(true);
+                .setReconnect(true)
+                .setIgnoredInjectionIds(Set.of("id1", "id2"));
         roundTripTest(parameters, JsonScalingParameters::write, JsonScalingParameters::read, "/json/ScalingParameters.json");
     }
 
@@ -40,6 +42,7 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
         assertEquals(ONESHOT, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(2, parameters.getIgnoredInjectionIds().size());
 
         parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0b.json"));
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());

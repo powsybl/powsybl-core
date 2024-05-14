@@ -3,5 +3,6 @@
   "scalingConvention" : "LOAD",
   "constantPowerFactor" : false,
   "reconnect" : true,
-  "priority" : "ONESHOT"
+  "priority" : "ONESHOT",
+  "ignoredInjectionIds" : [ "id1", "id2" ]
 }
