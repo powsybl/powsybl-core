@@ -35,6 +35,6 @@ public class RootContext {
     }
 
     public synchronized void merge(RootContext otherContext) {
-        dictionary.putAll(otherContext.dictionary);
+        otherContext.dictionary.forEach(this::addDictionaryEntry);
     }
 }
