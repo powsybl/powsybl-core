@@ -40,7 +40,7 @@ public final class ReportNodeImpl implements ReportNode {
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
     private final RootContext rootContext;
-    private final boolean isRoot;
+    private boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
     static ReportNodeImpl createChildReportNode(String msgKey, String message, Map<String, TypedValue> values, ReportNodeImpl parent) {
@@ -154,8 +154,14 @@ public final class ReportNodeImpl implements ReportNode {
             throw new PowsyblException("Cannot add a reportNode in itself");
         }
 
-        children.addAll(reportNodeImpl.children);
+        reportNodeImpl.unroot();
+        children.add(reportNodeImpl);
+
         rootContext.merge(reportNodeImpl.rootContext);
+    }
+
+    private void unroot() {
+        this.isRoot = false;
     }
 
     void addChild(ReportNodeImpl reportNode) {
