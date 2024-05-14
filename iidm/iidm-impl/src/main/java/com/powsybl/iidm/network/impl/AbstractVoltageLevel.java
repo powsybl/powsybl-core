@@ -13,7 +13,7 @@ import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 import java.util.List;
 import java.util.Objects;
