@@ -35,7 +35,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
     ReportNodeDeserializer() {
-        super(ReportNode.class);
+        super(ReportNodeImpl.class);
     }
 
     @Override
@@ -110,7 +110,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
+            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeImpl.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
