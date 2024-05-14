@@ -54,7 +54,7 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
         </dependency>
         <dependency>
