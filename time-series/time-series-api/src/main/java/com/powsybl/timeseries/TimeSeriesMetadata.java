@@ -10,7 +10,6 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.google.common.collect.ImmutableMap;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -33,7 +32,8 @@ public class TimeSeriesMetadata {
     private final TimeSeriesIndex index;
 
     public TimeSeriesMetadata(String name, TimeSeriesDataType dataType, TimeSeriesIndex index) {
-        this(name, dataType, ImmutableMap.of(), index);
+        // The order of the Map.of() elements is not constant/predictable so we have to build an unmodifiableMap LinkedHashMap ourselves
+        this(name, dataType, Collections.unmodifiableMap(new LinkedHashMap<>()), index);
     }
 
     public TimeSeriesMetadata(String name, TimeSeriesDataType dataType, Map<String, String> tags, TimeSeriesIndex index) {
@@ -84,10 +84,10 @@ public class TimeSeriesMetadata {
         }
     }
 
-    private static class JsonParsingContext {
+    private static final class JsonParsingContext {
         private String name;
         private TimeSeriesDataType dataType;
-        private Map<String, String> tags = new LinkedHashMap<>();
+        private final Map<String, String> tags = new LinkedHashMap<>();
         private TimeSeriesIndex index;
         private boolean insideTags = false;
 

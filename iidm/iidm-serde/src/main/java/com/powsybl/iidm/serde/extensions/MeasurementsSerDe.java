@@ -33,7 +33,7 @@ public class MeasurementsSerDe<C extends Connectable<C>> extends AbstractExtensi
     private static final String PROPERTY_ARRAY_ELEMENT = "properties";
 
     public MeasurementsSerDe() {
-        super("measurements", "network", Measurements.class, "measurements.xsd",
+        super(MEASUREMENT_ARRAY_ELEMENT, "network", Measurements.class, "measurements.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/measurements/1_0", "m");
     }
 

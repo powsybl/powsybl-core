@@ -94,11 +94,11 @@ public abstract class AbstractToolTest {
     }
 
     protected void assertCommandSuccessful(String[] args) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::compareTxt);
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
     }
 
     protected void assertCommandSuccessful(String[] args, String expectedOut) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::compareTxt);
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::assertTxtEquals);
     }
 
     protected void assertCommandSuccessfulMatch(String[] args, String expectedOut) {
@@ -106,7 +106,7 @@ public abstract class AbstractToolTest {
     }
 
     protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
-        assertCommand(args, expectedStatus, null, expectedErr, ComparisonUtils::compareTxt);
+        assertCommand(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
     }
 
     protected void assertCommandErrorMatch(String[] args, int expectedStatus, String expectedErr) {
