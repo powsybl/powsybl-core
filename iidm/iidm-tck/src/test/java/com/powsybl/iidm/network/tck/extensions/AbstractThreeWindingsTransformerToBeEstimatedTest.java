@@ -62,4 +62,30 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
         ext.shouldEstimateRatioTapChanger(true, ThreeSides.TWO);
         assertTrue(ext.shouldEstimateRatioTapChanger2());
     }
+
+    @Test
+    public void test2() {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        network.setCaseDate(ZonedDateTime.parse("2019-05-27T12:17:02.504+02:00"));
+
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        ThreeWindingsTransformerToBeEstimated ext = twt.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+                .withRatioTapChangerStatus(ThreeSides.TWO, true)
+                .withPhaseTapChangerStatus(ThreeSides.THREE, true)
+                .add();
+
+        assertNotNull(ext);
+        assertFalse(ext.shouldEstimateRatioTapChanger1());
+        assertFalse(ext.shouldEstimateRatioTapChanger(ThreeSides.ONE));
+        assertTrue(ext.shouldEstimateRatioTapChanger2());
+        assertTrue(ext.shouldEstimateRatioTapChanger(ThreeSides.TWO));
+        assertFalse(ext.shouldEstimateRatioTapChanger3());
+        assertFalse(ext.shouldEstimateRatioTapChanger(ThreeSides.THREE));
+        assertFalse(ext.shouldEstimatePhaseTapChanger1());
+        assertFalse(ext.shouldEstimatePhaseTapChanger(ThreeSides.ONE));
+        assertFalse(ext.shouldEstimatePhaseTapChanger2());
+        assertFalse(ext.shouldEstimatePhaseTapChanger(ThreeSides.TWO));
+        assertTrue(ext.shouldEstimatePhaseTapChanger3());
+        assertTrue(ext.shouldEstimatePhaseTapChanger(ThreeSides.THREE));
+    }
 }
