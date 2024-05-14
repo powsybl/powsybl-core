@@ -22,5 +22,9 @@
       "type" : "ID_BASED",
       "identifier" : "identifier"
     } ]
+  }, {
+    "type" : "ID_WITH_WILDCARDS",
+    "contingencyId" : "contingencyId4",
+    "identifier" : "identifier?"
   } ]
 }
