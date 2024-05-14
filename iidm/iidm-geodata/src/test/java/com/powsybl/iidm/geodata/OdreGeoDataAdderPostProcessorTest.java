@@ -44,7 +44,7 @@ class OdreGeoDataAdderPostProcessorTest {
     private ComputationManager computationManager;
 
     @BeforeEach
-    void setUp() throws IOException {
+    void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         network = EurostagTutorialExample1Factory.create();
         platformConfig = new InMemoryPlatformConfig(fileSystem);

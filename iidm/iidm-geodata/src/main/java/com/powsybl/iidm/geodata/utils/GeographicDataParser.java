@@ -85,15 +85,8 @@ public final class GeographicDataParser {
             LOGGER.warn("can't find any substation for {}", lineId);
             return Pair.of("", "");
         } else if (geo1 != null && geo2 != null) {
-            final double sub1pil1 = distanceCoordinate(geo1.getCoordinate(), coordinates.get(0));
-            final double sub2pil1 = distanceCoordinate(geo2.getCoordinate(), coordinates.get(0));
-            final double sub1pil2 = distanceCoordinate(geo1.getCoordinate(), coordinates.get(coordinates.size() - 1));
-            final double sub2pil2 = distanceCoordinate(geo2.getCoordinate(), coordinates.get(coordinates.size() - 1));
-            if ((sub1pil1 < sub2pil1) == (sub1pil2 < sub2pil2)) {
-                LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}", lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
-                return Pair.of("", "");
-            }
-            return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
+            return findStartAndEndSubstationsOfLine(lineId, geo1, geo2, substation1, substation2,
+                    coordinates.get(0), coordinates.get(coordinates.size() - 1));
         } else {
             boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
             String substation = geo1 != null ? substation1 : substation2;
@@ -135,17 +128,9 @@ public final class GeographicDataParser {
                     oneConnectedSetDiscarded++;
                 }
             } else {
-                List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
                 linesWithTwoOrMoreConnectedSets++;
-                for (Set<Coordinate> connectedSet : connectedSets) {
-                    List<Coordinate> endsComponent = getEnds(connectedSet, graph);
-                    if (endsComponent.size() == 2) {
-                        List<Coordinate> coordinatesComponent = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent.get(0)));
-                        coordinatesComponents.add(coordinatesComponent);
-                    } else {
-                        break;
-                    }
-                }
+                List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets,
+                        graph);
 
                 if (coordinatesComponents.size() != connectedSets.size()) {
                     twoOrMoreConnectedSetsDiscarded++;
@@ -216,7 +201,7 @@ public final class GeographicDataParser {
         return aggregateCoordinates(coordinatesComponents.get(0), coordinatesComponents.get(1));
     }
 
-    static List<Coordinate> aggregateCoordinates(List<Coordinate> coordinatesComponent1, List<Coordinate> coordinatesComponent2) {
+    private static List<Coordinate> aggregateCoordinates(List<Coordinate> coordinatesComponent1, List<Coordinate> coordinatesComponent2) {
         List<Coordinate> aggregatedCoordinates;
 
         double l1 = getBranchLength(coordinatesComponent1);
@@ -259,5 +244,34 @@ public final class GeographicDataParser {
             aggregatedCoordinates.addAll(coordinatesComponent2);
         }
         return aggregatedCoordinates;
+    }
+
+    private static Pair<String, String> findStartAndEndSubstationsOfLine(String lineId, SubstationGeoData geo1, SubstationGeoData geo2,
+                                                                         String substation1, String substation2,
+                                                                         Coordinate firstCoordinate, Coordinate lastCoordinate) {
+        final double sub1pil1 = distanceCoordinate(geo1.getCoordinate(), firstCoordinate);
+        final double sub2pil1 = distanceCoordinate(geo2.getCoordinate(), firstCoordinate);
+        final double sub1pil2 = distanceCoordinate(geo1.getCoordinate(), lastCoordinate);
+        final double sub2pil2 = distanceCoordinate(geo2.getCoordinate(), lastCoordinate);
+        if ((sub1pil1 < sub2pil1) == (sub1pil2 < sub2pil2)) {
+            LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}", lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
+            return Pair.of("", "");
+        }
+        return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
+    }
+
+    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<Set<Coordinate>> connectedSets,
+                                                                                   Graph<Coordinate, Object> graph) {
+        List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
+        for (Set<Coordinate> connectedSet : connectedSets) {
+            List<Coordinate> endsComponent = getEnds(connectedSet, graph);
+            if (endsComponent.size() == 2) {
+                List<Coordinate> coordinatesComponent = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent.get(0)));
+                coordinatesComponents.add(coordinatesComponent);
+            } else {
+                break;
+            }
+        }
+        return coordinatesComponents;
     }
 }

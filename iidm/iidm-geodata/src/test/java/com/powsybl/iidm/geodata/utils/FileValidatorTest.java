@@ -9,14 +9,12 @@ package com.powsybl.iidm.geodata.utils;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Ahmed Bendaamer {@literal <ahmed.bendaamer at rte-france.com>}
@@ -24,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class FileValidatorTest {
 
     @Test
-    void whenCallingValidate() throws IOException, URISyntaxException {
+    void whenCallingValidate() throws URISyntaxException {
         Path file = Paths.get(getClass()
                 .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()
