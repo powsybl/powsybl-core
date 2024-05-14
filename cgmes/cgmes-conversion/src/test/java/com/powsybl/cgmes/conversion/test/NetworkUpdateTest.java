@@ -12,15 +12,21 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.export.ExportXmlCompare;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
+import com.powsybl.triplestore.api.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStoreOptions;
 import org.junit.jupiter.api.Test;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -120,6 +126,58 @@ class NetworkUpdateTest extends AbstractSerDeTest {
         Summary snetwork = new Summary(network);
 
         assertEquals(sexpected, snetwork);
+        // FIXME(Luma) In addition to comparing the summary, ...
+        //  assertTrue(compareNetworks(expected, network));
+    }
+
+    @Test
+    void testReadSshSvTp3() {
+        Network expected = Network.read(CgmesConformity3Catalog.microGridBaseCaseBE().dataSource());
+        Summary sexpected = new Summary(expected);
+        Map<String, Double> vexpected = expected.getBusView().getBusStream().collect(Collectors.toMap(Bus::getId, Bus::getV));
+
+        Network network = Network.read(CgmesConformity3Catalog.microGridBaseCaseBEonlyEQ().dataSource());
+
+        // reset default values and ensure we do not have ssh validation level, but equipment, the lowest
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        network.getLoadStream().forEach(l -> {
+            l.setP0(Double.NaN);
+            l.setQ0(Double.NaN);
+        });
+        network.getGeneratorStream().forEach(g -> g.setTargetP(Double.NaN));
+        network.getShuntCompensatorStream().forEach(ShuntCompensator::unsetSectionCount);
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+
+        // Now import SSH, SV, TP data over the current network
+        CgmesImport importer = new CgmesImport();
+        importer.update(network, CgmesConformity3Catalog.microGridBaseCaseBEonlySshSvTp().dataSource(), null, ReportNode.NO_OP);
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        Summary snetwork = new Summary(network);
+
+        // Summaries should be equal
+        assertEquals(sexpected, snetwork);
+
+        // FIXME(Luma) This is just to check that we read TN, CN and voltages from SSH, TP, SV
+        TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
+        tripleStoreOptions.setQueryCatalog("-update");
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        System.err.println("V,A,TN,CN from update query for topologicalNodes:");
+        CgmesModelFactory.create(
+                        CgmesConformity3Catalog.microGridBaseCaseBEonlySshSvTp().dataSource(),
+                        alternativeDataSourceForBoundary,
+                        TripleStoreFactory.DEFAULT_IMPLEMENTATION,
+                        ReportNode.NO_OP,
+                        tripleStoreOptions)
+                .topologicalNodes().forEach(tn -> System.err.printf("%6.2f %6.2f TN=%s, CN=%s%n",
+                        tn.asDouble("v"),
+                        tn.asDouble("angle"),
+                        tn.getId("TopologicalNode"),
+                        tn.getId("ConnectivityNode")
+                ));
+
+        // Voltages should be equal
+        Map<String, Double> vactual = network.getBusView().getBusStream().collect(Collectors.toMap(Bus::getId, Bus::getV));
+        assertEquals(vexpected, vactual);
         // FIXME(Luma) In addition to comparing the summary, ...
         //  assertTrue(compareNetworks(expected, network));
     }

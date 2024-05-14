@@ -48,13 +48,19 @@ SELECT *
         cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
 }
 
-# query: voltages
+# query: topologicalNodes
 SELECT *
 {
-    ?SvVoltage a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.v ?v ;
-        cim:SvVoltage.angle ?angle
+    ?TopologicalNode a cim:TopologicalNode .
+    OPTIONAL {
+        ?SvVoltage a cim:SvVoltage ;
+            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+            cim:SvVoltage.v ?v ;
+            cim:SvVoltage.angle ?angle
+    }
+    OPTIONAL {
+        ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode
+    }
 }
 
 # query: switches

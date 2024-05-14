@@ -58,6 +58,16 @@ public final class CgmesConformity3Catalog {
                 new ResourceSet(MICRO_GRID_3_BE_BASE, MICRO_GRID_3_BE_SSH));
     }
 
+    public static GridModelReferenceResources microGridBaseCaseBEonlySshSvTp() {
+        return new GridModelReferenceResources(
+                "MicroGrid-3-BaseCase-BE-only-SSH-SV-TP",
+                null,
+                new ResourceSet(MICRO_GRID_3_BE_BASE,
+                        MICRO_GRID_3_BE_SSH,
+                        "20210325T1530Z_1D_BE_SV_001.xml",
+                        "20210325T1530Z_1D_BE_TP_001.xml"));
+    }
+
     public static GridModelReferenceResources microGridBaseCaseNL() {
         return new GridModelReferenceResources(
                 "MicroGrid-3-BaseCase-NL",
