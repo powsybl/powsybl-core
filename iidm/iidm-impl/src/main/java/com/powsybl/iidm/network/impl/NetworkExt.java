@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.impl.util.RefChain;
+import com.powsybl.commons.ref.RefChain;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
