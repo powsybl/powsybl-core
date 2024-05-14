@@ -286,4 +286,17 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/line-with-different-nominal-voltage-at-ends-test-case.txt");
     }
+
+    @Test
+    void writeZeroImpedanceLineWithDifferentNominalVoltageAtEnds() throws IOException {
+        Network network = SvcTestCaseFactory.create();
+        network.getVoltageLevel("VL2").setNominalV(400);
+        network.getLine("L1").setR(0)
+                                .setX(0);
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/zero-impedance-line-with-different-nominal-voltage-at-ends-test-case.txt");
+    }
 }
