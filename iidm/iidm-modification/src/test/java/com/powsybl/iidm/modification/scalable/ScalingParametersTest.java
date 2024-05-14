@@ -16,6 +16,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.FileSystem;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.*;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
@@ -110,6 +111,7 @@ class ScalingParametersTest {
         moduleConfig.setStringProperty("priority", "RESPECT_OF_VOLUME_ASKED");
         moduleConfig.setStringProperty("reconnect", "true");
         moduleConfig.setStringProperty("allowsGeneratorOutOfActivePowerLimits", "true");
+        moduleConfig.setStringProperty("ignoredInjectionIds", "id1,id2");
 
         ScalingParameters parameters = ScalingParameters.load(platformConfig);
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
@@ -117,6 +119,7 @@ class ScalingParametersTest {
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertTrue(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
     }
 
     /**

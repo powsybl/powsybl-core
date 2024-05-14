@@ -9,10 +9,7 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -206,6 +203,10 @@ public class ScalingParameters {
             scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
             scalingParameters.setPriority(config.getEnumProperty("priority", ScalingParameters.Priority.class, DEFAULT_PRIORITY));
             scalingParameters.setAllowsGeneratorOutOfActivePowerLimits(config.getBooleanProperty("allowsGeneratorOutOfActivePowerLimits", DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS));
+            scalingParameters.setIgnoredInjectionIds(
+                config.getOptionalStringListProperty("ignoredInjectionIds")
+                    .map(list -> (Set<String>) new HashSet<>(list))
+                    .orElse(DEFAULT_IGNORED_INJECTION_IDS));
         });
         return scalingParameters;
     }
