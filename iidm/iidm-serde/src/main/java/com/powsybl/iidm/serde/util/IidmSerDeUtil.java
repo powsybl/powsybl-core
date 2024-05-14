@@ -9,8 +9,8 @@ package com.powsybl.iidm.serde.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.*;
 import org.slf4j.Logger;
@@ -378,11 +378,11 @@ public final class IidmSerDeUtil {
     /**
      * Sort temporary limits by their names.
      */
-    public static Iterable<CurrentLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<CurrentLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
+    public static Iterable<LoadingLimits.TemporaryLimit> sortedTemporaryLimits(Iterable<LoadingLimits.TemporaryLimit> temporaryLimits, ExportOptions exportOptions) {
         Objects.requireNonNull(temporaryLimits);
         Objects.requireNonNull(exportOptions);
         return exportOptions.isSorted() ? StreamSupport.stream(temporaryLimits.spliterator(), false)
-                                                       .sorted(Comparator.comparing(CurrentLimits.TemporaryLimit::getName))
+                                                       .sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getName))
                                                        .collect(Collectors.toList())
                                         : temporaryLimits;
     }

@@ -15,7 +15,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -284,14 +284,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
                 }
                 if (getBusChecker().isValid(graph, nodes, terminals)) {
-                    String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
-                    Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
-                    CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals, getBusFromTerminal);
-                    id2bus.put(busId, bus);
-                    for (int i = 0; i < nodes.size(); i++) {
-                        node2bus[nodes.getQuick(i)] = bus;
-                    }
+                    addBus(nodes, id2bus, node2bus, busId, terminals);
                 }
+            }
+        }
+
+        private void addBus(TIntArrayList nodes, Map<String, CalculatedBus> id2bus, CalculatedBus[] node2bus,
+                            String busId, CopyOnWriteArrayList<NodeTerminal> terminals) {
+            String busName = NAMING_STRATEGY.getName(NodeBreakerVoltageLevel.this, nodes);
+            Function<Terminal, Bus> getBusFromTerminal = getBusChecker() == CALCULATED_BUS_CHECKER ? t -> t.getBusView().getBus() : t -> t.getBusBreakerView().getBus();
+            CalculatedBusImpl bus = new CalculatedBusImpl(busId, busName, NodeBreakerVoltageLevel.this.fictitious, NodeBreakerVoltageLevel.this, nodes, terminals, getBusFromTerminal);
+            id2bus.put(busId, bus);
+            for (int i = 0; i < nodes.size(); i++) {
+                node2bus[nodes.getQuick(i)] = bus;
             }
         }
 
@@ -341,7 +346,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             updateCache();
             CalculatedBus bus = busCache.getBus(id);
             if (throwException && bus == null) {
-                throw new PowsyblException("Bus " + id + " not found");
+                throw new PowsyblException(getExceptionMessageElementNotFound("Bus", id));
             }
             return bus;
         }
@@ -611,7 +616,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private static PowsyblException createSwitchNotFoundException(String switchId) {
-        return new PowsyblException("Switch " + switchId + " not found");
+        return new PowsyblException(getExceptionMessageElementNotFound("Switch", switchId));
     }
 
     CalculatedBusBreakerTopology getCalculatedBusBreakerTopology() {
@@ -1053,7 +1058,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
             if (buses.isEmpty()) {
-                throw new PowsyblException("Bus " + mergedBusId + " not found");
+                throw new PowsyblException(getExceptionMessageElementNotFound("Bus", mergedBusId));
             }
             return buses;
         }
@@ -1341,20 +1346,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             addNextTerminals(terminal, nextTerminals);
 
             int node = terminal.getNode();
-            boolean traverseTerminated = !graph.traverse(node, traversalType, (v1, e, v2) -> {
-                SwitchImpl aSwitch = graph.getEdgeObject(e);
-                NodeTerminal otherTerminal = graph.getVertexObject(v2);
-                TraverseResult edgeTraverseResult = aSwitch != null ? traverser.traverse(aSwitch)
-                        : TraverseResult.CONTINUE; // internal connection case
-                if (edgeTraverseResult == TraverseResult.CONTINUE && otherTerminal != null) {
-                    TraverseResult otherTermTraverseResult = getTraverseResult(visitedTerminals, otherTerminal, traverser);
-                    if (otherTermTraverseResult == TraverseResult.CONTINUE) {
-                        addNextTerminals(otherTerminal, nextTerminals);
-                    }
-                    return otherTermTraverseResult;
-                }
-                return edgeTraverseResult;
-            });
+            boolean traverseTerminated = traverseOtherNodes(node, nextTerminals, traverser, visitedTerminals, traversalType);
             if (traverseTerminated) {
                 return false;
             }
@@ -1367,6 +1359,24 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         return true;
+    }
+
+    private boolean traverseOtherNodes(int node, List<TerminalExt> nextTerminals,
+                                       Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
+        return !graph.traverse(node, traversalType, (v1, e, v2) -> {
+            SwitchImpl aSwitch = graph.getEdgeObject(e);
+            NodeTerminal otherTerminal = graph.getVertexObject(v2);
+            TraverseResult edgeTraverseResult = aSwitch != null ? traverser.traverse(aSwitch)
+                : TraverseResult.CONTINUE; // internal connection case
+            if (edgeTraverseResult == TraverseResult.CONTINUE && otherTerminal != null) {
+                TraverseResult otherTermTraverseResult = getTraverseResult(visitedTerminals, otherTerminal, traverser);
+                if (otherTermTraverseResult == TraverseResult.CONTINUE) {
+                    addNextTerminals(otherTerminal, nextTerminals);
+                }
+                return otherTermTraverseResult;
+            }
+            return edgeTraverseResult;
+        });
     }
 
     private static TraverseResult getTraverseResult(Set<Terminal> visitedTerminals, NodeTerminal terminal, Terminal.TopologyTraverser traverser) {
@@ -1500,5 +1510,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 edge.style(aSwitch.isOpen() ? "dotted" : "solid");
             }
         }
+    }
+
+    private static String getExceptionMessageElementNotFound(String element, String id) {
+        return element + " " + id + " not found";
     }
 }

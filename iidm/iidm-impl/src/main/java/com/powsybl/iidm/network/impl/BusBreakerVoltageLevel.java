@@ -13,7 +13,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
@@ -982,20 +982,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
 
             // then go through other buses of the voltage level
-            boolean traversalTerminated = !graph.traverse(v, traversalType, (v1, e, v2) -> {
-                SwitchImpl aSwitch = graph.getEdgeObject(e);
-                List<BusTerminal> otherBusTerminals = graph.getVertexObject(v2).getTerminals();
-                TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
-                if (switchTraverseResult == TraverseResult.CONTINUE && !otherBusTerminals.isEmpty()) {
-                    BusTerminal otherTerminal = otherBusTerminals.get(0);
-                    TraverseResult otherTermTraverseResult = getTraverserResult(visitedTerminals, otherTerminal, traverser);
-                    if (otherTermTraverseResult == TraverseResult.CONTINUE) {
-                        addNextTerminals(otherTerminal, nextTerminals);
-                    }
-                    return otherTermTraverseResult;
-                }
-                return switchTraverseResult;
-            });
+            boolean traversalTerminated = traverseOtherBuses(v, nextTerminals, traverser, visitedTerminals, traversalType);
             if (traversalTerminated) {
                 return false;
             }
@@ -1008,6 +995,24 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         return true;
+    }
+
+    private boolean traverseOtherBuses(int v, List<TerminalExt> nextTerminals,
+                                       Terminal.TopologyTraverser traverser, Set<Terminal> visitedTerminals, TraversalType traversalType) {
+        return !graph.traverse(v, traversalType, (v1, e, v2) -> {
+            SwitchImpl aSwitch = graph.getEdgeObject(e);
+            List<BusTerminal> otherBusTerminals = graph.getVertexObject(v2).getTerminals();
+            TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
+            if (switchTraverseResult == TraverseResult.CONTINUE && !otherBusTerminals.isEmpty()) {
+                BusTerminal otherTerminal = otherBusTerminals.get(0);
+                TraverseResult otherTermTraverseResult = getTraverserResult(visitedTerminals, otherTerminal, traverser);
+                if (otherTermTraverseResult == TraverseResult.CONTINUE) {
+                    addNextTerminals(otherTerminal, nextTerminals);
+                }
+                return otherTermTraverseResult;
+            }
+            return switchTraverseResult;
+        });
     }
 
     private static TraverseResult getTraverserResult(Set<Terminal> visitedTerminals, BusTerminal terminal, Terminal.TopologyTraverser traverser) {

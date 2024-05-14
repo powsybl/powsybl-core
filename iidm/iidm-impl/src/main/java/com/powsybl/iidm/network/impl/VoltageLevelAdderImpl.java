@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 import java.util.Optional;
 

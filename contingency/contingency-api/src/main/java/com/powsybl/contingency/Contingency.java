@@ -112,6 +112,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
                 case LOAD -> checkLoadContingency(this, (LoadContingency) element, network);
                 case BUS -> checkBusContingency(this, (BusContingency) element, network);
                 case TIE_LINE -> checkTieLineContingency(this, (TieLineContingency) element, network);
+                case BATTERY -> checkBatteryContingency(this, (BatteryContingency) element, network);
                 default -> throw new IllegalStateException("Unknown contingency element type " + element.getType());
             };
         }
@@ -133,6 +134,14 @@ public class Contingency extends AbstractExtendable<Contingency> {
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {
         if (network.getGenerator(element.getId()) == null) {
             LOGGER.warn("Generator '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkBatteryContingency(Contingency contingency, BatteryContingency element, Network network) {
+        if (network.getBattery(element.getId()) == null) {
+            LOGGER.warn("Battery '{}' of contingency '{}' not found", element.getId(), contingency.getId());
             return false;
         }
         return true;

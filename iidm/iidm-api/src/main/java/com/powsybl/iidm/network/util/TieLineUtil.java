@@ -248,23 +248,31 @@ public final class TieLineUtil {
                     associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
                 }
                 if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                    List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).toList();
-                    if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
-                        LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                        "Tie line automatically created using the only connected one '{}'.",
-                                dls.stream().map(DanglingLine::getId).toList(), connectedDls.get(0).getPairingKey(),
-                                connectedDls.get(0).getId());
-                        associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
-                    } else {
-                        String status = connectedDls.size() > 1 ? "connected" : "disconnected";
-                        LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                                status, connectedDls.stream().map(DanglingLine::getId).collect(Collectors.toList()),
-                                connectedDls.get(0).getPairingKey());
-                    }
+                    associateConnectedDanglingLine(candidateDanglingLine, dls, associateDanglingLines);
                 }
             }
         }
 
+    }
+
+    private static void associateConnectedDanglingLine(DanglingLine candidateDanglingLine, List<DanglingLine> dls,
+                                                       BiConsumer<DanglingLine, DanglingLine> associateDanglingLines) {
+        // Connected DanglingLines
+        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).toList();
+
+        // If there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
+        if (connectedDls.size() == 1) {
+            LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                    "Tie line automatically created using the only connected one '{}'.",
+                dls.stream().map(DanglingLine::getId).toList(), connectedDls.get(0).getPairingKey(),
+                connectedDls.get(0).getId());
+            associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
+        } else {
+            String status = connectedDls.size() > 1 ? "connected" : "disconnected";
+            LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
+                status, connectedDls.stream().map(DanglingLine::getId).toList(),
+                connectedDls.get(0).getPairingKey());
+        }
     }
 
     public static double getR(DanglingLine dl1, DanglingLine dl2) {

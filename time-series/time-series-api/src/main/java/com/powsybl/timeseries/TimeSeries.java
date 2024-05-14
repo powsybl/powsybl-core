@@ -446,6 +446,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
+    static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        return parseCsv(reader, timeSeriesCsvConfig, ReportNode.NO_OP);
+    }
+
     static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig,
                                                    ReportNode reportNode) {
         Objects.requireNonNull(reader);

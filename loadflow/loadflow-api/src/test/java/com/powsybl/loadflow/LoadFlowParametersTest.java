@@ -106,7 +106,7 @@ class LoadFlowParametersTest {
         boolean dcUseTransformerRatio = true;
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
-        boolean hvdcAcEmulation = true;
+        boolean hvdcAcEmulation = false;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("voltageInitMode", "UNIFORM_VALUES");
@@ -293,7 +293,7 @@ class LoadFlowParametersTest {
         boolean dcUseTransformerRatio = true;
         Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ConnectedComponentMode computedConnectedComponent = LoadFlowParameters.ConnectedComponentMode.MAIN;
-        boolean hvdcAcEmulation = true;
+        boolean hvdcAcEmulation = false;
         LoadFlowParameters parameters = new LoadFlowParameters()
                 .setVoltageInitMode(voltageInitMode)
                 .setTransformerVoltageControlOn(transformerVoltageControlOn)
