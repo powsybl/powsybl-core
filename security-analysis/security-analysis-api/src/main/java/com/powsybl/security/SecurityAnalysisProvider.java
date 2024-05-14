@@ -14,14 +14,9 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.action.Action;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +50,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      *
      * <pre> {@code
      * try {
-     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).join();
+     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, contingenciesProvider, runParameters).join();
      *   } catch (CompletionException e) {
      *       if (e.getCause() instanceof ComputationException) {
      *           ComputationException computationException = (ComputationException) e.getCause();
@@ -75,29 +70,14 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      *
      * @param network IIDM network on which the security analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
-     * @param detector
-     * @param filter
-     * @param computationManager
-     * @param parameters specific security analysis parameters
      * @param contingenciesProvider provides list of contingencies
-     * @param interceptors
-     * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
-     * @param limitReductions list of the limit reductions to apply
      * @param reportNode the reportNode used for functional logs
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                   String workingVariantId,
-                                                  LimitViolationDetector detector,
-                                                  LimitViolationFilter filter,
-                                                  ComputationManager computationManager,
-                                                  SecurityAnalysisParameters parameters,
                                                   ContingenciesProvider contingenciesProvider,
-                                                  List<SecurityAnalysisInterceptor> interceptors,
-                                                  List<OperatorStrategy> operatorStrategies,
-                                                  List<Action> actions,
-                                                  List<StateMonitor> monitors,
-                                                  List<LimitReduction> limitReductions,
+                                                  SecurityAnalysisRunParameters runParameters,
                                                   ReportNode reportNode);
 
     /**
