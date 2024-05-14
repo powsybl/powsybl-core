@@ -68,9 +68,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     parser.nextToken();
                     parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
                 }
-                case "ignoredInjectionIds" -> {
-                    parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
-                }
+                case "ignoredInjectionIds" -> parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
