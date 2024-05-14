@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
-import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.UNIFORM_DISTRIBUTION;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
