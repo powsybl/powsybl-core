@@ -213,6 +213,7 @@ class NetworkElementIdentifierContingencyListTest {
         assertTrue(identifiables.containsAll(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")));
 
         network.newSubstation().setId("NHV1.NHV2-1").add();
+        network.newSubstation().setId("NHV10NHV2-1").add();
         elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1.NHV?-?");
         identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
         Assertions.assertEquals(1, identifiables.size());

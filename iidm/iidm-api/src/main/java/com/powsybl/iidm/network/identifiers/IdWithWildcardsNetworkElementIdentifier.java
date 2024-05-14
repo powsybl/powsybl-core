@@ -21,10 +21,14 @@ import java.util.stream.Collectors;
 import static com.powsybl.iidm.network.identifiers.NetworkElementIdentifier.IdentifierType.ID_WITH_WILDCARDS;
 
 /**
- * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  *
- * identifier that allows to get a identifiable that have some unknown character
- * for example when a number changer in an id of an Identifiable
+ * Identifier that finds a network element that have some unknown character.
+ * The character '?' is the wildcard that replace the unknown characters
+ * There can be maximum 5 wildcards in the identifier.
+ * For example the identifier "GEN_?" allows to find GEN_1
+ * the only special characters allowed for the identifier are '_', '-', '.'
+ *
+ * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  *
  */
 public class IdWithWildcardsNetworkElementIdentifier implements NetworkElementIdentifier {
