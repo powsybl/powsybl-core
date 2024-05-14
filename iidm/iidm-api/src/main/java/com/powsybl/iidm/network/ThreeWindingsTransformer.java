@@ -293,6 +293,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         ThreeSides getSide();
 
         Optional<? extends LoadingLimits> getLimits(LimitType type);
+
+        /**
+         * Get the associated three-windings transformer.
+         */
+        ThreeWindingsTransformer getTransformer();
     }
 
     Terminal getTerminal(ThreeSides side);
