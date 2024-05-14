@@ -10,15 +10,19 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
+import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.UNIFORM_DISTRIBUTION;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
+import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.DELTA_P;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingType.TARGET_P;
 import static com.powsybl.iidm.modification.util.ModificationReports.scalingReport;
@@ -172,6 +176,36 @@ class StackScalableTest {
         assertEquals(5.0, network.getGenerator("g1").getTargetP(), 1e-5);
         assertEquals(50.0, network.getGenerator("g2").getTargetP(), 1e-5);
         assertEquals(30.0, network.getGenerator("g3").getTargetP(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testDisableInjections() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        List<Injection<?>> injectionsList = Arrays.asList(
+            network.getGenerator("g1"), network.getGenerator("g2"),
+            network.getDanglingLine("dl1"),
+            network.getLoad("l1"), network.getLoad("l2"));
+        StackScalable stackScalable;
+        double variationDone;
+
+        // Stack scalable with scalables on l1, g1 and dl1 disabled, should saturate g2, and use part of l2
+        ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, false, DELTA_P);
+        scalingParameters.setIgnoredInjectionIds(Set.of("l1", "g1", "dl1"));
+        stackScalable = Scalable.stack(injectionsList);
+        double volumeAsked = 100.;
+        variationDone = stackScalable.scale(network, volumeAsked, scalingParameters);
+        scalingReport(reportNode,
+            "generators, loads and dangling lines",
+            scalingParameters.getScalingType(),
+            volumeAsked, variationDone);
+        assertEquals(volumeAsked, variationDone, 1e-5);
+        assertEquals(80.0, network.getGenerator("g1").getTargetP(), 1e-5); //skipped, initial P
+        assertEquals(100., network.getGenerator("g2").getTargetP(), 1e-5); //saturated, Pmax
+        assertEquals(50.0, network.getDanglingLine("dl1").getP0(), 1e-5); //skipped, initial P
+        assertEquals(100.0, network.getLoad("l1").getP0(), 1e-5); //skipped, initial P
+        assertEquals(80. - 50., network.getLoad("l2").getP0(), 1e-5); //remaining P on this scalable
         reset();
     }
 }

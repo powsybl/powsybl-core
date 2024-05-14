@@ -109,6 +109,11 @@ class LoadScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains load {}, discarded from scaling", id);
+            return 0;
+        }
+
         Load l = n.getLoad(id);
 
         double done = 0;

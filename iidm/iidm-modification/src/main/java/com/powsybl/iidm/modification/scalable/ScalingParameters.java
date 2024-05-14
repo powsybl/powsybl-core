@@ -9,7 +9,10 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -39,16 +42,15 @@ public class ScalingParameters {
     public static final boolean DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS = false;
     public static final Priority DEFAULT_PRIORITY = ONESHOT;
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
+    public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
-
     private boolean reconnect = DEFAULT_RECONNECT;
-
     private boolean constantPowerFactor = DEFAULT_CONSTANT_POWER_FACTOR;
-
     private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
     private ScalingType scalingType = DEFAULT_SCALING_TYPE;
     private Priority priority = DEFAULT_PRIORITY;
+    private Set<String> ignoredInjectionIds = DEFAULT_IGNORED_INJECTION_IDS;
 
     public ScalingParameters() {
     }
@@ -179,6 +181,15 @@ public class ScalingParameters {
 
     public ScalingParameters setPriority(Priority priority) {
         this.priority = priority;
+        return this;
+    }
+
+    public Set<String> getIgnoredInjectionIds() {
+        return ignoredInjectionIds;
+    }
+
+    public ScalingParameters setIgnoredInjectionIds(Set<String> ignoredInjectionIds) {
+        this.ignoredInjectionIds = new HashSet<>(ignoredInjectionIds);
         return this;
     }
 
