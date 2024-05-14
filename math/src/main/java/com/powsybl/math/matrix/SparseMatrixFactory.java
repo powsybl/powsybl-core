@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -26,8 +27,8 @@ public class SparseMatrixFactory implements MatrixFactory {
     }
 
     @Override
-    public SparseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
-        SparseMatrix m = new SparseMatrix(rowCount, columnCount, estimatedNonZeroValueCount);
+    public SparseMatrix create(int rowCount, int columnCount, int estimatedValueCount) {
+        SparseMatrix m = new SparseMatrix(rowCount, columnCount, estimatedValueCount);
         m.setRgrowthThreshold(rgrowthThreshold);
         return m;
     }

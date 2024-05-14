@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -204,24 +205,20 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
         String fieldName = parser.getCurrentName();
         switch (fieldName) {
-            case "offset":
+            case "offset" -> {
                 context.offset = parser.nextIntValue(-1);
                 context.doubleValues = null;
                 context.stringValues = null;
-                break;
-            case "uncompressedLength":
-                context.uncompressedLength = parser.nextIntValue(-1);
-                break;
-            case "stepLengths":
+            }
+            case "uncompressedLength" -> context.uncompressedLength = parser.nextIntValue(-1);
+            case "stepLengths" -> {
                 context.stepLengths = new TIntArrayList();
                 context.valuesOrLengthArray = true;
-                break;
-            case "values":
-            case "stepValues":
-                context.valuesOrLengthArray = true;
-                break;
-            default:
-                break;
+            }
+            case "values", "stepValues" -> context.valuesOrLengthArray = true;
+            default -> {
+                // Do nothing
+            }
         }
     }
 
@@ -288,38 +285,27 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
-                    case FIELD_NAME:
-                        parseFieldName(parser, context);
-                        break;
-                    case END_OBJECT:
+                    case FIELD_NAME -> parseFieldName(parser, context);
+                    case END_OBJECT -> {
                         parseEndObject(context);
                         if (single) {
                             return;
-                        } else {
-                            break;
                         }
-                    case END_ARRAY:
+                    }
+                    case END_ARRAY -> {
                         if (context.valuesOrLengthArray) {
                             context.valuesOrLengthArray = false;
                         } else {
                             return; // end of chunk parsing
                         }
-                        break;
-                    case VALUE_NUMBER_FLOAT:
-                        context.addDoubleValue(parser.getDoubleValue());
-                        break;
-                    case VALUE_NUMBER_INT:
-                        parseValueNumberInt(parser, context);
-                        break;
-                    case VALUE_STRING:
-                        context.addStringValue(parser.getValueAsString());
-                        break;
-                    case VALUE_NULL:
-                        context.addStringValue(null);
-                        break;
-
-                    default:
-                        break;
+                    }
+                    case VALUE_NUMBER_FLOAT -> context.addDoubleValue(parser.getDoubleValue());
+                    case VALUE_NUMBER_INT -> parseValueNumberInt(parser, context);
+                    case VALUE_STRING -> context.addStringValue(parser.getValueAsString());
+                    case VALUE_NULL -> context.addStringValue(null);
+                    default -> {
+                        // Do nothing
+                    }
                 }
             }
         } catch (IOException e) {

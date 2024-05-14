@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -10,10 +11,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
@@ -21,7 +22,6 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -36,7 +36,7 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
     private static final String PROPERTY_ARRAY = "properties";
 
     public DiscreteMeasurementsSerDe() {
-        super("discreteMeasurements", "network", DiscreteMeasurements.class,
+        super(DISCRETE_MEASUREMENT_ARRAY, "network", DiscreteMeasurements.class,
                 "discreteMeasurements.xsd", "http://www.powsybl.org/schema/iidm/ext/discrete_measurements/1_0", "dm");
     }
 
@@ -57,17 +57,9 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
             writer.writeEnumAttribute("tapChanger", discreteMeasurement.getTapChanger());
             writer.writeEnumAttribute("valueType", discreteMeasurement.getValueType());
             switch (discreteMeasurement.getValueType()) {
-                case BOOLEAN:
-                    writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
-                    break;
-                case INT:
-                    writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
-                    break;
-                case STRING:
-                    writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
-                    break;
-                default:
-                    throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
+                case BOOLEAN -> writer.writeBooleanAttribute(VALUE, discreteMeasurement.getValueAsBoolean());
+                case INT -> writer.writeIntAttribute(VALUE, discreteMeasurement.getValueAsInt());
+                case STRING -> writer.writeStringAttribute(VALUE, discreteMeasurement.getValueAsString());
             }
             writer.writeBooleanAttribute("valid", discreteMeasurement.isValid());
 
@@ -110,10 +102,9 @@ public class DiscreteMeasurementsSerDe<I extends Identifiable<I>> extends Abstra
                 .setType(type)
                 .setTapChanger(tapChanger);
         switch (valueType) {
-            case BOOLEAN -> Optional.ofNullable(reader.readBooleanAttribute(VALUE)).ifPresent(adder::setValue);
-            case INT -> Optional.ofNullable(reader.readIntAttribute(VALUE)).ifPresent(adder::setValue);
-            case STRING -> Optional.ofNullable(reader.readStringAttribute(VALUE)).ifPresent(adder::setValue);
-            default -> throw new PowsyblException("Unsupported value type: " + valueType);
+            case BOOLEAN -> adder.setValue(reader.readBooleanAttribute(VALUE));
+            case INT -> adder.setValue(reader.readIntAttribute(VALUE));
+            case STRING -> adder.setValue(reader.readStringAttribute(VALUE));
         }
 
         adder.setValid(reader.readBooleanAttribute("valid", true));

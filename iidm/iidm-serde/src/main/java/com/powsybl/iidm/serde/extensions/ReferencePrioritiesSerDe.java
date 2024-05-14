@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -23,6 +24,8 @@ import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
+import java.util.Map;
+
 /**
  * @author Damien Jeandemange {@literal <damien.jeandemange at artelys.com>}
  */
@@ -30,9 +33,16 @@ import com.powsybl.iidm.serde.TerminalRefSerDe;
 public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends AbstractExtensionSerDe<C,
         ReferencePriorities<C>> {
 
+    public static final String REFERENCE_PRIORITY_ROOT_ELEMENT_NAME = "referencePriority";
+
     public ReferencePrioritiesSerDe() {
         super("referencePriorities", "network", ReferencePriorities.class, "referencePriorities.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/reference_priorities/1_0", "refpri");
+    }
+
+    @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of("referencePriorities", REFERENCE_PRIORITY_ROOT_ELEMENT_NAME);
     }
 
     @Override
@@ -41,7 +51,7 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
         writer.writeStartNodes();
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         for (ReferencePriority referencePriority : extension.getReferencePriorities()) {
-            writer.writeStartNode(getNamespaceUri(), "referencePriority");
+            writer.writeStartNode(getNamespaceUri(), REFERENCE_PRIORITY_ROOT_ELEMENT_NAME);
             writer.writeIntAttribute("priority", referencePriority.getPriority());
             TerminalRefSerDe.writeTerminalRefAttribute(referencePriority.getTerminal(), networkContext);
             writer.writeEndNode();
@@ -56,7 +66,7 @@ public class ReferencePrioritiesSerDe<C extends Connectable<C>> extends Abstract
         ReferencePrioritiesAdder<C> referencePrioritiesAdder = extendable.newExtension(ReferencePrioritiesAdder.class);
         ReferencePriorities<C> referencePriorities = referencePrioritiesAdder.add();
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("referencePriority")) {
+            if (elementName.equals(REFERENCE_PRIORITY_ROOT_ELEMENT_NAME)) {
                 int priority = reader.readIntAttribute("priority");
                 Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
                 referencePriorities.newReferencePriority()

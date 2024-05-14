@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -161,6 +162,26 @@ public interface Substation extends Container<Substation> {
      * Get the three windings transformers count
      */
     int getThreeWindingsTransformerCount();
+
+    /**
+     * Get a builder to create a new overload management system in the substation.
+     */
+    OverloadManagementSystemAdder newOverloadManagementSystem();
+
+    /**
+     * Get the overload management systems relative to the substation.
+     */
+    Iterable<OverloadManagementSystem> getOverloadManagementSystems();
+
+    /**
+     * Get the overload management systems relative to the substation.
+     */
+    Stream<OverloadManagementSystem> getOverloadManagementSystemStream();
+
+    /**
+     * Get the overload management systems count
+     */
+    int getOverloadManagementSystemCount();
 
     /**
      * Get geographical tags associated to the substation.

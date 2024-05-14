@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -14,7 +15,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -827,7 +831,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Switch getSwitch(String switchId);
 
         /**
-         * Get a builer to create a new switch.
+         * Get a builder to create a new switch.
          *
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
@@ -1248,6 +1252,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return three windings transformer count connected to this voltage level
      */
     int getThreeWindingsTransformerCount();
+
+    /**
+     * Get a builder to create a new ground.
+     */
+    GroundAdder newGround();
+
+    /**
+     * Get grounds.
+     */
+    Iterable<Ground> getGrounds();
+
+    /**
+     * Get grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get ground count.
+     */
+    int getGroundCount();
 
     /**
      * Remove this voltage level from the network.

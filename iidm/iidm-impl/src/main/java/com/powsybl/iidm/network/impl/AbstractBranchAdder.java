@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ValidationException;
 
 /**
@@ -52,7 +54,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected TerminalExt checkAndGetTerminal1() {
         VoltageLevelExt voltageLevel = checkAndGetVoltageLevel1();
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.ONE)
                 .setNode(node1)
                 .setBus(bus1)
                 .setConnectableBus(connectableBus1)
@@ -97,7 +99,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     protected TerminalExt checkAndGetTerminal2() {
         VoltageLevelExt voltageLevel = checkAndGetVoltageLevel2();
-        return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
+        return new TerminalBuilder(voltageLevel.getNetworkRef(), this, ThreeSides.TWO)
                 .setNode(node2)
                 .setBus(bus2)
                 .setConnectableBus(connectableBus2)

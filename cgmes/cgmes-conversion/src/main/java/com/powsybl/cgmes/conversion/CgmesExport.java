@@ -3,20 +3,24 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.export.*;
+import com.powsybl.cgmes.conversion.naming.NamingStrategy;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -61,13 +65,8 @@ public class CgmesExport implements Exporter {
     }
 
     @Override
-    public void export(Network network, Properties params, DataSource ds, Reporter reporter) {
+    public void export(Network network, Properties params, DataSource ds, ReportNode reportNode) {
         Objects.requireNonNull(network);
-        String baseName = baseName(params, ds, network);
-        String filenameEq = baseName + "_EQ.xml";
-        String filenameTp = baseName + "_TP.xml";
-        String filenameSsh = baseName + "_SSH.xml";
-        String filenameSv = baseName + "_SV.xml";
 
         // Reference data (if required) will come from imported boundaries
         // We may have received a sourcing actor as a parameter
@@ -88,40 +87,70 @@ public class CgmesExport implements Exporter {
         }
         ReferenceDataProvider referenceDataProvider = new ReferenceDataProvider(sourcingActorName, countryName, importer, params);
 
-        CgmesExportContext context = new CgmesExportContext(
-                network,
-                referenceDataProvider,
-                NamingStrategyFactory.create(Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig)))
+        // The UUID namespace parameter must be a valid UUID itself
+        UUID uuidNamespace = UUID.fromString(Parameter.readString(getFormat(), params, UUID_NAMESPACE_PARAMETER, defaultValueConfig));
+        NamingStrategy namingStrategy = NamingStrategyFactory.create(
+                Parameter.readString(getFormat(), params, NAMING_STRATEGY_PARAMETER, defaultValueConfig),
+                uuidNamespace);
+        CgmesExportContext context = new CgmesExportContext(network, referenceDataProvider, namingStrategy)
                 .setExportBoundaryPowerFlows(Parameter.readBoolean(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER, defaultValueConfig))
                 .setExportFlowsForSwitches(Parameter.readBoolean(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER, defaultValueConfig))
                 .setExportTransformersWithHighestVoltageAtEnd1(Parameter.readBoolean(getFormat(), params, EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER, defaultValueConfig))
+                .setExportLoadFlowStatus(Parameter.readBoolean(getFormat(), params, EXPORT_LOAD_FLOW_STATUS_PARAMETER, defaultValueConfig))
+                .setMaxPMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_P_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setMaxQMismatchConverged(Parameter.readDouble(getFormat(), params, MAX_Q_MISMATCH_CONVERGED_PARAMETER, defaultValueConfig))
+                .setExportSvInjectionsForSlacks(Parameter.readBoolean(getFormat(), params, EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER, defaultValueConfig))
                 .setEncodeIds(Parameter.readBoolean(getFormat(), params, ENCODE_IDS_PARAMETERS, defaultValueConfig))
                 .setBoundaryEqId(getBoundaryId("EQ", network, params, BOUNDARY_EQ_ID_PARAMETER, referenceDataProvider))
                 .setBoundaryTpId(getBoundaryId("TP", network, params, BOUNDARY_TP_ID_PARAMETER, referenceDataProvider))
-                .setReporter(reporter);
+                .setReportNode(reportNode)
+                .setBusinessProcess(Parameter.readString(getFormat(), params, BUSINESS_PROCESS_PARAMETER, defaultValueConfig))
+                .setUpdateDependencies(Parameter.readBoolean(getFormat(), params, UPDATE_DEPENDENCIES_PARAMETER, defaultValueConfig));
 
         // If sourcing actor data has been found and the modeling authority set has not been specified explicitly, set it
         String masUri = Parameter.readString(getFormat(), params, MODELING_AUTHORITY_SET_PARAMETER, defaultValueConfig);
         PropertyBag sourcingActor = referenceDataProvider.getSourcingActor();
-        if (sourcingActor.containsKey("masUri") && masUri.equals(DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
+        if (sourcingActor.containsKey("masUri") && masUri.equals(CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
             masUri = sourcingActor.get("masUri");
         }
-
-        context.getEqModelDescription().setModelingAuthoritySet(masUri);
-        context.getTpModelDescription().setModelingAuthoritySet(masUri);
-        context.getSshModelDescription().setModelingAuthoritySet(masUri);
-        context.getSvModelDescription().setModelingAuthoritySet(masUri);
+        // Only update if masUri is not the default value
+        if (!masUri.equals(CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE)) {
+            context.getExportedEQModel().setModelingAuthoritySet(masUri);
+            context.getExportedTPModel().setModelingAuthoritySet(masUri);
+            context.getExportedSSHModel().setModelingAuthoritySet(masUri);
+            context.getExportedSVModel().setModelingAuthoritySet(masUri);
+        }
         String modelDescription = Parameter.readString(getFormat(), params, MODEL_DESCRIPTION_PARAMETER, defaultValueConfig);
         if (modelDescription != null) {
-            context.getEqModelDescription().setDescription(modelDescription);
-            context.getTpModelDescription().setDescription(modelDescription);
-            context.getSshModelDescription().setDescription(modelDescription);
-            context.getSvModelDescription().setDescription(modelDescription);
+            context.getExportedEQModel().setDescription(modelDescription);
+            context.getExportedTPModel().setDescription(modelDescription);
+            context.getExportedSSHModel().setDescription(modelDescription);
+            context.getExportedSVModel().setDescription(modelDescription);
         }
         String cimVersionParam = Parameter.readString(getFormat(), params, CIM_VERSION_PARAMETER, defaultValueConfig);
         if (cimVersionParam != null) {
             context.setCimVersion(Integer.parseInt(cimVersionParam));
         }
+
+        String modelVersion = Parameter.readString(getFormat(), params, MODEL_VERSION_PARAMETER, defaultValueConfig);
+        if (modelVersion != null) {
+            context.getExportedEQModel().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedTPModel().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedSSHModel().setVersion(Integer.parseInt(modelVersion));
+            context.getExportedSVModel().setVersion(Integer.parseInt(modelVersion));
+        }
+
+        // Export the file according to the profile
+        writeFiles(context, params, ds, network);
+    }
+
+    private void writeFiles(CgmesExportContext context, Properties params, DataSource ds, Network network) {
+        String baseName = baseName(params, ds, network);
+        String filenameEq = baseName + "_EQ.xml";
+        String filenameTp = baseName + "_TP.xml";
+        String filenameSsh = baseName + "_SSH.xml";
+        String filenameSv = baseName + "_SV.xml";
+
         try {
             List<String> profiles = Parameter.readStringList(getFormat(), params, PROFILES_PARAMETER, defaultValueConfig);
             checkConsistency(profiles, network, context);
@@ -131,8 +160,8 @@ public class CgmesExport implements Exporter {
                     EquipmentExport.write(network, writer, context);
                 }
             } else {
-                addProfilesIdentifiers(network, "EQ", context.getEqModelDescription());
-                context.getEqModelDescription().addId(context.getNamingStrategy().getCgmesId(network));
+                saveLegacyIdsFromPropertiesForSvDependencies(network, CgmesSubset.EQUIPMENT, context);
+                context.getExportedEQModel().setId(context.getNamingStrategy().getCgmesId(network));
             }
             if (profiles.contains("TP")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameTp, false))) {
@@ -140,7 +169,7 @@ public class CgmesExport implements Exporter {
                     TopologyExport.write(network, writer, context);
                 }
             } else {
-                addProfilesIdentifiers(network, "TP", context.getTpModelDescription());
+                saveLegacyIdsFromPropertiesForSvDependencies(network, CgmesSubset.TOPOLOGY, context);
             }
             if (profiles.contains("SSH")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
@@ -148,7 +177,7 @@ public class CgmesExport implements Exporter {
                     SteadyStateHypothesisExport.write(network, writer, context);
                 }
             } else {
-                addProfilesIdentifiers(network, "SSH", context.getSshModelDescription());
+                saveLegacyIdsFromPropertiesForSvDependencies(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context);
             }
             if (profiles.contains("SV")) {
                 try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(filenameSv, false))) {
@@ -156,7 +185,7 @@ public class CgmesExport implements Exporter {
                     StateVariablesExport.write(network, writer, context);
                 }
             }
-            context.getNamingStrategy().writeIdMapping(baseName + "_id_mapping.csv", ds);
+            context.getNamingStrategy().debug(baseName, ds);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (XMLStreamException e) {
@@ -180,11 +209,15 @@ public class CgmesExport implements Exporter {
         return id;
     }
 
-    private static void addProfilesIdentifiers(Network network, String profile, CgmesExportContext.ModelDescription description) {
-        description.setIds(network.getPropertyNames().stream()
-                .filter(p -> p.startsWith(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + profile + "_ID"))
+    private static void saveLegacyIdsFromPropertiesForSvDependencies(Network network, CgmesSubset subset, CgmesExportContext context) {
+        String propertyName = String.format("%s%s_ID",
+                Conversion.CGMES_PREFIX_ALIAS_PROPERTIES,
+                subset.getIdentifier());
+        List<String> ids = network.getPropertyNames().stream()
+                .filter(p -> p.startsWith(propertyName))
                 .map(network::getProperty)
-                .toList());
+                .toList();
+        context.setLegacyIdsForSvDependencies(subset, ids);
     }
 
     private static void checkConsistency(List<String> profiles, Network network, CgmesExportContext context) {
@@ -194,7 +227,7 @@ public class CgmesExport implements Exporter {
         if (networkIsNodeBreaker
                 && (profiles.contains("SSH") || profiles.contains("SV"))
                 && !profiles.contains("TP")) {
-            inconsistentProfilesTPRequiredReport(context.getReporter(), network.getId());
+            inconsistentProfilesTPRequiredReport(context.getReportNode(), network.getId());
             LOG.error("Network {} contains node/breaker information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.", network.getId());
         }
     }
@@ -231,8 +264,15 @@ public class CgmesExport implements Exporter {
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
+    public static final String EXPORT_LOAD_FLOW_STATUS = "iidm.export.cgmes.export-load-flow-status";
+    public static final String MAX_P_MISMATCH_CONVERGED = "iidm.export.cgmes.max-p-mismatch-converged";
+    public static final String MAX_Q_MISMATCH_CONVERGED = "iidm.export.cgmes.max-q-mismatch-converged";
+    public static final String EXPORT_SV_INJECTIONS_FOR_SLACKS = "iidm.export.cgmes.export-sv-injections-for-slacks";
     public static final String SOURCING_ACTOR = "iidm.export.cgmes.sourcing-actor";
-    private static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
+    public static final String UUID_NAMESPACE = "iidm.export.cgmes.uuid-namespace";
+    public static final String MODEL_VERSION = "iidm.export.cgmes.model-version";
+    public static final String BUSINESS_PROCESS = "iidm.export.cgmes.business-process";
+    public static final String UPDATE_DEPENDENCIES = "iidm.export.cgmes.update-dependencies";
 
     private static final Parameter BASE_NAME_PARAMETER = new Parameter(
             BASE_NAME,
@@ -286,7 +326,7 @@ public class CgmesExport implements Exporter {
             MODELING_AUTHORITY_SET,
             ParameterType.STRING,
             "Modeling authority set",
-            DEFAULT_MODELING_AUTHORITY_SET_VALUE);
+            CgmesExportContext.DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     private static final Parameter MODEL_DESCRIPTION_PARAMETER = new Parameter(
             MODEL_DESCRIPTION,
             ParameterType.STRING,
@@ -304,6 +344,51 @@ public class CgmesExport implements Exporter {
             "Export transformers with highest voltage at end1",
             CgmesExportContext.EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE);
 
+    private static final Parameter EXPORT_LOAD_FLOW_STATUS_PARAMETER = new Parameter(
+            EXPORT_LOAD_FLOW_STATUS,
+            ParameterType.BOOLEAN,
+            "Export load flow status of topological islands",
+            CgmesExportContext.EXPORT_LOAD_FLOW_STATUS_DEFAULT_VALUE);
+    private static final Parameter MAX_P_MISMATCH_CONVERGED_PARAMETER = new Parameter(
+            MAX_P_MISMATCH_CONVERGED,
+            ParameterType.DOUBLE,
+            "Max mismatch in active power to consider a bus converged when exporting load flow status of topological islands",
+            CgmesExportContext.MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE);
+    private static final Parameter MAX_Q_MISMATCH_CONVERGED_PARAMETER = new Parameter(
+            MAX_Q_MISMATCH_CONVERGED,
+            ParameterType.DOUBLE,
+            "Max mismatch in reactive power to consider a bus converged when exporting load flow status of topological islands",
+            CgmesExportContext.MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE);
+    private static final Parameter EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER = new Parameter(
+            EXPORT_SV_INJECTIONS_FOR_SLACKS,
+            ParameterType.BOOLEAN,
+            "Export SvInjections with the mismatch of slack buses",
+            CgmesExportContext.EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE);
+
+    private static final Parameter UUID_NAMESPACE_PARAMETER = new Parameter(
+            UUID_NAMESPACE,
+            ParameterType.STRING,
+            "Namespace to use for name-based UUID generation. It must be a valid UUID itself",
+            CgmesExportContext.DEFAULT_UUID_NAMESPACE.toString());
+
+    private static final Parameter MODEL_VERSION_PARAMETER = new Parameter(
+            MODEL_VERSION,
+            ParameterType.STRING,
+            "Model version",
+            null);
+
+    private static final Parameter BUSINESS_PROCESS_PARAMETER = new Parameter(
+            BUSINESS_PROCESS,
+            ParameterType.STRING,
+            "Business process",
+            CgmesExportContext.DEFAULT_BUSINESS_PROCESS);
+
+    private static final Parameter UPDATE_DEPENDENCIES_PARAMETER = new Parameter(
+            UPDATE_DEPENDENCIES,
+            ParameterType.BOOLEAN,
+            "True if dependencies should be updated automatically. False if the user has already put them in the extension for metadata models",
+            CgmesExportContext.UPDATE_DEPENDENCIES_DEFAULT_VALUE);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
             BASE_NAME_PARAMETER,
             CIM_VERSION_PARAMETER,
@@ -316,7 +401,15 @@ public class CgmesExport implements Exporter {
             MODELING_AUTHORITY_SET_PARAMETER,
             MODEL_DESCRIPTION_PARAMETER,
             EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_PARAMETER,
-            SOURCING_ACTOR_PARAMETER);
+            SOURCING_ACTOR_PARAMETER,
+            EXPORT_LOAD_FLOW_STATUS_PARAMETER,
+            MAX_P_MISMATCH_CONVERGED_PARAMETER,
+            MAX_Q_MISMATCH_CONVERGED_PARAMETER,
+            EXPORT_SV_INJECTIONS_FOR_SLACKS_PARAMETER,
+            UUID_NAMESPACE_PARAMETER,
+            MODEL_VERSION_PARAMETER,
+            BUSINESS_PROCESS_PARAMETER,
+            UPDATE_DEPENDENCIES_PARAMETER);
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesExport.class);
 }

@@ -8,7 +8,6 @@
 package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -23,9 +22,10 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -58,7 +58,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
 
     @Override
     public String getComment() {
-        return "IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer";
+        return "IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer";
     }
 
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
@@ -79,12 +79,7 @@ public class XMLImporter extends AbstractTreeDataImporter {
                             }
                         }
                     } finally {
-                        try {
-                            xmlsr.close();
-                            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
-                        } catch (XMLStreamException e) {
-                            LOGGER.error(e.toString(), e);
-                        }
+                        cleanClose(xmlsr);
                     }
                 }
             }
@@ -92,6 +87,15 @@ public class XMLImporter extends AbstractTreeDataImporter {
         } catch (XMLStreamException e) {
             // not a valid xml file
             return false;
+        }
+    }
+
+    private void cleanClose(XMLStreamReader xmlStreamReader) {
+        try {
+            xmlStreamReader.close();
+            XmlUtil.gcXmlInputFactory(XML_INPUT_FACTORY_SUPPLIER.get());
+        } catch (XMLStreamException e) {
+            LOGGER.error(e.toString(), e);
         }
     }
 }

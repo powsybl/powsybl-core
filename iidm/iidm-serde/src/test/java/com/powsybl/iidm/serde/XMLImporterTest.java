@@ -3,13 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +25,13 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class XMLImporterTest extends AbstractSerDeTest {
+class XMLImporterTest extends AbstractIidmSerDeTest {
 
     private XMLImporter importer;
 
@@ -78,7 +78,7 @@ class XMLImporterTest extends AbstractSerDeTest {
             writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
             writer.newLine();
             writer.write("<!--sfsfs-->");
-            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_XML_VERSION.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
+            writer.write("<iidm:network xmlns:iidm=\"" + CURRENT_IIDM_VERSION.getNamespaceURI() + "\" id=\"test\" caseDate=\"2013-01-15T18:45:00.000+01:00\" forecastDistance=\"0\" sourceFormat=\"test\" minimumValidationLevel=\"STEADY_STATE_HYPOTHESIS\">");
             writer.newLine();
             writer.write("    <iidm:substation id=\"P1\" country=\"FR\"/>");
             writer.newLine();
@@ -98,12 +98,12 @@ class XMLImporterTest extends AbstractSerDeTest {
         //   /test5.xiidm that contains unsupported extensions
         //   /test6.xiidm + /test6_mapping.csv
         //   /test7.xiidm that contains a comment after xml prolog
-        writeNetwork("/test0.xiidm", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test1.iidm", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test2.xml", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test3.txt", CURRENT_IIDM_XML_VERSION, false);
-        writeNetwork("/test5.xiidm", CURRENT_IIDM_XML_VERSION, true);
-        writeNetwork("/test6.xiidm", CURRENT_IIDM_XML_VERSION, false);
+        writeNetwork("/test0.xiidm", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test1.iidm", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test2.xml", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test3.txt", CURRENT_IIDM_VERSION, false);
+        writeNetwork("/test5.xiidm", CURRENT_IIDM_VERSION, true);
+        writeNetwork("/test6.xiidm", CURRENT_IIDM_VERSION, false);
         writeNetwork("/testDummy.xiidm", "http://wwww.dummy.foo/", false);
         try (BufferedWriter writer = Files.newBufferedWriter(fileSystem.getPath("/test6_mapping.csv"), StandardCharsets.UTF_8)) {
             writer.write("ZZ;test");
@@ -112,7 +112,7 @@ class XMLImporterTest extends AbstractSerDeTest {
             writer.newLine();
         }
         writeNetworkWithComment("/test7.xiidm");
-        writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_XML_VERSION.getNamespaceURI());
+        writeNetworkWithExtension("/test8.xiidm", CURRENT_IIDM_VERSION.getNamespaceURI());
 
         importer = new XMLImporter();
     }
@@ -138,14 +138,14 @@ class XMLImporterTest extends AbstractSerDeTest {
 
     @Test
     void getParameters() {
-        assertEquals(2, importer.getParameters().size());
+        assertEquals(5, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
 
     @Test
     void getComment() {
-        assertEquals("IIDM XML v " + CURRENT_IIDM_XML_VERSION.toString(".") + " importer", importer.getComment());
+        assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
     }
 
     @Test
@@ -219,49 +219,49 @@ class XMLImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void importDataReporterTest() throws IOException {
+    void importDataReportNodeTest() throws IOException {
         FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test8");
-        importDataAndTestReporter("/importXmlReport.txt", dataSource);
+        importDataAndTestReportNode("/importXmlReport.txt", dataSource);
     }
 
     @Test
-    void importDataReporterExtensionNotFoundTest() throws IOException {
+    void importDataReportNodeExtensionNotFoundTest() throws IOException {
         FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test5");
-        importDataAndTestReporter("/importXmlReportExtensionsNotFound.txt", dataSource);
+        importDataAndTestReportNode("/importXmlReportExtensionsNotFound.txt", dataSource);
     }
 
     @Test
-    void importDataReporterMultipleExtension() throws IOException {
-        importDataAndTestReporter("multiple-extensions",
+    void importDataReportNodeMultipleExtension() throws IOException {
+        importDataAndTestReportNode("multiple-extensions",
                 "multiple-extensions.xml",
                 "/importXmlReportExtensions.txt");
     }
 
     @Test
-    void importDataReporterValidationTest() throws IOException {
-        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTap",
+    void importDataReportNodeValidationTest() throws IOException {
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTap",
                 "twoWindingsTransformerPhaseAndRatioTap.xml",
                 "/importXmlReportValidation.txt");
     }
 
     @Test
-    void importDataReporterValidationAndMultipleExtensionTest() throws IOException {
-        importDataAndTestReporter("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
+    void importDataReportNodeValidationAndMultipleExtensionTest() throws IOException {
+        importDataAndTestReportNode("twoWindingsTransformerPhaseAndRatioTapWithExtensions",
                 "twoWindingsTransformerPhaseAndRatioTapWithExtensions.xml",
                 "/importXmlReportExtensionsAndValidations.txt");
     }
 
-    private void importDataAndTestReporter(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet("/V1_11/", dataSourceFilename));
-        importDataAndTestReporter(expectedContentFilename, dataSource);
+    private void importDataAndTestReportNode(String dataSourceBaseName, String dataSourceFilename, String expectedContentFilename) throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(dataSourceBaseName, new ResourceSet(getVersionDir(CURRENT_IIDM_VERSION), dataSourceFilename));
+        importDataAndTestReportNode(expectedContentFilename, dataSource);
     }
 
-    private void importDataAndTestReporter(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
-        ReporterModel reporterModel = new ReporterModel("test", "test reporter");
-        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reporterModel));
+    private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));
 
         StringWriter sw = new StringWriter();
-        reporterModel.export(sw);
+        reportNode.print(sw);
         InputStream ref = XMLImporterTest.class.getResourceAsStream(expectedContentFilename);
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(ref), StandardCharsets.UTF_8));
         String logExport = normalizeLineSeparator(sw.toString());

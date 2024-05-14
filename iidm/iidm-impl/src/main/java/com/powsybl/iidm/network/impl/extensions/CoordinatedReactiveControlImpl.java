@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -43,7 +44,8 @@ public class CoordinatedReactiveControlImpl extends AbstractMultiVariantIdentifi
 
     private static double checkQPercent(Generator generator, double qPercent) {
         if (Double.isNaN(qPercent)) {
-            throw new PowsyblException("Undefined value for qPercent");
+            throw new PowsyblException(String.format("Undefined value (%s) for qPercent for generator %s",
+                qPercent, generator.getId()));
         }
         if (qPercent < 0 || qPercent > 100) {
             LOGGER.debug("qPercent value of generator {} does not seem to be a valid percent: {}", generator.getId(), qPercent);

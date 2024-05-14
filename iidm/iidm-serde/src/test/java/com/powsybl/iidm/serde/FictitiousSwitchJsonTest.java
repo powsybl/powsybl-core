@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
@@ -27,7 +27,7 @@ class FictitiousSwitchJsonTest extends AbstractIidmSerDeTest {
         roundTripTest(FictitiousSwitchFactory.create(),
                 (n, jsonFile) -> NetworkSerDe.write(n, exportOptions, jsonFile),
                 jsonFile -> NetworkSerDe.read(jsonFile, importOptions),
-                getVersionedNetworkPath("fictitiousSwitchRef.jiidm", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("fictitiousSwitchRef.jiidm", CURRENT_IIDM_VERSION));
 
         //backward compatibility
         roundTripVersionedJsonFromMinToCurrentVersionTest("fictitiousSwitchRef.jiidm", IidmVersion.V_1_11);

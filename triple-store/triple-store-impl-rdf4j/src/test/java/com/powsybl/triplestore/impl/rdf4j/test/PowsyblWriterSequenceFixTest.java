@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.triplestore.impl.rdf4j.test;
@@ -125,13 +126,13 @@ class PowsyblWriterSequenceFixTest {
         ts.write(ds);
 
         try (InputStream is = ds.newInputStream(contextName)) {
-            compareXml(getClass().getResourceAsStream(expected), is);
+            assertXmlEquals(getClass().getResourceAsStream(expected), is);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private static void compareXml(InputStream expected, InputStream actual) {
+    private static void assertXmlEquals(InputStream expected, InputStream actual) {
         Source sexpected = Input.fromStream(expected).build();
         Source sactual = Input.fromStream(actual).build();
         Diff myDiff = DiffBuilder

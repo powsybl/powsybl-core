@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -12,7 +13,7 @@ import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 import java.util.List;
 import java.util.Objects;
@@ -422,6 +423,26 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return getConnectableStream(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public GroundAdder newGround() {
+        return new GroundAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return getConnectables(Ground.class);
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return getConnectableStream(Ground.class);
+    }
+
+    @Override
+    public int getGroundCount() {
+        return getConnectableCount(Ground.class);
     }
 
     @Override

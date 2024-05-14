@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
@@ -16,15 +17,12 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.commons.datasource.ZipFileDataSource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -32,7 +30,6 @@ import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +43,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -73,28 +71,12 @@ public class ConversionTester {
         this(importParams, null, tripleStoreImplementations, networkComparison);
     }
 
-    public ConversionTester(List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
-        this(null, tripleStoreImplementations, networkComparison);
-    }
-
     public void setOnlyReport(boolean onlyReport) {
         this.onlyReport = onlyReport;
     }
 
     public void setReportConsumer(Consumer<String> reportConsumer) {
         this.reportConsumer = reportConsumer;
-    }
-
-    public void setStrictTopologyTest(boolean strictTopologyTest) {
-        this.strictTopologyTest = strictTopologyTest;
-    }
-
-    public void setExportXiidm(boolean exportXiidm) {
-        this.exportXiidm = exportXiidm;
-    }
-
-    public void setExportCgmes(boolean exportCgmes) {
-        this.exportCgmes = exportCgmes;
     }
 
     public void setTestExportImportCgmes(boolean testExportImportCgmes) {
@@ -169,14 +151,10 @@ public class ConversionTester {
     }
 
     private void testConversionOnlyReport(GridModelReference gm) {
-        String impl = TripleStoreFactory.defaultImplementation();
         CgmesImport i = new CgmesImport();
-        Properties params = new Properties();
-        params.put("storeCgmesModelAsNetworkExtension", "true");
-        params.put("powsyblTripleStore", impl);
         ReadOnlyDataSource ds = gm.dataSource();
         LOG.info("Importer.exists() == {}", i.exists(ds));
-        Network n = i.importData(ds, new NetworkFactoryImpl(), params);
+        Network n = i.importData(ds, new NetworkFactoryImpl(), importParams);
         CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         new Conversion(m).report(reportConsumer);
     }
@@ -200,31 +178,40 @@ public class ConversionTester {
         new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
     }
 
+    private static String subsetFromName(String name) {
+        return Stream.of(CgmesSubset.values())
+                .filter(s -> s.isValidName(name))
+                .map(CgmesSubset::getIdentifier)
+                .findFirst()
+                .orElse("unknown");
+    }
+
     private void testExportImportCgmes(Network network, ReadOnlyDataSource originalDs, FileSystem fs, CgmesImport i, Properties iparams,
                                        ComparisonConfig config) throws IOException {
 
+        // We copy everything from the original data source to the temporary destination with a normalized name
+        // And then export the requested instance files to the same temporary destination
+        // We will overwrite some of the files, with the expected content
+
+        // Create a temporary directory to store the exported files
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
-        String baseName = "bar";
-        new CgmesExport().export(network, exportParams, new FileDataSource(path, baseName));
+        String baseName = originalDs.getBaseName();
+        DataSource ds = new ZipFileDataSource(path, baseName);
 
-        DataSource ds = new FileDataSource(path, "bar");
-        String expected = originalDs.listNames(".*EQ.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain EQ profile"));
-        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_EQ.xml", false));
-             InputStream in = originalDs.newInputStream(expected)) {
-            ByteStreams.copy(in, out);
-        }
-        expected = originalDs.listNames(".*TP.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain TP profile"));
-        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_TP.xml", false));
-             InputStream in = originalDs.newInputStream(expected)) {
-            ByteStreams.copy(in, out);
-        }
-        for (String boundary : originalDs.listNames(".*BD.*")) {
-            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + boundary, false));
-                 InputStream in = originalDs.newInputStream(boundary)) {
+        // Copy the original files to the temporary destination, ensuring a normalized name
+        for (String name : new CgmesOnDataSource(originalDs).names()) {
+            String normalizedName = baseName + "_" + subsetFromName(name) + ".xml";
+            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(normalizedName, false));
+                 InputStream in = originalDs.newInputStream(name)) {
                 ByteStreams.copy(in, out);
             }
         }
+
+        // Export the requested instance files to the temporary destination, overwriting some of the original files
+        new CgmesExport().export(network, exportParams, ds);
+
+        // Import the exported files and compare with the original network
         Network actual = i.importData(ds, new NetworkFactoryImpl(), iparams);
         new Comparison(network, actual, config).compare();
     }
@@ -249,10 +236,6 @@ public class ConversionTester {
         return config;
     }
 
-    public static void computeMissingFlows(Network network) {
-        computeMissingFlows(network, new LoadFlowParameters());
-    }
-
     public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
             LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
@@ -264,31 +247,6 @@ public class ConversionTester {
         } catch (Exception e) {
             LOG.error("computeFlows, error {}", e.getMessage());
         }
-    }
-
-    public static void invalidateFlows(Network n) {
-        n.getLineStream().forEach(line -> {
-            invalidateFlow(line.getTerminal(TwoSides.ONE));
-            invalidateFlow(line.getTerminal(TwoSides.TWO));
-        });
-        n.getTwoWindingsTransformerStream().forEach(twt -> {
-            invalidateFlow(twt.getTerminal(TwoSides.ONE));
-            invalidateFlow(twt.getTerminal(TwoSides.TWO));
-        });
-        n.getShuntCompensatorStream().forEach(sh -> {
-            Terminal terminal = sh.getTerminal();
-            terminal.setQ(Double.NaN);
-        });
-        n.getThreeWindingsTransformerStream().forEach(twt -> {
-            invalidateFlow(twt.getLeg1().getTerminal());
-            invalidateFlow(twt.getLeg2().getTerminal());
-            invalidateFlow(twt.getLeg3().getTerminal());
-        });
-    }
-
-    static void invalidateFlow(Terminal t) {
-        t.setP(Double.NaN);
-        t.setQ(Double.NaN);
     }
 
     private final Properties importParams;

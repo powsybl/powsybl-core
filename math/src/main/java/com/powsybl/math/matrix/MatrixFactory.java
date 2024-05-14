@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
@@ -19,9 +20,9 @@ public interface MatrixFactory {
      *
      * @param rowCount row count
      * @param columnCount column count
-     * @param estimatedNonZeroValueCount estimation of non zero values
+     * @param estimatedValueCount estimated number of values
      *
      * @return a matrix with {@code rowCount} rows and {@code columnCount} columns
      */
-    Matrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount);
+    Matrix create(int rowCount, int columnCount, int estimatedValueCount);
 }

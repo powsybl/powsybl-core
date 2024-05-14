@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
@@ -44,6 +44,7 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
                 .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.5"))
                 .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.5"))
                 .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.5"))
+                .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.5"))
                 .build(),
             new ImmutableMap.Builder<String, String>()
                 .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")
@@ -62,7 +63,7 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return ImmutableList.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
+        return List.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_1.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_3.xsd"),
@@ -72,10 +73,7 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
 
     @Override
     public void write(SlackTerminal slackTerminal, SerializerContext context) {
-        Terminal terminal = slackTerminal.getTerminal();
-        if (terminal != null) {
-            TerminalRefSerDe.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkSerializerContext) context);
-        }
+        TerminalRefSerDe.writeTerminalRefAttribute(slackTerminal.getTerminal(), (NetworkSerializerContext) context);
     }
 
     @Override

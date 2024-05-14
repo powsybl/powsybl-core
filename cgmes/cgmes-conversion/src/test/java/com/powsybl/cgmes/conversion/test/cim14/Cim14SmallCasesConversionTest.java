@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class Cim14SmallCasesConversionTest {
     @BeforeAll
     static void setUp() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         tester = new ConversionTester(
+                importParams,
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig()
                         .checkNetworkId(false)
@@ -66,8 +72,10 @@ class Cim14SmallCasesConversionTest {
 
     @Test
     void m7busesNoSequenceNumbers() {
-        Network networkSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7buses().dataSource(), null);
-        Network networkNoSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7busesNoSequenceNumbers().dataSource(), null);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network networkSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7buses().dataSource(), importParams);
+        Network networkNoSeq = Importers.importData("CGMES", Cim14SmallCasesCatalog.m7busesNoSequenceNumbers().dataSource(), importParams);
         // Make sure we have not lost any line or switch
         assertEquals(networkSeq.getLineCount(), networkNoSeq.getLineCount());
         assertEquals(networkSeq.getSwitchCount(), networkNoSeq.getSwitchCount());

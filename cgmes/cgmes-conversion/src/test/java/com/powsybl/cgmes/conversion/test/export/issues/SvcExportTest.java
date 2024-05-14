@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.test.export.issues;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNamespace;
@@ -17,6 +18,7 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.Properties;
 
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.OFF;
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,7 +34,9 @@ class SvcExportTest extends AbstractSerDeTest {
         String rcId = "caf65447-3cfb-48d7-aaaa-cd9af3d34261";
 
         // Import a test case with SVC RC disabled and check we have kept the RC id ant its target value
-        Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource());
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.microT4BeBbOffSvcControlV().dataSource(), importParams);
         StaticVarCompensator svc = network.getStaticVarCompensator(svcId);
         assertNotNull(svc);
         assertEquals(OFF, svc.getRegulationMode());

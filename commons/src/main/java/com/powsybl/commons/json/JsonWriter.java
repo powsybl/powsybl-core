@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.json;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.io.AbstractTreeDataWriter;
 import com.powsybl.commons.json.JsonUtil.Context;
 import com.powsybl.commons.json.JsonUtil.ContextType;
 
@@ -20,7 +21,7 @@ import java.util.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class JsonWriter implements TreeDataWriter {
+public class JsonWriter extends AbstractTreeDataWriter {
 
     public static final String VERSION = "version";
     private static final String EXTENSION_VERSIONS = "extensionVersions";
@@ -192,12 +193,30 @@ public class JsonWriter implements TreeDataWriter {
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
         try {
-            jsonGenerator.writeFieldName(name);
-            jsonGenerator.writeStartArray();
-            for (int value : values) {
-                jsonGenerator.writeNumber(value);
+            if (!values.isEmpty()) {
+                jsonGenerator.writeFieldName(name);
+                jsonGenerator.writeStartArray();
+                for (int value : values) {
+                    jsonGenerator.writeNumber(value);
+                }
+                jsonGenerator.writeEndArray();
             }
-            jsonGenerator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public void writeStringArrayAttribute(String name, Collection<String> values) {
+        try {
+            if (!values.isEmpty()) {
+                jsonGenerator.writeFieldName(name);
+                jsonGenerator.writeStartArray();
+                for (String value : values) {
+                    jsonGenerator.writeString(value);
+                }
+                jsonGenerator.writeEndArray();
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

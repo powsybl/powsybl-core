@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.conformity;
@@ -37,13 +38,16 @@ class Cgmes3ConversionTest {
         CgmesImport importer = new CgmesImport();
         ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
         assertTrue(importer.exists(ds));
-        Network network = importer.importData(ds, NetworkFactory.findDefault(), null);
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        Network network = importer.importData(ds, NetworkFactory.findDefault(), importParams);
         assertNotNull(network);
     }
 
     @Test
     void microGrid() throws IOException {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -56,6 +60,7 @@ class Cgmes3ConversionTest {
     void microGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -65,7 +70,7 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void microGridOperationalLimits() throws IOException {
+    void microGridOperationalLimits() {
         Network n = networkModel(Cgmes3Catalog.microGrid(), new Conversion.Config());
 
         Line ln = n.getLine("ffbabc27-1ccd-4fdc-b037-e341706c8d29");
@@ -99,23 +104,27 @@ class Cgmes3ConversionTest {
 
     @Test
     void microGridWithAndWithoutTpSv() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.microGrid().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         Network networkwithoutTpSv = new CgmesImport().importData(
             Cgmes3Catalog.microGridWithoutTpSv().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
     @Test
     void miniGrid() throws IOException {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -127,6 +136,7 @@ class Cgmes3ConversionTest {
     @Test
     void miniGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
             importParams,
@@ -137,7 +147,7 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void miniGridOperationalLimits() throws IOException {
+    void miniGridOperationalLimits() {
         Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
         TwoWindingsTransformer tw2t = n.getTwoWindingsTransformer("813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
@@ -158,7 +168,7 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void miniGridRatedS() throws IOException {
+    void miniGridRatedS() {
         Network n = networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
         assertEquals(31.5, n.getTwoWindingsTransformer("ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51").getRatedS(), 0.0);
@@ -176,24 +186,28 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void miniGridWithAndWithoutTpSv() throws IOException {
+    void miniGridWithAndWithoutTpSv() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.miniGrid().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         Network networkwithoutTpSv = new CgmesImport().importData(
             Cgmes3Catalog.miniGridWithoutTpSv().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
     @Test
     void smallGrid() throws IOException {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -206,6 +220,8 @@ class Cgmes3ConversionTest {
     void smallGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -215,7 +231,7 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void smallGridOperationalLimits() throws IOException {
+    void smallGridOperationalLimits() {
         Network n = networkModel(Cgmes3Catalog.smallGrid(), new Conversion.Config());
 
         Line ln = n.getLine("04658820-c766-11e1-8775-005056c00008");
@@ -234,24 +250,28 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void smallGridWithAndWithoutTpSv() throws IOException {
+    void smallGridWithAndWithoutTpSv() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.smallGrid().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         Network networkwithoutTpSv = new CgmesImport().importData(
             Cgmes3Catalog.smallGridWithoutTpSv().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
     @Test
     void svedala() throws IOException {
         Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -264,6 +284,7 @@ class Cgmes3ConversionTest {
     void svedalaWithDifferentFictitiousSwitchesCreationModes() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "NEVER");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(importParams, null,
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig());
@@ -271,6 +292,7 @@ class Cgmes3ConversionTest {
 
         importParams = new Properties();
         importParams.put(CgmesImport.CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE, "ALWAYS_EXCEPT_SWITCHES");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         t = new ConversionTester(importParams, null,
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig());
@@ -281,6 +303,7 @@ class Cgmes3ConversionTest {
     void svedalaConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
             importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
@@ -290,7 +313,7 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void svedalaOperationalLimits() throws IOException {
+    void svedalaOperationalLimits() {
         Network n = networkModel(Cgmes3Catalog.svedala(), new Conversion.Config());
 
         Line ln = n.getLine("c6278b38-b777-4ad9-b395-50c4009afdff");
@@ -309,18 +332,21 @@ class Cgmes3ConversionTest {
     }
 
     @Test
-    void svedalaWithAndWithoutTpSv() throws IOException {
+    void svedalaWithAndWithoutTpSv() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.svedala().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         Network networkwithoutTpSv = new CgmesImport().importData(
             Cgmes3Catalog.svedalaWithoutTpSv().dataSource(),
-            NetworkFactory.findDefault(), null);
+            NetworkFactory.findDefault(), importParams);
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 

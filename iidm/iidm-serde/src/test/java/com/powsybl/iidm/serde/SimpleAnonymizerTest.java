@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -18,9 +19,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -38,10 +39,10 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
-            compareXml(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_XML_VERSION), is);
+            assertXmlEquals(getVersionedNetworkAsStream("eurostag-tutorial-example1-anonymized.xml", CURRENT_IIDM_VERSION), is);
         }
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
-            compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
+            assertTxtEquals(getClass().getResourceAsStream("/eurostag-tutorial-example1-mapping.csv"), is);
         }
 
         // re-import the IIDM XML using the CSV mapping file
@@ -50,10 +51,7 @@ class SimpleAnonymizerTest extends AbstractIidmSerDeTest {
         new XMLExporter(platformConfig).export(network2, null, dataSource2);
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file
-        roundTripXmlTest(network2,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(network2, "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

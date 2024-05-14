@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -119,8 +120,6 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                 (SubstationImpl) voltageLevel1.getSubstation().orElse(null),
                 r, x, g, b,
                 ratedU1, ratedU2, ratedS);
-        terminal1.setNum(1);
-        terminal2.setNum(2);
         transformer.addTerminal(terminal1);
         transformer.addTerminal(terminal2);
 

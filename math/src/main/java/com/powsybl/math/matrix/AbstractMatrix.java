@@ -3,8 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
+
+import com.powsybl.math.AbstractMathNative;
 
 import java.util.Objects;
 
@@ -13,14 +16,14 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractMatrix implements Matrix {
+public abstract class AbstractMatrix extends AbstractMathNative implements Matrix {
 
     /**
-     * Get an estimation of non zero value count.
+     * Get value count.
      *
-     * @return an estimation of non zero value count
+     * @return the value count
      */
-    protected abstract int getEstimatedNonZeroValueCount();
+    public abstract int getValueCount();
 
     /**
      * Check that row {@code i} and column {@code j} are in matrix bounds.
@@ -43,7 +46,7 @@ public abstract class AbstractMatrix implements Matrix {
     @Override
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
-        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getEstimatedNonZeroValueCount());
+        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getValueCount());
         iterateNonZeroValue(matrix::set);
         return matrix;
     }

@@ -1,0 +1,22 @@
+{
+  "type" : "default",
+  "version" : "1.0",
+  "name" : "list",
+  "contingencies" : [ {
+    "id" : "contingency",
+    "name" : "contingency name",
+    "elements" : [ {
+      "id" : "NHV1_NHV2_1",
+      "type" : "BRANCH"
+    }, {
+      "id" : "NHV1_NHV2_2",
+      "type" : "BRANCH"
+    } ]
+  }, {
+    "id" : "contingency2",
+    "elements" : [ {
+      "id" : "GEN",
+      "type" : "GENERATOR"
+    } ]
+  } ]
+}

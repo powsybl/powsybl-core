@@ -1,7 +1,6 @@
 {
   "version" : "1.0",
-  "isOK" : true,
-  "logs" : "",
+  "status" : "SUCCESS",
   "curves" : [ {
     "metadata" : {
       "name" : "curve1",
@@ -18,17 +17,17 @@
       "values" : [ 0.0, 0.1, 0.1, 0.2, 0.1, 0.0 ]
     } ]
   } ],
-  "timeLine" : {
-    "metadata" : {
-      "name" : "timeLine",
-      "dataType" : "STRING",
-      "tags" : [ ],
-      "regularIndex" : {
-        "startTime" : 0,
-        "endTime" : 0,
-        "spacing" : 0
-      }
-    },
-    "chunks" : [ ]
-  }
+  "timeLine" : [ {
+    "time" : 0.1,
+    "modelName" : "CLA_2_5",
+    "message" : "order to change topology"
+  }, {
+    "time" : 1.2,
+    "modelName" : "_BUS____2-BUS____5-1_AC",
+    "message" : "opening both sides"
+  }, {
+    "time" : 2.4,
+    "modelName" : "CLA_2_4",
+    "message" : "arming by over-current constraint"
+  } ]
 }

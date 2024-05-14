@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -14,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -26,24 +27,18 @@ class StaticVarCompensatorXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("staticVarCompensatorRoundTripRef.xml");
 
         Network network = SvcTestCaseFactory.create();
         addProperties(network);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(network, "staticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
     void remoteRegulationRoundTripTest() throws IOException {
         Network network = SvcTestCaseFactory.createWithRemoteRegulatingTerminal();
         addProperties(network);
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(network, "regulatingStaticVarCompensatorRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test

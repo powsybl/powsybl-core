@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.converter;
 
@@ -25,7 +26,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareXml;
+import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -59,7 +60,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
         Path file = fileSystem.getPath("/work/" + network.getId() + ".xiidm");
         NetworkSerDe.write(network, file);
         try (InputStream is = Files.newInputStream(file)) {
-            compareXml(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
+            assertXmlEquals(getClass().getResourceAsStream("/" + network.getId() + ".xiidm"), is);
         }
     }
 

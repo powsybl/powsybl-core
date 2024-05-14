@@ -1,0 +1,19 @@
+[ {
+  "version" : "1.3",
+  "id" : "f00",
+  "withFeederResult" : true,
+  "studyType" : "SUB_TRANSIENT",
+  "minVoltageDropProportionalThreshold" : 20.0,
+  "subTransientCoefficient": 0.8,
+  "initialVoltageProfileMode" : "CONFIGURED",
+  "voltageRanges" : [ {
+    "minimumNominalVoltage" : 0.0,
+    "maximumNominalVoltage" : 230.0,
+    "voltageRangeCoefficient" : 1.0
+  }, {
+    "minimumNominalVoltage" : 231.0,
+    "maximumNominalVoltage" : 250.0,
+    "voltageRangeCoefficient" : 1.05,
+    "voltage" : 240.0
+  } ]
+} ]

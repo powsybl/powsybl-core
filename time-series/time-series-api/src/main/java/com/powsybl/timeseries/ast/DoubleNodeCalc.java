@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -60,8 +61,8 @@ public class DoubleNodeCalc implements LiteralNodeCalc {
     }
 
     static NodeCalc parseJson(JsonParser parser) throws IOException {
-        JsonToken token;
-        while ((token = parser.nextToken()) != null) {
+        JsonToken token = parser.nextToken();
+        if (token != null) {
             if (token == JsonToken.VALUE_NUMBER_FLOAT) {
                 return new DoubleNodeCalc(parser.getDoubleValue());
             } else if (token == JsonToken.VALUE_NUMBER_INT) {

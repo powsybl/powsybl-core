@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -18,7 +19,6 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.test.AbstractToolTest;
-import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -106,14 +106,14 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
     void runJsonOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
-        assertCommand(new String[] {COMMAND_NAME,
+        assertCommandSuccessfulMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
             "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.json"},
-                CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
+                expectedOut);
 
         assertTrue(Files.exists(fileSystem.getPath("output.json")));
         List<SensitivityValue> values;
@@ -141,14 +141,14 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
     void runCsvOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
-        assertCommand(new String[] {COMMAND_NAME,
+        assertCommandSuccessfulMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.csv",
             "--output-contingency-file", "outputContingency.csv"},
-                CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
+                expectedOut);
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
         assertTrue(Files.exists(outputCsvFile));
@@ -172,53 +172,53 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void checkFailsWhenNetworkFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME,
+    void checkFailsWhenNetworkFileNotFound() {
+        assertCommandErrorMatch(new String[] {COMMAND_NAME,
             "--case-file", "wrongFile.xiidm",
             "--factors-file", "factors.json",
             "--output-file", "output.csv"},
-                3, null, "com.powsybl.commons.PowsyblException: File wrongFile.xiidm does not exist or is not a regular file");
+                "com.powsybl.commons.PowsyblException: File wrongFile.xiidm does not exist or is not a regular file");
     }
 
     @Test
-    void checkFailsWhenFactorsFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME,
+    void checkFailsWhenFactorsFileNotFound() {
+        assertCommandErrorMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "wrongFile.json",
             "--output-file", "output.csv"},
-                3, null, "java.nio.file.NoSuchFileException: wrongFile.json");
+                "java.nio.file.NoSuchFileException: wrongFile.json");
     }
 
     @Test
-    void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME,
+    void checkThrowsWhenOutputFileAndNoFormat() {
+        assertCommandErrorMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--output-file", "output.txt"},
-                3, "", "Unsupported output format: output.txt");
+                "Unsupported output format: output.txt");
     }
 
     @Test
-    void checkThrowsWhenOutputFileAndContingencyDiffFormat() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME,
+    void checkThrowsWhenOutputFileAndContingencyDiffFormat() {
+        assertCommandErrorMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--output-file", "output.csv",
             "--output-contingency-file", "outputContingency.json"},
-                3, "", "output-file and output-contingency-file files must have the same format.");
+                "output-file and output-contingency-file files must have the same format (csv).");
     }
 
     @Test
-    void runJsonOutputAutoContingencyOut() throws IOException {
+    void runJsonOutputAutoContingencyOut() {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
-        assertCommand(new String[] {COMMAND_NAME,
+        assertCommandSuccessfulMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
             "--parameters-file", "parameters.json",
             "--output-file", "outputCustom.csv"},
-                CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
+                expectedOut);
 
         Path outputCsvFile = fileSystem.getPath("outputCustom.csv");
         assertTrue(Files.exists(outputCsvFile));
@@ -230,7 +230,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
     void runCommandWithSingleOutput() throws IOException {
         String expectedOut = "Loading network 'network.xiidm'" + System.lineSeparator() +
                 "Running analysis..." + System.lineSeparator();
-        assertCommand(new String[] {COMMAND_NAME,
+        assertCommandSuccessfulMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
@@ -238,7 +238,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--parameters-file", "parameters.json",
             "--output-file", "output.json",
             "--single-output"},
-                CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");
+                expectedOut);
 
         SensitivityAnalysisResult result;
         try (Reader reader = Files.newBufferedReader(fileSystem.getPath("output.json"))) {
@@ -268,8 +268,8 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
     }
 
     @Test
-    void checkThrowsSingleOutputCSV() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME,
+    void checkThrowsSingleOutputCSV() {
+        assertCommandErrorMatch(new String[] {COMMAND_NAME,
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
@@ -277,7 +277,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--parameters-file", "parameters.json",
             "--output-file", "output.csv",
             "--single-output"},
-                3, "", "Unsupported single-output option does not support csv file as argument of output-file. Must be json.");
+                "Unsupported single-output option does not support csv file as argument of output-file. Must be json.");
     }
 
     @Test

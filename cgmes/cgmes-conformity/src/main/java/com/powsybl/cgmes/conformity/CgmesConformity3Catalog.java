@@ -55,4 +55,19 @@ public final class CgmesConformity3Catalog {
                 ),
                 microGridBaseCaseBoundaries());
     }
+
+    public static GridModelReferenceResources microGridBaseCaseAssembled() {
+        return new GridModelReferenceResources(
+                "MicroGrid-3-BaseCase-Assembled",
+                null,
+                new ResourceSet(MICRO_GRID_3_MERGED_BASE,
+                        "20210325T1530Z_1D_BE_EQ_001.xml",
+                        "20210325T1530Z_1D_BE_SSH_001.xml",
+                        "20210325T1530Z_1D_NL_EQ_001.xml",
+                        "20210325T1530Z_1D_NL_SSH_001.xml",
+                        "20210325T1530Z_1D_ASSEMBLED_TP_001.xml",
+                        "20210325T1530Z_1D_ASSEMBLED_SV_001.xml",
+                        "20171002T0930Z_ENTSO-E_EQ_BD_2.xml" // We include the boundary explicitly
+        ));
+    }
 }

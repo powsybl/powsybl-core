@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -58,6 +59,11 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
+    public String visit(CachedNodeCalc nodeCalc, Void arg, String child) {
+        return child;
+    }
+
+    @Override
     public String visit(TimeNodeCalc nodeCalc, Void arg, String child) {
         return "(" + child + ").time()";
     }
@@ -73,13 +79,18 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
     }
 
     @Override
-    public NodeCalc iterate(TimeNodeCalc nodeCalc, Void arg) {
-        return nodeCalc.getChild();
+    public String visit(BinaryMinCalc nodeCalc, Void arg, String left, String right) {
+        return "min(" + left + ", " + right + ")";
     }
 
     @Override
-    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, Void arg) {
-        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    public String visit(BinaryMaxCalc nodeCalc, Void arg, String left, String right) {
+        return "max(" + left + ", " + right + ")";
+    }
+
+    @Override
+    public NodeCalc iterate(TimeNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
     }
 
     @Override
@@ -97,4 +108,13 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
         return nodeCalc.getChild();
     }
 
+    @Override
+    public NodeCalc iterate(CachedNodeCalc nodeCalc, Void arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public Pair<NodeCalc, NodeCalc> iterate(AbstractBinaryNodeCalc nodeCalc, Void arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
 }

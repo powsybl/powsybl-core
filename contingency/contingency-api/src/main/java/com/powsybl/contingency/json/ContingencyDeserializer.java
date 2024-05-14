@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -10,7 +11,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -22,6 +22,7 @@ import com.powsybl.contingency.ContingencyElement;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -40,32 +41,27 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
     @Override
     public Contingency deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String id = null;
+        String name = null;
         List<ContingencyElement> elements = Collections.emptyList();
 
         List<Extension<Contingency>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "id":
-                    id = parser.nextTextValue();
-                    break;
-
-                case "elements":
+                case "id" -> id = parser.nextTextValue();
+                case "name" -> name = parser.nextTextValue();
+                case "elements" -> {
                     parser.nextToken();
                     elements = JsonUtil.readList(deserializationContext, parser, ContingencyElement.class);
-                    break;
-
-                case "extensions":
+                }
+                case "extensions" -> {
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        Contingency contingency = new Contingency(id, elements);
+        Contingency contingency = new Contingency(id, name, elements);
         SUPPLIER.get().addExtensions(contingency, extensions);
 
         return contingency;

@@ -187,6 +187,10 @@ public abstract class AbstractTieLineTest {
         Optional<DanglingLine> otherSide2 = TieLineUtil.getPairedDanglingLine(danglingLine2);
         assertTrue(otherSide2.isPresent());
         assertEquals(danglingLine1, otherSide2.orElseThrow());
+
+        // try to change pairing key, but not allowed.
+        assertThrows(ValidationException.class, () -> danglingLine1.setPairingKey("new_code"),
+                "Dangling line 'hl1': pairing key cannot be set if dangling line is paired.");
     }
 
     @Test

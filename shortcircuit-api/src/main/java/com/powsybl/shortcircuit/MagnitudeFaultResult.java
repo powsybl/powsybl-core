@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -52,7 +53,7 @@ public class MagnitudeFaultResult extends AbstractFaultResult {
     }
 
     /**
-     * The three-phase current magnitude [in kA].
+     * The three-phase current magnitude [in A].
      */
     public double getCurrent() {
         return current;

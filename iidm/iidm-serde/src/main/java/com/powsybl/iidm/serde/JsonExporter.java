@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -11,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.iidm.network.Exporter;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * JSON export of an IIDM model.
@@ -36,7 +37,7 @@ public class JsonExporter extends AbstractTreeDataExporter {
 
     @Override
     public String getComment() {
-        return "IIDM JSON v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter";
+        return "IIDM JSON v" + CURRENT_IIDM_VERSION.toString(".") + " exporter";
     }
 
     @Override

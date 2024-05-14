@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -13,10 +14,10 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.contingency.contingency.list.ContingencyList;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifierList;
-import com.powsybl.contingency.contingency.list.identifier.IdBasedNetworkElementIdentifier;
-import com.powsybl.contingency.contingency.list.identifier.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
+import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
@@ -39,9 +40,10 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
         List<NetworkElementIdentifier> networkElementIdentifiers = new ArrayList<>();
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier", "contingencyId1"));
         networkElementIdentifiers.add(new IdBasedNetworkElementIdentifier("identifier2"));
-        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1", "vl2", '1', "contingencyId2"));
-        networkElementIdentifiers.add(new NetworkElementIdentifierList(Collections.singletonList(new IdBasedNetworkElementIdentifier("identifier")),
-                "contingencyId3"));
+        networkElementIdentifiers.add(new VoltageLevelAndOrderNetworkElementIdentifier("vl1",
+                "vl2", '1', "contingencyId2"));
+        networkElementIdentifiers.add(new NetworkElementIdentifierContingencyList(Collections.singletonList(new
+                IdBasedNetworkElementIdentifier("identifier")), "contingencyId3"));
         return new IdentifierContingencyList("list1", networkElementIdentifiers);
     }
 
@@ -58,7 +60,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                         .getResourceAsStream("/identifierContingencyListv1_1.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -71,7 +73,7 @@ class NetworkElementIdentifierContingencyListJsonTest extends AbstractSerDeTest 
                         .getResourceAsStream("/identifierContingencyListv1_0.json")));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             WRITER.writeValue(bos, contingencyList);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/identifierContingencyListReferenceForLessThan1_2.json"), new ByteArrayInputStream(bos.toByteArray()));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
@@ -21,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -31,7 +33,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
-            compareTxt(getClass().getResourceAsStream("/" + refFileName), actual);
+            assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
         }
     }
 
@@ -40,7 +42,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         AmplExporter exporter = new AmplExporter();
         assertEquals("AMPL", exporter.getFormat());
         assertEquals("IIDM to AMPL converter", exporter.getComment());
-        assertEquals(6, exporter.getParameters().size());
+        assertEquals(7, exporter.getParameters().size());
     }
 
     @Test
@@ -49,7 +51,8 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
         MemDataSource dataSource = new MemDataSource();
         AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.defaultVersion(), true);
+        exporter.export(network, amplExportConfig, dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");

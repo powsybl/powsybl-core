@@ -3,12 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Substation;
 
@@ -21,90 +21,82 @@ public final class CgmesReports {
     }
 
     // INFO
-    public static void importedCgmesNetworkReport(Reporter reporter, String networkId) {
-        reporter.report(Report.builder()
-                .withKey("importedCgmesNetwork")
-                .withDefaultMessage("CGMES network ${networkId} is imported.")
-                .withValue("networkId", networkId)
+    public static void importedCgmesNetworkReport(ReportNode reportNode, String networkId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("importedCgmesNetwork", "CGMES network ${networkId} is imported.")
+                .withUntypedValue("networkId", networkId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
-                .build());
+                .add();
     }
 
     // WARN
-    public static void badVoltageTargetValueRegulatingControlReport(Reporter reporter, String eqId, double targetValue) {
-        reporter.report(Report.builder()
-                .withKey("badVoltageTargetValueRegulatingControl")
-                .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
-                .withValue("equipmentId", eqId)
+    public static void badVoltageTargetValueRegulatingControlReport(ReportNode reportNode, String eqId, double targetValue) {
+        reportNode.newReportNode()
+                .withMessageTemplate("badVoltageTargetValueRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target value for voltage: ${targetValue}")
+                .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetValue", targetValue, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void badTargetDeadbandRegulatingControlReport(Reporter reporter, String eqId, double targetDeadband) {
-        reporter.report(Report.builder()
-                .withKey("badTargetDeadbandRegulatingControl")
-                .withDefaultMessage("Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
-                .withValue("equipmentId", eqId)
+    public static void badTargetDeadbandRegulatingControlReport(ReportNode reportNode, String eqId, double targetDeadband) {
+        reportNode.newReportNode()
+                .withMessageTemplate("badTargetDeadbandRegulatingControl", "Equipment ${equipmentId} has a regulating control with bad target deadband: ${targetDeadband}")
+                .withUntypedValue("equipmentId", eqId)
                 .withTypedValue("targetDeadband", targetDeadband, TypedValue.VOLTAGE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void invalidAngleVoltageBusReport(Reporter reporter, Bus bus, String nodeId, double v, double angle) {
-        reporter.report(Report.builder()
-                .withKey("invalidAngleVoltageBus")
-                .withDefaultMessage("Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
-                .withValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
-                .withValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
-                .withValue("bus", bus.getId())
-                .withValue("nodeId", nodeId)
+    public static void invalidAngleVoltageBusReport(ReportNode reportNode, Bus bus, String nodeId, double v, double angle) {
+        reportNode.newReportNode()
+                .withMessageTemplate("invalidAngleVoltageBus", "Node ${nodeId} in substation ${substation}, voltageLevel ${voltageLevel}, bus ${bus} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
+                .withUntypedValue("substation", bus.getVoltageLevel().getSubstation().map(Substation::getNameOrId).orElse("unknown"))
+                .withUntypedValue("voltageLevel", bus.getVoltageLevel().getNameOrId())
+                .withUntypedValue("bus", bus.getId())
+                .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void invalidAngleVoltageNodeReport(Reporter reporter, String nodeId, double v, double angle) {
-        reporter.report(Report.builder()
-                .withKey("invalidAngleVoltageNode")
-                .withDefaultMessage("Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
-                .withValue("nodeId", nodeId)
+    public static void invalidAngleVoltageNodeReport(ReportNode reportNode, String nodeId, double v, double angle) {
+        reportNode.newReportNode()
+                .withMessageTemplate("invalidAngleVoltageNode", "Node ${nodeId} has invalid value for voltage and/or angle. Voltage magnitude is ${voltage}, angle is ${angle}")
+                .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
     // ERROR
-    public static void inconsistentProfilesTPRequiredReport(Reporter reporter, String networkId) {
-        reporter.report(Report.builder()
-                .withKey("inconsistentProfilesTPRequired")
-                .withDefaultMessage("Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
-                .withValue("networkId", networkId)
+    public static void inconsistentProfilesTPRequiredReport(ReportNode reportNode, String networkId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("inconsistentProfilesTPRequired", "Network contains node/breaker ${networkId} information. References to Topological Nodes in SSH/SV files will not be valid if TP is not exported.")
+                .withUntypedValue("networkId", networkId)
                 .withSeverity(TypedValue.ERROR_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(Reporter reporter, String danglingLineId) {
-        reporter.report(Report.builder()
-                .withKey("danglingLineDisconnectedAtBoundaryHasBeenDisconnected")
-                .withDefaultMessage("DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
-                .withValue("danglingLineId", danglingLineId)
+    public static void danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(ReportNode reportNode, String danglingLineId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("danglingLineDisconnectedAtBoundaryHasBeenDisconnected", "DanglingLine ${danglingLineId} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.")
+                .withUntypedValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 
-    public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(Reporter reporter, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
-        reporter.report(Report.builder()
-                .withKey("multipleUnpairedDanglingLinesAtSameBoundary")
-                .withDefaultMessage("Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
-                .withValue("danglingLineId", danglingLineId)
-                .withValue("p0", p0)
-                .withValue("q0", q0)
-                .withValue("p0Adjusted", p0Adjusted)
-                .withValue("q0Adjusted", q0Adjusted)
+    public static void multipleUnpairedDanglingLinesAtSameBoundaryReport(ReportNode reportNode, String danglingLineId, double p0, double q0, double p0Adjusted, double q0Adjusted) {
+        reportNode.newReportNode()
+                .withMessageTemplate("multipleUnpairedDanglingLinesAtSameBoundary", "Multiple unpaired DanglingLines were connected at the same boundary side. Adjusted original injection from (${p0}, ${q0}) to (${p0Adjusted}, ${q0Adjusted}) for dangling line ${danglingLineId}.")
+                .withUntypedValue("danglingLineId", danglingLineId)
+                .withUntypedValue("p0", p0)
+                .withUntypedValue("q0", q0)
+                .withUntypedValue("p0Adjusted", p0Adjusted)
+                .withUntypedValue("q0Adjusted", q0Adjusted)
                 .withSeverity(TypedValue.WARN_SEVERITY)
-                .build());
+                .add();
     }
 }

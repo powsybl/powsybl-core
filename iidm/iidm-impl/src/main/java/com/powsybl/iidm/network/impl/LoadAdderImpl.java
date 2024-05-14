@@ -3,19 +3,17 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements LoadAdder {
-
-    private final VoltageLevelExt voltageLevel;
 
     private LoadType loadType = LoadType.UNDEFINED;
 
@@ -27,11 +25,6 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     LoadAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    protected NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     @Override
@@ -69,15 +62,6 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     @Override
     public ExponentialLoadModelAdder newExponentialModel() {
         return new ExponentialLoadModelAdderImpl(this);
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

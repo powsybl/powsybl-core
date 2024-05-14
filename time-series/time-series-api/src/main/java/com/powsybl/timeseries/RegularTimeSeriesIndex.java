@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -83,26 +84,25 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             long endTime = -1;
             long spacing = -1;
             while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
-                    switch (fieldName) {
-                        case "startTime":
-                            startTime = parser.nextLongValue(-1);
-                            break;
-                        case "endTime":
-                            endTime = parser.nextLongValue(-1);
-                            break;
-                        case "spacing":
-                            spacing = parser.nextLongValue(-1);
-                            break;
-                        default:
-                            throw new IllegalStateException("Unexpected field " + fieldName);
+                switch (token) {
+                    case FIELD_NAME -> {
+                        String fieldName = parser.getCurrentName();
+                        switch (fieldName) {
+                            case "startTime" -> startTime = parser.nextLongValue(-1);
+                            case "endTime" -> endTime = parser.nextLongValue(-1);
+                            case "spacing" -> spacing = parser.nextLongValue(-1);
+                            default -> throw new IllegalStateException("Unexpected field " + fieldName);
+                        }
                     }
-                } else if (token == JsonToken.END_OBJECT) {
-                    if (startTime == -1 || endTime == -1 || spacing == -1) {
-                        throw new IllegalStateException("Incomplete regular time series index json");
+                    case END_OBJECT -> {
+                        if (startTime == -1 || endTime == -1 || spacing == -1) {
+                            throw new IllegalStateException("Incomplete regular time series index json");
+                        }
+                        return new RegularTimeSeriesIndex(startTime, endTime, spacing);
                     }
-                    return new RegularTimeSeriesIndex(startTime, endTime, spacing);
+                    default -> {
+                        // Do nothing
+                    }
                 }
             }
             throw new IllegalStateException("Should not happen");

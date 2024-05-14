@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.xml;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.AbstractTreeDataReader;
@@ -18,6 +19,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.util.*;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -46,7 +48,7 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Map<String, String> readVersions() {
+    public Map<String, String> readExtensionVersions() {
         Map<String, String> versions = new HashMap<>();
         for (ExtensionSerDe<?, ?> e : extensionProviders) {
             String namespaceUri = reader.getNamespaceURI(e.getNamespacePrefix());
@@ -59,14 +61,17 @@ public class XmlReader extends AbstractTreeDataReader {
 
     @Override
     public double readDoubleAttribute(String name, double defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
+        return XmlUtil.readDoubleAttribute(reader, name, defaultValue);
+    }
+
+    @Override
+    public OptionalDouble readOptionalDoubleAttribute(String name) {
+        return XmlUtil.readOptionalDoubleAttribute(reader, name);
     }
 
     @Override
     public float readFloatAttribute(String name, float defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Float.parseFloat(attributeValue) : defaultValue;
+        return XmlUtil.readFloatAttribute(reader, name, defaultValue);
     }
 
     @Override
@@ -75,27 +80,41 @@ public class XmlReader extends AbstractTreeDataReader {
     }
 
     @Override
-    public Integer readIntAttribute(String name) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Integer.valueOf(attributeValue) : null;
+    public int readIntAttribute(String name) {
+        Integer value = XmlUtil.readIntegerAttribute(reader, name);
+        if (value == null) {
+            throw new PowsyblException("XML parsing: cannot find required attribute '" + name + "'");
+        }
+        return value;
+    }
+
+    @Override
+    public OptionalInt readOptionalIntAttribute(String name) {
+        return XmlUtil.readOptionalIntegerAttribute(reader, name);
     }
 
     @Override
     public int readIntAttribute(String name, int defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
+        return XmlUtil.readIntAttribute(reader, name, defaultValue);
     }
 
     @Override
-    public Boolean readBooleanAttribute(String name) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Boolean.valueOf(attributeValue) : null;
+    public boolean readBooleanAttribute(String name) {
+        Boolean value = XmlUtil.readBooleanAttribute(reader, name);
+        if (value == null) {
+            throw new PowsyblException("XML parsing: cannot find required attribute '" + name + "'");
+        }
+        return value;
     }
 
     @Override
     public boolean readBooleanAttribute(String name, boolean defaultValue) {
-        String attributeValue = reader.getAttributeValue(null, name);
-        return attributeValue != null ? Boolean.parseBoolean(attributeValue) : defaultValue;
+        return XmlUtil.readBooleanAttribute(reader, name, defaultValue);
+    }
+
+    @Override
+    public Optional<Boolean> readOptionalBooleanAttribute(String name) {
+        return Optional.ofNullable(XmlUtil.readBooleanAttribute(reader, name));
     }
 
     @Override
@@ -109,10 +128,22 @@ public class XmlReader extends AbstractTreeDataReader {
 
     @Override
     public List<Integer> readIntArrayAttribute(String name) {
-        String arrayString = readStringAttribute(name);
-        return Arrays.stream(arrayString.split(","))
+        return Arrays.stream(readAndSplitStringArray(name))
                 .map(Integer::parseInt)
                 .toList();
+    }
+
+    @Override
+    public List<String> readStringArrayAttribute(String name) {
+        return Arrays.asList(readAndSplitStringArray(name));
+    }
+
+    private String[] readAndSplitStringArray(String name) {
+        String arrayString = readStringAttribute(name);
+        if (arrayString == null) {
+            return new String[0];
+        }
+        return arrayString.split(",");
     }
 
     @Override

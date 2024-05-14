@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -61,6 +62,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      * - the name for properties of an identifiable
      */
     private boolean sorted = false;
+
+    private boolean withAutomationSystems = true;
 
     public ExportOptions() {
     }
@@ -171,7 +174,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public IidmVersion getVersion() {
-        return version != null ? IidmVersion.of(version, ".") : IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+        return version != null ? IidmVersion.of(version, ".") : IidmSerDeConstants.CURRENT_IIDM_VERSION;
     }
 
     public ExportOptions setVersion(String version) {
@@ -231,6 +234,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setSorted(boolean sorted) {
         this.sorted = sorted;
+        return this;
+    }
+
+    public boolean isWithAutomationSystems() {
+        return withAutomationSystems;
+    }
+
+    public ExportOptions setWithAutomationSystems(boolean withAutomationSystems) {
+        this.withAutomationSystems = withAutomationSystems;
         return this;
     }
 }

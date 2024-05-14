@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -198,7 +199,7 @@ public abstract class AbstractReferencePrioritiesTest {
                 .setTerminal(lineS3S4.getTerminal1())
                 .setPriority(-2)
                 .add());
-        assertEquals("Priority should be zero or positive for ReferencePriority extension", thrown.getMessage());
+        assertEquals("Priority (-2) of terminal (equipment LINE_S3S4) should be zero or positive for ReferencePriority extension", thrown.getMessage());
     }
 
     @Test
@@ -209,7 +210,7 @@ public abstract class AbstractReferencePrioritiesTest {
                 .setTerminal(gh1.getTerminal())
                 .setPriority(5)
                 .add());
-        assertEquals("The provided terminal does not belong to this connectable", thrown.getMessage());
+        assertEquals("The provided terminal does not belong to the connectable LINE_S3S4", thrown.getMessage());
     }
 
 }

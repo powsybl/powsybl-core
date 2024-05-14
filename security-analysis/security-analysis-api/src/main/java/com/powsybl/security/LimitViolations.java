@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -72,7 +73,7 @@ public final class LimitViolations {
     }
 
     /**
-     * A builder for high short circuit current limit violations.
+     * A builder for high short-circuit current limit violations.
      */
     public static LimitViolationBuilder highShortCircuitCurrent() {
         return new LimitViolationBuilder().type(LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT);
@@ -93,7 +94,7 @@ public final class LimitViolations {
     }
 
     /**
-     * A builder for low short circuit current limit violations.
+     * A builder for low short-circuit current limit violations.
      */
     public static LimitViolationBuilder lowShortCircuitCurrent() {
         return new LimitViolationBuilder().type(LimitViolationType.LOW_SHORT_CIRCUIT_CURRENT);

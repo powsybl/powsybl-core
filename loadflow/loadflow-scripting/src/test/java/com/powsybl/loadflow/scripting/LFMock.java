@@ -3,44 +3,29 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.loadflow.scripting;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.LoadFlowProvider;
-import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.loadflow.LoadFlowResultImpl;
+import com.powsybl.loadflow.*;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
 @AutoService(LoadFlowProvider.class)
-public class LFMock implements LoadFlowProvider {
+public class LFMock extends AbstractNoSpecificParametersLoadFlowProvider {
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters) {
+    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, ReportNode reportNode) {
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
-    }
-
-    @Override
-    public Optional<ExtensionJsonSerializer> getSpecificParametersSerializer() {
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<Extension<LoadFlowParameters>> loadSpecificParameters(PlatformConfig config) {
-        return Optional.empty();
     }
 
     @Override

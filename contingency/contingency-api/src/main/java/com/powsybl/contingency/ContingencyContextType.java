@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency;
@@ -12,7 +13,7 @@ package com.powsybl.contingency;
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  *
  * Define for a contingencyContext the type of information asked.
- * It can be a pre-contingency state, a post-contingency state on a specific contingency (SPECIFIC) or both (ALL)
+ * It can be a pre-contingency state, a post-contingency state (on a specific contingency (SPECIFIC) or on every contingency (ONLY_CONTINGENCIES)) or both (ALL)
  */
 
 public enum ContingencyContextType {
@@ -25,7 +26,11 @@ public enum ContingencyContextType {
      */
     NONE,
     /**
-     *  Corresponds to one contingency his id is specified in the contingencyContext
+     *  Corresponds to one contingency whose id is specified in the contingencyContext
      */
     SPECIFIC,
+    /**
+     *  Corresponds to all contingencies (without the pre-contingency situation)
+     */
+    ONLY_CONTINGENCIES
 }

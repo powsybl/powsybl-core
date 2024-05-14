@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -15,7 +16,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Luma Zamarreno {@literal <zamarrenolm at aia.es>}
@@ -25,12 +26,9 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("threeWindingsTransformerRoundTripRef.xml");
 
-        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(), "threeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     @Test
@@ -57,10 +55,7 @@ class ThreeWindingsTransformerXmlTest extends AbstractIidmSerDeTest {
         createPtc(twt.getLeg2().newPhaseTapChanger());
         createPtc(twt.getLeg3().newPhaseTapChanger());
 
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(network, "completeThreeWindingsTransformerRoundTripRef.xml", CURRENT_IIDM_VERSION);
     }
 
     private void createPtc(PhaseTapChangerAdder adder) {

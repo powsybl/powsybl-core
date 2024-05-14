@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.loadflow;
 
@@ -87,7 +88,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
     public static final boolean DEFAULT_SHUNT_COMPENSATOR_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = true;
-    public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
+    public static final boolean DEFAULT_WRITE_SLACK_BUS = true;
     public static final boolean DEFAULT_DC = false;
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
@@ -143,6 +144,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
                     parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
                     parameters.setConnectedComponentMode(config.getEnumProperty("connectedComponentMode", ConnectedComponentMode.class, DEFAULT_CONNECTED_COMPONENT_MODE));
+                    parameters.setHvdcAcEmulation(config.getBooleanProperty("hvdcAcEmulation", DEFAULT_HVDC_AC_EMULATION_ON));
                     parameters.setDcPowerFactor(config.getDoubleProperty("dcPowerFactor", DEFAULT_DC_POWER_FACTOR));
                 });
     }
@@ -432,8 +434,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private void loadExtensions(PlatformConfig platformConfig) {
         for (LoadFlowProvider provider : new ServiceLoaderCache<>(LoadFlowProvider.class).getServices()) {
-            provider.loadSpecificParameters(platformConfig).ifPresent(loadFlowParametersExtension ->
-                    addExtension((Class) loadFlowParametersExtension.getClass(), loadFlowParametersExtension));
+            provider.loadSpecificParameters(platformConfig).ifPresent(extension ->
+                    addExtension((Class) extension.getClass(), extension));
         }
     }
 }

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,9 +22,9 @@ public final class ModificationLogs {
     private ModificationLogs() {
     }
 
-    public static void busOrBbsDoesNotExist(String bbsId, Reporter reporter, boolean throwException) {
+    public static void busOrBbsDoesNotExist(String bbsId, ReportNode reportNode, boolean throwException) {
         LOGGER.error("Bus or busbar section {} not found.", bbsId);
-        ModificationReports.notFoundBusOrBusbarSectionReport(reporter, bbsId);
+        ModificationReports.notFoundBusOrBusbarSectionReport(reportNode, bbsId);
         if (throwException) {
             throw new PowsyblException(String.format("Bus or busbar section %s not found", bbsId));
         }

@@ -3,30 +3,29 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CoordinatedReactiveControlXmlTest extends AbstractSerDeTest {
+class CoordinatedReactiveControlXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -37,10 +36,7 @@ class CoordinatedReactiveControlXmlTest extends AbstractSerDeTest {
 
         gen.newExtension(CoordinatedReactiveControlAdder.class).withQPercent(100.0).add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("/coordinatedReactiveControl.xml", CURRENT_IIDM_XML_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "/coordinatedReactiveControl.xml", CURRENT_IIDM_VERSION);
 
         Generator gen2 = network2.getGenerator("GEN");
         assertNotNull(gen2);

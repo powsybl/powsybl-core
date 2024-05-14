@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.math.matrix;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -111,7 +111,7 @@ class DenseMatrixTest extends AbstractMatrixTest {
 
     @Test
     void testTooManyElementDenseMatrix() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> new DenseMatrix(100000, 10000));
+        MatrixException e = assertThrows(MatrixException.class, () -> new DenseMatrix(100000, 10000));
         assertEquals("Too many elements for a dense matrix, maximum allowed is 268435455", e.getMessage());
         assertEquals(268435455, DenseMatrix.MAX_ELEMENT_COUNT);
     }

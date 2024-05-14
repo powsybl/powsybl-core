@@ -3,30 +3,29 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
-class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractSerDeTest {
+class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -37,8 +36,7 @@ class VoltagePerReactivePowerControlXmlSerDeTest extends AbstractSerDeTest {
 
         svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(0.5).add();
 
-        Network network2 = roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::read,
-                getVersionedNetworkPath("/voltagePerReactivePowerControl.xml", CURRENT_IIDM_XML_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "/voltagePerReactivePowerControl.xml", CURRENT_IIDM_VERSION);
 
         StaticVarCompensator svc2 = network2.getStaticVarCompensator("SVC2");
         assertNotNull(svc2);

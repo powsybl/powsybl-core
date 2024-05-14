@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -125,5 +126,38 @@ class NodeCalcEvaluatorAndPrintTest {
     void testMax() {
         NodeCalc node = new MaxNodeCalc(new TimeSeriesNameNodeCalc("foo"), 2);
         assertEquals("timeSeries['foo'].max(2.0)", NodeCalcPrinter.print(node));
+    }
+
+    @Test
+    void testBinaryMin() {
+        BinaryMinCalc node = new BinaryMinCalc(new FloatNodeCalc(1f), new FloatNodeCalc(2f));
+        assertEquals(1f, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("min(1.0, 2.0)", NodeCalcPrinter.print(node));
+
+        node.setLeft(new TimeSeriesNameNodeCalc("foo"));
+        assertEquals("min(timeSeries['foo'], 2.0)", NodeCalcPrinter.print(node));
+
+        node.setRight(new TimeSeriesNameNodeCalc("bar"));
+        assertEquals("min(timeSeries['foo'], timeSeries['bar'])", NodeCalcPrinter.print(node));
+    }
+
+    @Test
+    void testBinaryMax() {
+        BinaryMaxCalc node = new BinaryMaxCalc(new FloatNodeCalc(1f), new FloatNodeCalc(2f));
+        assertEquals(2f, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("max(1.0, 2.0)", NodeCalcPrinter.print(node));
+
+        node.setLeft(new TimeSeriesNameNodeCalc("foo"));
+        assertEquals("max(timeSeries['foo'], 2.0)", NodeCalcPrinter.print(node));
+
+        node.setRight(new TimeSeriesNameNodeCalc("bar"));
+        assertEquals("max(timeSeries['foo'], timeSeries['bar'])", NodeCalcPrinter.print(node));
+    }
+
+    @Test
+    void testCached() {
+        NodeCalc node = new CachedNodeCalc(new DoubleNodeCalc(5.0));
+        assertEquals(5.0, NodeCalcEvaluator.eval(node, null), 0f);
+        assertEquals("5.0", NodeCalcPrinter.print(node));
     }
 }

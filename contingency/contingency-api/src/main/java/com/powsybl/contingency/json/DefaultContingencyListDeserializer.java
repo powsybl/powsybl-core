@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency.json;
@@ -34,25 +35,18 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken();
-                    break;
-
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "type":
-                    parser.nextToken();
-                    break;
-
-                case "contingencies":
+                case "version" -> parser.nextToken();
+                case "name" -> name = parser.nextTextValue();
+                case "type" -> {
+                    if (!parser.nextTextValue().equals(DefaultContingencyList.TYPE)) {
+                        throw new IllegalStateException("type should be: " + DefaultContingencyList.TYPE);
+                    }
+                }
+                case "contingencies" -> {
                     parser.nextToken();
                     contingencies = JsonUtil.readList(ctx, parser, Contingency.class);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
 

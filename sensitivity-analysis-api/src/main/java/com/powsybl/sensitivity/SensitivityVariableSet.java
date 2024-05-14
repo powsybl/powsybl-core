@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -96,14 +97,9 @@ public class SensitivityVariableSet {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "id":
-                            id = parser.nextTextValue();
-                            break;
-                        case "variables":
-                            variables = WeightedSensitivityVariable.parseJson(parser);
-                            break;
-                        default:
-                            throw new PowsyblException("Unexpected field: " + fieldName);
+                        case "id" -> id = parser.nextTextValue();
+                        case "variables" -> variables = WeightedSensitivityVariable.parseJson(parser);
+                        default -> throw new PowsyblException("Unexpected field: " + fieldName);
                     }
                 } else if (token == JsonToken.END_OBJECT) {
                     return new SensitivityVariableSet(id, variables);

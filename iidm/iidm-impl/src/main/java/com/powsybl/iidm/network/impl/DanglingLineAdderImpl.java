@@ -3,12 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
  *
  */
 class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl> implements DanglingLineAdder {
-
-    private final VoltageLevelExt voltageLevel;
 
     private double p0 = Double.NaN;
 
@@ -38,11 +36,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
-    }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return voltageLevel.getNetwork();
     }
 
     void setGenerationAdder(GenerationAdderImpl adder) {
@@ -94,15 +87,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     public DanglingLineAdder setPairingKey(String pairingKey) {
         this.pairingKey = pairingKey;
         return this;
-    }
-
-    @Override
-    protected Ref<? extends VariantManagerHolder> getVariantManagerHolder() {
-        return getNetworkRef();
-    }
-
-    private Ref<NetworkImpl> getNetworkRef() {
-        return voltageLevel.getNetworkRef();
     }
 
     @Override

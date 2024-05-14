@@ -3,13 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -18,7 +17,7 @@ import java.time.ZonedDateTime;
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
-class CgmesControlAreasSerDeTest extends AbstractSerDeTest {
+class CgmesControlAreasSerDeTest extends AbstractCgmesExtensionTest {
 
     @Test
     void test() throws IOException {
@@ -51,6 +50,6 @@ class CgmesControlAreasSerDeTest extends AbstractSerDeTest {
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());
         network.getExtension(CgmesControlAreas.class).getCgmesControlArea("cgmesControlAreaId").add(network.getDanglingLine("DL").getBoundary());
 
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead, "/eurostag_cgmes_control_area.xml");
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_control_area.xml");
     }
 }

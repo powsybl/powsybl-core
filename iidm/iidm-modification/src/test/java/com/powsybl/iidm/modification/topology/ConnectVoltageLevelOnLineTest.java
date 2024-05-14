@@ -3,13 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -17,7 +16,6 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -29,45 +27,42 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
+class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
 
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReporterModel reporter = new ReporterModel("reportAttachVoltageLevelOnLineNbTest", "Testing reporter for Attaching voltage level on line - Node breaker");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportAttachVoltageLevelOnLineNbTest", "Testing reportNode for Attaching voltage level on line - Node breaker").build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
                 .build();
-        modification.apply(network, new DefaultNamingStrategy(), false, reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-line-split-vl.xml");
+        modification.apply(network, new DefaultNamingStrategy(), false, reportNode);
+        writeXmlTest(network, "/fictitious-line-split-vl.xml");
     }
 
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        ReporterModel reporter = new ReporterModel("reportConnectVoltageLevelOnLineNbBbTest", "Testing reporter for connecting voltage level on line - Node breaker");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportConnectVoltageLevelOnLineNbBbTest", "Testing reportNode for connecting voltage level on line - Node breaker").build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network, new DefaultNamingStrategy(), reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-line-split-nb-vl.xml");
+        modification.apply(network, new DefaultNamingStrategy(), reportNode);
+        writeXmlTest(network, "/eurostag-line-split-nb-vl.xml");
     }
 
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        ReporterModel reporter = new ReporterModel("reportConnectVoltageLevelOnLineBbTest", "Testing reporter for connecting voltage level on line - Bus breaker");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportConnectVoltageLevelOnLineBbTest", "Testing reportNode for connecting voltage level on line - Bus breaker").build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
-        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reporter);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-line-split-bb-vl.xml");
+        modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
+        writeXmlTest(network, "/eurostag-line-split-bb-vl.xml");
     }
 
     @Test
@@ -119,8 +114,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-line-split-vl-complete.xml");
+        writeXmlTest(network, "/fictitious-line-split-vl-complete.xml");
     }
 
     @Test
@@ -131,37 +125,36 @@ class ConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
                 .withLine(network.getLine("CJ"))
                 .build();
         modification.apply(network, LocalComputationManager.getDefault());
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/fictitious-line-split-vl.xml");
+        writeXmlTest(network, "/fictitious-line-split-vl.xml");
     }
 
     @Test
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
-        ReporterModel reporter = new ReporterModel("reportTestUndefinedBbs", "Testing reporter with undefined busbar section");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedBbs", "Testing reportNode with undefined busbar section").build();
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
                 .build();
-        Reporter subReporterNb = reporter.createSubReporter("nodeBreaker", "Test on node/breaker network");
-        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReporterNb));
+        ReportNode subReportNodeNb = reportNode.newReportNode().withMessageTemplate("nodeBreaker", "Test on node/breaker network").add();
+        PowsyblException exception2 = assertThrows(PowsyblException.class, () -> modification2.apply(network1, true, subReportNodeNb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
-        ReporterModel firstReport = reporter.getSubReporters().get(0);
-        assertEquals("notFoundBusOrBusbarSection", firstReport.getReports().iterator().next().getReportKey());
-        assertEquals("nodeBreaker", firstReport.getTaskKey());
+        ReportNode firstReport = reportNode.getChildren().get(0);
+        assertEquals("notFoundBusOrBusbarSection", firstReport.getChildren().get(0).getMessageKey());
+        assertEquals("nodeBreaker", firstReport.getMessageKey());
 
         Network network2 = createBbNetwork();
         NetworkModification modification3 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network2.getLine("NHV1_NHV2_1"))
                 .build();
-        Reporter subReporterBb = reporter.createSubReporter("busBreaker", "Test on bus/breaker network");
-        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReporterBb));
+        ReportNode subReportNodeBb = reportNode.newReportNode().withMessageTemplate("busBreaker", "Test on bus/breaker network").add();
+        PowsyblException exception3 = assertThrows(PowsyblException.class, () -> modification3.apply(network2, true, subReportNodeBb));
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception3.getMessage());
-        ReporterModel secondReport = reporter.getSubReporters().get(1);
-        assertEquals("notFoundBusOrBusbarSection", secondReport.getReports().iterator().next().getReportKey());
-        assertEquals("busBreaker", secondReport.getTaskKey());
+        ReportNode secondReport = reportNode.getChildren().get(1);
+        assertEquals("notFoundBusOrBusbarSection", secondReport.getChildren().get(0).getMessageKey());
+        assertEquals("busBreaker", secondReport.getMessageKey());
     }
 
     @Test
@@ -177,18 +170,17 @@ class ConnectVoltageLevelOnLineTest extends AbstractSerDeTest {
                 .withLine(network.getLine("NHV1_NHV2_1"))
                 .build();
         modification2.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault());
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-tutorial-example1.xml");
+        writeXmlTest(network, "/eurostag-tutorial-example1.xml");
     }
 
     @Test
-    void testWithReporter() {
+    void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReporterModel reporter = new ReporterModel("reportTestConnectVoltageLevelOnLine", "Testing reporter for connecting voltage level on line");
+        ReportNode report = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectVoltageLevelOnLine", "Testing reportNode for connecting voltage level on line").build();
         new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
-                .build().apply(network, new DefaultNamingStrategy(), true, reporter);
-        testReporter(reporter, "/reporter/connect-voltage-level-on-line-NB-report.txt");
+                .build().apply(network, new DefaultNamingStrategy(), true, report);
+        testReportNode(report, "/reportNode/connect-voltage-level-on-line-NB-report.txt");
     }
 }

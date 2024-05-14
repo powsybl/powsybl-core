@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -12,24 +13,22 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
-import com.powsybl.commons.io.TreeDataFormat;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtension;
 import com.powsybl.iidm.serde.extensions.util.NetworkSourceExtensionImpl;
 import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -45,13 +44,55 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
 
     @Test
     void roundTripTest() throws IOException {
-        roundTripXmlTest(createEurostagTutorialExample1(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("eurostag-tutorial-example1.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(createEurostagTutorialExample1(), "eurostag-tutorial-example1.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+        allFormatsRoundTripAllPreviousVersionedXmlTest("eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    void testSkippedExtension() throws IOException {
+        // Read file with all extensions included (default ImportOptions)
+        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        Network networkReadExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+                new ImportOptions(), null, NetworkFactory.findDefault(), reportNode1);
+        Load load1 = networkReadExtensions.getLoad("LOAD");
+        assertNotNull(load1.getExtension(LoadBarExt.class));
+        assertNotNull(load1.getExtension(LoadZipModel.class));
+
+        StringWriter sw1 = new StringWriter();
+        reportNode1.print(sw1);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadBar imported.
+                      Extension loadZipModel imported.
+                   + Not found extensions
+                      Extension terminalMockNoSerDe not found.
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
+
+        // Read file with only terminalMockNoSerDe and loadZipModel extensions included
+        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("root", "Root reportNode").build();
+        ImportOptions notAllExtensions = new ImportOptions().addExtension("terminalMockNoSerDe").addExtension("loadZipModel");
+        Network networkSkippedExtensions = NetworkSerDe.read(getNetworkAsStream("/skippedExtensions.xml"),
+                notAllExtensions, null, NetworkFactory.findDefault(), reportNode2);
+        Load load2 = networkSkippedExtensions.getLoad("LOAD");
+        assertNull(load2.getExtension(LoadBarExt.class));
+        LoadZipModel loadZipModelExt = load2.getExtension(LoadZipModel.class);
+        assertNotNull(loadZipModelExt);
+        assertEquals(3.0, loadZipModelExt.getA3(), 0.001);
+
+        StringWriter sw2 = new StringWriter();
+        reportNode2.print(sw2);
+        assertEquals("""
+                + Root reportNode
+                   Validation warnings
+                   + Imported extensions
+                      Extension loadZipModel imported.
+                   + Not found extensions
+                      Extension terminalMockNoSerDe not found.
+                """, TestUtil.normalizeLineSeparator(sw2.toString()));
     }
 
     @Test
@@ -59,8 +100,8 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Network network = createEurostagTutorialExample1();
         network.getGenerator("GEN").setProperty("test", "foo");
         Path xmlFile = tmpDir.resolve("n.xml");
-        NetworkSerDe.writeAndValidate(network, xmlFile);
-        Network readNetwork = NetworkSerDe.read(xmlFile);
+        NetworkSerDe.write(network, xmlFile);
+        Network readNetwork = NetworkSerDe.validateAndRead(xmlFile);
         assertEquals("foo", readNetwork.getGenerator("GEN").getProperty("test"));
     }
 
@@ -130,13 +171,10 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     void testScada() throws IOException {
         Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
-        roundTripXmlTest(network,
-                NetworkSerDe::write,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(network, "scadaNetwork.xml", CURRENT_IIDM_VERSION);
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmVersion.V_1_7);
     }
 
     @Test
@@ -158,7 +196,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void failImportWithSeveralSubnetworkLevels() throws URISyntaxException {
         Path path = Path.of(getClass().getResource(getVersionedNetworkPath("multiple-subnetwork-levels.xml",
-                CURRENT_IIDM_XML_VERSION)).toURI());
+                CURRENT_IIDM_VERSION)).toURI());
         PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.validateAndRead(path));
         assertTrue(e.getMessage().contains("Only one level of subnetworks is currently supported."));
     }
@@ -176,17 +214,9 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         NetworkSourceExtension source = new NetworkSourceExtensionImpl("Source_0");
         merged.addExtension(NetworkSourceExtension.class, source);
 
-        roundTripXmlTest(merged,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
-        roundTripTest(merged,
-                (n, jsonFile) -> NetworkSerDe.write(n, new ExportOptions().setFormat(TreeDataFormat.JSON), jsonFile),
-                jsonFile -> NetworkSerDe.read(jsonFile, new ImportOptions().setFormat(TreeDataFormat.JSON)),
-                getVersionedNetworkPath("subnetworks.json", IidmSerDeConstants.CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(merged, "subnetworks.xml", IidmSerDeConstants.CURRENT_IIDM_VERSION);
 
-        roundTripVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
-        roundTripVersionedJsonFromMinToCurrentVersionTest("subnetworks.json", IidmVersion.V_1_11);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("subnetworks.xml", IidmVersion.V_1_5);
     }
 
     private Network createNetwork(int num) {

@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model.triplestore;
 
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void read(InputStream is, String baseName, String contextName, Reporter reporter) {
+    public void read(InputStream is, String baseName, String contextName, ReportNode reportNode) {
         // Reset cached nodeBreaker value everytime we read new data
         nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);
@@ -252,9 +253,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
     }
 
+    /**
+     * Query the model description (the metadata information) for all profiles (EQ, TP, ...).
+     * @return Property bags (one bag per profile) with all the model description found.
+     */
     @Override
-    public PropertyBags fullModel(String cgmesProfile) {
-        return namedQuery("fullModel", cgmesProfile);
+    public PropertyBags fullModels() {
+        return namedQuery("fullModels");
     }
 
     @Override
@@ -321,9 +326,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         DateTimeFormatter dateTimeFormatterLocalised = new DateTimeFormatterBuilder()
             // Fixed mandatory pattern
             .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
-            // Between 0 and 6 decimals
-            .appendFraction(ChronoField.MICRO_OF_SECOND, 0, 6, true)
-            // Potentially a suffix for localisation (for example "Z", "+01:00", "+3", etc.)
+            // Between 0 and 9 decimals (9 is the maximum)
+            .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
+            // Potentially a suffix for localisation (VV: zoneId, x: +HHmm, xx: +HHMM, xxx: +HH:MM)
             .appendPattern("[VV][x][xx][xxx]")
             .toFormatter();
 
@@ -504,8 +509,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags synchronousMachines() {
-        return namedQuery("synchronousMachines");
+    public PropertyBags synchronousMachinesGenerators() {
+        return namedQuery("synchronousMachinesGenerators");
+    }
+
+    @Override
+    public PropertyBags synchronousMachinesCondensers() {
+        return namedQuery("synchronousMachinesCondensers");
     }
 
     @Override
@@ -591,6 +601,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags grounds() {
+        return namedQuery("grounds");
+    }
+
+    @Override
     public PropertyBags modelProfiles() {
         return namedQuery(MODEL_PROFILES);
     }
@@ -609,6 +624,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         PropertyBags r = query(queryText);
         final long t1 = System.currentTimeMillis();
         if (LOG.isDebugEnabled()) {
+            LOG.debug("results query {}{}{}", name, System.lineSeparator(), r.tabulateLocals());
             LOG.debug("dt query {} {} ms, result set size = {}", name, t1 - t0, r.size());
         }
         return r;

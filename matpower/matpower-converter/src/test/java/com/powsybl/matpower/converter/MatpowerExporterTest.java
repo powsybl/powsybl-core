@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.converter;
 
@@ -14,9 +15,8 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -51,7 +51,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
     private void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         Properties parameters = new Properties();
-        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "true");
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
         exportToMatAndCompareTo(network, refJsonFile, parameters);
     }
 
@@ -74,10 +74,21 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void testEsgTuto1WithoutActivePowerLimit() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        Generator gen = network.getGenerator("GEN");
+        gen.newMinMaxReactiveLimits()
+                .setMinQ(-Double.MAX_VALUE)
+                .setMaxQ(Double.MAX_VALUE)
+                .add();
+        exportToMatAndCompareTo(network, "/sim1-without-active-power-limit.json");
+    }
+
+    @Test
     void testEsgTuto1WithoutBusNames() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
         Properties parameters = new Properties();
-        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES, "false");
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "false");
         exportToMatAndCompareTo(network, "/sim1-without-bus-names.json", parameters);
     }
 
@@ -188,5 +199,49 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         var network = EurostagTutorialExample1Factory.create();
         network.getGenerator("GEN").setTargetQ(Double.NaN);
         exportToMatAndCompareTo(network, "/sim1-with-nan-target-q.json");
+    }
+
+    @Test
+    void testVscNpeIssue() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
+        vlgen.newVscConverterStation()
+                .setId("VSC")
+                .setConnectableBus("NGEN")
+                .setVoltageRegulatorOn(true)
+                .setVoltageSetpoint(100)
+                .setLossFactor(0)
+                .add();
+        exportToMatAndCompareTo(network, "/vsc-npe-issue.json");
+    }
+
+    @Test
+    void testDanglingLineWithGeneration() throws IOException {
+        var network = DanglingLineNetworkFactory.createWithGeneration();
+        exportToMatAndCompareTo(network, "/dangling-line-generation.json");
+    }
+
+    @Test
+    void testLineConnectedToSameBus() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.newLine()
+                .setId("NL")
+                .setBus1("NGEN")
+                .setVoltageLevel1("VLGEN")
+                .setBus2("NGEN")
+                .setVoltageLevel2("VLGEN")
+                .setR(0.1)
+                .setX(0.1)
+                .add();
+        exportToMatAndCompareTo(network, "/line-connected-same-bus.json");
+    }
+
+    @Test
+    void testSmallImpedanceLine() throws IOException {
+        var network = EurostagTutorialExample1Factory.create();
+        network.getLine("NHV1_NHV2_1")
+                .setR(0.00000001)
+                .setX(0.00000003);
+        exportToMatAndCompareTo(network, "/small-impedance-line.json");
     }
 }

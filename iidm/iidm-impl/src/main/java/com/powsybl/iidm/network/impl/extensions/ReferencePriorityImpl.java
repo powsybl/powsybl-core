@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl.extensions;
 
@@ -23,7 +24,8 @@ class ReferencePriorityImpl implements ReferencePriority {
     ReferencePriorityImpl(Terminal terminal, int priority) {
         this.terminal = Objects.requireNonNull(terminal, "Terminal needs to be set for ReferencePriority extension");
         if (priority < 0) {
-            throw new PowsyblException("Priority should be zero or positive for ReferencePriority extension");
+            throw new PowsyblException(String.format("Priority (%s) of terminal (equipment %s) should be zero or positive for ReferencePriority extension",
+                priority, terminal.getConnectable().getId()));
         }
         this.priority = priority;
     }

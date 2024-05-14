@@ -9,8 +9,8 @@
 -->
 <xs:schema version="1.11"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:iidm="http://www.powsybl.org/schema/iidm/equipment/1_10"
-           targetNamespace="http://www.powsybl.org/schema/iidm/equipment/1_10"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/equipment/1_11"
+           targetNamespace="http://www.powsybl.org/schema/iidm/equipment/1_11"
            elementFormDefault="qualified">
     <xs:simpleType name='nonEmptyString'>
         <xs:restriction base='xs:string'>

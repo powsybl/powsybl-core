@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+    <md:FullModel rdf:about="urn:uuid:7bf718c6-2a99-450b-ba9b-2c334e133248">
+        <md:Model.scenarioTime>2030-01-02T09:00:00.987654321Z</md:Model.scenarioTime>
+        <md:Model.created>2021-05-18T07:43:27+01</md:Model.created>
+        <md:Model.description>EQ Model</md:Model.description>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentCore/3/1</md:Model.profile>
+        <md:Model.profile>http://entsoe.eu/CIM/EquipmentOperation/3/1</md:Model.profile>
+        <md:Model.modelingAuthoritySet>powsybl.org</md:Model.modelingAuthoritySet>
+    </md:FullModel>
+</rdf:RDF>

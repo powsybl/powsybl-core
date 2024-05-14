@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.io;
 
@@ -34,17 +35,25 @@ public interface TreeDataWriter extends AutoCloseable {
 
     void writeDoubleAttribute(String name, double value, double absentValue);
 
+    void writeOptionalDoubleAttribute(String name, Double value);
+
     void writeIntAttribute(String name, int value);
 
     void writeIntAttribute(String name, int value, int absentValue);
 
+    void writeOptionalIntAttribute(String name, Integer value);
+
     void writeIntArrayAttribute(String name, Collection<Integer> values);
+
+    void writeStringArrayAttribute(String name, Collection<String> values);
 
     <E extends Enum<E>> void writeEnumAttribute(String name, E value);
 
     void writeBooleanAttribute(String name, boolean value);
 
     void writeBooleanAttribute(String name, boolean value, boolean absentValue);
+
+    void writeOptionalBooleanAttribute(String name, Boolean value);
 
     @Override
     void close();

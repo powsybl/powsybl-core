@@ -49,6 +49,8 @@ final class CgmesCatalogsConstants {
             + "/MicroGrid/BaseCase/MicroGrid-NL-MAS/";
     static final String MICRO_GRID_3_BD_BASE = ENTSOE_CONFORMITY_3
             + "/MicroGrid/BaseCase/MicroGrid-BD-MAS/";
+    static final String MICRO_GRID_3_MERGED_BASE = ENTSOE_CONFORMITY_3
+            + "/MicroGrid/BaseCase/MicroGrid-BaseCase-Merged/";
 
     static final String CGMES_3_MICRO_GRID_BASE = CGMES_3_TEST_MODELS + "/MicroGrid/";
     static final String CGMES_3_MINI_GRID_BASE = CGMES_3_TEST_MODELS + "/MiniGrid/";

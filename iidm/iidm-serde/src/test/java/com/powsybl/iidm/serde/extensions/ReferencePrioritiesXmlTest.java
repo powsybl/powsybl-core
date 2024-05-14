@@ -3,14 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.IidmSerDeConstants;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -63,9 +63,6 @@ class ReferencePrioritiesXmlTest extends AbstractIidmSerDeTest {
         ReferencePriority.set(line, TwoSides.ONE, 2);
         ReferencePriority.set(line, TwoSides.TWO, 0);
 
-        roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionDir(IidmSerDeConstants.CURRENT_IIDM_XML_VERSION) + "referencePrioritiesRef.xiidm");
+        allFormatsRoundTripTest(network, "referencePrioritiesRef.xiidm", IidmSerDeConstants.CURRENT_IIDM_VERSION);
     }
 }

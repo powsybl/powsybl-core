@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -120,17 +121,18 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
         ParsingContext context = new ParsingContext();
         JsonToken token;
         while ((token = parser.nextToken()) != null) {
-            if (token == JsonToken.START_OBJECT) {
-                // skip
-            } else if (token == JsonToken.END_OBJECT) {
-                if (context.child == null || context.operator == null) {
-                    throw new TimeSeriesException("Invalid unary operation node calc JSON");
+            switch (token) {
+                case START_OBJECT -> {
+                    // Do nothing
                 }
-                return new UnaryOperation(context.child, context.operator);
-            } else if (token == JsonToken.FIELD_NAME) {
-                parseFieldName(parser, token, context);
-            } else {
-                throw NodeCalc.createUnexpectedToken(token);
+                case END_OBJECT -> {
+                    if (context.child == null || context.operator == null) {
+                        throw new TimeSeriesException("Invalid unary operation node calc JSON");
+                    }
+                    return new UnaryOperation(context.child, context.operator);
+                }
+                case FIELD_NAME -> parseFieldName(parser, token, context);
+                default -> throw NodeCalc.createUnexpectedToken(token);
             }
         }
         throw NodeCalc.createUnexpectedToken(token);
@@ -138,7 +140,7 @@ public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     @Override
     public int hashCode() {
-        return child.hashCode() + operator.hashCode();
+        return Objects.hash(child, operator, NAME);
     }
 
     @Override

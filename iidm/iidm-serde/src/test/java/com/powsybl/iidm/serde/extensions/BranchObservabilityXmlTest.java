@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
 import com.powsybl.iidm.network.impl.extensions.BranchObservabilityImpl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -26,14 +27,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class BranchObservabilityXmlTest extends AbstractSerDeTest {
+class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
 
     private static List<IidmVersion> fromMinToCurrentVersion(IidmVersion min) {
         return Stream.of(IidmVersion.values())
@@ -43,12 +43,6 @@ class BranchObservabilityXmlTest extends AbstractSerDeTest {
 
     @Test
     void test() throws IOException {
-        for (var version : fromMinToCurrentVersion(IidmVersion.V_1_6)) {
-            testVersion(version);
-        }
-    }
-
-    void testVersion(IidmVersion version) throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(ZonedDateTime.parse("2022-08-09T17:00:00.000Z"));
         Line line1 = network.getLine("NHV1_NHV2_1");
@@ -77,57 +71,47 @@ class BranchObservabilityXmlTest extends AbstractSerDeTest {
                 .withObservable(true)
                 .add();
 
-        ExportOptions options = new ExportOptions()
-                .setSorted(true)
-                .setVersion(version.toString("."));
-        Network network2;
-        try {
-            network2 = roundTripXmlTest(network,
-                (n, path) -> NetworkSerDe.writeAndValidate(n, options, path),
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("/branchObservabilityRoundTripRef.xml", version));
-        } catch (IllegalStateException err) {
-            NetworkSerDe.write(network, options, System.out);
-            throw err;
+        for (var version : fromMinToCurrentVersion(IidmVersion.V_1_6)) {
+            Network network2 = allFormatsRoundTripTest(network, "/branchObservabilityRoundTripRef.xml", version, new ExportOptions().setSorted(true));
+
+            line1 = network2.getLine("NHV1_NHV2_1");
+            assertNotNull(line1);
+            BranchObservability<Line> line1BranchObservability2 = line1.getExtension(BranchObservability.class);
+            assertNotNull(line1BranchObservability2);
+
+            assertEquals(line1BranchObservability.isObservable(), line1BranchObservability2.isObservable());
+            assertEquals(line1BranchObservability.getQualityP1().getStandardDeviation(), line1BranchObservability2.getQualityP1().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getQualityP1().isRedundant(), line1BranchObservability2.getQualityP1().isRedundant());
+            assertEquals(line1BranchObservability.getQualityP2().getStandardDeviation(), line1BranchObservability2.getQualityP2().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getQualityP2().isRedundant(), line1BranchObservability2.getQualityP2().isRedundant());
+
+            assertEquals(line1BranchObservability.getQualityQ1().getStandardDeviation(), line1BranchObservability2.getQualityQ1().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getQualityQ1().isRedundant(), line1BranchObservability2.getQualityQ1().isRedundant());
+            assertEquals(line1BranchObservability.getQualityQ2().getStandardDeviation(), line1BranchObservability2.getQualityQ2().getStandardDeviation(), 0.0d);
+            assertEquals(line1BranchObservability.getQualityQ2().isRedundant(), line1BranchObservability2.getQualityQ2().isRedundant());
+
+            assertEquals(line1BranchObservability.getName(), line1BranchObservability2.getName());
+
+            line2 = network2.getLine("NHV1_NHV2_2");
+            assertNotNull(line2);
+            BranchObservability<Line> line2BranchObservability2 = line2.getExtension(BranchObservability.class);
+            assertNotNull(line2BranchObservability2);
+            assertEquals(line2BranchObservability.isObservable(), line2BranchObservability2.isObservable());
+
+            BranchObservability<TwoWindingsTransformer> transfoObs = network2.getTwoWindingsTransformer("NGEN_NHV1")
+                    .getExtension(BranchObservability.class);
+            assertNotNull(transfoObs);
+            assertTrue(transfoObs.isObservable());
+            assertNull(transfoObs.getQualityP1());
+            assertNull(transfoObs.getQualityP2());
+            assertNull(transfoObs.getQualityQ1());
+            assertNull(transfoObs.getQualityQ2());
         }
-
-        line1 = network2.getLine("NHV1_NHV2_1");
-        assertNotNull(line1);
-        BranchObservability<Line> line1BranchObservability2 = line1.getExtension(BranchObservability.class);
-        assertNotNull(line1BranchObservability2);
-
-        assertEquals(line1BranchObservability.isObservable(), line1BranchObservability2.isObservable());
-        assertEquals(line1BranchObservability.getQualityP1().getStandardDeviation(), line1BranchObservability2.getQualityP1().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityP1().isRedundant(), line1BranchObservability2.getQualityP1().isRedundant());
-        assertEquals(line1BranchObservability.getQualityP2().getStandardDeviation(), line1BranchObservability2.getQualityP2().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityP2().isRedundant(), line1BranchObservability2.getQualityP2().isRedundant());
-
-        assertEquals(line1BranchObservability.getQualityQ1().getStandardDeviation(), line1BranchObservability2.getQualityQ1().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityQ1().isRedundant(), line1BranchObservability2.getQualityQ1().isRedundant());
-        assertEquals(line1BranchObservability.getQualityQ2().getStandardDeviation(), line1BranchObservability2.getQualityQ2().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityQ2().isRedundant(), line1BranchObservability2.getQualityQ2().isRedundant());
-
-        assertEquals(line1BranchObservability.getName(), line1BranchObservability2.getName());
-
-        line2 = network2.getLine("NHV1_NHV2_2");
-        assertNotNull(line2);
-        BranchObservability<Line> line2BranchObservability2 = line2.getExtension(BranchObservability.class);
-        assertNotNull(line2BranchObservability2);
-        assertEquals(line2BranchObservability.isObservable(), line2BranchObservability2.isObservable());
-
-        BranchObservability<TwoWindingsTransformer> transfoObs = network2.getTwoWindingsTransformer("NGEN_NHV1")
-                .getExtension(BranchObservability.class);
-        assertNotNull(transfoObs);
-        assertTrue(transfoObs.isObservable());
-        assertNull(transfoObs.getQualityP1());
-        assertNull(transfoObs.getQualityP2());
-        assertNull(transfoObs.getQualityQ1());
-        assertNull(transfoObs.getQualityQ2());
     }
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
         assertEquals("Unknown element name 'qualityV' in 'branchObservability'", e.getMessage());
     }
 }

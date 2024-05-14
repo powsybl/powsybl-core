@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
@@ -77,10 +78,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                     writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
 
                     // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
-                    TwoSides side = getSide(boundary);
-                    if (side != null) {
-                        writer.writeEnumAttribute("side", side);
-                    }
+                    writer.writeEnumAttribute("side", getSide(boundary));
                     writer.writeEndNode();
                 }
             }
@@ -127,17 +125,15 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
     private void readBoundariesAndTerminals(NetworkDeserializerContext networkContext, CgmesControlArea cgmesControlArea, Network network) {
         TreeDataReader reader = networkContext.getReader();
         reader.readChildNodes(elementName -> {
-            String id;
-            String side;
             switch (elementName) {
                 case BOUNDARY_ROOT_ELEMENT -> {
-                    id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
-                    Identifiable identifiable = network.getIdentifiable(id);
+                    String id = networkContext.getAnonymizer().deanonymizeString(reader.readStringAttribute("id"));
+                    TwoSides side = reader.readEnumAttribute("side", TwoSides.class);
+                    Identifiable<?> identifiable = network.getIdentifiable(id);
                     if (identifiable instanceof DanglingLine dl) {
                         cgmesControlArea.add(dl.getBoundary());
                     } else if (identifiable instanceof TieLine tl) {
-                        side = reader.readStringAttribute("side");
-                        cgmesControlArea.add(tl.getDanglingLine(TwoSides.valueOf(side)).getBoundary());
+                        cgmesControlArea.add(tl.getDanglingLine(side).getBoundary());
                     } else {
                         throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
                     }

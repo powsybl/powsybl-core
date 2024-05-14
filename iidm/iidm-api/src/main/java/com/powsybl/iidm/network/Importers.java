@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import org.slf4j.Logger;
@@ -50,31 +51,31 @@ public final class Importers {
      * @param parameters some properties to configure the import
      * @param computationManager computation manager to use for default post processors
      * @param config the import configuration
-     * @param reporter the reporter used for functional logs
+     * @param reportNode the reportNode used for functional logs
      * @return the model
      */
-    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config, Reporter reporter) {
+    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config, ReportNode reportNode) {
         Importer importer = Importer.find(loader, format, computationManager, config);
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
         }
-        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+        return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reportNode);
     }
 
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
-        return importData(loader, format, dataSource, parameters, computationManager, config, Reporter.NO_OP);
+        return importData(loader, format, dataSource, parameters, computationManager, config, ReportNode.NO_OP);
     }
 
-    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, Reporter reporter) {
-        return importData(new ImportersServiceLoader(), format, dataSource, parameters, computationManager, ImportConfig.CACHE.get(), reporter);
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ReportNode reportNode) {
+        return importData(new ImportersServiceLoader(), format, dataSource, parameters, computationManager, ImportConfig.CACHE.get(), reportNode);
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
-        return importData(new ImportersServiceLoader(), format, dataSource, parameters, computationManager, ImportConfig.CACHE.get(), Reporter.NO_OP);
+        return importData(new ImportersServiceLoader(), format, dataSource, parameters, computationManager, ImportConfig.CACHE.get(), ReportNode.NO_OP);
     }
 
-    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, Reporter reporter) {
-        return importData(new ImportersServiceLoader(), format, dataSource, parameters, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), reporter);
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        return importData(new ImportersServiceLoader(), format, dataSource, parameters, LocalComputationManager.getDefault(), ImportConfig.CACHE.get(), reportNode);
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters) {
@@ -94,13 +95,13 @@ public final class Importers {
         return importData(format, new FileDataSource(Paths.get(directory), baseName), parameters);
     }
 
-    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) {
+    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) {
         Objects.requireNonNull(consumer);
         try {
             if (listener != null) {
                 listener.accept(dataSource);
             }
-            Network network = importer.importData(dataSource, networkFactory, parameters, reporter);
+            Network network = importer.importData(dataSource, networkFactory, parameters, reportNode);
             consumer.accept(network);
         } catch (Exception e) {
             LOGGER.error(e.toString(), e);
@@ -138,11 +139,11 @@ public final class Importers {
         }
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
-        importAll(dir, importer, parallel, parameters, consumer, listener, NetworkFactory.findDefault(), reporter);
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
+        importAll(dir, importer, parallel, parameters, consumer, listener, NetworkFactory.findDefault(), reportNode);
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) throws IOException, InterruptedException, ExecutionException {
         List<ReadOnlyDataSource> dataSources = new ArrayList<>();
         importAll(dir, importer, dataSources);
         if (parallel) {
@@ -150,7 +151,7 @@ public final class Importers {
             try {
                 List<Future<?>> futures = dataSources.stream()
                         .map(ds -> {
-                            Reporter child = createSubReporter(reporter, ds);
+                            ReportNode child = createChildReportNode(reportNode, ds);
                             return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, networkFactory, child));
                         })
                         .collect(Collectors.toList());
@@ -162,17 +163,20 @@ public final class Importers {
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, createSubReporter(reporter, dataSource));
+                doImport(dataSource, importer, parameters, consumer, listener, networkFactory, createChildReportNode(reportNode, dataSource));
             }
         }
     }
 
-    private static Reporter createSubReporter(Reporter reporter, ReadOnlyDataSource ds) {
-        return reporter.createSubReporter("importDataSource", "Import data source ${dataSource}", "dataSource", ds.getBaseName());
+    private static ReportNode createChildReportNode(ReportNode reportNode, ReadOnlyDataSource ds) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("importDataSource", "Import data source ${dataSource}")
+                .withUntypedValue("dataSource", ds.getBaseName())
+                .add();
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
-        importAll(dir, importer, parallel, null, consumer, listener, Reporter.NO_OP);
+        importAll(dir, importer, parallel, null, consumer, listener, ReportNode.NO_OP);
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {

@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.dgs;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.powerfactory.model.DataAttributeType;
 import com.powsybl.powerfactory.model.PowerFactoryException;
 import org.apache.commons.lang3.ArrayUtils;
@@ -258,12 +260,10 @@ public class DgsParser {
                         context.general = false;
                         readObjectTableHeader(trimmedLine, handler, context);
                     }
+                } else if (context.general) {
+                    readGeneralTableRow(trimmedLine, handler, context);
                 } else {
-                    if (context.general) {
-                        readGeneralTableRow(trimmedLine, handler, context);
-                    } else {
-                        readObjectTableRow(trimmedLine, handler, context);
-                    }
+                    readObjectTableRow(trimmedLine, handler, context);
                 }
             }
         } catch (IOException e) {
@@ -273,6 +273,9 @@ public class DgsParser {
 
     private static void readGeneralTableRow(String trimmedLine, DgsHandler handler, ParsingContext context) {
         String[] fields = splitConsideringQuotedText(trimmedLine);
+        if (fields.length < 3) {
+            throw new PowsyblException(String.format("Not enough fields in the line: '%s'", trimmedLine));
+        }
         String descr = fields[1];
         String val = fields[2];
         if (descr.equals(VERSION)) {

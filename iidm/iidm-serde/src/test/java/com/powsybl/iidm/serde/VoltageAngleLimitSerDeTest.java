@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  *
@@ -24,11 +24,8 @@ class VoltageAngleLimitSerDeTest extends AbstractIidmSerDeTest {
     @Test
     void roundTripTest() throws IOException {
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("voltageAngleLimit.xiidm", IidmVersion.V_1_11);
+        allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("voltageAngleLimit.xiidm", IidmVersion.V_1_11);
 
-        roundTripXmlTest(EurostagTutorialExample1Factory.createWithVoltageAngleLimit(),
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("voltageAngleLimit.xiidm", CURRENT_IIDM_XML_VERSION));
+        allFormatsRoundTripTest(EurostagTutorialExample1Factory.createWithVoltageAngleLimit(), "voltageAngleLimit.xiidm", CURRENT_IIDM_VERSION);
     }
 }

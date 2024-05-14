@@ -16,7 +16,7 @@
     "id" : "P1",
     "country" : "FR",
     "tso" : "RTE",
-    "geographicalTags" : "A",
+    "geographicalTags" : [ "A" ],
     "voltageLevels" : [ {
       "id" : "VLGEN",
       "nominalV" : 24.0,
@@ -81,7 +81,7 @@
     "id" : "P2",
     "country" : "FR",
     "tso" : "RTE",
-    "geographicalTags" : "B",
+    "geographicalTags" : [ "B" ],
     "voltageLevels" : [ {
       "id" : "VLHV2",
       "nominalV" : 380.0,

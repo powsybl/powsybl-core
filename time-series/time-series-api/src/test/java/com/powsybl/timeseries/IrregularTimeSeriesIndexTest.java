@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -35,7 +36,7 @@ class IrregularTimeSeriesIndexTest {
         assertEquals("2015-01-01T01:00:00Z", Instant.ofEpochMilli(index.getTimeAt(1)).toString());
         assertEquals(2, index.getPointCount());
 
-        // test iterator ans stream
+        // test iterator and stream
         assertEquals(instants, index.stream().collect(Collectors.toList()));
         assertEquals(instants, Lists.newArrayList(index.iterator()));
 

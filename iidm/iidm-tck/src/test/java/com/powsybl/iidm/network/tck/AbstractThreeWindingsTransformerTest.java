@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -136,7 +137,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
                 .setPermanentLimit(2.4)
                 .add();
         assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits().orElse(null));
-        assertEquals(3, leg1.getOperationalLimits().size());
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeSides.TWO));
@@ -456,8 +456,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
-                0.0, 0.0);
+        RatioTapChanger ratioTapChanger = assertDoesNotThrow(() -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
+            0.0, 0.0));
+        assertNotNull(ratioTapChanger);
     }
 
     @Test
@@ -512,8 +513,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0);
+        PhaseTapChanger phaseTapChanger = assertDoesNotThrow(() -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0));
+        assertNotNull(phaseTapChanger);
     }
 
     @Test
@@ -710,7 +712,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChanger(Leg leg, Terminal terminal, boolean regulating) {
         return leg.newRatioTapChanger()
-            .setTargetV(200.0)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -743,7 +746,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private RatioTapChanger createRatioTapChangerOneStep(Leg leg, Terminal terminal, double rho, double r, double x, double g, double b) {
         return leg.newRatioTapChanger()
-            .setTargetV(200.0)
+            .setRegulationMode(RatioTapChanger.RegulationMode.VOLTAGE)
+            .setRegulationValue(200.0)
             .setLoadTapChangingCapabilities(false)
             .setLowTapPosition(0)
             .setTapPosition(0)
@@ -835,7 +839,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg1Arguments() {
         //Verify that other invalidLeg1Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0));
     }
 
     @Test
@@ -919,7 +923,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg2Arguments() {
         //Verify that other invalidLeg2Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, 5.2);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, 5.2));
     }
 
     private void createThreeWindingsTransformerWithLeg2(double r, double x, double g, double b, double ratedU) {
@@ -987,7 +991,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg3Arguments() {
         //Verify that other invalidLeg3Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3));
     }
 
     @Test

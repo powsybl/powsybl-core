@@ -7,10 +7,10 @@
  */
 package com.powsybl.contingency.contingency.list;
 
-import com.powsybl.contingency.contingency.list.criterion.PropertyCriterion;
-import com.powsybl.contingency.contingency.list.criterion.RegexCriterion;
-import com.powsybl.contingency.contingency.list.criterion.SingleNominalVoltageCriterion;
-import com.powsybl.contingency.contingency.list.criterion.TwoCountriesCriterion;
+import com.powsybl.iidm.criteria.PropertyCriterion;
+import com.powsybl.iidm.criteria.RegexCriterion;
+import com.powsybl.iidm.criteria.SingleNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.TwoCountriesCriterion;
 import com.powsybl.iidm.network.IdentifiableType;
 
 import java.util.List;
@@ -19,6 +19,8 @@ import java.util.List;
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class TieLineCriterionContingencyList extends AbstractEquipmentCriterionContingencyList {
+
+    public static final String TYPE = "tieLineCriterion";
     private final TwoCountriesCriterion twoCountriesCriterion;
     private final SingleNominalVoltageCriterion singleNominalVoltageCriterion;
 
@@ -33,7 +35,7 @@ public class TieLineCriterionContingencyList extends AbstractEquipmentCriterionC
 
     @Override
     public String getType() {
-        return "tieLineCriterion";
+        return TYPE;
     }
 
     @Override

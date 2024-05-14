@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity;
 
@@ -81,15 +82,14 @@ public class WeightedSensitivityVariable {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "id":
-                            context.id = parser.nextTextValue();
-                            break;
-                        case "weight":
+                        case "id" -> context.id = parser.nextTextValue();
+                        case "weight" -> {
                             parser.nextToken();
                             context.weight = parser.getDoubleValue();
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                            // Do nothing
+                        }
                     }
                 } else if (token == JsonToken.END_ARRAY) {
                     break;

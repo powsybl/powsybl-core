@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -10,6 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Objects;
 
 /**
  *
@@ -42,10 +45,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double ratedS = Double.NaN;
 
-        private final int legNumber;
+        private final ThreeSides side;
 
-        LegAdderImpl(int legNumber) {
-            this.legNumber = legNumber;
+        LegAdderImpl(ThreeSides side) {
+            this.side = Objects.requireNonNull(side);
         }
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
@@ -118,7 +121,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             VoltageLevelExt voltageLevel = checkAndGetVoltageLevel();
-            return new TerminalBuilder(voltageLevel.getNetworkRef(), this)
+            return new TerminalBuilder(voltageLevel.getNetworkRef(), this, side)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)
@@ -161,25 +164,25 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
-            switch (legNumber) {
-                case 1:
+            switch (side) {
+                case ONE:
                     legAdder1 = this;
                     break;
-                case 2:
+                case TWO:
                     legAdder2 = this;
                     break;
-                case 3:
+                case THREE:
                     legAdder3 = this;
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected value: " + legNumber);
+                    throw new IllegalStateException("Unexpected side: " + side);
             }
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
         @Override
         public String getMessageHeader() {
-            return String.format("3 windings transformer leg%d in substation %s: ", legNumber, substation.getId());
+            return String.format("3 windings transformer leg%d in substation %s: ", side.getNum(), substation.getId());
         }
     }
 
@@ -209,17 +212,17 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     public LegAdder newLeg1() {
-        return new LegAdderImpl(1);
+        return new LegAdderImpl(ThreeSides.ONE);
     }
 
     @Override
     public LegAdder newLeg2() {
-        return new LegAdderImpl(2);
+        return new LegAdderImpl(ThreeSides.TWO);
     }
 
     @Override
     public LegAdder newLeg3() {
-        return new LegAdderImpl(3);
+        return new LegAdderImpl(ThreeSides.THREE);
     }
 
     @Override
@@ -246,7 +249,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             legAdder1.checkConnectableBus();
             voltageLevel1 = legAdder1.checkAndGetVoltageLevel();
             terminal1 = legAdder1.checkAndGetTerminal();
-            leg1 = new LegImpl(legAdder1.r, legAdder1.x, legAdder1.g, legAdder1.b, legAdder1.ratedU, legAdder1.ratedS, legAdder1.legNumber);
+            leg1 = new LegImpl(legAdder1.r, legAdder1.x, legAdder1.g, legAdder1.b, legAdder1.ratedU, legAdder1.ratedS, legAdder1.side);
         } else {
             throw new ValidationException(this, "Leg1 is not set");
         }
@@ -255,7 +258,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             legAdder2.checkConnectableBus();
             voltageLevel2 = legAdder2.checkAndGetVoltageLevel();
             terminal2 = legAdder2.checkAndGetTerminal();
-            leg2 = new LegImpl(legAdder2.r, legAdder2.x, legAdder2.g, legAdder2.b, legAdder2.ratedU, legAdder2.ratedS, legAdder2.legNumber);
+            leg2 = new LegImpl(legAdder2.r, legAdder2.x, legAdder2.g, legAdder2.b, legAdder2.ratedU, legAdder2.ratedS, legAdder2.side);
         } else {
             throw new ValidationException(this, "Leg2 is not set");
         }
@@ -264,7 +267,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             legAdder3.checkConnectableBus();
             voltageLevel3 = legAdder3.checkAndGetVoltageLevel();
             terminal3 = legAdder3.checkAndGetTerminal();
-            leg3 = new LegImpl(legAdder3.r, legAdder3.x, legAdder3.g, legAdder3.b, legAdder3.ratedU, legAdder3.ratedS, legAdder3.legNumber);
+            leg3 = new LegImpl(legAdder3.r, legAdder3.x, legAdder3.g, legAdder3.b, legAdder3.ratedU, legAdder3.ratedS, legAdder3.side);
         } else {
             throw new ValidationException(this, "Leg3 is not set");
         }
@@ -292,9 +295,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);
-        terminal1.setNum(1);
-        terminal2.setNum(2);
-        terminal3.setNum(3);
 
         // check that the 3 windings transformer is attachable on the 3 sides (only
         // verify)

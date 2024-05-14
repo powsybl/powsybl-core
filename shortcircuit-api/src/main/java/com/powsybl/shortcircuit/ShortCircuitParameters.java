@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -30,7 +31,7 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
- * Generic parameters for short circuit-computations.
+ * Generic parameters for short-circuit computations.
  * May contain extensions for implementation-specific parameters.
  *
  * @author Boubakeur Brahimi
@@ -40,8 +41,8 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     // VERSION = 1.0 withLimitViolations, withVoltageMap, withFeederResult, studyType and minVoltageDropProportionalThreshold
     // VERSION = 1.1 withVoltageMap -> withFortescueResult and withVoltageResult
     // VERSION = 1.2 subTransientCoefficient, withLoads, withShuntCompensators, withVSCConverterStations, withNeutralPosition,
-    //                initialVoltageProfileMode, voltageRanges
-    // VERSION = 1.3 detailedLog
+    //                initialVoltageProfileMode, voltageRange
+    // VERSION = 1.3 detailedLog, voltage in voltageRange
     public static final String VERSION = "1.3";
 
     private boolean withLimitViolations = DEFAULT_WITH_LIMIT_VIOLATIONS;
@@ -150,7 +151,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * The type of study: transient, subtransient or steady state.
+     * The type of study: transient, sub-transient or steady state.
      */
     public StudyType getStudyType() {
         return studyType;
@@ -195,7 +196,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of the generators
+    /** In case of a sub-transient study, a multiplicative coefficient to obtain the sub-transient reactance of the generators
      * from the transient reactance. By default, X''d = 0.7 * X'd.
      */
     public double getSubTransientCoefficient() {
@@ -292,7 +293,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * A boolean indicating if the functional logs in reporter should be detailed or aggregated.
+     * A boolean indicating if the functional logs in reportNode should be detailed or aggregated.
      */
     public boolean isDetailedReport() {
         return detailedReport;

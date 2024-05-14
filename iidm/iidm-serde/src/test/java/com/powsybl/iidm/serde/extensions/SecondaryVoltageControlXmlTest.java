@@ -7,30 +7,25 @@
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlUnit;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.PilotPoint;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.serde.NetworkSerDe;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class SecondaryVoltageControlXmlTest extends AbstractSerDeTest {
+class SecondaryVoltageControlXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -38,15 +33,23 @@ class SecondaryVoltageControlXmlTest extends AbstractSerDeTest {
         network.setCaseDate(ZonedDateTime.parse("2023-01-07T20:43:11.819+01:00"));
 
         SecondaryVoltageControl control = network.newExtension(SecondaryVoltageControlAdder.class)
-                .addControlZone(new ControlZone("z1",
-                                                new PilotPoint(List.of("NLOAD"), 15d),
-                                                List.of(new ControlUnit("GEN", false), new ControlUnit("GEN2"))))
+                .newControlZone()
+                    .withName("z1")
+                    .newPilotPoint()
+                        .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+                        .withTargetV(15d)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN")
+                        .withParticipate(false)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN2")
+                        .add()
+                    .add()
                 .add();
 
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::read,
-                getVersionedNetworkPath("/secondaryVoltageControlRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "/secondaryVoltageControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         SecondaryVoltageControl control2 = network2.getExtension(SecondaryVoltageControl.class);
         assertNotNull(control2);

@@ -3,20 +3,22 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.serde.anonymizer.Anonymizer;
 
 import java.util.*;
 
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -30,8 +32,10 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     private final Map<String, String> extensionVersions;
 
+    private ValidationLevel networkValidationLevel;
+
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader) {
-        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_XML_VERSION, Collections.emptyMap());
+        this(anonymizer, reader, new ImportOptions(), CURRENT_IIDM_VERSION, Collections.emptyMap());
     }
 
     public NetworkDeserializerContext(Anonymizer anonymizer, TreeDataReader reader, ImportOptions options, IidmVersion version,
@@ -51,8 +55,8 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
         return endTasks;
     }
 
-    public void executeEndTasks(Network network, Reporter reporter) {
-        Networks.executeWithReporter(network, reporter, () -> getEndTasks().forEach(Runnable::run));
+    public void executeEndTasks(Network network, ReportNode reportNode) {
+        Networks.executeWithReportNode(network, reportNode, () -> getEndTasks().forEach(Runnable::run));
     }
 
     @Override
@@ -66,5 +70,14 @@ public class NetworkDeserializerContext extends AbstractNetworkSerDeContext<Impo
 
     public Optional<String> getExtensionVersion(ExtensionSerDe<?, ?> extensionSerDe) {
         return Optional.ofNullable(extensionVersions.get(extensionSerDe.getExtensionName()));
+    }
+
+    public NetworkDeserializerContext setNetworkValidationLevel(ValidationLevel validationLevel) {
+        this.networkValidationLevel = validationLevel;
+        return this;
+    }
+
+    public ValidationLevel getNetworkValidationLevel() {
+        return this.networkValidationLevel;
     }
 }

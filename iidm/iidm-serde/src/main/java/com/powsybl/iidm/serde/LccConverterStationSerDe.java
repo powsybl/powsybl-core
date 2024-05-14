@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -45,7 +46,7 @@ public class LccConverterStationSerDe extends AbstractSimpleIdentifiableSerDe<Lc
     protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         float lossFactor = context.getReader().readFloatAttribute("lossFactor");
         float powerFactor = context.getReader().readFloatAttribute("powerFactor");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         LccConverterStation cs = adder
                 .setLossFactor(lossFactor)
                 .setPowerFactor(powerFactor)

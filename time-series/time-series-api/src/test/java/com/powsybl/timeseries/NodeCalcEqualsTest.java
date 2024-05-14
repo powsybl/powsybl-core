@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -11,6 +12,8 @@ import com.powsybl.timeseries.ast.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -107,5 +110,57 @@ class NodeCalcEqualsTest {
                 .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(1), 3), new MaxNodeCalc(new IntegerNodeCalc(1), 3))
                 .addEqualityGroup(new MaxNodeCalc(new IntegerNodeCalc(2), 5), new MaxNodeCalc(new IntegerNodeCalc(2), 5))
                 .testEquals();
+    }
+
+    @Test
+    void binaryMinOperationTest() {
+        new EqualsTester()
+                .addEqualityGroup(new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)))
+                .addEqualityGroup(new BinaryMinCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)), new BinaryMinCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)))
+                .testEquals();
+
+        // Different BinaryMinCalc
+        assertNotEquals(new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMinCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)));
+        assertNotEquals(new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(5)));
+
+        // BinaryMinCalc and other NodeCal
+        NodeCalc node1 = new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node2, node1);
+    }
+
+    @Test
+    void binaryMaxOperationTest() {
+        new EqualsTester()
+                .addEqualityGroup(new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)))
+                .addEqualityGroup(new BinaryMaxCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)), new BinaryMaxCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)))
+                .testEquals();
+
+        // Different BinaryMaxCalc
+        assertNotEquals(new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMaxCalc(new IntegerNodeCalc(2), new IntegerNodeCalc(5)));
+        assertNotEquals(new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3)), new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(5)));
+
+        // BinaryMaxCalc and other NodeCal
+        NodeCalc node1 = new BinaryMaxCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node1, node2);
+    }
+
+    @Test
+    void cachedTest() {
+        new EqualsTester()
+            .addEqualityGroup(new CachedNodeCalc(new IntegerNodeCalc(1)), new CachedNodeCalc(new IntegerNodeCalc(1)))
+            .addEqualityGroup(new CachedNodeCalc(new IntegerNodeCalc(2)), new CachedNodeCalc(new IntegerNodeCalc(2)))
+            .testEquals();
+
+        // Different BinaryMaxCalc
+        assertNotEquals(
+            new CachedNodeCalc(new IntegerNodeCalc(1)),
+            new CachedNodeCalc(new IntegerNodeCalc(2)));
+
+        // BinaryMaxCalc and other NodeCal
+        NodeCalc node1 = new CachedNodeCalc(new IntegerNodeCalc(1));
+        NodeCalc node2 = new BinaryMinCalc(new IntegerNodeCalc(1), new IntegerNodeCalc(3));
+        assertNotEquals(node1, node2);
     }
 }

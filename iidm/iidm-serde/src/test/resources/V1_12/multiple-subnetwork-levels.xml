@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="Merged" caseDate="2013-01-15T18:40:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:network id="Network-1" caseDate="2013-01-15T18:41:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+        <iidm:network id="Network-2" caseDate="2013-01-15T18:42:00.000+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+            <iidm:substation id="s2" country="FR">
+                <iidm:voltageLevel id="vl2" nominalV="380.0" topologyKind="BUS_BREAKER">
+                    <iidm:busBreakerTopology>
+                        <iidm:bus id="b2"/>
+                    </iidm:busBreakerTopology>
+                    <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="b2" connectableBus="b2"/>
+                    <iidm:danglingLine id="dl2" name="dl2_name" p0="0.0" q0="0.0" r="1.0" x="2.0" g="4.0" b="5.0" pairingKey="code" bus="b2" connectableBus="b2"/>
+                </iidm:voltageLevel>
+            </iidm:substation>
+        </iidm:network>
+        <iidm:substation id="s1" country="FR">
+            <iidm:voltageLevel id="vl1" nominalV="380.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="b1"/>
+                </iidm:busBreakerTopology>
+                <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="b1" connectableBus="b1">
+                    <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+                </iidm:generator>
+                <iidm:danglingLine id="dl1" name="dl1_name" p0="0.0" q0="0.0" r="1.0" x="2.0" g="4.0" b="5.0" pairingKey="code" bus="b1" connectableBus="b1"/>
+            </iidm:voltageLevel>
+        </iidm:substation>
+        <iidm:tieLine id="dl1 + dl2" name="dl1_name + dl2_name" danglingLineId1="dl1" danglingLineId2="dl2"/>
+    </iidm:network>
+</iidm:network>

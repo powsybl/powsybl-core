@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.distributed;
 
@@ -129,7 +130,8 @@ class SecurityAnalysisCommandOptionsTest {
                 .caseFile(fileSystem.getPath("test.xiidm"))
                 .parametersFile(fileSystem.getPath("params.json"))
                 .actionsFile(fileSystem.getPath("actions.json"))
-                .strategiesFile(fileSystem.getPath("strategies.json"));
+                .strategiesFile(fileSystem.getPath("strategies.json"))
+                .limitReductionsFile(fileSystem.getPath("limit-reductions.json"));
 
         SimpleCommand cmd = options.toCommand();
         String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
@@ -141,7 +143,8 @@ class SecurityAnalysisCommandOptionsTest {
                         "--case-file=test.xiidm",
                         "--parameters-file=params.json",
                         "--actions-file=actions.json",
-                        "--strategies-file=strategies.json");
+                        "--strategies-file=strategies.json",
+                        "--limit-reductions-file=limit-reductions.json");
 
     }
 

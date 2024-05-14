@@ -8,8 +8,8 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.AbstractModificationTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.NetworkSerDe;
@@ -22,22 +22,20 @@ import java.util.Properties;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-class ReplaceTieLinesByLinesTest extends AbstractSerDeTest {
+class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
 
     @Test
     void roundTripBusBreaker() throws IOException {
         Network network = createBusBreakerNetworkWithAliasesPropertiesExtensions();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-replace-tl.xml");
+        writeXmlTest(network, "/eurostag-replace-tl.xml");
     }
 
     @Test
     void roundTripNodeBreaker() throws IOException {
         Network network = createDummyNodeBreakerNetwork();
         new ReplaceTieLinesByLines().apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/replace-tl-nb.xml");
+        writeXmlTest(network, "/replace-tl-nb.xml");
     }
 
     @Test
@@ -45,8 +43,7 @@ class ReplaceTieLinesByLinesTest extends AbstractSerDeTest {
         NetworkSerDe.write(createBusBreakerNetworkWithAliasesPropertiesExtensions(), tmpDir.resolve("tl-test.xml"));
         Network read = Network.read(tmpDir.resolve("tl-test.xml"), LocalComputationManager.getDefault(),
                 new ImportConfig("replaceTieLinesByLines"), new Properties());
-        roundTripXmlTest(read, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-replace-tl.xml");
+        writeXmlTest(read, "/eurostag-replace-tl.xml");
     }
 
     private static Network createBusBreakerNetworkWithAliasesPropertiesExtensions() {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -24,10 +25,16 @@ import java.util.*;
  */
 public class SwitchesFlow {
     private final VoltageLevel voltageLevel;
+    private final Terminal slackTerminal;
     private final Map<String, SwFlow> switchesFlows;
 
     public SwitchesFlow(VoltageLevel voltageLevel) {
-        this.voltageLevel = voltageLevel;
+        this(voltageLevel, null);
+    }
+
+    public SwitchesFlow(VoltageLevel voltageLevel, Terminal slackTerminal) {
+        this.voltageLevel = Objects.requireNonNull(voltageLevel);
+        this.slackTerminal = slackTerminal;
         switchesFlows = new HashMap<>();
 
         compute();
@@ -50,10 +57,6 @@ public class SwitchesFlow {
 
     public boolean isEmpty() {
         return switchesFlows.isEmpty();
-    }
-
-    public boolean hasFlow(String id) {
-        return switchesFlows.containsKey(id);
     }
 
     public double getP1(String switchId) {
@@ -171,8 +174,7 @@ public class SwitchesFlow {
 
     private static void calculateInjectionsNodeBreaker(VoltageLevel voltageLevel, Map<String, SwNode> swNodeInjection) {
         int[] nodes = voltageLevel.getNodeBreakerView().getNodes();
-        for (int i = 0; i < nodes.length; i++) {
-            int node = nodes[i];
+        for (int node : nodes) {
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
             if (terminal != null) {
                 double p = getTerminalP(terminal);
@@ -191,19 +193,35 @@ public class SwitchesFlow {
             }));
     }
 
+    private boolean isSlack(SwNode swNode) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            return slackTerminal != null && swNode.node == slackTerminal.getNodeBreakerView().getNode();
+        } else {
+            return slackTerminal != null && swNode.bus.equals(slackTerminal.getBusBreakerView().getBus());
+        }
+    }
+
     private void connectedComponentSwitchesFlow(Map<String, SwNode> swNodeInjection,
         SimpleWeightedGraph<SwNode, SwEdge> graph, Set<SwNode> connectedSet) {
         // Discard isolated nodes
         if (connectedSet.size() <= 1) {
             return;
         }
-        Optional<SwNode> swRoot = connectedSet.stream().sorted(Comparator.comparing(SwitchesFlow::getKey)).findFirst();
+        // We chose the slack bus (if there is one) as the root of the tree,
+        // This way, the potential mismatch of the whole busview bus will be assigned entirely
+        // to the bus/breaker view that is labeled as slack
+        // We always look in the sorted nodes list to ensure a deterministic selection of the root
+        List<SwNode> sortedNodes = connectedSet.stream().sorted(Comparator.comparing(SwitchesFlow::getKey)).toList();
+        Optional<SwNode> swRoot = sortedNodes.stream()
+                .filter(this::isSlack)
+                .findFirst()
+                .or(() -> sortedNodes.stream().findFirst());
         if (swRoot.isEmpty()) {
             return;
         }
 
         AsSubgraph<SwNode, SwEdge> subGraph = new AsSubgraph<>(graph, connectedSet);
-        SpanningTree<SwEdge> tree = new KruskalMinimumSpanningTree<SwNode, SwEdge>(subGraph).getSpanningTree();
+        SpanningTree<SwEdge> tree = new KruskalMinimumSpanningTree<>(subGraph).getSpanningTree();
 
         List<List<SwNode>> levels = new ArrayList<>();
         Map<SwNode, SwEdge> parent = new HashMap<>();

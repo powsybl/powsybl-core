@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.conformity;
@@ -19,8 +20,11 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferencePriority;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,14 +45,19 @@ class CgmesConformity1ConversionTest {
 
     @BeforeAll
     static void setUpBeforeClass() {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         tester = new ConversionTester(
-            TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig());
+                importParams,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
     }
 
     @BeforeEach
     void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
     }
 
     @AfterEach
@@ -58,7 +67,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microGridBaseCaseBEReport() throws IOException {
-        ConversionTester t = new ConversionTester(TripleStoreFactory.onlyDefaultImplementation(),
+        ConversionTester t = new ConversionTester(importParams, TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig());
         Map<String, TxData> actual = new HashMap<>();
         t.setOnlyReport(true);
@@ -83,15 +92,18 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microGridBaseCaseBERoundtripBoundary() throws IOException {
-        Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
+        exportParams.put(CgmesExport.PROFILES, "SSH,SV");
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
         ConversionTester t = new ConversionTester(
             importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig()
+                    .tolerance(1e-5)
+                    .checkNetworkId(false)
+                    .incrementVersions(true)
+                    .exportedSubset(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, CgmesConformity1Catalog.microGridBaseCaseBE());
@@ -104,26 +116,13 @@ class CgmesConformity1ConversionTest {
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
-        ConversionTester t = new ConversionTester(new Properties(), exportParams,
+        ConversionTester t = new ConversionTester(importParams, exportParams,
             TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
-        t.setTestExportImportCgmes(true);
-        t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
-    }
-
-    @Test
-    void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
-        // TODO When we convert boundaries values for P0, Q0 at dangling lines
-        // are recalculated and we need to increase the tolerance
-        Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.PROFILES, List.of("SSH", "SV"));
-        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "http://elia.be/CGMES/2.4.15");
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
-        ConversionTester t = new ConversionTester(
-            importParams, exportParams,
-            TripleStoreFactory.onlyDefaultImplementation(),
-            new ComparisonConfig().tolerance(1e-5).checkNetworkId(false).incrementVersions(true));
+            new ComparisonConfig()
+                    .tolerance(1e-5)
+                    .checkNetworkId(false)
+                    .incrementVersions(true)
+                    .exportedSubset(Set.of(CgmesSubset.STEADY_STATE_HYPOTHESIS, CgmesSubset.STATE_VARIABLES)));
         t.setTestExportImportCgmes(true);
         t.testConversion(CgmesConformity1NetworkCatalog.microBaseCaseBE(), CgmesConformity1Catalog.microGridBaseCaseBE());
     }
@@ -137,10 +136,10 @@ class CgmesConformity1ConversionTest {
         // Validating bus balance of buses after conversion verifies that
         // the interpretation of the location of tap changer
         // relative to the transmission impedance is correct
-        Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
-            params,
+            importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig());
         t.setValidateBusBalancesUsingThreshold(1.2);
@@ -187,10 +186,10 @@ class CgmesConformity1ConversionTest {
         // This test will check that IIDM buses,
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances from SV values
-        Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
         ConversionTester t = new ConversionTester(
-            params,
+            importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig());
         t.setValidateBusBalances(true);
@@ -204,11 +203,10 @@ class CgmesConformity1ConversionTest {
         // This test will check that IIDM buses,
         // that will be created during conversion from CGMES TopologicalNodes,
         // have proper balances from SV values
-        Properties params = new Properties();
-        params.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
-        params.put(CgmesImport.IMPORT_NODE_BREAKER_AS_BUS_BREAKER, "true");
+        importParams.put(CgmesImport.PROFILE_FOR_INITIAL_VALUES_SHUNT_SECTIONS_TAP_POSITIONS, "SV");
+        importParams.put(CgmesImport.IMPORT_NODE_BREAKER_AS_BUS_BREAKER, "true");
         ConversionTester t = new ConversionTester(
-                params,
+                importParams,
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig());
         t.setValidateBusBalances(true);
@@ -233,7 +231,6 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microNodeBreakerBoundary() throws IOException {
-        Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
             importParams,
@@ -256,7 +253,6 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void miniNodeBreakerBoundary() throws IOException {
-        Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
             importParams,
@@ -285,7 +281,7 @@ class CgmesConformity1ConversionTest {
     @Test
     void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), NetworkFactory.findDefault(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), NetworkFactory.findDefault(), importParams));
 
     }
 
@@ -295,7 +291,7 @@ class CgmesConformity1ConversionTest {
     // LoadFlow)
     // must produce identical identifiers for calculated buses
     void smallNodeBreakerStableBusNaming() {
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), NetworkFactory.findDefault(), importParams);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
@@ -315,22 +311,24 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void miniNodeBreakerOnlyEQ() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
     @Test
     void smallNodeBreakerOnlyEQ() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
     @Test
     void smallNodeBreakerHvdcOnlyEQ() {
-        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), NetworkFactory.findDefault(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), NetworkFactory.findDefault(), importParams));
     }
 
     @Test
-    void microNLActivePowerControlNoExtensionByDefault() {
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), null);
+    void microNLActivePowerControlExtensionByDefault() {
+        // We need to explicitly set that the extension does not have to be created
+        importParams.put(CgmesImport.CREATE_ACTIVE_POWER_CONTROL_EXTENSION, "false");
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
         Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e");
         ActivePowerControl<Generator> ext = g.getExtension(ActivePowerControl.class);
         assertNull(ext);
@@ -338,8 +336,7 @@ class CgmesConformity1ConversionTest {
 
     @Test
     void microNLActivePowerControlExtension() {
-        Properties importParams = new Properties();
-        importParams.put(CgmesImport.CREATE_ACTIVE_POWER_CONTROL_EXTENSION, "true");
+        // The extension is created by default
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
         Generator g = network.getGenerator("9c3b8f97-7972-477d-9dc8-87365cc0ad0e");
         ActivePowerControl<Generator> ext = g.getExtension(ActivePowerControl.class);
@@ -347,6 +344,15 @@ class CgmesConformity1ConversionTest {
         assertTrue(Double.isNaN(ext.getDroop()));
         assertEquals(1.0, ext.getParticipationFactor(), 0.0);
         assertTrue(ext.isParticipate());
+    }
+
+    @Test
+    void microNLReferencePriorityExtension() {
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), NetworkFactory.findDefault(), importParams);
+        ReferencePriority referencePriority = ReferencePriorities.get(network).iterator().next();
+        assertNotNull(referencePriority);
+        assertEquals(1, referencePriority.getPriority());
+        assertEquals("9c3b8f97-7972-477d-9dc8-87365cc0ad0e", referencePriority.getTerminal().getConnectable().getId());
     }
 
     private static class TxData {
@@ -398,4 +404,5 @@ class CgmesConformity1ConversionTest {
     private static ConversionTester tester;
 
     private FileSystem fileSystem;
+    private Properties importParams;
 }

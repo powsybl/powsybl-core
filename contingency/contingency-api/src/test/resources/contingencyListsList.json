@@ -15,8 +15,8 @@
       "type" : "TWO_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       }
     },
@@ -48,8 +48,8 @@
       "type" : "SINGLE_NOMINAL_VOLTAGE",
       "voltageInterval" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       }
     }
@@ -66,14 +66,14 @@
       "type" : "TWO_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       },
       "voltageInterval2" : {
         "nominalVoltageLowBound" : 100.0,
-        "nominalVoltageHighBound" : 120.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 120.0,
         "highClosed" : true
       }
     }
@@ -89,14 +89,14 @@
       "type" : "TWO_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       },
       "voltageInterval2" : {
         "nominalVoltageLowBound" : 100.0,
-        "nominalVoltageHighBound" : 120.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 120.0,
         "highClosed" : true
       }
     }
@@ -112,14 +112,14 @@
       "type" : "THREE_NOMINAL_VOLTAGE",
       "voltageInterval1" : {
         "nominalVoltageLowBound" : 200.0,
-        "nominalVoltageHighBound" : 230.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
         "highClosed" : true
       },
       "voltageInterval3" : {
         "nominalVoltageLowBound" : 380.0,
-        "nominalVoltageHighBound" : 430.0,
         "lowClosed" : true,
+        "nominalVoltageHighBound" : 430.0,
         "highClosed" : true
       }
     }
@@ -139,5 +139,45 @@
         } ]
       } ]
     } ]
+  }, {
+    "type" : "identifier",
+    "version" : "1.2",
+    "name" : "identifierlist",
+    "identifiers" : [ {
+      "type" : "VOLTAGE_LEVELS_AND_ORDER",
+      "contingencyId" : "contingency1",
+      "voltageLevelId1" : "VL1",
+      "voltageLevelId2" : "VL2",
+      "order" : "1"
+    }, {
+      "type" : "ID_BASED",
+      "contingencyId" : "contingency2",
+      "identifier" : "identifier"
+    }, {
+      "type" : "LIST",
+      "contingencyId" : "contingency3",
+      "identifierList" : [ {
+        "type" : "ID_BASED",
+        "identifier" : "identifier2"
+      } ]
+    } ]
+  }, {
+    "type" : "tieLineCriterion",
+    "version" : "1.0",
+    "name" : "tieLineContingencyList",
+    "countryCriterion" : {
+      "type" : "TWO_COUNTRY",
+      "countries1" : [ "FR" ],
+      "countries2" : [ ]
+    },
+    "nominalVoltageCriterion" : {
+      "type" : "SINGLE_NOMINAL_VOLTAGE",
+      "voltageInterval" : {
+        "nominalVoltageLowBound" : 200.0,
+        "lowClosed" : true,
+        "nominalVoltageHighBound" : 230.0,
+        "highClosed" : true
+      }
+    }
   } ]
 }

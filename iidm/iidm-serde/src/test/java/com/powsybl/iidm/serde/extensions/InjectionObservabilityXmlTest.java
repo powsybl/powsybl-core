@@ -3,10 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
-import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
@@ -14,19 +14,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.impl.extensions.InjectionObservabilityImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.serde.AbstractIidmSerDeTest;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static com.powsybl.iidm.serde.AbstractIidmSerDeTest.getVersionedNetworkPath;
-import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
-class InjectionObservabilityXmlTest extends AbstractSerDeTest {
+class InjectionObservabilityXmlTest extends AbstractIidmSerDeTest {
 
     @Test
     void test() throws IOException {
@@ -42,10 +42,7 @@ class InjectionObservabilityXmlTest extends AbstractSerDeTest {
 
         Generator generator = network.getGenerator("GEN");
         generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02d, true, 0.5d, true, 0.0d, true));
-        Network network2 = roundTripXmlTest(network,
-                NetworkSerDe::writeAndValidate,
-                NetworkSerDe::validateAndRead,
-                getVersionedNetworkPath("/injectionObservabilityRoundTripRef.xml", CURRENT_IIDM_XML_VERSION));
+        Network network2 = allFormatsRoundTripTest(network, "/injectionObservabilityRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
@@ -64,7 +61,7 @@ class InjectionObservabilityXmlTest extends AbstractSerDeTest {
 
     @Test
     void invalidTest() {
-        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION))));
+        PowsyblException e = assertThrows(PowsyblException.class, () -> NetworkSerDe.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_VERSION))));
         assertEquals("Unknown element name 'qualityZ' in 'injectionObservability'", e.getMessage());
     }
 }

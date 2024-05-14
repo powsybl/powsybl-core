@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -32,6 +33,9 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
     public ActivePowerControlSerDe() {
         super("activePowerControl", ActivePowerControl.class, "apc",
                 new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
+                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
@@ -41,6 +45,7 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
                         .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 new ImmutableMap.Builder<String, String>()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/active_power_control/1_0")
@@ -74,7 +79,7 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
     @Override
     public ActivePowerControl<T> read(T identifiable, DeserializerContext context) {
         boolean participate = context.getReader().readBooleanAttribute("participate");
-        float droop = context.getReader().readFloatAttribute("droop");
+        double droop = context.getReader().readDoubleAttribute("droop");
         double participationFactor = Double.NaN;
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -12,13 +13,15 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.timeseries.ast.NodeCalc;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.ResultIterator;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
-
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
@@ -35,6 +38,10 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>> extends Iterable<P> {
+
+    Logger LOGGER = LoggerFactory.getLogger(TimeSeries.class);
+
+    int DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES = -1;
 
     enum TimeFormat {
         DATE_TIME,
@@ -132,28 +139,34 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file) {
-        return parseCsv(file, new TimeSeriesCsvConfig());
+        return parseCsv(file, new TimeSeriesCsvConfig(), ReportNode.NO_OP);
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(String csv) {
-        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
-            return parseCsv(reader, new TimeSeriesCsvConfig());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    static Map<Integer, List<TimeSeries>> parseCsv(String csv, TimeSeriesCsvConfig timeSeriesCsvConfig) {
-        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
-            return parseCsv(reader, timeSeriesCsvConfig);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        return parseCsv(csv, new TimeSeriesCsvConfig(), ReportNode.NO_OP);
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        return parseCsv(file, timeSeriesCsvConfig, ReportNode.NO_OP);
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(String csv, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        return parseCsv(csv, timeSeriesCsvConfig, ReportNode.NO_OP);
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(String csv, TimeSeriesCsvConfig timeSeriesCsvConfig,
+                                                   ReportNode reportNode) {
+        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
+            return parseCsv(reader, timeSeriesCsvConfig, reportNode);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(Path file, TimeSeriesCsvConfig timeSeriesCsvConfig,
+                                                   ReportNode reportNode) {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            return parseCsv(reader, timeSeriesCsvConfig);
+            return parseCsv(reader, timeSeriesCsvConfig, reportNode);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -213,8 +226,35 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             return stringValues;
         }
 
-        int getVersion(String[] tokens) {
-            return timeSeriesCsvConfig.versioned() ? Integer.parseInt(tokens[1]) : 0;
+        int getVersion(String[] tokens, ReportNode reportNode) {
+            // Initialisation at the default unversioned value
+            int version = DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES;
+
+            // Change the value if it is versioned
+            if (timeSeriesCsvConfig.versioned()) {
+                version = Integer.parseInt(tokens[1]);
+
+                // If the version is equals to the default version, either log a warning or throw an exception
+                if (version == DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES) {
+                    String line = String.join(";", tokens);
+                    if (timeSeriesCsvConfig.withStrictVersioningImport()) {
+                        throw new TimeSeriesException(String.format("The version number for a versioned TimeSeries cannot be equals to the default version number (%s) at line \"%s\"",
+                            DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
+                            line));
+                    } else {
+                        reportNode.newReportNode()
+                            .withMessageTemplate("invalidVersionNumber", "The version number for a versioned TimeSeries should not be equals to the default version number (${versionNumber}) at line \"${line}\"")
+                            .withSeverity(TypedValue.WARN_SEVERITY)
+                            .withUntypedValue("versionNumber", DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES)
+                            .withUntypedValue("line", line)
+                            .add();
+                        LOGGER.warn("The version number for a versioned TimeSeries should not be equals to the default version number ({}) at line \"{}}\"",
+                            DEFAULT_VERSION_NUMBER_FOR_UNVERSIONED_TIMESERIES,
+                            line);
+                    }
+                }
+            }
+            return version;
         }
 
         int timesSize() {
@@ -260,20 +300,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         void parseTokenTime(String[] tokens) {
-            switch (timeSeriesCsvConfig.timeFormat()) {
-                case DATE_TIME:
-                    times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
-                    break;
-                case FRACTIONS_OF_SECOND:
+            TimeFormat timeFormat = timeSeriesCsvConfig.timeFormat();
+            switch (timeFormat) {
+                case DATE_TIME -> times.add(ZonedDateTime.parse(tokens[0]).toInstant().toEpochMilli());
+                case FRACTIONS_OF_SECOND -> {
                     Double time = Double.parseDouble(tokens[0]) * 1000;
                     times.add(time.longValue());
-                    break;
-                case MILLIS:
+                }
+                case MILLIS -> {
                     Double millis = Double.parseDouble(tokens[0]);
                     times.add(millis.longValue());
-                    break;
-                default:
-                    throw new IllegalStateException("Unknown time format " + timeSeriesCsvConfig.timeFormat());
+                }
             }
         }
 
@@ -305,7 +342,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             List<TimeSeries> timeSeriesList = new ArrayList<>(names.size());
             for (int i = 0; i < names.size(); i++) {
                 if (Objects.isNull(names.get(i))) {
-                    LoggerFactory.getLogger(TimeSeries.class).warn("Timeseries without name");
+                    LOGGER.warn("Timeseries without name");
                     continue;
                 }
                 TimeSeriesMetadata metadata = new TimeSeriesMetadata(names.get(i), dataTypes[i], index);
@@ -355,7 +392,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
-                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion) {
+                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion, ReportNode reportNode) {
         int currentVersion = Integer.MIN_VALUE;
         while (iterator.hasNext()) {
             String[] tokens = iterator.next();
@@ -364,7 +401,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header");
             }
 
-            int version = context.getVersion(tokens);
+            int version = context.getVersion(tokens, reportNode);
             if (currentVersion == Integer.MIN_VALUE) {
                 currentVersion = version;
             } else if (version != currentVersion) {
@@ -410,6 +447,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig) {
+        return parseCsv(reader, timeSeriesCsvConfig, ReportNode.NO_OP);
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, TimeSeriesCsvConfig timeSeriesCsvConfig,
+                                                   ReportNode reportNode) {
         Objects.requireNonNull(reader);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -424,12 +466,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         CsvParser csvParser = new CsvParser(settings);
         ResultIterator<String[], ParsingContext> iterator = csvParser.iterate(reader).iterator();
         CsvParsingContext context = readCsvHeader(iterator, timeSeriesCsvConfig);
-        readCsvValues(iterator, context, timeSeriesPerVersion);
+        readCsvValues(iterator, context, timeSeriesPerVersion, reportNode);
 
-        LoggerFactory.getLogger(TimeSeries.class)
-                .info("{} time series loaded from CSV in {} ms",
+        long timing = stopwatch.elapsed(TimeUnit.MILLISECONDS);
+        LOGGER.info("{} time series loaded from CSV in {} ms",
                 timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum(),
-                stopwatch.elapsed(TimeUnit.MILLISECONDS));
+                    timing);
+        reportNode.newReportNode()
+            .withMessageTemplate("timeseriesLoadingTime", "${tsNumber} time series loaded from CSV in ${timing} ms")
+            .withUntypedValue("tsNumber", timeSeriesPerVersion.entrySet().stream().mapToInt(e -> e.getValue().size()).sum())
+            .withUntypedValue("timing", timing)
+            .add();
 
         return timeSeriesPerVersion;
     }
@@ -498,26 +545,23 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = parser.getCurrentName();
                     switch (fieldName) {
-                        case "metadata":
-                            metadata = TimeSeriesMetadata.parseJson(parser);
-                            break;
-                        case "chunks":
+                        case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
+                        case "chunks" -> {
                             if (metadata == null) {
                                 throw new TimeSeriesException("metadata is null");
                             }
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;
-                            break;
-                        case "name":
-                            name = parser.nextTextValue();
-                            break;
-                        case "expr":
+                        }
+                        case "name" -> name = parser.nextTextValue();
+                        case "expr" -> {
                             Objects.requireNonNull(name);
                             NodeCalc nodeCalc = NodeCalc.parseJson(parser);
                             timeSeriesList.add(new CalculatedTimeSeries(name, nodeCalc));
-                            break;
-                        default:
-                            break;
+                        }
+                        default -> {
+                            // Do nothing
+                        }
                     }
                 } else if (token == JsonToken.END_OBJECT && single) {
                     break;

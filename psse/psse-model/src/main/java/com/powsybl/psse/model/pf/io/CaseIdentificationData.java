@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf.io;
 
@@ -12,7 +13,6 @@ import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import org.apache.commons.lang3.ArrayUtils;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collections;
@@ -20,6 +20,7 @@ import java.util.List;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
+import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -28,8 +29,8 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
     CaseIdentificationData() {
-        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2");
-        withQuotedFields("title1", "title2");
+        super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", STR_TITLE_1, STR_TITLE_2);
+        withQuotedFields(STR_TITLE_1, STR_TITLE_2);
         withIO(LEGACY_TEXT, new CaseIdentificationLegacyText(this));
         withIO(JSON, new CaseIdentificationJson(this));
     }
@@ -45,8 +46,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
 
         @Override
-        public PsseCaseIdentification readHead(BufferedReader reader, Context context) throws IOException {
-            String line = readRecordLine(reader);
+        public PsseCaseIdentification readHead(LegacyTextReader reader, Context context) throws IOException {
+            String line = reader.readRecordLine();
             context.detectDelimiter(line);
 
             String[] headers = recordGroup.fieldNames(context.getVersion());
@@ -63,7 +64,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         public void writeHead(PsseCaseIdentification caseIdentification, Context context, OutputStream outputStream) {
             // Adapt headers of case identification record
             // title1 and title2 go in separate lines in legacy text format
-            String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), "title1", "title2");
+            String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), STR_TITLE_1, STR_TITLE_2);
             String[] quotedFields = recordGroup.quotedFields();
             write(Collections.singletonList(caseIdentification), headers, Util.retainAll(quotedFields, headers), context, outputStream);
             writeLine(caseIdentification.getTitle1(), outputStream);
@@ -80,7 +81,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
 
         @Override
-        public List<PsseCaseIdentification> read(BufferedReader reader, Context context) throws IOException {
+        public List<PsseCaseIdentification> read(LegacyTextReader reader, Context context) throws IOException {
             throw new PsseException("Case Identification can not be read as a record group, it was be read as head record");
         }
 
@@ -96,7 +97,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
 
         @Override
-        public PsseCaseIdentification readHead(BufferedReader reader, Context context) throws IOException {
+        public PsseCaseIdentification readHead(LegacyTextReader reader, Context context) throws IOException {
             PsseCaseIdentification caseIdentification = read(reader, context).get(0);
             context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
             return caseIdentification;

@@ -3,32 +3,35 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.conformity.Cgmes3Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
+import com.powsybl.cgmes.conformity.*;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.conversion.export.TopologyExport;
 import com.powsybl.cgmes.conversion.test.ConversionUtil;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ReferencePriorities;
+import com.powsybl.iidm.network.extensions.ReferenceTerminals;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import javax.xml.stream.*;
@@ -50,24 +53,33 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class StateVariablesExportTest extends AbstractSerDeTest {
 
+    private Properties importParams;
+
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        importParams = new Properties();
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+    }
+
     @Test
     void microGridBE() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
                 false,
                 2,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
     void microGridBEFlowsForSwitches() throws IOException, XMLStreamException {
         // Activate export of flows for switches on a small network with few switches,
         // Writing flows for all switches has impact on performance
-        test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(),
                 false,
                 2,
                 true,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
@@ -114,7 +126,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK21", 2)));
         assertEqualsPowerFlow(new PowerFlow(10.01, 1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 1)));
         assertEqualsPowerFlow(new PowerFlow(-10.01, -1.1), extractSvPowerFlow(sv, cgmesTerminal(n, "BK22", 2)));
-
     }
 
     private static void assertEqualsPowerFlow(PowerFlow expected, PowerFlow actual) {
@@ -142,50 +153,50 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void microGridAssembled() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(),
                 false,
                 4,
                 false,
             r -> {
                 addRepackagerFiles("NL", r);
                 addRepackagerFiles("BE", r);
-            });
+            }));
     }
 
     @Test
     void smallGridBusBranch() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
                 false,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
     void smallGridNodeBreakerHVDC() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(),
                 true,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFilesExcludeTp);
+                StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
 
     @Test
     void smallGridNodeBreaker() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(),
                 true,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFilesExcludeTp);
+                StateVariablesExportTest::addRepackagerFilesExcludeTp));
     }
 
     @Test
     void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
+        assertTrue(test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(),
                 false,
                 4,
                 false,
-                StateVariablesExportTest::addRepackagerFiles);
+                StateVariablesExportTest::addRepackagerFiles));
     }
 
     @Test
@@ -240,7 +251,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     @Test
     void equivalentShuntTest() throws XMLStreamException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
-        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), null);
+        Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
         String sv = exportSvAsString(network, 2);
 
@@ -297,7 +308,6 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
     @Test
     void cgmes3MiniGridwithTransformersWithRtcAndPtc() throws XMLStreamException {
-
         Network network = ConversionUtil.networkModel(Cgmes3Catalog.miniGrid(), new Conversion.Config());
 
         // Add a PTC
@@ -314,8 +324,16 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .setAlpha(20)
                 .endStep()
                 .add();
-        // Change the RTC tap position and add a PTC
+        // We have added a PTC, we add a known alias for it
+        // This is not mandatory, but it simplifies comparing the data in the network and the exported SV file
+        // If we do not add it in advance, a proper CGMES ID for the new PTC would have been generated during export
+        String t2ptcId = "ptc2w";
+        t2wt.addAlias(t2ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
+
+        // Also, change the RTC tap position and add a PTC to a three-winding transformer
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer("411b5401-0a43-404a-acb4-05c3d7d0c95c");
+        t3wt.getLeg1().getRatioTapChanger()
+                .setTapPosition(16);
         t3wt.getLeg1().newPhaseTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)
@@ -336,6 +354,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .setAlpha(20)
                 .endStep()
                 .add();
+        String t3ptcId = "ptc3w";
+        t3wt.addAlias(t3ptcId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1);
 
         String expected = buildNetworkSvTapStepsString(network);
         String sv = exportSvAsString(network, 2);
@@ -343,33 +363,133 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertEquals(expected, actual);
     }
 
+    @Test
+    void testTopologicalIslandSolvedNodeBreaker() {
+        Network network = Network.read(CgmesConformity3Catalog.microGridBaseCaseNL().dataSource());
+
+        Path outputPath = fileSystem.getPath("tmp-grid");
+        Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
+        Properties parameters = new Properties();
+        parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+
+        setReferenceTerminalsFromReferencePriority(network);
+
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    @Test
+    void testTopologicalIslandSolvedBusBranch() {
+        Network network = Network.read(CgmesConformity1Catalog.miniBusBranch().dataSource());
+        new LoadFlowResultsCompletion().run(network, null);
+
+        Path outputPath = fileSystem.getPath("tmp-grid");
+        Path outputSv = fileSystem.getPath("tmp-grid_SV.xml");
+        Properties parameters = new Properties();
+        parameters.setProperty(CgmesExport.EXPORT_LOAD_FLOW_STATUS, "true");
+
+        setReferenceTerminalsFromReferencePriority(network);
+
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("converged", readFirstTopologicalIslandDescription(outputSv));
+
+        parameters.setProperty(CgmesExport.MAX_P_MISMATCH_CONVERGED, "0.000001");
+        network.write("CGMES", parameters, outputPath);
+        assertEquals("diverged", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    @Test
+    void testDisconnectedGeneratorWithReferenceTerminal() {
+        // Create a small network
+        Network network = Network.create("network", "iidm");
+        Substation s = network.newSubstation().setId("S").add();
+        VoltageLevel vl = s.newVoltageLevel().setId("VL").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("B").add().setV(400).setAngle(0);
+        vl.newLoad().setId("L").setConnectableBus("B").setBus("B").setP0(100.0).setQ0(0.0).add();
+        Generator g = vl.newGenerator().setId("G").setBus("B").setMaxP(100.0).setMinP(50.0).setTargetP(100.0).setTargetV(400.0).setVoltageRegulatorOn(true).add();
+
+        // Set reference terminal
+        ReferenceTerminals.addTerminal(g.getTerminal());
+
+        // Disconnect the generator
+        Terminal t = g.getTerminal();
+        assertTrue(t.disconnect());
+        assertFalse(t.isConnected());
+        assertNull(t.getBusView().getBus());
+
+        // Verify in the output file that no TopologicalIsland was created
+        Path outputPath = fileSystem.getPath("tmp-referenceTerminal");
+        Path outputSv = fileSystem.getPath("tmp-referenceTerminal_SV.xml");
+        network.write("CGMES", new Properties(), outputPath);
+        assertEquals("", readFirstTopologicalIslandDescription(outputSv));
+    }
+
+    private static String readFirstTopologicalIslandDescription(Path sv) {
+        String description = "";
+        boolean insideTopologicalIsland = false;
+        try (InputStream is = Files.newInputStream(sv)) {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                int token = reader.next();
+                if (token == XMLStreamConstants.START_ELEMENT) {
+                    // Retrieve the TopologicalIsland node
+                    if (reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
+                        insideTopologicalIsland = true;
+                    }
+                    if (insideTopologicalIsland && reader.getLocalName().equals(CgmesNames.IDENTIFIED_OBJECT_DESCRIPTION)) {
+                        description = reader.getElementText();
+                    }
+                } else if (token == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(CgmesNames.TOPOLOGICAL_ISLAND)) {
+                    break;
+                }
+            }
+            reader.close();
+        } catch (IOException | XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return description;
+    }
+
+    private static void setReferenceTerminalsFromReferencePriority(Network network) {
+        // Assume all terminals with reference priority > 0 are set as angle reference terminals by the load flow
+        ReferencePriorities.get(network)
+                .stream()
+                .filter(p -> p.getPriority() > 0)
+                .forEach(p -> ReferenceTerminals.addTerminal(p.getTerminal()));
+    }
+
     private static String buildNetworkSvTapStepsString(Network network) {
         SvTapSteps svTapSteps = new SvTapSteps();
         network.getTwoWindingsTransformers().forEach(twt -> {
-            twt.getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
-            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
+            twt.getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER), rtc.getTapPosition()));
+            twt.getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER), ptc.getTapPosition()));
         });
         network.getThreeWindingsTransformers().forEach(twt -> {
-            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1, rtc.getTapPosition(), svTapSteps));
-            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1, ptc.getTapPosition(), svTapSteps));
-            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2, rtc.getTapPosition(), svTapSteps));
-            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2, ptc.getTapPosition(), svTapSteps));
-            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 3, rtc.getTapPosition(), svTapSteps));
-            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> obtainAndRecordTapChangerId(twt, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 3, ptc.getTapPosition(), svTapSteps));
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 1), rtc.getTapPosition()));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 1), ptc.getTapPosition()));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 2), rtc.getTapPosition()));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 2), ptc.getTapPosition()));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.RATIO_TAP_CHANGER, 3), rtc.getTapPosition()));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> svTapSteps.add(getTapChangerId(twt, CgmesNames.PHASE_TAP_CHANGER, 3), ptc.getTapPosition()));
         });
         return svTapSteps.toSortedString();
     }
 
-    private static void obtainAndRecordTapChangerId(Identifiable<?> eq, String aliasType, int tapPosition, SvTapSteps svTapSteps) {
-        Optional<String> optionalTapChangerId = eq.getAliasFromType(aliasType);
-        String tapChangerId;
-        if (optionalTapChangerId.isPresent()) {
-            tapChangerId = optionalTapChangerId.get();
-        } else {
-            tapChangerId = CgmesExportUtil.getUniqueId();
-            eq.addAlias(tapChangerId, aliasType);  // record as alias to be used when the sv file is exported
-        }
-        svTapSteps.add(tapChangerId, tapPosition);
+    private static String getTapChangerId(TwoWindingsTransformer twt, String baseAliasType) {
+        // For two winding transformers the CGMES tap changer id may be stored with suffix 1 or 2,
+        // depending on its original location in CGMES model
+        String aliasType1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + 1;
+        String aliasType2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + 2;
+        return twt.getAliasFromType(aliasType1)
+                .or(() -> twt.getAliasFromType(aliasType2))
+                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType1 + " or " + aliasType2));
+    }
+
+    private static String getTapChangerId(ThreeWindingsTransformer twt, String baseAliasType, int leg) {
+        // For three winding transformers, the tap changer id has to be stored in the alias number corresponding to the leg
+        String aliasType = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + baseAliasType + leg;
+        return twt.getAliasFromType(aliasType)
+                .orElseThrow(() -> new PowsyblException("Missing alias " + aliasType));
     }
 
     private static SvTapSteps readSvTapSteps(String sv) {
@@ -424,9 +544,10 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     }
 
     private static Network importNetwork(ReadOnlyDataSource ds) {
-        Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        return new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+        Properties importParams = new Properties();
+        importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
+        importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
+        return new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
     }
 
     private String exportSvAsString(Network network, int svVersion) throws XMLStreamException {
@@ -437,7 +558,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getSvModelDescription().setVersion(svVersion);
+        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
         StateVariablesExport.write(network, writer, context);
@@ -466,11 +587,10 @@ class StateVariablesExportTest extends AbstractSerDeTest {
                 .with("test_SSH.xml", Repackager::ssh);
     }
 
-    private void test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
+    private boolean test(ReadOnlyDataSource dataSource, boolean exportTp, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
-        Properties properties = new Properties();
-        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
+        Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
 
         // Ensure all information in IIDM mapping extensions is created
         // Some mappings are not built until export is requested
@@ -482,9 +602,10 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
-        context.getSvModelDescription().setVersion(svVersion);
+        context.getExportedSVModel().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         context.setExportFlowsForSwitches(exportFlowsForSwitches);
+        context.setExportSvInjectionsForSlacks(false);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
@@ -513,7 +634,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Import with new SV
         Network actual = Network.read(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), importParams);
 
         // Before comparison, set undefined p/q in expected network at 0.0
         expected.getConnectableStream()
@@ -527,10 +648,13 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         // comparison without extensions, only Networks
         ExportOptions exportOptions = new ExportOptions().setSorted(true);
         exportOptions.setExtensions(Collections.emptySet());
-        NetworkSerDe.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
-        NetworkSerDe.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
+        Path expectedPath = tmpDir.resolve("expected.xml");
+        Path actualPath = tmpDir.resolve("actual.xml");
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
+        NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 }

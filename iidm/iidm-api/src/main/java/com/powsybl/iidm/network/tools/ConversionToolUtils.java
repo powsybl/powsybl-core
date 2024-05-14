@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tools;
 
@@ -73,7 +74,7 @@ public final class ConversionToolUtils {
 
     public static Option createImportParametersFileOption() {
         return Option.builder().longOpt(IMPORT_PARAMETERS)
-                .desc("the importer configuation file")
+                .desc("the importer configuration file")
                 .hasArg()
                 .argName("IMPORT_PARAMETERS")
                 .build();

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -23,6 +24,7 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 import com.powsybl.iidm.serde.TerminalRefSerDe;
 
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -32,9 +34,16 @@ import java.util.Set;
 public class ReferenceTerminalsSerDe extends AbstractExtensionSerDe<Network,
         ReferenceTerminals> {
 
+    public static final String REFERENCE_TERMINAL_ROOT_ELEMENT_NAME = "referenceTerminal";
+
     public ReferenceTerminalsSerDe() {
         super("referenceTerminals", "network", ReferenceTerminals.class, "referenceTerminals.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/reference_terminals/1_0", "reft");
+    }
+
+    @Override
+    public Map<String, String> getArrayNameToSingleNameMap() {
+        return Map.of("referenceTerminals", REFERENCE_TERMINAL_ROOT_ELEMENT_NAME);
     }
 
     @Override
@@ -43,7 +52,7 @@ public class ReferenceTerminalsSerDe extends AbstractExtensionSerDe<Network,
         writer.writeStartNodes();
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
         for (Terminal terminal : extension.getReferenceTerminals()) {
-            writer.writeStartNode(getNamespaceUri(), "referenceTerminal");
+            writer.writeStartNode(getNamespaceUri(), REFERENCE_TERMINAL_ROOT_ELEMENT_NAME);
             TerminalRefSerDe.writeTerminalRefAttribute(terminal, networkContext);
             writer.writeEndNode();
         }
@@ -56,7 +65,7 @@ public class ReferenceTerminalsSerDe extends AbstractExtensionSerDe<Network,
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         Set<Terminal> terminals = new LinkedHashSet<>();
         reader.readChildNodes(elementName -> {
-            if (elementName.equals("referenceTerminal")) {
+            if (elementName.equals(REFERENCE_TERMINAL_ROOT_ELEMENT_NAME)) {
                 Terminal terminal = TerminalRefSerDe.readTerminal(networkContext, extendable.getNetwork());
                 terminals.add(terminal);
             } else {

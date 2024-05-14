@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -82,11 +83,11 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
     }
 
     @Override
-    protected void readRootElementAttributes(LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(LoadAdder adder, VoltageLevel parent, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
         LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, parent.getTopologyKind());
         adder.setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0);

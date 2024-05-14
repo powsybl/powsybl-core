@@ -14,17 +14,25 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * A class that stores coefficients to be applied to every nominal voltage in a range. This is used to define the configured initial voltage profile
- * for short circuit calculation.
+ * A class that stores coefficients and nominal voltages to be applied to each nominal voltage of the network in a range.
+ * This is used to define the configured initial voltage profile for the short-circuit current calculation.
+ * The voltage attribute allows to modify the nominal voltage to be considered for each nominal voltage of the range.
+ * The coefficient is a coefficient that is applied to each nominal voltage.
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class VoltageRange {
     private final Range<Double> range;
     private final double rangeCoefficient;
+    private final double voltage;
 
     public VoltageRange(double lowVoltage, double highVoltage, double rangeCoefficient) {
+        this(lowVoltage, highVoltage, rangeCoefficient, Double.NaN);
+    }
+
+    public VoltageRange(double lowVoltage, double highVoltage, double rangeCoefficient, double voltage) {
         this.range = Range.of(lowVoltage, highVoltage);
         this.rangeCoefficient = checkCoefficient(rangeCoefficient);
+        this.voltage = checkVoltage(voltage, this.range);
     }
 
     /**
@@ -55,6 +63,13 @@ public class VoltageRange {
         return range.getMaximum();
     }
 
+    /**
+     * The nominal voltage to consider for the range. All nominal voltages in the range will be replaced by this value.
+     */
+    public double getVoltage() {
+        return voltage;
+    }
+
     static void checkVoltageRange(List<VoltageRange> voltageRange) {
         if (voltageRange == null || voltageRange.isEmpty()) {
             return;
@@ -76,6 +91,13 @@ public class VoltageRange {
         return rangeCoefficient;
     }
 
+    private static double checkVoltage(double voltage, Range<Double> voltageRange) {
+        if (!Double.isNaN(voltage) && !voltageRange.contains(voltage)) {
+            throw new PowsyblException("Range voltage should be in voltageRange " + voltageRange + " but it is " + voltage);
+        }
+        return voltage;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -85,12 +107,12 @@ public class VoltageRange {
             return false;
         }
         VoltageRange that = (VoltageRange) o;
-        return range.equals(that.range) && rangeCoefficient == that.rangeCoefficient;
+        return range.equals(that.range) && rangeCoefficient == that.rangeCoefficient && voltage == that.voltage;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(range, rangeCoefficient);
+        return Objects.hash(range, rangeCoefficient, voltage);
     }
 
 }

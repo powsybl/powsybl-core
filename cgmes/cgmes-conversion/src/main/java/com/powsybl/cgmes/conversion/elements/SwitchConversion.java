@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -16,10 +17,14 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Optional;
+
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class SwitchConversion extends AbstractConductingEquipmentConversion implements EquipmentAtBoundaryConversion {
+
+    private DanglingLine danglingLine;
 
     public SwitchConversion(PropertyBag sw, Context context) {
         super("Switch", sw, context, 2);
@@ -64,8 +69,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String node) {
-        return super.createBoundaryLine(node);
+    public Optional<DanglingLine> getDanglingLine() {
+        return Optional.ofNullable(danglingLine);
     }
 
     private Switch convertToSwitch() {
@@ -99,7 +104,8 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             convertToSwitch().setRetained(true);
         } else {
             warnDanglingLineCreated();
-            convertToDanglingLine(boundarySide);
+            String eqInstance = p.get("graph");
+            danglingLine = convertToDanglingLine(eqInstance, boundarySide);
         }
     }
 

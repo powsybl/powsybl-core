@@ -3,15 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.LoadDetailAdder;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import java.time.ZonedDateTime;
@@ -94,6 +92,8 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(tieLine);
         assertEquals("dl1_name + dl2_name", tieLine.getOptionalName().orElse(null));
         assertEquals("dl1_name + dl2_name", tieLine.getNameOrId());
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
         assertEquals(0.0, tieLine.getDanglingLine1().getP0());
         assertEquals(0.0, tieLine.getDanglingLine1().getQ0());
         assertEquals(0.0, tieLine.getDanglingLine2().getP0());
@@ -143,6 +143,27 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void testMergeAndDetachWithProperties() {
+        // Create 2 networks with a Property
+        Network n1 = Network.create("network1", "manual");
+        n1.setProperty("property_name1", "property_value1");
+        Network n2 = Network.create("network2", "manual");
+        n2.setProperty("property_name2", "property_value2");
+
+        // Merge the networks and check that the properties have been transferred to subnetworks
+        Network merged = Network.merge(n1, n2);
+        assertFalse(merged.hasProperty());
+        assertEquals("property_value1", merged.getSubnetwork("network1").getProperty("property_name1"));
+        assertEquals("property_value2", merged.getSubnetwork("network2").getProperty("property_name2"));
+
+        // Detach the subnetworks and check that the properties have been transferred to the detached networks
+        Network detached1 = merged.getSubnetwork("network1").detach();
+        Network detached2 = merged.getSubnetwork("network2").detach();
+        assertEquals("property_value1", detached1.getProperty("property_name1"));
+        assertEquals("property_value2", detached2.getProperty("property_name2"));
+    }
+
+    @Test
     public void testMergeAndDetachWithExtensions() {
         n1 = EurostagTutorialExample1Factory.createWithMoreGenerators();
         addSubstationAndVoltageLevel(n2, "s2", Country.BE, "vl2", "b2");
@@ -151,10 +172,20 @@ public abstract class AbstractMergeNetworkTest {
 
         // Add extension at network level
         n1.newExtension(SecondaryVoltageControlAdder.class)
-                .addControlZone(new SecondaryVoltageControl.ControlZone("z1",
-                        new SecondaryVoltageControl.PilotPoint(List.of("NLOAD"), 15d),
-                        List.of(new SecondaryVoltageControl.ControlUnit("GEN", false),
-                                new SecondaryVoltageControl.ControlUnit("GEN2"))))
+                .newControlZone()
+                    .withName("z1")
+                    .newPilotPoint()
+                        .withBusbarSectionsOrBusesIds(List.of("NLOAD"))
+                        .withTargetV(15d)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN")
+                        .withParticipate(false)
+                    .add()
+                    .newControlUnit()
+                        .withId("GEN2")
+                        .add()
+                    .add()
                 .add();
         // Add extension at inner element level
         n1.getLoad("LOAD").newExtension(LoadDetailAdder.class)
@@ -615,6 +646,18 @@ public abstract class AbstractMergeNetworkTest {
         ld2.setP0(10);
         merge.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(0, ld2.getP0(), 0);
+    }
+
+    @Test
+    public void invertDanglingLinesWhenCreatingATieLine() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl2", "code", "dl1", "code");
+        Network merge = Network.merge(n1, n2);
+        assertEquals(1, merge.getTieLineCount());
+        TieLine tieLine = merge.getTieLine("dl1 + dl2");
+        assertNotNull(tieLine);
+        assertEquals("dl1", tieLine.getDanglingLine1().getId());
+        assertEquals("dl2", tieLine.getDanglingLine2().getId());
     }
 
     @Test

@@ -8,14 +8,12 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
-import com.powsybl.iidm.serde.NetworkSerDe;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -30,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
-class RemoveVoltageLevelTest extends AbstractSerDeTest {
+class RemoveVoltageLevelTest extends AbstractModificationTest {
 
     private final Set<String> removedObjects = new HashSet<>();
     private final Set<String> beforeRemovalObjects = new HashSet<>();
@@ -57,7 +55,7 @@ class RemoveVoltageLevelTest extends AbstractSerDeTest {
     @Test
     void testRemoveVoltageLevel() {
         Network network = FourSubstationsNodeBreakerFactory.create();
-        ReporterModel reporter = new ReporterModel("reportTestRemoveVL", "Testing reporter on remove voltage level");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestRemoveVL", "Testing reportNode on remove voltage level").build();
         addListener(network);
 
         new RemoveVoltageLevelBuilder().withVoltageLevelId("S1VL1").build().apply(network);
@@ -78,10 +76,10 @@ class RemoveVoltageLevelTest extends AbstractSerDeTest {
         assertNull(network.getVscConverterStation("VSC2"));
 
         RemoveVoltageLevel removeUnknown = new RemoveVoltageLevel("UNKNOWN");
-        removeUnknown.apply(network, false, reporter);
-        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reporter));
+        removeUnknown.apply(network, false, reportNode);
+        PowsyblException e = assertThrows(PowsyblException.class, () -> removeUnknown.apply(network, true, reportNode));
         assertEquals("Voltage level not found: UNKNOWN", e.getMessage());
-        assertEquals("voltageLevelNotFound", reporter.getReports().iterator().next().getReportKey());
+        assertEquals("voltageLevelNotFound", reportNode.getChildren().get(0).getMessageKey());
     }
 
     @Test
@@ -89,8 +87,7 @@ class RemoveVoltageLevelTest extends AbstractSerDeTest {
         Network network = createNbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("C").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-remove-voltage-level-nb.xml");
+        writeXmlTest(network, "/eurostag-remove-voltage-level-nb.xml");
     }
 
     @Test
@@ -98,7 +95,6 @@ class RemoveVoltageLevelTest extends AbstractSerDeTest {
         Network network = createBbNetwork();
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
         modification.apply(network);
-        roundTripXmlTest(network, NetworkSerDe::writeAndValidate, NetworkSerDe::validateAndRead,
-                "/eurostag-remove-voltage-level-bb.xml");
+        writeXmlTest(network, "/eurostag-remove-voltage-level-bb.xml");
     }
 }

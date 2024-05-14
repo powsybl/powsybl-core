@@ -3,11 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
+
+import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -474,5 +477,197 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
         assertEquals("TL#0", currentLimits.getTemporaryLimit(10 * 60).getName());
         assertEquals("TL#1", currentLimits.getTemporaryLimit(5 * 60).getName());
+    }
+
+    @Test
+    public void testAdderGetOwner() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1();
+        assertEquals("L", adder.getOwnerId());
+    }
+
+    @Test
+    public void testAdderGetTemporaryLimitValue() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(1400.0)
+                .endTemporaryLimit();
+
+        assertEquals(1200., adder.getTemporaryLimitValue("TL1"));
+        assertEquals(1400., adder.getTemporaryLimitValue("TL2"));
+        assertEquals(Double.NaN, adder.getTemporaryLimitValue("Unknown"));
+    }
+
+    @Test
+    public void testAdderGetTemporaryLimitAcceptableDuration() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(1400.0)
+                .endTemporaryLimit();
+
+        assertEquals(20 * 60, adder.getTemporaryLimitAcceptableDuration("TL1"));
+        assertEquals(10 * 60, adder.getTemporaryLimitAcceptableDuration("TL2"));
+        assertEquals(Integer.MAX_VALUE, adder.getTemporaryLimitAcceptableDuration("Unknown"));
+    }
+
+    @Test
+    public void testAdderGetLowestTemporaryLimitValue() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1();
+        assertEquals(Double.NaN, adder.getLowestTemporaryLimitValue(), 0.0);
+
+        adder.setPermanentLimit(1000.)
+            .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+            .endTemporaryLimit()
+            .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+            .endTemporaryLimit();
+
+        assertEquals(1200.0, adder.getLowestTemporaryLimitValue(), 0.0);
+    }
+
+    @Test
+    public void testAdderHasTemporaryLimits() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1();
+        assertFalse(adder.hasTemporaryLimits());
+
+        adder.setPermanentLimit(1000.)
+            .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+            .endTemporaryLimit();
+        assertTrue(adder.hasTemporaryLimits());
+    }
+
+    @Test
+    public void testAdderRemoveTemporaryLimit() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL3")
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(1600.0)
+                .endTemporaryLimit();
+
+        Collection<String> names = adder.getTemporaryLimitNames();
+        assertEquals(3, names.size());
+        assertTrue(names.contains("TL1"));
+        assertTrue(names.contains("TL2"));
+        assertTrue(names.contains("TL3"));
+
+        adder.removeTemporaryLimit("TL2");
+
+        names = adder.getTemporaryLimitNames();
+        assertEquals(2, names.size());
+        assertTrue(names.contains("TL1"));
+        assertFalse(names.contains("TL2"));
+        assertTrue(names.contains("TL3"));
+
+        adder.removeTemporaryLimit("TL1");
+        adder.removeTemporaryLimit("TL3");
+        assertDoesNotThrow(() -> adder.removeTemporaryLimit("TL3"));
+
+        assertTrue(adder.getTemporaryLimitNames().isEmpty());
+    }
+
+    @Test
+    public void testAdderFixPermanentLimit() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL2")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL3")
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(1600.0)
+                .endTemporaryLimit();
+
+        assertEquals(Double.NaN, adder.getPermanentLimit(), 0.0);
+        adder.fixLimits(90.);
+        assertEquals(1080., adder.getPermanentLimit(), 0.0);
+    }
+
+    @Test
+    public void testAdderPermanentLimitAlreadySet() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit();
+        adder.fixLimits(90.);
+        assertEquals(1000., adder.getPermanentLimit(), 0.0);
+    }
+
+    @Test
+    public void testAdderSetPermanentLimitWithInfiniteDurationValue() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                    .setName("INFINITE")
+                    .setAcceptableDuration(Integer.MAX_VALUE)
+                    .setValue(800.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL1")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit();
+
+        assertEquals(Double.NaN, adder.getPermanentLimit(), 0.0);
+        adder.fixLimits(90.);
+        assertEquals(800., adder.getPermanentLimit(), 0.0);
+
+        Collection<String> names = adder.getTemporaryLimitNames();
+        assertEquals(1, names.size());
+        assertTrue(names.contains("TL1"));
     }
 }

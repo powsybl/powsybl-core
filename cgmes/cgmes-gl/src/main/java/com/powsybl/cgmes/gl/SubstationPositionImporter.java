@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.gl;
 
@@ -25,7 +26,7 @@ public class SubstationPositionImporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubstationPositionImporter.class);
 
-    private Network network;
+    private final Network network;
 
     public SubstationPositionImporter(Network network) {
         this.network = Objects.requireNonNull(network);
@@ -33,8 +34,9 @@ public class SubstationPositionImporter {
 
     public void importPosition(PropertyBag substationPositionData) {
         Objects.requireNonNull(substationPositionData);
-        if (!CgmesGLUtils.checkCoordinateSystem(substationPositionData.getId("crsName"), substationPositionData.getId("crsUrn"))) {
-            throw new PowsyblException("Unsupported coodinates system: " + substationPositionData.getId("crsName"));
+        String crsUrn = substationPositionData.getId("crsUrn");
+        if (!CgmesGLUtils.checkCoordinateSystem(crsUrn)) {
+            throw new PowsyblException("Unsupported coordinates system: " + crsUrn);
         }
         String substationId = substationPositionData.getId("powerSystemResource");
         Substation substation = network.getSubstation(substationId);

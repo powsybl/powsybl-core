@@ -3,13 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -48,34 +46,40 @@ final class ExportXmlCompare {
     private ExportXmlCompare() {
     }
 
-    static void compareNetworks(Path expected, Path actual) throws IOException {
+    static boolean compareNetworks(Path expected, Path actual) {
         try (InputStream expectedIs = Files.newInputStream(expected);
             InputStream actualIs = Files.newInputStream(actual)) {
-            compareNetworks(expectedIs, actualIs);
+            return compareNetworks(expectedIs, actualIs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static void compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static boolean compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
-            compareNetworks(expectedIs, actualIs, knownDiffs);
+            return compareNetworks(expectedIs, actualIs, knownDiffs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static void compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+    static boolean compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) {
         try (InputStream expectedIs = Files.newInputStream(expected);
              InputStream actualIs = Files.newInputStream(actual)) {
-            compareEQNetworks(expectedIs, actualIs, knownDiffs);
+            return compareEQNetworks(expectedIs, actualIs, knownDiffs);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    static void compareNetworks(InputStream expected, InputStream actual) {
-        compareNetworks(expected, actual, DifferenceEvaluators.chain(
+    static boolean compareNetworks(InputStream expected, InputStream actual) {
+        return compareNetworks(expected, actual, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator));
     }
 
-    static void compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+    static boolean compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -88,9 +92,10 @@ final class ExportXmlCompare {
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertFalse(diff.hasDifferences());
+        return !diff.hasDifferences();
     }
 
-    static void compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+    static boolean compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -104,6 +109,7 @@ final class ExportXmlCompare {
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertFalse(diff.hasDifferences());
+        return !diff.hasDifferences();
     }
 
     static boolean isConsideredForNetwork(Attr attr) {
@@ -235,14 +241,6 @@ final class ExportXmlCompare {
                 || name.startsWith("line") && MICROGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent());
     }
 
-    interface DifferenceBuilder {
-        DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
-    }
-
-    static DiffBuilder diffSV(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSvObjects(ignoringNonPersistentSvIds(withSelectedSvNodes(diff(expected, actual, de))));
-    }
-
     static DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
         // Original CGMES PhaseTapChangerLinear, PhaseTapChangerSymmetrical and PhaseTapChangerAsymmetrical
         // have been exported as PhaseTapChangerTabular.
@@ -259,46 +257,19 @@ final class ExportXmlCompare {
         return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de1))));
     }
 
-    static void compareSV(InputStream expected, InputStream actual) {
-        onlyNodeListSequenceDiffs(compare(diffSV(expected, actual, DifferenceEvaluators.Default).checkForIdentical()));
+    static boolean compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+        return onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
-        onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
-    }
-
-    static void compare(ReadOnlyDataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
-            throws IOException {
-        String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
-        String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
-        LOG.debug("Compare {} export using CGMES original model and using only Network. Files:", profile);
-        LOG.debug("   using CGMES        {}", svExpected);
-        LOG.debug("   using Network only {}", svActual);
-        assertTrue(svExpected.contains(originalBaseName));
-        assertTrue(svActual.contains(originalBaseName));
-        // Check that files are similar according to the diff function given
-        try (InputStream expected = dsExpected.newInputStream(svExpected); InputStream actual = dsActual.newInputStream(svActual)) {
-            isOk(compare(diff.build(expected, actual, knownDiffs).checkForSimilar()));
-        }
-        // Check again that only differences reported when checking for identical contents are the order of elements
-        try (InputStream expected = dsExpected.newInputStream(svExpected); InputStream actual = dsActual.newInputStream(svActual)) {
-            onlyNodeListSequenceDiffs(compare(diff.build(expected, actual, knownDiffs).checkForIdentical()));
-        }
-    }
-
-    static ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
-        // No previously known differences that should be filtered
-        return result;
-    }
-
-    static ComparisonResult ignoringCgmesSshMetadataId(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringCgmesMetadataModels(Comparison comparison, ComparisonResult result) {
+        // FIXME(Luma) Refactoring in progress. cgmes metadata models should be serialized in the same way, maybe we could check something else
         if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.ATTR_VALUE
-                    && control.getNodeName().equals("id")) {
-                if (comparison.getControlDetails().getXPath().contains("cgmesSshMetadata")) {
-                    return ComparisonResult.EQUAL;
-                }
+            String xpath = comparison.getControlDetails().getXPath();
+            if (xpath == null) {
+                xpath = comparison.getControlDetails().getParentXPath();
+            }
+            if (xpath != null && xpath.contains("cgmesMetadataModels")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -341,47 +312,6 @@ final class ExportXmlCompare {
             Node control = comparison.getControlDetails().getTarget();
             Node test = comparison.getTestDetails().getTarget();
             if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.created")) {
-                return ComparisonResult.EQUAL;
-            }
-        }
-        return result;
-    }
-
-    static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("StaticVarCompensator.q")) {
-                Node test = comparison.getTestDetails().getTarget();
-                // Both elements must exist and have valid numeric values
-                double qcontrol = Double.parseDouble(control.getTextContent());
-                double qtest = Double.parseDouble(test.getTextContent());
-                // But they could be different
-                // When we export we save in SSH.q the value of the SVC.terminal.q
-                // It would be the result of the power flow calculation
-                // or the value originally seen in the import in SV.q
-                if (qcontrol != qtest) {
-                    LOG.warn("Different values for StaticVarCompensator.q: control {}, test {}", qcontrol, qtest);
-                }
-                return ComparisonResult.EQUAL;
-            }
-        }
-        return result;
-    }
-
-    static ComparisonResult ignoringMissingTopologicalIslandInControl(Comparison comparison, ComparisonResult result) {
-        // If control node is a terminal of a junction, ignore the difference
-        // Means that we also have to ignore length of children of RDF element
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            Node test = comparison.getTestDetails().getTarget();
-            if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
-                    && control.getNodeType() == Node.ELEMENT_NODE
-                    && control.getLocalName().equals("RDF")) {
-                return ComparisonResult.EQUAL;
-            } else if (comparison.getType() == ComparisonType.CHILD_LOOKUP
-                    && control == null
-                    && test.getNodeType() == Node.ELEMENT_NODE
-                    && test.getLocalName().equals("TopologicalIsland")) {
                 return ComparisonResult.EQUAL;
             }
         }
@@ -467,22 +397,6 @@ final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringSimilarPowerFlows(Comparison comparison, ComparisonResult result) {
-        if (result == ComparisonResult.DIFFERENT) {
-            Node control = comparison.getControlDetails().getTarget();
-            if (control.getParentNode() != null
-                && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
-                && (control.getParentNode().getLocalName().equals("SvPowerFlow.p") || control.getParentNode().getLocalName().equals("SvPowerFlow.q"))) {
-                double expected = Double.parseDouble(control.getNodeValue());
-                double actual = Double.parseDouble(comparison.getTestDetails().getTarget().getNodeValue());
-                if (Math.abs(expected - actual) < 0.2d) {
-                    return ComparisonResult.EQUAL;
-                }
-            }
-        }
-        return result;
-    }
-
     // Present in small grid
     private static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
             "#_65a95678-1819-43cd-94d2-a03756822725",
@@ -511,15 +425,16 @@ final class ExportXmlCompare {
         return false;
     }
 
-    private static void isOk(Diff diff) {
-        assertFalse(diff.hasDifferences());
-    }
-
-    private static void onlyNodeListSequenceDiffs(Diff diff) {
+    private static boolean onlyNodeListSequenceDiffs(Diff diff) {
         for (Difference d : diff.getDifferences()) {
-            assertEquals(ComparisonType.CHILD_NODELIST_SEQUENCE, d.getComparison().getType());
-            assertEquals(ComparisonResult.SIMILAR, d.getResult());
+            if (ComparisonType.CHILD_NODELIST_SEQUENCE != d.getComparison().getType()) {
+                return false;
+            }
+            if (ComparisonResult.SIMILAR != d.getResult()) {
+                return false;
+            }
         }
+        return true;
     }
 
     static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
@@ -568,10 +483,8 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringFullModelDependentOn(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("FullModel")) {
-                if (cxpath.contains("Model.DependentOn")) {
-                    return ComparisonResult.EQUAL;
-                }
+            if (cxpath != null && cxpath.contains("FullModel") && cxpath.contains("Model.DependentOn")) {
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -669,7 +582,7 @@ final class ExportXmlCompare {
     static ComparisonResult ignoringRdfChildLookupEquivalentInjection(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.CHILD_LOOKUP) {
             String cxpath = comparison.getControlDetails().getXPath();
-            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains("EquivalentInjection")) {
+            if (cxpath != null && cxpath.contains("RDF") && cxpath.contains(CgmesNames.EQUIVALENT_INJECTION)) {
                 return ComparisonResult.EQUAL;
             }
         }
@@ -700,6 +613,26 @@ final class ExportXmlCompare {
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
             String cxpath = comparison.getControlDetails().getXPath();
             if (cxpath != null && cxpath.contains("TapChanger") && cxpath.contains("controlEnabled")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringConformLoad(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("ConformLoad")) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringTextValueEquivalentInjection(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            String cxpath = comparison.getControlDetails().getXPath();
+            if (cxpath != null && cxpath.contains("EquivalentInjection")) {
                 return ComparisonResult.EQUAL;
             }
         }
@@ -907,7 +840,11 @@ final class ExportXmlCompare {
             int maxNodes = 5;
             for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
                 Node n1 = n.getChildNodes().item(k);
-                LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                if (n1.getLocalName() != null) {
+                    LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                } else {
+                    LOG.error("            {}", n1.getTextContent());
+                }
                 debugAttributes(n1, "                ");
             }
             if (n.getChildNodes().getLength() > maxNodes) {
@@ -930,27 +867,8 @@ final class ExportXmlCompare {
         }
     }
 
-    private static DiffBuilder withSelectedSvNodes(DiffBuilder diffBuilder) {
-        return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSvNode(n));
-    }
-
     private static DiffBuilder withSelectedSshNodes(DiffBuilder diffBuilder) {
         return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSshNode(n));
-    }
-
-    private static boolean isConsideredSvNode(Node n) {
-        if (n.getNodeType() == Node.ELEMENT_NODE) {
-            String name = n.getLocalName();
-            return name != null && (name.equals("RDF")
-                    || name.startsWith("SvVoltage")
-                    || name.startsWith("SvShuntCompensatorSections")
-                    || name.startsWith("SvTapStep")
-                    || name.startsWith("SvStatus")
-                    || name.startsWith("SvPowerFlow")
-                    || name.startsWith("TopologicalIsland") && !name.equals("TopologicalIsland.AngleRefTopologicalNode")
-                    || isConsideredModelElementName(name));
-        }
-        return false;
     }
 
     private static boolean isConsideredSshNode(Node n) {
@@ -991,25 +909,6 @@ final class ExportXmlCompare {
                         || name.equals("Model.createdBy"));
     }
 
-    private static DiffBuilder ignoringNonPersistentSvIds(DiffBuilder diffBuilder) {
-        return diffBuilder.withAttributeFilter(attr -> {
-            String elementName = attr.getOwnerElement().getLocalName();
-            boolean ignored = false;
-            if (elementName != null) {
-                // Identifiers of SV objects are not persistent,
-                // can be ignored for comparison with control
-                if (elementName.startsWith("Sv")) {
-                    ignored = attr.getLocalName().equals("ID");
-                } else if (elementName.equals("FullModel")) {
-                    ignored = attr.getLocalName().equals("about");
-                } else if (elementName.equals("TopologicalIsland")) {
-                    ignored = attr.getLocalName().equals("ID");
-                }
-            }
-            return !ignored;
-        });
-    }
-
     private static DiffBuilder ignoringNonPersistentSshIds(DiffBuilder diffBuilder) {
         return diffBuilder.withAttributeFilter(attr -> {
             String elementName = attr.getOwnerElement().getLocalName();
@@ -1021,32 +920,6 @@ final class ExportXmlCompare {
             }
             return !ignored;
         });
-    }
-
-    private static DiffBuilder selectingEquivalentSvObjects(DiffBuilder diffBuilder) {
-        Map<String, String> prefixUris = new HashMap<>(2);
-        prefixUris.put("cim", CgmesNamespace.getCim(16).getNamespace());
-        prefixUris.put("rdf", RDF_NAMESPACE);
-        QName resourceAttribute = new QName(RDF_NAMESPACE, "resource");
-        ElementSelector byResource = ElementSelectors.byNameAndAttributes(resourceAttribute);
-        ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
-                .whenElementIsNamed("SvShuntCompensatorSections")
-                .thenUse(ElementSelectors.byXPath("./cim:SvShuntCompensatorSections.ShuntCompensator", prefixUris, byResource))
-                .whenElementIsNamed("SvVoltage")
-                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, byResource))
-                .whenElementIsNamed("SvTapStep")
-                .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, byResource))
-                .whenElementIsNamed("SvStatus")
-                .thenUse(ElementSelectors.byXPath("./cim:SvStatus.ConductingEquipment", prefixUris, byResource))
-                .whenElementIsNamed("SvPowerFlow")
-                .thenUse(ElementSelectors.byXPath("./cim:SvPowerFlow.Terminal", prefixUris, byResource))
-                .whenElementIsNamed("TopologicalIsland.TopologicalNodes")
-                .thenUse(byResource)
-                .whenElementIsNamed("Model.DependentOn")
-                .thenUse(byResource)
-                .elseUse(ElementSelectors.byName)
-                .build();
-        return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
     }
 
     private static DiffBuilder selectingEquivalentSshObjects(DiffBuilder diffBuilder) {

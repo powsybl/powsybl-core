@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -26,11 +27,11 @@ abstract class AbstractTerminal implements TerminalExt {
 
     private Ref<? extends VariantManagerHolder> network;
 
+    protected final ThreeSides side;
+
     protected AbstractConnectable connectable;
 
     protected VoltageLevelExt voltageLevel;
-
-    protected int num = -1;
 
     protected final List<RegulatingPoint> regulated = new ArrayList<>();
 
@@ -42,7 +43,8 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected boolean removed = false;
 
-    AbstractTerminal(Ref<? extends VariantManagerHolder> network) {
+    AbstractTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side) {
+        this.side = side;
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         p = new TDoubleArrayList(variantArraySize);
@@ -51,6 +53,15 @@ abstract class AbstractTerminal implements TerminalExt {
             p.add(Double.NaN);
             q.add(Double.NaN);
         }
+    }
+
+    @Override
+    public ThreeSides getSide() {
+        return side;
+    }
+
+    protected String getAttributeSideSuffix() {
+        return "" + (side != null ? side.getNum() : "");
     }
 
     protected VariantManagerHolder getVariantManagerHolder() {
@@ -84,11 +95,6 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void setNum(int num) {
-        this.num = num;
-    }
-
-    @Override
     public void removeAsRegulationPoint() {
         regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
         regulated.clear();
@@ -113,7 +119,7 @@ abstract class AbstractTerminal implements TerminalExt {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate(() -> "p" + (num != -1 ? num : ""), variantId, oldValue, p);
+        getConnectable().notifyUpdate(() -> "p" + getAttributeSideSuffix(), variantId, oldValue, p);
         return this;
     }
 
@@ -136,7 +142,7 @@ abstract class AbstractTerminal implements TerminalExt {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q.set(variantIndex, q);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        getConnectable().notifyUpdate(() -> "q" + (num != -1 ? num : ""), variantId, oldValue, q);
+        getConnectable().notifyUpdate(() -> "q" + getAttributeSideSuffix(), variantId, oldValue, q);
         return this;
     }
 
@@ -172,12 +178,13 @@ abstract class AbstractTerminal implements TerminalExt {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+        boolean connectedBefore = isConnected();
+        connectable.notifyUpdate("beginConnect", variantId, connectedBefore, null);
         boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate);
-        if (connected) {
-            int variantIndex = getVariantManagerHolder().getVariantIndex();
-            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-            connectable.notifyUpdate("connection", variantId, false, true);
-        }
+        boolean connectedAfter = isConnected();
+        connectable.notifyUpdate("endConnect", variantId, null, connectedAfter);
         return connected;
     }
 
@@ -198,12 +205,13 @@ abstract class AbstractTerminal implements TerminalExt {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
+        int variantIndex = getVariantManagerHolder().getVariantIndex();
+        String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
+        boolean disconnectedBefore = !isConnected();
+        connectable.notifyUpdate("beginDisconnect", variantId, disconnectedBefore, null);
         boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable);
-        if (disconnected) {
-            int variantIndex = getVariantManagerHolder().getVariantIndex();
-            String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
-            connectable.notifyUpdate("connection", variantId, true, false);
-        }
+        boolean disconnectedAfter = !isConnected();
+        connectable.notifyUpdate("endDisconnect", variantId, null, disconnectedAfter);
         return disconnected;
     }
 

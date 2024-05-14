@@ -3,12 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Network;
@@ -59,11 +61,29 @@ public class TerminalMapping {
         return cgmesTerminalsMapping.get(cgmesTerminalId);
     }
 
-    public Terminal find(String cgmesTerminalId) {
+    public Terminal findForFlowLimits(String cgmesTerminalId) {
+        // We only considered Terminals assigned to an iidm equipment
+        // Terminals not included in the iidm model are:
+        // - boundary terminal of danglingLines (paired an unpaired)
+        // - terminal of switches
+        // Limits associated to these terminals are discarded
+        return terminals.get(cgmesTerminalId);
+    }
+
+    public Terminal findForVoltageLimits(String cgmesTerminalId) {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
         return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
+    }
+
+    /**
+     * @deprecated Not used anymore. Use {@link #findForVoltageLimits(String)}
+     * or {@link #findForFlowLimits(String)} instead.
+     */
+    @Deprecated(since = "6.1.2")
+    public Terminal find(String cgmesTerminalId, boolean loadingLimits) {
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     /**
@@ -80,7 +100,7 @@ public class TerminalMapping {
 
     public Boundary findBoundary(String cgmesTerminalId, CgmesModel cgmesModel) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
-        if (cgmesTerminal.conductingEquipmentType().equals("EquivalentInjection")) {
+        if (cgmesTerminal != null && cgmesTerminal.conductingEquipmentType().equals(CgmesNames.EQUIVALENT_INJECTION)) {
             String acLineSegmentCgmesTerminalId = findAssociatedAcLineSegmentCgmesTerminalId(cgmesModel, cgmesTerminal);
             if (acLineSegmentCgmesTerminalId != null) {
                 return findBoundary(acLineSegmentCgmesTerminalId);
