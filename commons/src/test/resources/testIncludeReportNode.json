@@ -1,0 +1,22 @@
+{
+  "version" : "2.0",
+  "reportRoot" : {
+    "messageKey" : "rootTemplate",
+    "children" : [ {
+      "messageKey" : "includedRoot",
+      "children" : [ {
+        "messageKey" : "includedChild"
+      } ]
+    }, {
+      "messageKey" : "child"
+    } ],
+    "dictionaries" : {
+      "default" : {
+        "child" : "Child message",
+        "includedChild" : "Included child message",
+        "includedRoot" : "Included root message",
+        "rootTemplate" : "Root message"
+      }
+    }
+  }
+}
