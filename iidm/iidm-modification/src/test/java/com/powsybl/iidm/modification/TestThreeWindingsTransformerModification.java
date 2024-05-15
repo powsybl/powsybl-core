@@ -42,7 +42,7 @@ class TestThreeWindingsTransformerModification {
         double structuralRatioLeg3 = getStructuralRatio(t3wt.getLeg3(), ratedU0);
 
         double newRatedU0 = 135.0;
-        assertTrue(ratedU0 != newRatedU0);
+        assertNotEquals(ratedU0, newRatedU0);
 
         ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification(t3wt.getId(), newRatedU0);
         assertEquals(ratedU0, t3wt.getRatedU0());
