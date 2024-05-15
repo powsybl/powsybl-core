@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -53,5 +55,22 @@ class TestThreeWindingsTransformerModification {
 
     private static double getStructuralRatio(ThreeWindingsTransformer.Leg leg, double ratedU0) {
         return leg.getRatedU() / ratedU0;
+    }
+
+    @Test
+    void testApplyChecks() {
+        //
+        ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification("UNKNOWN_ID", null);
+        assertThrows(PowsyblException.class, () -> t3wtModification.apply(network, true, ReportNode.NO_OP),
+                "An invalid ID should fail to apply.");
+        assertDoesNotThrow(() -> t3wtModification.apply(network, false, ReportNode.NO_OP),
+                "An invalid ID should not throw if throwException is false.");
+    }
+
+    @Test
+    void testGetters() {
+        ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification(t3wt.getId(), 135.0);
+        assertEquals(t3wt.getId(), t3wtModification.getTransformerId());
+        assertEquals(135, t3wtModification.getRatedU0());
     }
 }
