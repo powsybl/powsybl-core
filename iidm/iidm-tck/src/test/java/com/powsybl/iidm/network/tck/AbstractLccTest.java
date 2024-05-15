@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.BeforeEach;
@@ -93,9 +94,35 @@ public abstract class AbstractLccTest {
         assertEquals(0, network.getHvdcLineCount());
 
         assertNull(cs1.getHvdcLine());
-        assertNull(hvdcLine.getConverterStation1());
         assertNull(cs2.getHvdcLine());
-        assertNull(hvdcLine.getConverterStation2());
+
+        try {
+            hvdcLine.getConverterStation1();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), e.getMessage());
+        }
+
+        try {
+            hvdcLine.getConverterStation2();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), e.getMessage());
+        }
+
+        try {
+            hvdcLine.getNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access network of removed hvdc line " + hvdcLine.getId(), e.getMessage());
+        }
+
+        try {
+            hvdcLine.getParentNetwork();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Cannot access parent network of removed hvdc line " + hvdcLine.getId(), e.getMessage());
+        }
 
         // remove
         int count = network.getLccConverterStationCount();
