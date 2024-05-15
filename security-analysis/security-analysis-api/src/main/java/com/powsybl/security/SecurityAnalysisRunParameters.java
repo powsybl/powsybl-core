@@ -18,11 +18,10 @@ import java.util.Objects;
  */
 public class SecurityAnalysisRunParameters {
 
-    //TODO replace with default
-    private LimitViolationDetector detector = new DefaultLimitViolationDetector();
-    private LimitViolationFilter filter = LimitViolationFilter.load();
-    private ComputationManager computationManager = LocalComputationManager.getDefault();
-    private SecurityAnalysisParameters securityAnalysisParameters = SecurityAnalysisParameters.load();
+    private LimitViolationDetector detector;
+    private LimitViolationFilter filter;
+    private ComputationManager computationManager;
+    private SecurityAnalysisParameters securityAnalysisParameters;
     private List<SecurityAnalysisInterceptor> interceptors = Collections.emptyList();
     private List<OperatorStrategy> operatorStrategies = Collections.emptyList();
     private List<Action> actions = Collections.emptyList();
@@ -30,23 +29,27 @@ public class SecurityAnalysisRunParameters {
     private List<LimitReduction> limitReductions = Collections.emptyList();
 
     public static SecurityAnalysisRunParameters getDefault() {
-        return new SecurityAnalysisRunParameters();
+        return new SecurityAnalysisRunParameters()
+                .setDetector(new DefaultLimitViolationDetector())
+                .setFilter(LimitViolationFilter.load())
+                .setSecurityAnalysisParameters(SecurityAnalysisParameters.load())
+                .setComputationManager(LocalComputationManager.getDefault());
     }
 
     public LimitViolationDetector getDetector() {
-        return detector;
+        return Objects.requireNonNullElseGet(detector, () -> detector = new DefaultLimitViolationDetector());
     }
 
     public LimitViolationFilter getFilter() {
-        return filter;
+        return Objects.requireNonNullElseGet(filter, () -> filter = LimitViolationFilter.load());
     }
 
     public ComputationManager getComputationManager() {
-        return computationManager;
+        return Objects.requireNonNullElseGet(computationManager, () -> computationManager = LocalComputationManager.getDefault());
     }
 
     public SecurityAnalysisParameters getSecurityAnalysisParameters() {
-        return securityAnalysisParameters;
+        return Objects.requireNonNullElseGet(securityAnalysisParameters, () -> securityAnalysisParameters = SecurityAnalysisParameters.load());
     }
 
     public List<SecurityAnalysisInterceptor> getInterceptors() {
@@ -70,16 +73,19 @@ public class SecurityAnalysisRunParameters {
     }
 
     public SecurityAnalysisRunParameters setDetector(LimitViolationDetector detector) {
+        Objects.requireNonNull(detector, "LimitViolationDetector should not be null");
         this.detector = detector;
         return this;
     }
 
     public SecurityAnalysisRunParameters setFilter(LimitViolationFilter filter) {
+        Objects.requireNonNull(filter, "LimitViolationFilter should not be null");
         this.filter = filter;
         return this;
     }
 
     public SecurityAnalysisRunParameters setComputationManager(ComputationManager computationManager) {
+        Objects.requireNonNull(computationManager, "ComputationManager should not be null");
         this.computationManager = computationManager;
         return this;
     }
@@ -91,6 +97,7 @@ public class SecurityAnalysisRunParameters {
     }
 
     public SecurityAnalysisRunParameters setOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
+        Objects.requireNonNull(operatorStrategies, "OperatorStrategy list should not be null");
         this.operatorStrategies = operatorStrategies;
         return this;
     }
@@ -102,16 +109,19 @@ public class SecurityAnalysisRunParameters {
     }
 
     public SecurityAnalysisRunParameters setLimitReductions(List<LimitReduction> limitReductions) {
+        Objects.requireNonNull(limitReductions, "LimitReductions list should not be null");
         this.limitReductions = limitReductions;
         return this;
     }
 
     public SecurityAnalysisRunParameters setMonitors(List<StateMonitor> monitors) {
+        Objects.requireNonNull(monitors, "StateMonitor list should not be null");
         this.monitors = monitors;
         return this;
     }
 
     public SecurityAnalysisRunParameters setActions(List<Action> actions) {
+        Objects.requireNonNull(actions, "Action list should not be null");
         this.actions = actions;
         return this;
     }

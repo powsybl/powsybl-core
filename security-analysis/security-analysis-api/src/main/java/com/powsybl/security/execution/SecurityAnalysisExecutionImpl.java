@@ -58,7 +58,6 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     @Override
     public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        //TODO buildInput useless ?
         SecurityAnalysisRunParameters runParameters = new SecurityAnalysisRunParameters()
                 .setSecurityAnalysisParameters(input.getParameters())
                 .setComputationManager(computationManager)
