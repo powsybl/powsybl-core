@@ -1,7 +1,7 @@
 {
-  "version" : "1.0",
+  "version" : "1.2",
   "scalingConvention" : "LOAD",
   "constantPowerFactor" : false,
   "reconnect" : true,
-  "iterative" : false
+  "priority" : "ONESHOT"
 }

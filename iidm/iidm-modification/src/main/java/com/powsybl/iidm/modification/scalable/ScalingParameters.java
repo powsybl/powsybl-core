@@ -20,7 +20,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingTy
  */
 public class ScalingParameters {
 
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.2";
 
     public enum ScalingType {
         DELTA_P,

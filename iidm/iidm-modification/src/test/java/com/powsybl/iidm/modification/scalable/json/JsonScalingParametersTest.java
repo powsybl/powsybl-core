@@ -35,17 +35,37 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testDeserializerV1dot1() {
+    void testDeserializerV1dot0() {
         ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0.json"));
         assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
         assertFalse(parameters.isConstantPowerFactor());
         assertEquals(ONESHOT, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
-        assertEquals(2, parameters.getIgnoredInjectionIds().size());
 
         parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0b.json"));
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
+    }
+
+    @Test
+    void testDeserializerV1dot1() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.1.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+    }
+
+    @Test
+    void testDeserializerV1dot2() {
+        ScalingParameters parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.2.json"));
+        assertEquals(Scalable.ScalingConvention.LOAD, parameters.getScalingConvention());
+        assertFalse(parameters.isConstantPowerFactor());
+        assertEquals(ONESHOT, parameters.getPriority());
+        assertTrue(parameters.isReconnect());
+        assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertEquals(Set.of("id1", "id2"), parameters.getIgnoredInjectionIds());
     }
 
     @Test
