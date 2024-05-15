@@ -623,22 +623,13 @@ public final class EquipmentExport {
     private static String getSvcMode(StaticVarCompensator svc) {
         String mode = RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
         StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
-        // FIXME: remove RegulationMode.OFF when #2790 is done
         if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER
                 || regulationMode == StaticVarCompensator.RegulationMode.OFF
-                && isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())
-                && !isValidSvcVoltageSetpoint(svc.getVoltageSetpoint())) {
+                && SteadyStateHypothesisExport.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint())
+                && !SteadyStateHypothesisExport.isValidVoltageSetpoint(svc.getVoltageSetpoint())) {
             mode = RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
         }
         return mode;
-    }
-
-    private static boolean isValidSvcVoltageSetpoint(double v) {
-        return Double.isFinite(v) && v > 0;
-    }
-
-    private static boolean isValidSvcReactivePowerSetpoint(double q) {
-        return Double.isFinite(q);
     }
 
     private static void writeLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

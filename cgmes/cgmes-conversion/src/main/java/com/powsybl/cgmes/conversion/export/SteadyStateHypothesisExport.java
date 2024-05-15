@@ -397,11 +397,11 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static boolean isValidSvcVolatgeSetpoint(double v) {
+    public static boolean isValidVoltageSetpoint(double v) {
         return Double.isFinite(v) && v > 0;
     }
 
-    private static boolean isValidSvcReactivePowerSetpoint(double q) {
+    public static boolean isValidReactivePowerSetpoint(double q) {
         return Double.isFinite(q);
     }
 
@@ -426,13 +426,12 @@ public final class SteadyStateHypothesisExport {
                 // Regulating control could be reactive power or voltage
                 double targetValue;
                 String multiplier;
-                // FIXME: remove RegulationMode.OFF when #2790 is done
                 if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE
-                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint()) && !isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
+                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidVoltageSetpoint(svc.getVoltageSetpoint()) && !isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint())) {
                     targetValue = svc.getVoltageSetpoint();
                     multiplier = "k";
                 } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER
-                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidSvcReactivePowerSetpoint(svc.getReactivePowerSetpoint()) && !isValidSvcVolatgeSetpoint(svc.getVoltageSetpoint())) {
+                        || regulationMode == StaticVarCompensator.RegulationMode.OFF && isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint()) && !isValidVoltageSetpoint(svc.getVoltageSetpoint())) {
                     targetValue = svc.getReactivePowerSetpoint();
                     multiplier = "M";
                 } else {

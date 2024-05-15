@@ -511,7 +511,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Local
             network = SvcTestCaseFactory.createLocalReactiveControl();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteReactiveControl();
@@ -525,10 +525,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
             network = SvcTestCaseFactory.createLocalOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
             network = SvcTestCaseFactory.createLocalOffVoltageTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
@@ -536,7 +536,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
@@ -545,7 +545,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
         }
     }
 
@@ -578,7 +578,16 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createDisabledLocalLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SHUNT_RC");
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
 
             // SC nonlinear
             network = ShuntTestCaseFactory.createNonLinear();
@@ -598,7 +607,16 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SHUNT_RC");
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
         }
     }
 

@@ -432,7 +432,7 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (shuntCompensator.isVoltageRegulatorOn() || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
+            if (regulatingControlId == null && SteadyStateHypothesisExport.isValidVoltageSetpoint(shuntCompensator.getTargetV())) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
                 shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
@@ -442,7 +442,12 @@ public class CgmesExportContext {
     private void addIidmMappingsStaticVarCompensators(Network network) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
+            boolean validVoltageSetpoint = SteadyStateHypothesisExport.isValidVoltageSetpoint(svc.getVoltageSetpoint());
+            boolean validReactiveSetpoint = SteadyStateHypothesisExport.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            if (regulatingControlId == null && (
+                    svc.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE ||
+                            svc.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER ||
+                            validVoltageSetpoint && !validReactiveSetpoint || !validVoltageSetpoint && validReactiveSetpoint)) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(svc), Part.REGULATING_CONTROL);
                 svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }

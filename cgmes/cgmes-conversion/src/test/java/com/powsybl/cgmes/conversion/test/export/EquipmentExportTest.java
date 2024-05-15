@@ -1128,7 +1128,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Local
             network = SvcTestCaseFactory.createLocalReactiveControl();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "reactivePower");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "reactivePower");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteReactiveControl();
@@ -1142,10 +1142,10 @@ class EquipmentExportTest extends AbstractSerDeTest {
             testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
             network = SvcTestCaseFactory.createLocalOffReactiveTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "reactivePower");
             network = SvcTestCaseFactory.createLocalOffVoltageTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
@@ -1153,7 +1153,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "dummy");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
@@ -1162,7 +1162,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "dummy");
         }
     }
 
@@ -1195,7 +1195,16 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createDisabledLocalLinear();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
+
+            network = ShuntTestCaseFactory.createLocalLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
 
             // SC nonlinear
             network = ShuntTestCaseFactory.createNonLinear();
@@ -1215,7 +1224,15 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_SHUNT_SC_T_1", "voltage");
+
+            network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
         }
     }
 

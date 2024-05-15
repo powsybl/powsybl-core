@@ -174,6 +174,29 @@ public final class ShuntTestCaseFactory {
         return network;
     }
 
+    private static Network createShuntWithNoTarget(Network network) {
+        network.getShuntCompensator(SHUNT)
+                .setVoltageRegulatorOn(false)
+                .setTargetV(Double.NaN);
+        return network;
+    }
+
+    public static Network createRemoteLinearNoTarget() {
+        return createShuntWithNoTarget(create());
+    }
+
+    public static Network createRemoteNonLinearNoTarget() {
+        return createShuntWithNoTarget(createNonLinear());
+    }
+
+    public static Network createLocalLinearNoTarget() {
+        return createShuntWithNoTarget(createLocalLinear());
+    }
+
+    public static Network createLocalNonLinearNoTarget() {
+        return createShuntWithNoTarget(createLocalNonLinear());
+    }
+
     public static Network createLocalNonLinear() {
         return createLocalShunt(createNonLinear());
     }
