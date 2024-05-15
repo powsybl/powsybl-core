@@ -360,6 +360,12 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
+    public ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        this.ratedU0 = ratedU0;
+        return this;
+    }
+
+    @Override
     public double getRatedU0() {
         return ratedU0;
     }

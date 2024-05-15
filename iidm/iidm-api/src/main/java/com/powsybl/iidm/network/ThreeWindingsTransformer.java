@@ -355,6 +355,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     double getRatedU0();
 
+    /**
+     * Set the rated voltage at the fictitious bus.
+     */
+    ThreeWindingsTransformer setRatedU0(double ratedU0);
+
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
