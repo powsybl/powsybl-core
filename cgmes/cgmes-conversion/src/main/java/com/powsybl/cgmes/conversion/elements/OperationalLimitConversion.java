@@ -12,8 +12,12 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.powsybl.cgmes.conversion.LoadingLimitsMapping.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -23,6 +27,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
     private static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
     private static final String CURRENT_LIMIT = "CurrentLimit";
+    private static final String VOLTAGE_LIMIT = "VoltageLimit";
     private static final String LIMIT_TYPE = "limitType";
     private static final String OPERATIONAL_LIMIT = "Operational limit";
     private static final String OPERATIONAL_LIMIT_TYPE_NAME = "operationalLimitTypeName";
@@ -34,7 +39,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super("OperationalLimit", l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        // Limit can associated to a Terminal or to an Equipment
+        // Limit can be associated with a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
         Terminal terminal = null;
@@ -49,7 +54,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
                 createLimitsAdder(-1, limitSubclass, identifiable);
             }
-        } else if (limitSubclass.equals("VoltageLimit")) {
+        } else if (limitSubclass.equals(VOLTAGE_LIMIT)) {
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForVoltageLimits(terminalId);
             }
@@ -72,48 +77,36 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (limitSubClass == null) {
             return holder::newCurrentLimits;
         }
-        switch (limitSubClass) {
-            case ACTIVE_POWER_LIMIT:
-                return holder::newActivePowerLimits;
-            case APPARENT_POWER_LIMIT:
-                return holder::newApparentPowerLimits;
-            case CURRENT_LIMIT:
-                return holder::newCurrentLimits;
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (limitSubClass) {
+            case ACTIVE_POWER_LIMIT -> holder::newActivePowerLimits;
+            case APPARENT_POWER_LIMIT -> holder::newApparentPowerLimits;
+            case CURRENT_LIMIT -> holder::newCurrentLimits;
+            default -> throw new IllegalStateException();
+        };
     }
 
     private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder1Supplier(String limitSubClass, Branch<?> b) {
         if (limitSubClass == null) {
             return b::newCurrentLimits1;
         }
-        switch (limitSubClass) {
-            case ACTIVE_POWER_LIMIT:
-                return b::newActivePowerLimits1;
-            case APPARENT_POWER_LIMIT:
-                return b::newApparentPowerLimits1;
-            case CURRENT_LIMIT:
-                return b::newCurrentLimits1;
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (limitSubClass) {
+            case ACTIVE_POWER_LIMIT -> b::newActivePowerLimits1;
+            case APPARENT_POWER_LIMIT -> b::newApparentPowerLimits1;
+            case CURRENT_LIMIT -> b::newCurrentLimits1;
+            default -> throw new IllegalStateException();
+        };
     }
 
     private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder2Supplier(String limitSubClass, Branch<?> b) {
         if (limitSubClass == null) {
             return b::newCurrentLimits2;
         }
-        switch (limitSubClass) {
-            case ACTIVE_POWER_LIMIT:
-                return b::newActivePowerLimits2;
-            case APPARENT_POWER_LIMIT:
-                return b::newApparentPowerLimits2;
-            case CURRENT_LIMIT:
-                return b::newCurrentLimits2;
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (limitSubClass) {
+            case ACTIVE_POWER_LIMIT -> b::newActivePowerLimits2;
+            case APPARENT_POWER_LIMIT -> b::newApparentPowerLimits2;
+            case CURRENT_LIMIT -> b::newCurrentLimits2;
+            default -> throw new IllegalStateException();
+        };
     }
 
     private void createLimitsAdder(int terminalNumber, String limitSubClass, Branch<?> b) {
@@ -130,13 +123,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void createLimitsAdder(int terminalNumber, String limitSubClass, ThreeWindingsTransformer twt) {
         if (terminalNumber == 1) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass,
+            loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg1()));
         } else if (terminalNumber == 2) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass,
+            loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg2()));
         } else if (terminalNumber == 3) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass,
+            loadingLimitsAdder3 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg3()));
         } else {
             notAssigned(twt);
@@ -144,6 +137,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void createLimitsAdder(int terminalNumber, String limitSubClass, Identifiable<?> identifiable) {
+        this.identifiableId = identifiable.getId();
+        this.limitSubclass = limitSubClass;
+
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
@@ -190,40 +186,37 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     @Override
     public void convert() {
         double normalValue = p.asDouble("normalValue");
-        double value = p.asDouble("value", normalValue);
-        if (value <= 0) {
-            context.ignored(OPERATIONAL_LIMIT, "value is <= 0");
-            return;
-        }
         if (vl != null) {
-            convertVoltageLimit(value);
+            convertVoltageLimit(normalValue);
         } else {
             if (isPatl()) { // Permanent Admissible Transmission Loading
-                convertPatl(value);
+                convertPatl(normalValue);
             } else if (isTatl()) { // Temporary Admissible Transmission Loading
-                convertTatl(value);
+                convertTatl(normalValue);
             }
         }
     }
 
-    private void convertVoltageLimit(double value) {
+    private void convertVoltageLimit(double normalValue) {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
-            if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
-                if (value < vl.getLowVoltageLimit()) {
+            context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "highVoltage", 0, normalValue);
+            if (normalValue < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
+                if (normalValue < vl.getLowVoltageLimit()) {
                     context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
                     return;
                 }
-                vl.setHighVoltageLimit(value);
+                vl.setHighVoltageLimit(normalValue);
             }
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
-            if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
-                if (value > vl.getHighVoltageLimit()) {
+            context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "lowVoltage", 0, normalValue);
+            if (normalValue > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
+                if (normalValue > vl.getHighVoltageLimit()) {
                     context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
                     return;
                 }
-                vl.setLowVoltageLimit(value);
+                vl.setLowVoltageLimit(normalValue);
             }
         } else {
             notAssigned(vl);
@@ -236,30 +229,37 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType) || "LimitKind.patl".equals(limitType);
     }
 
-    private void addPatl(double value, LoadingLimitsAdder<?, ?> adder) {
+    private void addPatl(double normalValue, LoadingLimitsAdder<?, ?> adder) {
         if (Double.isNaN(adder.getPermanentLimit())) {
-            adder.setPermanentLimit(value);
+            adder.setPermanentLimit(normalValue);
         } else {
             if (terminalId != null) {
                 context.fixed(PERMANENT_LIMIT, () -> String.format("Several permanent limits defined for Terminal %s. Only the lowest is kept.", terminalId));
             } else {
                 context.fixed(PERMANENT_LIMIT, () -> String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
             }
-            if (adder.getPermanentLimit() > value) {
-                adder.setPermanentLimit(value);
+            if (adder.getPermanentLimit() > normalValue) {
+                adder.setPermanentLimit(normalValue);
             }
         }
     }
 
-    private void convertPatl(double value) {
+    private void convertPatl(double normalValue) {
         if (loadingLimitsAdder != null) {
-            addPatl(value, loadingLimitsAdder);
+            addPatl(normalValue, loadingLimitsAdder);
+            context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "", limitSubclass, "patl", 0, normalValue);
         } else {
             if (loadingLimitsAdder1 != null) {
-                addPatl(value, loadingLimitsAdder1);
+                addPatl(normalValue, loadingLimitsAdder1);
+                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "1", limitSubclass, "patl", 0, normalValue);
             }
             if (loadingLimitsAdder2 != null) {
-                addPatl(value, loadingLimitsAdder2);
+                addPatl(normalValue, loadingLimitsAdder2);
+                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "2", limitSubclass, "patl", 0, normalValue);
+            }
+            if (loadingLimitsAdder3 != null) {
+                addPatl(normalValue, loadingLimitsAdder3);
+                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "3", limitSubclass, "patl", 0, normalValue);
             }
         }
     }
@@ -270,17 +270,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType) || "LimitKind.tatl".equals(limitType);
     }
 
-    private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {
-        if (Double.isNaN(value)) {
-            context.ignored(TEMPORARY_LIMIT, "Temporary limit value is undefined");
+    private void addTatl(String name, double normalValue, int acceptableDuration, String end, LoadingLimitsAdder<?, ?> adder) {
+        if (Double.isNaN(normalValue)) {
             return;
         }
 
+        context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, end, limitSubclass, "tatl", acceptableDuration, normalValue);
         if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
             adder.beginTemporaryLimit()
                     .setAcceptableDuration(acceptableDuration)
                     .setName(name)
-                    .setValue(value)
+                    .setValue(normalValue)
                     .ensureNameUnicity()
                     .endTemporaryLimit();
         } else {
@@ -289,18 +289,18 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             } else {
                 context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
             }
-            if (adder.getTemporaryLimitValue(acceptableDuration) > value) {
+            if (adder.getTemporaryLimitValue(acceptableDuration) > normalValue) {
                 adder.beginTemporaryLimit()
                         .setAcceptableDuration(acceptableDuration)
                         .setName(name)
-                        .setValue(value)
+                        .setValue(normalValue)
                         .ensureNameUnicity()
                         .endTemporaryLimit();
             }
         }
     }
 
-    private void convertTatl(double value) {
+    private void convertTatl(double normalValue) {
         int acceptableDuration = p.containsKey("acceptableDuration") ? (int) p.asDouble("acceptableDuration") : Integer.MAX_VALUE;
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
@@ -310,13 +310,16 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
             if (loadingLimitsAdder != null) {
-                addTatl(name, value, acceptableDuration, loadingLimitsAdder);
+                addTatl(name, normalValue, acceptableDuration, "", loadingLimitsAdder);
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    addTatl(name, value, acceptableDuration, loadingLimitsAdder1);
+                    addTatl(name, normalValue, acceptableDuration, "1", loadingLimitsAdder1);
                 }
                 if (loadingLimitsAdder2 != null) {
-                    addTatl(name, value, acceptableDuration, loadingLimitsAdder2);
+                    addTatl(name, normalValue, acceptableDuration, "2", loadingLimitsAdder2);
+                }
+                if (loadingLimitsAdder3 != null) {
+                    addTatl(name, normalValue, acceptableDuration, "3", loadingLimitsAdder2);
                 }
             }
         } else if (direction.endsWith("low")) {
@@ -356,12 +359,191 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return s;
     }
 
+    public static void updateOperationalLimitsOfVoltageLevel(VoltageLevel voltageLevel, Context context) {
+        String lowOperationalLimitIdsString = voltageLevel.getProperty(getOperationalLimitKey("", VOLTAGE_LIMIT, "lowLimit"));
+        String highOperationalLimitIdsString = voltageLevel.getProperty(getOperationalLimitKey("", VOLTAGE_LIMIT, "highLimit"));
+        if (lowOperationalLimitIdsString != null && highOperationalLimitIdsString != null) {
+            double maxLowLimit = getMaxLimit(voltageLevel.getParentNetwork(), context, lowOperationalLimitIdsString);
+            double minHighLimit = getMinLimit(voltageLevel.getParentNetwork(), context, highOperationalLimitIdsString);
+            if (!Double.isNaN(maxLowLimit) && !Double.isNaN(minHighLimit)) {
+                if (maxLowLimit <= minHighLimit) {
+                    voltageLevel.setLowVoltageLimit(maxLowLimit);
+                    voltageLevel.setHighVoltageLimit(minHighLimit);
+                } else {
+                    context.ignored("VoltageLimits", "Inconsistent lowVoltageLimit (" + maxLowLimit + " kV) and highVoltageLimit (" + minHighLimit + "kV)");
+                }
+            }
+        } else if (lowOperationalLimitIdsString != null) {
+            double maxLowLimit = getMaxLimit(voltageLevel.getParentNetwork(), context, lowOperationalLimitIdsString);
+            if (!Double.isNaN(maxLowLimit)) {
+                voltageLevel.setLowVoltageLimit(maxLowLimit);
+            }
+        } else if (highOperationalLimitIdsString != null) {
+            double minHighLimit = getMinLimit(voltageLevel.getParentNetwork(), context, highOperationalLimitIdsString);
+            if (!Double.isNaN(minHighLimit)) {
+                voltageLevel.setHighVoltageLimit(minHighLimit);
+            }
+        }
+    }
+
+    private static double getValue(Network network, Context context, String operationalLimitId) {
+        double normalValue = fixNormalValue(network.getProperty(getOperationalLimitNormalValueKey(operationalLimitId)));
+        return context.operationalLimitUpdate().getValue(operationalLimitId).orElse(normalValue);
+    }
+
+    private static double fixNormalValue(String normalValue) {
+        return normalValue == null ? Double.NaN : Double.parseDouble(normalValue);
+    }
+
+    private static double getMaxLimit(Network network, Context context, String operationalLimitIdsString) {
+        List<String> operationalLimitsIds = splitOperationalLimitsIdsString(operationalLimitIdsString);
+        return getMaxLimit(network, context, operationalLimitsIds);
+    }
+
+    private static double getMaxLimit(Network network, Context context, List<String> operationalLimitsIds) {
+        return operationalLimitsIds.stream()
+                .map(operationalLimitsId -> getValue(network, context, operationalLimitsId))
+                .max(Comparator.naturalOrder()).orElseThrow();
+    }
+
+    private static double getMinLimit(Network network, Context context, String operationalLimitIdsString) {
+        List<String> operationalLimitsIds = splitOperationalLimitsIdsString(operationalLimitIdsString);
+        return getMinLimit(network, context, operationalLimitsIds);
+    }
+
+    private static double getMinLimit(Network network, Context context, List<String> operationalLimitsIds) {
+        return operationalLimitsIds.stream()
+                .map(operationalLimitsId -> getValue(network, context, operationalLimitsId))
+                .min(Comparator.naturalOrder()).orElseThrow();
+    }
+
+    public static void updateOperationalLimitsOfConnectable(Connectable<?> connectable, Context context) {
+        if (connectable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+            DanglingLine danglingLine = (DanglingLine) connectable;
+            danglingLine.getActivePowerLimits().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, danglingLine.newActivePowerLimits(), "", ACTIVE_POWER_LIMIT));
+            danglingLine.getApparentPowerLimits().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, danglingLine.newApparentPowerLimits(), "", APPARENT_POWER_LIMIT));
+            danglingLine.getCurrentLimits().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, danglingLine.newCurrentLimits(), "", CURRENT_LIMIT));
+        } else if (connectable.getType().equals(IdentifiableType.LINE)) {
+            Line line = (Line) connectable;
+            line.getActivePowerLimits1().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, line.newActivePowerLimits1(), "1", ACTIVE_POWER_LIMIT));
+            line.getApparentPowerLimits1().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, line.newApparentPowerLimits1(), "1", APPARENT_POWER_LIMIT));
+            line.getCurrentLimits1().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, line.newCurrentLimits1(), "1", CURRENT_LIMIT));
+
+            line.getActivePowerLimits2().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, line.newActivePowerLimits2(), "2", ACTIVE_POWER_LIMIT));
+            line.getApparentPowerLimits2().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, line.newApparentPowerLimits2(), "2", APPARENT_POWER_LIMIT));
+            line.getCurrentLimits2().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, line.newCurrentLimits2(), "2", CURRENT_LIMIT));
+        } else if (connectable.getType().equals(IdentifiableType.TWO_WINDINGS_TRANSFORMER)) {
+            TwoWindingsTransformer t2wt = (TwoWindingsTransformer) connectable;
+            t2wt.getActivePowerLimits1().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, t2wt.newActivePowerLimits1(), "1", ACTIVE_POWER_LIMIT));
+            t2wt.getApparentPowerLimits1().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, t2wt.newApparentPowerLimits1(), "1", APPARENT_POWER_LIMIT));
+            t2wt.getCurrentLimits1().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, t2wt.newCurrentLimits1(), "1", CURRENT_LIMIT));
+
+            t2wt.getActivePowerLimits2().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, t2wt.newActivePowerLimits2(), "2", ACTIVE_POWER_LIMIT));
+            t2wt.getApparentPowerLimits2().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, t2wt.newApparentPowerLimits2(), "2", APPARENT_POWER_LIMIT));
+            t2wt.getCurrentLimits2().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, t2wt.newCurrentLimits2(), "2", CURRENT_LIMIT));
+        } else if (connectable.getType().equals(IdentifiableType.THREE_WINDINGS_TRANSFORMER)) {
+            ThreeWindingsTransformer t3wt = (ThreeWindingsTransformer) connectable;
+            t3wt.getLeg1().getActivePowerLimits().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, t3wt.getLeg1().newActivePowerLimits(), "1", ACTIVE_POWER_LIMIT));
+            t3wt.getLeg1().getApparentPowerLimits().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, t3wt.getLeg1().newApparentPowerLimits(), "1", APPARENT_POWER_LIMIT));
+            t3wt.getLeg1().getCurrentLimits().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, t3wt.getLeg1().newCurrentLimits(), "1", CURRENT_LIMIT));
+
+            t3wt.getLeg2().getActivePowerLimits().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, t3wt.getLeg2().newActivePowerLimits(), "2", ACTIVE_POWER_LIMIT));
+            t3wt.getLeg2().getApparentPowerLimits().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, t3wt.getLeg2().newApparentPowerLimits(), "2", APPARENT_POWER_LIMIT));
+            t3wt.getLeg2().getCurrentLimits().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, t3wt.getLeg2().newCurrentLimits(), "2", CURRENT_LIMIT));
+
+            t3wt.getLeg3().getActivePowerLimits().ifPresent(activePowerLimits -> updateLoadingLimits(context, connectable, activePowerLimits, t3wt.getLeg3().newActivePowerLimits(), "3", ACTIVE_POWER_LIMIT));
+            t3wt.getLeg3().getApparentPowerLimits().ifPresent(apparentPowerLimits -> updateLoadingLimits(context, connectable, apparentPowerLimits, t3wt.getLeg3().newApparentPowerLimits(), "3", APPARENT_POWER_LIMIT));
+            t3wt.getLeg3().getCurrentLimits().ifPresent(currentLimits -> updateLoadingLimits(context, connectable, currentLimits, t3wt.getLeg3().newCurrentLimits(), "3", CURRENT_LIMIT));
+        }
+    }
+
+    private static void updateLoadingLimits(Context context, Connectable<?> connectable, LoadingLimits loadingLimits, LoadingLimitsAdder<?, ?> loadingLimitsAdder, String end, String limitSubclass) {
+        boolean okPermanent = updatePermanentLoadingLimits(context, connectable, loadingLimits, loadingLimitsAdder, end, limitSubclass);
+        boolean okTemporary = updateTemporaryLoadingLimits(context, connectable, loadingLimits, loadingLimitsAdder, end, limitSubclass);
+        if (okPermanent || okTemporary) {
+            loadingLimitsAdder.add();
+        }
+    }
+
+    private static boolean updatePermanentLoadingLimits(Context context, Connectable<?> connectable, LoadingLimits loadingLimits, LoadingLimitsAdder<?, ?> loadingLimitsAdder, String end, String limitSubclass) {
+        String operationalLimitIdsString = connectable.getProperty(getOperationalLimitKey(end, limitSubclass, "patl"));
+        if (operationalLimitIdsString == null) {
+            loadingLimitsAdder.setPermanentLimit(loadingLimits.getPermanentLimit());
+            return false;
+        }
+        List<String> operationalLimitsIds = splitOperationalLimitsIdsString(operationalLimitIdsString);
+        double minValue = getMinLimit(connectable.getParentNetwork(), context, operationalLimitsIds);
+        if (Double.isNaN(minValue)) {
+            loadingLimitsAdder.setPermanentLimit(loadingLimits.getPermanentLimit());
+            return false;
+        }
+        loadingLimitsAdder.setPermanentLimit(minValue);
+        if (operationalLimitsIds.size() > 1) {
+            context.fixed(PERMANENT_LIMIT, () -> String.format("Several permanent limits defined for Connectable %s. Only the lowest is kept.", connectable.getId()));
+        }
+        return true;
+    }
+
+    private static boolean updateTemporaryLoadingLimits(Context context, Connectable<?> connectable, LoadingLimits loadingLimits, LoadingLimitsAdder<?, ?> loadingLimitsAdder, String end, String limitSubclass) {
+        String operationalLimitIdsString = connectable.getProperty(getOperationalLimitKey(end, limitSubclass, "tatl"));
+        if (operationalLimitIdsString == null) {
+            copyTemporaryLimitsToAdder(loadingLimits, loadingLimitsAdder);
+            return false;
+        }
+        List<String> operationalLimitsIds = splitOperationalLimitsIdsString(operationalLimitIdsString);
+        for (LoadingLimits.TemporaryLimit temporaryLimit : loadingLimits.getTemporaryLimits()) {
+            int duration = temporaryLimit.getAcceptableDuration();
+            List<String> operationalLimitsIdsForThisDuration = operationalLimitsIds.stream().filter(operationalLimitsId -> isSameDuration(connectable.getParentNetwork(), operationalLimitsId, duration)).toList();
+            if (operationalLimitsIdsForThisDuration.size() > 1) {
+                context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Connectable %s. Only the lowest is kept.", duration, connectable.getId()));
+            }
+            double minValue = getMinLimit(connectable.getParentNetwork(), context, operationalLimitsIdsForThisDuration);
+            if (Double.isNaN(minValue)) {
+                copyTemporaryLimitsToAdder(loadingLimits, loadingLimitsAdder);
+                return false;
+            }
+            loadingLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(duration)
+                    .setValue(minValue)
+                    .setName(temporaryLimit.getName())
+                    .setFictitious(temporaryLimit.isFictitious())
+                    .endTemporaryLimit();
+        }
+        return true;
+    }
+
+    private static void copyTemporaryLimitsToAdder(LoadingLimits loadingLimits, LoadingLimitsAdder<?, ?> loadingLimitsAdder) {
+        List<String> names = loadingLimitsAdder.getTemporaryLimitNames().stream().toList();
+        names.forEach(loadingLimitsAdder::removeTemporaryLimit);
+
+        for (LoadingLimits.TemporaryLimit temporaryLimit : loadingLimits.getTemporaryLimits()) {
+            loadingLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(temporaryLimit.getAcceptableDuration())
+                    .setValue(temporaryLimit.getValue())
+                    .setName(temporaryLimit.getName())
+                    .setFictitious(temporaryLimit.isFictitious())
+                    .endTemporaryLimit();
+        }
+    }
+
+    private static boolean isSameDuration(Network network, String operationalLimitsId, int durationRef) {
+        int duration = fixDuration(network.getProperty(getOperationalLimitDurationKey(operationalLimitsId)));
+        return duration == durationRef;
+    }
+
+    private static int fixDuration(String duration) {
+        return duration == null ? 0 : Integer.parseInt(duration);
+    }
+
     private final String terminalId;
     private final String equipmentId;
 
     private LoadingLimitsAdder<?, ?> loadingLimitsAdder;
     private LoadingLimitsAdder<?, ?> loadingLimitsAdder1;
     private LoadingLimitsAdder<?, ?> loadingLimitsAdder2;
-
+    private LoadingLimitsAdder<?, ?> loadingLimitsAdder3;
     private VoltageLevel vl;
+
+    private String identifiableId;
+    private String limitSubclass;
 }

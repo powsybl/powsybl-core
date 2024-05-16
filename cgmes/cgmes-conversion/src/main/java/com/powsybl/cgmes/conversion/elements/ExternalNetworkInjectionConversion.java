@@ -15,6 +15,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import static com.powsybl.cgmes.model.CgmesNames.EXTERNAL_NETWORK_INJECTION;
@@ -32,19 +33,12 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     public void convert() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
-        double targetP = 0;
-        double targetQ = 0;
-        PowerFlow f = powerFlow();
-        if (f.defined()) {
-            targetP = -f.p();
-            targetQ = -f.q();
-        }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
         setMinPMaxP(adder, minP, maxP);
-        adder.setTargetP(targetP)
-                .setTargetQ(targetQ)
+        adder.setTargetP(0.0)
+                .setTargetQ(0.0)
                 .setEnergySource(EnergySource.OTHER);
         identify(adder);
         connect(adder);
@@ -64,5 +58,23 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         if (!Double.isNaN(governorSCD)) {
             generator.setProperty(Conversion.PROPERTY_CGMES_GOVERNOR_SCD, String.valueOf(governorSCD));
         }
+    }
+
+    @Override
+    public void update(Network network) {
+        // super.update(network); // TODO JAM delete
+        Generator generator = network.getGenerator(id);
+        if (generator == null) {
+            return;
+        }
+        PowerFlow f = powerFlow();
+        if (f.defined()) {
+            double targetP = -f.p();
+            double targetQ = -f.q();
+            generator.setTargetP(targetP).setTargetQ(targetQ);
+        }
+
+        boolean controlEnabled = p.asBoolean("controlEnabled", false);
+        updateRegulatingControlForGenerator(generator, controlEnabled);
     }
 }

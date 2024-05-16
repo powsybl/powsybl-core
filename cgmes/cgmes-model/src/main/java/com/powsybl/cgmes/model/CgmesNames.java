@@ -37,6 +37,7 @@ public final class CgmesNames {
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";
+    public static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     public static final String SEQUENCE_NUMBER = "sequenceNumber";
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
@@ -128,6 +129,7 @@ public final class CgmesNames {
     public static final String EQUIVALENT_INJECTION = "EquivalentInjection";
     public static final String EQUIVALENT_INJECTION_TERMINAL = "EquivalentInjectionTerminal";
     public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
+    public static final String REGULATION_CAPABILITY = "regulationCapability";
 
     private CgmesNames() {
     }

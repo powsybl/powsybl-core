@@ -11,7 +11,6 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -53,11 +52,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         connect(adder);
         Load load = adder.add();
         if (cgmesTerminal != null) {
-            PowerFlow f = cgmesTerminal.flow();
-            if (!f.defined()) {
-                f = new PowerFlow(p0, q0);
-            }
-            context.convertedTerminal(cgmesTerminal.id(), load.getTerminal(), 1, f);
+            context.convertedTerminal(cgmesTerminal.id(), load.getTerminal(), 1);
         } else {
             load.getTerminal().setP(p0);
             load.getTerminal().setQ(q0);

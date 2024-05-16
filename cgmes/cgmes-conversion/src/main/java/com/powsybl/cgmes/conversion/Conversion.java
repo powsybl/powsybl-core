@@ -10,6 +10,8 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
+import com.powsybl.cgmes.conversion.elements.hvdc.HvdcUpdate;
+import com.powsybl.cgmes.conversion.elements.transformers.TapChangerUpdate;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
@@ -38,6 +40,8 @@ import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.importedCgmesNetworkReport;
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
+import static com.powsybl.cgmes.conversion.elements.OperationalLimitConversion.updateOperationalLimitsOfConnectable;
+import static com.powsybl.cgmes.conversion.elements.OperationalLimitConversion.updateOperationalLimitsOfVoltageLevel;
 import static java.util.stream.Collectors.groupingBy;
 
 /**
@@ -219,13 +223,17 @@ public class Conversion {
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
+        context.loadingLimitsMapping().addOperationalLimitProperties(network);
 
+        // TODO JAM Delete
+        /*****
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
+         ****/
 
         clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
-        voltageAngles(nodes, context);
+        // voltageAngles(nodes, context); // TODO JAM Deletc
 
         if (config.importControlAreas()) {
             network.newExtension(CgmesControlAreasAdder.class).add();
@@ -257,7 +265,7 @@ public class Conversion {
 
         // Complete Voltages and angles in starBus as properties
         // Complete Voltages and angles in boundary buses
-        completeVoltagesAndAngles(network);
+        //completeVoltagesAndAngles(network); // TODO JAM Delete
 
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
@@ -265,13 +273,25 @@ public class Conversion {
         }
 
         importedCgmesNetworkReport(context.getReportNode(), network.getId());
+
+        // Update
+        Context updateContext = createUpdateContext(network, reportNode);
+        update(network, updateContext, reportNode);
+
         return network;
     }
 
     public void update(Network network, ReportNode reportNode) {
+        System.err.printf("Update Begin ......................................................... %n");
         Objects.requireNonNull(network);
         Objects.requireNonNull(reportNode);
-        Context context = createContext(network, reportNode);
+        Context context = createUpdateContext(network, reportNode);
+
+        update(network, context, reportNode);
+    }
+
+    private void update(Network network, Context context, ReportNode reportNode) {
+        System.err.printf("Update Begin ......................................................... %n");
 
         // FIXME(Luma) Inspect the contents of the loaded data
         if (LOG.isDebugEnabled()) {
@@ -289,16 +309,39 @@ public class Conversion {
         update(network, cgmes.equivalentInjections(), eqi -> new EquivalentInjectionConversion(eqi, context));
         update(network, cgmes.externalNetworkInjections(), eni -> new ExternalNetworkInjectionConversion(eni, context));
         update(network, cgmes.shuntCompensators(), sh -> new ShuntConversion(sh, context));
-        update(network, cgmes.equivalentShunts(), es -> new EquivalentShuntConversion(es, context));
+        // equivalentShunts do not have SSH data, they are not updated
         update(network, cgmes.staticVarCompensators(), svc -> new StaticVarCompensatorConversion(svc, context));
         update(network, cgmes.asynchronousMachines(), asm -> new AsynchronousMachineConversion(asm, context));
         update(network, cgmes.allSynchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
+        update(network, cgmes.switches(), sw -> new SwitchConversion(sw, context));
+        updateTapChangers(network, cgmes, context);
+        updateAcDcConverters(network, cgmes, context);
+        System.err.printf("%n UpdateTerminals ......... %n");
+        update(network, cgmes.terminals(), t -> new TerminalUpdate(t, context));
+
+        updateOperationalLimits(network, context);
+
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        if (cgmesControlAreas != null) {
+            cgmes.controlAreas().forEach(ca -> updateControlArea(cgmesControlAreas, ca));
+        }
+
+        //cgmes.topologicalNodes().forEach(c -> System.err.printf("%s %n", c.tabulateLocals())); // TODO JAM delete
+        PropertyBags nodes = context.nodeBreaker()
+                ? cgmes.connectivityNodes()
+                : cgmes.topologicalNodes();
+        //cgmes.topologicalNodes().forEach(n -> System.err.printf("%s %n", n.tabulateLocals())); // TODO JAM delete
+        voltageAngles(nodes, context);
+
+        // Complete Voltages and angles in starBus as properties
+        // Complete Voltages and angles in boundary buses
+        completeVoltagesAndAngles(network);
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
         if (config.disconnectNetworkSideOfDanglingLinesIfBoundaryIsDisconnected()) {
             for (DanglingLine dl : network.getDanglingLines()) {
-                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
+                String terminalBoundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY).orElse(null);
                 if (terminalBoundaryId == null) {
                     LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
                 } else {
@@ -380,8 +423,8 @@ public class Conversion {
                 .setId(controlAreaId)
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
-                .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
-                .setPTolerance(ca.asDouble("pTolerance", Double.NaN))
+                .setNetInterchange(Double.NaN)
+                .setPTolerance(Double.NaN)
                 .add();
     }
 
@@ -399,6 +442,15 @@ public class Conversion {
             return;
         }
         RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(cgmesControlArea::add);
+    }
+
+    private static void updateControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
+        String controlAreaId = ca.getId("ControlArea");
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
+        if (cgmesControlArea != null) {
+            cgmesControlArea.setNetInterchange(ca.asDouble("netInterchange", Double.NaN));
+            cgmesControlArea.setPTolerance(ca.asDouble("pTolerance", Double.NaN));
+        }
     }
 
     private void convert(
@@ -440,6 +492,51 @@ public class Conversion {
         }
     }
 
+    private void updateTapChangers(Network network, CgmesModel cgmes, Context context) {
+        Map<String, PropertyBags> transformerTapChangerMapping = new HashMap<>();
+        cgmes.ratioTapChangers().forEach(rtc -> {
+            String rtcId = rtc.getId(CgmesNames.RATIO_TAP_CHANGER);
+            Connectable<?> twt = network.getConnectable(rtcId);
+            if (twt != null) {
+                transformerTapChangerMapping.computeIfAbsent(twt.getId(), k -> new PropertyBags()).add(rtc);
+            }
+        });
+        cgmes.phaseTapChangers().forEach(ptc -> {
+            String ptcId = ptc.getId(CgmesNames.PHASE_TAP_CHANGER);
+            Connectable<?> twt = network.getConnectable(ptcId);
+            if (twt != null) {
+                transformerTapChangerMapping.computeIfAbsent(twt.getId(), k -> new PropertyBags()).add(ptc);
+            }
+        });
+
+        transformerTapChangerMapping.forEach((key, tcs) -> {
+            AbstractIdentifiedObjectConversion c = new TapChangerUpdate(key, tcs, context);
+            c.update(network);
+        });
+    }
+
+    private void updateAcDcConverters(Network network, CgmesModel cgmes, Context context) {
+        Map<String, PropertyBags> hvdcAcDcConvertersMapping = new HashMap<>();
+        cgmes.acDcConverters().forEach(acDcConverter -> {
+            String acDcConverterId = acDcConverter.getId("ACDCConverter");
+            HvdcConverterStation<?> hvdcConverterStation = network.getHvdcConverterStation(acDcConverterId);
+            if (hvdcConverterStation != null) {
+                String hvdcLineId = hvdcConverterStation.getHvdcLine().getId();
+                hvdcAcDcConvertersMapping.computeIfAbsent(hvdcLineId, k -> new PropertyBags()).add(acDcConverter);
+            }
+        });
+
+        hvdcAcDcConvertersMapping.forEach((key, acDcConverters) -> {
+            AbstractIdentifiedObjectConversion c = new HvdcUpdate(key, acDcConverters, context);
+            c.update(network);
+        });
+    }
+
+    private void updateOperationalLimits(Network network, Context context) {
+        network.getVoltageLevels().forEach(voltageLevel -> updateOperationalLimitsOfVoltageLevel(voltageLevel, context));
+        network.getConnectables().forEach(connectable -> updateOperationalLimitsOfConnectable(connectable, context));
+    }
+
     private Network createNetwork() {
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
@@ -455,6 +552,21 @@ public class Conversion {
         context.loadRatioTapChangerTables();
         context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
+        return context;
+    }
+
+    private Context createUpdateContext(Network network, ReportNode reportNode) {
+        Context context = new Context(cgmes, config, network, reportNode);
+        //context.substationIdMapping().build(); // TODO JAM Delete
+        //context.dc().initialize();
+        context.loadRatioTapChangers();
+        context.loadPhaseTapChangers();
+        context.loadRatioTapChangerTables();
+        context.loadPhaseTapChangerTables();
+        //context.loadReactiveCapabilityCurveData();
+        context.regulatingControlUpdate().cache();
+        context.generatingUnitUpdate().cache();
+        context.operationalLimitUpdate().cache();
         return context;
     }
 
@@ -904,10 +1016,6 @@ public class Conversion {
         public Config setConvertBoundary(boolean convertBoundary) {
             this.convertBoundary = convertBoundary;
             return this;
-        }
-
-        public boolean computeFlowsAtBoundaryDanglingLines() {
-            return true;
         }
 
         public boolean createBusbarSectionForEveryConnectivityNode() {

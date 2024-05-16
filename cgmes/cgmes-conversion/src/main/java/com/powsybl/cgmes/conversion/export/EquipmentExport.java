@@ -46,7 +46,6 @@ public final class EquipmentExport {
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
     private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
     private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
-    private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
@@ -968,7 +967,7 @@ public final class EquipmentExport {
                     context.getBaseVoltageByNominalVoltage(danglingLine.getTerminal().getVoltageLevel().getNominalV()).getId(),
                     danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer, context);
             writeFlowsLimits(danglingLine, exportedTerminalId(mapTerminal2Id, danglingLine.getTerminal()), cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
-            danglingLine.getAliasFromType("CGMES." + TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
+            danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY).ifPresent(terminalBdId -> {
                 try {
                     writeFlowsLimits(danglingLine, terminalBdId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, writeInfiniteDuration, writer, context);
                 } catch (XMLStreamException e) {
@@ -1031,7 +1030,7 @@ public final class EquipmentExport {
         }
 
         for (DanglingLine danglingLine : danglingLineList) {
-            String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+            String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(danglingLine, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
             TerminalEq.write(terminalId, context.getNamingStrategy().getCgmesId(danglingLine), connectivityNodeId, 2, cimNamespace, writer, context);
         }
         return connectivityNodeId;
@@ -1355,7 +1354,7 @@ public final class EquipmentExport {
             if (c instanceof DanglingLine dl) {
                 if (network.isBoundaryElement(dl)) {
                     String tieFlowId = context.getNamingStrategy().getCgmesId(refTyped(c), TIE_FLOW);
-                    String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+                    String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
                     TieFlowEq.write(tieFlowId, controlAreaCgmesId, terminalId, cimNamespace, writer, context);
                 } else {
                     LOG.error("Unsupported tie flow at TieLine boundary {}", dl.getId());
@@ -1376,7 +1375,7 @@ public final class EquipmentExport {
     private static String getTieFlowBoundaryTerminal(Boundary boundary, CgmesExportContext context, Network network) {
         DanglingLine dl = boundary.getDanglingLine();
         if (network.isBoundaryElement(dl)) {
-            return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+            return context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY);
         } else {
             // This means the boundary corresponds to a TieLine.
             // Because the network should not be a merging view,

@@ -126,11 +126,11 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
-    static boolean isControlModeVoltage(String controlMode) {
+    public static boolean isControlModeVoltage(String controlMode) {
         return controlMode != null && controlMode.endsWith(VOLTAGE);
     }
 
-    static boolean isControlModeReactivePower(String controlMode) {
+    public static boolean isControlModeReactivePower(String controlMode) {
         return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
     }
 

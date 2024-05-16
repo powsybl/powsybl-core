@@ -43,7 +43,9 @@ public class CgmesTerminal {
         // two relationships may be different
         // (TODO(Luma): missing reference here)
 
-        this.connected = t.asBoolean("connected", true);
+        //this.connected = t.asBoolean("connected", true); // TODO JAM Delete
+        this.connected = true;
+        // TODO JAM Review the flow
         this.flow = new PowerFlow(t, "p", "q");
 
         this.sequenceNumber = t.asInt("sequenceNumber", 0);

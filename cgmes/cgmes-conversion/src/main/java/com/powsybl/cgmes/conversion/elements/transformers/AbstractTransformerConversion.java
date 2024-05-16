@@ -91,21 +91,19 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
-        CgmesRegulatingControlRatio rcRtc = null;
         if (tc != null) {
-            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(),
-                    tc.getRegulatingControlId(), tc.getTculControlMode(), tc.isTapChangerControlEnabled());
+            return context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(),
+                    tc.getRegulatingControlId(), tc.getTculControlMode());
         }
-        return rcRtc;
+        return null;
     }
 
     protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChanger tc) {
-        CgmesRegulatingControlPhase rcPtc = null;
         if (tc != null) {
             return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
-                    tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
+                    tc.getId(), tc.getRegulatingControlId(), tc.isLtcFlag());
         }
-        return rcPtc;
+        return null;
     }
 
     @Override

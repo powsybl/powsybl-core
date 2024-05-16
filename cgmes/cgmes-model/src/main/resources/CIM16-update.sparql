@@ -48,6 +48,27 @@ SELECT *
         cim:TopologicalIsland.TopologicalNodes ?TopologicalNodes .
 }
 
+# query: operationalLimits
+SELECT *
+{
+    ?OperationalLimit a ?type ;
+        VALUES ?type { cim:CurrentLimit cim:ApparentPowerLimit cim:ActivePowerLimit cim:VoltageLimit } .
+        OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:ActivePowerLimit.value ?value }
+        OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
+}
+
+# query: switches
+SELECT *
+{
+    ?Switch a ?type ;
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
+    OPTIONAL {
+        ?Switch cim:Switch.open ?open
+    }
+}
+
 # query: topologicalNodes
 SELECT *
 {

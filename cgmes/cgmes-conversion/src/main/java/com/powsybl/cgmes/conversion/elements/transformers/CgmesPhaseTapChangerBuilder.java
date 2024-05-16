@@ -62,7 +62,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         tapChanger.setId(p.getId(CgmesNames.PHASE_TAP_CHANGER))
                 .setRegulating(context.regulatingControlMapping().forTransformers().getRegulating(regulatingControlId))
                 .setRegulatingControlId(regulatingControlId)
-                .setTapChangerControlEnabled(p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false));
+                .setTapChangerControlEnabled(false);
     }
 
     @Override

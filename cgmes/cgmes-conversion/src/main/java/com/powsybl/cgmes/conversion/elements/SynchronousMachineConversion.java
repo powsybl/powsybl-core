@@ -8,15 +8,15 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
+import com.powsybl.cgmes.conversion.*;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.ReferencePriority;
 
 import com.powsybl.triplestore.api.PropertyBag;
+
 import static com.powsybl.cgmes.model.CgmesNames.SYNCHRONOUS_MACHINE;
 import java.util.Arrays;
 
@@ -41,16 +41,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         double maxP = p.asDouble("maxP", isCondenser ? 0 : Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
-        PowerFlow f = powerFlow();
 
         // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
         double targetP = p.asDouble("initialP", 0);
         double targetQ = 0;
-        // Flow values may come from Terminal or Equipment (SSH RotatingMachine)
-        if (f.defined()) {
-            targetP = -f.p();
-            targetQ = -f.q();
-        }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
@@ -77,51 +71,19 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         addSpecificProperties(g, p);
     }
 
-    @Override
-    public void update(Network network) {
-        super.update(network);
-        PowerFlow f = powerFlow();
-        double targetP = 0;
-        double targetQ = 0;
-        if (f.defined()) {
-            targetP = -f.p();
-            targetQ = -f.q();
-        }
-        Generator generator = network.getGenerator(id)
-                .setTargetP(targetP)
-                .setTargetQ(targetQ);
-        updateTerminalConnectedStatus(generator);
-    }
-
     private static void addSpecificProperties(Generator generator, PropertyBag p) {
         generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, SYNCHRONOUS_MACHINE);
         String type = p.getLocal("type");
         if (type != null) {
             generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE, type.replace("SynchronousMachineKind.", ""));
         }
-        String operatingMode = p.getLocal("operatingMode");
-        if (operatingMode != null) {
-            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
-        }
     }
 
     private void convertGenerator(Generator g) {
-        double normalPF = p.asDouble("normalPF");
-        if (!Double.isNaN(normalPF)) {
-            if (context.config().createActivePowerControlExtension()) {
-                g.newExtension(ActivePowerControlAdder.class)
-                        .withParticipate(true)
-                        .withParticipationFactor(normalPF)
-                        .add();
-            } else {
-                g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF", String.valueOf(normalPF));
-            }
-        }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {
             g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
         }
-
         addSpecificGeneratingUnitProperties(g, p);
     }
 
@@ -156,5 +118,49 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             }
         }
         return es;
+    }
+
+    @Override
+    public void update(Network network) {
+        // super.update(network); // TODO JAM delete
+        Generator generator = network.getGenerator(id);
+        if (generator == null) {
+            return;
+        }
+        PowerFlow f = powerFlow();
+        if (f.defined()) {
+            double targetP = -f.p();
+            double targetQ = -f.q();
+            generator.setTargetP(targetP).setTargetQ(targetQ);
+        }
+
+        String generatingUnitId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit");
+        if (generatingUnitId != null) {
+            updateGenerator(generator, generatingUnitId);
+        }
+
+        String operatingMode = p.getLocal("operatingMode");
+        if (operatingMode != null) {
+            generator.setProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE, operatingMode.replace("SynchronousMachineOperatingMode.", ""));
+        }
+        boolean controlEnabled = p.asBoolean("controlEnabled", false);
+        updateRegulatingControlForGenerator(generator, controlEnabled);
+    }
+
+    private void updateGenerator(Generator g, String generatingUnitId) {
+        double normalPF = context.generatingUnitUpdate().getNormalPF(generatingUnitId).orElse(Double.NaN);
+        if (!Double.isNaN(normalPF)) {
+            ActivePowerControl activePowerControl = g.getExtension(ActivePowerControl.class);
+            if (activePowerControl != null) {
+                activePowerControl.setParticipationFactor(normalPF);
+            } else if (context.config().createActivePowerControlExtension()) {
+                g.newExtension(ActivePowerControlAdder.class)
+                        .withParticipate(true)
+                        .withParticipationFactor(normalPF)
+                        .add();
+            } else {
+                g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF", String.valueOf(normalPF));
+            }
+        }
     }
 }

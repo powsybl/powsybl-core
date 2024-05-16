@@ -161,19 +161,12 @@ class NetworkUpdateTest extends AbstractSerDeTest {
         TripleStoreOptions tripleStoreOptions = new TripleStoreOptions();
         tripleStoreOptions.setQueryCatalog("-update");
         ReadOnlyDataSource alternativeDataSourceForBoundary = null;
-        System.err.println("V,A,TN,CN from update query for topologicalNodes:");
         CgmesModelFactory.create(
                         CgmesConformity3Catalog.microGridBaseCaseBEonlySshSvTp().dataSource(),
                         alternativeDataSourceForBoundary,
                         TripleStoreFactory.DEFAULT_IMPLEMENTATION,
                         ReportNode.NO_OP,
-                        tripleStoreOptions)
-                .topologicalNodes().forEach(tn -> System.err.printf("%6.2f %6.2f TN=%s, CN=%s%n",
-                        tn.asDouble("v"),
-                        tn.asDouble("angle"),
-                        tn.getId("TopologicalNode"),
-                        tn.getId("ConnectivityNode")
-                ));
+                        tripleStoreOptions);
 
         // Voltages should be equal
         Map<String, Double> vactual = network.getBusView().getBusStream().collect(Collectors.toMap(Bus::getId, Bus::getV));
