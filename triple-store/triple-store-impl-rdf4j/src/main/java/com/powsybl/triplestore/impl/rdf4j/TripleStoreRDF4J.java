@@ -372,14 +372,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 throw new TripleStoreException(message);
             }
             // Then all the other statements
-            for (final Statement st : model.filter(subject, null, null)) {
-                if (st.getPredicate().equals(RDF.TYPE)) {
-                    continue;
-                }
-                writer.handleStatement(st);
-            }
+            writeSubjectStatements(model, writer, subject);
         }
         writer.endRDF();
+    }
+
+    private void writeSubjectStatements(Model model, RDFWriter writer, Resource subject) {
+        for (final Statement st : model.filter(subject, null, null)) {
+            if (st.getPredicate().equals(RDF.TYPE)) {
+                continue;
+            }
+            writer.handleStatement(st);
+        }
     }
 
     private static int statementsCount(RepositoryConnection conn, Resource ctx) {

@@ -174,7 +174,7 @@ class SensitivityAnalysisParametersTest extends AbstractSerDeTest {
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, (parameters1, path) -> JsonUtil.writeJson(path, parameters1, objectMapper),
-                ComparisonUtils::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
+                ComparisonUtils::assertTxtEquals, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test

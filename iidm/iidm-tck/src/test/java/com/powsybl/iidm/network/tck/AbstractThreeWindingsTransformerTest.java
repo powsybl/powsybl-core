@@ -456,8 +456,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
-                0.0, 0.0);
+        RatioTapChanger ratioTapChanger = assertDoesNotThrow(() -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
+            0.0, 0.0));
+        assertNotNull(ratioTapChanger);
     }
 
     @Test
@@ -512,8 +513,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0);
+        PhaseTapChanger phaseTapChanger = assertDoesNotThrow(() -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0));
+        assertNotNull(phaseTapChanger);
     }
 
     @Test
@@ -837,7 +839,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg1Arguments() {
         //Verify that other invalidLeg1Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0));
     }
 
     @Test
@@ -921,7 +923,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg2Arguments() {
         //Verify that other invalidLeg2Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, 5.2);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, 5.2));
     }
 
     private void createThreeWindingsTransformerWithLeg2(double r, double x, double g, double b, double ratedU) {
@@ -989,7 +991,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg3Arguments() {
         //Verify that other invalidLeg3Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3));
     }
 
     @Test

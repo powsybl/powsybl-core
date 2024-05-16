@@ -58,18 +58,23 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForVoltageLimits(terminalId);
             }
-            if (terminal != null) {
-                vl = terminal.getVoltageLevel();
-            } else if (equipmentId != null) {
-                Identifiable<?> i = context.network().getIdentifiable(equipmentId);
-                if (i == null) {
-                    vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
-                } else if (i instanceof Injection<?> injection) {
-                    vl = injection.getTerminal().getVoltageLevel();
-                }
-            }
+            setVoltageLevelForVoltageLimit(terminal);
         } else {
             notAssigned();
+        }
+    }
+
+    private void setVoltageLevelForVoltageLimit(Terminal terminal) {
+        if (terminal != null) {
+            vl = terminal.getVoltageLevel();
+        } else if (equipmentId != null) {
+            Identifiable<?> i = context.network().getIdentifiable(equipmentId);
+            if (i == null) {
+                // Happens in BusBranch when the voltage limit is linked to a busbarSection
+                vl = context.network().getVoltageLevel(p.getId("EquipmentContainer"));
+            } else if (i instanceof Injection<?> injection) {
+                vl = injection.getTerminal().getVoltageLevel();
+            }
         }
     }
 
@@ -202,20 +207,16 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
             context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "highVoltage", 0, normalValue);
-            if (normalValue < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
-                if (normalValue < vl.getLowVoltageLimit()) {
-                    context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
-                    return;
-                }
+            if (normalValue < vl.getLowVoltageLimit()) {
+                context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
+            } else if (normalValue < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
                 vl.setHighVoltageLimit(normalValue);
             }
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
             context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "lowVoltage", 0, normalValue);
-            if (normalValue > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
-                if (normalValue > vl.getHighVoltageLimit()) {
-                    context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
-                    return;
-                }
+            if (normalValue > vl.getHighVoltageLimit()) {
+                context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
+            } else if (normalValue > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
                 vl.setLowVoltageLimit(normalValue);
             }
         } else {
