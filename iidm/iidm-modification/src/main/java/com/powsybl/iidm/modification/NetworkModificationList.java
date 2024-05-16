@@ -43,39 +43,37 @@ public class NetworkModificationList extends AbstractNetworkModification {
     }
 
     public boolean fullDryRun(Network network) {
-        return fullDryRun(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), ReportNode.NO_OP);
+        return fullDryRun(network, ReportNode.NO_OP);
+    }
+
+    public boolean fullDryRun(Network network, ReportNode reportNode) {
+        return fullDryRun(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
     }
 
     public boolean fullDryRun(Network network, NamingStrategy namingStrategy,
                           ComputationManager computationManager, ReportNode reportNode) {
-        String templateKey = "networkModificationsDryRun-start";
-        String messageTemplate = "DRY-RUN: Checking if network modifications can be applied on network ${networkNameOrId}";
-        ReportNode childReportNode = reportNode.newReportNode()
+        String templateKey = "networkModificationsDryRun";
+        String messageTemplate = "Dry-run: Checking if network modifications can be applied on network ${networkNameOrId}";
+        ReportNode dryRunReportNode = reportNode.newReportNode()
                 .withMessageTemplate(templateKey, messageTemplate)
                 .withUntypedValue("networkNameOrId", network.getNameOrId())
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-
-        ReportNode dryRunReportNode = ReportNode.newRootReportNode()
-                .withMessageTemplate(templateKey, messageTemplate)
-                .withUntypedValue("networkNameOrId", network.getNameOrId())
-                .build();
         try {
             //TODO The following copy performs an XML export/import. It will be more performant to change it to the BIN format.
             Network dryRunNetwork = NetworkSerDe.copy(network);
             dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
             apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
         } catch (PowsyblException powsyblException) {
-            childReportNode.include(dryRunReportNode);
-            childReportNode.newReportNode()
+            dryRunReportNode.newReportNode()
                     .withMessageTemplate("networkModificationsDryRun-failure",
-                            "DRY-RUN: Network modifications CANNOT successfully be applied on network ${networkNameOrId}")
+                            "Dry-run failed. Error message is: ${dryRunError}")
+                    .withUntypedValue("dryRunError", powsyblException.getMessage())
                     .withSeverity(TypedValue.INFO_SEVERITY)
                     .add();
             return false;
         }
-        childReportNode.include(dryRunReportNode);
-        childReportNode.newReportNode()
+        dryRunReportNode.newReportNode()
                 .withMessageTemplate("networkModificationsDryRun-success",
                         "DRY-RUN: Network modifications can successfully be applied on network ${networkNameOrId}")
                 .withSeverity(TypedValue.INFO_SEVERITY)
