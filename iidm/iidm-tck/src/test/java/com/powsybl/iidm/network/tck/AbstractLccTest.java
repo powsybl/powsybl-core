@@ -96,33 +96,17 @@ public abstract class AbstractLccTest {
         assertNull(cs1.getHvdcLine());
         assertNull(cs2.getHvdcLine());
 
-        try {
-            hvdcLine.getConverterStation1();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), e.getMessage());
-        }
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation1());
+        assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
 
-        try {
-            hvdcLine.getConverterStation2();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), e.getMessage());
-        }
+        exception = assertThrows(PowsyblException.class, () -> hvdcLine.getConverterStation1());
+        assertEquals("Cannot access converter station of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
 
-        try {
-            hvdcLine.getNetwork();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Cannot access network of removed hvdc line " + hvdcLine.getId(), e.getMessage());
-        }
+        exception = assertThrows(PowsyblException.class, () -> hvdcLine.getNetwork());
+        assertEquals("Cannot access network of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
 
-        try {
-            hvdcLine.getParentNetwork();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Cannot access parent network of removed hvdc line " + hvdcLine.getId(), e.getMessage());
-        }
+        exception = assertThrows(PowsyblException.class, () -> hvdcLine.getParentNetwork());
+        assertEquals("Cannot access parent network of removed hvdc line " + hvdcLine.getId(), exception.getMessage());
 
         // remove
         int count = network.getLccConverterStationCount();
