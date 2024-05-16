@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2018-1019, RTE (http://www.rte-france.com)
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Teofil Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionTest {
 
