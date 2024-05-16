@@ -12,6 +12,8 @@ import com.powsybl.security.LimitViolation;
 
 import java.util.function.Consumer;
 
+import static com.powsybl.security.LimitViolationDetection.getTerminalIOrAnApproximation;
+
 /**
  * Provides implementations for aggregation methods of {@link LimitViolationDetector}.
  * Contingency based methods are not implemented, default implementation are left untouched.
@@ -36,15 +38,6 @@ public abstract class AbstractContingencyBlindDetector implements LimitViolation
     @Override
     public void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, Consumer<LimitViolation> consumer) {
         checkCurrent(transformer, side, transformer.getTerminal(side).getI(), consumer);
-    }
-
-    private double getTerminalIOrAnApproximation(Terminal terminal, double dcPowerFactor) {
-        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
-        // the nominal voltage and the active power at terminal in order to approximate the current following formula
-        // P = sqrt(3) x Vnom x I x dcPowerFactor
-        return Double.isNaN(terminal.getI()) ?
-                (1000. * terminal.getP()) / (terminal.getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
-                : terminal.getI();
     }
 
     /**

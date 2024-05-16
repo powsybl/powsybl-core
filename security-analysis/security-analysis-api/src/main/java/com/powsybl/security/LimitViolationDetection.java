@@ -19,35 +19,86 @@ import java.util.function.Consumer;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public final class LimitViolationDetection {
-    //TODO rename this class?
 
     private LimitViolationDetection() {
     }
 
-    public static void checkAllViolations(Network network, Consumer<LimitViolation> consumer,
-                                          Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        network.getBranchStream().forEach(b -> checkCurrent(b, consumer, currentLimitTypes, limitReductionValue));
-        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(t, consumer, currentLimitTypes, limitReductionValue));
+    /**
+     * Checks whether the current and voltage values on all equipments
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param network             The network on which physical values must be checked.
+     * @param currentLimitTypes   The current limit type to consider.
+     * @param limitReductionValue The value of the limit reduction to apply.
+     * @param consumer            Will be fed with possibly created limit violations.
+     */
+    public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
+                                double limitReductionValue, Consumer<LimitViolation> consumer) {
+        network.getBranchStream().forEach(b -> checkCurrent(b, currentLimitTypes, limitReductionValue, consumer));
+        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(t, currentLimitTypes, limitReductionValue, consumer));
         network.getVoltageLevelStream()
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
-    public static void checkCurrent(Branch<?> branch, Consumer<LimitViolation> consumer,
-                                    Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        checkCurrent(branch, TwoSides.ONE, consumer, currentLimitTypes, limitReductionValue);
-        checkCurrent(branch, TwoSides.TWO, consumer, currentLimitTypes, limitReductionValue);
+    /**
+     * Checks whether the current and voltage values on all equipments
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     * In this DC power flow mode, the current is computed using the DC power factor if necessary.
+     *
+     * @param network             The network on which physical values must be checked.
+     * @param dcPowerFactor       The DC power factor used to convert the active power into current.
+     * @param currentLimitTypes   The current limit type to consider.
+     * @param limitReductionValue The value of the limit reduction to apply.
+     * @param consumer            Will be fed with possibly created limit violations.
+     */
+    public static void checkAllDc(Network network, double dcPowerFactor, Set<LoadingLimitType> currentLimitTypes,
+                                  double limitReductionValue, Consumer<LimitViolation> consumer) {
+        network.getBranchStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer));
+        network.getThreeWindingsTransformerStream().forEach(b -> checkCurrentDc(b, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer));
+        network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
-    public static void checkCurrent(Branch<?> branch, TwoSides side, Consumer<LimitViolation> consumer,
-                                    Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        checkLimitViolation(branch, side, branch.getTerminal(side).getI(), consumer, LimitType.CURRENT,
-                currentLimitTypes, limitReductionValue);
+    private static void checkCurrent(Branch<?> branch, Set<LoadingLimitType> currentLimitTypes,
+                                     double limitReductionValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(branch, TwoSides.ONE, currentLimitTypes, limitReductionValue, consumer);
+        checkCurrent(branch, TwoSides.TWO, currentLimitTypes, limitReductionValue, consumer);
     }
 
-    public static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, Consumer<LimitViolation> consumer,
-                                           LimitType type, Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
+    private static void checkCurrent(Branch<?> branch, TwoSides side, Set<LoadingLimitType> currentLimitTypes,
+                                     double limitReductionValue, Consumer<LimitViolation> consumer) {
+        checkLimitViolation(branch, side, branch.getTerminal(side).getI(), LimitType.CURRENT, currentLimitTypes, limitReductionValue, consumer
+        );
+    }
+
+    private static void checkCurrentDc(Branch<?> branch, double dcPowerFactor, Set<LoadingLimitType> currentLimitTypes,
+                                       double limitReductionValue, Consumer<LimitViolation> consumer) {
+        checkCurrentDc(branch, TwoSides.ONE, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer);
+        checkCurrentDc(branch, TwoSides.TWO, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer);
+    }
+
+    private static void checkCurrentDc(Branch<?> branch, TwoSides side, double dcPowerFactor,
+                                       Set<LoadingLimitType> currentLimitTypes, double limitReductionValue,
+                                       Consumer<LimitViolation> consumer) {
+        double i = getTerminalIOrAnApproximation(branch.getTerminal(side), dcPowerFactor);
+        checkLimitViolation(branch, side, i, LimitType.CURRENT, currentLimitTypes, limitReductionValue, consumer);
+    }
+
+    public static double getTerminalIOrAnApproximation(Terminal terminal, double dcPowerFactor) {
+        // After a DC load flow, the current at terminal can be undefined (NaN). In that case, we use the DC power factor,
+        // the nominal voltage and the active power at terminal in order to approximate the current following formula
+        // P = sqrt(3) x Vnom x I x dcPowerFactor
+        return Double.isNaN(terminal.getI()) ?
+                (1000. * terminal.getP()) / (terminal.getVoltageLevel().getNominalV() * Math.sqrt(3) * dcPowerFactor)
+                : terminal.getI();
+    }
+
+    static void checkLimitViolation(Branch<?> branch, TwoSides side, double value, LimitType type,
+                                    Set<LoadingLimitType> currentLimitTypes, double limitReductionValue,
+                                    Consumer<LimitViolation> consumer) {
         boolean overloadOnTemporary = false;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
             Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
@@ -79,22 +130,38 @@ public final class LimitViolationDetection {
         }
     }
 
-    public static void checkCurrent(ThreeWindingsTransformer transformer, Consumer<LimitViolation> consumer,
-                                    Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        checkCurrent(transformer, ThreeSides.ONE, consumer, currentLimitTypes, limitReductionValue);
-        checkCurrent(transformer, ThreeSides.TWO, consumer, currentLimitTypes, limitReductionValue);
-        checkCurrent(transformer, ThreeSides.THREE, consumer, currentLimitTypes, limitReductionValue);
+    private static void checkCurrent(ThreeWindingsTransformer transformer, Set<LoadingLimitType> currentLimitTypes,
+                                     double limitReductionValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(transformer, ThreeSides.ONE, currentLimitTypes, limitReductionValue, consumer);
+        checkCurrent(transformer, ThreeSides.TWO, currentLimitTypes, limitReductionValue, consumer);
+        checkCurrent(transformer, ThreeSides.THREE, currentLimitTypes, limitReductionValue, consumer);
     }
 
-    public static void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side, Consumer<LimitViolation> consumer,
-                                    Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        checkLimitViolation(transformer, side, transformer.getTerminal(side).getI(), consumer, LimitType.CURRENT,
-                currentLimitTypes, limitReductionValue);
+    private static void checkCurrent(ThreeWindingsTransformer transformer, ThreeSides side,
+                                     Set<LoadingLimitType> currentLimitTypes, double limitReductionValue,
+                                     Consumer<LimitViolation> consumer) {
+        checkLimitViolation(transformer, side, transformer.getTerminal(side).getI(), LimitType.CURRENT, currentLimitTypes, limitReductionValue, consumer
+        );
     }
 
-    public static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
-                                           Consumer<LimitViolation> consumer, LimitType type,
-                                           Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
+    private static void checkCurrentDc(ThreeWindingsTransformer transformer, double dcPowerFactor,
+                                       Set<LoadingLimitType> currentLimitTypes, double limitReductionValue,
+                                       Consumer<LimitViolation> consumer) {
+        checkCurrentDc(transformer, ThreeSides.ONE, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer);
+        checkCurrentDc(transformer, ThreeSides.TWO, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer);
+        checkCurrentDc(transformer, ThreeSides.THREE, dcPowerFactor, currentLimitTypes, limitReductionValue, consumer);
+    }
+
+    private static void checkCurrentDc(ThreeWindingsTransformer transformer, ThreeSides side, double dcPowerFactor,
+                                       Set<LoadingLimitType> currentLimitTypes, double limitReductionValue,
+                                       Consumer<LimitViolation> consumer) {
+        double i = getTerminalIOrAnApproximation(transformer.getTerminal(side), dcPowerFactor);
+        checkLimitViolation(transformer, side, i, LimitType.CURRENT, currentLimitTypes, limitReductionValue, consumer);
+    }
+
+    static void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value,
+                                    LimitType type, Set<LoadingLimitType> currentLimitTypes, double limitReductionValue,
+                                    Consumer<LimitViolation> consumer) {
         boolean overloadOnTemporary = false;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
             Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
@@ -126,12 +193,12 @@ public final class LimitViolationDetection {
         }
     }
 
-    public static void checkVoltage(Bus bus, Consumer<LimitViolation> consumer) {
+    private static void checkVoltage(Bus bus, Consumer<LimitViolation> consumer) {
         double value = bus.getV();
         checkVoltage(bus, value, consumer);
     }
 
-    public static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
+    static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
@@ -144,6 +211,12 @@ public final class LimitViolationDetection {
         }
     }
 
+    /**
+     * Helper function to convert a limit type to a limit violation type
+     *
+     * @param type The limit type to convert.
+     * @return The matching LimitViolationTYpe
+     */
     public static LimitViolationType toLimitViolationType(LimitType type) {
         return switch (type) {
             case ACTIVE_POWER -> LimitViolationType.ACTIVE_POWER;
@@ -154,7 +227,7 @@ public final class LimitViolationDetection {
         };
     }
 
-    public static void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
+    private static void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, Consumer<LimitViolation> consumer) {
         Bus referenceBus = voltageAngleLimit.getTerminalFrom().getBusView().getBus();
         Bus otherBus = voltageAngleLimit.getTerminalTo().getBusView().getBus();
         if (referenceBus != null && otherBus != null
@@ -165,7 +238,7 @@ public final class LimitViolationDetection {
         }
     }
 
-    public static void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double value, Consumer<LimitViolation> consumer) {
+    static void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double value, Consumer<LimitViolation> consumer) {
         if (Double.isNaN(value)) {
             return;
         }

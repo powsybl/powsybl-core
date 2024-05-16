@@ -7,7 +7,6 @@
  */
 package com.powsybl.security.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.report.ReportNode;
@@ -15,7 +14,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -298,7 +296,7 @@ public class DefaultSecurityAnalysis {
         if (violationDetector != null) {
             violationDetector.checkAll(network, consumer);
         } else {
-            LimitViolationDetection.checkAllViolations(network, consumer, EnumSet.allOf(LoadingLimitType.class), 1.);
+            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), 1., consumer);
                     // currentLimitTypes, limitReductionValue); //TODO
         }
     }
@@ -309,7 +307,7 @@ public class DefaultSecurityAnalysis {
         } else {
             // TODO For now, contingencies are ignored in the default security analysis
             // This should change to fully support LimitReductions
-            LimitViolationDetection.checkAllViolations(network, consumer, EnumSet.allOf(LoadingLimitType.class), 1.);
+            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), 1., consumer);
                     // currentLimitTypes, limitReductionValue); //TODO
         }
     }

@@ -29,14 +29,14 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Override
     protected void checkLimitViolation(Branch<?> branch, TwoSides side, double currentValue, Consumer<LimitViolation> consumer,
                                        LimitType limitType, double limitReduction) {
-        LimitViolationDetection.checkLimitViolation(branch, side, currentValue, consumer,
-                limitType, EnumSet.allOf(LoadingLimitType.class), limitReduction);
+        LimitViolationDetection.checkLimitViolation(branch, side, currentValue, limitType, EnumSet.allOf(LoadingLimitType.class), limitReduction, consumer
+        );
     }
 
     private void checkLimitViolation(ThreeWindingsTransformer transfo, ThreeSides side, double currentValue, Consumer<LimitViolation> consumer,
                                        LimitType limitType) {
-        LimitViolationDetection.checkLimitViolation(transfo, side, currentValue, consumer,
-                limitType, EnumSet.allOf(LoadingLimitType.class), 1.0);
+        LimitViolationDetection.checkLimitViolation(transfo, side, currentValue, limitType, EnumSet.allOf(LoadingLimitType.class), 1.0, consumer
+        );
     }
 
     @Override

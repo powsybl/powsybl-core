@@ -13,6 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationDetection;
 import com.powsybl.security.LimitViolationType;
 
 import java.util.function.Consumer;
@@ -434,17 +435,7 @@ public interface LimitViolationDetector {
      * @return The matching LimitViolationTYpe
      */
     default LimitViolationType toLimitViolationType(LimitType type) {
-        switch (type) {
-            case ACTIVE_POWER:
-                return LimitViolationType.ACTIVE_POWER;
-            case APPARENT_POWER:
-                return LimitViolationType.APPARENT_POWER;
-            case CURRENT:
-                return LimitViolationType.CURRENT;
-            case VOLTAGE:
-            default:
-                throw new UnsupportedOperationException(String.format("Unsupported conversion for %s from limit type to limit violation type.", type.name()));
-        }
+        return LimitViolationDetection.toLimitViolationType(type);
     }
 
     /**
