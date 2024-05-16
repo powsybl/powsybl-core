@@ -42,7 +42,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
         List<NetworkElementIdentifier> networkElementIdentifierList = Collections.emptyList();
         char order = 0;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.currentName()) {
+            switch (parser.getCurrentName()) {
                 case "type" -> type = NetworkElementIdentifier.IdentifierType.valueOf(parser.nextTextValue());
                 case "identifier" -> identifier = parser.nextTextValue();
                 case CONTINGENCY_ID -> {
@@ -62,7 +62,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                     }
                     order = orderStr.charAt(0);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
         }
         if (type == null) {
