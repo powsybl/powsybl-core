@@ -39,7 +39,7 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         s1.newVoltageLevel().setId("VL1").setNominalV(1).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         network.newSubstation().setId("sub2").add();
 
-        allFormatsRoundTripTest(network, "areaRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "/areaRoundTripRef.xml", CURRENT_IIDM_VERSION);
 
         // TODO Backward compatibility, area and areaType model is skipped
         // allFormatsRoundTripAllPreviousVersionedXmlTest("areaRoundTripRef.xml");
