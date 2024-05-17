@@ -20,6 +20,10 @@ abstract class AbstractAreaAdder<T extends AbstractAreaAdder<T>> extends Abstrac
 
     private AreaType areaType;
 
+    private Double acNetInterchangeTarget;
+
+    private Double acNetInterchangeTolerance;
+
     AbstractAreaAdder(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
     }
@@ -33,11 +37,29 @@ abstract class AbstractAreaAdder<T extends AbstractAreaAdder<T>> extends Abstrac
         return (T) this;
     }
 
+    public T setAcNetInterchangeTarget(Double acNetInterchangeTarget) {
+        this.acNetInterchangeTarget = acNetInterchangeTarget;
+        return (T) this;
+    }
+
+    public T setAcNetInterchangeTolerance(Double acNetInterchangeTolerance) {
+        this.acNetInterchangeTolerance = acNetInterchangeTolerance;
+        return (T) this;
+    }
+
     protected Ref<NetworkImpl> getNetworkRef() {
         return networkRef;
     }
 
     protected AreaType getAreaType() {
         return areaType;
+    }
+
+    protected Double getAcNetInterchangeTarget() {
+        return acNetInterchangeTarget;
+    }
+
+    protected Double getAcNetInterchangeTolerance() {
+        return acNetInterchangeTolerance;
     }
 }

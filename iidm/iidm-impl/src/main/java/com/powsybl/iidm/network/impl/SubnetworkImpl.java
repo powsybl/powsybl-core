@@ -146,21 +146,6 @@ public class SubnetworkImpl extends AbstractNetwork {
         return getNetwork().getArea(id);
     }
 
-    @Override
-    public AicAreaAdder newAicArea() {
-        return getNetwork().newAicArea();
-    }
-
-    @Override
-    public Iterable<AicArea> getAicAreas() {
-        return getNetwork().getAicAreas();
-    }
-
-    @Override
-    public Stream<AicArea> getAicAreaStream() {
-        return getNetwork().getAicAreaStream();
-    }
-
     private Stream<Country> getCountryStream() {
         return getNetwork().getSubstationStream()
                 .filter(this::contains)

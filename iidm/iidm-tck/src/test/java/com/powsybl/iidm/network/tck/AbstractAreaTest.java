@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,8 +33,7 @@ public abstract class AbstractAreaTest {
     final Area biddingZoneA = network.getArea("bza");
     final Area biddingZoneB = network.getArea("bzb");
     final Area regionA = network.getArea("rga");
-
-    final AicArea aicA = (AicArea) network.getArea("aic_a");
+    final Area aicA = network.getArea("aic_a");
 
     @Test
     void areaAttributesTest() {
@@ -47,23 +47,22 @@ public abstract class AbstractAreaTest {
         assertEquals("bza", biddingZoneA.getId());
         assertEquals("BZ_A", biddingZoneA.getNameOrId());
         assertEquals(biddingZone, biddingZoneA.getAreaType());
+        assertEquals(Optional.empty(), biddingZoneA.getAcNetInterchangeTarget());
+        assertEquals(Optional.empty(), biddingZoneA.getAcNetInterchangeTolerance());
 
         assertEquals("aic_a", aicA.getId());
         assertEquals("Aic_A", aicA.getNameOrId());
         assertEquals(aic, aicA.getAreaType());
-        assertEquals(10.0, aicA.getAcNetInterchangeTarget());
-        assertEquals(0.1, aicA.getAcNetInterchangeTolerance());
-
+        assertEquals(Optional.of(10.0), aicA.getAcNetInterchangeTarget());
+        assertEquals(Optional.of(0.1), aicA.getAcNetInterchangeTolerance());
     }
 
     @Test
     void areaIterableAndStreamGetterCheck() {
         assertEquals(4, Iterables.size(network.getAreas()));
-        assertEquals(1, Iterables.size(network.getAicAreas()));
         assertEquals(3, Iterables.size(network.getAreaTypes()));
 
         assertEquals(List.of(biddingZoneA, biddingZoneB, regionA, aicA), network.getAreaStream().toList());
-        assertEquals(List.of(aicA), network.getAicAreaStream().toList());
         assertEquals(List.of(biddingZone, region, aic), network.getAreaTypeStream().toList());
     }
 
@@ -75,11 +74,9 @@ public abstract class AbstractAreaTest {
         assertEquals(aicA, subnetwork.getArea("aic_a"));
 
         assertEquals(4, Iterables.size(subnetwork.getAreas()));
-        assertEquals(1, Iterables.size(subnetwork.getAicAreas()));
         assertEquals(3, Iterables.size(subnetwork.getAreaTypes()));
 
         assertEquals(List.of(biddingZoneA, biddingZoneB, regionA, aicA), subnetwork.getAreaStream().toList());
-        assertEquals(List.of(aicA), subnetwork.getAicAreaStream().toList());
         assertEquals(List.of(biddingZone, region, aic), subnetwork.getAreaTypeStream().toList());
     }
 
@@ -96,18 +93,8 @@ public abstract class AbstractAreaTest {
                 .setAreaType(areaType)
                 .add();
 
-        AicArea aicArea = subnetwork.newAicArea()
-                .setAcNetInterchangeTolerance(0.1)
-                .setAcNetInterchangeTarget(10.0)
-                .setId("aicarea")
-                .setName("AicArea")
-                .setAreaType(areaType)
-                .add();
-
         assertTrue(Iterables.contains(network.getAreaTypes(), areaType));
         assertTrue(Iterables.contains(network.getAreas(), area));
-        assertTrue(Iterables.contains(network.getAicAreas(), aicArea));
-
     }
 
     @Test
@@ -158,7 +145,6 @@ public abstract class AbstractAreaTest {
 
     @Test
     void throwRemovedVoltageLevel() {
-
         VoltageLevel dummy = network.newVoltageLevel()
                 .setId("dummy")
                 .setNominalV(400.0)
@@ -219,7 +205,7 @@ public abstract class AbstractAreaTest {
                 .setName("Region_A")
                 .setAreaType(region)
                 .add();
-        network.newAicArea()
+        network.newArea()
                 .setAcNetInterchangeTarget(10.0)
                 .setAcNetInterchangeTolerance(0.1)
                 .setId("aic_a")

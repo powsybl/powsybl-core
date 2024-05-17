@@ -31,8 +31,8 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         final AreaType biddingZoneType = network.newAreaType().setId("BiddingZone").add();
         final AreaType controlAreaType = network.newAreaType().setId("ControlArea").add();
         network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").add();
-        network.newAicArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2")
-               .setAcNetInterchangeTarget(100).setAcNetInterchangeTolerance(1).add();
+        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2")
+               .setAcNetInterchangeTarget(100.).setAcNetInterchangeTolerance(1.).add();
         network.newArea().setAreaType(controlAreaType).setId("ControlAreaId1").setName("ControlAreaName1").add();
 
         Substation s1 = network.newSubstation().setId("sub1").add();

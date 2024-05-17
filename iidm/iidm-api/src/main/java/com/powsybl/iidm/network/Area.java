@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -27,4 +28,16 @@ public interface Area extends Identifiable<Area> {
     default IdentifiableType getType() {
         return IdentifiableType.AREA;
     }
+
+    /**
+     * Get the optional target AC Net Interchange of this area in MW, using load sign convention
+     * @return the AC Net Interchange target
+     */
+    Optional<Double> getAcNetInterchangeTarget();
+
+    /**
+     * Get the optional net interchange tolerance in MW
+     * @return the net interchange tolerance
+     */
+    Optional<Double> getAcNetInterchangeTolerance();
 }

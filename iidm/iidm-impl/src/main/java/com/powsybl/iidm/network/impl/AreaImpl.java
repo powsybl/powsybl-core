@@ -21,13 +21,18 @@ import java.util.stream.Stream;
 public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
     private final AreaType areaType;
+    private final Optional<Double> acNetInterchangeTarget;
+    private final Optional<Double> acNetInterchangeTolerance;
 
     private final Set<VoltageLevel> voltagelevels = new LinkedHashSet<>();
 
-    public AreaImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, AreaType areaType) {
+    public AreaImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, AreaType areaType, Double acNetInterchangeTarget,
+                       Double acNetInterchangeTolerance) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.areaType = Objects.requireNonNull(areaType);
+        this.acNetInterchangeTarget = Optional.ofNullable(acNetInterchangeTarget);
+        this.acNetInterchangeTolerance = Optional.ofNullable(acNetInterchangeTolerance);
     }
 
     @Override
@@ -53,6 +58,16 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
         return voltagelevels.stream();
+    }
+
+    @Override
+    public Optional<Double> getAcNetInterchangeTarget() {
+        return acNetInterchangeTarget;
+    }
+
+    @Override
+    public Optional<Double> getAcNetInterchangeTolerance() {
+        return acNetInterchangeTolerance;
     }
 
     /**

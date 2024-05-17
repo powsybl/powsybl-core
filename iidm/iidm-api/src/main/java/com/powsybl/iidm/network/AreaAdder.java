@@ -15,6 +15,10 @@ public interface AreaAdder extends AbstractAreaAdder<Area, AreaAdder> {
 
     AreaAdder setAreaType(AreaType areaType);
 
+    AreaAdder setAcNetInterchangeTarget(Double acNetInterchangeTarget);
+
+    AreaAdder setAcNetInterchangeTolerance(Double acNetInterchangeTolerance);
+
     @Override
     Area add();
 
