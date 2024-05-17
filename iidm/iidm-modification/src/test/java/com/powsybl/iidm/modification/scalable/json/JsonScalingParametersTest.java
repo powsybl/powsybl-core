@@ -42,6 +42,7 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
         assertEquals(ONESHOT, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertTrue(parameters.getIgnoredInjectionIds().isEmpty());
 
         parameters = read(getClass().getResourceAsStream("/json/ScalingParameters_v1.0b.json"));
         assertEquals(RESPECT_OF_VOLUME_ASKED, parameters.getPriority());
@@ -55,6 +56,7 @@ class JsonScalingParametersTest extends AbstractSerDeTest {
         assertEquals(ONESHOT, parameters.getPriority());
         assertTrue(parameters.isReconnect());
         assertFalse(parameters.isAllowsGeneratorOutOfActivePowerLimits());
+        assertTrue(parameters.getIgnoredInjectionIds().isEmpty());
     }
 
     @Test
