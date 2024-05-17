@@ -8,16 +8,12 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
 public class AreaTypeSerDe extends AbstractSimpleIdentifiableSerDe<AreaType, AreaTypeAdder, Network> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AreaTypeSerDe.class);
 
     static final AreaTypeSerDe INSTANCE = new AreaTypeSerDe();
 
@@ -38,6 +34,7 @@ public class AreaTypeSerDe extends AbstractSimpleIdentifiableSerDe<AreaType, Are
     protected AreaTypeAdder createAdder(final Network network) {
         return network.newAreaType();
     }
+
     @Override
     protected AreaType readRootElementAttributes(final AreaTypeAdder adder, final Network parent, final NetworkDeserializerContext context) {
         return adder.add();  // No root element to read except the ID
