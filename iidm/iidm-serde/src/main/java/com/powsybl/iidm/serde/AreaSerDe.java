@@ -7,15 +7,20 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaAdder;
+import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.Network;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
 public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, Network> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AreaSerDe.class);
 
     static final AreaSerDe INSTANCE = new AreaSerDe();
 
@@ -40,7 +45,11 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     @Override
     protected Area readRootElementAttributes(final AreaAdder adder, final Network parent, final NetworkDeserializerContext context) {
         String areaTypeId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("areaType"));
-        return adder.setAreaType(parent.getAreaType(areaTypeId))
+        AreaType areaType = parent.getAreaType(areaTypeId);
+        if (areaType == null) {
+            throw new PowsyblException("Area Type Identifiable '" + areaTypeId + "' not found");
+        }
+        return adder.setAreaType(areaType)
                     .add();
     }
 
