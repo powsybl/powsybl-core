@@ -33,9 +33,6 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private final Set<String> geographicalTags = new LinkedHashSet<>();
 
-    /** Areas associated to this instance, with at most one area for each AreaType. */
-    private final Set<Area> areas = new LinkedHashSet<>();
-
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
 
     private final Set<OverloadManagementSystemImpl> overloadManagementSystems = new LinkedHashSet<>();
@@ -210,39 +207,6 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             getNetwork().getListeners().notifyElementAdded(this, "geographicalTags", tag);
         }
         return this;
-    }
-
-    @Override
-    public Stream<Area> getAreasStream() {
-        if (removed) {
-            throw new PowsyblException("Cannot access area of removed substation " + id);
-        }
-        return areas.stream();
-    }
-
-    @Override
-    public Optional<Area> getArea(AreaType areaType) {
-        if (removed) {
-            throw new PowsyblException("Cannot access area of removed substation " + id);
-        }
-        return areas.stream().filter(area -> area.getAreaType() == areaType).findFirst();
-    }
-
-    @Override
-    public void addArea(Area area) {
-        if (areas.contains(area)) {
-            return; // Nothing to do
-        }
-        // Check if there is any conflicting area assigned to the containers above this, or the containers and equipment below this
-        final Optional<Area> previousArea = this.getArea(area.getAreaType());
-        if (previousArea.isPresent() && previousArea.get() != area) {
-            // One of the containers above this instance already have a different area with the same AreaType
-            throw new PowsyblException("Substation " + id + " is already in Area of the same type=" + previousArea.get().getAreaType().getNameOrId() + " with id=" + previousArea.get().getId());
-        }
-        // TODO Error: if any of the containers or equipments below this instance already have a different area with the same AreaType
-        // No conflict, add the area to both sides
-        areas.add(area);
-        // TODO area.addSubstation(this);
     }
 
     @Override

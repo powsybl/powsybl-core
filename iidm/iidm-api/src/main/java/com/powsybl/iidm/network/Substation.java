@@ -193,12 +193,6 @@ public interface Substation extends Container<Substation> {
      */
     Substation addGeographicalTag(String tag);
 
-    Stream<Area> getAreasStream();
-
-    Optional<Area> getArea(AreaType areaType);
-
-    void addArea(Area area);
-
     /**
      * Remove this substation from the network.
      */
