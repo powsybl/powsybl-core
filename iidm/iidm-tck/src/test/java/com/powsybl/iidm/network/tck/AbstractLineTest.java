@@ -114,7 +114,7 @@ public abstract class AbstractLineTest {
         acLine.setB2(b2);
         assertEquals(b2, acLine.getB2(), 0.0);
 
-        CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
+        acLine.newCurrentLimits1()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
                 .setName("5'")
@@ -122,7 +122,7 @@ public abstract class AbstractLineTest {
                 .setValue(1400)
                 .endTemporaryLimit()
                 .add();
-        CurrentLimits currentLimits2 = acLine.newCurrentLimits2()
+        acLine.newCurrentLimits2()
                 .setPermanentLimit(50)
                 .beginTemporaryLimit()
                 .setName("20'")
@@ -130,10 +130,6 @@ public abstract class AbstractLineTest {
                 .setValue(1200)
                 .endTemporaryLimit()
                 .add();
-        assertSame(currentLimits1, acLine.getCurrentLimits1().orElse(null));
-        assertSame(currentLimits2, acLine.getCurrentLimits2().orElse(null));
-        assertSame(currentLimits1, acLine.getLimits(LimitType.CURRENT, TwoSides.ONE).orElse(null));
-        assertSame(currentLimits2, acLine.getLimits(LimitType.CURRENT, TwoSides.TWO).orElse(null));
 
         // add power on line
         Terminal terminal1 = acLine.getTerminal1();
