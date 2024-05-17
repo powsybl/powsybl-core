@@ -23,6 +23,8 @@
             <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="network" type="iidm:Network" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="areaType" type="iidm:AreaType" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="area" type="iidm:Area" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
             <xs:choice minOccurs="0" maxOccurs="unbounded">
@@ -698,6 +700,18 @@
     <xs:complexType name="Ground">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="AreaType">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable"/>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Area">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

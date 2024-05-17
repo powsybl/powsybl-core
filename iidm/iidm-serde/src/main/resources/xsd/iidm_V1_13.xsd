@@ -704,11 +704,15 @@
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="AreaType">
-        <xs:attribute name="id" use="required" type="xs:string"/>
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable"/>
+        </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="Area">
-        <xs:attribute name="id" use="required" type="xs:string"/>
-        <xs:attribute name="name" use="optional" type="xs:string"/>
-        <xs:attribute name="areaType" use="required" type="xs:string"/>
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
+            </xs:extension>
+        </xs:complexContent>
     </xs:complexType>
 </xs:schema>
