@@ -275,14 +275,13 @@ public class Conversion {
         importedCgmesNetworkReport(context.getReportNode(), network.getId());
 
         // Update
-        Context updateContext = createUpdateContext(network, reportNode);
-        update(network, updateContext, reportNode);
+        //Context updateContext = createUpdateContext(network, reportNode);
+        //update(network, updateContext, reportNode);
 
         return network;
     }
 
     public void update(Network network, ReportNode reportNode) {
-        System.err.printf("Update Begin ......................................................... %n");
         Objects.requireNonNull(network);
         Objects.requireNonNull(reportNode);
         Context context = createUpdateContext(network, reportNode);

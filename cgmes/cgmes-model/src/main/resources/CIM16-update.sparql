@@ -191,7 +191,7 @@ SELECT *
 }
 
 # FIXME(Luma) we do not have access to the type when reading update only files,
-# we cannot diferentitate between generators and condensers
+# we cannot differentiate between generators and condensers
 # this means that we may not deprecate synchronousMachines in the end,
 # or we could make the new query "allSynchronousMachines"
 

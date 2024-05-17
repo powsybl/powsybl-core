@@ -181,7 +181,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public boolean valid() {
-        if (vl == null && loadingLimitsAdder == null && loadingLimitsAdder1 == null && loadingLimitsAdder2 == null) {
+        if (vl == null && loadingLimitsAdder == null && loadingLimitsAdder1 == null && loadingLimitsAdder2 == null && loadingLimitsAdder3 == null) {
             missing(String.format("Terminal %s or Equipment %s", terminalId, equipmentId));
             return false;
         }
@@ -190,34 +190,40 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public void convert() {
-        double normalValue = p.asDouble("normalValue");
+        double value = getValueFromEQ(p);
         if (vl != null) {
-            convertVoltageLimit(normalValue);
+            convertVoltageLimit(value);
         } else {
             if (isPatl()) { // Permanent Admissible Transmission Loading
-                convertPatl(normalValue);
+                convertPatl(value);
             } else if (isTatl()) { // Temporary Admissible Transmission Loading
-                convertTatl(normalValue);
+                convertTatl(value);
             }
         }
     }
 
-    private void convertVoltageLimit(double normalValue) {
+    // Cgmes 2.6 value is defined in EQ file
+    // Cgmes 3.0 normalValue is defined in EQ file and value in SSH
+    private static double getValueFromEQ(PropertyBag p) {
+        return p.getDouble("normalValue").orElse(p.getDouble("value").orElse(Double.NaN));
+    }
+
+    private void convertVoltageLimit(double value) {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
-            context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "highVoltage", 0, normalValue);
-            if (normalValue < vl.getLowVoltageLimit()) {
+            context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "highVoltage", 0, value);
+            if (value < vl.getLowVoltageLimit()) {
                 context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
-            } else if (normalValue < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
-                vl.setHighVoltageLimit(normalValue);
+            } else if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
+                vl.setHighVoltageLimit(value);
             }
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
-            context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "lowVoltage", 0, normalValue);
-            if (normalValue > vl.getHighVoltageLimit()) {
+            context.loadingLimitsMapping().addOperationalLimit(id, vl.getId(), "", VOLTAGE_LIMIT, "lowVoltage", 0, value);
+            if (value > vl.getHighVoltageLimit()) {
                 context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
-            } else if (normalValue > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
-                vl.setLowVoltageLimit(normalValue);
+            } else if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
+                vl.setLowVoltageLimit(value);
             }
         } else {
             notAssigned(vl);
@@ -230,37 +236,37 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType) || "LimitKind.patl".equals(limitType);
     }
 
-    private void addPatl(double normalValue, LoadingLimitsAdder<?, ?> adder) {
+    private void addPatl(double value, LoadingLimitsAdder<?, ?> adder) {
         if (Double.isNaN(adder.getPermanentLimit())) {
-            adder.setPermanentLimit(normalValue);
+            adder.setPermanentLimit(value);
         } else {
             if (terminalId != null) {
                 context.fixed(PERMANENT_LIMIT, () -> String.format("Several permanent limits defined for Terminal %s. Only the lowest is kept.", terminalId));
             } else {
                 context.fixed(PERMANENT_LIMIT, () -> String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
             }
-            if (adder.getPermanentLimit() > normalValue) {
-                adder.setPermanentLimit(normalValue);
+            if (adder.getPermanentLimit() > value) {
+                adder.setPermanentLimit(value);
             }
         }
     }
 
-    private void convertPatl(double normalValue) {
+    private void convertPatl(double value) {
         if (loadingLimitsAdder != null) {
-            addPatl(normalValue, loadingLimitsAdder);
-            context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "", limitSubclass, "patl", 0, normalValue);
+            addPatl(value, loadingLimitsAdder);
+            context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "", limitSubclass, "patl", 0, value);
         } else {
             if (loadingLimitsAdder1 != null) {
-                addPatl(normalValue, loadingLimitsAdder1);
-                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "1", limitSubclass, "patl", 0, normalValue);
+                addPatl(value, loadingLimitsAdder1);
+                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "1", limitSubclass, "patl", 0, value);
             }
             if (loadingLimitsAdder2 != null) {
-                addPatl(normalValue, loadingLimitsAdder2);
-                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "2", limitSubclass, "patl", 0, normalValue);
+                addPatl(value, loadingLimitsAdder2);
+                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "2", limitSubclass, "patl", 0, value);
             }
             if (loadingLimitsAdder3 != null) {
-                addPatl(normalValue, loadingLimitsAdder3);
-                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "3", limitSubclass, "patl", 0, normalValue);
+                addPatl(value, loadingLimitsAdder3);
+                context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, "3", limitSubclass, "patl", 0, value);
             }
         }
     }
@@ -271,17 +277,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType) || "LimitKind.tatl".equals(limitType);
     }
 
-    private void addTatl(String name, double normalValue, int acceptableDuration, String end, LoadingLimitsAdder<?, ?> adder) {
-        if (Double.isNaN(normalValue)) {
+    private void addTatl(String name, double value, int acceptableDuration, String end, LoadingLimitsAdder<?, ?> adder) {
+        if (Double.isNaN(value)) {
             return;
         }
 
-        context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, end, limitSubclass, "tatl", acceptableDuration, normalValue);
+        context.loadingLimitsMapping().addOperationalLimit(id, identifiableId, end, limitSubclass, "tatl", acceptableDuration, value);
         if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
             adder.beginTemporaryLimit()
                     .setAcceptableDuration(acceptableDuration)
                     .setName(name)
-                    .setValue(normalValue)
+                    .setValue(value)
                     .ensureNameUnicity()
                     .endTemporaryLimit();
         } else {
@@ -290,18 +296,18 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             } else {
                 context.fixed(TEMPORARY_LIMIT, () -> String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
             }
-            if (adder.getTemporaryLimitValue(acceptableDuration) > normalValue) {
+            if (adder.getTemporaryLimitValue(acceptableDuration) > value) {
                 adder.beginTemporaryLimit()
                         .setAcceptableDuration(acceptableDuration)
                         .setName(name)
-                        .setValue(normalValue)
+                        .setValue(value)
                         .ensureNameUnicity()
                         .endTemporaryLimit();
             }
         }
     }
 
-    private void convertTatl(double normalValue) {
+    private void convertTatl(double value) {
         int acceptableDuration = p.containsKey("acceptableDuration") ? (int) p.asDouble("acceptableDuration") : Integer.MAX_VALUE;
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
@@ -311,16 +317,16 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             String name = Optional.ofNullable(p.getId("shortName")).orElse(p.getId("name"));
             if (loadingLimitsAdder != null) {
-                addTatl(name, normalValue, acceptableDuration, "", loadingLimitsAdder);
+                addTatl(name, value, acceptableDuration, "", loadingLimitsAdder);
             } else {
                 if (loadingLimitsAdder1 != null) {
-                    addTatl(name, normalValue, acceptableDuration, "1", loadingLimitsAdder1);
+                    addTatl(name, value, acceptableDuration, "1", loadingLimitsAdder1);
                 }
                 if (loadingLimitsAdder2 != null) {
-                    addTatl(name, normalValue, acceptableDuration, "2", loadingLimitsAdder2);
+                    addTatl(name, value, acceptableDuration, "2", loadingLimitsAdder2);
                 }
                 if (loadingLimitsAdder3 != null) {
-                    addTatl(name, normalValue, acceptableDuration, "3", loadingLimitsAdder2);
+                    addTatl(name, value, acceptableDuration, "3", loadingLimitsAdder3);
                 }
             }
         } else if (direction.endsWith("low")) {

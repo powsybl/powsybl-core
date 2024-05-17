@@ -119,8 +119,8 @@ public class TapChangerUpdate extends AbstractIdentifiedObjectConversion {
         if (p == null) {
             return null;
         }
-        int normalTap = 0; // TODO JAM how to calculate, Registrar el step en la extensión
-        int step = initialTapPosition(p, normalTap, context);
+        int normalStep = getNormalStep(twt, tapChangerId);
+        int step = initialTapPosition(p, normalStep, context);
         boolean tapChangerControlEnabled = p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false);
         String regulatingControlId = getControlId(twt, tapChangerId);
         int terminalSign = findTerminalSign(twt, end);
@@ -145,6 +145,17 @@ public class TapChangerUpdate extends AbstractIdentifiedObjectConversion {
             return cgmesTc != null ? cgmesTc.getControlId() : null;
         }
         return null;
+    }
+
+    private static <C extends Connectable<C>> int getNormalStep(Connectable<C> twt, String tapChangerId) {
+        CgmesTapChangers<C> cgmesTcs = twt.getExtension(CgmesTapChangers.class);
+        if (cgmesTcs != null) {
+            CgmesTapChanger cgmesTc = cgmesTcs.getTapChanger(tapChangerId);
+            if (cgmesTc != null) {
+                return cgmesTc.getStep().orElseThrow();
+            }
+        }
+        throw new ConversionException("normalStep must be defined in transformer: " + twt.getId());
     }
 
     private static <C extends Connectable<C>> boolean isNotHidden(Connectable<C> twt, String tapChangerId) {

@@ -135,28 +135,27 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             return;
         }
         TapChanger tch = tc.getHiddenCombinedTapChanger();
-        if (tc.getRegulatingControlId() != null || tc.getType() != null || tch != null) {
-            CgmesTapChangers<C> tapChangers = transformer.getExtension(CgmesTapChangers.class);
-            if (tapChangers == null) {
-                transformer.newExtension(CgmesTapChangersAdder.class).add();
-                tapChangers = transformer.getExtension(CgmesTapChangers.class);
-            }
-            if (tc.getRegulatingControlId() != null || tc.getType() != null) {
-                tapChangers.newTapChanger()
-                        .setId(tc.getId())
-                        .setType(tc.getType())
-                        .setControlId(tc.getRegulatingControlId())
-                        .add();
-            }
-            if (tch != null) {
-                tapChangers.newTapChanger()
-                        .setId(tch.getId())
-                        .setCombinedTapChangerId(tc.getId())
-                        .setHiddenStatus(true)
-                        .setStep(tch.getTapPosition())
-                        .setType(tch.getType())
-                        .add();
-            }
+
+        CgmesTapChangers<C> tapChangers = transformer.getExtension(CgmesTapChangers.class);
+        if (tapChangers == null) {
+            transformer.newExtension(CgmesTapChangersAdder.class).add();
+            tapChangers = transformer.getExtension(CgmesTapChangers.class);
+        }
+        // normalStep is always recorded in the step attribute
+        tapChangers.newTapChanger()
+                .setId(tc.getId())
+                .setType(tc.getType())
+                .setStep(tc.getTapPosition())
+                .setControlId(tc.getRegulatingControlId())
+                .add();
+        if (tch != null) {
+            tapChangers.newTapChanger()
+                    .setId(tch.getId())
+                    .setCombinedTapChangerId(tc.getId())
+                    .setHiddenStatus(true)
+                    .setStep(tch.getTapPosition())
+                    .setType(tch.getType())
+                    .add();
         }
     }
 }

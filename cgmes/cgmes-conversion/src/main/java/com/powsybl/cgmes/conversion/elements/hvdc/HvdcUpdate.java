@@ -82,7 +82,7 @@ public class HvdcUpdate extends AbstractIdentifiedObjectConversion {
     // => P(AC) / P(DC) = 1 - poleLossP / P(DC) = 1 - poleLossP / (P(AC) + poleLossP) = 1 - lossFactor / 100
     private void updateHvdcLine(HvdcLine hvdcLine, PropertyBag cconverter1, PropertyBag cconverter2, Context context) {
         HvdcConverterStation.HvdcType hvdcType = findHvdcType(hvdcLine);
-        HvdcLine.ConvertersMode operatingMode = decodeMode(HvdcConverterStation.HvdcType.LCC, cconverter1, cconverter2);
+        HvdcLine.ConvertersMode operatingMode = decodeMode(hvdcType, cconverter1, cconverter2);
 
         double poleLossP1 = cconverter1.asDouble(POLE_LOSS_P, 0.0);
         double poleLossP2 = cconverter2.asDouble(POLE_LOSS_P, 0.0);
@@ -111,7 +111,7 @@ public class HvdcUpdate extends AbstractIdentifiedObjectConversion {
             updateLccConverterStation((LccConverterStation) hvdcLine.getConverterStation2(), cconverter2, lossFactor.getLossFactor2());
         } else {
             updateVscConverterStation((VscConverterStation) hvdcLine.getConverterStation1(), cconverter1, lossFactor.getLossFactor1(), context);
-            updateVscConverterStation((VscConverterStation) hvdcLine.getConverterStation1(), cconverter2, lossFactor.getLossFactor2(), context);
+            updateVscConverterStation((VscConverterStation) hvdcLine.getConverterStation2(), cconverter2, lossFactor.getLossFactor2(), context);
         }
     }
 
