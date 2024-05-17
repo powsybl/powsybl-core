@@ -7,7 +7,6 @@
  */
 package com.powsybl.security.impl;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManagerFactory;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.EmptyContingencyListProvider;
@@ -56,7 +55,7 @@ class SecurityAnalysisProviderTest {
 
     @Test
     void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, runParameters, ReportNode.NO_OP);
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", contingenciesProvider, runParameters);
         assertNotNull(report.get());
     }
 
@@ -74,7 +73,7 @@ class SecurityAnalysisProviderTest {
 
     @Test
     void testSyncDefaultProvider() {
-        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, runParameters, ReportNode.NO_OP);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", contingenciesProvider, runParameters);
         assertNotNull(report);
     }
 

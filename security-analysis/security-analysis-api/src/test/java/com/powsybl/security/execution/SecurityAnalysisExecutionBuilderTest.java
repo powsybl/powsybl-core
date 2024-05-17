@@ -8,7 +8,6 @@
 package com.powsybl.security.execution;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -109,7 +108,7 @@ class SecurityAnalysisExecutionBuilderTest {
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
 
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             actualProvider.set(contingenciesProvider);
             return null;
         }

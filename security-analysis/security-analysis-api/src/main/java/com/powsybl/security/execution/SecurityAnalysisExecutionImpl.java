@@ -7,7 +7,6 @@
  */
 package com.powsybl.security.execution;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.security.*;
 
@@ -71,7 +70,6 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(),
-                runParameters,
-                ReportNode.NO_OP);
+                runParameters);
     }
 }

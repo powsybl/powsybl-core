@@ -11,7 +11,6 @@ import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -71,14 +70,13 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param network IIDM network on which the security analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
      * @param contingenciesProvider provides list of contingencies
-     * @param reportNode the reportNode used for functional logs
+     * @param runParameters runner parameters
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                   String workingVariantId,
                                                   ContingenciesProvider contingenciesProvider,
-                                                  SecurityAnalysisRunParameters runParameters,
-                                                  ReportNode reportNode);
+                                                  SecurityAnalysisRunParameters runParameters);
 
     /**
      * The serializer for implementation-specific parameters, or {@link Optional#empty()} if the implementation

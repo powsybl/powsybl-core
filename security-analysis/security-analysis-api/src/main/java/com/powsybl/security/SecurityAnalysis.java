@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -47,22 +46,16 @@ public final class SecurityAnalysis {
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network,
                                                                   String workingStateId,
                                                                   ContingenciesProvider contingenciesProvider,
-                                                                  SecurityAnalysisRunParameters runParameters,
-                                                                  ReportNode reportNode) {
+                                                                  SecurityAnalysisRunParameters runParameters) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingStateId, "WorkingVariantId should not be null");
-            //TODO fix
-//            Objects.requireNonNull(detector, "LimitViolation detector should not be null");
-//            Objects.requireNonNull(filter, "LimitViolation filter should not be null");
-//            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
             Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
             Objects.requireNonNull(runParameters, "SecurityAnalysisRunParameters should not be null");
-            Objects.requireNonNull(reportNode, "ReportNode should not be null");
-            return provider.run(network, workingStateId, contingenciesProvider, runParameters, reportNode);
+            return provider.run(network, workingStateId, contingenciesProvider, runParameters);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<Contingency> contingencies, SecurityAnalysisRunParameters runParameters) {
-            return runAsync(network, network.getVariantManager().getWorkingVariantId(), n -> contingencies, runParameters, ReportNode.NO_OP);
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), n -> contingencies, runParameters);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<Contingency> contingencies) {
@@ -72,13 +65,12 @@ public final class SecurityAnalysis {
         public SecurityAnalysisReport run(Network network,
                                           String workingStateId,
                                           ContingenciesProvider contingenciesProvider,
-                                          SecurityAnalysisRunParameters runParameters,
-                                          ReportNode reportNode) {
-            return runAsync(network, workingStateId, contingenciesProvider, runParameters, reportNode).join();
+                                          SecurityAnalysisRunParameters runParameters) {
+            return runAsync(network, workingStateId, contingenciesProvider, runParameters).join();
         }
 
         public SecurityAnalysisReport run(Network network, List<Contingency> contingencies, SecurityAnalysisRunParameters runParameters) {
-            return run(network, network.getVariantManager().getWorkingVariantId(), n -> contingencies, runParameters, ReportNode.NO_OP);
+            return run(network, network.getVariantManager().getWorkingVariantId(), n -> contingencies, runParameters);
         }
 
         public SecurityAnalysisReport run(Network network, List<Contingency> contingencies) {
@@ -121,9 +113,8 @@ public final class SecurityAnalysis {
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, String workingStateId,
                                       ContingenciesProvider contingenciesProvider,
-                                      SecurityAnalysisRunParameters runParameters,
-                                      ReportNode reportNode) {
-        return find().runAsync(network, workingStateId, contingenciesProvider, runParameters, reportNode);
+                                      SecurityAnalysisRunParameters runParameters) {
+        return find().runAsync(network, workingStateId, contingenciesProvider, runParameters);
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<Contingency> contingencies,
@@ -137,9 +128,8 @@ public final class SecurityAnalysis {
 
     public static SecurityAnalysisReport run(Network network, String workingStateId,
                                              ContingenciesProvider contingenciesProvider,
-                                             SecurityAnalysisRunParameters runParameters,
-                                             ReportNode reportNode) {
-        return find().run(network, workingStateId, contingenciesProvider, runParameters, reportNode);
+                                             SecurityAnalysisRunParameters runParameters) {
+        return find().run(network, workingStateId, contingenciesProvider, runParameters);
     }
 
     public static SecurityAnalysisReport run(Network network, List<Contingency> contingencies, SecurityAnalysisRunParameters runParameters) {

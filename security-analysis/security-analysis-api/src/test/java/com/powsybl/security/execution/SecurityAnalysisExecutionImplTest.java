@@ -9,7 +9,6 @@ package com.powsybl.security.execution;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
@@ -74,7 +73,7 @@ class SecurityAnalysisExecutionImplTest {
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
 
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             assertSame(SecurityAnalysisExecutionImplTest.detector, runParameters.getDetector());
             assertSame(SecurityAnalysisExecutionImplTest.filter, runParameters.getFilter());
             assertSame(SecurityAnalysisExecutionImplTest.computationManager, runParameters.getComputationManager());

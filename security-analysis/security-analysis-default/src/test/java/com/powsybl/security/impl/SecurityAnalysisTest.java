@@ -108,8 +108,6 @@ class SecurityAnalysisTest {
             .setHighLimit(0.25)
             .add();
 
-        ComputationManager computationManager = createMockComputationManager();
-
         Contingency contingency = Contingency.builder("NHV1_NHV2_2_contingency")
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
@@ -122,8 +120,7 @@ class SecurityAnalysisTest {
         SecurityAnalysisResult result = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
                 contingenciesProvider,
-                createSecurityAnalysisRunParameters(interceptorMock),
-                ReportNode.NO_OP)
+                createSecurityAnalysisRunParameters(interceptorMock))
                 .getResult();
 
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
@@ -164,8 +161,7 @@ class SecurityAnalysisTest {
         SecurityAnalysisResult result = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
                 contingenciesProvider,
-                createSecurityAnalysisRunParameters(interceptorMock),
-                ReportNode.NO_OP)
+                createSecurityAnalysisRunParameters(interceptorMock))
                 .getResult();
 
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
@@ -181,9 +177,9 @@ class SecurityAnalysisTest {
         return new SecurityAnalysisRunParameters()
                 .setSecurityAnalysisParameters(SecurityAnalysisParameters.load(platformConfig))
                 .setComputationManager(createMockComputationManager())
-                .setInterceptors(List.of(interceptor))
-                .setOperatorStrategies(List.of(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"), new AnyViolationCondition(), Collections.singletonList("action1"))))
-                .setActions(List.of(new SwitchAction("action1", "switchId", true)));
+                .addInterceptor(interceptor)
+                .addOperatorStrategy(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"), new AnyViolationCondition(), Collections.singletonList("action1")))
+                .addAction(new SwitchAction("action1", "switchId", true));
     }
 
     private static ComputationManager createMockComputationManager() {
