@@ -26,6 +26,8 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -656,5 +658,23 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Compare
         return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
+    }
+
+    @Test
+    void testDisconnectedTerminalForSlack() {
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
+        // Set slack terminal
+        Terminal terminal = network.getGenerator("GEN").getTerminal();
+        SlackTerminal.reset(network.getVoltageLevel("VLGEN"), terminal);
+
+        // Disconnect the generator
+        terminal.disconnect();
+        assertFalse(terminal.isConnected());
+        assertNull(terminal.getBusView().getBus());
+
+        // Verify in the output file that no TopologicalIsland was created
+        Path outputPath = fileSystem.getPath("tmp-slackTerminal");
+        network.write("CGMES", new Properties(), outputPath);
+        // TODO
     }
 }
