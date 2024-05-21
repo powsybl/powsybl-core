@@ -11,7 +11,6 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.detectors.LimitViolationDetector;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
