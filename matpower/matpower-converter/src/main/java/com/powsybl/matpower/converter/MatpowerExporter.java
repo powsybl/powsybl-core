@@ -31,7 +31,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.DoubleUnaryOperator;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -118,9 +117,6 @@ public class MatpowerExporter implements Exporter {
         if (context.refBusId.contains(bus.getId()) || hasSlackExtension(bus)) {
             return MBus.Type.REF;
         }
-        if (isIsolated(bus, context)) {
-            return MBus.Type.ISOLATED;
-        }
         // PV buses will be defined at the end of the export process
         return MBus.Type.PQ;
     }
@@ -139,7 +135,6 @@ public class MatpowerExporter implements Exporter {
 
         final List<String> generatorIdsConvertedToLoad = new ArrayList<>();
         final Set<Component> synchronousComponentsToBeExported = new HashSet<>();
-        final Set<Bus> isolatedBusesToBeExported = new HashSet<>();
         final Map<Integer, List<GenRc>> generatorsToBeExported = new HashMap<>();
         final List<String> antennaIds = new ArrayList<>();
 
@@ -213,67 +208,10 @@ public class MatpowerExporter implements Exporter {
         private static boolean isMainSynchronousComponent(Component synchronousComponent) {
             return synchronousComponent.getSize() > 0 && synchronousComponent.getBuses().iterator().next().isInMainSynchronousComponent();
         }
-
-        private void findIsolatedBusesToBeExported(Network network) {
-            List<Set<Bus>> connectedSets = findConnectedSetsByDisconnectedEquipment(network);
-
-            for (Set<Bus> connectedSet : connectedSets) {
-                List<Bus> isolatedBuses = connectedSet.stream().filter(bus -> !isSynchronousComponentBus(bus)).toList();
-                if (isolatedBusesConnectedToSynchronousComponents(connectedSet.size(), isolatedBuses.size())) {
-                    isolatedBusesToBeExported.addAll(isolatedBuses);
-                }
-            }
-        }
-
-        private List<Set<Bus>> findConnectedSetsByDisconnectedEquipment(Network network) {
-            Graph<Bus, Pair<Bus, Bus>> isolatedBusesGraph = new Pseudograph<>(null, null, false);
-
-            // We are not considering vsc hvdc lines as it will be necessary to define a slack bus
-            // when the status of the hvdc line changes to connected
-            network.getConnectables().forEach(connectable -> {
-                if (connectable.getTerminals().size() >= 2) {
-                    List<Bus> buses = findBuses(connectable);
-                    addToGraph(isolatedBusesGraph, buses);
-                }
-            });
-
-            return new ConnectivityInspector<>(isolatedBusesGraph).connectedSets();
-        }
-
-        private static List<Bus> findBuses(Connectable<?> connectable) {
-            Set<Bus> buses = connectable.getTerminals().stream().map(MatpowerExporter::findBus).collect(Collectors.toSet());
-            return buses.stream().filter(Objects::nonNull).toList();
-        }
-
-        private void addToGraph(Graph<Bus, Pair<Bus, Bus>> isolatedBusesGraph, List<Bus> buses) {
-            if (buses.size() < 2 || buses.stream().allMatch(this::isSynchronousComponentBus)) {
-                return;
-            }
-            Bus bus1 = buses.get(0);
-            isolatedBusesGraph.addVertex(bus1);
-            for (int i = 1; i < buses.size(); i++) {
-                Bus bus2 = buses.get(i);
-                isolatedBusesGraph.addVertex(bus2);
-                isolatedBusesGraph.addEdge(bus1, bus2, Pair.of(bus1, bus2));
-            }
-        }
-
-        private boolean isSynchronousComponentBus(Bus bus) {
-            return bus != null && synchronousComponentsToBeExported.contains(bus.getSynchronousComponent());
-        }
-
-        private static boolean isolatedBusesConnectedToSynchronousComponents(int connectedSetSize, int isolatedBusesSize) {
-            return connectedSetSize > isolatedBusesSize;
-        }
     }
 
     private static boolean isExported(Bus bus, Context context) {
-        return bus != null && (context.synchronousComponentsToBeExported.contains(bus.getSynchronousComponent())
-                || context.isolatedBusesToBeExported.contains(bus));
-    }
-
-    private static boolean isIsolated(Bus bus, Context context) {
-        return bus != null && context.isolatedBusesToBeExported.contains(bus);
+        return bus != null && (context.synchronousComponentsToBeExported.contains(bus.getSynchronousComponent()));
     }
 
     // In matpower cases, the bus number is the only way to identify it. During the export process, we preserve the
@@ -321,11 +259,12 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = findBus(twt.getLeg1().getTerminal());
             Bus bus2 = findBus(twt.getLeg2().getTerminal());
             Bus bus3 = findBus(twt.getLeg3().getTerminal());
-            if (isExported(bus1, context) && isExported(bus2, context) && isExported(bus3, context)) {
+            if (isExported(bus1, context) && isExported(bus2, context) && isExported(bus3, context)
+                    && !isStarBusIsolated(twt.getLeg1().getTerminal(), twt.getLeg2().getTerminal(), twt.getLeg3().getTerminal())) {
                 MBus mBus = new MBus();
                 mBus.setNumber(findBusNumber(twt.getId(), context));
                 mBus.setName(twt.getNameOrId());
-                mBus.setType(starBusType(bus1, bus2, bus3, twt.getLeg1().getTerminal(), twt.getLeg2().getTerminal(), twt.getLeg3().getTerminal(), context));
+                mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
                 mBus.setBaseVoltage(twt.getRatedU0());
@@ -344,28 +283,20 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
-    private static MBus.Type starBusType(Bus bus1, Bus bus2, Bus bus3, Terminal t1, Terminal t2, Terminal t3, Context context) {
-        if (isDisconnectedOrConnectedToAnIsolatedBus(bus1, t1, context) && isDisconnectedOrConnectedToAnIsolatedBus(bus2, t2, context) && isDisconnectedOrConnectedToAnIsolatedBus(bus3, t3, context)) {
-            return MBus.Type.ISOLATED;
-        }
-        return MBus.Type.PQ;
-    }
-
-    private static boolean isDisconnectedOrConnectedToAnIsolatedBus(Bus bus, Terminal terminal, Context context) {
-        return getStatus(terminal) == DISCONNECTED_STATUS
-                || getStatus(terminal) == CONNECTED_STATUS && isIsolated(bus, context);
+    private static boolean isStarBusIsolated(Terminal t1, Terminal t2, Terminal t3) {
+        return getStatus(t1) == DISCONNECTED_STATUS && getStatus(t2) == DISCONNECTED_STATUS && getStatus(t3) == DISCONNECTED_STATUS;
     }
 
     private static void createDanglingLineBuses(Network network, MatpowerModel model, Context context) {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = findBus(t);
-            if (isExported(bus, context)) {
+            if (isExported(bus, context) && getStatus(t) == CONNECTED_STATUS) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBus mBus = new MBus();
                 mBus.setNumber(findBusNumber(dl.getId(), context));
                 mBus.setName(dl.getNameOrId());
-                mBus.setType(danglingLineBusType(bus, t, context));
+                mBus.setType(MBus.Type.PQ);
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
                 mBus.setBaseVoltage(dl.getTerminal().getVoltageLevel().getNominalV());
@@ -382,13 +313,6 @@ public class MatpowerExporter implements Exporter {
                 model.addBus(mBus);
             }
         }
-    }
-
-    private static MBus.Type danglingLineBusType(Bus bus, Terminal t, Context context) {
-        if (isDisconnectedOrConnectedToAnIsolatedBus(bus, t, context)) {
-            return MBus.Type.ISOLATED;
-        }
-        return MBus.Type.PQ;
     }
 
     private static void createBuses(Network network, MatpowerModel model, Context context) {
@@ -735,7 +659,7 @@ public class MatpowerExporter implements Exporter {
         for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.UNPAIRED)) {
             Terminal t = dl.getTerminal();
             Bus bus = t.getBusView().getBus();
-            if (isExported(bus, context)) {
+            if (isExported(bus, context) && context.mBusesNumbersByIds.get(dl.getId()) != null) {
                 VoltageLevel vl = t.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus.getId()));
@@ -763,13 +687,19 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = findBus(t1);
             Bus bus2 = findBus(t2);
             Bus bus3 = findBus(t3);
-            if (isExported(bus1, context) && isExported(bus2, context) && isExported(bus3, context) && context.mBusesNumbersByIds.get(twt.getId()) != null) {
-                model.addBranch(createTransformerLeg(twt, leg1, bus1, getStatus(t1), context));
-                model.addBranch(createTransformerLeg(twt, leg2, bus2, getStatus(t2), context));
-                model.addBranch(createTransformerLeg(twt, leg3, bus3, getStatus(t3), context));
-            }
-            if (isAntenna(t1, t2, t3)) {
-                context.antennaIds.add(twt.getId());
+            if (context.mBusesNumbersByIds.get(twt.getId()) != null) {
+                if (isExported(bus1, context)) {
+                    model.addBranch(createTransformerLeg(twt, leg1, bus1, getStatus(t1), context));
+                }
+                if (isExported(bus2, context)) {
+                    model.addBranch(createTransformerLeg(twt, leg2, bus2, getStatus(t2), context));
+                }
+                if (isExported(bus3, context)) {
+                    model.addBranch(createTransformerLeg(twt, leg3, bus3, getStatus(t3), context));
+                }
+                if (isAntenna(t1, t2, t3)) {
+                    context.antennaIds.add(twt.getId());
+                }
             }
         }
     }
@@ -1209,7 +1139,6 @@ public class MatpowerExporter implements Exporter {
 
         Context context = new Context(maxGeneratorActivePower, maxGeneratorReactivePower);
         context.findSynchronousComponentsToBeExported(network);
-        context.findIsolatedBusesToBeExported(network);
 
         findSlackBusesForEachSynchronousComponent(context);
 
