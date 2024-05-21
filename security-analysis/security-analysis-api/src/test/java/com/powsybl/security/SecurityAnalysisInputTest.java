@@ -11,10 +11,8 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.detectors.LimitViolationDetector;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +34,6 @@ class SecurityAnalysisInputTest {
 
         SecurityAnalysisParameters params = new SecurityAnalysisParameters();
         ContingenciesProvider provider = ContingenciesProviders.emptyProvider();
-        LimitViolationDetector detector = new DefaultLimitViolationDetector();
 
         inputs.setParameters(params);
         inputs.setContingencies(provider);
