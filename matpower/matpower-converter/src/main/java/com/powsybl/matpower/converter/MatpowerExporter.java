@@ -240,6 +240,11 @@ public class MatpowerExporter implements Exporter {
             return new ConnectivityInspector<>(isolatedBusesGraph).connectedSets();
         }
 
+        private static List<Bus> findBuses(Connectable<?> connectable) {
+            Set<Bus> buses = connectable.getTerminals().stream().map(MatpowerExporter::findBus).collect(Collectors.toSet());
+            return buses.stream().filter(Objects::nonNull).toList();
+        }
+
         private void addToGraph(Graph<Bus, Pair<Bus, Bus>> isolatedBusesGraph, List<Bus> buses) {
             if (buses.size() < 2 || buses.stream().allMatch(this::isSynchronousComponentBus)) {
                 return;
@@ -984,11 +989,6 @@ public class MatpowerExporter implements Exporter {
 
     private static Bus findBus(Terminal terminal) {
         return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
-    }
-
-    private static List<Bus> findBuses(Connectable<?> connectable) {
-        Set<Bus> buses = connectable.getTerminals().stream().map(MatpowerExporter::findBus).collect(Collectors.toSet());
-        return buses.stream().filter(Objects::nonNull).toList();
     }
 
     private static int getStatus(Terminal t) {
