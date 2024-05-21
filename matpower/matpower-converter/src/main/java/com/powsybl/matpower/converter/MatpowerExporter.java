@@ -746,7 +746,7 @@ public class MatpowerExporter implements Exporter {
                     int busNumber = context.mBusesNumbersByIds.get(dl.getId());
                     VoltageLevel vl = t.getVoltageLevel();
                     addMgen(context, busNumber, dl.getId(),
-                            g.isVoltageRegulationOn() ? g.getTargetV() / vl.getNominalV() : 0,
+                            checkAndFixTargetVpu(g.getTargetV() / vl.getNominalV()),
                             g.getTargetP(),
                             Math.max(g.getMinP(), -context.maxGeneratorActivePowerLimit),
                             Math.min(g.getMaxP(), context.maxGeneratorActivePowerLimit),
@@ -970,9 +970,9 @@ public class MatpowerExporter implements Exporter {
             List<Context.GenRc> genRcs = context.generatorsToBeExported.get(busNumber);
             MBus mBus = model.getBusByNum(busNumber);
             List<Context.GenRc> genRcsWithRegulationOn = genRcs.stream().filter(genRc -> genRc.isValidVoltageRegulation).toList();
-            List<Context.GenRc> genRcsWithoutRegulationOn = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation).toList();
+            List<Context.GenRc> genRcsWithRegulationOff = genRcs.stream().filter(genRc -> !genRc.isValidVoltageRegulation).toList();
             if (genRcsWithRegulationOn.isEmpty()) {
-                genRcsWithoutRegulationOn.forEach(genRc -> {
+                genRcsWithRegulationOff.forEach(genRc -> {
                     MGen mGen = createMGen(model, busNumber, genRc, context);
                     // we can safely set voltage setpoint to zero, because a PQ bus never go back to PV even if reactive limits
                     // are activated in Matpower power flow
@@ -984,7 +984,7 @@ public class MatpowerExporter implements Exporter {
                 }
                 genRcsWithRegulationOn.forEach(genRc -> createMGen(model, busNumber, genRc, context));
 
-                genRcsWithoutRegulationOn.forEach(genRc -> {
+                genRcsWithRegulationOff.forEach(genRc -> {
                     mBus.setRealPowerDemand(mBus.getRealPowerDemand() - genRc.targetP);
                     mBus.setReactivePowerDemand(mBus.getReactivePowerDemand() - genRc.targetQ);
                     context.generatorIdsConvertedToLoad.add(genRc.id);
