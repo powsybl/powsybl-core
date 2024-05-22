@@ -1019,7 +1019,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isRemoteRegulation(Bus bus, Bus regulatedBus) {
-        return bus != null && regulatedBus != null && bus.getId().equals(regulatedBus.getId());
+        return !(bus != null && regulatedBus != null && bus.getId().equals(regulatedBus.getId()));
     }
 
     private static double checkAndFixVoltageMagnitude(double voltageMagnitude) {
