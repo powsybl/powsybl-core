@@ -26,13 +26,13 @@
                 <iidm:danglingLine id="dl2" name="dl2_name" p0="0.0" q0="0.0" r="1.0" x="2.0" g="4.0" b="5.0" pairingKey="code" bus="b2" connectableBus="b2"/>
             </iidm:voltageLevel>
         </iidm:substation>
+        <iidm:extension id="Network-2">
+            <extNetworkSource:networkSource sourceData="Source_2"/>
+        </iidm:extension>
         <iidm:extension id="LOAD">
             <mock:terminalMock>
                 <mock:terminal id="LOAD"/>
             </mock:terminalMock>
-        </iidm:extension>
-        <iidm:extension id="Network-2">
-            <extNetworkSource:networkSource sourceData="Source_2"/>
         </iidm:extension>
     </iidm:network>
     <iidm:tieLine id="dl1 + dl2" name="dl1_name + dl2_name" danglingLineId1="dl1" danglingLineId2="dl2"/>

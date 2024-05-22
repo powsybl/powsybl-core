@@ -465,7 +465,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(bus.getLoadStream()));
 
         // Connectables
-        assertEquals(Arrays.asList("LOAD", NHV1_NHV2_2, NGEN_NHV1, NHV1_NHV2_1, NHV2_NLOAD, "GEN", "NHV1_NHV1"), mapper.apply(network.getConnectableStream()));
+        assertEquals(Arrays.asList(NHV1_NHV2_1, NHV1_NHV2_2, NGEN_NHV1, NHV2_NLOAD, "LOAD", "GEN", "NHV1_NHV1"), mapper.apply(network.getConnectableStream()));
         assertArrayEquals(Iterables.toArray(network.getConnectables(), Connectable.class), network.getConnectableStream().toArray());
         assertEquals(network.getConnectableCount(), network.getConnectableStream().count());
 

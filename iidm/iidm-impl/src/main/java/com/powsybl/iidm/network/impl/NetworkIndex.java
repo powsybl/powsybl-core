@@ -21,7 +21,7 @@ import java.util.*;
  */
 class NetworkIndex {
 
-    private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
+    private final Map<String, Identifiable<?>> objectsById = new LinkedHashMap<>();
     private final Map<String, String> idByAlias = new HashMap<>();
 
     private final Map<Class<? extends Identifiable>, Set<Identifiable<?>>> objectsByClass = new HashMap<>();
