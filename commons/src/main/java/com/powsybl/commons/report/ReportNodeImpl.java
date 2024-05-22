@@ -45,15 +45,23 @@ public final class ReportNodeImpl implements ReportNode {
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
     static ReportNodeImpl createChildReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, ReportNodeImpl parent) {
-        RefChain<RootContext> rootContext = parent.getRootContext();
-        rootContext.get().addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
-        return new ReportNodeImpl(messageKey, values, parent.getValuesMapsInheritance(), rootContext, false);
+        return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getRootContext(), false);
     }
 
-    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values) {
-        RootContext rootContext = new RootContext();
+    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, String timestampPattern) {
+        RefChain<RootContext> rootContext = new RefChain<>(new RefObj<>(new RootContext(timestampPattern)));
+        return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), rootContext, true);
+    }
+
+    private static ReportNodeImpl createReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
+                                                   Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<RootContext> rootContextRef,
+                                                   boolean isRoot) {
+        RootContext rootContext = rootContextRef.get();
         rootContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
-        return new ReportNodeImpl(messageKey, values, Collections.emptyList(), new RefChain<>(new RefObj<>(rootContext)), true);
+        if (rootContext.isTimestampAdded()) {
+            values.put(ReportConstants.TIMESTAMP_KEY, rootContext.getTimestamp());
+        }
+        return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, rootContextRef, isRoot);
     }
 
     /**

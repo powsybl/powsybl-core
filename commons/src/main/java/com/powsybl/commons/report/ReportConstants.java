@@ -13,6 +13,8 @@ package com.powsybl.commons.report;
 public final class ReportConstants {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
+    public static final String TIMESTAMP_KEY = "timestamp";
+    public static final String DEFAULT_TIMESTAMP_PATTERN = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     public static final ReportNodeVersion CURRENT_VERSION = ReportNodeVersion.V_2_1;
 
     private ReportConstants() {

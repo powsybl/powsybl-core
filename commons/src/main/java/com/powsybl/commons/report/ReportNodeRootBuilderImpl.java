@@ -8,15 +8,23 @@
 package com.powsybl.commons.report;
 
 /**
- * An adder to create a {@link ReportNode} object as a child of given {@link ReportRoot} parent.
+ * A builder to create a root {@link ReportNode} object.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
+    private String timestampPattern;
+
+    @Override
+    public ReportNodeBuilder withTimestamps(String timestampPattern) {
+        this.timestampPattern = timestampPattern;
+        return this;
+    }
+
     @Override
     public ReportNode build() {
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values);
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, timestampPattern);
     }
 
     @Override

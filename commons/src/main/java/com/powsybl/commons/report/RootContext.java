@@ -10,6 +10,8 @@ package com.powsybl.commons.report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -18,6 +20,15 @@ import java.util.*;
 public class RootContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(RootContext.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
+    private final DateTimeFormatter timestampFormatter;
+
+    public RootContext() {
+        this(null);
+    }
+
+    public RootContext(String timestampPattern) {
+        this.timestampFormatter = timestampPattern != null ? DateTimeFormatter.ofPattern(timestampPattern) : null;
+    }
 
     public Map<String, String> getDictionary() {
         return Collections.unmodifiableMap(dictionary);
@@ -36,5 +47,14 @@ public class RootContext {
 
     public synchronized void merge(RootContext otherContext) {
         otherContext.dictionary.forEach(this::addDictionaryEntry);
+    }
+
+    public boolean isTimestampAdded() {
+        return timestampFormatter != null;
+    }
+
+    public TypedValue getTimestamp() {
+        String timestamp = timestampFormatter != null ? timestampFormatter.format(ZonedDateTime.now()) : null;
+        return new TypedValue(timestamp, TypedValue.TIMESTAMP);
     }
 }

@@ -12,6 +12,10 @@ import com.powsybl.commons.test.AbstractSerDeTest;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -124,5 +128,36 @@ class ReportNodeTest extends AbstractSerDeTest {
         ReportNode report = ReportNodeDeserializer.read(getClass().getResourceAsStream("/testDictionaryEnd.json"));
         assertEquals("Root message", report.getMessage());
         assertEquals("Child message", report.getChildren().get(0).getMessage());
+    }
+
+    @Test
+    void testTimestamps() {
+        ReportNode root = ReportNode.newRootReportNode()
+                .withTimestamps()
+                .withMessageTemplate("rootTemplate", "Root message")
+                .build();
+        assertHasTimeStamp(root);
+
+        ReportNode child = root.newReportNode()
+                .withMessageTemplate("child", "Child message")
+                .add();
+        assertHasTimeStamp(child);
+
+        Path report = tmpDir.resolve("report");
+        ReportNodeSerializer.write(root, report);
+        ReportNode rootRead = ReportNodeDeserializer.read(report);
+        assertHasTimeStamp(rootRead);
+        assertHasTimeStamp(rootRead.getChildren().get(0));
+    }
+
+    private static void assertHasTimeStamp(ReportNode root) {
+        Optional<TypedValue> timestamp = root.getValue(ReportConstants.TIMESTAMP_KEY);
+        assertTrue(timestamp.isPresent());
+        assertInstanceOf(String.class, timestamp.get().getValue());
+        try {
+            ZonedDateTime.parse((String) timestamp.get().getValue());
+        } catch (DateTimeParseException e) {
+            fail();
+        }
     }
 }
