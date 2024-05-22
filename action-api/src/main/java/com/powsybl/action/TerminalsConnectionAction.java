@@ -87,18 +87,15 @@ public class TerminalsConnectionAction extends AbstractAction {
     @Override
     public NetworkModification toModification() {
         if (isOpen()) {
-            PlannedDisconnectionBuilder builder = new PlannedDisconnectionBuilder().withConnectableId(elementId);
-            if (side != null) {
-                builder.withSide(side);
-            }
+            PlannedDisconnectionBuilder builder = new PlannedDisconnectionBuilder()
+                .withConnectableId(elementId)
+                .withSide(side);
             return builder.build();
         } else {
             ConnectableConnectionBuilder builder = new ConnectableConnectionBuilder()
                     .withConnectableId(elementId)
-                    .withOnlyBreakersOperable(true);
-            if (side != null) {
-                builder.withSide(side);
-            }
+                    .withOnlyBreakersOperable(true)
+                .withSide(side);
             return builder.build();
         }
     }
