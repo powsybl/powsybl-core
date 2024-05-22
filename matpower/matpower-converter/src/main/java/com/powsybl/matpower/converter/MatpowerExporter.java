@@ -797,7 +797,7 @@ public class MatpowerExporter implements Exporter {
                 double maxP = g.getMaxP();
                 double maxQ = g.getReactiveLimits().getMaxQ(g.getTargetP());
                 double minQ = g.getReactiveLimits().getMinQ(g.getTargetP());
-                Bus regulatedBus = g.getRegulatingTerminal().getBusView().getBus();
+                Bus regulatedBus = findRegulatedBus(t, g.getRegulatingTerminal());
                 boolean isValidVoltageRegulation = isValidVoltageRegulation(g.isVoltageRegulatorOn(), regulatedBus);
                 boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 double ratedS = g.getRatedS();
@@ -828,7 +828,7 @@ public class MatpowerExporter implements Exporter {
                 double minQ = svc.getBmin() * vSquared;
                 double maxQ = svc.getBmax() * vSquared;
                 double targetVpu = checkAndFixTargetVpu(findTargetVpu(svc));
-                Bus regulatedBus = svc.getRegulatingTerminal().getBusView().getBus();
+                Bus regulatedBus = findRegulatedBus(t, svc.getRegulatingTerminal());
                 boolean isValidVoltageRegulation = isValidVoltageRegulation(StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()), regulatedBus);
                 boolean isRemoteRegulation = isRemoteRegulation(bus, regulatedBus);
                 addMgen(context, busNumber, id, getStatus(t), targetVpu, 0, 0, 0, targetQ, minQ, maxQ, isValidVoltageRegulation, isRemoteRegulation, Double.NaN);
@@ -921,6 +921,19 @@ public class MatpowerExporter implements Exporter {
         return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
     }
 
+    private static Bus findRegulatedBus(Terminal genTerminal, Terminal regulatedTerminal) {
+        Bus regulatedBus = regulatedTerminal.getBusView().getBus();
+        // Local regulation with disconnected generator
+        if (regulatedBus == null && genTerminal.getBusView().getBus() == null) {
+            Bus connectableBus = genTerminal.getBusView().getConnectableBus();
+            Bus connectableBusForRegulation = regulatedTerminal.getBusView().getConnectableBus();
+            if (connectableBus != null && connectableBusForRegulation != null && connectableBus.getId().equals(connectableBusForRegulation.getId())) {
+                regulatedBus = connectableBusForRegulation;
+            }
+        }
+        return regulatedBus;
+    }
+
     private static int getStatus(Terminal t) {
         return t.isConnected() ? CONNECTED_STATUS : DISCONNECTED_STATUS;
     }
@@ -987,7 +1000,7 @@ public class MatpowerExporter implements Exporter {
             String id = vscConverterStation.getId();
             double targetQ = checkAndFixTargetQ(vscConverterStation.getReactivePowerSetpoint());
             double targetVpu = checkAndFixTargetVpu(findTargetVpu(vscConverterStation));
-            Bus regulatedBus = vscConverterStation.getRegulatingTerminal().getBusView().getBus();
+            Bus regulatedBus = findRegulatedBus(terminal, vscConverterStation.getRegulatingTerminal());
             double targetP = HvdcUtils.getConverterStationTargetP(vscConverterStation);
             double minQ = checkAndFixMinQ(vscConverterStation.getReactiveLimits().getMinQ(targetP)); // approximation
             double maxQ = checkAndFixMaxQ(vscConverterStation.getReactiveLimits().getMaxQ(targetP)); // approximation
@@ -1063,7 +1076,7 @@ public class MatpowerExporter implements Exporter {
     }
 
     private static boolean isRemoteRegulation(Bus bus, Bus regulatedBus) {
-        return bus != null && regulatedBus != null && bus.getId().equals(regulatedBus.getId());
+        return !(bus != null && regulatedBus != null && bus.getId().equals(regulatedBus.getId()));
     }
 
     private static double checkAndFixVoltageMagnitude(double voltageMagnitude) {
