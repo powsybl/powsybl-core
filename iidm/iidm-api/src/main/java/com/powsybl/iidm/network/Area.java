@@ -52,4 +52,6 @@ public interface Area extends Identifiable<Area> {
      * @return the net interchange tolerance
      */
     Optional<Double> getAcNetInterchangeTolerance();
+
+    void remove(VoltageLevel voltageLevel);
 }

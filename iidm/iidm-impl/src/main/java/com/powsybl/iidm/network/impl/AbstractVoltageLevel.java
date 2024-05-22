@@ -547,6 +547,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         // Remove the topology
         removeTopology();
 
+        // Remove this voltage level from the areas
+        getAreas().forEach(area -> area.remove(this));
         // Remove this voltage level from the network
         getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
         network.getIndex().remove(this);

@@ -85,6 +85,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
+    public void remove(VoltageLevel voltageLevel) {
+        voltagelevels.remove(voltageLevel);
+    }
+
+    @Override
     public Map<BoundaryPointType, List<Terminal>> getBoundaryPointsByType() {
         return boundaryPointsByType;
     }

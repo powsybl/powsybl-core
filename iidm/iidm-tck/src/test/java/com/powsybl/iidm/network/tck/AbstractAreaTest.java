@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -67,11 +68,16 @@ public abstract class AbstractAreaTest {
 
     @Test
     void areaIterableAndStreamGetterCheck() {
-        assertEquals(4, Iterables.size(network.getAreas()));
-        assertEquals(3, Iterables.size(network.getAreaTypes()));
+        List<Area> areas = List.of(biddingZoneA, biddingZoneB, regionA, aicA);
+        List<AreaType> areaTypes = List.of(biddingZone, region, aic);
 
-        assertEquals(List.of(biddingZoneA, biddingZoneB, regionA, aicA), network.getAreaStream().toList());
-        assertEquals(List.of(biddingZone, region, aic), network.getAreaTypeStream().toList());
+        assertEquals(areas, network.getAreaStream().toList());
+        assertEquals(areaTypes, network.getAreaTypeStream().toList());
+
+        assertEquals(4, Iterables.size(network.getAreas()));
+        areas.forEach(area -> assertTrue(Iterables.contains(network.getAreas(), area)));
+        assertEquals(3, Iterables.size(network.getAreaTypes()));
+        areaTypes.forEach(areaType -> assertTrue(Iterables.contains(network.getAreaTypes(), areaType)));
     }
 
     @Test
@@ -112,10 +118,9 @@ public abstract class AbstractAreaTest {
         biddingZoneA.addVoltageLevel(vlhv1);
         vlhv2.addArea(biddingZoneA);
 
-        assertEquals(List.of(biddingZoneA), vlhv1.getAreasStream().toList());
-        assertEquals(List.of(biddingZoneA), vlhv2.getAreasStream().toList());
-        assertEquals(List.of(vlhv1, vlhv2), biddingZoneA.getVoltageLevelStream().toList());
-        assertEquals(2, Iterables.size(biddingZoneA.getVoltageLevels()));
+        assertEquals(Set.of(biddingZoneA), vlhv1.getAreas());
+        assertEquals(Set.of(biddingZoneA), vlhv2.getAreas());
+        assertEquals(Set.of(vlhv1, vlhv2), biddingZoneA.getVoltageLevels());
     }
 
     @Test
@@ -124,8 +129,8 @@ public abstract class AbstractAreaTest {
         biddingZoneA.addVoltageLevel(vlhv1);
         vlhv1.addArea(biddingZoneA);
 
-        assertEquals(List.of(biddingZoneA), vlhv1.getAreasStream().toList());
-        assertEquals(List.of(vlhv1), biddingZoneA.getVoltageLevelStream().toList());
+        assertEquals(Set.of(biddingZoneA), vlhv1.getAreas());
+        assertEquals(Set.of(vlhv1), biddingZoneA.getVoltageLevels());
     }
 
     @Test
@@ -134,9 +139,9 @@ public abstract class AbstractAreaTest {
         vlhv1.addArea(biddingZoneA);
         regionA.addVoltageLevel(vlhv1);
 
-        assertEquals(List.of(biddingZoneA, regionA), vlhv1.getAreasStream().toList());
-        assertEquals(List.of(vlhv1), biddingZoneA.getVoltageLevelStream().toList());
-        assertEquals(List.of(vlhv1), regionA.getVoltageLevelStream().toList());
+        assertEquals(Set.of(biddingZoneA, regionA), vlhv1.getAreas());
+        assertEquals(Set.of(vlhv1), biddingZoneA.getVoltageLevels());
+        assertEquals(Set.of(vlhv1), regionA.getVoltageLevels());
     }
 
     @Test
@@ -160,10 +165,14 @@ public abstract class AbstractAreaTest {
                 .setLowVoltageLimit(0.0)
                 .setHighVoltageLimit(0.0)
                 .add();
+
+        dummy.addArea(biddingZoneB);
+        assertEquals(Set.of(dummy), biddingZoneB.getVoltageLevels());
         dummy.remove();
+        assertEquals(Set.of(), biddingZoneB.getVoltageLevels());
 
         Throwable e1 = assertThrows(PowsyblException.class, () -> dummy.getArea(biddingZone));
-        Throwable e2 = assertThrows(PowsyblException.class, () -> dummy.getAreas());
+        Throwable e2 = assertThrows(PowsyblException.class, dummy::getAreas);
         Throwable e3 = assertThrows(PowsyblException.class, dummy::getAreasStream);
         Throwable e4 = assertThrows(PowsyblException.class, () -> dummy.addArea(biddingZoneA));
 
