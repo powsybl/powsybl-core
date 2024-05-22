@@ -3,7 +3,7 @@
     <iidm:areaType id="BiddingZone"/>
     <iidm:areaType id="ControlArea"/>
     <iidm:area id="BidZoneId1" name="BidZoneName1" areaType="BiddingZone"/>
-    <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone"/>
+    <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone" acNetInterchangeTarget="100.0" acNetInterchangeTolerance="1.0"/>
     <iidm:area id="ControlAreaId1" name="ControlAreaName1" areaType="ControlArea"/>
     <iidm:substation id="sub1">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
