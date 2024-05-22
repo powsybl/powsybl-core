@@ -118,4 +118,11 @@ class ReportNodeTest extends AbstractSerDeTest {
 
         roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
     }
+
+    @Test
+    void testDictionaryEnd() {
+        ReportNode report = ReportNodeDeserializer.read(getClass().getResourceAsStream("/testDictionaryEnd.json"));
+        assertEquals("Root message", report.getMessage());
+        assertEquals("Child message", report.getChildren().get(0).getMessage());
+    }
 }

@@ -20,7 +20,6 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -42,38 +41,37 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
     public ReportNodeImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
-        var parsingContext = new Object() {
-            ReportNodeVersion version;
-            Map<String, String> dictionary;
-        };
+        ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
+        RootContext rootContext = new RootContext();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
-                case "version" -> parsingContext.version = ReportNodeVersion.of(p.nextTextValue());
-                case "dictionaries" -> parsingContext.dictionary = readDictionary(p, objectMapper, getDictionaryName(ctx));
-                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, parsingContext.version, parsingContext.dictionary);
+                case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
+                case "dictionaries" -> readDictionary(p, objectMapper, rootContext, getDictionaryName(ctx));
+                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, rootContext, version);
                 default -> throw new IllegalStateException("Unexpected value: " + p.currentName());
             }
         }
         return reportNode;
     }
 
-    private Map<String, String> readDictionary(JsonParser p, ObjectMapper objectMapper, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, ObjectMapper objectMapper, RootContext rootContext, String dictionaryName) throws IOException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
+        // We could avoid constructing the full HashMap, at the cost of code readability (the case "dictionaryName not found" makes it tricky)
         HashMap<String, HashMap<String, String>> dictionaries = objectMapper.readValue(p, dictionariesTypeRef);
         Map<String, String> dictionary = dictionaries.get(dictionaryName);
         if (dictionary == null) {
             var dictionaryEntry = dictionaries.entrySet().stream().findFirst().orElse(null);
             if (dictionaryEntry == null) {
                 LOGGER.warn("No dictionary found! `dictionaries` root entry is empty");
-                return Collections.emptyMap();
+                return;
             } else {
                 LOGGER.warn("Cannot find `{}` dictionary, taking first entry (`{}`)", dictionaryName, dictionaryEntry.getKey());
                 dictionary = dictionaryEntry.getValue();
             }
         }
-        return dictionary;
+        dictionary.forEach(rootContext::addDictionaryEntry);
     }
 
     private String getDictionaryName(DeserializationContext ctx) {
