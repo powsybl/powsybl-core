@@ -55,6 +55,14 @@ public abstract class AbstractAreaTest {
         assertEquals(aic, aicA.getAreaType());
         assertEquals(Optional.of(10.0), aicA.getAcNetInterchangeTarget());
         assertEquals(Optional.of(0.1), aicA.getAcNetInterchangeTolerance());
+
+        final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
+        final Terminal boundary2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2).getTerminal2();
+        final Terminal boundary3 = network.getGenerator("GEN").getTerminal();
+        assertEquals(List.of(boundary1, boundary2), aicA.getBoundaryPoints(BoundaryPointType.PAIRED_AC));
+        assertEquals(List.of(boundary1, boundary2), aicA.getBoundaryPointStream(BoundaryPointType.PAIRED_AC).toList());
+        assertEquals(List.of(boundary1, boundary2, boundary3), aicA.getBoundaryPoints());
+        assertEquals(List.of(boundary1, boundary2, boundary3), aicA.getBoundaryPointStream().toList());
     }
 
     @Test
@@ -209,12 +217,17 @@ public abstract class AbstractAreaTest {
                 .setName("Region_A")
                 .setAreaType(region)
                 .add();
+        final Line nhv1Nhv2Line1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        final Line nhv1Nhv2Line2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
         network.newArea()
                 .setAcNetInterchangeTarget(10.0)
                 .setAcNetInterchangeTolerance(0.1)
                 .setId("aic_a")
                 .setName("Aic_A")
                 .setAreaType(aic)
+                .addBoundaryPoint(nhv1Nhv2Line1.getTerminal1(), BoundaryPointType.PAIRED_AC)
+                .addBoundaryPoint(nhv1Nhv2Line2.getTerminal2(), BoundaryPointType.PAIRED_AC)
+                .addBoundaryPoint(network.getGenerator("GEN").getTerminal(), BoundaryPointType.UNPAIRED_AC)
                 .add();
         return network;
     }

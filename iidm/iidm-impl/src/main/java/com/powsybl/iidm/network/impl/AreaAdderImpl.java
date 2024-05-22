@@ -26,6 +26,7 @@ public class AreaAdderImpl extends AbstractAreaAdder<AreaAdderImpl> implements A
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(getNetworkRef(), id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
                 getAcNetInterchangeTolerance());
+        area.getBoundaryPointsByType().putAll(getBoundaryPointsByType());
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
         return area;

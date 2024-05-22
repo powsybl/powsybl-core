@@ -11,17 +11,9 @@ package com.powsybl.iidm.network;
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
-public interface AreaAdder extends AbstractAreaAdder<Area, AreaAdder> {
-
-    AreaAdder setAreaType(AreaType areaType);
-
-    AreaAdder setAcNetInterchangeTarget(Double acNetInterchangeTarget);
-
-    AreaAdder setAcNetInterchangeTolerance(Double acNetInterchangeTolerance);
-
-    AreaAdder addBoundaryPoint(Terminal terminal, BoundaryPointType boundaryPointType);
-
-    @Override
-    Area add();
-
+public enum BoundaryPointType {
+    HVDC,
+    PAIRED_AC,
+    UNPAIRED_AC,
+    IGNORED_AC
 }

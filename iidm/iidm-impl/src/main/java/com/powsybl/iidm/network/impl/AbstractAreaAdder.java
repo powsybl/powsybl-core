@@ -8,7 +8,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.AreaType;
+import com.powsybl.iidm.network.BoundaryPointType;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.*;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -24,8 +28,11 @@ abstract class AbstractAreaAdder<T extends AbstractAreaAdder<T>> extends Abstrac
 
     private Double acNetInterchangeTolerance;
 
+    private final Map<BoundaryPointType, List<Terminal>> boundaryPointsByType;
+
     AbstractAreaAdder(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
+        this.boundaryPointsByType = new TreeMap<>();
     }
 
     public NetworkImpl getNetwork() {
@@ -47,6 +54,12 @@ abstract class AbstractAreaAdder<T extends AbstractAreaAdder<T>> extends Abstrac
         return (T) this;
     }
 
+    public T addBoundaryPoint(Terminal terminal, BoundaryPointType boundaryPointType) {
+        this.boundaryPointsByType.putIfAbsent(boundaryPointType, new ArrayList<>());
+        this.boundaryPointsByType.get(boundaryPointType).add(terminal);
+        return (T) this;
+    }
+
     protected Ref<NetworkImpl> getNetworkRef() {
         return networkRef;
     }
@@ -61,5 +74,9 @@ abstract class AbstractAreaAdder<T extends AbstractAreaAdder<T>> extends Abstrac
 
     protected Double getAcNetInterchangeTolerance() {
         return acNetInterchangeTolerance;
+    }
+
+    protected Map<BoundaryPointType, List<Terminal>> getBoundaryPointsByType() {
+        return boundaryPointsByType;
     }
 }

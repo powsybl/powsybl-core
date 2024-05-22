@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -23,6 +25,16 @@ public interface Area extends Identifiable<Area> {
     Stream<VoltageLevel> getVoltageLevelStream();
 
     void addVoltageLevel(VoltageLevel voltageLevel);
+
+    Map<BoundaryPointType, List<Terminal>> getBoundaryPointsByType();
+
+    Iterable<Terminal> getBoundaryPoints();
+
+    Stream<Terminal> getBoundaryPointStream();
+
+    Iterable<Terminal> getBoundaryPoints(BoundaryPointType boundaryPointType);
+
+    Stream<Terminal> getBoundaryPointStream(BoundaryPointType boundaryPointType);
 
     @Override
     default IdentifiableType getType() {
