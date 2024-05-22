@@ -28,37 +28,13 @@ public class SecurityAnalysisRunParameters {
 
     private LimitViolationDetector detector;
     private LimitViolationFilter filter;
-    /**
-     * Handle command execution
-     */
     private ComputationManager computationManager;
-    /**
-     * Specific security analysis parameters
-     */
     private SecurityAnalysisParameters securityAnalysisParameters;
-    /**
-     * List of interceptors to notify at specific steps of the security analysis (see {@link SecurityAnalysisInterceptor} API)
-     */
     private List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
-    /**
-     * List of strategies to apply to solve violations occurring after a contingency
-     */
     private List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-    /**
-     * List of actions referenced in {@link #operatorStrategies}
-     */
     private List<Action> actions = new ArrayList<>();
-    /**
-     * List of StateMonitors that define the branches, buses and threeWindingsTransformers about which information will be written after security analysis
-     */
     private List<StateMonitor> monitors = new ArrayList<>();
-    /**
-     * List of the limit reductions to apply
-     */
     private List<LimitReduction> limitReductions = new ArrayList<>();
-    /**
-     * The reportNode used for functional logs
-     */
     private ReportNode reportNode = ReportNode.NO_OP;
 
     /**
@@ -153,42 +129,63 @@ public class SecurityAnalysisRunParameters {
         return this;
     }
 
+    /**
+     * Sets the computationManager handling command execution
+     */
     public SecurityAnalysisRunParameters setComputationManager(ComputationManager computationManager) {
         Objects.requireNonNull(computationManager, "ComputationManager should not be null");
         this.computationManager = computationManager;
         return this;
     }
 
+    /**
+     * Sets the specific security analysis parameters
+     */
     public SecurityAnalysisRunParameters setSecurityAnalysisParameters(SecurityAnalysisParameters securityAnalysisParameters) {
         Objects.requireNonNull(securityAnalysisParameters, "Security analysis parameters should not be null");
         this.securityAnalysisParameters = securityAnalysisParameters;
         return this;
     }
 
+    /**
+     * Sets the list of strategies to apply to solve violations occurring after a contingency
+     */
     public SecurityAnalysisRunParameters setOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
         Objects.requireNonNull(operatorStrategies, "OperatorStrategy list should not be null");
         this.operatorStrategies = operatorStrategies;
         return this;
     }
 
+    /**
+     * Sets the list of interceptors to notify at specific steps of the security analysis (see {@link SecurityAnalysisInterceptor} API)
+     */
     public SecurityAnalysisRunParameters setInterceptors(List<SecurityAnalysisInterceptor> interceptors) {
         Objects.requireNonNull(interceptors, "Interceptor list should not be null");
         this.interceptors = interceptors;
         return this;
     }
 
+    /**
+     * Sets the list of the limit reductions to apply
+     */
     public SecurityAnalysisRunParameters setLimitReductions(List<LimitReduction> limitReductions) {
         Objects.requireNonNull(limitReductions, "LimitReductions list should not be null");
         this.limitReductions = limitReductions;
         return this;
     }
 
+    /**
+     * Sets the list of StateMonitors that define the branches, buses and threeWindingsTransformers about which information will be written after security analysis
+     */
     public SecurityAnalysisRunParameters setMonitors(List<StateMonitor> monitors) {
         Objects.requireNonNull(monitors, "StateMonitor list should not be null");
         this.monitors = monitors;
         return this;
     }
 
+    /**
+     * Sets the list of actions referenced in {@link #operatorStrategies}
+     */
     public SecurityAnalysisRunParameters setActions(List<Action> actions) {
         Objects.requireNonNull(actions, "Action list should not be null");
         this.actions = actions;
@@ -225,6 +222,9 @@ public class SecurityAnalysisRunParameters {
         return this;
     }
 
+    /**
+     * Sets the reportNode used for functional logs
+     */
     public SecurityAnalysisRunParameters setReportNode(ReportNode reportNode) {
         Objects.requireNonNull(reportNode, "ReportNode should not be null");
         this.reportNode = reportNode;
