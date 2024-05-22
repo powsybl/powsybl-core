@@ -712,6 +712,15 @@ class PsseRawDataTest extends AbstractSerDeTest {
     }
 
     @Test
+    void ieee14BusNodeBreakerRev35CopyTest() throws IOException {
+        String expectedJson = loadReference("/IEEE_14_bus_nodeBreaker_rev35.json");
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14NodeBreakerRaw35(), "raw", new Context());
+        assertNotNull(rawData);
+        PssePowerFlowModel copiedRawData = rawData.referenceAndCopyPssePowerFlowModel();
+        assertEquals(expectedJson, toJson(copiedRawData));
+    }
+
+    @Test
     void ieee14BusNodeBreakerRev35RawxTest() throws IOException {
         String expectedJson = loadReference("/IEEE_14_bus_nodeBreaker_rev35.json");
         PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14NodeBreakerRawx35(), "rawx", new Context());
