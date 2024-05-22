@@ -20,10 +20,8 @@ import org.slf4j.LoggerFactory;
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
 public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, Network> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AreaSerDe.class);
 
     static final AreaSerDe INSTANCE = new AreaSerDe();
-
     static final String ROOT_ELEMENT_NAME = "area";
     static final String ARRAY_ELEMENT_NAME = "areas";
 
