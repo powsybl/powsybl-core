@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
@@ -32,10 +31,10 @@ public class ConnectableConnection extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
     final String connectableId;
     final Predicate<Switch> isTypeSwitchToOperate;
-    Optional<ThreeSides> side;
+    ThreeSides side;
 
     ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers,
-                          Optional<ThreeSides> side) {
+                          ThreeSides side) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.side = side;
 

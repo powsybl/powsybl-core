@@ -21,7 +21,7 @@ import java.util.Optional;
  */
 public class PlannedDisconnection extends AbstractDisconnection {
 
-    PlannedDisconnection(String connectableId, boolean openFictitiousSwitches, Optional<ThreeSides> side) {
+    PlannedDisconnection(String connectableId, boolean openFictitiousSwitches, ThreeSides side) {
         super(connectableId, openFictitiousSwitches ?
             SwitchPredicates.IS_OPEN.negate() :
             SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_NONFICTIONAL), side);

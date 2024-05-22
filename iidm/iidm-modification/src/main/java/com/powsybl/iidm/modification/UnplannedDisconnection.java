@@ -14,14 +14,12 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
-import java.util.Optional;
-
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class UnplannedDisconnection extends AbstractDisconnection {
 
-    UnplannedDisconnection(String connectableId, boolean openFictitiousSwitches, Optional<ThreeSides> side) {
+    UnplannedDisconnection(String connectableId, boolean openFictitiousSwitches, ThreeSides side) {
         super(connectableId, openFictitiousSwitches ?
             SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_BREAKER) :
             SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_BREAKER).and(SwitchPredicates.IS_NONFICTIONAL), side);

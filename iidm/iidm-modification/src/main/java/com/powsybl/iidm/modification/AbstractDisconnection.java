@@ -28,9 +28,9 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
     final String connectableId;
     final Predicate<Switch> openableSwitches;
-    final Optional<ThreeSides> side;
+    final ThreeSides side;
 
-    AbstractDisconnection(String connectableId, Predicate<Switch> openableSwitches, Optional<ThreeSides> side) {
+    AbstractDisconnection(String connectableId, Predicate<Switch> openableSwitches, ThreeSides side) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.openableSwitches = openableSwitches;
         this.side = side;

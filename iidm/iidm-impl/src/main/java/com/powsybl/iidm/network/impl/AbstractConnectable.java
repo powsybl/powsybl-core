@@ -201,11 +201,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
-        return connect(isTypeSwitchToOperate, Optional.empty());
+        return connect(isTypeSwitchToOperate, null);
     }
 
     @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, Optional<ThreeSides> side) {
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -268,11 +268,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
-        return disconnect(isSwitchOpenable, Optional.empty());
+        return disconnect(isSwitchOpenable, null);
     }
 
     @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, Optional<ThreeSides> side) {
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -324,11 +324,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         return isNowDisconnected;
     }
 
-    public List<TerminalExt> getTerminals(Optional<ThreeSides> side) {
-        if (side.isEmpty()) {
+    public List<TerminalExt> getTerminals(ThreeSides side) {
+        if (side == null) {
             return terminals;
         } else {
-            return terminals.stream().filter(terminal -> terminal.getSide().equals(side.get())).toList();
+            return terminals.stream().filter(terminal -> terminal.getSide().equals(side)).toList();
         }
     }
 }
