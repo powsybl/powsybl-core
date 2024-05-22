@@ -49,7 +49,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      *
      * <pre> {@code
      * try {
-     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, contingenciesProvider, runParameters, reportNode).join();
+     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, contingenciesProvider, runParameters).join();
      *   } catch (CompletionException e) {
      *       if (e.getCause() instanceof ComputationException) {
      *           ComputationException computationException = (ComputationException) e.getCause();
