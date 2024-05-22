@@ -90,5 +90,6 @@ class LoadFlowProviderTest {
         assertTrue(provider.createMapFromSpecificParameters(new JsonLoadFlowParametersTest.DummyExtension()).isEmpty());
         provider.updateSpecificParameters(new JsonLoadFlowParametersTest.DummyExtension(), Map.of());
         assertTrue(provider.getSpecificParameters().isEmpty());
+        assertTrue(provider.getUnsupportedGenericParameters().isEmpty());
     }
 }

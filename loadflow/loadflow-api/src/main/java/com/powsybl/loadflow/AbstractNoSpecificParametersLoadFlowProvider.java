@@ -56,4 +56,9 @@ public abstract class AbstractNoSpecificParametersLoadFlowProvider implements Lo
     public List<Parameter> getSpecificParameters() {
         return Collections.emptyList();
     }
+
+    @Override
+    public List<String> getUnsupportedGenericParameters() {
+        return Collections.emptyList();
+    }
 }

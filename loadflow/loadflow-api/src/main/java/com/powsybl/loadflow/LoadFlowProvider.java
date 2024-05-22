@@ -114,4 +114,11 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @return the parameters of the parameters extension associated with this provider.
      */
     List<Parameter> getSpecificParameters();
+
+    /**
+     * Get the list of the unsupported generic parameters' names.
+     *
+     * @return the unsupported generic parameters names.
+     */
+    List<String> getUnsupportedGenericParameters();
 }
