@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
-import java.util.Optional;
-
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
