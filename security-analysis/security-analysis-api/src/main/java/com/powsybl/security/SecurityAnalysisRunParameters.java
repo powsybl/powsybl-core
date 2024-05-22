@@ -37,19 +37,19 @@ public class SecurityAnalysisRunParameters {
      */
     private SecurityAnalysisParameters securityAnalysisParameters;
     /**
-     * List of interceptors notified at various step of the security analysis
+     * List of interceptors to notify at specific steps of the security analysis (see {@link SecurityAnalysisInterceptor} API)
      */
     private List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
     /**
-     * List of strategies applied to solve violations occurring after a contingency
+     * List of strategies to apply to solve violations occurring after a contingency
      */
     private List<OperatorStrategy> operatorStrategies = new ArrayList<>();
     /**
-     * List of actions taken according to {@link #operatorStrategies}
+     * List of actions referenced in {@link #operatorStrategies}
      */
     private List<Action> actions = new ArrayList<>();
     /**
-     * StateMonitor that defines the branch bus and threeWindingsTransformer about which information will be written after security analysis
+     * List of StateMonitors that define the branches, buses and threeWindingsTransformers about which information will be written after security analysis
      */
     private List<StateMonitor> monitors = new ArrayList<>();
     /**
