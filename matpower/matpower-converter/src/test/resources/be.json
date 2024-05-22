@@ -34,7 +34,7 @@
     "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 3,
-    "type" : "PV",
+    "type" : "REF",
     "name" : "21.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -79,7 +79,7 @@
     "minimumVoltageMagnitude" : 0.9
   }, {
     "number" : 6,
-    "type" : "REF",
+    "type" : "PQ",
     "name" : "380.0_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
