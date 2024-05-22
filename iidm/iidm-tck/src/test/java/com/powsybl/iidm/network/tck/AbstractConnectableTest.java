@@ -397,11 +397,11 @@ public abstract class AbstractConnectableTest {
         assertTrue(twt.getTerminal(ThreeSides.THREE).isConnected());
 
         // Connection of side one only
-        assertTrue(line2.connect(SwitchPredicates.IS_BREAKER, Optional.of(ThreeSides.ONE)));
+        assertTrue(line2.connect(SwitchPredicates.IS_BREAKER, ThreeSides.ONE));
         assertTrue(line2.getTerminal1().isConnected());
 
         // disconnect the twt on side 3
-        assertTrue(twt.disconnect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR, Optional.of(ThreeSides.THREE)));
+        assertTrue(twt.disconnect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR, ThreeSides.THREE));
         assertFalse(twt.getTerminal(ThreeSides.THREE).isConnected());
     }
 }
