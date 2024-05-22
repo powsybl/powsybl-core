@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
