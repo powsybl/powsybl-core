@@ -7,8 +7,7 @@
  */
 package com.powsybl.action;
 
-import com.powsybl.iidm.modification.NetworkModification;
-import com.powsybl.iidm.modification.TerminalsConnectionModification;
+import com.powsybl.iidm.modification.*;
 import com.powsybl.iidm.network.ThreeSides;
 
 import java.util.Objects;
@@ -87,9 +86,21 @@ public class TerminalsConnectionAction extends AbstractAction {
 
     @Override
     public NetworkModification toModification() {
-        // not obvious how to map on ConnectableConnection/PlannedDisconnection/... especially if there is a side selected
-        return getSide().map(value -> new TerminalsConnectionModification(getElementId(), value, isOpen()))
-                .orElse(new TerminalsConnectionModification(getElementId(), isOpen()));
+        if (isOpen()) {
+            PlannedDisconnectionBuilder builder = new PlannedDisconnectionBuilder().withConnectableId(elementId);
+            if (side != null) {
+                builder.withSide(side);
+            }
+            return builder.build();
+        } else {
+            ConnectableConnectionBuilder builder = new ConnectableConnectionBuilder()
+                    .withConnectableId(elementId)
+                    .withOnlyBreakersOperable(true);
+            if (side != null) {
+                builder.withSide(side);
+            }
+            return builder.build();
+        }
     }
 
     @Override

@@ -11,17 +11,20 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.SwitchPredicates;
+
+import java.util.Optional;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PlannedDisconnection extends AbstractDisconnection {
 
-    PlannedDisconnection(String connectableId, boolean openFictitiousSwitches) {
+    PlannedDisconnection(String connectableId, boolean openFictitiousSwitches, Optional<ThreeSides> side) {
         super(connectableId, openFictitiousSwitches ?
             SwitchPredicates.IS_OPEN.negate() :
-            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_NONFICTIONAL));
+            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_NONFICTIONAL), side);
     }
 
     @Override

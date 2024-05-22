@@ -13,11 +13,13 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
@@ -30,9 +32,12 @@ public class ConnectableConnection extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
     final String connectableId;
     final Predicate<Switch> isTypeSwitchToOperate;
+    Optional<ThreeSides> side;
 
-    ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers) {
+    ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers,
+                          Optional<ThreeSides> side) {
         this.connectableId = Objects.requireNonNull(connectableId);
+        this.side = side;
 
         // Initial predicate
         Predicate<Switch> predicate = SwitchPredicates.IS_NON_NULL;
@@ -62,7 +67,7 @@ public class ConnectableConnection extends AbstractNetworkModification {
         // Disconnect the connectable
         boolean hasBeenConnected;
         try {
-            hasBeenConnected = connectable.connect(isTypeSwitchToOperate);
+            hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
         } finally {
             network.getReportNodeContext().popReportNode();
         }

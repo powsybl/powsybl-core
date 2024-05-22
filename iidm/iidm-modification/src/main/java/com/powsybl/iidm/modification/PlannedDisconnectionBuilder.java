@@ -7,12 +7,17 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.iidm.network.ThreeSides;
+
+import java.util.Optional;
+
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class PlannedDisconnectionBuilder {
     String connectableId = null;
     boolean openFictitiousSwitches = false;
+    Optional<ThreeSides> side = Optional.empty();
 
     public PlannedDisconnectionBuilder withConnectableId(String connectableId) {
         this.connectableId = connectableId;
@@ -24,7 +29,12 @@ public class PlannedDisconnectionBuilder {
         return this;
     }
 
+    public PlannedDisconnectionBuilder withSide(ThreeSides side) {
+        this.side = Optional.of(side);
+        return this;
+    }
+
     public PlannedDisconnection build() {
-        return new PlannedDisconnection(connectableId, openFictitiousSwitches);
+        return new PlannedDisconnection(connectableId, openFictitiousSwitches, side);
     }
 }

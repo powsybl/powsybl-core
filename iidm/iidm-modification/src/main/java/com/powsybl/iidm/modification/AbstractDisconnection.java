@@ -11,10 +11,12 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.ThreeSides;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableDisconnectionReport;
@@ -26,10 +28,12 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
     final String connectableId;
     final Predicate<Switch> openableSwitches;
+    final Optional<ThreeSides> side;
 
-    AbstractDisconnection(String connectableId, Predicate<Switch> openableSwitches) {
+    AbstractDisconnection(String connectableId, Predicate<Switch> openableSwitches, Optional<ThreeSides> side) {
         this.connectableId = Objects.requireNonNull(connectableId);
         this.openableSwitches = openableSwitches;
+        this.side = side;
     }
 
     public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
@@ -42,7 +46,7 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         // Disconnect the connectable
         boolean hasBeenDisconnected;
         try {
-            hasBeenDisconnected = connectable.disconnect(openableSwitches);
+            hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
         } finally {
             network.getReportNodeContext().popReportNode();
         }
