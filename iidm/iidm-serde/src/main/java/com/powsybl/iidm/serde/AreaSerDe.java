@@ -12,8 +12,6 @@ import com.powsybl.iidm.network.Area;
 import com.powsybl.iidm.network.AreaAdder;
 import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.Network;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
