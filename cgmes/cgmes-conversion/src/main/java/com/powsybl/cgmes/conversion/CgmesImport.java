@@ -181,7 +181,13 @@ public class CgmesImport implements Importer {
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
         ReportNode conversionReportNode = reportNode.newReportNode().withMessageTemplate("CGMESConversion", "Importing CGMES file(s)").add();
-        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+        Network network = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+
+        // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
+        //  Now we will read again from the same data source to process the SSH data with a different set of queries
+        //  The contents of the data source are read twice, this should be improved
+        update(network, ds, p, reportNode);
+        return network;
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
