@@ -8,10 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.AreaType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -53,7 +50,9 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
                 .setAcNetInterchangeTarget(100.).setAcNetInterchangeTolerance(1.).add();
         network.newArea().setAreaType(controlAreaType).setId("ControlAreaId1").setName("ControlAreaName1").add();
         Substation s1 = network.newSubstation().setId("sub1").add();
-        s1.newVoltageLevel().setId("VL1").setNominalV(1).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(1).setTopologyKind(TopologyKind.NODE_BREAKER).add();
+        vl1.addArea(network.getArea("BidZoneId1"));
+        vl1.addArea(network.getArea("ControlAreaId1"));
         network.newSubstation().setId("sub2").add();
         return network;
     }

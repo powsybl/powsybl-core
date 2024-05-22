@@ -113,6 +113,7 @@
                         <xs:element name="vscConverterStation" type="iidm:VscConverterStation"/>
                         <xs:element name="lccConverterStation" type="iidm:LccConverterStation"/>
                         <xs:element name="ground" type="iidm:Ground"/>
+                        <xs:element name="areaRef" type="iidm:AreaRef"/>
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
@@ -708,10 +709,15 @@
             <xs:extension base="iidm:Identifiable"/>
         </xs:complexContent>
     </xs:complexType>
+    <xs:complexType name="AreaRef">
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
     <xs:complexType name="Area">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="acNetInterchangeTarget" use="optional" type="xs:double"/>
+                <xs:attribute name="acNetInterchangeTolerance" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

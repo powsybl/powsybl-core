@@ -8,6 +8,8 @@
     <iidm:substation id="sub1">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology/>
+            <iidm:areaRef id="BidZoneId1"/>
+            <iidm:areaRef id="ControlAreaId1"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="sub2"/>
