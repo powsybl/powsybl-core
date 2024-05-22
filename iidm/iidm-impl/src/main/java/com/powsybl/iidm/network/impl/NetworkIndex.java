@@ -8,9 +8,12 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.VoltageLevel;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -179,10 +182,41 @@ class NetworkIndex {
      * @param other the index to merge
      */
     void merge(NetworkIndex other) {
+        mergeAreaTypesAndAreas(other);
         for (Identifiable obj : other.objectsById.values()) {
             checkAndAdd(obj);
         }
         other.clean();
+    }
+
+    private void mergeAreaTypesAndAreas(NetworkIndex other) {
+        Set<AreaTypeImpl> areaTypesOther = new HashSet<>(other.getAll(AreaTypeImpl.class));
+        for (AreaTypeImpl areaTypeOther : areaTypesOther) {
+            AreaType areaType = get(areaTypeOther.getId(), AreaTypeImpl.class);
+            if (areaTypeOther.isMergeable(areaType)) {
+                other.getAll(AreaImpl.class).stream()
+                        .filter(area -> area.getAreaType().equals(areaTypeOther))
+                        .forEach(area -> area.setAreaType(areaType));
+            } else {
+                checkAndAdd(areaTypeOther);
+            }
+            other.remove(areaTypeOther);
+        }
+
+        Set<AreaImpl> areasOther = new HashSet<>(other.getAll(AreaImpl.class));
+        for (AreaImpl areaOther : areasOther) {
+            AreaImpl area = get(areaOther.getId(), AreaImpl.class);
+            if (areaOther.isMergeable(area)) {
+                Iterable<VoltageLevel> voltageLevelsOther = areaOther.getVoltageLevels();
+                voltageLevelsOther.forEach(voltageLevel -> {
+                    Iterables.removeAll(voltageLevel.getAreas(), List.of(areaOther));
+                    voltageLevel.addArea(area);
+                });
+            } else {
+                checkAndAdd(areaOther);
+            }
+            other.remove(areaOther);
+        }
     }
 
     void printForDebug(PrintStream out) {

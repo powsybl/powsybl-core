@@ -878,4 +878,49 @@ public final class EurostagTutorialExample1Factory {
 
         return network;
     }
+
+    public static Network createWithAreas() {
+        Network network = create();
+        final AreaType biddingZone = network.newAreaType()
+                .setId("bz")
+                .setName("Bidding_Zone")
+                .add();
+        final AreaType region = network.newAreaType()
+                .setId("rg")
+                .setName("Region")
+                .add();
+        final AreaType aic = network.newAreaType()
+                .setId("aic")
+                .setName("AIC")
+                .add();
+
+        network.newArea()
+                .setId("bza")
+                .setName("BZ_A")
+                .setAreaType(biddingZone)
+                .add();
+        network.newArea()
+                .setId("bzb")
+                .setName("BZ_B")
+                .setAreaType(biddingZone)
+                .add();
+        network.newArea()
+                .setId("rga")
+                .setName("Region_A")
+                .setAreaType(region)
+                .add();
+        final Line nhv1Nhv2Line1 = network.getLine(NHV1_NHV2_1);
+        final Line nhv1Nhv2Line2 = network.getLine(NHV1_NHV2_2);
+        network.newArea()
+                .setAcNetInterchangeTarget(10.0)
+                .setAcNetInterchangeTolerance(0.1)
+                .setId("aic_a")
+                .setName("Aic_A")
+                .setAreaType(aic)
+                .addBoundaryPoint(nhv1Nhv2Line1.getTerminal1(), BoundaryPointType.PAIRED_AC)
+                .addBoundaryPoint(nhv1Nhv2Line2.getTerminal2(), BoundaryPointType.PAIRED_AC)
+                .addBoundaryPoint(network.getGenerator("GEN").getTerminal(), BoundaryPointType.UNPAIRED_AC)
+                .add();
+        return network;
+    }
 }

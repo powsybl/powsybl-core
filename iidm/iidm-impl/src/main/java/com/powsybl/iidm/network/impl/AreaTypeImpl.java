@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -33,4 +34,18 @@ public class AreaTypeImpl extends AbstractIdentifiable<AreaType> implements Area
     protected String getTypeDescription() {
         return "AreaType";
     }
+
+    @Override
+    public boolean isMergeable(AreaType other) {
+        if (other == null || !other.getId().equals(getId())) {
+            return false;
+        }
+        String name = getNameOrId();
+        String nameOther = other.getNameOrId();
+        if (!name.equals(nameOther)) {
+            throw new PowsyblException("Cannot merge area types with same id" + getId() + " but different names: " + name + " and " + nameOther);
+        }
+        return true;
+    }
+
 }

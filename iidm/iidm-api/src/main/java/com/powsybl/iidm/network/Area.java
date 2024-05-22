@@ -20,6 +20,8 @@ public interface Area extends Identifiable<Area> {
 
     AreaType getAreaType();
 
+    void setAreaType(AreaType areaType);
+
     Iterable<VoltageLevel> getVoltageLevels();
 
     Stream<VoltageLevel> getVoltageLevelStream();
@@ -52,6 +54,8 @@ public interface Area extends Identifiable<Area> {
      * @return the net interchange tolerance
      */
     Optional<Double> getAcNetInterchangeTolerance();
+
+    boolean isMergeable(Area other);
 
     void remove(VoltageLevel voltageLevel);
 }

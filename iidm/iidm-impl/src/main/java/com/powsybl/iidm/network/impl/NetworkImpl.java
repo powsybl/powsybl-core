@@ -1057,6 +1057,9 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
+            if (clazz == AreaTypeImpl.class || clazz == AreaImpl.class) {
+                continue;
+            }
             Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -20,6 +21,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -51,6 +53,34 @@ class MergeTest {
         // The test passes if we do not log voltage level (exportTopology)
         Network merge = Network.merge(n1, n2);
         checkConnectedComponents(merge);
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestPass() {
+        Network n1 = createNodeBreakerWithAreas(NetworkFactory.findDefault(), "1");
+        Network n2 = createNodeBreakerWithAreas(NetworkFactory.findDefault(), "2");
+
+        // The test passes if we do not log voltage level (exportTopology)
+        Network merge = Network.merge(n1, n2);
+
+        VoltageLevel n1S1VL1 = merge.getVoltageLevel(id("S1VL1", "1"));
+        VoltageLevel n1S2VL1 = merge.getVoltageLevel(id("S2VL1", "1"));
+        VoltageLevel n2S1VL1 = merge.getVoltageLevel(id("S1VL1", "2"));
+        VoltageLevel n2S2VL1 = merge.getVoltageLevel(id("S2VL1", "2"));
+
+        //TODO: Merge 2 different areas with the same area type
+        assertEquals(3, Iterables.size(merge.getAreaTypes()));
+        assertEquals(3, Iterables.size(merge.getAreas()));
+
+        Area n1RegionA = merge.getArea(id("rga", "1"));
+        Area n2RegionA = merge.getArea(id("rga", "2"));
+        Area biddingZoneA = merge.getArea("bza");
+
+        assertEquals(Set.of(n1S2VL1), n1RegionA.getVoltageLevels());
+        assertEquals(Set.of(n2S2VL1), n2RegionA.getVoltageLevels());
+        assertEquals(Set.of(n1S1VL1, n2S1VL1), biddingZoneA.getVoltageLevels());
+
+        //TODO: Merge With areas that have boundaries
     }
 
     @Test
@@ -227,8 +257,36 @@ class MergeTest {
     }
 
     private static Network createNodeBreakerWithVoltageAngleLimit(NetworkFactory networkFactory, String nid, String valId) {
+        Network network = createNodeBreaker(networkFactory, nid, "nodeBreakerWithVoltageAngleLimit");
 
-        Network network = networkFactory.createNetwork(id("nodeBreakerWithVoltageAngleLimit", nid), "test");
+        network.newVoltageAngleLimit()
+            .setId(valId)
+            .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
+            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
+            .setHighLimit(0.25)
+            .add();
+
+        return network;
+    }
+
+    private static Network createNodeBreakerWithAreas(NetworkFactory networkFactory, String nid) {
+        Network network = createNodeBreaker(networkFactory, nid, "nodeBreakerWithAreas");
+        final AreaType biddingZone = createAreaType(network, "bz");
+        final AreaType region = createAreaType(network, id("rg", nid));
+        final Area biddingZoneA = createArea(network, "bza", biddingZone);
+        final Area regionA = createArea(network, id("rga", nid), region);
+
+        VoltageLevel s1vl1 = network.getVoltageLevel(id("S1VL1", nid));
+        VoltageLevel s2vl1 = network.getVoltageLevel(id("S2VL1", nid));
+
+        s1vl1.addArea(biddingZoneA);
+        s2vl1.addArea(regionA);
+
+        return network;
+    }
+
+    private static Network createNodeBreaker(NetworkFactory networkFactory, String nid, String networkId) {
+        Network network = networkFactory.createNetwork(id(networkId, nid), "test");
         double vn = 225.0;
 
         // First substation
@@ -270,14 +328,6 @@ class MergeTest {
 
         // Line between both substations
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
-
-        network.newVoltageAngleLimit()
-            .setId(valId)
-            .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
-            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
-            .setHighLimit(0.25)
-            .add();
-
         return network;
     }
 
@@ -355,6 +405,21 @@ class MergeTest {
             .setNode(node)
             .setEnsureIdUnicity(false)
             .add();
+    }
+
+    private static AreaType createAreaType(Network network, String id) {
+        return network.newAreaType()
+                .setId(id)
+                .setName(id + "_Name")
+                .add();
+    }
+
+    private static Area createArea(Network network, String id, AreaType areaType) {
+        return network.newArea()
+                .setId(id)
+                .setName(id + "_Name")
+                .setAreaType(areaType)
+                .add();
     }
 
     private static String id(String localId, String networkId) {

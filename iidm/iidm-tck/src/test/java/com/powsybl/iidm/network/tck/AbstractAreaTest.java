@@ -25,7 +25,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractAreaTest {
 
-    final Network network = createEurostagExampleWithAreas();
+    final Network network = EurostagTutorialExample1Factory.createWithAreas();
 
     final AreaType biddingZone = network.getAreaType("bz");
     final AreaType region = network.getAreaType("rg");
@@ -183,61 +183,4 @@ public abstract class AbstractAreaTest {
         assertEquals(expectedMessage, e4.getMessage());
     }
 
-    @Test
-    void throwDifferntNetworksTest() {
-        Network network2 = EurostagTutorialExample1Factory.create();
-        VoltageLevel vlhv2Bis = network2.getVoltageLevel("VLHV2");
-
-        var e1 = assertThrows(PowsyblException.class, () -> biddingZoneB.addVoltageLevel(vlhv2Bis));
-        var e2 = assertThrows(PowsyblException.class, () -> vlhv2Bis.addArea(biddingZoneB));
-
-        String expectedMessage = "Identifiable VLHV2 must belong to the same network as the Area to which it is added";
-        assertEquals(expectedMessage, e1.getMessage());
-        assertEquals(expectedMessage, e2.getMessage());
-    }
-
-    static Network createEurostagExampleWithAreas() {
-        Network network = EurostagTutorialExample1Factory.create();
-        final AreaType biddingZone = network.newAreaType()
-                .setId("bz")
-                .setName("Bidding_Zone")
-                .add();
-        final AreaType region = network.newAreaType()
-                .setId("rg")
-                .setName("Region")
-                .add();
-        final AreaType aic = network.newAreaType()
-                .setId("aic")
-                .setName("AIC")
-                .add();
-
-        network.newArea()
-                .setId("bza")
-                .setName("BZ_A")
-                .setAreaType(biddingZone)
-                .add();
-        network.newArea()
-                .setId("bzb")
-                .setName("BZ_B")
-                .setAreaType(biddingZone)
-                .add();
-        network.newArea()
-                .setId("rga")
-                .setName("Region_A")
-                .setAreaType(region)
-                .add();
-        final Line nhv1Nhv2Line1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
-        final Line nhv1Nhv2Line2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2);
-        network.newArea()
-                .setAcNetInterchangeTarget(10.0)
-                .setAcNetInterchangeTolerance(0.1)
-                .setId("aic_a")
-                .setName("Aic_A")
-                .setAreaType(aic)
-                .addBoundaryPoint(nhv1Nhv2Line1.getTerminal1(), BoundaryPointType.PAIRED_AC)
-                .addBoundaryPoint(nhv1Nhv2Line2.getTerminal2(), BoundaryPointType.PAIRED_AC)
-                .addBoundaryPoint(network.getGenerator("GEN").getTerminal(), BoundaryPointType.UNPAIRED_AC)
-                .add();
-        return network;
-    }
 }
