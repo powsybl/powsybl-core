@@ -54,7 +54,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
 
     @Override
     public void update(Network network) {
-        //super.update(network); TODO JAM delete
+        super.update(network); // TODO JAM delete
         Load load = network.getLoad(id);
         if (load == null) {
             return;

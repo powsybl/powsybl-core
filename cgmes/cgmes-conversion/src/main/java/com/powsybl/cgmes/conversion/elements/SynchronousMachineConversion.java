@@ -122,7 +122,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     @Override
     public void update(Network network) {
-        // super.update(network); // TODO JAM delete
+        super.update(network); // TODO JAM delete
         Generator generator = network.getGenerator(id);
         if (generator == null) {
             return;

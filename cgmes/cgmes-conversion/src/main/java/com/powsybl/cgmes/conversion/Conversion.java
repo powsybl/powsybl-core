@@ -160,7 +160,11 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        Context context = createContext(network, reportNode);
+        // FIXME(Luma) we are not reusing conversion objects,
+        //  so it is safe to store the context as an attribute for later use in update
+        //  to do things right the context should have been created in the constructor,
+        //  together with the empty network
+        this.context = createContext(network, reportNode);
         assignNetworkProperties(context);
         addMetadataModels(network, context);
         addCimCharacteristics(network);
@@ -286,10 +290,18 @@ public class Conversion {
         Objects.requireNonNull(reportNode);
         Context context = createUpdateContext(network, reportNode);
 
-        update(network, context, reportNode);
+        update(network, context);
     }
 
-    private void update(Network network, Context context, ReportNode reportNode) {
+    public void updateAfterConvert(Network network) {
+        // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
+        //  and change the query catalog to "update" mode
+        this.cgmes.invalidateCaches();
+        this.cgmes.setQueryCatalog("-update");
+        update(network, this.context);
+    }
+
+    private void update(Network network, Context context) {
         System.err.printf("Update Begin ......................................................... %n");
 
         // FIXME(Luma) Inspect the contents of the loaded data
@@ -1221,6 +1233,7 @@ public class Conversion {
     private final List<CgmesImportPostProcessor> postProcessors;
     private final List<CgmesImportPreProcessor> preProcessors;
     private final NetworkFactory networkFactory;
+    private Context context;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 

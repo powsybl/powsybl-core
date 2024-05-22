@@ -181,12 +181,16 @@ public class CgmesImport implements Importer {
     private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         CgmesModel cgmes = readCgmes(ds, p, reportNode);
         ReportNode conversionReportNode = reportNode.newReportNode().withMessageTemplate("CGMESConversion", "Importing CGMES file(s)").add();
-        Network network = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
+
+        Conversion conversion = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory);
+        Network network = conversion.convert(conversionReportNode);
 
         // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
-        //  Now we will read again from the same data source to process the SSH data with a different set of queries
-        //  The contents of the data source are read twice, this should be improved
-        update(network, ds, p, reportNode);
+        //  we call the update method on the same conversion object,
+        //  that has the context created during the convert (first) step
+        //  and all the data already loaded in the triplestore,
+        //  we only need to switch to a different set of queries
+        conversion.updateAfterConvert(network);
         return network;
     }
 

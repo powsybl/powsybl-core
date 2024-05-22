@@ -55,6 +55,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public void setQueryCatalog(String queryCatalogName) {
+        this.queryCatalog = queryCatalogFor(this.cimVersion, queryCatalogName);
+    }
+
+    @Override
     public void read(InputStream is, String baseName, String contextName, ReportNode reportNode) {
         // Reset cached nodeBreaker value everytime we read new data
         nodeBreaker = null;
@@ -807,7 +812,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final String cimNamespace;
     private final int cimVersion;
     private final TripleStore tripleStore;
-    private final QueryCatalog queryCatalog;
+    private QueryCatalog queryCatalog;
     private Boolean nodeBreaker = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";
