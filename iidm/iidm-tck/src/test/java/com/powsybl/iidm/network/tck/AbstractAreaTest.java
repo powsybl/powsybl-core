@@ -154,12 +154,16 @@ public abstract class AbstractAreaTest {
                 .add();
         dummy.remove();
 
-        var e1 = assertThrows(PowsyblException.class, () -> dummy.getArea(biddingZone));
-        var e2 = assertThrows(PowsyblException.class, dummy::getAreasStream);
+        Throwable e1 = assertThrows(PowsyblException.class, () -> dummy.getArea(biddingZone));
+        Throwable e2 = assertThrows(PowsyblException.class, () -> dummy.getAreas());
+        Throwable e3 = assertThrows(PowsyblException.class, dummy::getAreasStream);
+        Throwable e4 = assertThrows(PowsyblException.class, () -> dummy.addArea(biddingZoneA));
 
-        String expectedMessage = "Cannot access area of removed voltage level dummy";
+        String expectedMessage = "Cannot access areas of removed voltage level dummy";
         assertEquals(expectedMessage, e1.getMessage());
         assertEquals(expectedMessage, e2.getMessage());
+        assertEquals(expectedMessage, e3.getMessage());
+        assertEquals(expectedMessage, e4.getMessage());
     }
 
     @Test

@@ -897,6 +897,8 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Substation> getSubstation();
 
+    Iterable<Area> getAreas();
+
     Stream<Area> getAreasStream();
 
     Optional<Area> getArea(AreaType areaType);

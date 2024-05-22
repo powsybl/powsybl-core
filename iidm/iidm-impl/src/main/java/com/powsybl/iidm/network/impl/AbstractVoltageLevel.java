@@ -87,9 +87,17 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public Iterable<Area> getAreas() {
+        if (removed) {
+            throw new PowsyblException("Cannot access areas of removed voltage level " + id);
+        }
+        return areas;
+    }
+
+    @Override
     public Stream<Area> getAreasStream() {
         if (removed) {
-            throw new PowsyblException("Cannot access area of removed voltage level " + id);
+            throw new PowsyblException("Cannot access areas of removed voltage level " + id);
         }
         return areas.stream();
     }
@@ -97,13 +105,16 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public Optional<Area> getArea(AreaType areaType) {
         if (removed) {
-            throw new PowsyblException("Cannot access area of removed voltage level " + id);
+            throw new PowsyblException("Cannot access areas of removed voltage level " + id);
         }
         return areas.stream().filter(area -> area.getAreaType() == areaType).findFirst();
     }
 
     @Override
     public void addArea(Area area) {
+        if (removed) {
+            throw new PowsyblException("Cannot access areas of removed voltage level " + id);
+        }
         if (areas.contains(area)) {
             return; // Nothing to do
         }
