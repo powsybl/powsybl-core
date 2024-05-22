@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.SwitchPredicates;
@@ -313,7 +314,7 @@ public abstract class AbstractConnectableTest {
         line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
 
         // disconnect the already fully disconnected line 1
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTest", "Testing reportNode").build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line1.disconnect());
         network.getReportNodeContext().popReportNode();
@@ -363,7 +364,7 @@ public abstract class AbstractConnectableTest {
         line2.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
 
         // connect the already fully connected line 2
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTest", "Testing reportNode").build();
         network.getReportNodeContext().pushReportNode(reportNode);
         assertFalse(line2.connect());
         network.getReportNodeContext().popReportNode();

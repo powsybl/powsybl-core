@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
@@ -32,7 +33,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void attachVoltageLevelOnLineNbTest() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportAttachVoltageLevelOnLineNbTest", "Testing reportNode for Attaching voltage level on line - Node breaker").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportAttachVoltageLevelOnLineNbTest", "Testing reportNode for Attaching voltage level on line - Node breaker").build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))
@@ -44,7 +45,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineNbBbTest() throws IOException {
         Network network = createNbBbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportConnectVoltageLevelOnLineNbBbTest", "Testing reportNode for connecting voltage level on line - Node breaker").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportConnectVoltageLevelOnLineNbBbTest", "Testing reportNode for connecting voltage level on line - Node breaker").build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -56,7 +57,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void connectVoltageLevelOnLineBbTest() throws IOException {
         Network network = createBbNetwork();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportConnectVoltageLevelOnLineBbTest", "Testing reportNode for connecting voltage level on line - Bus breaker").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportConnectVoltageLevelOnLineBbTest", "Testing reportNode for connecting voltage level on line - Bus breaker").build();
         NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("bus")
                 .withLine(network.getLine("NHV1_NHV2_1"))
@@ -132,7 +133,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     void testExceptions() {
         Network network1 = createNbNetworkWithBusbarSection();
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedBbs", "Testing reportNode with undefined busbar section").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestUndefinedBbs", "Testing reportNode with undefined busbar section").build();
         NetworkModification modification2 = new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(network1.getLine("CJ"))
@@ -176,7 +177,7 @@ class ConnectVoltageLevelOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode report = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectVoltageLevelOnLine", "Testing reportNode for connecting voltage level on line").build();
+        ReportNode report = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestConnectVoltageLevelOnLine", "Testing reportNode for connecting voltage level on line").build();
         new ConnectVoltageLevelOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network.getLine("CJ"))

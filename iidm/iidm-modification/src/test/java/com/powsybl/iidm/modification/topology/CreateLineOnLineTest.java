@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Line;
@@ -136,7 +137,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network1 = createNbNetworkWithBusbarSection();
         Line line1 = network1.getLine("CJ");
         LineAdder adder1 = createLineAdder(line1, network1);
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotExistingNB", "Testing reportNode if busbar section does not exist in node/breaker").build();
+        ReportNode reportNode1 = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestBbsNotExistingNB", "Testing reportNode if busbar section does not exist in node/breaker").build();
         NetworkModification modification1 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line1)
@@ -149,7 +150,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         Network network2 = createBbNetwork();
         Line line2 = network2.getLine("NHV1_NHV2_1");
         LineAdder adder2 = createLineAdder(line2, network2);
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("reportTestBbsNotExistingBB", "Testing reportNode if busbar section does not exist in bus/breaker").build();
+        ReportNode reportNode2 = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestBbsNotExistingBB", "Testing reportNode if busbar section does not exist in bus/breaker").build();
         NetworkModification modification2 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("NOT_EXISTING")
                 .withLine(line2)
@@ -159,7 +160,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Bus or busbar section NOT_EXISTING not found", exception2.getMessage());
         assertEquals("notFoundBusOrBusbarSection", reportNode2.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("reportTestWrongTypeBbs", "Testing reportNode if type of busbar section is wrong").build();
+        ReportNode reportNode3 = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestWrongTypeBbs", "Testing reportNode if type of busbar section is wrong").build();
         NetworkModification modification3 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId("LOAD")
                 .withLine(line2)
@@ -169,7 +170,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Unexpected type of identifiable LOAD: LOAD", exception3.getMessage());
         assertEquals("unexpectedIdentifiableType", reportNode3.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode4 = ReportNode.newRootReportNode().withMessageTemplate("reportTestNullFictitiousSubstationID", "Testing reportNode with null fictitious substation ID").build();
+        ReportNode reportNode4 = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestNullFictitiousSubstationID", "Testing reportNode with null fictitious substation ID").build();
         NetworkModification modification4 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network1.getLine("CJ"))
@@ -181,7 +182,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         assertEquals("Fictitious substation ID must be defined if a fictitious substation is to be created", exception4.getMessage());
         assertEquals("undefinedFictitiousSubstationId", reportNode4.getChildren().get(0).getMessageKey());
 
-        ReportNode reportNode5 = ReportNode.newRootReportNode().withMessageTemplate("reportTestUndefinedPositionPercent", "Testing reportNode with undefined position percent").build();
+        ReportNode reportNode5 = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestUndefinedPositionPercent", "Testing reportNode with undefined position percent").build();
         NetworkModification modification5 = new CreateLineOnLineBuilder()
                 .withBusbarSectionOrBusId(BBS)
                 .withLine(network1.getLine("CJ"))
@@ -197,7 +198,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
     @Test
     void testWithReportNode() throws IOException {
         Network network = createNbNetworkWithBusbarSection();
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestCreateLineOnLine", "Testing reportNode for creation of a line on line").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestCreateLineOnLine", "Testing reportNode for creation of a line on line").build();
         Line line = network.getLine("CJ");
         LineAdder adder = createLineAdder(line, network);
         NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();

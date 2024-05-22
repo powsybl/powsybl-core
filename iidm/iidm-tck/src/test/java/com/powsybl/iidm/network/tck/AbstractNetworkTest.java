@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
@@ -600,7 +601,7 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
 
         List<ReportNode> children = reportNode.getChildren();

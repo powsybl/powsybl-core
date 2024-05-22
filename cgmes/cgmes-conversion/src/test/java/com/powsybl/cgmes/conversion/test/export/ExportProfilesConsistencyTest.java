@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.ExportersServiceLoader;
 import com.powsybl.iidm.network.Importers;
@@ -34,11 +35,11 @@ class ExportProfilesConsistencyTest extends AbstractSerDeTest {
     void testSVSmallGridNodeBreaker() {
         Network network = importNetwork(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
 
-        ReportNode reportNodeOnlySv = ReportNode.newRootReportNode().withMessageTemplate("onlySV", "").build();
+        ReportNode reportNodeOnlySv = new ReportNodeRootBuilderImpl().withMessageTemplate("onlySV", "").build();
         exportProfiles(List.of("SV"), network, reportNodeOnlySv);
         assertTrue(inconsistentProfilesReported(reportNodeOnlySv));
 
-        ReportNode reportNodeSvAndTp = ReportNode.newRootReportNode().withMessageTemplate("SVandTP", "").build();
+        ReportNode reportNodeSvAndTp = new ReportNodeRootBuilderImpl().withMessageTemplate("SVandTP", "").build();
         exportProfiles(List.of("SV", "TP"), network, reportNodeSvAndTp);
         assertFalse(inconsistentProfilesReported(reportNodeSvAndTp));
     }

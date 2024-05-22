@@ -44,7 +44,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void testReportElementName() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
-        ReportNode rootReportNode = ReportNode.newRootReportNode()
+        ReportNode rootReportNode = new ReportNodeRootBuilderImpl()
                 .withMessageTemplate("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}")
                 .withTypedValue("file", "elementName.uct", TypedValue.FILENAME)
                 .build();
@@ -72,7 +72,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     @Test
     void roundTripReportNodeJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("roundTripReportNodeJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").build();
+        ReportNode reportRoot = new ReportNodeRootBuilderImpl().withMessageTemplate("roundTripReportNodeJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct").build();
         reportRoot.newReportNode().withMessageTemplate("novalueReport", "No value report").add();
         Network.read(filename, getClass().getResourceAsStream("/" + filename), reportRoot);
         roundTripTest(reportRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
@@ -118,7 +118,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         Files.copy(getClass().getResourceAsStream("/germanTsos.uct"), fileSystem.getPath(WORK_DIR, "germanTsos.uct"));
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
-        ReportNode reportRoot = ReportNode.newRootReportNode()
+        ReportNode reportRoot = new ReportNodeRootBuilderImpl()
                 .withMessageTemplate("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}")
                 .withTypedValue("file1", "frVoltageRegulatingXnode.uct", TypedValue.FILENAME)
                 .withTypedValue("file2", "frTestGridForMerging.uct", TypedValue.FILENAME)

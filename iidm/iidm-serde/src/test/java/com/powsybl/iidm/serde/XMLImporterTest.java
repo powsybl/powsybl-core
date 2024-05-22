@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -257,7 +258,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     private void importDataAndTestReportNode(String expectedContentFilename, ReadOnlyDataSource dataSource) throws IOException {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("test", "test reportNode").build();
         assertNotNull(importer.importData(dataSource, NetworkFactory.findDefault(), null, reportNode));
 
         StringWriter sw = new StringWriter();

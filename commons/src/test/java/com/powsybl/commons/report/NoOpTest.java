@@ -48,7 +48,7 @@ class NoOpTest {
         assertNull(reportNode.getMessageTemplate());
         assertNull(reportNode.getMessageKey());
 
-        reportNode.include(ReportNode.newRootReportNode().withMessageTemplate("k", "Real root reportNode").build());
+        reportNode.include(new ReportNodeRootBuilderImpl().withMessageTemplate("k", "Real root reportNode").build());
         assertEquals(Collections.emptyList(), reportNode.getChildren());
 
         StringWriter sw = new StringWriter();

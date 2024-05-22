@@ -58,9 +58,7 @@ public interface ReportNode {
      * Create a new builder for creating a root <code>ReportNode</code>.
      * @return a {@link ReportNodeBuilder}
      */
-    static ReportNodeBuilder newRootReportNode() {
-        return new ReportNodeRootBuilderImpl();
-    }
+    ReportNodeBuilder newRootReportNode();
 
     /**
      * Get the message key for current node.

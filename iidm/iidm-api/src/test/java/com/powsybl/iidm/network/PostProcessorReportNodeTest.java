@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.ReportNodeDeserializer;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.commons.report.ReportNodeSerializer;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.computation.ComputationManager;
@@ -36,7 +37,7 @@ class PostProcessorReportNodeTest extends AbstractSerDeTest {
     @Test
     void postProcessorWithReportNode() throws IOException {
 
-        ReportNode reportRoot = ReportNode.newRootReportNode().withMessageTemplate("testPostProcessor", "Test importer post processor").build();
+        ReportNode reportRoot = new ReportNodeRootBuilderImpl().withMessageTemplate("testPostProcessor", "Test importer post processor").build();
         Network network1 = importer1.importData(null, new NetworkFactoryMock(), null, reportRoot);
         assertNotNull(network1);
 

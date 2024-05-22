@@ -11,6 +11,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
 import org.junit.jupiter.api.Test;
@@ -120,7 +121,7 @@ class ExportersTest extends AbstractConvertersTest {
     void exportWithReportNode() throws Exception {
         Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReportNode rootReportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").build();
+        ReportNode rootReportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTest", "Testing exporter reporting").build();
         testExporter.export(null, null, dataSource, rootReportNode);
         Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
         assertTrue(reportNode.isPresent());

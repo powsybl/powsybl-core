@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.modification.topology.AbstractModificationTest;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
@@ -310,7 +311,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -329,7 +330,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         network.getSwitch("D1").setFictitious(true);
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -345,7 +346,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestConnectionDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
@@ -361,7 +362,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
@@ -377,7 +378,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnection", "Testing reportNode for connectable connection").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(true)
@@ -394,7 +395,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         Network network = createNetwork();
 
         // Network modification
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reportNode for connectable connection").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("reportTestConnectionNoConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
             .withConnectableId("L2")
             .withFictitiousSwitchesOperable(false)

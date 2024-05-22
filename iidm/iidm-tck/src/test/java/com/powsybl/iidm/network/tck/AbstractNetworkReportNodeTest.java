@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ReportNodeContext;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -31,12 +32,12 @@ public abstract class AbstractNetworkReportNodeTest {
     public void executeWithReportNodeTest() {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
+        ReportNode reportNode1 = new ReportNodeRootBuilderImpl().withMessageTemplate("key1", "name1").build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create another reportNode (reportNode2)
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
+        ReportNode reportNode2 = new ReportNodeRootBuilderImpl().withMessageTemplate("key2", "name2").build();
         assertTrue(reportNode2.getChildren().isEmpty());
 
         // Execute a task using reportNode2
@@ -58,13 +59,13 @@ public abstract class AbstractNetworkReportNodeTest {
     public void multiThreadTest() throws InterruptedException {
         // Create a network and affect it a reportNode (reportNode1)
         Network network = EurostagTutorialExample1Factory.create();
-        ReportNode reportNode1 = ReportNode.newRootReportNode().withMessageTemplate("key1", "name1").build();
+        ReportNode reportNode1 = new ReportNodeRootBuilderImpl().withMessageTemplate("key1", "name1").build();
         network.getReportNodeContext().pushReportNode(reportNode1);
         assertTrue(reportNode1.getChildren().isEmpty());
 
         // Create 2 other reportNodes (reportNode2 and reportNode3)
-        ReportNode reportNode2 = ReportNode.newRootReportNode().withMessageTemplate("key2", "name2").build();
-        ReportNode reportNode3 = ReportNode.newRootReportNode().withMessageTemplate("key3", "name3").build();
+        ReportNode reportNode2 = new ReportNodeRootBuilderImpl().withMessageTemplate("key2", "name2").build();
+        ReportNode reportNode3 = new ReportNodeRootBuilderImpl().withMessageTemplate("key3", "name3").build();
         assertTrue(reportNode2.getChildren().isEmpty());
         assertTrue(reportNode3.getChildren().isEmpty());
 

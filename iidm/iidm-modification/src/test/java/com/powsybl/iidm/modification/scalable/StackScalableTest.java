@@ -9,6 +9,7 @@
 package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +67,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingUp() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -87,7 +88,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPMoreThanCurrent() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -108,7 +109,7 @@ class StackScalableTest {
 
     @Test
     void testScaleOnGeneratorsStackingTargetPLessThanCurrent() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, TARGET_P);
@@ -129,7 +130,7 @@ class StackScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUp() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);
@@ -153,7 +154,7 @@ class StackScalableTest {
 
     @Test
     void testMinValueBoundsScalingDown() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, ONESHOT, true, DELTA_P);

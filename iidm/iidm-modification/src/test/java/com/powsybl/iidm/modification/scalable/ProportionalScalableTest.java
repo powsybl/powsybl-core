@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -74,7 +75,7 @@ class ProportionalScalableTest {
 
     @Test
     void testOnInjections() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -114,7 +115,7 @@ class ProportionalScalableTest {
 
     @Test
     void testOnGenerator() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -180,7 +181,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsUsedPower() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -204,7 +205,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsWithTargetPScalingType() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
@@ -228,7 +229,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnLoadsWithTargetPScalingType() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Load> loadList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getLoad("l3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, false, RESPECT_OF_VOLUME_ASKED, true, TARGET_P);
@@ -252,7 +253,7 @@ class ProportionalScalableTest {
 
     @Test
     void testScaleOnGeneratorsVentilationPriority() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_DISTRIBUTION, true, DELTA_P);
@@ -369,7 +370,7 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(0.0);
         network.getGenerator("g3").setTargetP(0.0);
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -398,7 +399,7 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMinP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMinP());
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -427,7 +428,7 @@ class ProportionalScalableTest {
         network.getGenerator("g2").setTargetP(network.getGenerator("g2").getMaxP());
         network.getGenerator("g3").setTargetP(network.getGenerator("g3").getMaxP());
 
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Generator> generatorList = Arrays.asList(network.getGenerator("g1"), network.getGenerator("g2"), network.getGenerator("g3"));
         ScalingParameters scalingParameters = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
             true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
@@ -514,7 +515,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMaxValueBoundsScalingUpGenConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -551,7 +552,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMaxValueBoundsScalingDownLoadConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -588,7 +589,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMinValueBoundsScalingDownGenConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;
@@ -625,7 +626,7 @@ class ProportionalScalableTest {
 
     @Test
     void testMinValueBoundsScalingUpLoadConvention() {
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("scaling", "default").build();
         List<Injection<?>> injectionsList = Arrays.asList(network.getLoad("l1"), network.getLoad("l2"), network.getDanglingLine("dl1"));
         ProportionalScalable proportionalScalable;
         double variationDone;

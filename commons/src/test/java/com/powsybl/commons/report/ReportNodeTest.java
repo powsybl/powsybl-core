@@ -23,14 +23,14 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testInclude() throws IOException {
-        ReportNode root = ReportNode.newRootReportNode()
+        ReportNode root = new ReportNodeRootBuilderImpl()
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
 
         PowsyblException e1 = assertThrows(PowsyblException.class, () -> root.include(root));
         assertEquals("Cannot add a reportNode in itself", e1.getMessage());
 
-        ReportNode otherRoot = ReportNode.newRootReportNode()
+        ReportNode otherRoot = new ReportNodeRootBuilderImpl()
                 .withMessageTemplate("includedRoot", "Included root message")
                 .build();
         otherRoot.newReportNode()

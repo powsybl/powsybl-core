@@ -30,6 +30,11 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
+    public ReportNodeBuilder newRootReportNode() {
+        return new ReportNodeRootBuilderNoOp();
+    }
+
+    @Override
     public String getMessageKey() {
         return null;
     }

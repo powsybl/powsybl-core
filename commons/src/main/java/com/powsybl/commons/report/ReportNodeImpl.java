@@ -92,6 +92,11 @@ public final class ReportNodeImpl implements ReportNode {
     }
 
     @Override
+    public ReportNodeBuilder newRootReportNode() {
+        return new ReportNodeRootBuilderImpl();
+    }
+
+    @Override
     public String getMessageKey() {
         return messageKey;
     }

@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.ReportNodeRootBuilderImpl;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.Assertions;
@@ -91,7 +92,7 @@ class ImportersTest extends AbstractConvertersTest {
     @Test
     void getImporterWithImportConfigAndReportNode() throws IOException {
         Importer importer = Importer.find(loader, TEST_FORMAT, computationManager, importConfigWithPostProcessor);
-        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").build();
+        ReportNode reportNode = new ReportNodeRootBuilderImpl().withMessageTemplate("testFunctionalLog", "testFunctionalLogs").build();
         assertNotNull(importer);
         Network network = importer.importData(null, networkFactory, null, reportNode);
         assertNotNull(network);
