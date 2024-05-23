@@ -5,14 +5,27 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.network.impl.util;
+package com.powsybl.commons.ref;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public interface Ref<T> {
+public class RefChain<T> implements Ref<T> {
 
-    T get();
+    private Ref<T> ref;
+
+    public RefChain(Ref<T> ref) {
+        this.ref = ref;
+    }
+
+    @Override
+    public T get() {
+        return ref.get();
+    }
+
+    public void setRef(Ref<T> ref) {
+        this.ref = ref;
+    }
 
 }

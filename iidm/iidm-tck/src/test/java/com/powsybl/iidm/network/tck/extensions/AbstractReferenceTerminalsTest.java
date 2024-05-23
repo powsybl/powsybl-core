@@ -86,7 +86,7 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
-    void testVariants() {
+    public void testVariants() {
         network.newExtension(ReferenceTerminalsAdder.class)
                 .withTerminals(Set.of(gh1.getTerminal()))
                 .add();
@@ -145,7 +145,7 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
-    void testVariantsCloning() {
+    public void testVariantsCloning() {
         // create variants
         String variant1 = "variant1";
         String variant2 = "variant2";
@@ -181,7 +181,7 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
-    void testWrongNetwork() {
+    public void testWrongNetwork() {
         Network other = EurostagTutorialExample1Factory.create();
         Terminal terminal = other.getBusBreakerView().getBus("NHV1").getConnectedTerminals().iterator().next();
         PowsyblException ex1 = assertThrows(PowsyblException.class, () -> network.newExtension(ReferenceTerminalsAdder.class)
@@ -197,7 +197,7 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
-    void testRemoveEquipment() {
+    public void testRemoveEquipment() {
         network.newExtension(ReferenceTerminalsAdder.class)
                 .withTerminals(Set.of(gh1.getTerminal(), gh2.getTerminal()))
                 .add();
@@ -212,7 +212,7 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
-    void testCleanup() {
+    public void testCleanup() {
         Network net = Mockito.spy(EurostagTutorialExample1Factory.create());
 
         net.newExtension(ReferenceTerminalsAdder.class)
