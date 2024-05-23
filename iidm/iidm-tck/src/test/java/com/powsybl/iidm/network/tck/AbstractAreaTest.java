@@ -180,7 +180,7 @@ public abstract class AbstractAreaTest {
         assertEquals(expectedMessage, e1.getMessage());
         assertEquals(expectedMessage, e2.getMessage());
         assertEquals(expectedMessage, e3.getMessage());
-        assertEquals(expectedMessage, e4.getMessage());
+        assertEquals("Cannot add areas to removed voltage level dummy", e4.getMessage());
     }
 
 }
