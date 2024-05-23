@@ -113,7 +113,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public void addArea(Area area) {
         if (removed) {
-            throw new PowsyblException("Cannot access areas of removed voltage level " + id);
+            throw new PowsyblException("Cannot add areas to removed voltage level " + id);
         }
         if (areas.contains(area)) {
             return; // Nothing to do
