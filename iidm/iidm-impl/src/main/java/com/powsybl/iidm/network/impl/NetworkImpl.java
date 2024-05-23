@@ -261,7 +261,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public Iterable<AreaType> getAreaTypes() {
-        return Iterables.concat(index.getAll(AreaTypeImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(AreaTypeImpl.class));
     }
 
     @Override
