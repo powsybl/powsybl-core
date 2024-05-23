@@ -82,4 +82,30 @@ public class HvdcAction extends AbstractAction {
     public Optional<Boolean> isRelativeValue() {
         return Optional.ofNullable(relativeValue);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        HvdcAction that = (HvdcAction) o;
+        return Objects.equals(hvdcId, that.hvdcId)
+                && Objects.equals(acEmulationEnabled, that.acEmulationEnabled)
+                && Objects.equals(activePowerSetpoint, that.activePowerSetpoint)
+                && converterMode == that.converterMode
+                && Objects.equals(droop, that.droop)
+                && Objects.equals(p0, that.p0)
+                && Objects.equals(relativeValue, that.relativeValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), hvdcId, acEmulationEnabled, activePowerSetpoint, converterMode, droop, p0, relativeValue);
+    }
 }
