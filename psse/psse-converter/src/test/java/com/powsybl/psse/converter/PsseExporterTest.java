@@ -7,13 +7,21 @@
  */
 package com.powsybl.psse.converter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.collect.ImmutableList;
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
@@ -21,10 +29,21 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
+
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+
+import com.powsybl.psse.converter.extensions.PsseModelExtension;
+import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.PsseVersioned;
+import com.powsybl.psse.model.Revision;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.junit.jupiter.api.Test;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
+import static com.powsybl.psse.model.PsseVersion.fromRevision;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -80,6 +99,11 @@ class PsseExporterTest extends AbstractSerDeTest {
         Network network = importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
         changeIEEE24BusNetwork(network);
         exportTest(network, "IEEE_24_bus_updated_exported", "IEEE_24_bus_updated_exported.raw");
+
+        // check that the psseModel associated with the network has not been changed
+        PssePowerFlowModel psseModel = network.getExtension(PsseModelExtension.class).getPsseModel();
+        String jsonRef = loadJsonReference("IEEE_24_bus.json");
+        assertEquals(jsonRef, toJsonString(psseModel));
     }
 
     private static void changeIEEE24BusNetwork(Network network) {
@@ -112,6 +136,29 @@ class PsseExporterTest extends AbstractSerDeTest {
         TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer("T-24-3-1 ");
         tw2t.getTerminal1().disconnect();
         tw2t.getTerminal2().disconnect();
+    }
+
+    private static String toJsonString(PssePowerFlowModel rawData) throws JsonProcessingException {
+        PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
+        SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
+            @Override
+            protected boolean include(PropertyWriter writer) {
+                Revision rev = writer.getAnnotation(Revision.class);
+                return rev == null || PsseVersioned.isValidVersion(version, rev);
+            }
+        };
+        FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
+        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
+        return TestUtil.normalizeLineSeparator(json);
+    }
+
+    private String loadJsonReference(String fileName) {
+        try {
+            InputStream is = getClass().getResourceAsStream("/" + fileName);
+            return TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Test
