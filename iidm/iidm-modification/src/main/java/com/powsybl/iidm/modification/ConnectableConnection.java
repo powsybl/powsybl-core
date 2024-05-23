@@ -72,9 +72,9 @@ public class ConnectableConnection extends AbstractNetworkModification {
         }
 
         if (hasBeenConnected) {
-            LOG.info("Connectable {} has been connected.", connectableId);
+            LOG.info("Connectable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Connectable {} has NOT been connected.", connectableId);
+            LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         }
         connectableConnectionReport(reportNode, connectable, hasBeenConnected, side);
     }
