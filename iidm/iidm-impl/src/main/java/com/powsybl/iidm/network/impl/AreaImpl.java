@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
     private AreaType areaType;
-    private final Optional<Double> acNetInterchangeTarget;
-    private final Optional<Double> acNetInterchangeTolerance;
+    private final Double acNetInterchangeTarget;
+    private final Double acNetInterchangeTolerance;
     private final Map<BoundaryPointType, List<Terminal>> boundaryPointsByType;
 
     private final Set<VoltageLevel> voltagelevels = new LinkedHashSet<>();
@@ -32,8 +32,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.areaType = Objects.requireNonNull(areaType);
-        this.acNetInterchangeTarget = Optional.ofNullable(acNetInterchangeTarget);
-        this.acNetInterchangeTolerance = Optional.ofNullable(acNetInterchangeTolerance);
+        this.acNetInterchangeTarget = acNetInterchangeTarget;
+        this.acNetInterchangeTolerance = acNetInterchangeTolerance;
         this.boundaryPointsByType = new EnumMap<>(BoundaryPointType.class);
     }
 
@@ -69,12 +69,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public Optional<Double> getAcNetInterchangeTarget() {
-        return acNetInterchangeTarget;
+        return Optional.ofNullable(acNetInterchangeTarget);
     }
 
     @Override
     public Optional<Double> getAcNetInterchangeTolerance() {
-        return acNetInterchangeTolerance;
+        return Optional.ofNullable(acNetInterchangeTolerance);
     }
 
     /**

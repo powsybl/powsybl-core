@@ -628,10 +628,14 @@ public interface Network extends Container<Network> {
 
     AreaAdder newArea();
 
-    /** @return all existing Area-s of the Network, which may include several areas for each AreaType */
+    /**
+     * @return all existing areas, which may include several areas for each AreaType
+     */
     Iterable<Area> getAreas();
 
-    /** @return all existing Area-s of the Network, which may include several areas for each AreaType */
+    /**
+     * @return all existing areas, which may include several areas for each AreaType
+     */
     Stream<Area> getAreaStream();
 
     Area getArea(String id);

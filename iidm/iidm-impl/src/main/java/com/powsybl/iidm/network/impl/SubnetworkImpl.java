@@ -106,6 +106,14 @@ public class SubnetworkImpl extends AbstractNetwork {
         return (int) getCountryStream().count();
     }
 
+    private Stream<Country> getCountryStream() {
+        return getNetwork().getSubstationStream()
+                           .filter(this::contains)
+                           .map(s -> s.getCountry().orElse(null))
+                           .filter(Objects::nonNull)
+                           .distinct();
+    }
+
     @Override
     public AreaTypeAdder newAreaType() {
         return getNetwork().newAreaType();
@@ -144,14 +152,6 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public Area getArea(String id) {
         return getNetwork().getArea(id);
-    }
-
-    private Stream<Country> getCountryStream() {
-        return getNetwork().getSubstationStream()
-                .filter(this::contains)
-                .map(s -> s.getCountry().orElse(null))
-                .filter(Objects::nonNull)
-                .distinct();
     }
 
     @Override
