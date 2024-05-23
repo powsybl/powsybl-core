@@ -18,6 +18,4 @@ public interface AreaType extends Identifiable<AreaType> {
         return IdentifiableType.AREA_TYPE;
     }
 
-    boolean isMergeable(AreaType other);
-
 }

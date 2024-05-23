@@ -11,9 +11,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.AreaType;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -190,27 +188,39 @@ class NetworkIndex {
     }
 
     private void mergeAreaTypesAndAreas(NetworkIndex other) {
-        Set<AreaTypeImpl> areaTypesOther = new HashSet<>(other.getAll(AreaTypeImpl.class));
-        for (AreaTypeImpl areaTypeOther : areaTypesOther) {
+        Map<AreaType, AreaType> areaTypesToMerge = new HashMap<>();
+
+        for (AreaType areaTypeOther : new HashSet<>(other.getAll(AreaTypeImpl.class))) {
             AreaType areaType = get(areaTypeOther.getId(), AreaTypeImpl.class);
-            if (areaTypeOther.isMergeable(areaType)) {
-                other.getAll(AreaImpl.class).stream()
-                        .filter(area -> area.getAreaType().equals(areaTypeOther))
-                        .forEach(area -> area.setAreaType(areaType));
+            if (areaType != null) {
+                areaTypesToMerge.put(areaTypeOther, areaType);
             } else {
                 checkAndAdd(areaTypeOther);
             }
             other.remove(areaTypeOther);
         }
 
-        Set<AreaImpl> areasOther = new HashSet<>(other.getAll(AreaImpl.class));
-        for (AreaImpl areaOther : areasOther) {
-            AreaImpl area = get(areaOther.getId(), AreaImpl.class);
-            if (areaOther.isMergeable(area)) {
+        for (Area areaOther : new HashSet<>(other.getAll(AreaImpl.class))) {
+            AreaType areaTypeOther = areaOther.getAreaType();
+            AreaType areaType = areaTypesToMerge.get(areaTypeOther);
+            if (areaType != null) {
+                Area area = get(areaOther.getId(), AreaImpl.class);
+                if (area == null) {
+                    Network network = areaType.getNetwork();
+                    area = network.newArea()
+                            .setId(areaOther.getId())
+                            .setName(areaOther.getNameOrId())
+                            .setAreaType(areaType)
+                            .setFictitious(areaOther.isFictitious())
+                            .setAcNetInterchangeTarget(areaOther.getAcNetInterchangeTarget().orElse(null))
+                            .setAcNetInterchangeTolerance(areaOther.getAcNetInterchangeTolerance().orElse(null))
+                            .add();
+                }
+                Area finalArea = area;
                 Iterable<VoltageLevel> voltageLevelsOther = areaOther.getVoltageLevels();
                 voltageLevelsOther.forEach(voltageLevel -> {
                     Iterables.removeAll(voltageLevel.getAreas(), List.of(areaOther));
-                    voltageLevel.addArea(area);
+                    voltageLevel.addArea(finalArea);
                 });
             } else {
                 checkAndAdd(areaOther);

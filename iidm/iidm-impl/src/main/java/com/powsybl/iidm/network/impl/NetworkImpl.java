@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
+import org.jgrapht.alg.util.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1057,10 +1058,10 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == AreaTypeImpl.class || clazz == AreaImpl.class) {
+            Collection<String> objs = entry.getValue();
+            if (checkAreasMergeability(clazz, objs, otherNetwork)) {
                 continue;
             }
-            Collection<String> objs = entry.getValue();
             if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
                         + clazz.getSimpleName() + " exist(s) in both networks: "
@@ -1076,6 +1077,40 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
             throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
                     + intersectionVoltageAngleLimits);
         }
+    }
+
+    private boolean checkAreasMergeability(Class<? extends Identifiable> clazz, Collection<String> objs, NetworkImpl otherNetwork) {
+        if (AreaTypeImpl.class.isAssignableFrom(clazz)) {
+            objs.forEach(obj -> {
+                AreaType areaType = (AreaTypeImpl) index.get(obj, clazz);
+                AreaType otherAreaType = (AreaTypeImpl) otherNetwork.index.get(obj, clazz);
+                String name = areaType.getNameOrId();
+                String nameOther = otherAreaType.getNameOrId();
+                if (!name.equals(nameOther)) {
+                    throw new PowsyblException("Cannot merge area types with same id " + areaType.getId() + " but different names: " + name + " and " + nameOther);
+                }
+            });
+            return true;
+        } else if (AreaImpl.class.isAssignableFrom(clazz)) {
+            objs.forEach(obj -> {
+                Area area = (AreaImpl) index.get(obj, clazz);
+                Area otherArea = (AreaImpl) otherNetwork.index.get(obj, clazz);
+                List<Triple<String, Supplier<Object>, Supplier<Object>>> attributesToCompares = List.of(
+                        Triple.of("name", area::getNameOrId, otherArea::getNameOrId),
+                        Triple.of("areaType", () -> area.getAreaType().getId(), () -> otherArea.getAreaType().getId()),
+                        Triple.of("isFictitious value", area::isFictitious, otherArea::isFictitious),
+                        Triple.of("acNetInterchangeTarget", () -> area.getAcNetInterchangeTarget().orElse(null), () -> otherArea.getAcNetInterchangeTarget().orElse(null)),
+                        Triple.of("acNetInterchangeTolerance", () -> area.getAcNetInterchangeTolerance().orElse(null), () -> otherArea.getAcNetInterchangeTolerance().orElse(null))
+                );
+                attributesToCompares.forEach(attribute -> {
+                    if (!Objects.equals(attribute.getSecond().get(), attribute.getThird().get())) {
+                        throw new PowsyblException("Cannot merge areas with same id" + area.getId() + " but different " + attribute.getFirst() + ": " + attribute.getSecond().get() + " and " + attribute.getThird().get());
+                    }
+                });
+            });
+            return true;
+        }
+        return false;
     }
 
     private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {

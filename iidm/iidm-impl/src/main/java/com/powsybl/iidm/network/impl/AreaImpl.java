@@ -53,11 +53,6 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public void setAreaType(AreaType areaType) {
-        this.areaType = Objects.requireNonNull(areaType);
-    }
-
-    @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return voltagelevels;
     }
@@ -86,38 +81,6 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     public void addVoltageLevel(VoltageLevel voltageLevel) {
         voltagelevels.add(voltageLevel);
         voltageLevel.addArea(this);
-    }
-
-    @Override
-    public boolean isMergeable(Area other) {
-        if (other == null || !other.getId().equals(getId())) {
-            return false;
-        }
-        String name = getNameOrId();
-        String nameOther = other.getNameOrId();
-        if (!name.equals(nameOther)) {
-            throw new PowsyblException("Cannot merge areas with same id" + getId() + " but different names: " + name + " and " + nameOther);
-        }
-
-        AreaType areaType = getAreaType();
-        AreaType areaTypeOther = other.getAreaType();
-        if (!areaType.equals(areaTypeOther)) {
-            throw new PowsyblException("Cannot merge areas with same id" + getId() + " but different area types: " + areaType.getId() + " and " + areaTypeOther.getId());
-        }
-
-        Optional<Double> acNetInterchangeTarget = getAcNetInterchangeTarget();
-        Optional<Double> acNetInterchangeTargetOther = other.getAcNetInterchangeTarget();
-        if (!acNetInterchangeTarget.equals(acNetInterchangeTargetOther)) {
-            throw new PowsyblException("Cannot merge areas with same id" + getId() + " but different AC Net Interchange Targets: " + acNetInterchangeTarget + " and " + acNetInterchangeTargetOther);
-        }
-
-        Optional<Double> acNetInterchangeTolerance = getAcNetInterchangeTolerance();
-        Optional<Double> acNetInterchangeToleranceOther = other.getAcNetInterchangeTolerance();
-        if (!acNetInterchangeTolerance.equals(acNetInterchangeToleranceOther)) {
-            throw new PowsyblException("Cannot merge areas with same id" + getId() + " but different AC Net Interchange Tolerances: " + acNetInterchangeTolerance + " and " + acNetInterchangeToleranceOther);
-        }
-
-        return true;
     }
 
     @Override
