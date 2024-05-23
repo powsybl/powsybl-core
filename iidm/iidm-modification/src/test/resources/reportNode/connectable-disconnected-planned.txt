@@ -1,2 +1,2 @@
 + Testing reportNode for connectable disconnection
-   Connectable L1 has been disconnected (planned disconnection).
+   Connectable L1 has been disconnected (planned disconnection) on each side.

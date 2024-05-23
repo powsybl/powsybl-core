@@ -76,6 +76,6 @@ public class ConnectableConnection extends AbstractNetworkModification {
         } else {
             LOG.info("Connectable {} has NOT been connected.", connectableId);
         }
-        connectableConnectionReport(reportNode, connectable, hasBeenConnected);
+        connectableConnectionReport(reportNode, connectable, hasBeenConnected, side);
     }
 }

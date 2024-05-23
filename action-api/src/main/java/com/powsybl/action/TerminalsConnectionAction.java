@@ -93,8 +93,8 @@ public class TerminalsConnectionAction extends AbstractAction {
             return builder.build();
         } else {
             ConnectableConnectionBuilder builder = new ConnectableConnectionBuilder()
-                    .withConnectableId(elementId)
-                    .withOnlyBreakersOperable(true)
+                .withConnectableId(elementId)
+                .withOnlyBreakersOperable(true)
                 .withSide(side);
             return builder.build();
         }
