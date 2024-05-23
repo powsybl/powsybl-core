@@ -28,6 +28,8 @@ SELECT *
 SELECT *
 {
     ?Terminal a cim:Terminal
+    # FIXME(Luma) if we do not have data about the terminal we should not return a row
+    # We must have either a connected attribute or a SvPowerFlow
     OPTIONAL {
         ?Terminal cim:ACDCTerminal.connected ?connected
     }
@@ -59,16 +61,6 @@ SELECT *
         OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
 }
 
-# query: switches
-SELECT *
-{
-    ?Switch a ?type ;
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
-    OPTIONAL {
-        ?Switch cim:Switch.open ?open
-    }
-}
-
 # query: topologicalNodes
 SELECT *
 {
@@ -88,16 +80,15 @@ SELECT *
 SELECT *
 {
     ?Switch a ?type ;
-    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector } .
-    OPTIONAL {
-        ?Switch cim:Switch.open ?open
-    }
+        cim:Switch.open ?open .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch cim:GroundDisconnector }
 }
 
 # query: ratioTapChangers
 SELECT *
 {
     ?RatioTapChanger a cim:RatioTapChanger ;
+    # FIXME(Luma) return either data from SSH or from SV, but at least some data has to be present to return a row
     OPTIONAL {
         ?RatioTapChanger
             cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
@@ -150,24 +141,18 @@ SELECT *
 # query: energyConsumers
 SELECT *
 {
-    ?EnergyConsumer a ?type .
-    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
-    OPTIONAL {
-        ?EnergyConsumer
+    ?EnergyConsumer a ?type ;
             cim:EnergyConsumer.p ?p ;
-            cim:EnergyConsumer.q ?q
-    }
+            cim:EnergyConsumer.q ?q .
+    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad cim:StationSupply }
 }
 
 # query: energySources
 SELECT *
 {
     ?EnergySource a cim:EnergySource ;
-    OPTIONAL {
-        ?EnergySource
             cim:EnergySource.activePower ?p ;
             cim:EnergySource.reactivePower ?q
-    }
 }
 
 # query: shuntCompensators
