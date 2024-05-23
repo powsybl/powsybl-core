@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 public abstract class AbstractTckSuiteExhaustivityTest {
 
     @Test
-    void assertAllTckTestsAreInstanced() {
+    public void assertAllTckTestsAreInstanced() {
         ClassLoader classLoader = this.getClass().getClassLoader();
         String tckPackageName = "com.powsybl.iidm.network.tck";
         List<String> tckTestClasses = getPackageClasses(classLoader, tckPackageName)

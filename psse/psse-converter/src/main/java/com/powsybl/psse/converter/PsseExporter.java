@@ -109,36 +109,23 @@ public class PsseExporter implements Exporter {
         }
     }
 
+    // New equipment is not supported
+    // Antennas (Branches connected only at one end) are exported as out of service (both sides open)
     private static PssePowerFlowModel createUpdatePsseModel(Network network, PssePowerFlowModel psseModel) {
-        PssePowerFlowModel updatePsseModel = new PssePowerFlowModel(psseModel.getCaseIdentification());
-
-        copyPermanentBlocks(psseModel, updatePsseModel);
-        updateModifiedBlocks(network, psseModel, updatePsseModel);
-        return updatePsseModel;
+        // Only the updated blocks are copied, non-updated blocks are referenced
+        PssePowerFlowModel referencedAndCopiedPsseModel = psseModel.referenceAndCopyPssePowerFlowModel();
+        updateModifiedBlocks(network, referencedAndCopiedPsseModel);
+        return referencedAndCopiedPsseModel;
     }
 
-    private static void copyPermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
-        updatePsseModel.addAreas(psseModel.getAreas());
-        updatePsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
-        updatePsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
-        updatePsseModel.addTransformerImpedanceCorrections(psseModel.getTransformerImpedanceCorrections());
-        updatePsseModel.addMultiTerminalDcTransmissionLines(psseModel.getMultiTerminalDcTransmissionLines());
-        updatePsseModel.addLineGrouping(psseModel.getLineGrouping());
-        updatePsseModel.addZones(psseModel.getZones());
-        updatePsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
-        updatePsseModel.addOwners(psseModel.getOwners());
-        updatePsseModel.addFacts(psseModel.getFacts());
-        updatePsseModel.addGneDevice(psseModel.getGneDevice());
-        updatePsseModel.addInductionMachines(psseModel.getInductionMachines());
-    }
+    private static void updateModifiedBlocks(Network network, PssePowerFlowModel referencedAndCopiedPsseModel) {
 
-    private static void updateModifiedBlocks(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
-        BusConverter.updateBuses(network, psseModel, updatePsseModel);
-        LoadConverter.updateLoads(network, psseModel, updatePsseModel);
-        FixedShuntCompensatorConverter.updateFixedShunts(network, psseModel, updatePsseModel);
-        GeneratorConverter.updateGenerators(network, psseModel, updatePsseModel);
-        LineConverter.updateLines(network, psseModel, updatePsseModel);
-        TransformerConverter.updateTransformers(network, psseModel, updatePsseModel);
-        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, psseModel, updatePsseModel);
+        BusConverter.updateBuses(network, referencedAndCopiedPsseModel);
+        LoadConverter.updateLoads(network, referencedAndCopiedPsseModel);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, referencedAndCopiedPsseModel);
+        GeneratorConverter.updateGenerators(network, referencedAndCopiedPsseModel);
+        LineConverter.updateLines(network, referencedAndCopiedPsseModel);
+        TransformerConverter.updateTransformers(network, referencedAndCopiedPsseModel);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, referencedAndCopiedPsseModel);
     }
 }
