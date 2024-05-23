@@ -23,7 +23,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private AreaType areaType;
     private final Double acNetInterchangeTarget;
     private final Double acNetInterchangeTolerance;
-    private final Map<BoundaryPointType, List<Terminal>> boundaryPointsByType;
+    private final List<Area.BoundaryTerminal> boundaryTerminals;
 
     private final Set<VoltageLevel> voltagelevels = new LinkedHashSet<>();
 
@@ -34,7 +34,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         this.areaType = Objects.requireNonNull(areaType);
         this.acNetInterchangeTarget = acNetInterchangeTarget;
         this.acNetInterchangeTolerance = acNetInterchangeTolerance;
-        this.boundaryPointsByType = new EnumMap<>(BoundaryPointType.class);
+        this.boundaryTerminals = new ArrayList<>();
     }
 
     @Override
@@ -126,28 +126,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public Map<BoundaryPointType, List<Terminal>> getBoundaryPointsByType() {
-        return boundaryPointsByType;
+    public List<BoundaryTerminal> getBoundaryTerminals() {
+        return boundaryTerminals;
     }
 
     @Override
-    public Iterable<Terminal> getBoundaryPoints() {
-        return getBoundaryPointStream().toList();
+    public Stream<BoundaryTerminal> getBoundaryTerminalStream() {
+        return boundaryTerminals.stream();
     }
-
-    @Override
-    public Stream<Terminal> getBoundaryPointStream() {
-        return boundaryPointsByType.values().stream().flatMap(Collection::stream);
-    }
-
-    @Override
-    public Iterable<Terminal> getBoundaryPoints(final BoundaryPointType boundaryPointType) {
-        return boundaryPointsByType.get(boundaryPointType);
-    }
-
-    @Override
-    public Stream<Terminal> getBoundaryPointStream(final BoundaryPointType boundaryPointType) {
-        return boundaryPointsByType.get(boundaryPointType).stream();
-    }
-
 }

@@ -19,7 +19,7 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder setAcNetInterchangeTolerance(Double acNetInterchangeTolerance);
 
-    AreaAdder addBoundaryPoint(Terminal terminal, BoundaryPointType boundaryPointType);
+    AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac);
 
     @Override
     Area add();

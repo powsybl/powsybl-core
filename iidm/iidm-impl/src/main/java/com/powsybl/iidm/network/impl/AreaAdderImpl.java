@@ -12,8 +12,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -29,11 +27,11 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private Double acNetInterchangeTolerance;
 
-    private final Map<BoundaryPointType, List<Terminal>> boundaryPointsByType;
+    private final List<Area.BoundaryTerminal> boundaryTerminals;
 
     AreaAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
-        this.boundaryPointsByType = new TreeMap<>();
+        this.boundaryTerminals = new ArrayList<>();
     }
 
     public NetworkImpl getNetwork() {
@@ -55,9 +53,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    public AreaAdder addBoundaryPoint(Terminal terminal, BoundaryPointType boundaryPointType) {
-        this.boundaryPointsByType.putIfAbsent(boundaryPointType, new ArrayList<>());
-        this.boundaryPointsByType.get(boundaryPointType).add(terminal);
+    public AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac) {
+        this.boundaryTerminals.add(new Area.BoundaryTerminal(terminal, ac));
         return this;
     }
 
@@ -77,8 +74,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return acNetInterchangeTolerance;
     }
 
-    protected Map<BoundaryPointType, List<Terminal>> getBoundaryPointsByType() {
-        return boundaryPointsByType;
+    protected List<Area.BoundaryTerminal> getBoundaryTerminals() {
+        return boundaryTerminals;
     }
 
     @Override
@@ -86,7 +83,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(getNetworkRef(), id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
                 getAcNetInterchangeTolerance());
-        area.getBoundaryPointsByType().putAll(getBoundaryPointsByType());
+        area.getBoundaryTerminals().addAll(getBoundaryTerminals());
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
         return area;

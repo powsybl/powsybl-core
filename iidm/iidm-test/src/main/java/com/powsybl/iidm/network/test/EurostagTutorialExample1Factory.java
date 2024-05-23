@@ -917,9 +917,9 @@ public final class EurostagTutorialExample1Factory {
                 .setId("aic_a")
                 .setName("Aic_A")
                 .setAreaType(aic)
-                .addBoundaryPoint(nhv1Nhv2Line1.getTerminal1(), BoundaryPointType.PAIRED_AC)
-                .addBoundaryPoint(nhv1Nhv2Line2.getTerminal2(), BoundaryPointType.PAIRED_AC)
-                .addBoundaryPoint(network.getGenerator("GEN").getTerminal(), BoundaryPointType.UNPAIRED_AC)
+                .addBoundaryTerminal(nhv1Nhv2Line1.getTerminal1(), true)
+                .addBoundaryTerminal(nhv1Nhv2Line2.getTerminal2(), false)
+                .addBoundaryTerminal(network.getGenerator("GEN").getTerminal(), true)
                 .add();
         return network;
     }

@@ -60,10 +60,10 @@ public abstract class AbstractAreaTest {
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         final Terminal boundary2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2).getTerminal2();
         final Terminal boundary3 = network.getGenerator("GEN").getTerminal();
-        assertEquals(List.of(boundary1, boundary2), aicA.getBoundaryPoints(BoundaryPointType.PAIRED_AC));
-        assertEquals(List.of(boundary1, boundary2), aicA.getBoundaryPointStream(BoundaryPointType.PAIRED_AC).toList());
-        assertEquals(List.of(boundary1, boundary2, boundary3), aicA.getBoundaryPoints());
-        assertEquals(List.of(boundary1, boundary2, boundary3), aicA.getBoundaryPointStream().toList());
+        final List<Area.BoundaryTerminal> boundaries = List.of(new Area.BoundaryTerminal(boundary1, true),
+                new Area.BoundaryTerminal(boundary2, false), new Area.BoundaryTerminal(boundary3, true));
+        assertEquals(boundaries, aicA.getBoundaryTerminals());
+        assertEquals(boundaries, aicA.getBoundaryTerminalStream().toList());
     }
 
     @Test

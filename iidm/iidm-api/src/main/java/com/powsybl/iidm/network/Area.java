@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -28,15 +27,9 @@ public interface Area extends Identifiable<Area> {
 
     void addVoltageLevel(VoltageLevel voltageLevel);
 
-    Map<BoundaryPointType, List<Terminal>> getBoundaryPointsByType();
+    List<BoundaryTerminal> getBoundaryTerminals();
 
-    Iterable<Terminal> getBoundaryPoints();
-
-    Stream<Terminal> getBoundaryPointStream();
-
-    Iterable<Terminal> getBoundaryPoints(BoundaryPointType boundaryPointType);
-
-    Stream<Terminal> getBoundaryPointStream(BoundaryPointType boundaryPointType);
+    Stream<BoundaryTerminal> getBoundaryTerminalStream();
 
     @Override
     default IdentifiableType getType() {
@@ -58,4 +51,6 @@ public interface Area extends Identifiable<Area> {
     boolean isMergeable(Area other);
 
     void remove(VoltageLevel voltageLevel);
+
+    record BoundaryTerminal(Terminal terminal, boolean ac) { }
 }
