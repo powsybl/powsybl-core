@@ -82,16 +82,17 @@ public abstract class AbstractAreaTest {
 
     @Test
     void checkSubnetworkGetAreas() {
+        //TODO test with a subnetwork that has voltage levels and areas
         Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
-        assertEquals(biddingZone, subnetwork.getAreaType("bz"));
-        assertEquals(biddingZoneA, subnetwork.getArea("bza"));
-        assertEquals(aicA, subnetwork.getArea("aic_a"));
+        assertNull(subnetwork.getAreaType("bz"));
+        assertNull(subnetwork.getArea("bza"));
+        assertNull(subnetwork.getArea("aic_a"));
 
-        assertEquals(4, Iterables.size(subnetwork.getAreas()));
-        assertEquals(3, Iterables.size(subnetwork.getAreaTypes()));
+        assertEquals(0, Iterables.size(subnetwork.getAreas()));
+        assertEquals(0, Iterables.size(subnetwork.getAreaTypes()));
 
-        assertEquals(List.of(biddingZoneA, biddingZoneB, regionA, aicA), subnetwork.getAreaStream().toList());
-        assertEquals(List.of(biddingZone, region, aic), subnetwork.getAreaTypeStream().toList());
+        assertEquals(List.of(), subnetwork.getAreaStream().toList());
+        assertEquals(List.of(), subnetwork.getAreaTypeStream().toList());
     }
 
     @Test

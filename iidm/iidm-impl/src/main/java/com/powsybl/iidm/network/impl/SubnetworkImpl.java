@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
@@ -121,17 +122,18 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<AreaType> getAreaTypes() {
-        return getNetwork().getAreaTypes();
+        return getAreaTypeStream().toList();
     }
 
     @Override
     public Stream<AreaType> getAreaTypeStream() {
-        return getNetwork().getAreaTypeStream();
+        return getAreaStream().map(Area::getAreaType).distinct();
     }
 
     @Override
     public AreaType getAreaType(String id) {
-        return getNetwork().getAreaType(id);
+        AreaType areaType = getNetwork().getAreaType(id);
+        return Iterables.contains(getAreaTypes(), areaType) ? areaType : null;
     }
 
     @Override
@@ -141,17 +143,18 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Iterable<Area> getAreas() {
-        return getNetwork().getAreas();
+        return getAreaStream().toList();
     }
 
     @Override
     public Stream<Area> getAreaStream() {
-        return getNetwork().getAreaStream();
+        return getVoltageLevelStream().flatMap(VoltageLevel::getAreasStream).distinct();
     }
 
     @Override
     public Area getArea(String id) {
-        return getNetwork().getArea(id);
+        Area area = getNetwork().getArea(id);
+        return Iterables.contains(getAreas(), area) ? area : null;
     }
 
     @Override
