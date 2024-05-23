@@ -68,7 +68,7 @@ public class Parameter {
         this(name, type, description, defaultValue, null);
     }
 
-    public Builder builder(String name, ParameterType type, String description, Object defaultValue) {
+    public static Builder builder(String name, ParameterType type, String description, Object defaultValue) {
         return new Builder(name, type, description, defaultValue);
     }
 
@@ -103,6 +103,10 @@ public class Parameter {
         public Builder withUsageRestrictions(ParameterUsageRestrictions usageRestrictions) {
             this.usageRestrictions = usageRestrictions;
             return this;
+        }
+
+        public ParameterUsageRestrictions.Adder newUsageRestriction() {
+            return new ParameterUsageRestrictions.Adder(this);
         }
 
         public Builder withCategoryKey(String categoryKey) {

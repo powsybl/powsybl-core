@@ -98,7 +98,7 @@ class CgmesImportPreAndPostProcessorsTest {
                 .filter(p -> p.getName().equals("iidm.import.cgmes.post-processors"))
                 .findFirst()
                 .orElseThrow();
-        assertEquals(List.of("foo"), parameter.getPossibleValues());
+        assertEquals(List.of("foo"), parameter.getPossibleValues().orElseThrow());
     }
 
     @Test

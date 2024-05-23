@@ -7,6 +7,8 @@
  */
 package com.powsybl.commons.parameters;
 
+import com.google.common.collect.ImmutableSet;
+
 import java.util.*;
 
 /**
@@ -36,12 +38,42 @@ public class ParameterUsageRestrictions {
 
         private Builder() { }
 
-        public void add(String parameterName, Object value) {
-            acceptableValuesPerParameter.getOrDefault(parameterName, new HashSet<>()).add(value);
+        public Builder add(String parameterName, Object value) {
+            acceptableValuesPerParameter.put(parameterName, Set.of(value));
+            return this;
+        }
+
+        public Builder add(String parameterName, Set<Object> values) {
+            acceptableValuesPerParameter.put(parameterName, ImmutableSet.copyOf(values));
+            return this;
         }
 
         public ParameterUsageRestrictions build() {
             return new ParameterUsageRestrictions(acceptableValuesPerParameter);
+        }
+    }
+
+    public static class Adder {
+        private final Parameter.Builder parameterBuilder;
+        private final ParameterUsageRestrictions.Builder builder;
+
+        protected Adder(Parameter.Builder parameterBuilder) {
+            this.parameterBuilder = parameterBuilder;
+            this.builder = new ParameterUsageRestrictions.Builder();
+        }
+
+        public Adder withRestriction(String parameterName, Object value) {
+            builder.add(parameterName, value);
+            return this;
+        }
+
+        public Adder withRestriction(String parameterName, Set<Object> values) {
+            builder.add(parameterName, values);
+            return this;
+        }
+
+        public Parameter.Builder add() {
+            return parameterBuilder.withUsageRestrictions(builder.build());
         }
     }
 }
