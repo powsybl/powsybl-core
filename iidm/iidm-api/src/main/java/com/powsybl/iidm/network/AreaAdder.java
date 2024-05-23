@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
-public interface AreaAdder extends AbstractAreaAdder<Area, AreaAdder> {
+public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder setAreaType(AreaType areaType);
 
