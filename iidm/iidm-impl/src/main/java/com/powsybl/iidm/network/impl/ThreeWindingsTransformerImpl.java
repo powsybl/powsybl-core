@@ -361,7 +361,10 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     @Override
     public ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        ValidationUtil.checkRatedU(this, ratedU0, "");
+        double oldValue = this.ratedU0;
         this.ratedU0 = ratedU0;
+        notifyUpdate("ratedU0", oldValue, ratedU0);
         return this;
     }
 

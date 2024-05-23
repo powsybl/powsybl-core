@@ -59,7 +59,6 @@ class TestThreeWindingsTransformerModification {
 
     @Test
     void testApplyChecks() {
-        //
         ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification("UNKNOWN_ID", null);
         assertThrows(PowsyblException.class, () -> t3wtModification.apply(network, true, ReportNode.NO_OP),
                 "An invalid ID should fail to apply.");
