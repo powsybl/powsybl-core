@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
-public class NetworkGeoDataExtensionsAdderTest {
+class NetworkGeoDataExtensionsAdderTest {
 
     private Network network;
 
