@@ -22,11 +22,18 @@ import java.util.*;
 /**
  *  A state monitor allows to output in security analysis results some state variables related to branches, buses and three
  *  windings transformers. The supported state variables are active power, reactive power and current at both side for branches
- *  (see {@link com.powsybl.security.results.BranchResult}), active power, reactive power and current at network side for
+ *  (see {@link com.powsybl.security.results.BranchResult}), active power, reactive power and current at voltage level side for
  *  three windings transformers (see {@link com.powsybl.security.results.ThreeWindingsTransformerResult}) and voltage angle and voltage
- *  magnitude for buses (see {@link com.powsybl.security.results.BusResult}). A state monitor is defined in a contingency context.
- *  See {@link ContingencyContext} for more details.
- *  </p>
+ *  magnitude for buses (see {@link com.powsybl.security.results.BusResult}).
+ *  <p>
+ *  A state monitor is defined for some contingencies through a {@link ContingencyContext}.
+ *  A {@link com.powsybl.contingency.ContingencyContextType#NONE} or {@link com.powsybl.contingency.ContingencyContextType#ALL}
+ *  (because it includes the base case) contingency context will output the monitoring results in
+ *  {@link com.powsybl.security.results.PreContingencyResult}.
+ *  If a contingency has a state monitor declared (through a {@link com.powsybl.contingency.ContingencyContextType#ALL},
+ *  a {@link com.powsybl.contingency.ContingencyContextType#ONLY_CONTINGENCIES} or a {@link com.powsybl.contingency.ContingencyContextType#SPECIFIC}),
+ *  monitoring results are output in the dedicated {@link com.powsybl.security.results.PostContingencyResult}.
+ *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class StateMonitor {

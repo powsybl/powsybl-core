@@ -12,8 +12,8 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Objects;
 
 /**
- * Contains state variables of a three-windings transformer. The state variables supported are active and reactive power
- * for each leg (network side of course), current for each leg.
+ * Contains state variables of a three-windings transformer which is monitored during security analysis through a {@link com.powsybl.security.monitor.StateMonitor}.
+ * The state variables supported are active and reactive power for each leg (voltage level side of course), current for each leg.
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */

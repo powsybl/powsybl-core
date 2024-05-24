@@ -12,8 +12,9 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Objects;
 
 /**
- * Contains state variables of a branch. The state variables supported are active and reactive power at both sides,
- * current at both sides and the flow transfer (useful only for post-contingency states or after applying operator strategies).
+ * Contains state variables of a branch which is monitored during security analysis through a {@link com.powsybl.security.monitor.StateMonitor}.
+ * The state variables supported are active and reactive power at both sides, current at both sides and the flow transfer
+ * (useful only for post-contingency states or after applying operator strategies).
  * Note that it could be used for dangling lines, in that case only side 1 is filled (which corresponds to network side).
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
