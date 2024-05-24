@@ -130,6 +130,15 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public void removeArea(Area area) {
+        if (removed) {
+            throw new PowsyblException("Cannot remove areas from removed voltage level " + id);
+        }
+        areas.remove(area);
+        area.removeVoltageLevel(this);
+    }
+
+    @Override
     public Substation getNullableSubstation() {
         return substation;
     }
@@ -548,7 +557,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         removeTopology();
 
         // Remove this voltage level from the areas
-        getAreas().forEach(area -> area.remove(this));
+        getAreas().forEach(area -> area.removeVoltageLevel(this));
         // Remove this voltage level from the network
         getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
         network.getIndex().remove(this);

@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -84,8 +85,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public void remove(VoltageLevel voltageLevel) {
+    public void removeVoltageLevel(VoltageLevel voltageLevel) {
         voltagelevels.remove(voltageLevel);
+        if (Iterables.contains(voltageLevel.getAreas(), this)) {
+            voltageLevel.removeArea(this);
+        }
     }
 
     @Override
