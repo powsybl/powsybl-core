@@ -345,13 +345,13 @@ public final class NetworkSerDe {
 
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context, () -> writeSubnetworks(n, context));
 
-        writeAreaTypes(n, context);
-        writeAreas(n, context);
         writeVoltageLevels(n, context);
         writeSubstations(n, context);
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
+        writeAreaTypes(n, context);
+        writeAreas(n, context);
     }
 
     private static void writeSubnetworks(Network n, NetworkSerializerContext context) {
@@ -585,6 +585,7 @@ public final class NetworkSerDe {
                 Map.entry(AreaTypeSerDe.ARRAY_ELEMENT_NAME, AreaTypeSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(AreaSerDe.ARRAY_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BatterySerDe.ARRAY_ELEMENT_NAME, BatterySerDe.ROOT_ELEMENT_NAME),
+                Map.entry(BoundaryTerminalSerDe.ARRAY_ELEMENT_NAME, BoundaryTerminalSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),

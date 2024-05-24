@@ -8,10 +8,8 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Area;
-import com.powsybl.iidm.network.AreaAdder;
-import com.powsybl.iidm.network.AreaType;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -36,6 +34,18 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     }
 
     @Override
+    protected void writeSubElements(final Area area, final Network parent, final NetworkSerializerContext context) {
+        writeVoltageLevels(area, context);
+        BoundaryTerminalSerDe.INSTANCE.write(area, context);
+    }
+
+    private void writeVoltageLevels(Area area, NetworkSerializerContext context) {
+        for (VoltageLevel voltageLevel : IidmSerDeUtil.sorted(area.getVoltageLevels(), context.getOptions())) {
+            VoltageLevelRefSerDe.writeVoltageLevelRef(voltageLevel, context);
+        }
+    }
+
+    @Override
     protected AreaAdder createAdder(final Network network) {
         return network.newArea();
     }
@@ -56,8 +66,13 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     }
 
     @Override
-    protected void readSubElements(final Area identifiable, final NetworkDeserializerContext context) {
-        // No sub-elements to read: just end reading
-        context.getReader().readEndNode();
+    protected void readSubElements(final Area area, final NetworkDeserializerContext context) {
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case VoltageLevelRefSerDe.ROOT_ELEMENT_NAME -> VoltageLevelRefSerDe.readVoltageLevelRef(context, area.getNetwork(), area::addVoltageLevel);
+                case BoundaryTerminalSerDe.ROOT_ELEMENT_NAME -> BoundaryTerminalSerDe.INSTANCE.read(area, context);
+                default -> readSubElement(elementName, area, context);
+            }
+        });
     }
 }

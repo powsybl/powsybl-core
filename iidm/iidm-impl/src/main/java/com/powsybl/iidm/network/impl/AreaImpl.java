@@ -89,6 +89,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
+    public void addBoundaryTerminal(Terminal terminal, boolean ac) {
+        boundaryTerminals.add(new Area.BoundaryTerminal(terminal, ac));
+    }
+
+    @Override
     public List<BoundaryTerminal> getBoundaryTerminals() {
         return boundaryTerminals;
     }

@@ -41,19 +41,27 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
     }
 
     private static Network createBaseNetworkWithAreas() {
+        // Create a base network
         Network network = Network.create("test", "test");
         network.setCaseDate(ZonedDateTime.parse("2020-03-04T13:20:30.476+01:00"));
+        Substation s1 = network.newSubstation().setId("sub1").add();
+        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(1).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        network.newSubstation().setId("sub2").add();
+        vl1.getBusBreakerView().newBus().setId("N1").add();
+        vl1.getBusBreakerView().newBus().setId("N2").add();
+        final Load load1 = vl1.newLoad().setId("L1").setBus("N1").setP0(0).setQ0(0).add();
+        final Load load2 = vl1.newLoad().setId("L2").setBus("N2").setP0(0).setQ0(0).add();
+
+        // Add area types and areas to the network
         final AreaType biddingZoneType = network.newAreaType().setId("BiddingZone").add();
         final AreaType controlAreaType = network.newAreaType().setId("ControlArea").add();
-        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").add();
-        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2")
-                .setAcNetInterchangeTarget(100.).setAcNetInterchangeTolerance(1.).add();
+        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").addBoundaryTerminal(load1.getTerminal(), true)
+               .addBoundaryTerminal(load2.getTerminal(), false).add();
+        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addBoundaryTerminal(load1.getTerminal(), true)
+               .setAcNetInterchangeTarget(100.).setAcNetInterchangeTolerance(1.).add();
         network.newArea().setAreaType(controlAreaType).setId("ControlAreaId1").setName("ControlAreaName1").add();
-        Substation s1 = network.newSubstation().setId("sub1").add();
-        VoltageLevel vl1 = s1.newVoltageLevel().setId("VL1").setNominalV(1).setTopologyKind(TopologyKind.NODE_BREAKER).add();
         vl1.addArea(network.getArea("BidZoneId1"));
         vl1.addArea(network.getArea("ControlAreaId1"));
-        network.newSubstation().setId("sub2").add();
         return network;
     }
 

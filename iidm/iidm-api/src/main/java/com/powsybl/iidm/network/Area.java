@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -25,7 +24,9 @@ public interface Area extends Identifiable<Area> {
 
     void addVoltageLevel(VoltageLevel voltageLevel);
 
-    List<BoundaryTerminal> getBoundaryTerminals();
+    void addBoundaryTerminal(Terminal terminal, boolean ac);
+
+    Iterable<BoundaryTerminal> getBoundaryTerminals();
 
     Stream<BoundaryTerminal> getBoundaryTerminalStream();
 

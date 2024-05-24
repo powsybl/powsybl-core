@@ -84,7 +84,6 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
         writeGrounds(vl, context);
-        writeAreas(vl, context);
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkSerializerContext context) {
@@ -293,12 +292,6 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
         context.getWriter().writeEndNodes();
     }
 
-    private void writeAreas(VoltageLevel vl, NetworkSerializerContext context) {
-        for (Area area : IidmSerDeUtil.sorted(vl.getAreas(), context.getOptions())) {
-            AreaRefSerDe.writeAreaRef(area, context);
-        }
-    }
-
     @Override
     protected VoltageLevelAdder createAdder(Container<? extends Identifiable<?>> c) {
         if (c instanceof Network network) {
@@ -339,7 +332,6 @@ class VoltageLevelSerDe extends AbstractSimpleIdentifiableSerDe<VoltageLevel, Vo
                 case VscConverterStationSerDe.ROOT_ELEMENT_NAME -> VscConverterStationSerDe.INSTANCE.read(vl, context);
                 case LccConverterStationSerDe.ROOT_ELEMENT_NAME -> LccConverterStationSerDe.INSTANCE.read(vl, context);
                 case GroundSerDe.ROOT_ELEMENT_NAME -> GroundSerDe.INSTANCE.read(vl, context);
-                case AreaRefSerDe.ROOT_ELEMENT_NAME -> AreaRefSerDe.readAreaRef(context, vl.getNetwork(), vl::addArea);
                 default -> readSubElement(elementName, vl, context);
             }
         });
