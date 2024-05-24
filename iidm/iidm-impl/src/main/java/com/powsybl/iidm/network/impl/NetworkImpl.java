@@ -1108,7 +1108,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private static void checkAttribute(String type, String id, String attributeName, Object attribute1, Object attribute2) {
         if (!Objects.equals(attribute1, attribute2)) {
-            throw new PowsyblException("Cannot merge object(s) of type " + type + " with same id :" + id + " but with different " + attributeName + ": " + attribute1 + " and " + attribute2);
+            throw new PowsyblException("Cannot merge object(s) of type " + type + " with same id: [" + id + "] but with different " + attributeName + ": [" + attribute1 + "] and [" + attribute2 + "]");
         }
     }
 
