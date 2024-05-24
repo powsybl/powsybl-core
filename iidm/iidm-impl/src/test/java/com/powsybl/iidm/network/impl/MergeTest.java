@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -53,34 +52,6 @@ class MergeTest {
         // The test passes if we do not log voltage level (exportTopology)
         Network merge = Network.merge(n1, n2);
         checkConnectedComponents(merge);
-    }
-
-    @Test
-    void mergeNodeBreakerWithAreasTestPass() {
-        Network n1 = createNodeBreakerWithAreas(NetworkFactory.findDefault(), "1");
-        Network n2 = createNodeBreakerWithAreas(NetworkFactory.findDefault(), "2");
-
-        // The test passes if we do not log voltage level (exportTopology)
-        Network merge = Network.merge(n1, n2);
-
-        VoltageLevel n1S1VL1 = merge.getVoltageLevel(id("S1VL1", "1"));
-        VoltageLevel n1S2VL1 = merge.getVoltageLevel(id("S2VL1", "1"));
-        VoltageLevel n2S1VL1 = merge.getVoltageLevel(id("S1VL1", "2"));
-        VoltageLevel n2S2VL1 = merge.getVoltageLevel(id("S2VL1", "2"));
-
-        //TODO: Merge 2 different areas with the same area type
-        assertEquals(3, Iterables.size(merge.getAreaTypes()));
-        assertEquals(3, Iterables.size(merge.getAreas()));
-
-        Area n1RegionA = merge.getArea(id("rga", "1"));
-        Area n2RegionA = merge.getArea(id("rga", "2"));
-        Area biddingZoneA = merge.getArea("bza");
-
-        assertEquals(Set.of(n1S2VL1), n1RegionA.getVoltageLevels());
-        assertEquals(Set.of(n2S2VL1), n2RegionA.getVoltageLevels());
-        assertEquals(Set.of(n1S1VL1, n2S1VL1), biddingZoneA.getVoltageLevels());
-
-        //TODO: Merge With areas that have boundaries
     }
 
     @Test
@@ -229,6 +200,254 @@ class MergeTest {
         assertEquals(zonedDateTime1, networkMerged.getCaseDate());
     }
 
+    @Test
+    void mergeNodeBreakerWithAreasTestPass1() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        AreaType n1Bz = createAreaType(n1, "bz");
+        AreaType n2Bz = createAreaType(n2, "bz");
+
+        Area n1Bza = createArea(n1, "bza", n1Bz);
+        Area n2Bz2 = createArea(n2, "bza", n2Bz);
+
+        VoltageLevel n1S1VL1 = n1.getVoltageLevel(id("S1VL1", "1"));
+        VoltageLevel n2S1VL1 = n2.getVoltageLevel(id("S1VL1", "2"));
+
+        n1Bza.addVoltageLevel(n1S1VL1);
+        n2Bz2.addVoltageLevel(n2S1VL1);
+
+        // Merge
+        Network merged = Network.merge(n1, n2);
+
+        assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(n1Bza), merged.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1, n2S1VL1), n1Bza.getVoltageLevels());
+
+        // Detach
+        Network subnetwork1 = merged.getSubnetwork(n1.getId());
+        Network n1Detached = subnetwork1.detach();
+
+        // Detached Network
+        AreaType detachedBz = n1Detached.getAreaType("bz");
+        Area detachedBza = n1Detached.getArea("bza");
+
+        assertEquals(List.of(detachedBz), n1Detached.getAreaTypeStream().toList());
+        assertEquals(List.of(detachedBza), n1Detached.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1), detachedBza.getVoltageLevels());
+
+        // Previous Network
+        assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(n1Bza), merged.getAreaStream().toList());
+        assertEquals(Set.of(n2S1VL1), n1Bza.getVoltageLevels());
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestPass2() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        AreaType n1Bz = createAreaType(n1, "bz");
+        AreaType n2Bz = createAreaType(n2, "bz");
+
+        Area n1Bza = createArea(n1, "bza", n1Bz);
+        Area n2Bzb = createArea(n2, "bzb", n2Bz);
+
+        VoltageLevel n1S1VL1 = n1.getVoltageLevel(id("S1VL1", "1"));
+        VoltageLevel n2S1VL1 = n2.getVoltageLevel(id("S1VL1", "2"));
+
+        n1Bza.addVoltageLevel(n1S1VL1);
+        n2Bzb.addVoltageLevel(n2S1VL1);
+
+        // Merge
+        Network merged = Network.merge(n1, n2);
+
+        assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
+        Area mergedBzb = merged.getArea("bzb"); // not the same object as n2Bzb but a duplicate
+        assertEquals(n1Bz, mergedBzb.getAreaType());
+        assertEquals(List.of(n1Bza, mergedBzb), merged.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1), n1Bza.getVoltageLevels());
+        assertEquals(Set.of(n2S1VL1), mergedBzb.getVoltageLevels());
+
+        // Detach
+        Network subnetwork1 = merged.getSubnetwork(n1.getId());
+        Network n1Detached = subnetwork1.detach();
+
+        // Detached Network
+        AreaType detachedBz = n1Detached.getAreaType("bz");
+        Area detachedBza = n1Detached.getArea("bza");
+
+        assertEquals(List.of(detachedBz), n1Detached.getAreaTypeStream().toList());
+        assertEquals(List.of(detachedBza), n1Detached.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1), detachedBza.getVoltageLevels());
+
+        // Previous Network
+        assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(mergedBzb), merged.getAreaStream().toList());
+        assertEquals(Set.of(n2S1VL1), mergedBzb.getVoltageLevels());
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestPass3() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        AreaType n1Bz = createAreaType(n1, "bz");
+        AreaType n2Tso = createAreaType(n2, "tso");
+
+        Area n1Bza = createArea(n1, "bza", n1Bz);
+        Area n2Tsoa = createArea(n2, "tsoa", n2Tso);
+
+        VoltageLevel n1S1VL1 = n1.getVoltageLevel(id("S1VL1", "1"));
+        VoltageLevel n2S1VL1 = n2.getVoltageLevel(id("S1VL1", "2"));
+
+        n1Bza.addVoltageLevel(n1S1VL1);
+        n2Tsoa.addVoltageLevel(n2S1VL1);
+
+        // Merge
+        Network merged = Network.merge(n1, n2);
+
+        assertEquals(List.of(n1Bz, n2Tso), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(n1Bza, n2Tsoa), merged.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1), n1Bza.getVoltageLevels());
+        assertEquals(Set.of(n2S1VL1), n2Tsoa.getVoltageLevels());
+
+        // Detach
+        Network subnetwork1 = merged.getSubnetwork(n1.getId());
+        Network n1Detached = subnetwork1.detach();
+
+        // Detached Network
+        AreaType detachedBz = n1Detached.getAreaType("bz");
+        Area detachedBza = n1Detached.getArea("bza");
+
+        assertEquals(List.of(detachedBz), n1Detached.getAreaTypeStream().toList());
+        assertEquals(List.of(detachedBza), n1Detached.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1), detachedBza.getVoltageLevels());
+
+        // Previous Network
+        assertEquals(List.of(n2Tso), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(n2Tsoa), merged.getAreaStream().toList());
+        assertEquals(Set.of(n2S1VL1), n2Tsoa.getVoltageLevels());
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestPass4() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        AreaType n1Bz = createAreaType(n1, "bz");
+        Area n1Bza = createArea(n1, "bza", n1Bz);
+
+        VoltageLevel n1S1VL1 = n1.getVoltageLevel(id("S1VL1", "1"));
+
+        n1Bza.addVoltageLevel(n1S1VL1);
+
+        // Merge
+        Network merged = Network.merge(n1, n2);
+
+        assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(n1Bza), merged.getAreaStream().toList());
+        assertEquals(Set.of(n1S1VL1), n1Bza.getVoltageLevels());
+
+        // Detach
+        Network subnetwork1 = merged.getSubnetwork(n1.getId());
+        Network n1Detached = subnetwork1.detach();
+
+        // Detached Network
+        AreaType detachedBz = n1Detached.getAreaType("bz");
+        Area detachedBza = n1Detached.getArea("bza");
+        assertEquals(List.of(detachedBz), n1Detached.getAreaTypeStream().toList());
+        assertEquals(List.of(detachedBza), n1Detached.getAreaStream().toList());
+
+        // Previous Network
+        assertEquals(List.of(), merged.getAreaTypeStream().toList());
+        assertEquals(List.of(), merged.getAreaStream().toList());
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestPass5() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        AreaType n1Bz = n1.newAreaType()
+                .setId("bz").setName("BZ")
+                .setFictitious(false)
+                .add();
+        Area n1Bza = n1.newArea()
+                .setId("bza").setName("BZA")
+                .setAreaType(n1Bz)
+                .setFictitious(false)
+                .setAcNetInterchangeTarget(null)
+                .setAcNetInterchangeTolerance(1.0)
+                .add();
+
+        VoltageLevel n1S1VL1 = n1.getVoltageLevel(id("S1VL1", "1"));
+        n1S1VL1.addArea(n1Bza);
+
+        // Merge
+        Network merged = Network.merge(n1, n2);
+        Area mergedBza = merged.getArea("bza");
+
+        assertEquals("bza", mergedBza.getId());
+        assertEquals("BZA", mergedBza.getNameOrId());
+        assertEquals(n1Bz, mergedBza.getAreaType());
+        assertFalse(mergedBza.isFictitious());
+        assertTrue(mergedBza.getAcNetInterchangeTarget().isEmpty());
+        assertEquals(1.0, mergedBza.getAcNetInterchangeTolerance().get());
+
+        // Detach
+        Network subnetwork1 = merged.getSubnetwork(n1.getId());
+        Network n1Detached = subnetwork1.detach();
+
+        // Detached Network
+        AreaType detachedBz = n1Detached.getAreaType("bz");
+        assertEquals("bz", detachedBz.getId());
+        assertEquals("BZ", detachedBz.getNameOrId());
+        assertFalse(detachedBz.isFictitious());
+
+        Area detachedBza = n1Detached.getArea("bza");
+        assertEquals("bza", detachedBza.getId());
+        assertEquals("BZA", detachedBza.getNameOrId());
+        assertEquals(detachedBz, detachedBza.getAreaType());
+        assertFalse(detachedBza.isFictitious());
+        assertTrue(detachedBza.getAcNetInterchangeTarget().isEmpty());
+        assertEquals(1.0, detachedBza.getAcNetInterchangeTolerance().get());
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestfail1() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        createAreaType(n1, "bz");
+        AreaType n2Bz = createAreaType(n2, "bz");
+        n2Bz.setName("BZ_otherName");
+
+        //Merge
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
+        assertEquals("Cannot merge object(s) of type AreaTypeImpl with same id: [bz] but with different name: [bz_Name] and [BZ_otherName]", e.getMessage());
+    }
+
+    @Test
+    void mergeNodeBreakerWithAreasTestfail2() {
+        Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
+        Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
+
+        createAreaType(n1, "bz");
+        createAreaType(n2, "bz");
+
+        Area n1Bza = createArea(n1, "bza", n1.getAreaType("bz"));
+        Area n2Bza = n2.newArea()
+                .setId("bza").setName("bza_Name")
+                .setAreaType(n2.getAreaType("bz"))
+                .setAcNetInterchangeTarget(20.0)
+                .add();
+
+        //Merge
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
+        assertEquals("Cannot merge object(s) of type AreaImpl with same id: [bza] but with different acNetInterchangeTarget: [null] and [20.0]", e.getMessage());
+    }
+
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {
         if (expected.size() != actual.size()) {
             return false;
@@ -283,6 +502,10 @@ class MergeTest {
         s2vl1.addArea(regionA);
 
         return network;
+    }
+
+    private static Network createNodeBreaker(String nid, String networkId) {
+        return createNodeBreaker(NetworkFactory.findDefault(), nid, networkId);
     }
 
     private static Network createNodeBreaker(NetworkFactory networkFactory, String nid, String networkId) {
