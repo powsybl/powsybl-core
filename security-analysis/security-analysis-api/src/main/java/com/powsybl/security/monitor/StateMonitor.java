@@ -28,7 +28,7 @@ import java.util.*;
  *  <p>
  *  A state monitor is defined for some contingencies through a {@link ContingencyContext}.
  *  A {@link com.powsybl.contingency.ContingencyContextType#NONE} or {@link com.powsybl.contingency.ContingencyContextType#ALL}
- *  (because it includes the base case) contingency context will output the monitoring results in
+ *  (because it includes the base case) contingency context will output monitoring results in
  *  {@link com.powsybl.security.results.PreContingencyResult}.
  *  If a contingency has a state monitor declared (through a {@link com.powsybl.contingency.ContingencyContextType#ALL},
  *  a {@link com.powsybl.contingency.ContingencyContextType#ONLY_CONTINGENCIES} or a {@link com.powsybl.contingency.ContingencyContextType#SPECIFIC}),
