@@ -370,11 +370,10 @@ public abstract class AbstractLimitViolationDetectionTest {
 
     @Test
     void testCheckLimitViolationUnsupportedVoltage() {
-
-        assertThrows(UnsupportedOperationException.class, () -> {
-            Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
-            checkLimitViolation(line1, TwoSides.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE, 1.0);
-        });
+        Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
+        assertThrows(UnsupportedOperationException.class, () -> checkLimitViolation(line1, TwoSides.ONE, 1201,
+                violationsCollector::add, LimitType.VOLTAGE, 1.0)
+        );
     }
 
     @Test
