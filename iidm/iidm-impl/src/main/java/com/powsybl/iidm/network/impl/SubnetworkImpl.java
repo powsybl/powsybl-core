@@ -808,8 +808,33 @@ public class SubnetworkImpl extends AbstractNetwork {
         transferProperties(this, detachedNetwork);
 
         // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
-        Collection<Identifiable<?>> identifiables = getIdentifiables();
+        Iterable<AreaTypeImpl> areaTypes = getAreaTypeStream().filter(AreaTypeImpl.class::isInstance).map(at -> (AreaTypeImpl) at).toList();
+        Iterable<AreaImpl> areas = getAreaStream().filter(AreaImpl.class::isInstance).map(a -> (AreaImpl) a).toList();
+        Collection<Identifiable<?>> otherIdentifiables = getIdentifiables().stream().filter(i -> !(i instanceof AreaType) && !(i instanceof Area)).toList();
         Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
+
+        // Create new area types and areas in the detached network and transfer the voltage levels
+        for (AreaTypeImpl at : areaTypes) {
+            AreaTypeImpl newAreaType = (AreaTypeImpl) detachedNetwork.newAreaType()
+                    .copy(at)
+                    .add();
+            newAreaType.getProperties().putAll(at.getProperties());
+            newAreaType.getExtensions().addAll(at.getExtensions());
+        }
+
+        for (AreaImpl a : areas) {
+            AreaType newAreaType = detachedNetwork.getAreaType(a.getAreaType().getId());
+            AreaImpl newArea = (AreaImpl) detachedNetwork.newArea()
+                    .copy(a)
+                    .setAreaType(newAreaType)
+                    .add();
+            newArea.getProperties().putAll(a.getProperties());
+            newArea.getExtensions().addAll(a.getExtensions());
+            for (VoltageLevel vl : new ArrayList<>(a.getVoltageLevelStream().filter(this::contains).toList())) {
+                a.removeVoltageLevel(vl);
+                newArea.addVoltageLevel(vl);
+            }
+        }
 
         // Move the substations and voltageLevels to the new network
         ref.setRef(new RefObj<>(null));
@@ -822,7 +847,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         rootNetworkRef.setRef(detachedNetwork.getRef());
 
         // Remove all the identifiers from the parent's index and add them to the detached network's index
-        for (Identifiable<?> i : identifiables) {
+        for (Identifiable<?> i : otherIdentifiables) {
             previousRootNetwork.getIndex().remove(i);
             if (i != this) {
                 detachedNetwork.getIndex().checkAndAdd(i);
@@ -833,6 +858,8 @@ public class SubnetworkImpl extends AbstractNetwork {
             detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
         }
 
+        removeUnusedAreasAndAreaTypes(previousRootNetwork);
+
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
         // are in different subnetworks but nothing prevents it. For now, we ignore this case, but it may be necessary
@@ -842,6 +869,22 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         LOGGER.info("Detaching of {} done in {} ms", id, System.currentTimeMillis() - start);
         return detachedNetwork;
+    }
+
+    private void removeUnusedAreasAndAreaTypes(NetworkImpl previousRootNetwork) {
+        // Remove unused areas
+        for (Area a : new ArrayList<>(previousRootNetwork.getAreaStream().toList())) {
+            if (Iterables.isEmpty(a.getVoltageLevels())) {
+                previousRootNetwork.getIndex().remove(a);
+            }
+        }
+        // Remove unused area types
+        for (AreaType at : previousRootNetwork.getAreaTypeStream().toList()) {
+            var areas = previousRootNetwork.getAreaStream().filter(a -> a.getAreaType().equals(at)).toList();
+            if (areas.isEmpty()) {
+                previousRootNetwork.getIndex().remove(at);
+            }
+        }
     }
 
     /**
