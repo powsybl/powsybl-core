@@ -5,12 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.geodata.utils;
+package com.powsybl.iidm.geodata.odre;
 
 import com.google.common.collect.Lists;
 import com.powsybl.iidm.geodata.dto.GeoShape;
 import com.powsybl.iidm.geodata.dto.LineGeoData;
 import com.powsybl.iidm.geodata.dto.SubstationGeoData;
+import com.powsybl.iidm.geodata.utils.DistanceCalculator;
+import com.powsybl.iidm.geodata.utils.GeoShapeDeserializer;
+import com.powsybl.iidm.geodata.utils.LineGraph;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;

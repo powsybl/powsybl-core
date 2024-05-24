@@ -5,8 +5,9 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.geodata.utils;
+package com.powsybl.iidm.geodata.odre;
 
+import com.powsybl.iidm.geodata.utils.InputUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvMapReader;

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.iidm.geodata.utils;
+package com.powsybl.iidm.geodata.odre;
 
 import org.junit.jupiter.api.Test;
 
