@@ -16,6 +16,8 @@ import java.util.Objects;
  */
 public class PhaseTapPositionModification extends AbstractTapPositionModification {
 
+    private boolean isRelative = false;
+
     /**
      * Creates a PTC tap modification for two windings transformers, or three windings transformer with a single PTC.
      *
@@ -35,6 +37,31 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
      */
     public PhaseTapPositionModification(String transformerId, int tapPosition, ThreeSides leg) {
         super(transformerId, tapPosition, Objects.requireNonNull(leg));
+    }
+
+    /**
+     * Creates a PTC tap modification for two windings transformers, or three windings transformer with a single PTC.
+     *
+     * @param transformerId the ID of the transformer, which holds the PTC
+     * @param tapPosition   the new tap position
+     * @param isRelative    is the new tap position relative to the previous one or absolute
+     */
+    public PhaseTapPositionModification(String transformerId, int tapPosition, boolean isRelative) {
+        super(transformerId, tapPosition, null);
+        this.isRelative = isRelative;
+    }
+
+    /**
+     * Creates a PTC tap modification for three windings transformers on the given leg.
+     *
+     * @param transformerId the ID of the three windings transformer, which holds the PTC
+     * @param tapPosition   the new tap position
+     * @param leg           defines on which leg of the three winding transformer the modification will be done.
+     * @param isRelative    is the new tap position relative to the previous one or absolute
+     */
+    public PhaseTapPositionModification(String transformerId, int tapPosition, ThreeSides leg, boolean isRelative) {
+        super(transformerId, tapPosition, Objects.requireNonNull(leg));
+        this.isRelative = isRelative;
     }
 
     @Override
@@ -60,7 +87,8 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
             return;
         }
         try {
-            ptcHolder.getPhaseTapChanger().setTapPosition(getTapPosition());
+            int newTapPosition = (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0) + getTapPosition();
+            ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
         }

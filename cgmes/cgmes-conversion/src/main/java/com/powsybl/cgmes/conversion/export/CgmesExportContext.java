@@ -79,6 +79,7 @@ public class CgmesExportContext {
     public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     public static final String DEFAULT_BUSINESS_PROCESS = "1D";
+    public static final boolean UPDATE_DEPENDENCIES_DEFAULT_VALUE = true;
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -87,6 +88,7 @@ public class CgmesExportContext {
     private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
+    private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -97,6 +99,7 @@ public class CgmesExportContext {
     private final Map<String, String> fictitiousContainers = new HashMap<>();
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
+    private final EnumMap<CgmesSubset, List<String>> legacyIdsForSvDependencies = new EnumMap<>(CgmesSubset.class);
 
     /**
      * Update dependencies in a way that:
@@ -108,6 +111,9 @@ public class CgmesExportContext {
      *   SV depends on TP_BD
      */
     public void updateDependencies() {
+        if (!updateDependencies) {
+            return;
+        }
         String eqModelId = getExportedEQModel().getId();
         if (eqModelId == null || eqModelId.isEmpty()) {
             return;
@@ -121,10 +127,23 @@ public class CgmesExportContext {
                 .clearDependencies()
                 .addDependentOn(eqModelId);
 
-        getExportedSVModel()
-                .clearDependencies()
-                .addDependentOn(getExportedTPModel().getId())
-                .addDependentOn(getExportedSSHModel().getId());
+        getExportedSVModel().clearDependencies();
+        List<String> tpIds = legacyIdsForSvDependencies.get(CgmesSubset.TOPOLOGY);
+        if (tpIds != null) {
+            // If the list of SV dependencies from TP files has been set, even if it is empty,
+            // use it and ignore the exported TP model
+            getExportedSVModel().addDependentOn(tpIds);
+        } else {
+            getExportedSVModel().addDependentOn(getExportedTPModel().getId());
+        }
+        List<String> sshIds = legacyIdsForSvDependencies.get(CgmesSubset.STEADY_STATE_HYPOTHESIS);
+        if (sshIds != null) {
+            // If the list of SV dependencies from SSH files has been set, even if it is empty,
+            // use it and ignore the exported SSH model
+            getExportedSVModel().addDependentOn(sshIds);
+        } else {
+            getExportedSVModel().addDependentOn(getExportedSSHModel().getId());
+        }
 
         if (boundaryEqId != null) {
             getExportedEQModel().addDependentOn(boundaryEqId);
@@ -801,6 +820,15 @@ public class CgmesExportContext {
 
     public CgmesExportContext setBusinessProcess(String businessProcess) {
         this.businessProcess = businessProcess;
+        return this;
+    }
+
+    public void setLegacyIdsForSvDependencies(CgmesSubset subset, List<String> ids) {
+        legacyIdsForSvDependencies.put(subset, ids);
+    }
+
+    public CgmesExportContext setUpdateDependencies(boolean updateDependencies) {
+        this.updateDependencies = updateDependencies;
         return this;
     }
 }

@@ -109,12 +109,16 @@ class LoadScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains load {}, discarded from scaling", id);
+            return 0;
+        }
+
         Load l = n.getLoad(id);
 
-        double done = 0;
         if (l == null) {
             LOGGER.warn("Load {} not found", id);
-            return done;
+            return 0;
         }
 
         Terminal t = l.getTerminal();
@@ -128,6 +132,10 @@ class LoadScalable extends AbstractInjectionScalable {
             }
         }
 
+        return shiftLoad(asked, parameters, l);
+    }
+
+    private double shiftLoad(double asked, ScalingParameters parameters, Load l) {
         double oldP0 = l.getP0();
         double oldQ0 = l.getQ0();
         if (oldP0 < minValue || oldP0 > maxValue) {
@@ -140,6 +148,7 @@ class LoadScalable extends AbstractInjectionScalable {
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
+        double done;
         if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);

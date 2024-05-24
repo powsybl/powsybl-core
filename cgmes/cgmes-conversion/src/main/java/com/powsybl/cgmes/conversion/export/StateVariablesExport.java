@@ -142,16 +142,20 @@ public final class StateVariablesExport {
         }
 
         static Optional<Bus> getBusViewBus(Bus bus) {
-            if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-                return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
-            } else {
-                if (bus.getConnectedTerminalCount() > 0) {
-                    return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+            if (bus != null) {
+                if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+                    return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
                 } else {
-                    return bus.getVoltageLevel().getBusView().getBusStream()
-                            .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
-                            .findFirst();
+                    if (bus.getConnectedTerminalCount() > 0) {
+                        return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+                    } else {
+                        return bus.getVoltageLevel().getBusView().getBusStream()
+                                .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
+                                .findFirst();
+                    }
                 }
+            } else {
+                return Optional.empty();
             }
         }
 
@@ -169,7 +173,7 @@ public final class StateVariablesExport {
 
         static boolean isSlack(Bus bus) {
             SlackTerminal st = bus.getVoltageLevel().getExtension(SlackTerminal.class);
-            return st != null && !st.isEmpty() && st.getTerminal().getBusView().getBus() == bus;
+            return st != null && st.getTerminal() != null && st.getTerminal().getBusView().getBus() == bus;
         }
 
         static void logDetail(Bus bus) {
@@ -331,7 +335,7 @@ public final class StateVariablesExport {
         if (context.isExportSvInjectionsForSlacks()) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 SlackTerminal st = vl.getExtension(SlackTerminal.class);
-                if (st != null && !st.isEmpty()) {
+                if (st != null && st.getTerminal() != null) {
                     Bus bus = st.getTerminal().getBusBreakerView().getBus();
                     Optional<Bus> optionalBusViewBus = BusTools.getBusViewBus(bus);
                     if (optionalBusViewBus.isPresent()) {
@@ -401,7 +405,7 @@ public final class StateVariablesExport {
 
     private static void writePowerFlowForSwitchesInVoltageLevel(VoltageLevel vl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         SlackTerminal st = vl.getExtension(SlackTerminal.class);
-        Terminal slackTerminal = st != null && !st.isEmpty() ? st.getTerminal() : null;
+        Terminal slackTerminal = st != null ? st.getTerminal() : null;
         SwitchesFlow swflows = new SwitchesFlow(vl, slackTerminal);
         vl.getSwitches().forEach(sw -> {
             if (context.isExportedEquipment(sw)) {
