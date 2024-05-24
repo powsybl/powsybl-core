@@ -201,6 +201,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return connect(isTypeSwitchToOperate, null);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -212,7 +217,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         Set<SwitchImpl> switchForDisconnection = new HashSet<>();
 
         // We try to connect each terminal
-        for (TerminalExt terminal : getTerminals()) {
+        for (TerminalExt terminal : getTerminals(side)) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
                 reportNode.newReportNode()
@@ -243,7 +248,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // Connect all bus-breaker terminals
-        for (TerminalExt terminal : getTerminals()) {
+        for (TerminalExt terminal : getTerminals(side)) {
             if (!terminal.isConnected()
                 && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
                 // At this point, isNowConnected should always stay true but let's be careful
@@ -263,6 +268,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return disconnect(isSwitchOpenable, null);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -274,7 +284,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         Set<SwitchImpl> switchForDisconnection = new HashSet<>();
 
         // We try to disconnect each terminal
-        for (TerminalExt terminal : getTerminals()) {
+        for (TerminalExt terminal : getTerminals(side)) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
                 reportNode.newReportNode()
@@ -302,7 +312,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
 
         // Disconnect all bus-breaker terminals
-        for (TerminalExt terminal : getTerminals()) {
+        for (TerminalExt terminal : getTerminals(side)) {
             if (terminal.isConnected()
                 && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
                 // At this point, isNowDisconnected should always stay true but let's be careful
@@ -312,5 +322,13 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         // Disconnect all switches on node-breaker terminals
         switchForDisconnection.forEach(sw -> sw.setOpen(true));
         return isNowDisconnected;
+    }
+
+    public List<TerminalExt> getTerminals(ThreeSides side) {
+        if (side == null) {
+            return terminals;
+        } else {
+            return terminals.stream().filter(terminal -> terminal.getSide().equals(side)).toList();
+        }
     }
 }
