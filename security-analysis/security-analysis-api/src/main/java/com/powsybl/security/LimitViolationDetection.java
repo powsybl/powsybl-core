@@ -70,8 +70,7 @@ public final class LimitViolationDetection {
 
     private static void checkCurrent(Branch<?> branch, TwoSides side, Set<LoadingLimitType> currentLimitTypes,
                                      double limitReductionValue, Consumer<LimitViolation> consumer) {
-        checkLimitViolation(branch, side, branch.getTerminal(side).getI(), LimitType.CURRENT, currentLimitTypes, limitReductionValue, consumer
-        );
+        checkLimitViolation(branch, side, branch.getTerminal(side).getI(), LimitType.CURRENT, currentLimitTypes, limitReductionValue, consumer);
     }
 
     private static void checkCurrentDc(Branch<?> branch, double dcPowerFactor, Set<LoadingLimitType> currentLimitTypes,
