@@ -7,41 +7,20 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.report.TypedValue;
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.iidm.network.ValidationUtil;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(PhaseTapChangerAdderImpl.class);
-
-    private final PhaseTapChangerParent parent;
-
-    private int lowTapPosition = 0;
-
-    private Integer tapPosition;
-
-    private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
+class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChangerAdderImpl, PhaseTapChangerParent, PhaseTapChanger, PhaseTapChangerStepImpl> implements PhaseTapChangerAdder {
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
-
-    private double regulationValue = Double.NaN;
-
-    private boolean regulating = false;
-
-    private double targetDeadband = Double.NaN;
-
-    private TerminalExt regulationTerminal;
 
     class StepAdderImpl implements PhaseTapChangerAdder.StepAdder {
 
@@ -104,23 +83,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     PhaseTapChangerAdderImpl(PhaseTapChangerParent parent) {
-        this.parent = parent;
-    }
-
-    NetworkImpl getNetwork() {
-        return parent.getNetwork();
-    }
-
-    @Override
-    public PhaseTapChangerAdder setLowTapPosition(int lowTapPosition) {
-        this.lowTapPosition = lowTapPosition;
-        return this;
-    }
-
-    @Override
-    public PhaseTapChangerAdder setTapPosition(int tapPosition) {
-        this.tapPosition = tapPosition;
-        return this;
+        super(parent);
     }
 
     @Override
@@ -130,76 +93,30 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public PhaseTapChangerAdder setRegulationValue(double regulationValue) {
-        this.regulationValue = regulationValue;
-        return this;
-    }
-
-    @Override
-    public PhaseTapChangerAdder setRegulating(boolean regulating) {
-        this.regulating = regulating;
-        return this;
-    }
-
-    @Override
-    public PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
-        return this;
-    }
-
-    @Override
-    public PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
-        this.regulationTerminal = (TerminalExt) regulationTerminal;
-        return this;
-    }
-
-    @Override
     public PhaseTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 
     @Override
-    public PhaseTapChanger add() {
-        NetworkImpl network = getNetwork();
-        if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
-            network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
-        }
-        if (steps.isEmpty()) {
-            throw new ValidationException(parent, "a phase tap changer shall have at least one step");
-        }
-        if (tapPosition != null) {
-            int highTapPosition = lowTapPosition + steps.size() - 1;
-            if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-                ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
-                        + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel());
-                network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
-            }
-        }
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
-                regulationTerminal, network, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating,
-                targetDeadband, network.getMinValidationLevel()));
-        PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
-
-        Set<TapChanger<?, ?, ?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
-        tapChangers.remove(parent.getPhaseTapChanger());
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
-                regulating, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
-
-        if (parent.hasRatioTapChanger()) {
-            LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReportNodeContext().getReportNode().newReportNode()
-                    .withMessageTemplate("validationWarning", "${parent} has both Ratio and Phase Tap Changer.")
-                    .withUntypedValue("parent", parent.getMessageHeader())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .add();
-        }
-
+    protected PhaseTapChanger createTapChanger(PhaseTapChangerParent parent, int lowTapPosition, List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, double regulationValue, double targetDeadband) {
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }
 
+    @Override
+    protected PhaseTapChangerAdderImpl self() {
+        return this;
+    }
+
+    @Override
+    protected ValidationLevel checkTapChangerRegulation(PhaseTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
+        return ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
+                regulationTerminal, getNetwork(), getNetwork().getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
+    }
+
+    @Override
+    protected String getValidableType() {
+        return "phase tap changer";
+    }
 }
