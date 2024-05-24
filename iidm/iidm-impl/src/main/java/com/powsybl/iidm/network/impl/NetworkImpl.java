@@ -21,7 +21,6 @@ import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
-import org.jgrapht.alg.util.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1080,37 +1079,37 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     private boolean checkAreasMergeability(Class<? extends Identifiable> clazz, Collection<String> objs, NetworkImpl otherNetwork) {
-        if (AreaTypeImpl.class.isAssignableFrom(clazz)) {
-            objs.forEach(obj -> {
-                AreaType areaType = (AreaTypeImpl) index.get(obj, clazz);
-                AreaType otherAreaType = (AreaTypeImpl) otherNetwork.index.get(obj, clazz);
-                String name = areaType.getNameOrId();
-                String nameOther = otherAreaType.getNameOrId();
-                if (!name.equals(nameOther)) {
-                    throw new PowsyblException("Cannot merge area types with same id " + areaType.getId() + " but different names: " + name + " and " + nameOther);
-                }
-            });
-            return true;
-        } else if (AreaImpl.class.isAssignableFrom(clazz)) {
-            objs.forEach(obj -> {
-                Area area = (AreaImpl) index.get(obj, clazz);
-                Area otherArea = (AreaImpl) otherNetwork.index.get(obj, clazz);
-                List<Triple<String, Supplier<Object>, Supplier<Object>>> attributesToCompares = List.of(
-                        Triple.of("name", area::getNameOrId, otherArea::getNameOrId),
-                        Triple.of("areaType", () -> area.getAreaType().getId(), () -> otherArea.getAreaType().getId()),
-                        Triple.of("isFictitious value", area::isFictitious, otherArea::isFictitious),
-                        Triple.of("acNetInterchangeTarget", () -> area.getAcNetInterchangeTarget().orElse(null), () -> otherArea.getAcNetInterchangeTarget().orElse(null)),
-                        Triple.of("acNetInterchangeTolerance", () -> area.getAcNetInterchangeTolerance().orElse(null), () -> otherArea.getAcNetInterchangeTolerance().orElse(null))
-                );
-                attributesToCompares.forEach(attribute -> {
-                    if (!Objects.equals(attribute.getSecond().get(), attribute.getThird().get())) {
-                        throw new PowsyblException("Cannot merge areas with same id" + area.getId() + " but different " + attribute.getFirst() + ": " + attribute.getSecond().get() + " and " + attribute.getThird().get());
-                    }
-                });
-            });
-            return true;
+        if (!AreaTypeImpl.class.isAssignableFrom(clazz) && !AreaImpl.class.isAssignableFrom(clazz)) {
+            return false;
         }
-        return false;
+        objs.forEach(obj -> {
+            AbstractIdentifiable<?> identifiable = (AbstractIdentifiable<?>) index.get(obj, clazz);
+            AbstractIdentifiable<?> otherIdentifiable = (AbstractIdentifiable<?>) otherNetwork.index.get(obj, clazz);
+            checkAttribute(clazz.getSimpleName(), obj, "name", identifiable.getNameOrId(), otherIdentifiable.getNameOrId());
+            checkAttribute(clazz.getSimpleName(), obj, "aliases", identifiable.getAliases(), otherIdentifiable.getAliases());
+            checkAttribute(clazz.getSimpleName(), obj, "isFictitious", identifiable.isFictitious(), otherIdentifiable.isFictitious());
+            checkAttribute(clazz.getSimpleName(), obj, "properties", identifiable.getProperties(), otherIdentifiable.getProperties());
+            checkExtensions(clazz.getSimpleName(), obj, identifiable, otherIdentifiable);
+            if (identifiable instanceof AreaImpl area) {
+                AreaImpl otherArea = (AreaImpl) otherIdentifiable;
+                checkAttribute(clazz.getSimpleName(), obj, "areaType id", area.getAreaType().getId(), otherArea.getAreaType().getId());
+                checkAttribute(clazz.getSimpleName(), obj, "acNetInterchangeTarget", area.getAcNetInterchangeTarget().orElse(null), otherArea.getAcNetInterchangeTarget().orElse(null));
+                checkAttribute(clazz.getSimpleName(), obj, "acNetInterchangeTolerance", area.getAcNetInterchangeTolerance().orElse(null), otherArea.getAcNetInterchangeTolerance().orElse(null));
+            }
+        });
+        return true;
+    }
+
+    private static void checkExtensions(String type, String id, AbstractIdentifiable<?> identifiable, AbstractIdentifiable<?> otherIdentifiable) {
+        if (!identifiable.getExtensions().isEmpty() || !otherIdentifiable.getExtensions().isEmpty()) {
+            throw new PowsyblException("Merge object(s) of type " + type + " with id: " + id + " can not be merged. Merge " + type + " with extensions is not supported");
+        }
+    }
+
+    private static void checkAttribute(String type, String id, String attributeName, Object attribute1, Object attribute2) {
+        if (!Objects.equals(attribute1, attribute2)) {
+            throw new PowsyblException("Cannot merge object(s) of type " + type + " with same id :" + id + " but with different " + attributeName + ": " + attribute1 + " and " + attribute2);
+        }
     }
 
     private static void createSubnetwork(NetworkImpl parent, NetworkImpl original) {

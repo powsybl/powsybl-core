@@ -20,7 +20,7 @@ import java.util.stream.Stream;
  */
 public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
-    private AreaType areaType;
+    private final AreaType areaType;
     private final Double acNetInterchangeTarget;
     private final Double acNetInterchangeTolerance;
     private final List<Area.BoundaryTerminal> boundaryTerminals;

@@ -21,6 +21,8 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac);
 
+    AreaAdder copy(Area otherArea);
+
     @Override
     Area add();
 

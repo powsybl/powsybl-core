@@ -188,44 +188,48 @@ class NetworkIndex {
     }
 
     private void mergeAreaTypesAndAreas(NetworkIndex other) {
-        Map<AreaType, AreaType> areaTypesToMerge = new HashMap<>();
-
+        // First: we need to update the AreaType reference
         for (AreaType areaTypeOther : new HashSet<>(other.getAll(AreaTypeImpl.class))) {
             AreaType areaType = get(areaTypeOther.getId(), AreaTypeImpl.class);
-            if (areaType != null) {
-                areaTypesToMerge.put(areaTypeOther, areaType);
-            } else {
+            if (areaType == null) {
+                // The areaType is not in the merged network, so we can just add it
                 checkAndAdd(areaTypeOther);
             }
             other.remove(areaTypeOther);
         }
 
-        for (Area areaOther : new HashSet<>(other.getAll(AreaImpl.class))) {
-            AreaType areaTypeOther = areaOther.getAreaType();
-            AreaType areaType = areaTypesToMerge.get(areaTypeOther);
-            if (areaType != null) {
-                Area area = get(areaOther.getId(), AreaImpl.class);
-                if (area == null) {
-                    Network network = areaType.getNetwork();
-                    area = network.newArea()
-                            .setId(areaOther.getId())
-                            .setName(areaOther.getNameOrId())
-                            .setAreaType(areaType)
-                            .setFictitious(areaOther.isFictitious())
-                            .setAcNetInterchangeTarget(areaOther.getAcNetInterchangeTarget().orElse(null))
-                            .setAcNetInterchangeTolerance(areaOther.getAcNetInterchangeTolerance().orElse(null))
-                            .add();
-                }
-                Area finalArea = area;
-                Iterable<VoltageLevel> voltageLevelsOther = areaOther.getVoltageLevels();
-                voltageLevelsOther.forEach(voltageLevel -> {
-                    Iterables.removeAll(voltageLevel.getAreas(), List.of(areaOther));
-                    voltageLevel.addArea(finalArea);
-                });
+        // Second: ensure all areas point an updated areaType (not a delete duplicate), and merge duplicated areas
+        for (AreaImpl otherArea : new HashSet<>(other.getAll(AreaImpl.class))) {
+            AreaType otherAreaType = otherArea.getAreaType();
+            AreaType mergedAreaType = get(otherAreaType.getId(), AreaTypeImpl.class);
+            if (otherAreaType.equals(mergedAreaType)) {
+                // If the areaType in the merged network is already the same, it means that it has been added in the first step
+                // There is no Area with a different AreaType but same id in the merged network, because it has been checked when checking mergeability of the networks.
+                checkAndAdd(otherArea);
             } else {
-                checkAndAdd(areaOther);
+                // The type existed in both networks, so there is a merge to do
+                AreaImpl area;
+                if (get(otherArea.getId(), AreaImpl.class) == null) {
+                    // The area existed only in the other network, so we create a new equivalent one in the merged network
+                    Network network = mergedAreaType.getNetwork();
+                    area = (AreaImpl) network.newArea()
+                            .copy(otherArea)
+                            .setAreaType(mergedAreaType)
+                            .add();
+                    area.getProperties().putAll(otherArea.getProperties());
+                    area.getExtensions().addAll(otherArea.getExtensions());
+                } else {
+                    // We can just use the preexisting area in the current network
+                    area = get(otherArea.getId(), AreaImpl.class);
+                }
+                // Update the voltage levels of the merged area
+                Iterable<VoltageLevel> otherVoltageLevels = otherArea.getVoltageLevels();
+                otherVoltageLevels.forEach(voltageLevel -> {
+                    Iterables.removeAll(voltageLevel.getAreas(), List.of(otherArea));
+                    voltageLevel.addArea(area);
+                });
             }
-            other.remove(areaOther);
+            other.remove(otherArea);
         }
     }
 

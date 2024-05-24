@@ -58,6 +58,17 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
+    public AreaAdder copy(Area otherArea) {
+        this.setId(otherArea.getId())
+                .setName(otherArea.getNameOrId())
+                .setFictitious(otherArea.isFictitious())
+                .setAreaType(otherArea.getAreaType())
+                .setAcNetInterchangeTarget(otherArea.getAcNetInterchangeTarget().orElse(null))
+                .setAcNetInterchangeTolerance(otherArea.getAcNetInterchangeTolerance().orElse(null));
+        otherArea.getBoundaryTerminals().forEach(boundaryTerminal -> addBoundaryTerminal(boundaryTerminal.terminal(), boundaryTerminal.ac()));
+        return this;
+    }
+
     protected Ref<NetworkImpl> getNetworkRef() {
         return networkRef;
     }
