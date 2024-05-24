@@ -38,8 +38,8 @@ public class SecurityAnalysisRunParameters {
     private ReportNode reportNode = ReportNode.NO_OP;
 
     /**
-     * Returns a {@link SecurityAnalysisRunParameters} instance with default value on each field
-     * @return the SecurityAnalysisRunParameters instance
+     * Returns a {@link SecurityAnalysisRunParameters} instance with default value on each field.
+     * @return the SecurityAnalysisRunParameters instance.
      */
     public static SecurityAnalysisRunParameters getDefault() {
         return new SecurityAnalysisRunParameters()
@@ -51,7 +51,7 @@ public class SecurityAnalysisRunParameters {
 
     /**
      * {@link LimitViolationDetector} getter<br>
-     * If null, sets the field to its default value with {@link #DEFAULT_DETECTOR_SUPPLIER} before returning it
+     * If null, sets the field to its default value with {@link #DEFAULT_DETECTOR_SUPPLIER} before returning it.
      */
     public LimitViolationDetector getDetector() {
         if (detector == null) {
@@ -62,7 +62,7 @@ public class SecurityAnalysisRunParameters {
 
     /**
      * {@link LimitViolationFilter} getter<br>
-     * If null, sets the field to its default value with {@link #DEFAULT_FILTER_SUPPLIER} before returning it
+     * If null, sets the field to its default value with {@link #DEFAULT_FILTER_SUPPLIER} before returning it.
      */
     public LimitViolationFilter getFilter() {
         if (filter == null) {
@@ -73,7 +73,7 @@ public class SecurityAnalysisRunParameters {
 
     /**
      * {@link ComputationManager} getter<br>
-     * If null, sets the field to its default value with {@link #DEFAULT_COMPUTATION_MANAGER_SUPPLIER} before returning it
+     * If null, sets the field to its default value with {@link #DEFAULT_COMPUTATION_MANAGER_SUPPLIER} before returning it.
      */
     public ComputationManager getComputationManager() {
         if (computationManager == null) {
@@ -84,7 +84,7 @@ public class SecurityAnalysisRunParameters {
 
     /**
      * {@link SecurityAnalysisParameters} getter<br>
-     * If null, sets the field to its default value with {@link #DEFAULT_SA_PARAMETERS_SUPPLIER} before returning it
+     * If null, sets the field to its default value with {@link #DEFAULT_SA_PARAMETERS_SUPPLIER} before returning it.
      */
     public SecurityAnalysisParameters getSecurityAnalysisParameters() {
         if (securityAnalysisParameters == null) {
@@ -130,7 +130,7 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the computationManager handling command execution
+     * Sets the computationManager handling command execution.
      */
     public SecurityAnalysisRunParameters setComputationManager(ComputationManager computationManager) {
         Objects.requireNonNull(computationManager, "ComputationManager should not be null");
@@ -139,7 +139,7 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the specific security analysis parameters
+     * Sets the security analysis parameters, see {@link SecurityAnalysisParameters}.
      */
     public SecurityAnalysisRunParameters setSecurityAnalysisParameters(SecurityAnalysisParameters securityAnalysisParameters) {
         Objects.requireNonNull(securityAnalysisParameters, "Security analysis parameters should not be null");
@@ -148,7 +148,8 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the list of strategies to apply to solve violations occurring after a contingency
+     * Sets the list of operator strategies to apply to solve limit violations occurring after a contingency,
+     * see {@link OperatorStrategy}.
      */
     public SecurityAnalysisRunParameters setOperatorStrategies(List<OperatorStrategy> operatorStrategies) {
         Objects.requireNonNull(operatorStrategies, "OperatorStrategy list should not be null");
@@ -157,7 +158,8 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the list of interceptors to notify at specific steps of the security analysis (see {@link SecurityAnalysisInterceptor} API)
+     * Sets the list of interceptors to notify at specific steps of the security analysis,
+     * see {@link SecurityAnalysisInterceptor}.
      */
     public SecurityAnalysisRunParameters setInterceptors(List<SecurityAnalysisInterceptor> interceptors) {
         Objects.requireNonNull(interceptors, "Interceptor list should not be null");
@@ -166,7 +168,7 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the list of the limit reductions to apply
+     * Sets the list of the limit reductions to apply, see {@link LimitReduction}
      */
     public SecurityAnalysisRunParameters setLimitReductions(List<LimitReduction> limitReductions) {
         Objects.requireNonNull(limitReductions, "LimitReductions list should not be null");
@@ -175,7 +177,7 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the list of StateMonitors that define the branches, buses and threeWindingsTransformers about which information will be written after security analysis
+     * Sets the list of state monitors, see  {@link StateMonitor}
      */
     public SecurityAnalysisRunParameters setMonitors(List<StateMonitor> monitors) {
         Objects.requireNonNull(monitors, "StateMonitor list should not be null");
@@ -184,11 +186,20 @@ public class SecurityAnalysisRunParameters {
     }
 
     /**
-     * Sets the list of actions referenced in {@link #operatorStrategies}
+     * Sets the list of actions referenced in {@link OperatorStrategy}
      */
     public SecurityAnalysisRunParameters setActions(List<Action> actions) {
         Objects.requireNonNull(actions, "Action list should not be null");
         this.actions = actions;
+        return this;
+    }
+
+    /**
+     * Sets the reportNode used for functional logs, see {@link ReportNode}
+     */
+    public SecurityAnalysisRunParameters setReportNode(ReportNode reportNode) {
+        Objects.requireNonNull(reportNode, "ReportNode should not be null");
+        this.reportNode = reportNode;
         return this;
     }
 
@@ -219,15 +230,6 @@ public class SecurityAnalysisRunParameters {
     public SecurityAnalysisRunParameters addAction(Action action) {
         Objects.requireNonNull(action, "Action should not be null");
         actions.add(action);
-        return this;
-    }
-
-    /**
-     * Sets the reportNode used for functional logs
-     */
-    public SecurityAnalysisRunParameters setReportNode(ReportNode reportNode) {
-        Objects.requireNonNull(reportNode, "ReportNode should not be null");
-        this.reportNode = reportNode;
         return this;
     }
 }

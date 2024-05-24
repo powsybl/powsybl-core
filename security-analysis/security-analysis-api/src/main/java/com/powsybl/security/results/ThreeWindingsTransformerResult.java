@@ -12,10 +12,9 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Objects;
 
 /**
+ * Contains state variables of a three-windings transformer. The state variables supported are active and reactive power
+ * for each leg (network side of course), current for each leg.
  *
- * provide electrical information on a three windings transformer
- * after a security analysis. it belongs to pre and post Contingency results.
- * it is the result of the three windings transformer id specified in StateMonitor.
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class ThreeWindingsTransformerResult extends AbstractExtendable<ThreeWindingsTransformerResult> {

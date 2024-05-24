@@ -12,9 +12,9 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Objects;
 
 /**
- * provide electrical information on a branch after a security analysis.
- * it belongs to pre and post Contingency results.
- * it is the result of the branch id specified in StateMonitor.
+ * Contains state variables of a branch. The state variables supported are active and reactive power at both sides,
+ * current at both sides and the flow transfer (useful only for post-contingency states or after applying operator strategies).
+ * Note that it could be used for dangling lines, in that case only side 1 is filled (which corresponds to network side).
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */

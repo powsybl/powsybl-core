@@ -12,10 +12,11 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Objects;
 
 /**
+ * Contains state variables of a bus. Note that the busId depends on the topology used for the computation: it can be the
+ * id of the bus from the bus view or the id of the bus from the bus/breaker view or the id of the bus bar section if the
+ * network is in node/breaker topology. The voltage id is provided by the {@link com.powsybl.security.monitor.StateMonitor}.
+ * The state variables supported are the voltage angle and the voltage magnitude at the bus.
  *
- * provide electrical information on a bus after a security analysis.
- * it belongs to pre and post Contingency results.
- * it is the result of the bus id specified in StateMonitor.
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class BusResult extends AbstractExtendable<BusResult> {
