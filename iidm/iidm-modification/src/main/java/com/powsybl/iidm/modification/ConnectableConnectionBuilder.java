@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.iidm.network.ThreeSides;
+
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
@@ -14,6 +16,7 @@ public class ConnectableConnectionBuilder {
     String connectableId = null;
     boolean operateFictitiousSwitches = false;
     boolean operateOnlyBreakers = false;
+    ThreeSides side;
 
     public ConnectableConnectionBuilder withConnectableId(String connectableId) {
         this.connectableId = connectableId;
@@ -30,7 +33,12 @@ public class ConnectableConnectionBuilder {
         return this;
     }
 
+    public ConnectableConnectionBuilder withSide(ThreeSides side) {
+        this.side = side;
+        return this;
+    }
+
     public ConnectableConnection build() {
-        return new ConnectableConnection(connectableId, operateFictitiousSwitches, operateOnlyBreakers);
+        return new ConnectableConnection(connectableId, operateFictitiousSwitches, operateOnlyBreakers, side);
     }
 }

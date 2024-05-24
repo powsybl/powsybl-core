@@ -1,8 +1,7 @@
 {
-  "version" : "1.2",
+  "version" : "1.1",
   "scalingConvention" : "LOAD",
   "constantPowerFactor" : false,
   "reconnect" : true,
-  "priority" : "ONESHOT",
-  "ignoredInjectionIds" : [ "id1", "id2" ]
+  "priority" : "ONESHOT"
 }

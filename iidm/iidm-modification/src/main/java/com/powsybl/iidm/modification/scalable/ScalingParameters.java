@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.scalable;
 
 import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.Objects;
+import java.util.*;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -20,7 +20,7 @@ import static com.powsybl.iidm.modification.scalable.ScalingParameters.ScalingTy
  */
 public class ScalingParameters {
 
-    public static final String VERSION = "1.1";
+    public static final String VERSION = "1.2";
 
     public enum ScalingType {
         DELTA_P,
@@ -39,16 +39,15 @@ public class ScalingParameters {
     public static final boolean DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS = false;
     public static final Priority DEFAULT_PRIORITY = ONESHOT;
     public static final ScalingType DEFAULT_SCALING_TYPE = DELTA_P;
+    public static final Set<String> DEFAULT_IGNORED_INJECTION_IDS = Collections.emptySet();
 
     private Scalable.ScalingConvention scalingConvention = DEFAULT_SCALING_CONVENTION;
-
     private boolean reconnect = DEFAULT_RECONNECT;
-
     private boolean constantPowerFactor = DEFAULT_CONSTANT_POWER_FACTOR;
-
     private boolean allowsGeneratorOutOfActivePowerLimits = DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS;
     private ScalingType scalingType = DEFAULT_SCALING_TYPE;
     private Priority priority = DEFAULT_PRIORITY;
+    private Set<String> ignoredInjectionIds = DEFAULT_IGNORED_INJECTION_IDS;
 
     public ScalingParameters() {
     }
@@ -182,6 +181,15 @@ public class ScalingParameters {
         return this;
     }
 
+    public Set<String> getIgnoredInjectionIds() {
+        return ignoredInjectionIds;
+    }
+
+    public ScalingParameters setIgnoredInjectionIds(Set<String> ignoredInjectionIds) {
+        this.ignoredInjectionIds = new HashSet<>(ignoredInjectionIds);
+        return this;
+    }
+
     public static ScalingParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -195,6 +203,10 @@ public class ScalingParameters {
             scalingParameters.setReconnect(config.getBooleanProperty("reconnect", DEFAULT_RECONNECT));
             scalingParameters.setPriority(config.getEnumProperty("priority", ScalingParameters.Priority.class, DEFAULT_PRIORITY));
             scalingParameters.setAllowsGeneratorOutOfActivePowerLimits(config.getBooleanProperty("allowsGeneratorOutOfActivePowerLimits", DEFAULT_ALLOWS_GENERATOR_OUT_OF_ACTIVE_POWER_LIMITS));
+            scalingParameters.setIgnoredInjectionIds(
+                config.getOptionalStringListProperty("ignoredInjectionIds")
+                    .map(list -> (Set<String>) new HashSet<>(list))
+                    .orElse(DEFAULT_IGNORED_INJECTION_IDS));
         });
         return scalingParameters;
     }

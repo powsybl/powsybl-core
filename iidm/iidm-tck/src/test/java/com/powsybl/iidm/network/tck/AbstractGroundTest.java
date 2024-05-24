@@ -34,7 +34,7 @@ public abstract class AbstractGroundTest {
     }
 
     @Test
-    void test() {
+    public void test() {
         // Get the voltage levels
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -82,7 +82,7 @@ public abstract class AbstractGroundTest {
     }
 
     @Test
-    void testOnSubnetwork() {
+    public void testOnSubnetwork() {
         // Subnetwork creation
         Network subnetwork1 = createSubnetwork(network, "Sub1", "Sub1", "format1");
         Network subnetwork2 = createSubnetwork(network, "Sub2", "Sub2", "format2");
@@ -126,7 +126,7 @@ public abstract class AbstractGroundTest {
     }
 
     @Test
-    void testCreateSameId() {
+    public void testCreateSameId() {
         // Get the voltage level
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -151,7 +151,7 @@ public abstract class AbstractGroundTest {
     }
 
     @Test
-    void testFictitiousGround() {
+    public void testFictitiousGround() {
         // Get the voltage level
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
 
@@ -175,7 +175,7 @@ public abstract class AbstractGroundTest {
     }
 
     @Test
-    void testCreationError() {
+    public void testCreationError() {
         // Get the voltage level
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VoltageLevel vl2 = network.getVoltageLevel("VL2");

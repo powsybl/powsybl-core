@@ -142,16 +142,20 @@ public final class StateVariablesExport {
         }
 
         static Optional<Bus> getBusViewBus(Bus bus) {
-            if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
-                return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
-            } else {
-                if (bus.getConnectedTerminalCount() > 0) {
-                    return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+            if (bus != null) {
+                if (bus.getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)) {
+                    return Optional.of(bus.getVoltageLevel().getBusView().getMergedBus(bus.getId()));
                 } else {
-                    return bus.getVoltageLevel().getBusView().getBusStream()
-                            .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
-                            .findFirst();
+                    if (bus.getConnectedTerminalCount() > 0) {
+                        return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
+                    } else {
+                        return bus.getVoltageLevel().getBusView().getBusStream()
+                                .filter(busViewBus -> bus.getVoltageLevel().getBusBreakerView().getBusesFromBusViewBusId(busViewBus.getId()).contains(bus))
+                                .findFirst();
+                    }
                 }
+            } else {
+                return Optional.empty();
             }
         }
 

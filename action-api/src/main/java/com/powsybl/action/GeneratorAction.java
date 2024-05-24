@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.GeneratorModification;
+import com.powsybl.iidm.modification.NetworkModification;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.OptionalDouble;
@@ -81,5 +84,48 @@ public class GeneratorAction extends AbstractAction {
 
     public OptionalDouble getTargetQ() {
         return targetQ == null ? OptionalDouble.empty() : OptionalDouble.of(targetQ);
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setIgnoreCorrectiveOperations(true);
+        getActivePowerValue().ifPresent(value -> {
+            boolean isRelative = isActivePowerRelativeValue().orElse(false);
+            if (isRelative) {
+                modifs.setDeltaTargetP(value);
+            } else {
+                modifs.setTargetP(value);
+            }
+        });
+        isVoltageRegulatorOn().ifPresent(modifs::setVoltageRegulatorOn);
+        getTargetQ().ifPresent(modifs::setTargetQ);
+        getTargetV().ifPresent(modifs::setTargetV);
+        return new GeneratorModification(getGeneratorId(), modifs);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        GeneratorAction that = (GeneratorAction) o;
+        return Objects.equals(generatorId, that.generatorId)
+                && Objects.equals(activePowerRelativeValue, that.activePowerRelativeValue)
+                && Objects.equals(activePowerValue, that.activePowerValue)
+                && Objects.equals(voltageRegulatorOn, that.voltageRegulatorOn)
+                && Objects.equals(targetV, that.targetV)
+                && Objects.equals(targetQ, that.targetQ);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), generatorId, activePowerRelativeValue, activePowerValue, voltageRegulatorOn, targetV, targetQ);
     }
 }
