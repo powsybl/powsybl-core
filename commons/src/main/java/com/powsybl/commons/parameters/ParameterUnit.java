@@ -13,10 +13,9 @@ package com.powsybl.commons.parameters;
 public final class ParameterUnit {
     private ParameterUnit() { }
 
-    public static final String AMPERES = "A";
+    public static final String AMPERE = "A";
     public static final String MEGA_WATT = "MW";
     public static final String KILO_VOLT = "kV";
     public static final String MEGA_VAR = "Mvar";
     public static final String PER_UNIT = "pu";
-
 }
