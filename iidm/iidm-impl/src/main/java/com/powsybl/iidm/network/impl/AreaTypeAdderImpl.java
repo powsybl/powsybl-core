@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.AreaTypeAdder;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -20,6 +21,14 @@ public class AreaTypeAdderImpl extends AbstractIdentifiableAdder<AreaTypeAdderIm
 
     AreaTypeAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
+    }
+
+    @Override
+    public AreaTypeAdder copy(AreaType otherAreaType) {
+        this.setId(otherAreaType.getId())
+                .setName(otherAreaType.getNameOrId())
+                .setFictitious(otherAreaType.isFictitious());
+        return this;
     }
 
     @Override

@@ -13,6 +13,8 @@ package com.powsybl.iidm.network;
  */
 public interface AreaTypeAdder extends IdentifiableAdder<AreaType, AreaTypeAdder> {
 
+    AreaTypeAdder copy(AreaType otherAreaType);
+
     @Override
     AreaType add();
 
