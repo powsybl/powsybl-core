@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static com.powsybl.iidm.modification.scalable.ProportionalScalable.DistributionMode.*;
 import static com.powsybl.iidm.modification.scalable.ScalableTestNetwork.createNetworkwithDanglingLineAndBattery;
@@ -657,6 +658,37 @@ class ProportionalScalableTest {
         assertEquals(100.0 * (1.0 + 75 / 230.0), network.getLoad("l1").getP0(), 1e-5);
         assertEquals(80 * (1.0 + 75 / 230.0), network.getLoad("l2").getP0(), 1e-5);
         assertEquals(50.0 * (1.0 + 75 / 230.0), network.getDanglingLine("dl1").getP0(), 1e-5);
+        reset();
+    }
+
+    @Test
+    void testDisableInjections() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("scaling", "default").build();
+        List<Injection<?>> injectionsList = Arrays.asList(
+            network.getGenerator("g1"), network.getGenerator("g2"),
+            network.getLoad("l1"), network.getLoad("l2"),
+            network.getDanglingLine("dl1"));
+        ProportionalScalable proportionalScalable;
+        double variationDone;
+
+        // Uniform with scalables on l1, g1 and dl1 disabled
+        ScalingParameters scalingParametersProportional = new ScalingParameters(Scalable.ScalingConvention.GENERATOR,
+            true, true, RESPECT_OF_VOLUME_ASKED, true, DELTA_P);
+        scalingParametersProportional.setIgnoredInjectionIds(Set.of("l1", "g1", "dl1"));
+        proportionalScalable = Scalable.proportional(injectionsList, UNIFORM_DISTRIBUTION);
+        double volumeAsked = 70.;
+        variationDone = proportionalScalable.scale(network, volumeAsked, scalingParametersProportional);
+        scalingReport(reportNode,
+            "generators, loads and dangling lines",
+            UNIFORM_DISTRIBUTION,
+            scalingParametersProportional.getScalingType(),
+            volumeAsked, variationDone);
+        assertEquals(volumeAsked, variationDone, 1e-5);
+        assertEquals(100.0, network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(80 - volumeAsked / 2, network.getLoad("l2").getP0(), 1e-5);
+        assertEquals(80.0, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(50 + volumeAsked / 2, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(50.0, network.getDanglingLine("dl1").getP0(), 1e-5);
         reset();
     }
 }
