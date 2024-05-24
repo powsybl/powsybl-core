@@ -123,10 +123,8 @@ class GeneratorScalable extends AbstractInjectionScalable {
         Terminal t = g.getTerminal();
         if (!t.isConnected()) {
             if (parameters.isReconnect()) {
-                LOGGER.info("Connecting {}", g.getId());
-                new ConnectGenerator(g.getId()).apply(n);
-                if (!t.isConnected() || !g.getTerminal().getBusBreakerView().getConnectableBus().isInMainConnectedComponent()) {
-                    //If the generator still disconnected, we should not change the active power setPoint
+                if (!connectGeneratorToMainComponent(n, g)) {
+                    // If the generator is still disconnected from main component, we should not change the active power setPoint
                     LOGGER.info("Generator {} could not be connected, discarded from scaling", g.getId());
                     return 0.;
                 }
@@ -163,6 +161,12 @@ class GeneratorScalable extends AbstractInjectionScalable {
                     g.getId(), oldTargetP, g.getTargetP(), g.getMaxP());
 
         return done;
+    }
+
+    private static boolean connectGeneratorToMainComponent(Network n, Generator g) {
+        LOGGER.info("Connecting {}", g.getId());
+        new ConnectGenerator(g.getId()).apply(n);
+        return g.getTerminal().isConnected() && g.getTerminal().getBusBreakerView().getConnectableBus().isInMainConnectedComponent();
     }
 
     /**
