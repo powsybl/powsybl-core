@@ -17,7 +17,6 @@ SELECT ?powerSystemResource ?name ?crsName ?crsUrn ?x ?y ?seq
         cim:IdentifiedObject.name ?name .
     ?coordinateSystem
         a cim:CoordinateSystem ;
-        cim:IdentifiedObject.name ?crsName ;
         cim:CoordinateSystem.crsUrn ?crsUrn .
     ?positionPoint
         a cim:PositionPoint ;
@@ -38,7 +37,6 @@ SELECT ?powerSystemResource ?name ?crsName ?crsUrn ?x ?y ?seq
         cim:IdentifiedObject.name ?name .
     ?coordinateSystem
         a cim:CoordinateSystem ;
-        cim:IdentifiedObject.name ?crsName ;
         cim:CoordinateSystem.crsUrn ?crsUrn .
     ?positionPoint
         a cim:PositionPoint ;

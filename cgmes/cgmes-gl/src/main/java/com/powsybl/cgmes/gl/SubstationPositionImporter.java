@@ -26,7 +26,7 @@ public class SubstationPositionImporter {
 
     private static final Logger LOG = LoggerFactory.getLogger(SubstationPositionImporter.class);
 
-    private Network network;
+    private final Network network;
 
     public SubstationPositionImporter(Network network) {
         this.network = Objects.requireNonNull(network);
@@ -34,8 +34,9 @@ public class SubstationPositionImporter {
 
     public void importPosition(PropertyBag substationPositionData) {
         Objects.requireNonNull(substationPositionData);
-        if (!CgmesGLUtils.checkCoordinateSystem(substationPositionData.getId("crsName"), substationPositionData.getId("crsUrn"))) {
-            throw new PowsyblException("Unsupported coodinates system: " + substationPositionData.getId("crsName"));
+        String crsUrn = substationPositionData.getId("crsUrn");
+        if (!CgmesGLUtils.checkCoordinateSystem(crsUrn)) {
+            throw new PowsyblException("Unsupported coordinates system: " + crsUrn);
         }
         String substationId = substationPositionData.getId("powerSystemResource");
         Substation substation = network.getSubstation(substationId);

@@ -113,6 +113,11 @@ class GeneratorScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains generator {}, discarded from scaling", id);
+            return 0;
+        }
+
         Generator g = n.getGenerator(id);
         double done = 0;
         if (g == null) {
