@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -225,7 +224,7 @@ class NetworkIndex {
                 // Update the voltage levels of the merged area
                 Iterable<VoltageLevel> otherVoltageLevels = otherArea.getVoltageLevels();
                 otherVoltageLevels.forEach(voltageLevel -> {
-                    Iterables.removeAll(voltageLevel.getAreas(), List.of(otherArea));
+                    voltageLevel.removeArea(otherArea);
                     voltageLevel.addArea(area);
                 });
             }
