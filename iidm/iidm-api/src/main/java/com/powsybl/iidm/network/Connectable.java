@@ -28,7 +28,11 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
 
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
+
     boolean disconnect();
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 }

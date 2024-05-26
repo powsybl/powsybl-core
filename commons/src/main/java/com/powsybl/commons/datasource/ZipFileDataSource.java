@@ -79,7 +79,9 @@ public class ZipFileDataSource implements DataSource {
 
     private static boolean entryExists(Path zipFilePath, String fileName) {
         if (Files.exists(zipFilePath)) {
-            try (ZipFile zipFile = new ZipFile(Files.newByteChannel(zipFilePath))) {
+            try (ZipFile zipFile = ZipFile.builder()
+                .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
+                .get()) {
                 return zipFile.getEntry(fileName) != null;
             } catch (IOException e) {
                 return false;
@@ -122,7 +124,9 @@ public class ZipFileDataSource implements DataSource {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
         if (entryExists(zipFilePath, fileName)) {
-            InputStream is = new ZipEntryInputStream(new ZipFile(Files.newByteChannel(zipFilePath)), fileName);
+            InputStream is = new ZipEntryInputStream(ZipFile.builder()
+                .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
+                .get(), fileName);
             return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
         }
         return null;
@@ -158,7 +162,9 @@ public class ZipFileDataSource implements DataSource {
 
                 // copy existing entries
                 if (Files.exists(zipFilePath)) {
-                    try (ZipFile zipFile = new ZipFile(Files.newByteChannel(zipFilePath))) {
+                    try (ZipFile zipFile = ZipFile.builder()
+                        .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
+                        .get()) {
                         Enumeration<ZipArchiveEntry> e = zipFile.getEntries();
                         while (e.hasMoreElements()) {
                             ZipArchiveEntry zipEntry = e.nextElement();
@@ -207,7 +213,9 @@ public class ZipFileDataSource implements DataSource {
         Pattern p = Pattern.compile(regex);
         Set<String> names = new HashSet<>();
         Path zipFilePath = getZipFilePath();
-        try (ZipFile zipFile = new ZipFile(Files.newByteChannel(zipFilePath))) {
+        try (ZipFile zipFile = ZipFile.builder()
+            .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
+            .get()) {
             Enumeration<ZipArchiveEntry> e = zipFile.getEntries();
             while (e.hasMoreElements()) {
                 ZipArchiveEntry zipEntry = e.nextElement();

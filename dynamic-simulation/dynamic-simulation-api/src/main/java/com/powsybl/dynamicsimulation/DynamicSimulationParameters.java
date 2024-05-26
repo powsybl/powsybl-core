@@ -7,12 +7,13 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Supplier;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
@@ -110,7 +111,6 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      *
      * @param startTime instant of time at which the dynamic simulation begins, in
      *                  seconds
-     * @return
      */
     public DynamicSimulationParameters setStartTime(int startTime) {
         if (startTime < 0) {
@@ -128,7 +128,6 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
      *
      * @param stopTime instant of time at which the dynamic simulation ends, in
      *                 seconds
-     * @return
      */
     public DynamicSimulationParameters setStopTime(int stopTime) {
         if (stopTime <= startTime) {
@@ -139,8 +138,10 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
     }
 
     protected Map<String, Object> toMap() {
-        return ImmutableMap.of("startTime", startTime,
-            "stopTime", stopTime);
+        Map<String, Object> map = new LinkedHashMap<>();
+        map.put("startTime", startTime);
+        map.put("stopTime", stopTime);
+        return Collections.unmodifiableMap(map);
     }
 
     public DynamicSimulationParameters copy() {
@@ -152,6 +153,7 @@ public class DynamicSimulationParameters extends AbstractExtendable<DynamicSimul
         return toMap().toString();
     }
 
+    @SuppressWarnings("unchecked")
     private void loadExtensions(PlatformConfig platformConfig) {
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));

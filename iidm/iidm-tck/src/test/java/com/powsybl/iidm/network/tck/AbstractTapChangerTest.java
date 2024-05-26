@@ -376,15 +376,15 @@ public abstract class AbstractTapChangerTest {
 
     @Test
     public void invalidPhaseTapChangerWithoutSteps() {
-        ValidationException e = assertThrows(ValidationException.class, () -> twt.newPhaseTapChanger()
+        PhaseTapChangerAdder phaseTapChangerAdder = twt.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
                 .setRegulating(true)
                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationValue(10.0)
-                .setRegulationTerminal(terminal)
-            .add());
-        assertTrue(e.getMessage().contains("phase tap changer shall have at least one step"));
+                .setRegulationTerminal(terminal);
+        ValidationException e = assertThrows(ValidationException.class, phaseTapChangerAdder::add);
+        assertEquals("2 windings transformer 'twt': phase tap changer should have at least one step", e.getMessage());
     }
 
     @Test
