@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.AreaType;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Objects;
 

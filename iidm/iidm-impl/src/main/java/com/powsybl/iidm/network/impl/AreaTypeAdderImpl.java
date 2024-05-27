@@ -7,9 +7,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.AreaType;
 import com.powsybl.iidm.network.AreaTypeAdder;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
