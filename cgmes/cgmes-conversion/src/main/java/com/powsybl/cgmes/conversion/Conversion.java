@@ -274,12 +274,6 @@ public class Conversion {
         //  and all the data already loaded in the triplestore,
         //  we only need to switch to a different set of queries
 
-        network.getDanglingLines().forEach(dl -> {
-            System.err.printf("DanglingLine %s %n ---------- ", dl.getId());
-            dl.getPropertyNames().forEach(name -> System.err.printf("   Property %s %s %n", name, dl.getProperty(name)));
-            dl.getAliases().forEach(alias -> System.err.printf("   Alias %s  %s %n", alias, dl.getAliasType(alias)));
-        });
-
         updateAfterConvert(network, context, reportNode);
 
         return network;

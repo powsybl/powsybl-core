@@ -52,13 +52,14 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             // TODO(Luma): when the boundary nodes are not converted to IIDM buses
             // they are not exported (the SV is built from buses of IIDM network)
             // if we try to re-import the exported CGMES, those nodes do not have voltage
-            if (p.containsKey(CgmesNames.VOLTAGE) && p.containsKey(CgmesNames.ANGLE)) {
-                double v = p.asDouble(CgmesNames.VOLTAGE);
-                double angle = p.asDouble(CgmesNames.ANGLE);
-                if (valid(v, angle)) {
-                    context.boundary().addVoltageAtBoundary(id, v, angle);
-                }
-            }
+            // TODO JAM Delete done in the update
+            //if (p.containsKey(CgmesNames.VOLTAGE) && p.containsKey(CgmesNames.ANGLE)) {
+            //    double v = p.asDouble(CgmesNames.VOLTAGE);
+            //    double angle = p.asDouble(CgmesNames.ANGLE);
+            //    if (valid(v, angle)) {
+            //        context.boundary().addVoltageAtBoundary(id, v, angle);
+            //    }
+            //}
         }
     }
 
