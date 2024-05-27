@@ -13,10 +13,10 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalDouble;
 
 /**
  * Simple {@link NetworkModification} for an HVDC line (also potentially modifying its {@link HvdcAngleDroopActivePowerControl} extension).
@@ -25,6 +25,7 @@ import java.util.OptionalDouble;
  */
 public class HvdcLineModification extends AbstractNetworkModification {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HvdcLineModification.class);
     private final String hvdcId;
     private final Boolean acEmulationEnabled;
     private final Double activePowerSetpoint;
@@ -43,49 +44,53 @@ public class HvdcLineModification extends AbstractNetworkModification {
         this.relativeValue = relativeValue;
     }
 
-    public String getHvdcId() {
-        return hvdcId;
-    }
-
-    public Optional<HvdcLine.ConvertersMode> getConverterMode() {
-        return Optional.ofNullable(converterMode);
-    }
-
-    public OptionalDouble getDroop() {
-        return droop == null ? OptionalDouble.empty() : OptionalDouble.of(droop);
-    }
-
-    public OptionalDouble getActivePowerSetpoint() {
-        return activePowerSetpoint == null ? OptionalDouble.empty() : OptionalDouble.of(activePowerSetpoint);
-    }
-
-    public OptionalDouble getP0() {
-        return p0 == null ? OptionalDouble.empty() : OptionalDouble.of(p0);
-    }
-
-    public Optional<Boolean> isAcEmulationEnabled() {
-        return Optional.ofNullable(acEmulationEnabled);
-    }
-
-    public boolean isRelativeValue() {
-        return relativeValue != null && relativeValue;
-    }
-
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       ReportNode reportNode) {
-        HvdcLine hvdcLine = network.getHvdcLine(getHvdcId());
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
         if (hvdcLine == null) {
-            logOrThrow(throwException, "HvdcLine '" + getHvdcId() + "' not found");
+            logOrThrow(throwException, "HvdcLine '" + hvdcId + "' not found");
             return;
         }
-        getActivePowerSetpoint().ifPresent(value -> hvdcLine.setActivePowerSetpoint((isRelativeValue() ? hvdcLine.getActivePowerSetpoint() : 0) + value));
-        getConverterMode().ifPresent(hvdcLine::setConvertersMode);
+        if (activePowerSetpoint != null) {
+            double newActivePowerSetpoint = activePowerSetpoint;
+            if (relativeValue != null && relativeValue) {
+                newActivePowerSetpoint = hvdcLine.getActivePowerSetpoint() + activePowerSetpoint;
+            }
+            hvdcLine.setActivePowerSetpoint(newActivePowerSetpoint);
+        } else {
+            if (relativeValue != null && relativeValue) {
+                LOG.warn("Relative value is set to true but it will not be applied since active power setpoint is undefined (null)");
+            }
+        }
+        if (converterMode != null) {
+            hvdcLine.setConvertersMode(converterMode);
+        }
+        applyToHvdcAngleDroopActivePowerControlExtension(hvdcLine);
+    }
+
+    private void applyToHvdcAngleDroopActivePowerControlExtension(HvdcLine hvdcLine) {
         HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
-        if (hvdcAngleDroopActivePowerControl != null) {
-            isAcEmulationEnabled().ifPresent(hvdcAngleDroopActivePowerControl::setEnabled);
-            getP0().ifPresent(value -> hvdcAngleDroopActivePowerControl.setP0((float) value));
-            getDroop().ifPresent(value -> hvdcAngleDroopActivePowerControl.setDroop((float) value));
+        if (acEmulationEnabled != null) {
+            if (hvdcAngleDroopActivePowerControl != null) {
+                hvdcAngleDroopActivePowerControl.setEnabled(acEmulationEnabled);
+            } else {
+                LOG.warn("AV emulation enable is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", acEmulationEnabled, hvdcId);
+            }
+        }
+        if (p0 != null) {
+            if (hvdcAngleDroopActivePowerControl != null) {
+                hvdcAngleDroopActivePowerControl.setP0(p0.floatValue());
+            } else {
+                LOG.warn("P0 is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", p0, hvdcId);
+            }
+        }
+        if (droop != null) {
+            if (hvdcAngleDroopActivePowerControl != null) {
+                hvdcAngleDroopActivePowerControl.setDroop(droop.floatValue());
+            } else {
+                LOG.warn("Droop is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", droop, hvdcId);
+            }
         }
     }
 }
