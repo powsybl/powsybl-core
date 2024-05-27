@@ -19,7 +19,7 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 /**
- * Simple {@link NetworkModification} for a hdvc line or its extension with angle droop active power control.
+ * Simple {@link NetworkModification} for an HVDC line (also potentially modifying its {@link HvdcAngleDroopActivePowerControl} extension).
  *
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
