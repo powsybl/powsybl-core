@@ -47,6 +47,8 @@ public interface Area extends Identifiable<Area> {
      */
     Optional<Double> getAcNetInterchangeTolerance();
 
+    void removeBoundaryTerminal(Terminal terminal);
+
     void removeVoltageLevel(VoltageLevel voltageLevel);
 
     record BoundaryTerminal(Terminal terminal, boolean ac) { }

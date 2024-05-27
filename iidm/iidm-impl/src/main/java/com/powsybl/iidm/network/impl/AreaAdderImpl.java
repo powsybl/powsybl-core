@@ -10,8 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -27,11 +26,16 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private Double acNetInterchangeTolerance;
 
+    private final Set<VoltageLevel> voltageLevels;
+
     private final List<Area.BoundaryTerminal> boundaryTerminals;
+
+    private final Properties properties = new Properties();
 
     AreaAdderImpl(Ref<NetworkImpl> networkRef) {
         this.networkRef = networkRef;
         this.boundaryTerminals = new ArrayList<>();
+        this.voltageLevels = new HashSet<>();
     }
 
     public NetworkImpl getNetwork() {
@@ -53,8 +57,18 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
+    public AreaAdder addVoltageLevel(VoltageLevel voltageLevel) {
+        this.voltageLevels.add(voltageLevel);
+        return this;
+    }
+
     public AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac) {
         this.boundaryTerminals.add(new Area.BoundaryTerminal(terminal, ac));
+        return this;
+    }
+
+    public AreaAdder addProperty(String key, String value) {
+        properties.setProperty(key, value);
         return this;
     }
 
@@ -65,7 +79,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
                 .setAreaType(otherArea.getAreaType())
                 .setAcNetInterchangeTarget(otherArea.getAcNetInterchangeTarget().orElse(null))
                 .setAcNetInterchangeTolerance(otherArea.getAcNetInterchangeTolerance().orElse(null));
-        otherArea.getBoundaryTerminals().forEach(boundaryTerminal -> addBoundaryTerminal(boundaryTerminal.terminal(), boundaryTerminal.ac()));
+        otherArea.getPropertyNames().forEach(key -> addProperty(key, otherArea.getProperty(key)));
         return this;
     }
 
@@ -85,6 +99,10 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return acNetInterchangeTolerance;
     }
 
+    protected Set<VoltageLevel> getVoltageLevels() {
+        return voltageLevels;
+    }
+
     protected List<Area.BoundaryTerminal> getBoundaryTerminals() {
         return boundaryTerminals;
     }
@@ -95,6 +113,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         AreaImpl area = new AreaImpl(getNetworkRef(), id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
                 getAcNetInterchangeTolerance());
         area.getBoundaryTerminals().addAll(getBoundaryTerminals());
+        getVoltageLevels().forEach(area::addVoltageLevel);
+        area.getProperties().putAll(properties);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
         return area;

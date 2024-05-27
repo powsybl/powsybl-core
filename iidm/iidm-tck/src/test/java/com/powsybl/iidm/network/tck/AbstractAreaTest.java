@@ -57,6 +57,10 @@ public abstract class AbstractAreaTest {
         assertEquals(Optional.of(10.0), aicA.getAcNetInterchangeTarget());
         assertEquals(Optional.of(0.1), aicA.getAcNetInterchangeTolerance());
 
+        VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
+        assertEquals(Set.of(vlhv2), aicA.getVoltageLevels());
+        assertEquals(List.of(vlhv2), aicA.getVoltageLevelStream().toList());
+
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         final Terminal boundary2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2).getTerminal2();
         final Terminal boundary3 = network.getGenerator("GEN").getTerminal();
@@ -125,11 +129,12 @@ public abstract class AbstractAreaTest {
     void addVoltageLevelsToAreaTest() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
+
         biddingZoneA.addVoltageLevel(vlhv1);
         vlhv2.addArea(biddingZoneA);
 
         assertEquals(Set.of(biddingZoneA), vlhv1.getAreas());
-        assertEquals(Set.of(biddingZoneA), vlhv2.getAreas());
+        assertEquals(Set.of(biddingZoneA, aicA), vlhv2.getAreas());
         assertEquals(Set.of(vlhv1, vlhv2), biddingZoneA.getVoltageLevels());
     }
 

@@ -824,16 +824,18 @@ public class SubnetworkImpl extends AbstractNetwork {
 
         for (AreaImpl a : areas) {
             AreaType newAreaType = detachedNetwork.getAreaType(a.getAreaType().getId());
-            AreaImpl newArea = (AreaImpl) detachedNetwork.newArea()
+            Area newArea = detachedNetwork.newArea()
                     .copy(a)
                     .setAreaType(newAreaType)
                     .add();
-            newArea.getProperties().putAll(a.getProperties());
-            newArea.getExtensions().addAll(a.getExtensions());
-            for (VoltageLevel vl : new ArrayList<>(a.getVoltageLevelStream().filter(this::contains).toList())) {
+            a.getVoltageLevelStream().filter(this::contains).toList().forEach(vl -> {
                 a.removeVoltageLevel(vl);
                 newArea.addVoltageLevel(vl);
-            }
+            });
+            a.getBoundaryTerminalStream().filter(bt -> contains(bt.terminal().getConnectable())).toList().forEach(bt -> {
+                a.removeBoundaryTerminal(bt.terminal());
+                newArea.addBoundaryTerminal(bt.terminal(), bt.ac());
+            });
         }
 
         // Move the substations and voltageLevels to the new network

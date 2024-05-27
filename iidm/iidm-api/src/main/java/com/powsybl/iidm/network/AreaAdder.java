@@ -19,8 +19,16 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder setAcNetInterchangeTolerance(Double acNetInterchangeTolerance);
 
+    AreaAdder addVoltageLevel(VoltageLevel voltageLevel);
+
     AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac);
 
+    AreaAdder addProperty(String key, String value);
+
+    /**
+     * Replicates the attributes of the given Area, except the voltage levels and boundary terminals.
+     * @return the AreaAdder
+     */
     AreaAdder copy(Area otherArea);
 
     @Override

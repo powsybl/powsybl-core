@@ -207,25 +207,28 @@ class NetworkIndex {
                 checkAndAdd(otherArea);
             } else {
                 // The type existed in both networks, so there is a merge to do
-                AreaImpl area;
+                Area area;
                 if (get(otherArea.getId(), AreaImpl.class) == null) {
                     // The area existed only in the other network, so we create a new equivalent one in the merged network
                     Network network = mergedAreaType.getNetwork();
-                    area = (AreaImpl) network.newArea()
+                    area = network.newArea()
                             .copy(otherArea)
                             .setAreaType(mergedAreaType)
                             .add();
-                    area.getProperties().putAll(otherArea.getProperties());
-                    area.getExtensions().addAll(otherArea.getExtensions());
                 } else {
                     // We can just use the preexisting area in the current network
                     area = get(otherArea.getId(), AreaImpl.class);
                 }
-                // Update the voltage levels of the merged area
+                // Update the voltage levels and boundary points of the merged area
                 Iterable<VoltageLevel> otherVoltageLevels = otherArea.getVoltageLevels();
                 otherVoltageLevels.forEach(voltageLevel -> {
                     voltageLevel.removeArea(otherArea);
                     voltageLevel.addArea(area);
+                });
+                Iterable<Area.BoundaryTerminal> otherBoundaryTerminals = otherArea.getBoundaryTerminals();
+                otherBoundaryTerminals.forEach(boundaryTerminal -> {
+                    otherArea.removeBoundaryTerminal(boundaryTerminal.terminal());
+                    area.addBoundaryTerminal(boundaryTerminal.terminal(), boundaryTerminal.ac());
                 });
             }
             other.remove(otherArea);

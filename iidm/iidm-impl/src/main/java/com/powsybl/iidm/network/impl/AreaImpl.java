@@ -85,6 +85,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
+    public void removeBoundaryTerminal(Terminal terminal) {
+        boundaryTerminals.removeIf(boundaryTerminal -> boundaryTerminal.terminal().equals(terminal));
+    }
+
+    @Override
     public void removeVoltageLevel(VoltageLevel voltageLevel) {
         voltagelevels.remove(voltageLevel);
         if (Iterables.contains(voltageLevel.getAreas(), this)) {

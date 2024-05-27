@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -217,12 +218,16 @@ class MergeTest {
         n1Bza.addVoltageLevel(n1S1VL1);
         n2Bz2.addVoltageLevel(n2S1VL1);
 
+        Terminal g1Terminal = n1.getGenerator(id("S1VL1-Generator", "1")).getTerminal();
+        n1Bza.addBoundaryTerminal(g1Terminal, true);
+
         // Merge
         Network merged = Network.merge(n1, n2);
 
         assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
         assertEquals(List.of(n1Bza), merged.getAreaStream().toList());
         assertEquals(Set.of(n1S1VL1, n2S1VL1), n1Bza.getVoltageLevels());
+        assertEquals(List.of(g1Terminal), n1Bza.getBoundaryTerminalStream().map(bt -> bt.terminal()).toList());
 
         // Detach
         Network subnetwork1 = merged.getSubnetwork(n1.getId());
@@ -235,11 +240,13 @@ class MergeTest {
         assertEquals(List.of(detachedBz), n1Detached.getAreaTypeStream().toList());
         assertEquals(List.of(detachedBza), n1Detached.getAreaStream().toList());
         assertEquals(Set.of(n1S1VL1), detachedBza.getVoltageLevels());
+        assertEquals(List.of(g1Terminal), detachedBza.getBoundaryTerminalStream().map(bt -> bt.terminal()).toList());
 
         // Previous Network
         assertEquals(List.of(n1Bz), merged.getAreaTypeStream().toList());
         assertEquals(List.of(n1Bza), merged.getAreaStream().toList());
         assertEquals(Set.of(n2S1VL1), n1Bza.getVoltageLevels());
+        assertTrue(Iterables.isEmpty(n1Bza.getBoundaryTerminals()));
     }
 
     @Test
@@ -358,6 +365,7 @@ class MergeTest {
         Area detachedBza = n1Detached.getArea("bza");
         assertEquals(List.of(detachedBz), n1Detached.getAreaTypeStream().toList());
         assertEquals(List.of(detachedBza), n1Detached.getAreaStream().toList());
+        assertEquals(List.of(n1S1VL1), detachedBza.getVoltageLevelStream().toList());
 
         // Previous Network
         assertEquals(List.of(), merged.getAreaTypeStream().toList());

@@ -917,6 +917,7 @@ public final class EurostagTutorialExample1Factory {
                 .setId("aic_a")
                 .setName("Aic_A")
                 .setAreaType(aic)
+                .addVoltageLevel(network.getVoltageLevel(VLHV2))
                 .addBoundaryTerminal(nhv1Nhv2Line1.getTerminal1(), true)
                 .addBoundaryTerminal(nhv1Nhv2Line2.getTerminal2(), false)
                 .addBoundaryTerminal(network.getGenerator("GEN").getTerminal(), true)
