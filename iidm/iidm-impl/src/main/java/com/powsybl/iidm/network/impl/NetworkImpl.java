@@ -1102,13 +1102,13 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     private static void checkExtensions(String type, String id, AbstractIdentifiable<?> identifiable, AbstractIdentifiable<?> otherIdentifiable) {
         if (!identifiable.getExtensions().isEmpty() || !otherIdentifiable.getExtensions().isEmpty()) {
-            throw new PowsyblException("Merge object(s) of type " + type + " with id: " + id + " can not be merged. Merge " + type + " with extensions is not supported");
+            throw new PowsyblException("Merge object(s) of type '" + type + "' with id: '" + id + "' can not be merged. Merge '" + type + "' with extensions is not supported");
         }
     }
 
     private static void checkAttribute(String type, String id, String attributeName, Object attribute1, Object attribute2) {
         if (!Objects.equals(attribute1, attribute2)) {
-            throw new PowsyblException("Cannot merge object(s) of type " + type + " with same id: [" + id + "] but with different " + attributeName + ": [" + attribute1 + "] and [" + attribute2 + "]");
+            throw new PowsyblException("Cannot merge object(s) of type '" + type + "' with same id: '" + id + "' but with different " + attributeName + ": '" + attribute1 + "' and '" + attribute2 + "'");
         }
     }
 

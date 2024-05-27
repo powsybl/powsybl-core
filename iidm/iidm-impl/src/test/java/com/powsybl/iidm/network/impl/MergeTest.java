@@ -415,29 +415,28 @@ class MergeTest {
     }
 
     @Test
-    void mergeNodeBreakerWithAreasTestfail1() {
+    void mergeNodeBreakerWithAreasTestFail1() {
         Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
         Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
 
         createAreaType(n1, "bz");
-        AreaType n2Bz = createAreaType(n2, "bz");
-        n2Bz.setName("BZ_otherName");
+        createAreaType(n2, "bz").setName("BZ_otherName");
 
         //Merge
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
-        assertEquals("Cannot merge object(s) of type AreaTypeImpl with same id: [bz] but with different name: [bz_Name] and [BZ_otherName]", e.getMessage());
+        assertEquals("Cannot merge object(s) of type 'AreaTypeImpl' with same id: 'bz' but with different name: 'bz_Name' and 'BZ_otherName'", e.getMessage());
     }
 
     @Test
-    void mergeNodeBreakerWithAreasTestfail2() {
+    void mergeNodeBreakerWithAreasTestFail2() {
         Network n1 = createNodeBreaker("1", "nodeBreakerWithAreas");
         Network n2 = createNodeBreaker("2", "nodeBreakerWithAreas");
 
         createAreaType(n1, "bz");
         createAreaType(n2, "bz");
 
-        Area n1Bza = createArea(n1, "bza", n1.getAreaType("bz"));
-        Area n2Bza = n2.newArea()
+        createArea(n1, "bza", n1.getAreaType("bz"));
+        n2.newArea()
                 .setId("bza").setName("bza_Name")
                 .setAreaType(n2.getAreaType("bz"))
                 .setAcNetInterchangeTarget(20.0)
@@ -445,7 +444,7 @@ class MergeTest {
 
         //Merge
         PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
-        assertEquals("Cannot merge object(s) of type AreaImpl with same id: [bza] but with different acNetInterchangeTarget: [null] and [20.0]", e.getMessage());
+        assertEquals("Cannot merge object(s) of type 'AreaImpl' with same id: 'bza' but with different acNetInterchangeTarget: 'null' and '20.0'", e.getMessage());
     }
 
     private static boolean voltageAngleLimitsAreEqual(List<VoltageAngleLimit> expected, List<VoltageAngleLimit> actual) {
@@ -484,22 +483,6 @@ class MergeTest {
             .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
             .setHighLimit(0.25)
             .add();
-
-        return network;
-    }
-
-    private static Network createNodeBreakerWithAreas(NetworkFactory networkFactory, String nid) {
-        Network network = createNodeBreaker(networkFactory, nid, "nodeBreakerWithAreas");
-        final AreaType biddingZone = createAreaType(network, "bz");
-        final AreaType region = createAreaType(network, id("rg", nid));
-        final Area biddingZoneA = createArea(network, "bza", biddingZone);
-        final Area regionA = createArea(network, id("rga", nid), region);
-
-        VoltageLevel s1vl1 = network.getVoltageLevel(id("S1VL1", nid));
-        VoltageLevel s2vl1 = network.getVoltageLevel(id("S2VL1", nid));
-
-        s1vl1.addArea(biddingZoneA);
-        s2vl1.addArea(regionA);
 
         return network;
     }
