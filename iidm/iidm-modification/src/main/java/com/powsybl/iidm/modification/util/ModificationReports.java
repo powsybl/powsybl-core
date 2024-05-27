@@ -583,10 +583,11 @@ public final class ModificationReports {
             .add();
     }
 
-    public static void connectableConnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean connectionSuccessful) {
+    public static void connectableConnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean connectionSuccessful, ThreeSides side) {
         String defaultMessage = connectionSuccessful ?
-            "Connectable ${connectable} has been connected." :
-            "Connectable ${connectable} has NOT been connected.";
+            "Connectable ${connectable} has been connected" :
+            "Connectable ${connectable} has NOT been connected";
+        defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
@@ -595,11 +596,12 @@ public final class ModificationReports {
             .add();
     }
 
-    public static void connectableDisconnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean disconnectionSuccessful, boolean isPlanned) {
+    public static void connectableDisconnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
             "Connectable ${connectable} has been disconnected" :
             "Connectable ${connectable} has NOT been disconnected";
-        defaultMessage += isPlanned ? " (planned disconnection)." : " (unplanned disconnection).";
+        defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
+        defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
         key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
         reportNode.newReportNode()

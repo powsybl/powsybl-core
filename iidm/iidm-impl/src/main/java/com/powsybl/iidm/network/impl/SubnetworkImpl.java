@@ -11,8 +11,8 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.RefChain;
-import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

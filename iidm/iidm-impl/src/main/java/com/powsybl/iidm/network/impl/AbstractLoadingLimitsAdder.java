@@ -140,15 +140,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     }
 
     protected void checkAndUpdateValidationLevel(NetworkImpl network) {
-        network.setValidationLevelIfGreaterThan(checkLoadingLimits(network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        network.setValidationLevelIfGreaterThan(checkLoadingLimits(network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
     }
 
-    protected ValidationLevel checkLoadingLimits(boolean throwException, ReportNode reportNode) {
-        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), throwException, reportNode);
-    }
-
-    protected ValidationLevel checkLoadingLimits(boolean throwException) {
-        return checkLoadingLimits(throwException, ReportNode.NO_OP);
+    protected ValidationLevel checkLoadingLimits(ValidationLevel validationLevel, ReportNode reportNode) {
+        return ValidationUtil.checkLoadingLimits(validable, permanentLimit, temporaryLimits.values(), validationLevel, reportNode);
     }
 
     private Optional<LoadingLimits.TemporaryLimit> getTemporaryLimitByName(String name) {

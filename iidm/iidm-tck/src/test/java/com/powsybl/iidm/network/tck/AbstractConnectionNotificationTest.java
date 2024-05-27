@@ -55,7 +55,7 @@ public abstract class AbstractConnectionNotificationTest {
     }
 
     @Test
-    void busBreakerTest() {
+    public void busBreakerTest() {
         var network = EurostagTutorialExample1Factory.create();
         EventsRecorder eventsRecorder = new EventsRecorder(network);
         var l1 = network.getLine("NHV1_NHV2_1");
@@ -93,7 +93,7 @@ public abstract class AbstractConnectionNotificationTest {
     }
 
     @Test
-    void nodeBreakerTest() {
+    public void nodeBreakerTest() {
         var network = FourSubstationsNodeBreakerFactory.create();
         EventsRecorder eventsRecorder = new EventsRecorder(network);
         var l1 = network.getLine("LINE_S2S3");

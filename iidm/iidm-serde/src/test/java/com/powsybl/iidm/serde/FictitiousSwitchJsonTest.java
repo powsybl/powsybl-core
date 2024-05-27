@@ -31,7 +31,6 @@ class FictitiousSwitchJsonTest extends AbstractIidmSerDeTest {
 
         //backward compatibility
         roundTripVersionedJsonFromMinToCurrentVersionTest("fictitiousSwitchRef.jiidm", IidmVersion.V_1_11);
-        roundTripVersionedJsonFromMinToCurrentVersionTest("fictitiousSwitchRef.jiidm", IidmVersion.V_1_12);
     }
 
 }
