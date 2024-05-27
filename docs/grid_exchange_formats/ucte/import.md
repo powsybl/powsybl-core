@@ -13,47 +13,47 @@ For the sake of clarity we use notations that are made explicit before each tabl
 ### Nodes with active or reactive power generation
 
 Notations:
-- \\(P\\): active power generation, in MW
-- \\(Q\\): reactive power generation, in MVar
-- \\(minP\\): minimum permissible active power generation, in MW
-- \\(maxP\\): maximum permissible active power generation, in MW
-- \\(minQ\\): minimum permissible reactive power generation, in MVar
-- \\(maxQ\\): maximum permissible reactive power generation, in MVar
-- \\(Vreg\\): voltage regulation, which can be enabled or disabled
-- \\(Vref\\): voltage reference, in V
+- $P$: active power generation, in MW
+- $Q$: reactive power generation, in MVar
+- $minP$: minimum permissible active power generation, in MW
+- $maxP$: maximum permissible active power generation, in MW
+- $minQ$: minimum permissible reactive power generation, in MVar
+- $maxQ$: maximum permissible reactive power generation, in MVar
+- $Vreg$: voltage regulation, which can be enabled or disabled
+- $Vref$: voltage reference, in V
 
 | Check | Consequence |
 | :-------------------: | :----------------: |
-| \\(Vreg\\) enabled and \\(Q\\) undefined | \\(Q = 0\\) |
-| \\(P\\) undefined | \\(P = 0\\) |
-| \\(Q\\) undefined | \\(Q = 0\\)|
-| \\(Vreg\\) enabled and \\(Vref\\) undefined or \\(\in [0, 0.0001[\\) | Node type = PQ |
-| \\(minP\\) undefined | \\(minP = -9999\\) |
-| \\(maxP\\) undefined | \\(maxP = 9999\\) |
-| \\(minQ\\) undefined | \\(minQ = -9999\\) |
-| \\(maxQ\\) undefined | \\(maxQ = 9999\\) |
-| \\(minP > maxP\\) | \\(minP\\) switched with \\(maxP\\) |
-| \\(minQ > maxQ\\) | \\(minQ\\) switched with \\(maxQ\\) |
-| \\(P > maxP\\) | \\(maxP = P\\) |
-| \\(P < minP\\) | \\(minP = P\\) |
-| \\(Q > maxQ\\) | \\(maxQ = Q\\) |
-| \\(Q < minQ\\) | \\(minQ = Q\\) |
-| \\(minP = maxP\\) | \\(maxP = 9999\\) and \\(minP = -9999\\) |
-| \\(minQ = maxQ\\) | \\(maxQ = 9999\\) and \\(minQ = -9999\\) |
-| \\(maxP > 9999\\) | \\(maxP = 9999\\) |
-| \\(minP < -9999\\) | \\(minP = -9999\\) |
-| \\(maxQ > 9999\\) | \\(maxQ = 9999\\) |
-| \\(minQ < -9999\\) | \\(minQ = -9999\\) |
+| $Vreg$ enabled and $Q$ undefined | $Q = 0$ |
+| $P$ undefined | $P = 0$ |
+| $Q$ undefined | $Q = 0$|
+| $Vreg$ enabled and $Vref$ undefined or $\in [0, 0.0001[$ | Node type = PQ |
+| $minP$ undefined | $minP = -9999$ |
+| $maxP$ undefined | $maxP = 9999$ |
+| $minQ$ undefined | $minQ = -9999$ |
+| $maxQ$ undefined | $maxQ = 9999$ |
+| $minP > maxP$ | $minP$ switched with $maxP$ |
+| $minQ > maxQ$ | $minQ$ switched with $maxQ$ |
+| $P > maxP$ | $maxP = P$ |
+| $P < minP$ | $minP = P$ |
+| $Q > maxQ$ | $maxQ = Q$ |
+| $Q < minQ$ | $minQ = Q$ |
+| $minP = maxP$ | $maxP = 9999$ and $minP = -9999$ |
+| $minQ = maxQ$ | $maxQ = 9999$ and $minQ = -9999$ |
+| $maxP > 9999$ | $maxP = 9999$ |
+| $minP < -9999$ | $minP = -9999$ |
+| $maxQ > 9999$ | $maxQ = 9999$ |
+| $minQ < -9999$ | $minQ = -9999$ |
 
 ### Lines or two-windings transformers
 
 Notations:
-- \\(X\\): reactance in \\(\Omega\\)
+- $X$: reactance in $\Omega$
 
 | Check | Consequence |
 | :-------------------: | :----------------: |
-| \\(X \in [-0.05, 0.05]\\) | \\(X = \pm 0.05\\) | 
-| Current limit \\(<0\\) | Current limit value ignored |
+| $X \in [-0.05, 0.05]$ | $X = \pm 0.05$ | 
+| Current limit $<0$ | Current limit value ignored |
 
 ### Regulations
 
@@ -61,14 +61,14 @@ Notations:
 
 | Check | Consequence |
 | :-------------------: | :----------------: |
-| Voltage value \\(<=0\\) | Voltage value set to NaN |
-| Invalid (\\(n = 0\\)) or undefined (\\(n\\), \\(n'\\) or \\(\delta U\\)) data provided | Regulation ignored |
+| Voltage value $<=0$ | Voltage value set to NaN |
+| Invalid ($n = 0$) or undefined ($n$, $n'$ or $\delta U$) data provided | Regulation ignored |
 
 #### Angle regulation
 
 | Check | Consequence |
 | :-------------------: | :----------------: |
-| Invalid (\\(n = 0\\)) or undefined (\\(n\\), \\(n'\\) or \\(\delta U\\)) data provided | Regulation ignored |
+| Invalid ($n = 0$) or undefined ($n$, $n'$ or $\delta U$) data provided | Regulation ignored |
 | Undefined type | type set to `ASYM` |
 
 ## From UCTE to IIDM
