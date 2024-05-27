@@ -8,8 +8,22 @@
 package com.powsybl.iidm.network;
 
 /**
+ * To create an Area, from a <code>Network</code> instance call
+ * the {@link Network#newArea()} method to get an Area builder instance.
+ * <p>
+ * Example:
+ *<pre>
+ *    Network n = ...
+ *    Substation s = n.newArea()
+ *            .setId("FR")
+ *            ...
+ *        .add();
+ *</pre>
+ *
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
+ * @see Area
+ * @see Network
  */
 public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 

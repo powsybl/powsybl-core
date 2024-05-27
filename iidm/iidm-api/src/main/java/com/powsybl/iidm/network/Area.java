@@ -11,8 +11,76 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
+ * An Area is a geographical zone of a given type.
+ * <p> It is composed of a collection of voltage levels, and a collection of boundary terminals.
+ * <p> Areas can represent different granularities depending on their types. For instance: control areas, bidding zones, countries...
+ * <p> To create an Area, see {@link AreaAdder}
+ *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the Area</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the Area</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">AreaType</td>
+ *             <td style="border: 1px solid black">AreaType</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The type of zone that this Area represents</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">AcNetInterchangeTarget</td>
+ *             <td style="border: 1px solid black">Double</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The optional target AC Net Interchange of this area in MW, using load sign convention</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">AcNetInterchangeTolerance</td>
+ *             <td style="border: 1px solid black">Double</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The optional net interchange tolerance in MW</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
+ * @see AreaType
+ * @see VoltageLevel
+ * @see BoundaryTerminal
+ * @see AreaAdder
  */
 public interface Area extends Identifiable<Area> {
 
@@ -51,5 +119,48 @@ public interface Area extends Identifiable<Area> {
 
     void removeVoltageLevel(VoltageLevel voltageLevel);
 
+    /**
+     * A BoundaryTerminal is a terminal composing part of the boundaries of an <code>Area</code>.
+     * <p> To create and add a BoundaryTerminal, see {@link AreaAdder#addBoundaryTerminal(Terminal, boolean)}
+     *
+     * <p>
+     *  Characteristics
+     * </p>
+     *
+     * <table style="border: 1px solid black; border-collapse: collapse">
+     *     <thead>
+     *         <tr>
+     *             <th style="border: 1px solid black">Attribute</th>
+     *             <th style="border: 1px solid black">Type</th>
+     *             <th style="border: 1px solid black">Unit</th>
+     *             <th style="border: 1px solid black">Required</th>
+     *             <th style="border: 1px solid black">Defaut value</th>
+     *             <th style="border: 1px solid black">Description</th>
+     *         </tr>
+     *     </thead>
+     *     <tbody>
+     *         <tr>
+     *             <td style="border: 1px solid black">Terminal</td>
+     *             <td style="border: 1px solid black">Terminal</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">Boundary of an Area/td>
+     *         </tr>
+     *         <tr>
+     *             <td style="border: 1px solid black">AC</td>
+     *             <td style="border: 1px solid black">boolean</td>
+     *             <td style="border: 1px solid black">-</td>
+     *             <td style="border: 1px solid black">yes</td>
+     *             <td style="border: 1px solid black"> - </td>
+     *             <td style="border: 1px solid black">True if the terminal correspond to an AC boundary, false otherwise</td>
+     *         </tr>
+     *     </tbody>
+     * </table>
+     *
+     * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
+     * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
+     * @see Area
+     */
     record BoundaryTerminal(Terminal terminal, boolean ac) { }
 }
