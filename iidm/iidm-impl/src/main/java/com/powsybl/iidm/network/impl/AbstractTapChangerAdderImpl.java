@@ -79,7 +79,8 @@ abstract class AbstractTapChangerAdderImpl<
     public T add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
+            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel(),
+                    network.getReportNodeContext().getReportNode());
             network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
         }
         if (steps.isEmpty()) {
@@ -90,21 +91,21 @@ abstract class AbstractTapChangerAdderImpl<
             if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel());
+                        + highTapPosition + "]", network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
                 network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
             }
         }
 
         network.setValidationLevelIfGreaterThan(checkTapChangerRegulation(parent, regulationValue, regulating, regulationTerminal));
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, getValidableType(), regulating,
-                targetDeadband, network.getMinValidationLevel()));
+                targetDeadband, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         T tapChanger = createTapChanger(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationValue, targetDeadband);
 
         Set<TapChanger<?, ?, ?, ?>> otherTapChangers = new HashSet<>(parent.getAllTapChangers());
         otherTapChangers.remove(tapChanger);
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, otherTapChangers, regulating,
-                network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
 
         if (parent.hasPhaseTapChanger() && parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
