@@ -108,17 +108,17 @@ The lines connected between a read node and an X-node are converted into a [dang
 ### Two windings transformer conversion
 The two windings transformers connected between two real nodes are converted into a [two windings transformer](../model/index.md#two-windings-transformer). If the current limits is defined, a permanent limit is created only for the second side. The element name of the transformer is stored in the `elementName` property and the nominal power is stored in the `nominalPower` property.
 
-If a two windings transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created, with a single bus called an Y-node. This new voltage level is created in the same substation than the real node. The transformer is created between the real node and the new Y-node, and the X-node is converted into a dangling line. The only difference with a classic X-node conversion, is that the electrical characteristic are hold by the transformer and set to `0` for the dangling line, except for the reactance that is set to $$0.05\space\Omega$$.
+If a two windings transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created, with a single bus called an Y-node. This new voltage level is created in the same substation than the real node. The transformer is created between the real node and the new Y-node, and the X-node is converted into a dangling line. The only difference with a classic X-node conversion, is that the electrical characteristic are hold by the transformer and set to `0` for the dangling line, except for the reactance that is set to $0.05\space\Omega$.
 
 **TODO**: insert a schema
 
 
 #### Phase regulation
-If a phase regulation is defined for a transformer, it is converted into a [ratio tap changer](../model/index.md#ratio-tap-changer). If the voltage setpoint is defined, the ratio tap changer will regulate the voltage to this setpoint. The regulating terminal is assigned to the first side of the transformer. The &rho; of each step is calculated according to the following formula: $$\rho = 1 / (1 + i * \delta U / 100)$$.
+If a phase regulation is defined for a transformer, it is converted into a [ratio tap changer](../model/index.md#ratio-tap-changer). If the voltage setpoint is defined, the ratio tap changer will regulate the voltage to this setpoint. The regulating terminal is assigned to the first side of the transformer. The &rho; of each step is calculated according to the following formula: $\rho = 1 / (1 + i * \delta U / 100)$.
 
 #### Angle regulation
 If an angle regulation is defined for a transformer, it is converted into a [phase tap changer](../model/index.md#phase-tap-changer), with a `FIXED_TAP` regulation mode. &rho; and &alpha; of each step are calculated according to the following formulas:
-- for an asymmetrical regulation (e.g. $$\Theta \ne 90°$$)
+- for an asymmetrical regulation (e.g. $\Theta \ne 90°$)
 
 $$
 \begin{array}{ccl}
@@ -129,7 +129,7 @@ dy & = & step_i \times \dfrac{\delta U}{100} \times \sin(\Theta) \\[1em]
 \end{array}
 $$
 
-- for a symmetrical regulation (e.g. $$\Theta = 90°$$)
+- for a symmetrical regulation (e.g. $\Theta = 90°$)
 
 $$
 \begin{array}{ccl}
@@ -140,4 +140,4 @@ dy & = & step_i \times \dfrac{\delta U}{100} \times \sin(\Theta) \\[1em]
 \end{array}
 $$
 
-**Note:** The sign of $$\alpha$$ is changed because the phase tap changer is on side 2 in UCTE-DEF, and on side 1 in IIDM.
+**Note:** The sign of $\alpha$ is changed because the phase tap changer is on side 2 in UCTE-DEF, and on side 1 in IIDM.
