@@ -229,15 +229,9 @@ public class Conversion {
         context.loadingLimitsMapping().addAll();
         context.loadingLimitsMapping().addOperationalLimitProperties(network);
 
-        // TODO JAM Delete
-        /*****
-        if (config.convertSvInjections()) {
-            convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
-        }
-         ****/
+        // SVInjections
 
         clearUnattachedHvdcConverterStations(network, context); // in case of faulty CGMES files, remove HVDC Converter Stations without HVDC lines
-        // voltageAngles(nodes, context); // TODO JAM Deletc
 
         if (config.importControlAreas()) {
             network.newExtension(CgmesControlAreasAdder.class).add();
@@ -267,10 +261,6 @@ public class Conversion {
             postProcessor.process(network, cgmes.tripleStore());
         }
 
-        // Complete Voltages and angles in starBus as properties
-        // Complete Voltages and angles in boundary buses
-        //completeVoltagesAndAngles(network); // TODO JAM Delete
-
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
@@ -278,31 +268,54 @@ public class Conversion {
 
         importedCgmesNetworkReport(context.getReportNode(), network.getId());
 
-        // Update
-        //Context updateContext = createUpdateContext(network, reportNode);
-        //update(network, updateContext, reportNode);
+        // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
+        //  we call the update method on the same conversion object,
+        //  that has the context created during the convert (first) step
+        //  and all the data already loaded in the triplestore,
+        //  we only need to switch to a different set of queries
+
+        network.getDanglingLines().forEach(dl -> {
+            System.err.printf("DanglingLine %s %n ---------- ", dl.getId());
+            dl.getPropertyNames().forEach(name -> System.err.printf("   Property %s %s %n", name, dl.getProperty(name)));
+            dl.getAliases().forEach(alias -> System.err.printf("   Alias %s  %s %n", alias, dl.getAliasType(alias)));
+        });
+
+        updateAfterConvert(network, context, reportNode);
 
         return network;
     }
 
+    private void updateAfterConvert(Network network, Context convertContext, ReportNode reportNode) {
+        // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
+        //  and change the query catalog to "update" mode
+
+        System.err.printf("UpdateAfterConvert Begin ... %n");
+        this.cgmes.invalidateCaches();
+        this.cgmes.setQueryCatalog("-update");
+        Context context = createUpdateContext(network, reportNode);
+        context.terminalMapping().copyFromConvertToUpdate(convertContext.terminalMapping());
+        context.nodeMapping().copyFromConvertToUpdate(convertContext.nodeMapping());
+        update(network, context);
+
+        if (config.convertSvInjections()) {
+            convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
+        }
+
+        System.err.printf("UpdateAfterConvert End ... %n");
+    }
+
     public void update(Network network, ReportNode reportNode) {
+        System.err.printf("Update Begin ... %n");
+
         Objects.requireNonNull(network);
         Objects.requireNonNull(reportNode);
         Context context = createUpdateContext(network, reportNode);
-
         update(network, context);
-    }
 
-    public void updateAfterConvert(Network network) {
-        // FIXME(Luma) Before switching to update we must invalidate all caches of the cgmes model
-        //  and change the query catalog to "update" mode
-        this.cgmes.invalidateCaches();
-        this.cgmes.setQueryCatalog("-update");
-        update(network, this.context);
+        System.err.printf("Update End ... %n");
     }
 
     private void update(Network network, Context context) {
-        System.err.printf("Update Begin ......................................................... %n");
 
         // FIXME(Luma) Inspect the contents of the loaded data
         if (LOG.isDebugEnabled()) {
@@ -311,9 +324,6 @@ public class Conversion {
             nts.forEach(nt -> LOG.debug(String.format("  %5d %s", nt.asInt("numObjects"), nt.getLocal("Type"))));
             nts.forEach(nt -> LOG.debug(cgmes.allObjectsOfType(nt.getLocal("Type")).tabulateLocals()));
         }
-        // FIXME(JAM) Use the generating units to obtain normalPF
-        LOG.error("use the generating units to obtain normalPF:");
-        cgmes.generatingUnits().forEach(gu -> LOG.error("{} {}", gu.asDouble("normalPF"), gu.getId("GeneratingUnit")));
 
         update(network, cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         update(network, cgmes.energySources(), es -> new EnergySourceConversion(es, context));
@@ -327,9 +337,7 @@ public class Conversion {
         update(network, cgmes.switches(), sw -> new SwitchConversion(sw, context));
         updateTapChangers(network, cgmes, context);
         updateAcDcConverters(network, cgmes, context);
-        System.err.printf("%n UpdateTerminals ......... %n");
         update(network, cgmes.terminals(), t -> new TerminalUpdate(t, context));
-
         updateOperationalLimits(network, context);
 
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
@@ -337,15 +345,9 @@ public class Conversion {
             cgmes.controlAreas().forEach(ca -> updateControlArea(cgmesControlAreas, ca));
         }
 
-        //cgmes.topologicalNodes().forEach(c -> System.err.printf("%s %n", c.tabulateLocals())); // TODO JAM delete
-        PropertyBags nodes = context.nodeBreaker()
-                ? cgmes.connectivityNodes()
-                : cgmes.topologicalNodes();
-        //cgmes.topologicalNodes().forEach(n -> System.err.printf("%s %n", n.tabulateLocals())); // TODO JAM delete
-        voltageAngles(nodes, context);
+        update(network, cgmes.topologicalNodes(), tn -> new NodeConversion("TopologicalNode", tn, context));
 
-        // Complete Voltages and angles in starBus as properties
-        // Complete Voltages and angles in boundary buses
+        // Complete voltages and angles in starBus as properties, complete also voltages and angles in boundary buses
         completeVoltagesAndAngles(network);
     }
 
@@ -572,13 +574,10 @@ public class Conversion {
 
     private Context createUpdateContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
-        //context.substationIdMapping().build(); // TODO JAM Delete
-        //context.dc().initialize();
         context.loadRatioTapChangers();
         context.loadPhaseTapChangers();
         context.loadRatioTapChangerTables();
         context.loadPhaseTapChangerTables();
-        //context.loadReactiveCapabilityCurveData();
         context.regulatingControlUpdate().cache();
         context.generatingUnitUpdate().cache();
         context.operationalLimitUpdate().cache();
@@ -963,20 +962,6 @@ public class Conversion {
 
     private static String obtainRegionName(VoltageLevel voltageLevel) {
         return voltageLevel.getSubstation().map(s -> s.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "regionName")).orElse(null);
-    }
-
-    private void voltageAngles(PropertyBags nodes, Context context) {
-        if (context.nodeBreaker()) {
-            // TODO(Luma): we create again one conversion object for every node
-            // In node-breaker conversion,
-            // set (voltage, angle) values after all nodes have been created and connected
-            for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
-                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
-                    nc.setVoltageAngleNodeBreaker();
-                }
-            }
-        }
     }
 
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {

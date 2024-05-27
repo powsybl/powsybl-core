@@ -51,12 +51,8 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         identify(adder);
         connect(adder);
         Load load = adder.add();
-        if (cgmesTerminal != null) {
-            context.convertedTerminal(cgmesTerminal.id(), load.getTerminal(), 1);
-        } else {
-            load.getTerminal().setP(p0);
-            load.getTerminal().setQ(q0);
-        }
+        load.getTerminal().setP(p0);
+        load.getTerminal().setQ(q0);
 
         addSpecificProperties(load);
     }
@@ -104,7 +100,9 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void findNodeFromUnmappedCgmesTerminal() {
-        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, false, voltageLevel);
+        if (cgmesTerminal != null) {
+            node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, false, voltageLevel);
+        }
     }
 
     private void findNodeFromMappedCgmesTerminal(Terminal associatedTerminal, String topologicalNode) {

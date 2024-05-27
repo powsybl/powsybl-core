@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalInt;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -27,6 +29,11 @@ public class NodeMapping {
         voltageLevelNumNodes = new HashMap<>(100);
     }
 
+    public void copyFromConvertToUpdate(NodeMapping convertNodeMapping) {
+        this.cgmes2iidm.putAll(convertNodeMapping.cgmes2iidm);
+        this.voltageLevelNumNodes.putAll(convertNodeMapping.voltageLevelNumNodes);
+    }
+
     public int iidmNodeForTopologicalNode(String id, int associatedNode, VoltageLevel vl) {
         String uniqueId;
         int i = 0;
@@ -34,7 +41,7 @@ public class NodeMapping {
             uniqueId = id + "#" + i++;
         } while (cgmes2iidm.containsKey(uniqueId) && i < Integer.MAX_VALUE);
         int iidmNodeForTopologicalNode = newNode(vl);
-        cgmes2iidm.put(uniqueId, iidmNodeForTopologicalNode);
+        cgmes2iidm.put(uniqueId, new RNode(vl.getId(), iidmNodeForTopologicalNode));
         vl.getNodeBreakerView().newInternalConnection()
                 .setNode1(iidmNodeForTopologicalNode)
                 .setNode2(associatedNode)
@@ -47,9 +54,9 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl, boolean equipmentIsConnected) {
-        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
+        int iidmNodeForConductingEquipment = iidmNodeForConnectivityNode(t.id(), vl);
         // Add internal connection from terminal to connectivity node
-        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
+        int iidmNodeForConnectivityNode = iidmNodeForConnectivityNode(t.connectivityNode(), vl);
 
         // For node-breaker models we create an internal connection between
         // the terminal and its connectivity node
@@ -104,7 +111,21 @@ public class NodeMapping {
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {
-        return cgmes2iidm.computeIfAbsent(id, k -> newNode(vl));
+        if (cgmes2iidm.containsKey(id)) {
+            return cgmes2iidm.get(id).node;
+        } else {
+            RNode rnode = new RNode(vl.getId(), newNode(vl));
+            cgmes2iidm.put(id, rnode);
+            return rnode.node;
+        }
+    }
+
+    public OptionalInt getIidmNodeForConnectivityNode(String connectivityNode) {
+        return cgmes2iidm.containsKey(connectivityNode) ? OptionalInt.of(cgmes2iidm.get(connectivityNode).node) : OptionalInt.empty();
+    }
+
+    public Optional<String> getVoltageLevelIdForConnectivityNode(String connectivityNode) {
+        return cgmes2iidm.containsKey(connectivityNode) ? Optional.of(cgmes2iidm.get(connectivityNode).voltageLevelId) : Optional.empty();
     }
 
     private int newNode(VoltageLevel vl) {
@@ -116,7 +137,10 @@ public class NodeMapping {
         return numNodes - 1;
     }
 
-    private final Map<String, Integer> cgmes2iidm;
+    private record RNode(String voltageLevelId, int node) {
+    }
+
+    private final Map<String, RNode> cgmes2iidm;
     private final Map<VoltageLevel, Integer> voltageLevelNumNodes;
     private final Context context;
 }

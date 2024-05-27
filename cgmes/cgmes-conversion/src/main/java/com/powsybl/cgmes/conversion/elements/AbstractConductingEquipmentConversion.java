@@ -143,20 +143,19 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return true;
     }
 
-    @Override
-    public void update(Network network) {
+    void updateTerminalData(Network network, Identifiable<?> identifiable) {
         // FIXME(Luma) we try to gather terminal data for this equipment ...
         //  do we have to take into account the eventual cgmes naming strategy??
-        Identifiable<?> idable = network.getIdentifiable(id);
+        //Identifiable<?> idable = network.getIdentifiable(id);
         // Some elements may not have been stored in the Network
         // (Equivalent injections at boundaries are not found)
         // FIXME(Luma) Check why they are not added as aliases for the corresponding dangling lines?
         //  is it because more than one dangling line may have the same associated equivalent injection?
-        if (idable == null) {
-            context.missing(id, () -> "Identifiable not found in Network for update");
-            return;
-        }
-        String terminalId = idable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
+        //if (idable == null) {
+        //    context.missing(id, () -> "Identifiable not found in Network for update");
+        //    return;
+        //}
+        String terminalId = identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         terminals[0] = TerminalData.createFromTerminalId(terminalId, context);
     }
 

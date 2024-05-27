@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 import static com.powsybl.cgmes.conversion.CgmesReports.invalidAngleVoltageBusReport;
@@ -119,49 +121,6 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         }
     }
 
-    public void setVoltageAngleNodeBreaker() {
-        if (!context.nodeBreaker()) {
-            return;
-        }
-        // Before trying to find a bus, check that values are valid
-        if (!checkValidVoltageAngle(null)) {
-            return;
-        }
-
-        VoltageLevel vl = voltageLevel();
-        if (vl == null) { // if inside boundary but boundaries must not be converted
-            return;
-        }
-        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        String connectivityNode = id;
-        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
-        if (!topo.hasAttachedEquipment(iidmNode)) {
-            LOG.error("ConnectivityNode {} with voltage and angle is not valid in IIDM", connectivityNode);
-            return;
-        }
-        // To obtain a bus for which we want to set voltage:
-        // If there no Terminal at this IIDM node,
-        // then find from it the first connected node with a Terminal
-        Terminal t = topo.getOptionalTerminal(iidmNode)
-                .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
-        if (t == null) {
-            LOG.error("Can't find a Terminal to obtain a Bus to set Voltage, Angle. ConnectivityNode {}", id);
-            return;
-        }
-        Bus bus = t.getBusView().getBus();
-        if (bus == null) {
-            bus = t.getBusBreakerView().getBus();
-            if (bus == null) {
-                LOG.error("Can't find a Bus from Terminal to set Voltage, Angle. Connectivity Node {}", id);
-                return;
-            }
-            LOG.warn(
-                    "Can't find a bus from the Bus View to set Voltage and Angle, we use the bus {} from the Bus/Breaker view. Connectivity node {}",
-                    bus, id);
-        }
-        setVoltageAngle(bus);
-    }
-
     private VoltageLevel voltageLevel() {
         if (insideBoundary() && context.config().convertBoundary()) {
             return context.network().getVoltageLevel(Context.boundaryVoltageLevelId(this.id));
@@ -183,8 +142,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private void newNode(VoltageLevel vl) {
         VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
-        String connectivityNode = id;
-        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
+        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(id, vl);
 
         // Busbar sections are created for every connectivity node to be
         // able to easily check the topology calculated by IIDM
@@ -200,14 +158,10 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void newBus(VoltageLevel voltageLevel) {
-        Bus bus = voltageLevel.getBusBreakerView().newBus()
+        voltageLevel.getBusBreakerView().newBus()
             .setId(context.namingStrategy().getIidmId("Bus", id))
             .setName(context.namingStrategy().getIidmName("Bus", name))
             .add();
-        // TODO move to the update
-        //if (checkValidVoltageAngle(bus)) {
-        //    setVoltageAngle(bus);
-        //}
     }
 
     private boolean checkValidVoltageAngle(Bus bus) {
@@ -219,16 +173,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         }
         boolean valid = valid(v, angle);
         if (!valid) {
-            Supplier<String> reason = () -> String.format("v = %f, angle = %f. Node %s", v, angle, id);
-            Supplier<String> location = () -> bus == null
-                ? "No bus"
-                : String.format("Bus %s, %sVoltage level %s",
-                    bus.getId(),
-                    bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
-                    bus.getVoltageLevel().getNameOrId());
-            Supplier<String> message = () -> reason.get() + ". " + location.get();
+            Supplier<String> message = getInvalidAngleVoltageBusMessage(bus, v, angle);
             context.invalid("SvVoltage", message);
-
             if (bus != null) {
                 invalidAngleVoltageBusReport(context.getReportNode(), bus, id, v, angle);
             } else {
@@ -236,6 +182,17 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             }
         }
         return valid;
+    }
+
+    private Supplier<String> getInvalidAngleVoltageBusMessage(Bus bus, double v, double angle) {
+        Supplier<String> reason = () -> String.format("v = %f, angle = %f. Node %s", v, angle, id);
+        Supplier<String> location = () -> bus == null
+            ? "No bus"
+            : String.format("Bus %s, %sVoltage level %s",
+                bus.getId(),
+                bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
+                bus.getVoltageLevel().getNameOrId());
+        return () -> reason.get() + ". " + location.get();
     }
 
     private void setVoltageAngle(Bus bus) {
@@ -266,6 +223,60 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         boolean valid = v > 0;
         LOG.debug("valid voltage ({}, {}) ? {}", v, angle, valid);
         return valid;
+    }
+
+    @Override
+    public void update(Network network) {
+        Bus bus = network.getBusBreakerView().getBus(id);
+        if (bus != null) {
+            if (checkValidVoltageAngle(bus)) {
+                setVoltageAngle(bus);
+            }
+        } else {
+            String connectivityNodeId = p.getId("ConnectivityNode");
+            if (connectivityNodeId != null) {
+                OptionalInt iidmNode = context.nodeMapping().getIidmNodeForConnectivityNode(connectivityNodeId);
+                Optional<String> voltageLevelId = context.nodeMapping().getVoltageLevelIdForConnectivityNode(connectivityNodeId);
+                if (iidmNode.isPresent() && voltageLevelId.isPresent()) {
+                    updateVoltageAndAngle(network, connectivityNodeId, voltageLevelId.get(), iidmNode.getAsInt());
+                }
+            }
+        }
+    }
+
+    private void updateVoltageAndAngle(Network network, String connectivityNode, String voltageLevelId, int iidmNode) {
+        // Before trying to find a bus, check that values are valid
+        if (!checkValidVoltageAngle(null)) {
+            return;
+        }
+        VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
+        if (vl == null) {
+            return;
+        }
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+        if (!topo.hasAttachedEquipment(iidmNode)) {
+            LOG.error("ConnectivityNode {} with voltage and angle is not valid in IIDM", connectivityNode);
+            return;
+        }
+        // To obtain a bus for which we want to set voltage:
+        // If there is no Terminal at this IIDM node,
+        // then find it from the first connected node with a Terminal
+        Terminal t = topo.getOptionalTerminal(iidmNode)
+                .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
+        if (t == null) {
+            LOG.error("Can't find a Terminal to obtain a Bus to set Voltage, Angle. ConnectivityNode {}", connectivityNode);
+            return;
+        }
+        Bus bus = t.getBusView().getBus();
+        if (bus == null) {
+            bus = t.getBusBreakerView().getBus();
+            if (bus == null) {
+                LOG.error("Can't find a Bus from Terminal to set Voltage, Angle. Connectivity Node {}", connectivityNode);
+                return;
+            }
+            LOG.warn("Can't find a bus from the Bus View to set Voltage and Angle, we use the bus {} from the Bus/Breaker view. Connectivity node {}", bus, connectivityNode);
+        }
+        setVoltageAngle(bus);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeConversion.class);

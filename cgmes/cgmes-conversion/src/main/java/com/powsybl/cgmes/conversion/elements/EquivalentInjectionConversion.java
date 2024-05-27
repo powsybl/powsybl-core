@@ -47,7 +47,8 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // and the equivalent injection is regulating voltage
             // we will have to transfer regulating voltage data
             // from the equivalent injection to the dangling line
-            context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
+            // TODO JAM move to update
+            //context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
         }
     }
 
@@ -129,14 +130,15 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
     @Override
     public void update(Network network) {
-        //super.update(network); //TODO JAM delete
         Connectable<?> connectable = network.getConnectable(id);
         if (connectable == null) {
             return;
         }
         if (connectable.getType().equals(IdentifiableType.GENERATOR)) {
+            updateTerminalData(network, connectable);
             updateGenerator((Generator) connectable);
         } else if (connectable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+            updateTerminalData(network, connectable);
             updateDanglingLine((DanglingLine) connectable);
         } else {
             throw new ConversionException("Unexpected connectable type: " + connectable.getType().name());
@@ -218,7 +220,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
         double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
         double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
-        SV svboundary = new SV(-p, -q, v, angle, TwoSides.ONE);
+        SV svboundary = new SV(-p, -q, v, angle, TwoSides.ONE); // JAM TODO is TWO
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
         // is divided in 2 equal shunt admittance at each side of series impedance

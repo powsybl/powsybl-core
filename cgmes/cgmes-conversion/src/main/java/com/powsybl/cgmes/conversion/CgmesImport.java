@@ -185,12 +185,6 @@ public class CgmesImport implements Importer {
         Conversion conversion = new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory);
         Network network = conversion.convert(conversionReportNode);
 
-        // FIXME(Luma) in the first step, the Conversion object has used only info from EQ,
-        //  we call the update method on the same conversion object,
-        //  that has the context created during the convert (first) step
-        //  and all the data already loaded in the triplestore,
-        //  we only need to switch to a different set of queries
-        conversion.updateAfterConvert(network);
         return network;
     }
 

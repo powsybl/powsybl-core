@@ -34,6 +34,11 @@ public class TerminalMapping {
         cgmesTerminalsMapping = new HashMap<>();
     }
 
+    public void copyFromConvertToUpdate(TerminalMapping convertTerminalMapping) {
+        this.terminals.putAll(convertTerminalMapping.terminals);
+        this.topologicalNodesMapping.putAll(convertTerminalMapping.topologicalNodesMapping);
+    }
+
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
         if (terminals.containsKey(cgmesTerminal) || boundaries.containsKey(cgmesTerminal)) {
             throw new CgmesModelException("Terminal already added, CGMES id : " + cgmesTerminal);

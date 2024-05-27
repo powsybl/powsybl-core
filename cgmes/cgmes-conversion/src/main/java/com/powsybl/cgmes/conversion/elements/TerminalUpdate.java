@@ -41,10 +41,6 @@ public class TerminalUpdate extends AbstractIdentifiedObjectConversion {
         if (connectable == null) {
             return;
         }
-        if (connectable.getId().equals("2b45d24b-b4dc-4690-bd4b-f2e08c804333")) {
-            System.err.printf("DanglingLine encontrada %s %n", connectable.getId());
-            System.err.printf("%s %n", p.tabulateLocals());
-        }
         updateTerminalConnectedStatusAndFlow(connectable);
     }
 

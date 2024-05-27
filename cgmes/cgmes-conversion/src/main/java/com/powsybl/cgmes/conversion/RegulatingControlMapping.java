@@ -70,7 +70,7 @@ public class RegulatingControlMapping {
         private Boolean correctlySet;
 
         RegulatingControl(PropertyBag p) {
-            this.mode = p.get("mode").toLowerCase();
+            this.mode = p.getLocal("mode").toLowerCase();
             this.cgmesTerminal = p.getId(TERMINAL);
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
