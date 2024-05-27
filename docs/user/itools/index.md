@@ -1,10 +1,7 @@
 # iTools
 
 ```{toctree}
----
-maxdepth: 2
----
-
+:hidden:
 convert_network.md
 ```
 

@@ -4,7 +4,7 @@ This section is dedicated to the description of the main network handling featur
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 1
 ---
 
 import_post_processor.md
