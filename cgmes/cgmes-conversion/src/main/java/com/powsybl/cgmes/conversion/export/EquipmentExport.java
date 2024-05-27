@@ -188,9 +188,19 @@ public final class EquipmentExport {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
                 String switchType = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType"); // may be null
-                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), sw.isRetained(), cimNamespace, writer, context);
+                // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
+                // we only export as retained a switch if it will be exported with different TNs at both ends
+                boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
+                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, cimNamespace, writer, context);
             }
         }
+    }
+
+    private static boolean hasDifferentTNsAtBothEnds(Switch sw) {
+        // The exported Topological Nodes come from IIDM bus/breaker view buses
+        Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
+        Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        return bus1 != bus2;
     }
 
     private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys) {
