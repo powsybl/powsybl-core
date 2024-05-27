@@ -460,21 +460,21 @@ public class MatpowerImporter implements Importer {
             String csId1 = getId(CONVERTER_STATION_1_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
             String csId2 = getId(CONVERTER_STATION_2_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
             double losses = mDcLine.getLoss0() + mDcLine.getLoss1() * mDcLine.getPf();
-            voltageLevel1.newVscConverterStation()
+            VscConverterStation vsc1 = voltageLevel1.newVscConverterStation()
                     .setId(csId1)
                     .setBus(connectedBus1Id)
                     .setConnectableBus(bus1Id)
                     .setVoltageRegulatorOn(true)
                     .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
-                    .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), losses * 0.5))
+                    .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), mDcLine.getLoss0())) // To guarantee the round-trip
                     .add();
-            voltageLevel2.newVscConverterStation()
+            VscConverterStation vsc2 = voltageLevel2.newVscConverterStation()
                     .setId(csId2)
                     .setBus(connectedBus2Id)
                     .setConnectableBus(bus2Id)
                     .setVoltageRegulatorOn(true)
                     .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
-                    .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), losses * 0.5, losses * 0.5))
+                    .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), mDcLine.getLoss0(), losses - mDcLine.getLoss0()))
                     .add();
             network.newHvdcLine()
                     .setId(id)
@@ -486,6 +486,13 @@ public class MatpowerImporter implements Importer {
                     .setNominalV(voltageLevel1.getNominalV())
                     .setMaxP(mDcLine.getPmax())
                     .add();
+
+            if (reactiveLimitsAreOk(mDcLine.getQminf(), mDcLine.getQmaxf())) {
+                vsc1.newMinMaxReactiveLimits().setMinQ(mDcLine.getQminf()).setMaxQ(mDcLine.getQmaxf()).add();
+            }
+            if (reactiveLimitsAreOk(mDcLine.getQmint(), mDcLine.getQmaxt())) {
+                vsc2.newMinMaxReactiveLimits().setMinQ(mDcLine.getQmint()).setMaxQ(mDcLine.getQmaxt()).add();
+            }
         }
     }
 
@@ -500,6 +507,10 @@ public class MatpowerImporter implements Importer {
 
     private static double computeLossFactor2(double pac1, double losses1, double losses2) {
         return (pac1 - losses1) != 0.0 ? losses2 * 100.0 / (pac1 - losses1) : 0.0;
+    }
+
+    private static boolean reactiveLimitsAreOk(double minQ, double maxQ) {
+        return Double.isFinite(minQ) && Double.isFinite(maxQ) && minQ <= maxQ;
     }
 
     @Override
