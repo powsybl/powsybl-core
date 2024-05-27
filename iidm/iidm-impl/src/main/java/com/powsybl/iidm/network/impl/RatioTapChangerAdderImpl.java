@@ -121,7 +121,7 @@ class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChang
     @Override
     protected ValidationLevel checkTapChangerRegulation(RatioTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
         return ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                regulationMode, regulationValue, getNetwork(), getNetwork().getMinValidationLevel());
+                regulationMode, regulationValue, getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override

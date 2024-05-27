@@ -112,7 +112,7 @@ class PhaseTapChangerAdderImpl extends AbstractTapChangerAdderImpl<PhaseTapChang
     @Override
     protected ValidationLevel checkTapChangerRegulation(PhaseTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
         return ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
-                regulationTerminal, getNetwork(), getNetwork().getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
+                regulationTerminal, getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
