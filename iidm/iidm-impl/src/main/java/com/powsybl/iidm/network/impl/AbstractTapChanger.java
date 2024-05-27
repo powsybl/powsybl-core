@@ -131,7 +131,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C unsetTapPosition() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel());
+        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -178,7 +178,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setRegulating(boolean regulating) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -208,7 +208,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int variantIndex = network.get().getVariantIndex();
         NetworkImpl n = getNetwork();
         ValidationUtil.checkTargetDeadband(parent, type, regulatingPoint.isRegulating(variantIndex),
-                targetDeadband, n.getMinValidationLevel());
+                targetDeadband, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
