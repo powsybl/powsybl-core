@@ -66,7 +66,7 @@ public class MultipleReadOnlyDataSource extends AbstractReadOnlyDataSource {
     public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
         for (var dataSource : dataSources) {
             if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
-                return dataSource.newInputStream(suffix, ext);
+                return dataSource.newInputStream(suffix, ext, checkConsistencyWithDataSource);
             }
         }
         return null;
@@ -76,7 +76,7 @@ public class MultipleReadOnlyDataSource extends AbstractReadOnlyDataSource {
     public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         for (var dataSource : dataSources) {
             if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
-                return dataSource.newInputStream(fileName);
+                return dataSource.newInputStream(fileName, checkConsistencyWithDataSource);
             }
         }
         return null;

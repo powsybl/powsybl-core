@@ -57,10 +57,10 @@ public class TarDataSource extends AbstractArchiveDataSource {
         // Initialize variables
         Pattern p = Pattern.compile(regex);
         Set<String> names = new HashSet<>();
-        Path zipFilePath = getArchiveFilePath();
+        Path tarFilePath = getArchiveFilePath();
 
         // Explore the archive
-        try (BufferedInputStream inputStream = new BufferedInputStream(Files.newInputStream(zipFilePath));
+        try (BufferedInputStream inputStream = new BufferedInputStream(Files.newInputStream(tarFilePath));
              InputStream cis = getCompressedInputStream(inputStream, compressionFormat);
              TarArchiveInputStream tar = new TarArchiveInputStream(cis)) {
             ArchiveEntry entry;
@@ -146,7 +146,7 @@ public class TarDataSource extends AbstractArchiveDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     @Override

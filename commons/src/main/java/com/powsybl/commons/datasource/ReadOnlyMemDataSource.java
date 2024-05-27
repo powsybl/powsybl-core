@@ -76,7 +76,7 @@ public class ReadOnlyMemDataSource extends AbstractReadOnlyDataSource {
 
     @Override
     public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
     }
 
     @Override

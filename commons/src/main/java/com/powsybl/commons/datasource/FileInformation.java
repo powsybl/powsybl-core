@@ -63,7 +63,7 @@ public class FileInformation {
             archiveFormat = ArchiveFormat.ZIP;
             fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension;
         } else {
-            archiveFormat = !fileNameWithoutCompressionExtension.substring(currentDotIndex + 1).isEmpty() && "tar".contains(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1)) ? ArchiveFormat.TAR : null;
+            archiveFormat = !fileNameWithoutCompressionExtension.substring(currentDotIndex + 1).isEmpty() && "tar".equals(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1)) ? ArchiveFormat.TAR : null;
             fileNameWithoutCompressionNorArchive = archiveFormat == null ? fileNameWithoutCompressionExtension : fileNameWithoutCompressionExtension.substring(0, currentDotIndex);
         }
 

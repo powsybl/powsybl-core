@@ -8,6 +8,8 @@
 package com.powsybl.commons.datasource;
 
 import com.powsybl.commons.PowsyblException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
@@ -15,6 +17,7 @@ import java.nio.file.Path;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 class DataSourceBuilder {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataSourceBuilder.class);
     private Path directory;
     private String baseName;
     private String archiveFileName;
@@ -87,7 +90,10 @@ class DataSourceBuilder {
                 case GZIP -> new GzDataSource(directory, baseName, sourceFormat, observer);
                 case XZ -> new XZDataSource(directory, baseName, sourceFormat, observer);
                 case ZSTD -> new ZstdDataSource(directory, baseName, sourceFormat, observer);
-                default -> new DirectoryDataSource(directory, baseName, sourceFormat, observer);
+                default -> {
+                    LOGGER.warn("Unsupported compression format {}", compressionFormat);
+                    yield new DirectoryDataSource(directory, baseName, sourceFormat, observer);
+                }
             };
         }
     }
