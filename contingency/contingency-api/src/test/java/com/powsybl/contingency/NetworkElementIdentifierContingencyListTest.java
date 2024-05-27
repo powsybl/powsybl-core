@@ -7,16 +7,19 @@
  */
 package com.powsybl.contingency;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.contingency.list.IdentifierContingencyList;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.identifiers.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot@rte-france.com>}
@@ -182,5 +185,41 @@ class NetworkElementIdentifierContingencyListTest {
         // test not found elements in network
         Map<String, Set<String>> notFoundElements = contingencyList.getNotFoundElements(network);
         assertEquals(0, notFoundElements.size());
+    }
+
+    @Test
+    void testUnknownCharacterIdentifierWithList() {
+        Network network = EurostagTutorialExample1Factory.create();
+        List<NetworkElementIdentifier> networkElementIdentifierListElements = new ArrayList<>();
+        NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?");
+        networkElementIdentifierListElements.add(elementIdentifier);
+        IdentifierContingencyList contingencyList = new IdentifierContingencyList("list", networkElementIdentifierListElements);
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+        List<String> elementIds = contingencies.get(0).getElements().stream().map(ContingencyElement::getId).toList();
+        assertTrue(elementIds.containsAll(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")));
+    }
+
+    @Test
+    void testUnknownCharacterIdentifier() {
+        String message = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_?_?_?_?_?_?_?")).getMessage();
+        Assertions.assertEquals("There can be a maximum of 5 wildcards ('?')", message);
+        String message2 = Assertions.assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV2_ç")).getMessage();
+        Assertions.assertEquals("Only characters allowed for this identifier are letters, numbers, '_', '-', '.' and the wildcard character '?'", message2);
+        NetworkElementIdentifier elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1_NHV?_?");
+        Network network = EurostagTutorialExample1Factory.create();
+        List<String> identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        Assertions.assertEquals(2, identifiables.size());
+        assertTrue(identifiables.containsAll(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2")));
+
+        network.newSubstation().setId("NHV1.NHV2-1").add();
+        network.newSubstation().setId("NHV10NHV2-1").add();
+        elementIdentifier = new IdWithWildcardsNetworkElementIdentifier("NHV1.NHV?-?");
+        identifiables = elementIdentifier.filterIdentifiable(network).stream().map(Identifiable::getId).toList();
+        Assertions.assertEquals(1, identifiables.size());
+        assertTrue(identifiables.contains("NHV1.NHV2-1"));
+
+        String message3 = assertThrows(PowsyblException.class, () -> new IdWithWildcardsNetworkElementIdentifier("TEST_WITH_NO_WILDCARDS")).getMessage();
+        assertEquals("There is no wildcard in your identifier, please use IdBasedNetworkElementIdentifier instead", message3);
     }
 }

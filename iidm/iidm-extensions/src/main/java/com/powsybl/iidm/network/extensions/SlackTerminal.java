@@ -101,7 +101,9 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     }
 
     /**
-     * Returns true if the current SlackTerminal is empty, meaning that this extension is unused
+     * <p>Returns <code>true</code> if the current SlackTerminal is empty, meaning that this extension is unused.</p>
+     * <p>Note that this method returns <code>true</code> only when the terminal is <code>null</code> <b>for all the variants</b>.
+     * Thus, when it returns <code>false</code>, the current variant's terminal may still be <code>null</code>.</p>
      */
     boolean isEmpty();
 

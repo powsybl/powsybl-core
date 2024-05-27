@@ -26,6 +26,8 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.ReferencePriorities;
 import com.powsybl.iidm.network.extensions.ReferenceTerminals;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.serde.ExportOptions;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -656,5 +658,47 @@ class StateVariablesExportTest extends AbstractSerDeTest {
 
         // Compare
         return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
+    }
+
+    @Test
+    void testDisconnectedTerminalForSlack() {
+        Network network = EurostagTutorialExample1Factory.createWithLFResults();
+        Pattern svInjectionPattern = Pattern.compile("<cim:SvInjection rdf:ID=");
+
+        // Set slack terminal
+        Terminal terminal = network.getGenerator("GEN").getTerminal();
+        SlackTerminal.reset(network.getVoltageLevel("VLGEN"), terminal);
+
+        // Export only the CGMES SV instance file and check that no SvInjection is present (slack bus is balanced)
+        String svBalanced = exportSv(network, "tmp-slackTerminal-balanced");
+        assertFalse(svInjectionPattern.matcher(svBalanced).find());
+
+        // Introduce a mismatch in the slack bus
+        terminal.setP(0);
+
+        // Export again, now an SvInjection must be present in the SV output (slack has a mismatch)
+        String svMismatch = exportSv(network, "tmp-slackTerminal-mismatch");
+        assertTrue(svInjectionPattern.matcher(svMismatch).find());
+
+        // Disconnect the generator
+        terminal.disconnect();
+        assertFalse(terminal.isConnected());
+        assertNull(terminal.getBusView().getBus());
+
+        // We still have a mismatch, but we do not have a slack bus to assign it, no SvInjection in the output
+        String svDisconnected = exportSv(network, "tmp-slackTerminal-disconnected");
+        assertFalse(svInjectionPattern.matcher(svDisconnected).find());
+    }
+
+    private String exportSv(Network network, String basename) {
+        Path outputPath = tmpDir.resolve(basename);
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, "SV");
+        network.write("CGMES", exportParams, outputPath);
+        try {
+            return Files.readString(tmpDir.resolve(String.format("%s_SV.xml", basename)));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
