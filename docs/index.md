@@ -1,12 +1,13 @@
+![PowSyBl Logo](_static/logos/logo_lfe_powsybl.svg)
+# PowSyBl Core
+
+
 ```{toctree}
 ---
-caption: Contents of this website
 maxdepth: 2
-hidden: true
 ---
 
 grid_exchange_formats/index.md
+data/timeseries.md
 simulation/index.md
 ```
-
-# TODO
