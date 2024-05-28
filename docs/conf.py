@@ -23,19 +23,24 @@ print(f'appended {source_path}')
 
 # -- Project information -----------------------------------------------------
 
-project = 'powsybl core'
-copyright_year = f'2018-{ datetime.datetime.now().year }'
+# Only those 4 parameters have to be modified for each specific repository
+project = 'PowSyBl Core'
+module_name = "powsybl-core"
 github_repository = "https://github.com/powsybl/powsybl-core/"
+readthedoc_repository = "http://powsybl-core.readthedocs.io/"
+
+# Build year for the copyright
+copyright_year = f'2018-{ datetime.datetime.now().year }'
 
 # Find the version and release information.
-# We have a single source of truth for our version number: pip's __init__.py file.
+# We have a single source of truth for our version number: the project's pom.xml file.
 # This next bit of code reads from it.
 file_with_version = os.path.join(source_path, "pom.xml")
 with open(file_with_version) as f:
     next_line_contains_version = False
     for line in f:
         if next_line_contains_version == False:
-            m = re.match(r'^ {4}\<artifactId\>powsybl\-core\<\/artifactId\>', line)
+            m = re.match(r'^ {4}\<artifactId\>' + module_name + r'\<\/artifactId\>', line)
             if m:
                 next_line_contains_version = True
         else:
@@ -50,6 +55,9 @@ with open(file_with_version) as f:
     else:  # AKA no-break
         version = release = "dev"
 
+
+# Short project name
+short_project = project.split(" ", 1)[1] if project.split(" ", 1)[0] == "PowSyBl" else project
 
 # -- General configuration ---------------------------------------------------
 
@@ -92,14 +100,14 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 html_theme = "furo"
 
 html_title = f"{project} v{release}"
-html_short_title = f'Core v{release}'
+html_short_title = f'{short_project} v{release}'
 
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
 html_context = {
     "copyright_year": copyright_year,
-    "sidebar_logo_href": "http://powsybl-core.readthedocs.io/",
+    "sidebar_logo_href": readthedoc_repository,
     "github_repository": github_repository
 }
 
