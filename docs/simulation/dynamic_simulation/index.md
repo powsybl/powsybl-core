@@ -99,6 +99,7 @@ Some implementation use specific parameters that can be defined in the configura
 ```{toctree}
 ---
 maxdepth: 2
+hidden: true
 ---
 api_guide_dynamic-simulation
 configuration.md
