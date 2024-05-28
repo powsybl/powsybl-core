@@ -24,7 +24,7 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
     private final String transformerId;
     private final Double ratedU0;
 
-    public ThreeWindingsTransformerModification(String transformerId, Double ratedU0) {
+    public ThreeWindingsTransformerModification(String transformerId, double ratedU0) {
         this.transformerId = Objects.requireNonNull(transformerId);
         this.ratedU0 = ratedU0;
     }
@@ -37,7 +37,7 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
             logOrThrow(throwException, "ThreeWindingsTransformer '" + transformerId + "' not found");
             return;
         }
-        if (ratedU0 != null) {
+        if (ratedU0 > 0) {
             t3wt.getLeg1().setRatedU(calculateNewRatedU(t3wt.getLeg1().getRatedU(), t3wt.getRatedU0(), ratedU0));
             t3wt.getLeg2().setRatedU(calculateNewRatedU(t3wt.getLeg2().getRatedU(), t3wt.getRatedU0(), ratedU0));
             t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0));
