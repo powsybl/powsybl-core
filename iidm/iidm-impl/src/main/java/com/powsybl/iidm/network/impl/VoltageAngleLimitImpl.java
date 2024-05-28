@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import java.util.OptionalDouble;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *

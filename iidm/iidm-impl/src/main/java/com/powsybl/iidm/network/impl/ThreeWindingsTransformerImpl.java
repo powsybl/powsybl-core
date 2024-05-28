@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.*;
@@ -357,6 +357,15 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public List<Leg> getLegs() {
         return Arrays.asList(leg1, leg2, leg3);
+    }
+
+    @Override
+    public ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        ValidationUtil.checkRatedU(this, ratedU0, "");
+        double oldValue = this.ratedU0;
+        this.ratedU0 = ratedU0;
+        notifyUpdate("ratedU0", oldValue, ratedU0);
+        return this;
     }
 
     @Override
