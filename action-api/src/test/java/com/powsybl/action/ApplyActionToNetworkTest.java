@@ -11,10 +11,9 @@ package com.powsybl.action;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import com.powsybl.iidm.network.test.TwoVoltageLevelNetworkFactory;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
+import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
+import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -205,6 +204,62 @@ class ApplyActionToNetworkTest {
                 .build();
         action2.toModification().apply(network);
         assertEquals(493.0, generator.getTargetP());
+    }
+
+    @Test
+    void hvdcAction() {
+        Network network = HvdcTestNetwork.createLcc();
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+        hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
+                .withP0(200.0f)
+                .withDroop(0.9f)
+                .withEnabled(true)
+                .add();
+
+        assertEquals(280.0, hvdcLine.getActivePowerSetpoint());
+        HvdcAction action = new HvdcActionBuilder()
+                .withId("id")
+                .withHvdcId("L")
+                .withActivePowerSetpoint(200.0)
+                .build();
+        action.toModification().apply(network);
+        assertEquals(200.0, hvdcLine.getActivePowerSetpoint());
+
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        HvdcAction action2 = new HvdcActionBuilder()
+                .withId("id")
+                .withHvdcId("L")
+                .withActivePowerSetpoint(-20.0)
+                .withRelativeValue(true)
+                .withConverterMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+                .build();
+        action2.toModification().apply(network);
+        assertEquals(180.0, hvdcLine.getActivePowerSetpoint());
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
+
+        HvdcAngleDroopActivePowerControl hvdcLineExt = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+        assertEquals(200.0f, hvdcLineExt.getP0());
+        assertEquals(0.9f, hvdcLineExt.getDroop());
+        HvdcAction action3 = new HvdcActionBuilder()
+                .withId("id")
+                .withHvdcId("L")
+                .withP0(100.0)
+                .withDroop(1.0)
+                .build();
+        action3.toModification().apply(network);
+        assertEquals(100.0f, hvdcLineExt.getP0());
+        assertEquals(1.0f, hvdcLineExt.getDroop());
+
+        assertTrue(hvdcLineExt.isEnabled());
+        HvdcAction action4 = new HvdcActionBuilder()
+                .withId("id")
+                .withHvdcId("L")
+                .withActivePowerSetpoint(220.0)
+                .withAcEmulationEnabled(false)
+                .build();
+        action4.toModification().apply(network);
+        assertEquals(220.0, hvdcLine.getActivePowerSetpoint());
+        assertFalse(hvdcLineExt.isEnabled());
     }
 
 }
