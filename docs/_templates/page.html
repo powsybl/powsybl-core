@@ -43,7 +43,15 @@
     <div class="copyright">
       {%- if hasdoc('copyright_year') %}
       {% trans path=pathto('copyright_year'), copyright_year=copyright_year|e -%}
-      <a href="{{ path }}">Copyright test</a> &#169; {{ copyright_year }}
+      <p class="text-justify">
+        <a href="{{ path }}">Copyright</a> &#169; {{ copyright_year }}Authors of <a href="{{ github_repository }}">PowSyBl documentation</a>.
+        Unless otherwise indicated, content is licensed under <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">CC-BY-4.0</a>.
+      </p>
+      <p class="text-justify">
+        The Linux Foundation has registered trademarks and uses trademarks. For a list of trademarks of The
+        Linux Foundation, please see our <a href="https://www.linuxfoundation.org/trademark-usage">Trademark
+        Usage</a> page. Linux is a registered trademark of Linus Torvalds.
+      </p>
       {%- endtrans %}
       {%- else %}
       {% trans copyright=copyright|e -%}
