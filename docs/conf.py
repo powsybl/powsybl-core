@@ -25,6 +25,7 @@ print(f'appended {source_path}')
 
 project = 'powsybl core'
 copyright_year = f'2018-{ datetime.datetime.now().year }'
+github_repository = "https://github.com/powsybl/powsybl-core/"
 
 # Find the version and release information.
 # We have a single source of truth for our version number: pip's __init__.py file.
@@ -99,12 +100,12 @@ html_favicon = "_static/favicon.ico"
 html_context = {
     "copyright_year": copyright_year,
     "sidebar_logo_href": "http://powsybl-core.readthedocs.io/",
-    "github_repository": "https://github.com/powsybl/powsybl-core/"
+    "github_repository": github_repository
 }
 
 html_theme_options = {
     # the following 3 lines enable edit button
-    "source_repository": "https://github.com/powsybl/powsybl-core/",
+    "source_repository": github_repository,
     "source_branch": "main",
     "source_directory": "docs/",
 }
