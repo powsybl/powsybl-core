@@ -98,9 +98,9 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         String id = checkAndGetUniqueId();
         String name = getName();
         ValidationUtil.checkR(this, r);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkNominalV(this, nominalV);
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode()));
         ValidationUtil.checkHvdcMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = network.getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
