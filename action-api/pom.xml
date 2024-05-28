@@ -49,6 +49,11 @@
             <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-modification</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -82,6 +87,11 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-testlib</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

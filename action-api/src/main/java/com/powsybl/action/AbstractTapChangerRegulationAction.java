@@ -9,6 +9,8 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Objects;
+
 /**
  * An action modifying the regulation of a two or three windings transformer
  *
@@ -26,5 +28,25 @@ public abstract class AbstractTapChangerRegulationAction extends AbstractTapChan
 
     public boolean isRegulating() {
         return regulating;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        AbstractTapChangerRegulationAction that = (AbstractTapChangerRegulationAction) o;
+        return regulating == that.regulating;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), regulating);
     }
 }
