@@ -8,6 +8,7 @@
 package com.powsybl.commons.report;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 /**
  * A builder to create a {@link ReportNode} object.
@@ -17,19 +18,32 @@ import java.time.format.DateTimeFormatter;
 public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBuilder> {
 
     /**
-     * Enable/disable timestamps on build ReportNode and all descendants
-     * @param timestampPattern: the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern}), or null to disable the timestamp
+     * Sets the pattern and the locale used for formatting timestamps (see {@link DateTimeFormatter#ofPattern(String, Locale)}}), if timestamps are enabled.
+     * If no pattern and locale are given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} and locale
+     * {@link ReportConstants#DEFAULT_TIMESTAMP_LOCALE} are used.
+     *
+     * @param timestampPattern : the pattern to use for the timestamp
+     * @param locale the locale to use for formatting the timestamp
      * @return a reference to this object
      */
-    ReportNodeBuilder withTimestamps(String timestampPattern);
+    ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale);
 
     /**
-     * Enable timestamps on build ReportNode and all descendants with default pattern (see {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN})
+     * Sets the pattern used for timestamps, if timestamps are enabled, with the default Locale {@link ReportConstants#DEFAULT_TIMESTAMP_LOCALE}.
+     * If no pattern is given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} is used.
+     *
+     * @param timestampPattern : the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
      * @return a reference to this object
      */
-    default ReportNodeBuilder withTimestamps() {
-        return withTimestamps(ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
+    default ReportNodeBuilder withTimestampPattern(String timestampPattern) {
+        return withTimestampPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
     }
+
+    /**
+     * Enable timestamps on build ReportNode and all descendants.
+     * @return a reference to this object
+     */
+    ReportNodeBuilder withTimestamps(boolean enabled);
 
 
     /**

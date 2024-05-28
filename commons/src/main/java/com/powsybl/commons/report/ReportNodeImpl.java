@@ -19,6 +19,7 @@ import org.apache.commons.text.StringSubstitutor;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Stream;
 
@@ -48,8 +49,8 @@ public final class ReportNodeImpl implements ReportNode {
         return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getRootContext(), false);
     }
 
-    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, String timestampPattern) {
-        RefChain<RootContext> rootContext = new RefChain<>(new RefObj<>(new RootContext(timestampPattern)));
+    static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, boolean timestamps, DateTimeFormatter timestampPattern) {
+        RefChain<RootContext> rootContext = new RefChain<>(new RefObj<>(new RootContext(timestamps, timestampPattern)));
         return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), rootContext, true);
     }
 

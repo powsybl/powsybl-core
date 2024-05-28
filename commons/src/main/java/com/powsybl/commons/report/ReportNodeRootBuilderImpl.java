@@ -7,6 +7,9 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
  * A builder to create a root {@link ReportNode} object.
  *
@@ -15,16 +18,38 @@ package com.powsybl.commons.report;
 public class ReportNodeRootBuilderImpl extends AbstractReportNodeAdderOrBuilder<ReportNodeBuilder> implements ReportNodeBuilder {
 
     private String timestampPattern;
+    private Locale timestampLocale;
+    private boolean timestamps;
 
     @Override
-    public ReportNodeBuilder withTimestamps(String timestampPattern) {
+    public ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale) {
         this.timestampPattern = timestampPattern;
+        this.timestampLocale = locale;
+        return this;
+    }
+
+    @Override
+    public ReportNodeBuilder withTimestamps(boolean enabled) {
+        this.timestamps = true;
         return this;
     }
 
     @Override
     public ReportNode build() {
-        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, timestampPattern);
+        return ReportNodeImpl.createRootReportNode(key, messageTemplate, values, timestamps, createDateTimeFormatter(timestampPattern, timestampLocale));
+    }
+
+    private static DateTimeFormatter createDateTimeFormatter(String timestampPattern, Locale timestampLocale) {
+        if (timestampPattern == null && timestampLocale == null) {
+            return ReportConstants.DEFAULT_TIMESTAMP_FORMATTER;
+        }
+        if (timestampPattern == null) {
+            return DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN, timestampLocale);
+        }
+        if (timestampLocale == null) {
+            return DateTimeFormatter.ofPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
+        }
+        return DateTimeFormatter.ofPattern(timestampPattern, timestampLocale);
     }
 
     @Override

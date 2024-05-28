@@ -14,7 +14,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Locale;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -132,30 +134,51 @@ class ReportNodeTest extends AbstractSerDeTest {
 
     @Test
     void testTimestamps() {
-        ReportNode root = ReportNode.newRootReportNode()
-                .withTimestamps()
+        DateTimeFormatter defaultDateTimeFormatter = DateTimeFormatter.ofPattern(ReportConstants.DEFAULT_TIMESTAMP_PATTERN);
+
+        ReportNode root1 = ReportNode.newRootReportNode()
+                .withTimestamps(true)
                 .withMessageTemplate("rootTemplate", "Root message")
                 .build();
-        assertHasTimeStamp(root);
+        assertHasTimeStamp(root1, defaultDateTimeFormatter);
 
-        ReportNode child = root.newReportNode()
+        ReportNode child = root1.newReportNode()
                 .withMessageTemplate("child", "Child message")
                 .add();
-        assertHasTimeStamp(child);
+        assertHasTimeStamp(child, defaultDateTimeFormatter);
 
         Path report = tmpDir.resolve("report");
-        ReportNodeSerializer.write(root, report);
+        ReportNodeSerializer.write(root1, report);
         ReportNode rootRead = ReportNodeDeserializer.read(report);
-        assertHasTimeStamp(rootRead);
-        assertHasTimeStamp(rootRead.getChildren().get(0));
+        assertHasTimeStamp(rootRead, defaultDateTimeFormatter);
+        assertHasTimeStamp(rootRead.getChildren().get(0), defaultDateTimeFormatter);
+
+        String customPattern = "dd MMMM yyyy HH:mm:ss XXX";
+        DateTimeFormatter customPatternFormatter = DateTimeFormatter.ofPattern(customPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
+        ReportNode root2 = ReportNode.newRootReportNode()
+                .withTimestamps(true)
+                .withTimestampPattern(customPattern)
+                .withMessageTemplate("rootTemplate", "Root message")
+                .build();
+        assertHasTimeStamp(root2, customPatternFormatter);
+
+        Locale customLocale = Locale.ITALIAN;
+        DateTimeFormatter customPatternAndLocaleFormatter = DateTimeFormatter.ofPattern(customPattern, customLocale);
+        ReportNode root3 = ReportNode.newRootReportNode()
+                .withTimestamps(true)
+                .withTimestampPattern(customPattern, customLocale)
+                .withMessageTemplate("rootTemplate", "Root message")
+                .build();
+        assertHasTimeStamp(root3, customPatternAndLocaleFormatter);
+
     }
 
-    private static void assertHasTimeStamp(ReportNode root) {
+    private static void assertHasTimeStamp(ReportNode root, DateTimeFormatter dateTimeFormatter) {
         Optional<TypedValue> timestamp = root.getValue(ReportConstants.TIMESTAMP_KEY);
         assertTrue(timestamp.isPresent());
         assertInstanceOf(String.class, timestamp.get().getValue());
         try {
-            ZonedDateTime.parse((String) timestamp.get().getValue());
+            ZonedDateTime.parse((String) timestamp.get().getValue(), dateTimeFormatter);
         } catch (DateTimeParseException e) {
             fail();
         }

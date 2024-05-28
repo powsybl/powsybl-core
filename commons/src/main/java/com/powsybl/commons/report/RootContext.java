@@ -20,14 +20,20 @@ import java.util.*;
 public class RootContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(RootContext.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
+    private final boolean timestamps;
     private final DateTimeFormatter timestampFormatter;
 
     public RootContext() {
-        this(null);
+        this(false);
     }
 
-    public RootContext(String timestampPattern) {
-        this.timestampFormatter = timestampPattern != null ? DateTimeFormatter.ofPattern(timestampPattern) : null;
+    public RootContext(boolean timestamps) {
+        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
+    }
+
+    public RootContext(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
+        this.timestamps = timestamps;
+        this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
     }
 
     public Map<String, String> getDictionary() {
@@ -50,11 +56,10 @@ public class RootContext {
     }
 
     public boolean isTimestampAdded() {
-        return timestampFormatter != null;
+        return timestamps;
     }
 
     public TypedValue getTimestamp() {
-        String timestamp = timestampFormatter != null ? timestampFormatter.format(ZonedDateTime.now()) : null;
-        return new TypedValue(timestamp, TypedValue.TIMESTAMP);
+        return new TypedValue(timestampFormatter.format(ZonedDateTime.now()), TypedValue.TIMESTAMP);
     }
 }
