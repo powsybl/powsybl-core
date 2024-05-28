@@ -448,7 +448,7 @@ public final class StateVariablesExport {
             LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
         } else {
             // SvInjection will be assigned to the first of the TNs mapped to the bus
-            String topologicalNode = bus.getId();
+            String topologicalNode = context.getNamingStrategy().getCgmesId(bus);
 
             // In this special case we use the original CGMES id,
             // to be able to keep track of it in the exported SV file
