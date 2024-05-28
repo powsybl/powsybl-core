@@ -128,14 +128,14 @@ public class TapChangerUpdate extends AbstractIdentifiedObjectConversion {
     }
 
     private static int initialTapPosition(PropertyBag p, int defaultStep, Context context) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
-            case SV:
-                return AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
-            default:
-                throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
-        }
+        return switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
+            case SSH ->
+                    AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.STEP, p.asDouble(CgmesNames.SV_TAP_STEP, defaultStep)));
+            case SV ->
+                    AbstractObjectConversion.fromContinuous(p.asDouble(CgmesNames.SV_TAP_STEP, p.asDouble(CgmesNames.STEP, defaultStep)));
+            default ->
+                    throw new CgmesModelException("Unexpected profile used for initial values: " + context.config().getProfileForInitialValuesShuntSectionsTapPositions());
+        };
     }
 
     private static <C extends Connectable<C>> String getControlId(Connectable<C> twt, String tapChangerId) {
@@ -168,7 +168,12 @@ public class TapChangerUpdate extends AbstractIdentifiedObjectConversion {
     }
 
     private int findTerminalSign(Connectable<?> twt, String end) {
-        return Integer.getInteger(twt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign" + end), 1);
+        int sign = 1;
+        String p = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign" + end;
+        if (twt.hasProperty(p)) {
+            sign = Integer.parseInt(p);
+        }
+        return sign;
     }
 
     private void updateTapChangersTwoWindings(TwoWindingsTransformer t2wt, RCTwoWindingsTransformer rc) {

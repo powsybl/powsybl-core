@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
 
-    public AbstractReactiveLimitsOwnerConversion(
+    protected AbstractReactiveLimitsOwnerConversion(
         String type,
         PropertyBag p,
         Context context) {
@@ -150,7 +150,11 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     protected void updateRegulatingControlForGenerator(Generator generator, boolean controlEnabled) {
         String controlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
         String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode");
-        int terminalSign = Integer.getInteger(generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign"), 1);
+        int terminalSign = 1;
+        String pSign = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign";
+        if (generator.hasProperty(pSign)) {
+            terminalSign = Integer.parseInt(generator.getProperty(pSign));
+        }
         RC rc = new RC(controlEnabled, mode, terminalSign);
 
         updateRegulatingControl(generator, rc, controlId);
