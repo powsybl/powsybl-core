@@ -33,11 +33,11 @@ with open(file_with_version) as f:
     next_line_contains_version = False
     for line in f:
         if next_line_contains_version == False:
-            m = re.match(r'^    \<artifactId\>powsybl\-core\<\/artifactId\>', line)
+            m = re.match(r'^ {4}\<artifactId\>powsybl\-core\<\/artifactId\>', line)
             if m:
                 next_line_contains_version = True
         else:
-            m = re.match(r'^    \<version\>(.*)\<\/version\>', line)
+            m = re.match(r'^ {4}\<version\>(.*)\<\/version\>', line)
             if m:
                 __version__ = m.group(1)
                 # The short X.Y version.
