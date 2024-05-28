@@ -343,11 +343,6 @@ public class Conversion {
 
         // Complete voltages and angles in starBus as properties, complete also voltages and angles in boundary buses
         completeVoltagesAndAngles(network);
-
-        PropertyBags ps = cgmes.svInjections();
-        for (PropertyBag p : ps) {
-            System.err.print(p.tabulateLocals());
-        }
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {

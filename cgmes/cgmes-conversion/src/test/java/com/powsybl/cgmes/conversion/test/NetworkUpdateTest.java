@@ -79,7 +79,7 @@ class NetworkUpdateTest extends AbstractSerDeTest {
     void testReadSSHNodeBreakerSvInjection() {
         // FIXME(Luma) this test is not well defined,
         //  made just to check informally and easily that we have an SvInjection updated in node/breaker mode ...
-        Network network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        Network network = Network.read(CgmesConformity1ModifiedCatalog.miniNodeBreakerSvInjection().dataSource());
         CgmesImport importer = new CgmesImport();
         // We read an SV for bus/branch,
         // It has a SvInjection with a TopologicalNode,

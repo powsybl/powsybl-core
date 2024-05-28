@@ -215,18 +215,14 @@ SELECT *
 }
 
 # query: svInjections
-SELECT *
+SELECT ?SvInjection ?TopologicalNode ?pInjection ?qInjection (SAMPLE(?ConnectivityNode) AS ?ConnectivityNode)
 {
     ?SvInjection a cim:SvInjection ;
         cim:SvInjection.TopologicalNode ?TopologicalNode ;
         cim:SvInjection.pInjection ?pInjection .
     OPTIONAL { ?SvInjection cim:SvInjection.qInjection ?qInjection }
-    OPTIONAL {
-        SELECT ?ConnectivityNode
-        WHERE { ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode }
-        LIMIT 1
-    }
-}
+    OPTIONAL { ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode }
+}GROUP BY ?SvInjection ?TopologicalNode ?pInjection ?qInjection
 
 # query: externalNetworkInjections
 SELECT *

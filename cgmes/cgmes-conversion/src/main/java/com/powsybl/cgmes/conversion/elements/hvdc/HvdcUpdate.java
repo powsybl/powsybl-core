@@ -221,12 +221,16 @@ public class HvdcUpdate extends AbstractIdentifiedObjectConversion {
     private static void updateVscConverterStation(VscConverterStation vscConverter, PropertyBag cconverter, double lossFactor, Context context) {
         vscConverter.setLossFactor((float) lossFactor);
 
-        int terminalSign = Integer.getInteger(vscConverter.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign"), 1);
+        int terminalSign = getTerminalSign(vscConverter.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign"));
         String vscRegulation = cconverter.getLocal("qPccControl");
         double voltageSetpoint = cconverter.asDouble("targetUpcc");
         double reactivePowerSetpoint = -cconverter.asDouble("targetQpcc");
         RC rc = new RC(vscRegulation, voltageSetpoint, reactivePowerSetpoint, terminalSign);
         updateRegulatingControl(vscConverter, rc, context);
+    }
+
+    private static int getTerminalSign(String terminalSign) {
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
     private static void updateRegulatingControl(VscConverterStation vscConverter, RC rc, Context context) {

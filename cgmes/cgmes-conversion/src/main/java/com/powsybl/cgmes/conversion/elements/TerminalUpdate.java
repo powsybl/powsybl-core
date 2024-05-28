@@ -47,7 +47,7 @@ public class TerminalUpdate extends AbstractIdentifiedObjectConversion {
     private void updateTerminalConnectedStatusAndFlow(Connectable<?> connectable) {
         Terminal terminal = findTerminal(connectable, id);
         if (terminal == null) {
-            throw new ConversionException("Unexpected terminal: " + id);
+            return; // Boundary terminals
         }
         PowerFlow f = new PowerFlow(p, "p", "q");
         boolean connectedInUpdate = p.asBoolean("connected", true);
@@ -70,11 +70,16 @@ public class TerminalUpdate extends AbstractIdentifiedObjectConversion {
             String alias = connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + (k + 1)).orElse(null);
             if (alias != null && alias.equals(terminalId)) {
                 return connectable.getTerminals().get(k);
-            } else {
-                alias = connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY).orElse(null);
-                if (alias != null && alias.equals(terminalId)) {
-                    return connectable.getTerminals().get(k);
-                }
+            }
+        }
+        return null;
+    }
+
+    private static Terminal findBoundaryTerminal(Connectable<?> connectable, String terminalId) {
+        for (int k = 0; k < connectable.getTerminals().size(); k++) {
+            String alias = connectable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL_BOUNDARY).orElse(null);
+            if (alias != null && alias.equals(terminalId)) {
+                return connectable.getTerminals().get(k);
             }
         }
         return null;

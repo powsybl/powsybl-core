@@ -89,10 +89,14 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     }
 
     private void updateSections(ShuntCompensator shunt) {
-        int normalSections = Integer.getInteger(shunt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalSections"), 0);
+        int normalSections = getNormalSections(shunt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalSections"));
         int sections = getSections(p, normalSections);
         sections = Math.abs(sections);
         shunt.setSectionCount(Math.min(sections, shunt.getMaximumSectionCount()));
+    }
+
+    private static int getNormalSections(String normalSections) {
+        return normalSections != null ? Integer.parseInt(normalSections) : 0;
     }
 
     private int getSections(PropertyBag p, int normalSections) {
