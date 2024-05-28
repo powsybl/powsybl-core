@@ -10,6 +10,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import re
 import sys
@@ -23,7 +24,7 @@ print(f'appended {source_path}')
 # -- Project information -----------------------------------------------------
 
 project = 'powsybl core'
-copyright = '2024, RTE (http://www.rte-france.com)'
+copyright_year = f'2018-{ datetime.datetime.now().year }'
 
 # Find the version and release information.
 # We have a single source of truth for our version number: pip's __init__.py file.
@@ -62,7 +63,9 @@ extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.todo',
               'sphinx.ext.intersphinx',
               'sphinx_tabs.tabs',
-              'myst_parser']
+              'myst_parser',
+              # Extension used to add a "copy" button on code blocks
+              'sphinx_copybutton']
 myst_enable_extensions = [
     "amsmath",
     "colon_fence",
@@ -94,7 +97,9 @@ html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
 html_context = {
-    "sidebar_logo_href": "http://powsybl-core.readthedocs.io/"
+    "copyright_year": copyright_year,
+    "sidebar_logo_href": "http://powsybl-core.readthedocs.io/",
+    "github_repository": "https://github.com/powsybl/powsybl-core/"
 }
 
 html_theme_options = {
