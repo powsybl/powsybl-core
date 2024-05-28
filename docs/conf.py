@@ -27,7 +27,7 @@ print(f'appended {source_path}')
 project = 'PowSyBl Core'
 module_name = "powsybl-core"
 github_repository = "https://github.com/powsybl/powsybl-core/"
-readthedoc_repository = "http://powsybl-core.readthedocs.io/"
+readthedoc_repository = "https://powsybl-core.readthedocs.io/"
 
 # Build year for the copyright
 copyright_year = f'2018-{ datetime.datetime.now().year }'
