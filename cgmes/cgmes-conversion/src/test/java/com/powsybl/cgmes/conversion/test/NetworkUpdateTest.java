@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conformity.CgmesConformity3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.export.ExportXmlCompare;
@@ -72,6 +73,19 @@ class NetworkUpdateTest extends AbstractSerDeTest {
         public int hashCode() {
             return Objects.hash(totalLoad, totalGeneration, totalBShunts);
         }
+    }
+
+    @Test
+    void testReadSSHNodeBreakerSvInjection() {
+        // FIXME(Luma) this test is not well defined,
+        //  made just to check informally and easily that we have an SvInjection updated in node/breaker mode ...
+        Network network = Network.read(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        CgmesImport importer = new CgmesImport();
+        // We read an SV for bus/branch,
+        // It has a SvInjection with a TopologicalNode,
+        // that TP node is in the boundary, so it has a connectivity node from the EQ_TP
+        // lucky me
+        importer.update(network, CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjection().dataSource(), null, ReportNode.NO_OP);
     }
 
     @Test
