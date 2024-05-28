@@ -47,8 +47,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // and the equivalent injection is regulating voltage
             // we will have to transfer regulating voltage data
             // from the equivalent injection to the dangling line
-            // TODO JAM move to update
-            //context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
+            context.boundary().addEquivalentInjectionAtNode(this.p, nodeId());
         }
     }
 
