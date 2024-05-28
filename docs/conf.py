@@ -11,6 +11,7 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+import re
 import sys
 
 # Path to python sources, for doc generation on readthedocs
@@ -23,6 +24,29 @@ print(f'appended {source_path}')
 
 project = 'powsybl core'
 copyright = '2024, RTE (http://www.rte-france.com)'
+
+# Find the version and release information.
+# We have a single source of truth for our version number: pip's __init__.py file.
+# This next bit of code reads from it.
+file_with_version = os.path.join(source_path, "pom.xml")
+with open(file_with_version) as f:
+    next_line_contains_version = False
+    for line in f:
+        if next_line_contains_version == False:
+            m = re.match(r'^    \<artifactId\>powsybl\-core\<\/artifactId\>', line)
+            if m:
+                next_line_contains_version = True
+        else:
+            m = re.match(r'^    \<version\>(.*)\<\/version\>', line)
+            if m:
+                __version__ = m.group(1)
+                # The short X.Y version.
+                version = ".".join(__version__.split(".")[:2])
+                # The full version, including alpha/beta/rc tags.
+                release = __version__
+                break
+    else:  # AKA no-break
+        version = release = "dev"
 
 
 # -- General configuration ---------------------------------------------------
@@ -63,15 +87,14 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 #
 html_theme = "furo"
 
-html_title = 'core'
-html_short_title = 'core'
+html_title = f"{project} v{release}"
+html_short_title = f'Core v{release}'
 
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
 
 html_context = {
-    # TODO : replace next option with "https://powsybl.readthedocs.org" when website is published
-    "sidebar_logo_href": "https://www.powsybl.org/"
+    "sidebar_logo_href": "http://powsybl-core.readthedocs.io/"
 }
 
 html_theme_options = {
