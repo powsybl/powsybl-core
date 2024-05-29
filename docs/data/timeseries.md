@@ -2,6 +2,7 @@
 layout: default
 ---
 
+(timeseries)=
 # Time series
 
 ## Time series modeling
@@ -49,6 +50,7 @@ TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(';', true, Tim
 Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csvAsString, timeSeriesCsvConfig);
 ```
 
+(calculated-timeseries)=
 ## Calculated time series
 
 Starting from a double time series, it is possible to create calculated time series using a [Groovy](http://groovy-lang.org/)
