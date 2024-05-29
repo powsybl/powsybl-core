@@ -13,7 +13,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
@@ -21,17 +20,12 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.action.Action;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.results.PreContingencyResult;
-import com.powsybl.security.strategy.OperatorStrategy;
 import com.powsybl.tools.test.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
@@ -242,7 +236,7 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {
-                assertTrue(exception.getCause() instanceof ComputationException);
+                assertInstanceOf(ComputationException.class, exception.getCause());
                 assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
                 assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }
@@ -270,8 +264,9 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
+
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
@@ -295,8 +290,9 @@ class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisExceptionProviderMock implements SecurityAnalysisProvider {
+
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

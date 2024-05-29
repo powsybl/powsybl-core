@@ -9,21 +9,14 @@ package com.powsybl.security.execution;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.action.Action;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.limitreduction.LimitReduction;
-import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -75,18 +68,17 @@ class SecurityAnalysisExecutionImplTest {
 
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
+
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, List<LimitReduction> limitReductions, ReportNode reportNode) {
-            assertSame(SecurityAnalysisExecutionImplTest.network, network);
-            assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
-            assertSame(SecurityAnalysisExecutionImplTest.filter, filter);
-            assertSame(SecurityAnalysisExecutionImplTest.computationManager, computationManager);
-            assertSame(SecurityAnalysisExecutionImplTest.parameters, parameters);
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
+            assertSame(SecurityAnalysisExecutionImplTest.filter, runParameters.getFilter());
+            assertSame(SecurityAnalysisExecutionImplTest.computationManager, runParameters.getComputationManager());
+            assertSame(SecurityAnalysisExecutionImplTest.parameters, runParameters.getSecurityAnalysisParameters());
             assertSame(SecurityAnalysisExecutionImplTest.contingencies, contingenciesProvider);
-            assertTrue(interceptors.isEmpty());
-            assertTrue(operatorStrategies.isEmpty());
-            assertTrue(actions.isEmpty());
-            assertTrue(limitReductions.isEmpty());
+            assertTrue(runParameters.getInterceptors().isEmpty());
+            assertTrue(runParameters.getOperatorStrategies().isEmpty());
+            assertTrue(runParameters.getActions().isEmpty());
+            assertTrue(runParameters.getLimitReductions().isEmpty());
             throw new PowsyblException("run");
         }
 
