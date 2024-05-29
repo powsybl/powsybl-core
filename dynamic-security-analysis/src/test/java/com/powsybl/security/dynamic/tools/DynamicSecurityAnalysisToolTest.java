@@ -7,8 +7,6 @@
 package com.powsybl.security.dynamic.tools;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
@@ -147,11 +145,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         assertThat(input.getResultExtensions()).isEmpty();
         assertThat(input.getContingenciesSource()).isNotPresent();
 
-        options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.LIMIT_TYPES_OPTION, "HIGH_VOLTAGE,CURRENT"));
+        options = mockOptions(Map.of(SecurityAnalysisToolConstants.LIMIT_TYPES_OPTION, "HIGH_VOLTAGE,CURRENT"));
         tool.updateInput(options, input);
         assertThat(input.getViolationTypes()).containsExactly(LimitViolationType.CURRENT, LimitViolationType.HIGH_VOLTAGE);
 
-        options = mockOptions(ImmutableMap.of(SecurityAnalysisToolConstants.WITH_EXTENSIONS_OPTION, "ext1,ext2"));
+        options = mockOptions(Map.of(SecurityAnalysisToolConstants.WITH_EXTENSIONS_OPTION, "ext1,ext2"));
         tool.updateInput(options, input);
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
 
@@ -160,11 +158,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     void parseOptionalFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<Optional<ByteSource>> getSource) throws IOException {
-        ToolOptions invalidOptions = mockOptions(ImmutableMap.of(optionName, fileName));
+        ToolOptions invalidOptions = mockOptions(Map.of(optionName, fileName));
         assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
         Files.write(fileSystem.getPath(fileName), "test".getBytes());
-        ToolOptions options = mockOptions(ImmutableMap.of(optionName, fileName));
+        ToolOptions options = mockOptions(Map.of(optionName, fileName));
         tool.updateInput(options, input);
         assertThat(getSource.get()).isPresent();
         if (getSource.get().isPresent()) {
@@ -175,11 +173,11 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     }
 
     ToolOptions parseFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<ByteSource> getSource) throws IOException {
-        ToolOptions invalidOptions = mockOptions(ImmutableMap.of(optionName, fileName));
+        ToolOptions invalidOptions = mockOptions(Map.of(optionName, fileName));
         assertThatIllegalArgumentException().isThrownBy(() -> tool.updateInput(invalidOptions, input));
 
         Files.write(fileSystem.getPath(fileName), "test".getBytes());
-        ToolOptions options = mockOptions(ImmutableMap.of(optionName, fileName));
+        ToolOptions options = mockOptions(Map.of(optionName, fileName));
         tool.updateInput(options, input);
         assertNotNull(getSource.get());
         assertEquals("test", new String(getSource.get().read()));
@@ -215,7 +213,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     void readNetwork() throws IOException {
         ToolRunningContext context = new ToolRunningContext(mock(PrintStream.class), mock(PrintStream.class), fileSystem,
                 mock(ComputationManager.class), mock(ComputationManager.class));
-        CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
+        CommandLine cli = mockCommandLine(Map.of("case-file", "network.xml"), Collections.emptySet());
         Network network = DynamicSecurityAnalysisTool.readNetwork(cli, context, new ImportersLoaderList(new NetworkImporterMock()));
         assertNotNull(network);
     }
@@ -227,10 +225,10 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
              PrintStream out = new PrintStream(bout);
              PrintStream err = new PrintStream(berr);
              ComputationManager cm = mock(ComputationManager.class)) {
-            CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
+            CommandLine cl = mockCommandLine(Map.of("case-file", "network.xml",
                     DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, DYNAMIC_MODEL_FILENAME,
                     SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME),
-                    ImmutableSet.of("skip-postproc"));
+                    Set.of("skip-postproc"));
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
@@ -273,7 +271,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {
-                assertTrue(exception.getCause() instanceof ComputationException);
+                assertInstanceOf(ComputationException.class, exception.getCause());
                 assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
                 assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }
@@ -289,9 +287,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
              PrintStream err = new PrintStream(berr);
              ComputationManager cm = mock(ComputationManager.class)) {
 
-            CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
+            CommandLine cl = mockCommandLine(Map.of("case-file", "network.xml",
                     DynamicSecurityAnalysisToolConstants.DYNAMIC_MODELS_FILE_OPTION, "groovy",
-                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), Set.of("skip-postproc"));
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 

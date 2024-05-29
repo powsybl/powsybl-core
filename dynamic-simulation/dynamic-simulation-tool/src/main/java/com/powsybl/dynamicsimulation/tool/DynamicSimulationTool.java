@@ -46,7 +46,6 @@ public class DynamicSimulationTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_LOG_FILE = "output-log-file";
-    private static final String GROOVY = "groovy";
 
     @Override
     public Command getCommand() {

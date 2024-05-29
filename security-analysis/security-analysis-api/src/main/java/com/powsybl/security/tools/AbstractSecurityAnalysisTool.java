@@ -78,7 +78,7 @@ public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAna
              R executionBuilder,
              Supplier<S> parametersLoader,
              ImportersLoader importersLoader,
-             Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
+             Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws ParseException, IOException {
 
         ToolOptions options = new ToolOptions(line, context);
 
