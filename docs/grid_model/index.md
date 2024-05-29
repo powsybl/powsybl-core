@@ -17,4 +17,4 @@ Different states of the network can be efficiently stored together with the powe
 
 A set of networks can be merged together in a single network. The initial subnetworks are kept and can be easily retrieved or detached if needed.
 
-Almost all the elements modeled in the network are identified through a unique `id`, and optionally described by a `name` that is easier to interpret for a human. Almost all components can be [extended](../grid_extensions/extensions.md) by the user to incorporate additional structured data.
+Almost all the elements modeled in the network are identified through a unique `id`, and optionally described by a `name` that is easier to interpret for a human. Almost all components can be [extended](../grid_extensions/index) by the user to incorporate additional structured data.

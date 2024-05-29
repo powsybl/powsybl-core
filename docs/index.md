@@ -6,6 +6,8 @@ hidden: true
 ---
 
 grid_exchange_formats/index.md
+grid_model/index.md
+grid_extensions/index.md
 simulation/index.md
 ```
 

@@ -56,7 +56,7 @@ All three attributes are optional.
 
 **Available extensions**
 
-- [ENTSO-E Area](../grid_extensions/extensions.md#entso-e-area)
+- [ENTSO-E Area](../grid_extensions/index#entso-e-area)
 
 ## Voltage Level
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.html)
@@ -92,9 +92,9 @@ When defining the model, the user has to specify how the different equipment con
 
 **Available extensions**
 
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Slack Terminal](../grid_extensions/extensions.md#slack-terminal)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Slack Terminal](../grid_extensions/index#slack-terminal)
 
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
@@ -128,14 +128,14 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 
 **Available extensions**
 
-- [Active Power Control](../grid_extensions/extensions.md#active-power-control)
-- [Coordinated Reactive Control](../grid_extensions/extensions.md#coordinated-reactive-control)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Generator ENTSO-E Category](../grid_extensions/extensions.md#generator-entso-e-category)
-- [Generator Short-Circuit](../grid_extensions/extensions.md#generator-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Measurements](../grid_extensions/extensions.md#measurements)
-- [Remote Reactive Power Control](../grid_extensions/extensions.md#remote-reactive-power-control)
+- [Active Power Control](../grid_extensions/index#active-power-control)
+- [Coordinated Reactive Control](../grid_extensions/index#coordinated-reactive-control)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Generator ENTSO-E Category](../grid_extensions/index#generator-entso-e-category)
+- [Generator Short-Circuit](../grid_extensions/index#generator-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Measurements](../grid_extensions/index#measurements)
+- [Remote Reactive Power Control](../grid_extensions/index#remote-reactive-power-control)
 
 ## Load
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Load.html)
@@ -176,13 +176,13 @@ In the grid model, loads comprise the following metadata:
 
 **Available extensions**
 
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Load Asymmetrical](../grid_extensions/extensions.md#load-asymmetrical)
-- [Load Detail](../grid_extensions/extensions.md#load-detail)
-- [Measurements](../grid_extensions/extensions.md#measurements)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Load Asymmetrical](../grid_extensions/index#load-asymmetrical)
+- [Load Detail](../grid_extensions/index#load-detail)
+- [Measurements](../grid_extensions/index#measurements)
 
 ## Battery
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
@@ -200,12 +200,12 @@ A battery on the electric grid is an energy storage device that is either capabl
 
 **Available extensions**
 
-- [Active Power Control](../grid_extensions/extensions.md#active-power-control)
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Measurements](../grid_extensions/extensions.md#measurements)
+- [Active Power Control](../grid_extensions/index#active-power-control)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Measurements](../grid_extensions/index#measurements)
 
 ## Dangling line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
@@ -255,12 +255,12 @@ In case the line is a boundary, a pairing key $$pairingKey$$ (in previous networ
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](../grid_extensions/extensions.md#cgmes-dangling-line-boundary-node)
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Measurements](../grid_extensions/extensions.md#measurements)
+- [CGMES Dangling Line Boundary Node](../grid_extensions/index#cgmes-dangling-line-boundary-node)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Measurements](../grid_extensions/index#measurements)
 
 ## Shunt Compensator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ShuntCompensator.html)
@@ -330,11 +330,11 @@ $$B$$ and $$G$$ attributes can be equal zero, but the disconnected status of the
 
 **Available extensions**
 
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Measurements](../grid_extensions/extensions.md#measurements)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Measurements](../grid_extensions/index#measurements)
 
 ## Static VAR Compensator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/StaticVarCompensator.html)
@@ -374,12 +374,12 @@ In IIDM the static VAR compensator also comprises some metadata:
 
 **Available extensions**
 
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Measurements](../grid_extensions/extensions.md#measurements)
-- [VoltagePerReactivePowerControl](../grid_extensions/extensions.md#voltage-per-reactive-power-control)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Measurements](../grid_extensions/index#measurements)
+- [VoltagePerReactivePowerControl](../grid_extensions/index#voltage-per-reactive-power-control)
 
 ## Line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Line.html)
@@ -434,13 +434,13 @@ $$
 
 **Available extensions**
 
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Branch Observability](../grid_extensions/extensions.md#branch-observability)
-- [Branch Status](../grid_extensions/extensions.md#branch-status)
-- [CGMES Line Boundary Node](../grid_extensions/extensions.md#cgmes-line-boundary-node)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Measurements](../grid_extensions/extensions.md#measurements)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Branch Observability](../grid_extensions/index#branch-observability)
+- [Branch Status](../grid_extensions/index#branch-status)
+- [CGMES Line Boundary Node](../grid_extensions/index#cgmes-line-boundary-node)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Measurements](../grid_extensions/index#measurements)
 
 ## Tie Line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
@@ -525,14 +525,14 @@ $$
 
 **Available extensions**
 
-- [Branch Observability](../grid_extensions/extensions.md#branch-observability)
-- [Branch Status](../grid_extensions/extensions.md#branch-status)
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Measurements](../grid_extensions/extensions.md#measurements)
-- [Two-windings Transformer Phase Angle Clock](../grid_extensions/extensions.md#two-windings-transformer-phase-angle-clock)
-- [Two-windings Transformer To Be Estimated](../grid_extensions/extensions.md#two-windings-transformer-to-be-estimated)
+- [Branch Observability](../grid_extensions/index#branch-observability)
+- [Branch Status](../grid_extensions/index#branch-status)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Measurements](../grid_extensions/index#measurements)
+- [Two-windings Transformer Phase Angle Clock](../grid_extensions/index#two-windings-transformer-phase-angle-clock)
+- [Two-windings Transformer To Be Estimated](../grid_extensions/index#two-windings-transformer-to-be-estimated)
 
 ### Three windings transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
@@ -561,13 +561,13 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 **Available extensions**
 
-- [Branch Status](../grid_extensions/extensions.md#branch-status)
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Measurements](../grid_extensions/extensions.md#measurements)
-- [Three-windings Transformer Phase Angle Clock](../grid_extensions/extensions.md#three-windings-transformer-phase-angle-clock)
-- [Three-windings Transformer To Be Estimated](../grid_extensions/extensions.md#three-windings-transformer-to-be-estimated)
+- [Branch Status](../grid_extensions/index#branch-status)
+- [Connectable position](../grid_extensions/index#connectable-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Measurements](../grid_extensions/index#measurements)
+- [Three-windings Transformer Phase Angle Clock](../grid_extensions/index#three-windings-transformer-phase-angle-clock)
+- [Three-windings Transformer To Be Estimated](../grid_extensions/index#three-windings-transformer-to-be-estimated)
 
 #### Three windings transformer leg
 
@@ -612,8 +612,8 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 **Available extensions**
 
-- [HVDC Angle Droop Active Power Control](../grid_extensions/extensions.md#hvdc-angle-droop-active-power-control)
-- [HVDC Operator Active Power Range](../grid_extensions/extensions.md#hvdc-operator-active-power-range)
+- [HVDC Angle Droop Active Power Control](../grid_extensions/index#hvdc-angle-droop-active-power-control)
+- [HVDC Operator Active Power Range](../grid_extensions/index#hvdc-operator-active-power-range)
 
 ## HVDC Converter Station
 
@@ -663,7 +663,7 @@ An LCC converter station is made with electronic switches that can only be turne
 
 **Available extensions**
 
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
+- [Connectable position](../grid_extensions/index#connectable-position)
 
 ### VSC Converter Station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
@@ -694,7 +694,7 @@ A VSC converter station is made with switching devices that can be turned both o
 
 **Available extensions**
 
-- [Connectable position](../grid_extensions/extensions.md#connectable-position)
+- [Connectable position](../grid_extensions/index#connectable-position)
 
 ## Busbar Section
 
@@ -707,11 +707,11 @@ A busbar section is a non impedant element used in a node/breaker substation top
 
 **Available extensions**
 
-- [Busbar Section Position](../grid_extensions/extensions.md#busbar-section-position)
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
-- [Identifiable Short-Circuit](../grid_extensions/extensions.md#identifiable-short-circuit)
-- [Injection Observability](../grid_extensions/extensions.md#injection-observability)
-- [Measurements](../grid_extensions/extensions.md#measurements)
+- [Busbar Section Position](../grid_extensions/index#busbar-section-position)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
+- [Identifiable Short-Circuit](../grid_extensions/index#identifiable-short-circuit)
+- [Injection Observability](../grid_extensions/index#injection-observability)
+- [Measurements](../grid_extensions/index#measurements)
 
 ## Breaker/Switch
 
@@ -723,7 +723,7 @@ A busbar section is a non impedant element used in a node/breaker substation top
 
 **Available extensions**
 
-- [Discrete Measurements](../grid_extensions/extensions.md#discrete-measurements)
+- [Discrete Measurements](../grid_extensions/index#discrete-measurements)
 
 ## Internal Connection
 

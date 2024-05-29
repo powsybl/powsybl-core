@@ -37,7 +37,7 @@ The component on which the current limits are applied can safely remain
 between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
 Please look at this scheme to fully understand the modelling (the following example shows current limits but this modelling is valid for all loading limits):
 
-![Loading limits model](img/index/currentLimits.svg){: width="50%" .center-image}
+![Loading limits model](img/currentLimits.svg){: width="50%" .center-image}
 
 Note that, following this modelling, in general the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero. If temporary limits are modeled, the permanent limit becomes mandatory.
 
