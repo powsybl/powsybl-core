@@ -11,6 +11,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisInput;
 import com.powsybl.security.SecurityAnalysisReport;
+import com.powsybl.security.SecurityAnalysisRunParameters;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
@@ -55,7 +56,8 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
 
     @Override
     public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
-        SecurityAnalysisInput input = buildInput(data);
+        SecurityAnalysis.Runner runner = SecurityAnalysis.find(staticProviderName);
+        SecurityAnalysisInput input = inputBuildStrategy.buildFrom(data);
         SecurityAnalysisRunParameters runParameters = new SecurityAnalysisRunParameters()
                 .setSecurityAnalysisParameters(input.getParameters())
                 .setComputationManager(computationManager)

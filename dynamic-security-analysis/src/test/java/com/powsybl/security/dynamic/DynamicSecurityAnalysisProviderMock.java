@@ -8,21 +8,15 @@
 package com.powsybl.security.dynamic;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.action.Action;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.dynamic.json.DynamicSecurityDummyExtension;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.results.PreContingencyResult;
-import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.Collections;
 import java.util.List;
@@ -39,8 +33,9 @@ import static org.mockito.Mockito.when;
  */
 @AutoService(DynamicSecurityAnalysisProvider.class)
 public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnalysisProvider {
+
     @Override
-    public CompletableFuture<SecurityAnalysisReport> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, DynamicSecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, ReportNode reportNode) {
+    public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
         CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
         SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
         when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));

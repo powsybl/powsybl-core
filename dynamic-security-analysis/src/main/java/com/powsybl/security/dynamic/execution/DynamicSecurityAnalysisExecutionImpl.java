@@ -7,13 +7,13 @@
  */
 package com.powsybl.security.dynamic.execution;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysis;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
+import com.powsybl.security.dynamic.DynamicSecurityAnalysisRunParameters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -61,19 +61,20 @@ public class DynamicSecurityAnalysisExecutionImpl implements DynamicSecurityAnal
     public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager, DynamicSecurityAnalysisExecutionInput data) {
         DynamicSecurityAnalysis.Runner runner = DynamicSecurityAnalysis.find(providerName);
         DynamicSecurityAnalysisInput input = inputBuildStrategy.buildFrom(data, runner.getName());
+        DynamicSecurityAnalysisRunParameters runParameters = new DynamicSecurityAnalysisRunParameters()
+                .setDynamicSecurityAnalysisParameters(input.getParameters())
+                .setComputationManager(computationManager)
+                .setFilter(input.getFilter())
+                .setDetector(input.getLimitViolationDetector())
+                .setInterceptors(new ArrayList<>(input.getInterceptors()))
+                .setOperatorStrategies(data.getOperatorStrategies())
+                .setActions(data.getActions())
+                .setMonitors(data.getMonitors());
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
+                input.getNetworkVariant().getVariantId(),
                 input.getDynamicModels(),
                 input.getEventModels(),
-                input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(),
-                input.getParameters(),
-                computationManager,
-                input.getFilter(),
-                input.getLimitViolationDetector(),
-                new ArrayList<>(input.getInterceptors()),
-                data.getOperatorStrategies(),
-                data.getActions(),
-                data.getMonitors(),
-                ReportNode.NO_OP);
+                runParameters);
     }
 }
