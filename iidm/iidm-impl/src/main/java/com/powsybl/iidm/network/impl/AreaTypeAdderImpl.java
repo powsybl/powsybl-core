@@ -26,7 +26,7 @@ public class AreaTypeAdderImpl extends AbstractIdentifiableAdder<AreaTypeAdderIm
     @Override
     public AreaTypeAdder copy(AreaType otherAreaType) {
         this.setId(otherAreaType.getId())
-                .setName(otherAreaType.getNameOrId())
+                .setName(otherAreaType.getOptionalName().orElse(null))
                 .setFictitious(otherAreaType.isFictitious());
         return this;
     }

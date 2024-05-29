@@ -74,7 +74,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     public AreaAdder copy(Area otherArea) {
         this.setId(otherArea.getId())
-                .setName(otherArea.getNameOrId())
+                .setName(otherArea.getOptionalName().orElse(null))
                 .setFictitious(otherArea.isFictitious())
                 .setAreaType(otherArea.getAreaType())
                 .setAcNetInterchangeTarget(otherArea.getAcNetInterchangeTarget().orElse(null))
