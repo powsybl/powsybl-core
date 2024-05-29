@@ -10,7 +10,7 @@ Below comes a description of the various types of simulation and supported solve
 maxdepth: 2
 ---
 
-loadflow/loadflow.md
+loadflow/index.md
 security/security.md
 sensitivity/sensitivity.md
 shortcircuit/index.md

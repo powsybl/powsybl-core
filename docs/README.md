@@ -5,7 +5,7 @@ They are published on powsybl.readthedocs.io/ and pull requests are built and pr
 
 To build the docs locally, run the following commands:
 ~~~bash
-pip install -r docs/requirements.txt
-sphinx-build -a docs ./build-docs
+pip install -r requirements.txt
+sphinx-build -a . ../build-docs
 ~~~
-Then open `build-docs/index.html` in your browser.
+Then open `../build-docs/index.html` in your browser.
