@@ -77,7 +77,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
         // just remove the tie line if one of its voltage levels has to be removed
-        if (test(vl1) || test(vl2)) {
+        if (!test(vl1) || !test(vl2)) {
             tieLine.remove();
         }
 
