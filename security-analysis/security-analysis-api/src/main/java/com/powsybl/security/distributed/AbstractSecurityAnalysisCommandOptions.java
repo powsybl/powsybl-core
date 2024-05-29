@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
 import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
@@ -41,9 +42,9 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
     private Path strategiesFile;
     private Path limitReductionsFile;
     private Integer taskCount;
-    private Function<Integer, Path> outputFile;
-    private Function<Integer, Path> logFile;
-    private Function<Integer, Partition> task;
+    private IntFunction<Path> outputFile;
+    private IntFunction<Path> logFile;
+    private IntFunction<Partition> task;
     private String outputFileFormat;
     private List<String> resultExtensions;
     private List<LimitViolationType> violationTypes;
@@ -107,7 +108,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
         return self();
     }
 
-    public T outputFile(Function<Integer, Path> outputFile, String format) {
+    public T outputFile(IntFunction<Path> outputFile, String format) {
         this.outputFile = requireNonNull(outputFile);
         this.outputFileFormat = requireNonNull(format);
         return self();
@@ -119,7 +120,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
         return self();
     }
 
-    public T logFile(Function<Integer, Path> logFile) {
+    public T logFile(IntFunction<Path> logFile) {
         this.logFile = requireNonNull(logFile);
         return self();
     }
@@ -135,7 +136,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
         return task(i -> new Partition(i + 1, taskCount));
     }
 
-    public T task(Function<Integer, Partition> task) {
+    public T task(IntFunction<Partition> task) {
         this.task = requireNonNull(task);
         return self();
     }
@@ -216,7 +217,7 @@ public abstract class AbstractSecurityAnalysisCommandOptions<T extends AbstractS
         }
     }
 
-    protected <R> void setOptionIfPresent(SimpleCommandBuilder commandBuilder, String optionName, Function<Integer, R> optionValue, Function<R, String> toString) {
+    protected <R> void setOptionIfPresent(SimpleCommandBuilder commandBuilder, String optionName, IntFunction<R> optionValue, Function<R, String> toString) {
         if (optionValue != null) {
             commandBuilder.option(optionName, i -> toString.apply(optionValue.apply(i)));
         }
