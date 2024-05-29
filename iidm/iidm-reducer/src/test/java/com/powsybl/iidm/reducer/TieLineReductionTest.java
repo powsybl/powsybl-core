@@ -34,7 +34,6 @@ class TieLineReductionTest {
 
     @Test
     void testOneSideTieLineReduction() {
-        Network network = EurostagTutorialExample1Factory.createWithTieLine();
         var reducer = NetworkReducer.builder()
                 .withNetworkPredicate(new IdentifierNetworkPredicate(List.of("VLGEN", "VLHV1", "VLLOAD")))
                 .withObservers(observer)
