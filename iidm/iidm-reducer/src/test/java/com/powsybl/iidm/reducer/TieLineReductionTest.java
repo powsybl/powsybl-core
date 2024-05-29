@@ -9,13 +9,12 @@ package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -24,21 +23,15 @@ class TieLineReductionTest {
 
     @Test
     void test() {
-        boolean[] tieLineRemoved = new boolean[1];
-        var observer = new DefaultNetworkReducerObserver() {
-            @Override
-            public void tieLineRemoved(TieLine tieLine) {
-                tieLineRemoved[0] = true;
-            }
-        };
+        var observer = new NetworkReducerObserverImpl();
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         var reducer = NetworkReducer.builder()
                 .withNetworkPredicate(new IdentifierNetworkPredicate(List.of("VLGEN", "VLHV1", "VLLOAD")))
                 .withObservers(observer)
                 .build();
-        assertFalse(tieLineRemoved[0]);
+        assertEquals(0, observer.getTieLineRemovedCount());
         reducer.reduce(network);
-        assertTrue(tieLineRemoved[0]);
+        assertEquals(2, observer.getTieLineRemovedCount());
         assertEquals(List.of("P1", "P2", "VLGEN", "LOAD", "NGEN", "NGEN_NHV1", "NHV2_NLOAD", "sim1", "VLLOAD", "NHV1", "GEN", "VLHV1", "NHV1_XNODE1", "NLOAD", "NVH1_XNODE2"),
                 network.getIdentifiables().stream().map(Identifiable::getId).toList());
     }
