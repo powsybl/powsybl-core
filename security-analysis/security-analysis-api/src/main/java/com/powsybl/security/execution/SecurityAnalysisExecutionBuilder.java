@@ -13,6 +13,7 @@ import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.distributed.ForwardedSecurityAnalysisExecution;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -21,9 +22,9 @@ import java.util.function.Supplier;
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
  */
-public class SecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisExecutionBuilder<SecurityAnalysisExecutionBuilder,
-        SecurityAnalysisExecution,
-        SecurityAnalysisInputBuildStrategy> {
+public class SecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisExecutionBuilder<SecurityAnalysisExecutionBuilder> {
+
+    private final SecurityAnalysisInputBuildStrategy inputBuildStrategy;
 
     /**
      * Create a new builder.
@@ -35,10 +36,10 @@ public class SecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisEx
     public SecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
                                             String providerName,
                                             SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
-        super(externalConfig, providerName, inputBuildStrategy);
+        super(externalConfig, providerName);
+        this.inputBuildStrategy = Objects.requireNonNull(inputBuildStrategy);
     }
 
-    @Override
     public SecurityAnalysisExecution build() {
         if (forward) {
             return new ForwardedSecurityAnalysisExecution(externalConfig.get(), taskCount);
@@ -49,7 +50,10 @@ public class SecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisEx
         }
     }
 
-    @Override
+    private SecurityAnalysisInputBuildStrategy inputBuildStrategy() {
+        return subPart != null ? subPartBuildStrategy() : inputBuildStrategy;
+    }
+
     protected SecurityAnalysisInputBuildStrategy subPartBuildStrategy() {
         return executionInput -> {
             SecurityAnalysisInput input = inputBuildStrategy.buildFrom(executionInput);

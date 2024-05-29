@@ -14,6 +14,7 @@ import com.powsybl.security.dynamic.distributed.DistributedDynamicSecurityAnalys
 import com.powsybl.security.dynamic.distributed.ForwardedDynamicSecurityAnalysisExecution;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionBuilder;
 
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -22,9 +23,9 @@ import java.util.function.Supplier;
  *
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class DynamicSecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisExecutionBuilder<DynamicSecurityAnalysisExecutionBuilder,
-        DynamicSecurityAnalysisExecution,
-        DynamicSecurityAnalysisInputBuildStrategy> {
+public class DynamicSecurityAnalysisExecutionBuilder extends AbstractSecurityAnalysisExecutionBuilder<DynamicSecurityAnalysisExecutionBuilder> {
+
+    private final DynamicSecurityAnalysisInputBuildStrategy inputBuildStrategy;
 
     /**
      * Create a new builder.
@@ -36,10 +37,10 @@ public class DynamicSecurityAnalysisExecutionBuilder extends AbstractSecurityAna
     public DynamicSecurityAnalysisExecutionBuilder(Supplier<ExternalSecurityAnalysisConfig> externalConfig,
                                                    String providerName,
                                                    DynamicSecurityAnalysisInputBuildStrategy inputBuildStrategy) {
-        super(externalConfig, providerName, inputBuildStrategy);
+        super(externalConfig, providerName);
+        this.inputBuildStrategy = Objects.requireNonNull(inputBuildStrategy);
     }
 
-    @Override
     public DynamicSecurityAnalysisExecution build() {
         if (forward) {
             return new ForwardedDynamicSecurityAnalysisExecution(externalConfig.get(), taskCount);
@@ -50,7 +51,10 @@ public class DynamicSecurityAnalysisExecutionBuilder extends AbstractSecurityAna
         }
     }
 
-    @Override
+    private DynamicSecurityAnalysisInputBuildStrategy inputBuildStrategy() {
+        return subPart != null ? subPartBuildStrategy() : inputBuildStrategy;
+    }
+
     protected DynamicSecurityAnalysisInputBuildStrategy subPartBuildStrategy() {
         return (executionInput, providerName) -> {
             DynamicSecurityAnalysisInput input = inputBuildStrategy.buildFrom(executionInput, providerName);

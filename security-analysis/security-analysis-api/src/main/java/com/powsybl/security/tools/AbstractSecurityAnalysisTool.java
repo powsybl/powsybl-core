@@ -53,9 +53,7 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
  */
 public abstract class AbstractSecurityAnalysisTool<T extends AbstractSecurityAnalysisExecutionInput<T, S>,
         S extends AbstractSecurityAnalysisParameters<S>,
-        R extends AbstractSecurityAnalysisExecutionBuilder<R, U, V>,
-        U,
-        V> {
+        R extends AbstractSecurityAnalysisExecutionBuilder<R>> {
 
     public static Network readNetwork(CommandLine line, ToolRunningContext context, ImportersLoader importersLoader) throws IOException {
         ToolOptions options = new ToolOptions(line, context);

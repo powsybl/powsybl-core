@@ -24,7 +24,6 @@ import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisInput;
 import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
-import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecution;
 import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionBuilder;
 import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisExecutionInput;
 import com.powsybl.security.dynamic.execution.DynamicSecurityAnalysisInputBuildStrategy;
@@ -52,8 +51,7 @@ import static com.powsybl.tools.ToolConstants.TASK;
  */
 @AutoService(Tool.class)
 public class DynamicSecurityAnalysisTool extends AbstractSecurityAnalysisTool<DynamicSecurityAnalysisExecutionInput, DynamicSecurityAnalysisParameters,
-        DynamicSecurityAnalysisExecutionBuilder, DynamicSecurityAnalysisExecution, DynamicSecurityAnalysisInputBuildStrategy>
-        implements Tool {
+        DynamicSecurityAnalysisExecutionBuilder> implements Tool {
 
     @Override
     public Command getCommand() {
