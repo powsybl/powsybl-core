@@ -4,11 +4,11 @@ In the following sections the different network components are described in term
 
 | Attribute | Description |
 | --------- | ----------- |
-| $$Id$$ | Unique Id assigned to each network component |
-| $$Name$$ | Human readable identifier (not necessary unique) |
-| $$Fictitious$$ | To identify non-physical network components |
-| $$Aliases$$ | Additional unique identifiers associated with each network component |
-| $$Properties$$ | To add additional data items to network components |
+| $Id$ | Unique Id assigned to each network component |
+| $Name$ | Human readable identifier (not necessary unique) |
+| $Fictitious$ | To identify non-physical network components |
+| $Aliases$ | Additional unique identifiers associated with each network component |
+| $Properties$ | To add additional data items to network components |
 
 All equipment and the network itself are identified by a unique identifier which is the only required attribute. They can have a human-readable name. offer the possibility of adding additional unique identifiers to each component. An alias can be qualified to indicate what it corresponds to.
 
@@ -31,9 +31,9 @@ In the PowSyBl grid model, the Network contains [substations](#substation), whic
 
 | Attribute | Description |
 | --------- | ----------- |
-| $$SourceFormat$$ | Source format of the imported network model |
-| $$CaseDate$$ | Date and time of the target network that is being modeled |
-| $$ForecastDistance$$ | Number of minutes between the network generation date and the case date |
+| $SourceFormat$ | Source format of the imported network model |
+| $CaseDate$ | Date and time of the target network that is being modeled |
+| $ForecastDistance$ | Number of minutes between the network generation date and the case date |
 
 The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../../index.html#grid-formats). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
 
@@ -48,9 +48,9 @@ A substation represents a specific geographical location with equipment grouped 
 
 | Attribute | Description |
 | --------- | ----------- |
-| $$Country$$ | To specify in which country the substation is located |
-| $$GeographicalTags$$ | They make it possible to accurately locate the substation |
-| $$TSO$$ | To track to which [TSO](../../glossary.md#tso) the substation belongs |
+| $Country$ | To specify in which country the substation is located |
+| $GeographicalTags$ | They make it possible to accurately locate the substation |
+| $TSO$ | To track to which [TSO](../../glossary.md#tso) the substation belongs |
 
 All three attributes are optional.
 
@@ -67,10 +67,10 @@ A voltage level contains equipment with the same nominal voltage. Two voltage le
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$NominalVoltage$$ | kV | Nominal base voltage |
-| $$LowVoltageLimit$$ | kV | Low voltage limit magnitude |
-| $$HighVoltageLimit$$ | kV | High voltage limit magnitude |
-| $$TopologyKind$$ |  | Level of connectivity detail |
+| $NominalVoltage$ | kV | Nominal base voltage |
+| $LowVoltageLimit$ | kV | Low voltage limit magnitude |
+| $HighVoltageLimit$ | kV | High voltage limit magnitude |
+| $TopologyKind$ |  | Level of connectivity detail |
 
 **Specifications**
 
@@ -107,16 +107,16 @@ A generator is an equipment that injects or consumes active power, and injects o
 
 | Attribute | Unit | Description                                                 |
 | --------- | ---- |-------------------------------------------------------------|
-| $$MinP$$ | MW | Minimum generator active power output                       |
-| $$MaxP$$ | MW | Maximum generator active power output                       |
-| $$ReactiveLimits$$ | MVar | Operational limits of the generator (P/Q/V diagram)         |
-| $$RatedS$$ | MVA | The rated nominal power                                     |
-| $$TargetP$$ | MW | The active power target                                     |
-| $$TargetQ$$ | MVAr | The reactive power target at local terminal                 |
-| $$TargetV$$ | kV | The voltage target at regulating terminal                   |
-| $$RegulatingTerminal$$ |  | Associated node or bus for which voltage is to be regulated |
-| $$VoltageRegulatorOn$$ |  | True if the generator regulates voltage                     |
-| $$EnergySource$$ |  | The energy source harnessed to turn the generator           |
+| $MinP$ | MW | Minimum generator active power output                       |
+| $MaxP$ | MW | Maximum generator active power output                       |
+| $ReactiveLimits$ | MVar | Operational limits of the generator (P/Q/V diagram)         |
+| $RatedS$ | MVA | The rated nominal power                                     |
+| $TargetP$ | MW | The active power target                                     |
+| $TargetQ$ | MVAr | The reactive power target at local terminal                 |
+| $TargetV$ | kV | The voltage target at regulating terminal                   |
+| $RegulatingTerminal$ |  | Associated node or bus for which voltage is to be regulated |
+| $VoltageRegulatorOn$ |  | True if the generator regulates voltage                     |
+| $EnergySource$ |  | The energy source harnessed to turn the generator           |
 
 **Specifications**
 
@@ -146,8 +146,8 @@ A load is a passive equipment representing a delivery point that consumes or pro
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$P0$$ | MW | The active power setpoint |
-| $$Q0$$ | MVar | The reactive power setpoint |
+| $P0$ | MW | The active power setpoint |
+| $Q0$ | MVar | The reactive power setpoint |
 
 **Specifications**
 
@@ -162,17 +162,23 @@ In the grid model, loads comprise the following metadata:
     - `AUXILIARY`
     - `FICTITIOUS`
 - The load model, which can be:
-    - `ZIP` (or polynomial), following equations:  
-      $$P = P0 * (c0p + c1p \times (v / v0) + c2p \times (v / v0)^2)$$  
-      $$Q = Q0 * (c0q + c1q \times (v / v0) + c2q \times (v / v0)^2)$$  
-      with v0 the nominal voltage.  
-      Sum of C0p, C1p and C2p must be equal to 1.  
-      Sum of C0q, C1q and C2q must be equal to 1.
+    - `ZIP` (or polynomial), following equations:
+  
+      $$P = P0 * (c0p + c1p \times (v / v_0) + c2p \times (v / v_0)^2)$$  
+
+      $$Q = Q0 * (c0q + c1q \times (v / v_0) + c2q \times (v / v_0)^2)$$  
+
+      with $v_0$ the nominal voltage.  
+      Sum of $c0p$, $c1p$ and $c2p$ must be equal to 1.  
+      Sum of $c0q$, $c1q$ and $c2q$ must be equal to 1.
     - `EXPONENTIAL`, following equations:  
-      $$P = P0 \times (v / v0)^np$$  
-      $$Q = Q0 \times (v / v0)^nq$$  
-      with v0 the nominal voltage.  
-      np and nq are expected to be positive.
+
+      $$P = P0 \times (v / v_0)^{n_p}$$  
+
+      $$Q = Q0 \times (v / v_0)^{n_q}$$  
+
+      with $v_0$ the nominal voltage.  
+      $n_p$ and $n_q$ are expected to be positive.
 
 **Available extensions**
 
@@ -193,10 +199,10 @@ A battery on the electric grid is an energy storage device that is either capabl
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$P0$$ | MW | The Constant active power |
-| $$Q0$$ | MVar | The Constant reactive power |
-| $$MinP$$ | MW | The Minimal active power |
-| $$MaxP$$ | MW | The Maximum active power |
+| $P0$ | MW | The Constant active power |
+| $Q0$ | MVar | The Constant reactive power |
+| $MinP$ | MW | The Minimal active power |
+| $MaxP$ | MW | The Maximum active power |
 
 **Available extensions**
 
@@ -214,7 +220,7 @@ A network may be connected to other networks for which a full description is not
 
 ![Dangling line model](img/danglingLine.svg){width="50%" align=center}
 
-A generation part, at boundary side can also be modeled, with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal can not be set, it is necessary the boundary side of the dangling line. Limits are modeled through $$MinP$$ and $$MaxP$$ for active power limits and through [reactive limits](#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
+A generation part, at boundary side can also be modeled, with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal can not be set, it is necessary the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
 
 Resulting flows at the dangling line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
@@ -224,32 +230,32 @@ Dangling lines are key objects for merging networks. Merging will be described s
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$P0$$ | MW | The active power setpoint |
-| $$Q0$$ | MVar | The reactive power setpoint |
-| $$R$$ | $$\Omega$$ | The series resistance |
-| $$X$$ | $$\Omega$$ | The series reactance |
-| $$G$$ | S | The shunt conductance |
-| $$B$$ | S | The shunt susceptance |
+| $P0$ | MW | The active power setpoint |
+| $Q0$ | MVar | The reactive power setpoint |
+| $R$ | $\Omega$ | The series resistance |
+| $X$ | $\Omega$ | The series reactance |
+| $G$ | S | The shunt conductance |
+| $B$ | S | The shunt susceptance |
 
 Optional:
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$MinP$$ | MW | Minimum generation part active power output |
-| $$MaxP$$ | MW | Maximum generation part active power output |
-| $$ReactiveLimits$$ | MVar | Operational limits of the generation part (P/Q/V diagram) |
-| $$TargetP$$ | MW | The active power target |
-| $$TargetQ$$ | MVAr | The reactive power target |
-| $$TargetV$$ | kV | The voltage target |
-| $$VoltageRegulatorOn$$ |  | True if the generation part regulates voltage |
+| $MinP$ | MW | Minimum generation part active power output |
+| $MaxP$ | MW | Maximum generation part active power output |
+| $ReactiveLimits$ | MVar | Operational limits of the generation part (P/Q/V diagram) |
+| $TargetP$ | MW | The active power target |
+| $TargetQ$ | MVAr | The reactive power target |
+| $TargetV$ | kV | The voltage target |
+| $VoltageRegulatorOn$ |  | True if the generation part regulates voltage |
 
 **Specifications**
 
-- $$P0$$ and $$Q0$$ are the active and reactive power setpoints
-- $$R$$, $$X$$, $$G$$ and $$B$$ correspond to a fraction of the original line and have to be consistent with the declared length of the
+- $P0$ and $Q0$ are the active and reactive power setpoints
+- $R$, $X$, $G$ and $B$ correspond to a fraction of the original line and have to be consistent with the declared length of the
   dangling line.
 
-In case the line is a boundary, a pairing key $$pairingKey$$ (in previous network versions $$UcteXnodeCode$$) is defined besides the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line, for both UCTE or CIM-CGMES formats.
+In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined besides the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line, for both UCTE or CIM-CGMES formats.
 
 // TODO, add boundary
 
@@ -281,38 +287,38 @@ Shunt compensators follow a passive-sign convention:
 
 | Attribute | Unit | Description |
 | --------- | ---- |------------ |
-| $$MaximumSectionCount$$ | - | The maximum number of sections that may be switched on |
-| $$SectionCount$$ | - | The current number of sections that are switched on |
-| $$B$$ | S | The susceptance of the shunt compensator in its current state |
-| $$G$$ | S | The conductance of the shunt compensator in its current state |
-| $$TargetV$$ | kV | The voltage target |
-| $$TargetDeadband$$ | kV | The deadband used to avoid excessive update of controls |
-| $$RegulatingTerminal$$ | - | Associated node or bus for which voltage is to be regulated |
-| $$VoltageRegulatorOn$$ | - | True if the shunt compensator regulates voltage |
+| $MaximumSectionCount$ | - | The maximum number of sections that may be switched on |
+| $SectionCount$ | - | The current number of sections that are switched on |
+| $B$ | S | The susceptance of the shunt compensator in its current state |
+| $G$ | S | The conductance of the shunt compensator in its current state |
+| $TargetV$ | kV | The voltage target |
+| $TargetDeadband$ | kV | The deadband used to avoid excessive update of controls |
+| $RegulatingTerminal$ | - | Associated node or bus for which voltage is to be regulated |
+| $VoltageRegulatorOn$ | - | True if the shunt compensator regulates voltage |
 
 - For Linear Shunt Compensators
 
 | Attribute | Unit | Description |
 | --------- | ---- |------------ |
-| $$bPerSection$$ | S | The Positive sequence shunt (charging) susceptance per section |
-| $$gPerSection$$ | S | The Positive sequence shunt (charging) conductance per section |
+| $bPerSection$ | S | The Positive sequence shunt (charging) susceptance per section |
+| $gPerSection$ | S | The Positive sequence shunt (charging) conductance per section |
 
-We expect $$bPerSection$$ to be a non zero value. The disconnected status of the linear shunt compensator can be modeled by setting the $$SectionCount$$ attribute to zero.
+We expect $bPerSection$ to be a non zero value. The disconnected status of the linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero.
 
 - For Non Linear Shunt Compensators
 
 | Attribute | Unit | Description |
 | --------- | ---- |------------ |
-| $$Sections$$ | [Section](#Section) | The Partition of all the shunt compensator's sections |
+| $Sections$ | [Section](#Section) | The Partition of all the shunt compensator's sections |
 
 ### Section
 
 | Attribute | Unit | Description |
 | --------- | ---- |------------ |
-| $$B$$ | S | The accumulated positive sequence shunt (charging) susceptance of the section if this section and all the previous ones are activated |
-| $$G$$ | S | The accumulated positive sequence shunt (charging) conductance of the section if this section and all the previous ones are activated |
+| $B$ | S | The accumulated positive sequence shunt (charging) susceptance of the section if this section and all the previous ones are activated |
+| $G$ | S | The accumulated positive sequence shunt (charging) conductance of the section if this section and all the previous ones are activated |
 
-$$B$$ and $$G$$ attributes can be equal zero, but the disconnected status of the non linear shunt compensator can be modeled by setting the $$SectionCount$$ attribute to zero. The section which $$SectionCount$$ equal to $$1$$ is the first effective section, and it would be more efficient to affect it a non zero susceptance.
+$B$ and $G$ attributes can be equal zero, but the disconnected status of the non linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero. The section which $SectionCount$ equal to $1$ is the first effective section, and it would be more efficient to affect it a non zero susceptance.
 
 **Specifications**
 
@@ -348,17 +354,20 @@ Static VAR compensators follow a passive-sign convention:
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$Bmin$$ | S | The minimum susceptance |
-| $$Bmax$$ | S | The maximum susceptance |
-| $$VoltageSetpoint$$ | kV | The voltage setpoint |
-| $$ReactivePowerSetpoint$$ | MVar | The reactive power setpoint |
+| $Bmin$ | S | The minimum susceptance |
+| $Bmax$ | S | The maximum susceptance |
+| $VoltageSetpoint$ | kV | The voltage setpoint |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint |
 
 **Specifications**
 
-- $$Bmin$$ and $$Bmax$$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator are determined by:  
-  $$Qmin = -Bmin \times V^2$$  
-  $$Qmax = -Bmax \times V^2$$  
-  where $$V$$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrive the minimum and the maximum amouts of reactive power. Reactive limits can be handled in an approximative way using the nominal voltage of the connected bus.
+- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator are determined by:  
+  
+  $$Qmin = -Bmin \times V^2$$
+
+  $$Qmax = -Bmax \times V^2$$
+
+  where $V$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrive the minimum and the maximum amouts of reactive power. Reactive limits can be handled in an approximative way using the nominal voltage of the connected bus.
 - The voltage setpoint is required when the regulation mode is set to `VOLTAGE`.
 - The reactive power setpoint is required when the regulation mode is set to `REACTIVE_POWER`.
 
@@ -384,11 +393,11 @@ In IIDM the static VAR compensator also comprises some metadata:
 ## Line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Line.html)
 
-AC transmission lines are modeled using a standard $$\pi$$ model with distributed parameters. A `Line` is a `Branch`, that models equipment with two terminals (or two sides). For the time being, a branch is an AC equipment.
+AC transmission lines are modeled using a standard $\pi$ model with distributed parameters. A `Line` is a `Branch`, that models equipment with two terminals (or two sides). For the time being, a branch is an AC equipment.
 
 ![Line model](img/line-model.svg){width="50%" align=center}
 
-With series impedance $$z$$ and the shunt admittance on each side $$y_1$$ and $$y_2$$:
+With series impedance $z$ and the shunt admittance on each side $y_1$ and $y_2$:
 
 $$
 \begin{align*}
@@ -421,12 +430,12 @@ $$
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$R$$ | $$\Omega$$ | The series resistance |
-| $$X$$ | $$\Omega$$ | The series reactance |
-| $$G1$$ | S | The first side shunt conductance |
-| $$B1$$ | S | The first side shunt susceptance |
-| $$G2$$ | S | The second side shunt conductance |
-| $$B2$$ | S | The second side shunt susceptance |
+| $R$ | $\Omega$ | The series resistance |
+| $X$ | $\Omega$ | The series reactance |
+| $G1$ | S | The first side shunt conductance |
+| $B1$ | S | The first side shunt susceptance |
+| $G2$ | S | The second side shunt conductance |
+| $B2$ | S | The second side shunt susceptance |
 
 **Metadata**
 
@@ -447,20 +456,20 @@ $$
 
 A tie line is an AC line sharing power between two neighbouring regional grids.
 It is created by pairing two [dangling lines](#dangling-line) with the same pairing key.
-It has line characteristics, with $$R$$ (resp. $$X$$) being the sum of the series resistances (resp. reactances) of the two dangling lines.
-$$G1$$ (resp. $$B1$$) is equal to the first dangling line's $$G1$$ (resp. $$B1$$).
-$$G2$$ (resp. $$B2$$) is equal to the second dangling line's $$G2$$ (resp. $$B2$$).
+It has line characteristics, with $R$ (resp. $X$) being the sum of the series resistances (resp. reactances) of the two dangling lines.
+$G1$ (resp. $B1$) is equal to the first dangling line's $G1$ (resp. $B1$).
+$G2$ (resp. $B2$) is equal to the second dangling line's $G2$ (resp. $B2$).
 
 **Characteristics**
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$R$$ | $$\Omega$$ | The series resistance |
-| $$X$$ | $$\Omega$$ | The series reactance |
-| $$G1$$ | S | The first side shunt conductance |
-| $$B1$$ | S | The first side shunt susceptance |
-| $$G2$$ | S | The second side shunt conductance |
-| $$B2$$ | S | The second side shunt susceptance |
+| $R$ | $\Omega$ | The series resistance |
+| $X$ | $\Omega$ | The series reactance |
+| $G1$ | S | The first side shunt conductance |
+| $B1$ | S | The first side shunt susceptance |
+| $G2$ | S | The second side shunt conductance |
+| $B2$ | S | The second side shunt susceptance |
 
 A tie line is not a connectable. It is just a container of two underlying dangling lines with the same pairing key. When connected together, each dangling line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free dangling lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
@@ -470,11 +479,11 @@ A tie line is not a connectable. It is just a container of two underlying dangli
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
 
 A two windings power transformer is connected to two voltage levels (side 1 and side 2) that belong to a same substation.
-Two windings transformers are modeled with the following equivalent $$\Pi$$ model:
+Two windings transformers are modeled with the following equivalent $\Pi$ model:
 
 ![Power line model](img/two-windings-transformer-model.svg){width="50%" align=center}
 
-With the series impedance $$z$$ and the shunt admittance $$y$$ and the voltage ratio $$\rho$$ and the angle difference $$\alpha$$ and potentially parameters from the current step of a [ratio tap changer](#ratio-tap-changer) and/or a [phase tap changer](#phase-tap-changer), we have:
+With the series impedance $z$ and the shunt admittance $y$ and the voltage ratio $\rho$ and the angle difference $\alpha$ and potentially parameters from the current step of a [ratio tap changer](#ratio-tap-changer) and/or a [phase tap changer](#phase-tap-changer), we have:
 
 $$
 \begin{array}{lcl}
@@ -510,13 +519,13 @@ $$
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$R_{nom}$$ | $$\Omega$$  | The nominal series resistance at the side 2 of the transformer |
-| $$X_{nom}$$ | $$\Omega$$ | The nominal series reactance at the side 2 of the transformer |
-| $$G_{nom}$$ | S | The nominal magnetizing conductance at the side 2 of the transformer |
-| $$B_{nom}$$ | S | The nominal magnetizing susceptance at the side 2 of the transformer |
-| $$V_{1\ nom}$$ | kV | The rated voltage at side 1 |
-| $$V_{2\ nom}$$ | kV | The rated voltage at side 2 |
-| $$RatedS$$ | MVA | The normal apparent power |
+| $R_{nom}$ | $\Omega$  | The nominal series resistance at the side 2 of the transformer |
+| $X_{nom}$ | $\Omega$ | The nominal series reactance at the side 2 of the transformer |
+| $G_{nom}$ | S | The nominal magnetizing conductance at the side 2 of the transformer |
+| $B_{nom}$ | S | The nominal magnetizing susceptance at the side 2 of the transformer |
+| $V_{1\ nom}$ | kV | The rated voltage at side 1 |
+| $V_{2\ nom}$ | kV | The rated voltage at side 2 |
+| $RatedS$ | MVA | The normal apparent power |
 
 **Specifications**
 
@@ -552,7 +561,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$RatedU0$$ | kV | The rated voltage at the star bus |
+| $RatedU0$ | kV | The rated voltage at the star bus |
 
 **Specifications**
 
@@ -575,12 +584,12 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$R$$ | $$\Omega$$ | The nominal series resistance specified at the voltage of the leg |
-| $$X$$ | $$\Omega$$ | The nominal series reactance specified at the voltage of the leg |
-| $$G$$ | S | The nominal magnetizing conductance specified at the voltage of the leg |
-| $$B$$ | S | The nominal magnetizing susceptance specified at the voltage of the leg |
-| $$RatedU$$ | kV | The rated voltage |
-| $$RatedS$$ | MVA | The normal apparent power |
+| $R$ | $\Omega$ | The nominal series resistance specified at the voltage of the leg |
+| $X$ | $\Omega$ | The nominal series reactance specified at the voltage of the leg |
+| $G$ | S | The nominal magnetizing conductance specified at the voltage of the leg |
+| $B$ | S | The nominal magnetizing susceptance specified at the voltage of the leg |
+| $RatedU$ | kV | The rated voltage |
+| $RatedS$ | MVA | The normal apparent power |
 
 **Specifications**
 
@@ -595,10 +604,10 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$R$$ | $$\Omega$$ | The resistance of the HVDC line |
-| $$NominalV$$ | kV | The nominal voltage |
-| $$ActivePowerSetpoint$$ | MW | The active power setpoint |
-| $$MaxP$$ | MW | The maximum active power |
+| $R$ | $\Omega$ | The resistance of the HVDC line |
+| $NominalV$ | kV | The nominal voltage |
+| $ActivePowerSetpoint$ | MW | The active power setpoint |
+| $MaxP$ | MW | The maximum active power |
 
 **Specifications**
 
@@ -635,14 +644,14 @@ The HVDC type, `LCC` or `VSC`, determines if the Converter Station is a LCC Conv
 
 The positive loss factor `LossFactor` is used to model the losses during the conversion. In case of:
 - A rectifier operation (conversion from AC to DC), we have
-  $$
-  \frac{P_{DC}}{P_{AC}} = 1 - \frac{LossFactor}{100}
-  $$
+
+  $$\frac{P_{DC}}{P_{AC}} = 1 - \frac{LossFactor}{100}$$
+
 - An inverter operation (conversion from DC to AC), we have
-  $$
-  \frac{P_{AC}}{P_{DC}} = 1 - \frac{LossFactor}{100}
-  $$
-  Note that at the terminal on the AC side, $$Q$$ is always positive: the converter station always consumes reactive power.
+
+  $$\frac{P_{AC}}{P_{DC}} = 1 - \frac{LossFactor}{100}$$
+
+  Note that at the terminal on the AC side, $Q$ is always positive: the converter station always consumes reactive power.
 
 #### LCC Converter Station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
@@ -659,7 +668,7 @@ An LCC converter station is made with electronic switches that can only be turne
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$PowerFactor$$ | % | Ratio between the active power $$P$$ and the apparent power $$S$$. |
+| $PowerFactor$ | % | Ratio between the active power $P$ and the apparent power $S$. |
 
 **Available extensions**
 
@@ -680,13 +689,13 @@ A VSC converter station is made with switching devices that can be turned both o
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$VoltageSetpoint$$ | kV | The voltage setpoint for regulation |
-| $$ReactivePowerSetpoint$$ | MVar | The reactive power setpoint for regulation |
+| $VoltageSetpoint$ | kV | The voltage setpoint for regulation |
+| $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
 
 **Specifications**
 
 - The voltage setpoint (in kV) is required if the voltage regulator is on for the VSC station.
-- The reactive power setpoint (in MVar) is required if the voltage regulator is off for the VSC station. A positive value of $$ReactivePowerSetpoint$$ means an injection into the bus, thus a negative value at the corresponding terminal (which is in passive-sign convention).
+- The reactive power setpoint (in MVar) is required if the voltage regulator is off for the VSC station. A positive value of $ReactivePowerSetpoint$ means an injection into the bus, thus a negative value at the corresponding terminal (which is in passive-sign convention).
 - A set of reactive limits can be associated to a VSC converter station. All the reactive limits modelings available in the library are described [here](reactiveLimits.md).
 
 **Metadata**

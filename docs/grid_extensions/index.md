@@ -81,7 +81,7 @@ generator.newExtension(CoordinatedReactiveControlAdder.class)
     .add();
 ```
 
-Please note that the sum of the $$qPercent$$ values of the generators coordinating a same point of the network must be 100.
+Please note that the sum of the $qPercent$ values of the generators coordinating a same point of the network must be 100.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
@@ -112,6 +112,7 @@ The DiscreteMeasurement class characteristics are the following:
 ## HVDC angle droop active power control
 
 This is an extension dedicated to DC line in order to model AC emulation. For a VSC converter station operating in AC emulation, its active power setpoint is given by
+
 $$P = P0 + k~(ph1 - ph2)$$  
 
 | Attribute | Type    | Unit         | Required | Default value | Description                          |
@@ -193,8 +194,8 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
 ## Load asymmetrical
 
-A balanced load is described by its active power setpoint $$P0$$ and its reactive power setpoint $$Q0$$.
-This extension is used to describe the power asymmetry for each ABC phase. In the three-phase representation, the complex power injected at a bus $$i$$ is constant for each phase and represented by three complex values:
+A balanced load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$.
+This extension is used to describe the power asymmetry for each ABC phase. In the three-phase representation, the complex power injected at a bus $i$ is constant for each phase and represented by three complex values:
 
 $$
 \begin{align}
@@ -204,7 +205,7 @@ S_{Ci_{Load}}=S_{C}=P_{C}+j.Q_{C} \\
 \end{align}
 $$
 
-But for a balanced load flow, the constant power load $$P$$ and $$Q$$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three phases representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
+But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three phases representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
 
 <u>Balanced load flow conditions:</u>
 
@@ -250,7 +251,7 @@ $$
 
 | Attribute | Type | Unit | Required | Default value | Description |
 | --------- | ---- | ---- | -------- | ------------- | ----------- |
-| deltaPa | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $$P0$$ and its reactive power setpoint $$Q0$$) |
+| deltaPa | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $P0$ and its reactive power setpoint $Q0$) |
 | deltaQa | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase A |
 | deltaPb | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase B |
 | deltaQb | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase B |
@@ -270,7 +271,7 @@ load.newExtension(LoadAsymmetricalAdder.class)
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
 ## Load detail
-A load is described by its active power setpoint $$P0$$ and its reactive power setpoint $$Q0$$. This extension is used to detail :
+A load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$. This extension is used to detail :
 - In the total amount of active power what is fixed and what is time-dependant (also called variable). The time-dependant part can be adjusted for production equals consumption.
 - In the total amount of reactive power what is fixed and what is time-dependant (also called variable).
 
@@ -445,7 +446,7 @@ This extension is used to model voltage control of static VAR compensators. This
 When this extension is present and the slope greater than zero, the reactive output of the static VAR compensator is defined by:
 
 $$Q = \dfrac{VoltageSetpoint - V}{slope}$$  
-where $$V$$ is the voltage at regulating terminal and $$VoltageSetpoint$$ the target value in voltage given as attribute in a static VAR compensator.
+where $V$ is the voltage at regulating terminal and $VoltageSetpoint$ the target value in voltage given as attribute in a static VAR compensator.
 
 Here is how to add a voltage per reactive power control extension to a static VAR compensator:
 ```java

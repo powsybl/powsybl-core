@@ -75,12 +75,12 @@ Each step of a phase tap changer has the following attributes:
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$r_{\phi, tap}$$ | % | The resistance deviation in percent of nominal value |
-| $$x_{\phi, tap}$$ | % | The reactance deviation in percent of nominal value |
-| $$g_{\phi, tap}$$ | % | The conductance deviation in percent of nominal value |
-| $$b_{\phi, tap}$$ | % | The susceptance deviation in percent of nominal value |
-| $$\rho_{\phi, tap}$$ | p.u. | The voltage ratio in per unit of the rated voltages |
-| $$\alpha_{\phi, tap}$$ | $$^{\circ}$$ | Angle difference |
+| $r_{\phi, tap}$ | % | The resistance deviation in percent of nominal value |
+| $x_{\phi, tap}$ | % | The reactance deviation in percent of nominal value |
+| $g_{\phi, tap}$ | % | The conductance deviation in percent of nominal value |
+| $b_{\phi, tap}$ | % | The susceptance deviation in percent of nominal value |
+| $\rho_{\phi, tap}$ | p.u. | The voltage ratio in per unit of the rated voltages |
+| $\alpha_{\phi, tap}$ | $^{\circ}$ | Angle difference |
 
 ## Ratio tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
@@ -105,8 +105,8 @@ Each step of a ratio tap changer has the following attributes:
 
 | Attribute | Unit | Description |
 | --------- | ---- | ----------- |
-| $$r_{r, tap}$$ | % | The resistance deviation in percent of nominal value |
-| $$x_{r, tap}$$ | % | The reactance deviation in percent of nominal value |
-| $$g_{r, tap}$$ | % | The conductance deviation in percent of nominal value |
-| $$b_{r, tap}$$ | % | The susceptance deviation in percent of nominal value |
-| $$\rho_{r, tap}$$ | p.u. | The voltage ratio in per unit of the rated voltages |
+| $r_{r, tap}$ | % | The resistance deviation in percent of nominal value |
+| $x_{r, tap}$ | % | The reactance deviation in percent of nominal value |
+| $g_{r, tap}$ | % | The conductance deviation in percent of nominal value |
+| $b_{r, tap}$ | % | The susceptance deviation in percent of nominal value |
+| $\rho_{r, tap}$ | p.u. | The voltage ratio in per unit of the rated voltages |
