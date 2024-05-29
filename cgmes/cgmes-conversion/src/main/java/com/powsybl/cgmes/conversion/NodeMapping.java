@@ -128,6 +128,11 @@ public class NodeMapping {
         return cgmes2iidm.containsKey(connectivityNode) ? Optional.of(cgmes2iidm.get(connectivityNode).voltageLevelId) : Optional.empty();
     }
 
+    // This new nodes are not assotiated with ConnectivityNodes
+    public int newNodeForSvInjection(VoltageLevel vl) {
+        return newNode(vl);
+    }
+
     private int newNode(VoltageLevel vl) {
         // Reserve a node number in this voltage level
         // If the voltage level does not exist in the mapping, iidmNode will be zero,

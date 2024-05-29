@@ -215,7 +215,7 @@ SELECT *
 }
 
 # query: svInjections
-SELECT ?SvInjection ?TopologicalNode ?pInjection ?qInjection (SAMPLE(?ConnectivityNode) AS ?ConnectivityNode)
+SELECT ?SvInjection ?TopologicalNode ?pInjection ?qInjection (MIN(?ConnectivityNode) AS ?ConnectivityNode)
 {
     ?SvInjection a cim:SvInjection ;
         cim:SvInjection.TopologicalNode ?TopologicalNode ;

@@ -52,16 +52,13 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
             writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
-            writer.writeOptionalIntAttribute("step",
-                    !tapChanger.isHidden() ? getTapChangerStep(tapChanger) : tapChanger.getStep().orElseThrow(() -> new PowsyblException("Step should be defined")));
+
+            Integer step = tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
+            writer.writeOptionalIntAttribute("step", step);
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndNode();
         }
         writer.writeEndNodes();
-    }
-
-    private Integer getTapChangerStep(CgmesTapChanger tapChanger) {
-        return tapChanger.getStep().isPresent() ? tapChanger.getStep().getAsInt() : null;
     }
 
     @Override

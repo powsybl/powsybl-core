@@ -150,14 +150,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
     protected void updateRegulatingControlForGenerator(Generator generator, boolean controlEnabled) {
         String controlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
         String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode");
-        int terminalSign = 1;
-        String pSign = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign";
-        if (generator.hasProperty(pSign)) {
-            terminalSign = Integer.parseInt(generator.getProperty(pSign));
-        }
+        int terminalSign = findTerminalSign(generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign"));
         RC rc = new RC(controlEnabled, mode, terminalSign);
 
         updateRegulatingControl(generator, rc, controlId);
+    }
+
+    private static int findTerminalSign(String terminalSign) {
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
     private void updateRegulatingControl(Generator gen, RC rc, String controlId) {

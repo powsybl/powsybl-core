@@ -123,7 +123,7 @@ public class TapChangerUpdate extends AbstractIdentifiedObjectConversion {
         int step = initialTapPosition(p, normalStep, context);
         boolean tapChangerControlEnabled = p.asBoolean(CgmesNames.TAP_CHANGER_CONTROL_ENABLED, false);
         String regulatingControlId = getControlId(twt, tapChangerId);
-        int terminalSign = findTerminalSign(twt, end);
+        int terminalSign = findTerminalSign(twt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign" + end));
         return new RC(tapChangerId, step, tapChangerControlEnabled, regulatingControlId, terminalSign);
     }
 
@@ -167,13 +167,8 @@ public class TapChangerUpdate extends AbstractIdentifiedObjectConversion {
         return true;
     }
 
-    private int findTerminalSign(Connectable<?> twt, String end) {
-        int sign = 1;
-        String p = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign" + end;
-        if (twt.hasProperty(p)) {
-            sign = Integer.parseInt(p);
-        }
-        return sign;
+    private int findTerminalSign(String terminalSign) {
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
     }
 
     private void updateTapChangersTwoWindings(TwoWindingsTransformer t2wt, RCTwoWindingsTransformer rc) {

@@ -24,8 +24,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         if (context.nodeBreaker()) {
             String connectivityNode = p.getId("ConnectivityNode");
             if (connectivityNode != null) {
-                findNode(connectivityNode);
-                findVoltageLevelFromConnectivityNode(connectivityNode);
+                findNodeAndVoltageLevelFromConnectivityNode(connectivityNode);
             }
         } else {
             findBusId(tn);
@@ -81,12 +80,11 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         }
     }
 
-    private void findNode(String connectivityNode) {
-        context.nodeMapping().getIidmNodeForConnectivityNode(connectivityNode).ifPresent(n -> node = n);
-    }
-
-    private void findVoltageLevelFromConnectivityNode(String connectivityNode) {
+    private void findNodeAndVoltageLevelFromConnectivityNode(String connectivityNode) {
         context.nodeMapping().getVoltageLevelIdForConnectivityNode(connectivityNode).ifPresent(voltageLevelId -> voltageLevel = context.network().getVoltageLevel(voltageLevelId));
+        if (voltageLevel != null) {
+            node = context.nodeMapping().newNodeForSvInjection(voltageLevel);
+        }
     }
 
     private VoltageLevel voltageLevel;
