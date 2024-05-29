@@ -7,7 +7,7 @@ They can be used by various equipment models.
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ReactiveLimits.html)
 
 The reactive limits may be used to model limitations of the reactive power of
-[generators](#generator), [VSC converter stations](#vsc-converter-station) and [batteries](#battery).
+[generators](./network_subnetwork.md#generator), [VSC converter stations](./network_subnetwork.md#vsc-converter-station) and [batteries](./network_subnetwork.md#battery).
 
 ### Min-Max reactive limits
 With the min-max reactive limits, the reactive power does not depend on the active power. For any active power value, the reactive power value is in the [minQ, maxQ] interval.
@@ -23,8 +23,8 @@ In between the defined points of the curve, the reactive power limits are comput
 Some equipment have operational limits regarding the current, active power or apparent power value, corresponding to the equipment's physical limitations (related to heating).
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
-They may be set for [lines](#line),
-[dangling lines](#dangling-line), [two windings transformers](#two-windings-transformer) and [three windings transformers](#three-windings-transformer). The active power limits are in absolute value.
+They may be set for [lines](./network_subnetwork.md#line),
+[dangling lines](./network_subnetwork.md#dangling-line), [two windings transformers](./network_subnetwork.md#two-windings-transformer) and [three windings transformers](./network_subnetwork.md#three-windings-transformer). The active power limits are in absolute value.
 
 Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
@@ -51,7 +51,7 @@ In PowSyBl, users can store a collection of limits:
 ## Phase tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
 
-A phase tap changer can be added to either [two windings transformers](#two-windings-transformer) or [three windings transformers' legs](#three-windings-transformer-leg).
+A phase tap changer can be added to either [two windings transformers](./network_subnetwork.md#two-windings-transformer) or [three windings transformers' legs](./network_subnetwork.md#three-windings-transformer-leg).
 
 **Specifications**
 
@@ -85,7 +85,7 @@ Each step of a phase tap changer has the following attributes:
 ## Ratio tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
 
-A ratio tap changer can be added to either [two windings transformers](#two-windings-transformer) or [three windings transformers' legs](#three-windings-transformer-leg).
+A ratio tap changer can be added to either [two windings transformers](./network_subnetwork.md#two-windings-transformer) or [three windings transformers' legs](./network_subnetwork.md#three-windings-transformer-leg).
 
 **Specifications**
 

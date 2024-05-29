@@ -11,7 +11,7 @@ Note that some extensions provided by PowSyBl aren't supported in the [persisten
 Every extension is considered as serializable unless explicitly specified as non-serializable in XML-IIDM.
 
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../../simulation/powerflow/index.md#balanceType) on generator). This extension is attached to a [generator](../grid_model/index.md#generator) or a [battery](../grid_model/index.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/powerflow/index.md#balanceType) on generator). This extension is attached to a [generator](../grid_model/network_subnetwork.md#generator) or a [battery](../grid_model/network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                  |
 |----------------------|---------|------------------------|----------|---------------|----------------------------------------------|
@@ -58,9 +58,9 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
 This extension models the status of a connectable. The status could be `IN_OPERATION`, `PLANNED_OUTAGE` or `FORCED_OUTAGE`.
 
-## Bus bar section position
+## Busbar section position
 
-This extension gives positions information about a bus bar section. The `busBarIndex` gives the position of the bus bar section relatively to other bus bars. The `sectionIndex` gives the position of the bus bar section within the corresponding bus bar. Note that a bus bar is a set of bus bar sections. Hence, the sections of a same bus bar should have the same bus bar index. The bus bar indices induce an order of bus bars within the voltage level, which usually reflects the bus bars physical relative positions. Similarly, the section indices induce an order of sections of a same bus bar, which usually reflects their physical relative position.
+This extension gives positions information about a busbar section. The `busBarIndex` gives the position of the bus bar section relatively to other bus bars. The `sectionIndex` gives the position of the bus bar section within the corresponding bus bar. Note that a bus bar is a set of bus bar sections. Hence, the sections of a same bus bar should have the same bus bar index. The bus bar indices induce an order of bus bars within the voltage level, which usually reflects the bus bars physical relative positions. Similarly, the section indices induce an order of sections of a same bus bar, which usually reflects their physical relative position.
 
 ## Connectable position
 
@@ -68,7 +68,7 @@ This extension gives positions information about a bus bar section. The `busBarI
 
 ## Coordinated reactive control
 
-Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percent of reactive coordinated control that comes from a generator. This extension is attached to a [generator](../grid_model/index.md#generator).
+Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percent of reactive coordinated control that comes from a generator. This extension is attached to a [generator](../grid_model/network_subnetwork.md#generator).
 
 | Attribute | Type            | Unit | Required | Default value | Description                                   |
 |-----------|-----------------|------|----------|---------------|-----------------------------------------------|
@@ -328,7 +328,7 @@ This extensions is used for generators with a remote reactive control.
 
 ## Slack terminal
 
-This extension is attached to a [voltage level](../grid_model/index.md#voltage-level) and is used to define the slack bus of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis. Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter [`isReadSlackBus`](../../simulation/powerflow/index.md#available-parameters). Use this extension after a computation to attach to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable default load flow parameter [`isWriteSlackBus`](../../simulation/powerflow/index.md#available-parameters).
+This extension is attached to a [voltage level](../grid_model/network_subnetwork.md#voltage-level) and is used to define the slack bus of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis. Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter [`isReadSlackBus`](../simulation/powerflow/index.md#available-parameters). Use this extension after a computation to attach to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable default load flow parameter [`isWriteSlackBus`](../../simulation/powerflow/index.md#available-parameters).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 
@@ -344,7 +344,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
 ## Three-windings transformer phase angle clock
 
-This extension is used to model the Vector Group of a three windings transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three windings transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three windings transformer](../grid_model/index.md#three-windings-transformer).
+This extension is used to model the Vector Group of a three windings transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three windings transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three windings transformer](../grid_model/network_subnetwork.md#three-windings-transformer).
 
 | Attribute           | Type       | Unit  | Required | Default value | Description                                   |
 |---------------------|------------|-------|----------|---------------|-----------------------------------------------|
@@ -391,7 +391,7 @@ transformer.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
 
 ## Two-windings transformer phase angle clock
 
-This extension is used to model the Vector Group of a two windings transformer. The phase angle clock is modeled at side 2 of a two windings transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two windings transformer](../grid_model/index.md#two-windings-transformer).
+This extension is used to model the Vector Group of a two windings transformer. The phase angle clock is modeled at side 2 of a two windings transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two windings transformer](../grid_model/network_subnetwork.md#two-windings-transformer).
 
 | Attribute       | Type       | Unit  | Required | Default value | Description                          |
 |-----------------|------------|-------|----------|---------------|--------------------------------------|
@@ -437,7 +437,7 @@ transformer.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
 
 ## Voltage per reactive power control
 
-This extension is used to model voltage control of static VAR compensators. This extension is attached to a [static VAR compensator](../grid_model/index.md#static-var-compensator).
+This extension is used to model voltage control of static VAR compensators. This extension is attached to a [static VAR compensator](../grid_model/network_subnetwork.md#static-var-compensator).
 
 | Attribute | Type   | Unit        | Required | Default value | Description                                                   |
 |-----------|--------|-------------|----------|---------------|---------------------------------------------------------------|
@@ -463,7 +463,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
 a power flow calculation, i.e. which bus will be used with a zero voltage angle.
 Use this extension before a computation to force the reference bus selection.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../../simulation/powerflow/openlf.md) implementation
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
 today supports Reference Priorities on generators only when this feature is activated.
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
@@ -486,8 +486,8 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 ## Reference Terminals
 
 This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../../simulation/powerflow/openlf.md) implementation
-today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](./index#reference-priority).
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](./index.md#reference-priority).
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
 0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
