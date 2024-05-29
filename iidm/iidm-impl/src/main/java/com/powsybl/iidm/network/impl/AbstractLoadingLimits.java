@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Collection;
@@ -78,7 +77,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     public L setPermanentLimit(double permanentLimit) {
         NetworkImpl network = group.getNetwork();
         ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
-                network.getMinValidationLevel() == ValidationLevel.STEADY_STATE_HYPOTHESIS);
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         network.invalidateValidationLevel();

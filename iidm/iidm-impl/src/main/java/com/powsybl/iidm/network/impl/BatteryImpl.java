@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -65,7 +65,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public Battery setTargetP(double targetP) {
         NetworkImpl network = getNetwork();
-        ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel());
+        ValidationUtil.checkP0(this, targetP, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         int variantIndex = network.getVariantIndex();
         double oldValue = this.targetP.set(variantIndex, targetP);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
@@ -88,7 +88,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public Battery setTargetQ(double targetQ) {
         NetworkImpl network = getNetwork();
-        ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel());
+        ValidationUtil.checkQ0(this, targetQ, network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         int variantIndex = network.getVariantIndex();
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         String variantId = network.getVariantManager().getVariantId(variantIndex);

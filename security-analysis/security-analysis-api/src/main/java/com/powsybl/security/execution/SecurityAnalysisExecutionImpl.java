@@ -7,7 +7,6 @@
  */
 package com.powsybl.security.execution;
 
-import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisInput;
@@ -56,20 +55,20 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
 
     @Override
     public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
-        SecurityAnalysisInput input = inputBuildStrategy.buildFrom(data);
-        SecurityAnalysis.Runner runner = SecurityAnalysis.find(staticProviderName);
+        SecurityAnalysisInput input = buildInput(data);
+        SecurityAnalysisRunParameters runParameters = new SecurityAnalysisRunParameters()
+                .setSecurityAnalysisParameters(input.getParameters())
+                .setComputationManager(computationManager)
+                .setFilter(input.getFilter())
+                .setDetector(input.getLimitViolationDetector())
+                .setInterceptors(new ArrayList<>(input.getInterceptors()))
+                .setOperatorStrategies(data.getOperatorStrategies())
+                .setActions(data.getActions())
+                .setMonitors(data.getMonitors())
+                .setLimitReductions(data.getLimitReductions());
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getContingenciesProvider(),
-                input.getParameters(),
-                computationManager,
-                input.getFilter(),
-                input.getLimitViolationDetector(),
-                new ArrayList<>(input.getInterceptors()),
-                data.getOperatorStrategies(),
-                data.getActions(),
-                data.getMonitors(),
-                data.getLimitReductions(),
-                ReportNode.NO_OP);
+                runParameters);
     }
 }

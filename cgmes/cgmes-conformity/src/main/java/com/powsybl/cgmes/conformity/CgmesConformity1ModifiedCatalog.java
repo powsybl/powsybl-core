@@ -1643,5 +1643,27 @@ public final class CgmesConformity1ModifiedCatalog {
                         MINI_GRID_BD_TP));
     }
 
+    public static GridModelReferenceResources microGridBaseCaseAssembledSvWithMas() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_Assembled_v2_sv_with_mas/";
+        return new GridModelReferenceResources(
+                "MicroGrid-BaseCase-Assembled-SvWithMas",
+                null,
+                new ResourceSet(base, MICRO_GRID_ASSEMBLED_SV),
+                new ResourceSet(MICRO_GRID_ASSEMBLED_BASE, "MicroGridTestConfiguration_BC_Assembled_DL_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
+                        MICRO_GRID_BE_EQ,
+                        "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
+                        MICRO_GRID_BE_SSH,
+                        MICRO_GRID_BE_TP,
+                        "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
+                        MICRO_GRID_NL_EQ,
+                        "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
+                        MICRO_GRID_NL_SSH,
+                        MICRO_GRID_NL_TP),
+                microGridBaseCaseBoundaries());
+    }
+
     private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
+
 }
