@@ -1,8 +1,8 @@
-## Export
+# Export
 
 <span style="color: red">TODO</span>
 
-### Options
+## Options
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
 
 **iidm.export.xml.indent**  
@@ -52,7 +52,7 @@ There is two possible behaviors:
 - `THROW_EXCEPTION`: an exception is thrown when there is a version incompatibility
   By default, this behavior is set as `THROW_EXCEPTION`
 
-#### Removed properties
+### Removed properties
 
 **iidm.export.xml.export-mode**  
 The `iidm.export.xml.export-mode` property is an optional property that defines the export mode of the XIIDM exporter. The export mode can be:
