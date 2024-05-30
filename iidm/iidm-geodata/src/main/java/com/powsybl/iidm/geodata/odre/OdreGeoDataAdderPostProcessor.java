@@ -56,7 +56,7 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
 
     private static Path getEquipmentFileFromConfig(PlatformConfig platformConfig, String type) {
         Objects.requireNonNull(platformConfig);
-        return platformConfig.getOptionalModuleConfig("odre-geodata-post-processor")
+        return platformConfig.getOptionalModuleConfig("odre-geodata-data-importer-post-processor")
                 .flatMap(config -> config.getOptionalPathProperty(type))
                 .or(() -> platformConfig.getConfigDir().map(dir -> dir.resolve(DEFAULT_FILE_NAMES.get(type))))
                 .orElseThrow(() -> new PowsyblException("No file path nor configuration directory defined in platform config for " + type));
