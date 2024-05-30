@@ -81,7 +81,7 @@ CGMES Busbar sections are mapped to PowSyBl busbar sections only if CGMES is nod
 Every `EnergyConsumer` object in the CGMES model creates a new `Load` in PowSyBl. The attributes are created as such:
 - `P0`, `Q0` are set from CGMES values taken from `SSH`, `SV`, or `EQ` data depending on which are defined.
 - `LoadType` It will be `FICTITIOUS` if the `Id` of the `energyConsumer` contains the pattern `fict`. Otherwise `UNDEFINED`.
-- `LoadDetail` Additional information about conform and non-conform loads is added as an extension of the `Load` object (for more details about the [extension](../../grid_extensions/index.md#load-detail)).
+- `LoadDetail` Additional information about conform and non-conform loads is added as an extension of the `Load` object (for more details about the [extension](../../grid_model/extensions.md#load-detail)).
 
 The `LoadDetail` extension attributes depend on the `type` property of the CGMES `EnergyConsumer`. For a conform load:
 - `withFixedActivePower` is always `0`.
@@ -308,7 +308,7 @@ A CGMES `StaticVarCompensator` is mapped to a PowSyBl [`StaticVarCompensator`](.
 - `Bmin` is calculated from CGMES `inductiveRating`: if it is defined and not equals to `0`, `Bmin` is `1 / inductiveRating`. Else, it is `-Double.MAX_VALUE`.
 - `Bmax` is calculated from CGMES `capacitiveRating`: if it defined and not equals to `0`, `Bmax` is `1 / capacitiveRating`. Else, it is `Double.MAX_VALUE`.
 
-A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_extensions/index.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
+A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
 
 <span style="color: red">TODO regulation</span>
 

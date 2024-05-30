@@ -51,7 +51,7 @@ PowSyBl [`Lines`](../../grid_model/network_subnetwork.md#line) are exported as C
 ### Load
 
 PowSyBl [`Loads`](../../grid_model/network_subnetwork.md#load) are exported as CGMES `ConformLoads`, `NonConformLoads` or `EnergyConsumers` 
-depending on the extension [`LoadDetail`](../../grid_extensions/index.md#load-detail).
+depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
 <span style="color: red">TODO details</span>
 
