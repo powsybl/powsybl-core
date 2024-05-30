@@ -53,13 +53,13 @@ The default value is `TRANSIENT`. The transient and sub-transient reactance of t
 
 This property allows to define an optional coefficient, in case of a sub-transient study, to apply to the transient reactance of generators to get the sub-transient one:
 
-$$X''_d = c \times X'_d$$
+$X''_d = c \times X'_d$
 
 with:
 
-- $$X''_d$$: the sub-transient reactance
-- $$c$$: the sub-transient coefficient defined in this property
-- $$X'_d$$: the transient reactance
+- $X''_d$: the sub-transient reactance
+- $c$: the sub-transient coefficient defined in this property
+- $X'_d$: the transient reactance
 
 By default, the value of the coefficient is 0.7, and it should not be higher than 1.
 
@@ -90,7 +90,7 @@ If `true`, the VSC converter stations will be modeled as an equivalent reactance
 **with-neutral-position**
 
 This property indicates which position of the tap changer of transformers should be used for the calculation. If `true`, the neutral step of the tap changer
-is used. The neutral step is the one for which $$\rho = 1$$ and $$\alpha = 0$$. If `false`, then the step that is in the model will be used.
+is used. The neutral step is the one for which $\rho = 1$ and $\alpha = 0$. If `false`, then the step that is in the model will be used.
 By default, this property is set to false.
 For more information about tap changers, see [the documentation about it](../../grid/model/index.md#phase-tap-changer).
 
