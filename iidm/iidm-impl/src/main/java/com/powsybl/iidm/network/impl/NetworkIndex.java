@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -179,60 +179,10 @@ class NetworkIndex {
      * @param other the index to merge
      */
     void merge(NetworkIndex other) {
-        mergeAreaTypesAndAreas(other);
         for (Identifiable obj : other.objectsById.values()) {
             checkAndAdd(obj);
         }
         other.clean();
-    }
-
-    private void mergeAreaTypesAndAreas(NetworkIndex other) {
-        // First: we need to update the AreaType reference
-        for (AreaType areaTypeOther : new HashSet<>(other.getAll(AreaTypeImpl.class))) {
-            AreaType areaType = get(areaTypeOther.getId(), AreaTypeImpl.class);
-            if (areaType == null) {
-                // The areaType is not in the merged network, so we can just add it
-                checkAndAdd(areaTypeOther);
-            }
-            other.remove(areaTypeOther);
-        }
-
-        // Second: ensure all areas point an updated areaType (not a delete duplicate), and merge duplicated areas
-        for (AreaImpl otherArea : new HashSet<>(other.getAll(AreaImpl.class))) {
-            AreaType otherAreaType = otherArea.getAreaType();
-            AreaType mergedAreaType = get(otherAreaType.getId(), AreaTypeImpl.class);
-            if (otherAreaType.equals(mergedAreaType)) {
-                // If the areaType in the merged network is already the same, it means that it has been added in the first step
-                // There is no Area with a different AreaType but same id in the merged network, because it has been checked when checking mergeability of the networks.
-                checkAndAdd(otherArea);
-            } else {
-                // The type existed in both networks, so there is a merge to do
-                Area area;
-                if (get(otherArea.getId(), AreaImpl.class) == null) {
-                    // The area existed only in the other network, so we create a new equivalent one in the merged network
-                    Network network = mergedAreaType.getNetwork();
-                    area = network.newArea()
-                            .copy(otherArea)
-                            .setAreaType(mergedAreaType)
-                            .add();
-                } else {
-                    // We can just use the preexisting area in the current network
-                    area = get(otherArea.getId(), AreaImpl.class);
-                }
-                // Update the voltage levels and boundary points of the merged area
-                Iterable<VoltageLevel> otherVoltageLevels = otherArea.getVoltageLevels();
-                otherVoltageLevels.forEach(voltageLevel -> {
-                    voltageLevel.removeArea(otherArea);
-                    voltageLevel.addArea(area);
-                });
-                Iterable<Area.BoundaryTerminal> otherBoundaryTerminals = otherArea.getBoundaryTerminals();
-                otherBoundaryTerminals.forEach(boundaryTerminal -> {
-                    otherArea.removeBoundaryTerminal(boundaryTerminal.terminal());
-                    area.addBoundaryTerminal(boundaryTerminal.terminal(), boundaryTerminal.ac());
-                });
-            }
-            other.remove(otherArea);
-        }
     }
 
     void printForDebug(PrintStream out) {

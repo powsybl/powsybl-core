@@ -1048,9 +1048,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
             Collection<String> objs = entry.getValue();
-            if (checkAreasMergeability(clazz, objs, otherNetwork)) {
-                continue;
-            }
             if (!objs.isEmpty()) {
                 throw new PowsyblException("The following object(s) of type "
                         + clazz.getSimpleName() + " exist(s) in both networks: "
@@ -1065,40 +1062,6 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         if (!intersectionVoltageAngleLimits.isEmpty()) {
             throw new PowsyblException("The following voltage angle limit(s) exist(s) in both networks: "
                     + intersectionVoltageAngleLimits);
-        }
-    }
-
-    private boolean checkAreasMergeability(Class<? extends Identifiable> clazz, Collection<String> objs, NetworkImpl otherNetwork) {
-        if (!AreaTypeImpl.class.isAssignableFrom(clazz) && !AreaImpl.class.isAssignableFrom(clazz)) {
-            return false;
-        }
-        objs.forEach(obj -> {
-            AbstractIdentifiable<?> identifiable = (AbstractIdentifiable<?>) index.get(obj, clazz);
-            AbstractIdentifiable<?> otherIdentifiable = (AbstractIdentifiable<?>) otherNetwork.index.get(obj, clazz);
-            checkAttribute(clazz.getSimpleName(), obj, "name", identifiable.getNameOrId(), otherIdentifiable.getNameOrId());
-            checkAttribute(clazz.getSimpleName(), obj, "aliases", identifiable.getAliases(), otherIdentifiable.getAliases());
-            checkAttribute(clazz.getSimpleName(), obj, "isFictitious", identifiable.isFictitious(), otherIdentifiable.isFictitious());
-            checkAttribute(clazz.getSimpleName(), obj, "properties", identifiable.getProperties(), otherIdentifiable.getProperties());
-            checkExtensions(clazz.getSimpleName(), obj, identifiable, otherIdentifiable);
-            if (identifiable instanceof AreaImpl area) {
-                AreaImpl otherArea = (AreaImpl) otherIdentifiable;
-                checkAttribute(clazz.getSimpleName(), obj, "areaType id", area.getAreaType().getId(), otherArea.getAreaType().getId());
-                checkAttribute(clazz.getSimpleName(), obj, "acNetInterchangeTarget", area.getAcNetInterchangeTarget().orElse(null), otherArea.getAcNetInterchangeTarget().orElse(null));
-                checkAttribute(clazz.getSimpleName(), obj, "acNetInterchangeTolerance", area.getAcNetInterchangeTolerance().orElse(null), otherArea.getAcNetInterchangeTolerance().orElse(null));
-            }
-        });
-        return true;
-    }
-
-    private static void checkExtensions(String type, String id, AbstractIdentifiable<?> identifiable, AbstractIdentifiable<?> otherIdentifiable) {
-        if (!identifiable.getExtensions().isEmpty() || !otherIdentifiable.getExtensions().isEmpty()) {
-            throw new PowsyblException("Merge object(s) of type '" + type + "' with id: '" + id + "' can not be merged. Merge '" + type + "' with extensions is not supported");
-        }
-    }
-
-    private static void checkAttribute(String type, String id, String attributeName, Object attribute1, Object attribute2) {
-        if (!Objects.equals(attribute1, attribute2)) {
-            throw new PowsyblException("Cannot merge object(s) of type '" + type + "' with same id: '" + id + "' but with different " + attributeName + ": '" + attribute1 + "' and '" + attribute2 + "'");
         }
     }
 

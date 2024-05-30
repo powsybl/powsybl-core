@@ -75,17 +75,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    public AreaAdder copy(Area otherArea) {
-        this.setId(otherArea.getId())
-                .setName(otherArea.getOptionalName().orElse(null))
-                .setFictitious(otherArea.isFictitious())
-                .setAreaType(otherArea.getAreaType())
-                .setAcNetInterchangeTarget(otherArea.getAcNetInterchangeTarget().orElse(null))
-                .setAcNetInterchangeTolerance(otherArea.getAcNetInterchangeTolerance().orElse(null));
-        otherArea.getPropertyNames().forEach(key -> addProperty(key, otherArea.getProperty(key)));
-        return this;
-    }
-
     protected Ref<NetworkImpl> getNetworkRef() {
         return networkRef;
     }
