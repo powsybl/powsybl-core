@@ -27,8 +27,8 @@ public abstract class AbstractAreaTest {
 
     final Network network = EurostagTutorialExample1Factory.createWithAreas();
 
-    final String biddingZone = "bz";
-    final String region = "rg";
+    final String biddingZone = "biddingZone";
+    final String region = "region";
     final String aic = "aic";
     final Area biddingZoneA = network.getArea("bza");
     final Area biddingZoneB = network.getArea("bzb");
@@ -156,7 +156,7 @@ public abstract class AbstractAreaTest {
         var e1 = assertThrows(PowsyblException.class, () -> biddingZoneB.addVoltageLevel(vlhv2));
         var e2 = assertThrows(PowsyblException.class, () -> vlhv2.addArea(biddingZoneB));
 
-        String expectedMessage = "VoltageLevel VLHV2 is already in Area of the same type=Bidding_Zone with id=bza";
+        String expectedMessage = "VoltageLevel VLHV2 is already in Area of the same type=biddingZone with id=bza";
         assertEquals(expectedMessage, e1.getMessage());
         assertEquals(expectedMessage, e2.getMessage());
     }
