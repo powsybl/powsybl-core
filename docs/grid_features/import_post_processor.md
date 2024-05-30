@@ -93,7 +93,7 @@ import:
 
 ## Geographical data import post-processor
 
-One way to add [geographical positions]() on a network is to use the import post-processor named odreGeoDataImporter, that will automatically add the geographical positions extensions to the network model.
+One way to add geographical positions on a network is to use the import post-processor named odreGeoDataImporter, that will automatically add the [LinePosition](../grid_model/extensions.md#line-position) and [SubstationPosition](../grid_model/extensions.md#substation-position) extensions to the network model.
 
 This processor uses geographical position data formatted in multiple csv files, as it can be obtained on the website [OpenData Réseaux-Energie](https://odre.opendatasoft.com) for the network of the French TSO RTE.
 
