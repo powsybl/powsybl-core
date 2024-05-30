@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
@@ -127,7 +126,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public AreaAdder newArea() {
-        return getNetwork().newArea();
+        return new AreaAdderImpl(rootNetworkRef, ref);
     }
 
     @Override
@@ -137,13 +136,13 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public Stream<Area> getAreaStream() {
-        return getVoltageLevelStream().flatMap(VoltageLevel::getAreasStream).distinct();
+        return getNetwork().getAreaStream().filter(this::contains);
     }
 
     @Override
     public Area getArea(String id) {
         Area area = getNetwork().getArea(id);
-        return Iterables.contains(getAreas(), area) ? area : null;
+        return contains(area) ? area : null;
     }
 
     @Override

@@ -29,10 +29,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final Set<VoltageLevel> voltagelevels = new LinkedHashSet<>();
 
-    public AreaImpl(Ref<NetworkImpl> ref, String id, String name, boolean fictitious, AreaType areaType, Double acNetInterchangeTarget,
+    public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType, Double acNetInterchangeTarget,
                        Double acNetInterchangeTolerance) {
         super(id, name, fictitious);
-        this.networkRef = Objects.requireNonNull(ref);
+        this.networkRef = ref;
+        this.subnetworkRef = subnetworkRef;
         this.areaType = Objects.requireNonNull(areaType);
         this.acNetInterchangeTarget = acNetInterchangeTarget;
         this.acNetInterchangeTolerance = acNetInterchangeTolerance;
@@ -42,6 +43,11 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public NetworkImpl getNetwork() {
         return networkRef.get();
+    }
+
+    @Override
+    public Network getParentNetwork() {
+        return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
     @Override

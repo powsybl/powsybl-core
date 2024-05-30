@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -19,6 +20,7 @@ import java.util.*;
 public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> implements AreaAdder {
 
     private final Ref<NetworkImpl> networkRef;
+    private final Ref<SubnetworkImpl> subnetworkRef;
 
     private String areaType;
 
@@ -32,8 +34,9 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private final Properties properties = new Properties();
 
-    AreaAdderImpl(Ref<NetworkImpl> networkRef) {
+    AreaAdderImpl(Ref<NetworkImpl> networkRef, final RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
+        this.subnetworkRef = subnetworkRef;
         this.boundaryTerminals = new ArrayList<>();
         this.voltageLevels = new HashSet<>();
     }
@@ -110,7 +113,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
     @Override
     public Area add() {
         String id = checkAndGetUniqueId();
-        AreaImpl area = new AreaImpl(getNetworkRef(), id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
+        AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
                 getAcNetInterchangeTolerance());
         area.getBoundaryTerminals().addAll(getBoundaryTerminals());
         getVoltageLevels().forEach(area::addVoltageLevel);

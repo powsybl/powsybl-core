@@ -266,7 +266,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
     @Override
     public AreaAdder newArea() {
-        return new AreaAdderImpl(ref);
+        return new AreaAdderImpl(ref, subnetworkRef);
     }
 
     @Override
