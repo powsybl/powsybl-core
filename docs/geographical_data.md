@@ -42,9 +42,9 @@ Here are the links to obtain the RTE data CSV files, to be used as reference for
 
 | Network element type | RTE data CSV file link                                                                                 |
 |----------------------|--------------------------------------------------------------------------------------------------------|
-| Substations          | [https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/postes-electriques-rte/exports/csv]()     |
-| Aerial lines         | [https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/lignes-aeriennes-rte-nv/exports/csv]()    |
-| Underground lines    | [https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/lignes-souterraines-rte-nv/exports/csv]() |
+| Substations          | [https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/postes-electriques-rte/exports/csv](https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/postes-electriques-rte/exports/csv)     |
+| Aerial lines         | [https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/lignes-aeriennes-rte-nv/exports/csv](https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/lignes-aeriennes-rte-nv/exports/csv)    |
+| Underground lines    | [https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/lignes-souterraines-rte-nv/exports/csv](https://odre.opendatasoft.com/api/explore/v2.1/catalog/datasets/lignes-souterraines-rte-nv/exports/csv) |
 
 To use this import post-processor, two things must be added to the PowSyBl configuration file.
 
