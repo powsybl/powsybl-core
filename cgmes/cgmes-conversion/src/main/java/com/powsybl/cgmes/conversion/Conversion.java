@@ -289,11 +289,12 @@ public class Conversion {
         Context context = createUpdateContext(network, reportNode);
         context.terminalMapping().copyFromConvertToUpdate(convertContext.terminalMapping());
         context.nodeMapping().copyFromConvertToUpdate(convertContext.nodeMapping());
-        update(network, context);
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
+
+        update(network, context);
 
         System.err.printf("UpdateAfterConvert End ... %n");
     }
