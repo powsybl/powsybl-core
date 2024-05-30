@@ -35,7 +35,6 @@
                 <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
             </xs:choice>
             <xs:element name="voltageAngleLimit" minOccurs="0" maxOccurs="unbounded" type="iidm:VoltageAngleLimit"/>
-            <xs:element name="areaType" type="iidm:AreaType" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="area" type="iidm:Area" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
@@ -701,11 +700,6 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
             </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-    <xs:complexType name="AreaType">
-        <xs:complexContent>
-            <xs:extension base="iidm:Identifiable"/>
         </xs:complexContent>
     </xs:complexType>
     <xs:complexType name="VoltageLevelRef">
