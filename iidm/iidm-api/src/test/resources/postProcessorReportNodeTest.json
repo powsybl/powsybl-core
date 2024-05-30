@@ -1,5 +1,12 @@
 {
-  "version" : "2.0",
+  "version" : "2.1",
+  "dictionaries" : {
+    "default" : {
+      "test" : "Import model ${model}",
+      "testImportPostProcessor" : "testing import post processor",
+      "testPostProcessor" : "Test importer post processor"
+    }
+  },
   "reportRoot" : {
     "messageKey" : "testPostProcessor",
     "children" : [ {
@@ -11,13 +18,6 @@
       }
     }, {
       "messageKey" : "testImportPostProcessor"
-    } ],
-    "dictionaries" : {
-      "default" : {
-        "test" : "Import model ${model}",
-        "testImportPostProcessor" : "testing import post processor",
-        "testPostProcessor" : "Test importer post processor"
-      }
-    }
+    } ]
   }
 }
