@@ -70,7 +70,9 @@ public final class CgmesExportUtil {
     public static String format(double value, double defaultValue) {
         // Always use scientific format for extreme values
         if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
-            return scientificFormat(value, defaultValue);
+            // CIMXML expects xsd:float values
+            float value1 = value == Double.MAX_VALUE ? Float.MAX_VALUE : -Float.MAX_VALUE;
+            return scientificFormat(value1, defaultValue);
         }
         return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
