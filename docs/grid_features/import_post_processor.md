@@ -1,5 +1,5 @@
 # Import post-processor
-The import post-processor is a feature that allows to do automatic modifications or simulations, just after a case is converted to an [IIDM](../grid_exchange_formats/xiidm/xiidm.md) network. These post-processors rely on the [plugin mechanism]() of PowSyBl meaning that they are discovered at runtime. To enable one or more post-processors, the `postprocessors` property of the `import` module must be defined in the configuration file. Note that if you configure several post-processors, they are executed in the declaration order, like a pipeline:  
+The import post-processor is a feature that allows to do automatic modifications or simulations, just after a case is converted to an [IIDM](../grid_exchange_formats/iidm/index.md) network. These post-processors rely on the [plugin mechanism]() of PowSyBl meaning that they are discovered at runtime. To enable one or more post-processors, the `postprocessors` property of the `import` module must be defined in the configuration file. Note that if you configure several post-processors, they are executed in the declaration order, like a pipeline:  
 <span style="color: red">TODO: insert a picture
 
 PowSyBl provides 3 different implementations of post-processors:
