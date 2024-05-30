@@ -227,20 +227,8 @@ class MergeTest {
     }
 
     private static Network createNodeBreakerWithVoltageAngleLimit(NetworkFactory networkFactory, String nid, String valId) {
-        Network network = createNodeBreaker(networkFactory, nid, "nodeBreakerWithVoltageAngleLimit");
 
-        network.newVoltageAngleLimit()
-            .setId(valId)
-            .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
-            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
-            .setHighLimit(0.25)
-            .add();
-
-        return network;
-    }
-
-    private static Network createNodeBreaker(NetworkFactory networkFactory, String nid, String networkId) {
-        Network network = networkFactory.createNetwork(id(networkId, nid), "test");
+        Network network = networkFactory.createNetwork(id("nodeBreakerWithVoltageAngleLimit", nid), "test");
         double vn = 225.0;
 
         // First substation
@@ -282,6 +270,14 @@ class MergeTest {
 
         // Line between both substations
         createLine(network, id("S1VL1", nid), id("S2VL1", nid), id("Line-2-2", nid), 2, 2);
+
+        network.newVoltageAngleLimit()
+            .setId(valId)
+            .from(network.getLine(id("Line-2-2", nid)).getTerminal1())
+            .to(network.getDanglingLine(id("Dl-3", nid)).getTerminal())
+            .setHighLimit(0.25)
+            .add();
+
         return network;
     }
 
