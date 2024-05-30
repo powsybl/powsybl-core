@@ -126,7 +126,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (generator == null) {
             return;
         }
-        updateTerminalData(network, generator);
+        updateTerminalData(generator);
         PowerFlow f = powerFlow();
         if (f.defined()) {
             double targetP = -f.p();

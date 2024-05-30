@@ -134,10 +134,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             return;
         }
         if (connectable.getType().equals(IdentifiableType.GENERATOR)) {
-            updateTerminalData(network, connectable);
+            updateTerminalData(connectable);
             updateGenerator((Generator) connectable);
         } else if (connectable.getType().equals(IdentifiableType.DANGLING_LINE)) {
-            updateTerminalData(network, connectable);
+            updateTerminalData(connectable);
             updateDanglingLine((DanglingLine) connectable);
         } else {
             throw new ConversionException("Unexpected connectable type: " + connectable.getType().name());

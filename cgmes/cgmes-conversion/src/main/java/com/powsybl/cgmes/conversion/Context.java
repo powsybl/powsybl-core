@@ -56,7 +56,7 @@ public class Context {
         dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
-        nodeMapping = new NodeMapping(this);
+        nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();

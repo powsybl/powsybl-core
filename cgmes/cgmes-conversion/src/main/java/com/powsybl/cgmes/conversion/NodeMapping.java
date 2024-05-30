@@ -9,8 +9,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.HashMap;
@@ -23,8 +21,7 @@ import java.util.OptionalInt;
  */
 public class NodeMapping {
 
-    public NodeMapping(Context context) {
-        this.context = context;
+    public NodeMapping() {
         cgmes2iidm = new HashMap<>(100);
         voltageLevelNumNodes = new HashMap<>(100);
     }
@@ -34,80 +31,21 @@ public class NodeMapping {
         this.voltageLevelNumNodes.putAll(convertNodeMapping.voltageLevelNumNodes);
     }
 
-    public int iidmNodeForTopologicalNode(String id, int associatedNode, VoltageLevel vl) {
-        String uniqueId;
-        int i = 0;
-        do {
-            uniqueId = id + "#" + i++;
-        } while (cgmes2iidm.containsKey(uniqueId) && i < Integer.MAX_VALUE);
-        int iidmNodeForTopologicalNode = newNode(vl);
-        cgmes2iidm.put(uniqueId, new RNode(vl.getId(), iidmNodeForTopologicalNode));
-        vl.getNodeBreakerView().newInternalConnection()
-                .setNode1(iidmNodeForTopologicalNode)
-                .setNode2(associatedNode)
-                .add();
-        return iidmNodeForTopologicalNode;
-    }
-
-    public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl) {
-        return iidmNodeForTerminal(t, isSwitchEnd, vl, true);
-    }
-
-    public int iidmNodeForTerminal(CgmesTerminal t, boolean isSwitchEnd, VoltageLevel vl, boolean equipmentIsConnected) {
+    public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl) {
         int iidmNodeForConductingEquipment = iidmNodeForConnectivityNode(t.id(), vl);
         // Add internal connection from terminal to connectivity node
         int iidmNodeForConnectivityNode = iidmNodeForConnectivityNode(t.connectivityNode(), vl);
 
         // For node-breaker models we create an internal connection between
         // the terminal and its connectivity node
-        // Because there are some node-breaker models that,
-        // in addition to the information of opened switches also set
-        // the terminal.connected property to false,
-        // we have decided to create fictitious switches to precisely
-        // map this situation to IIDM.
-        // This behavior can be disabled through configuration.
 
-        boolean connected = t.connected() && equipmentIsConnected;
-
-        if (connected || !createFictitiousSwitch(context.config().getCreateFictitiousSwitchesForDisconnectedTerminalsMode(), isSwitchEnd)) {
-            // TODO(Luma): do not add an internal connection if is has already been added?
-            vl.getNodeBreakerView().newInternalConnection()
-                    .setNode1(iidmNodeForConductingEquipment)
-                    .setNode2(iidmNodeForConnectivityNode)
-                    .add();
-        } else {
-            // Only add fictitious switches for disconnected terminals if not already added
-            // Use the id and name of terminal
-            String switchId = t.id() + "_SW_fict";
-            if (vl.getNetwork().getSwitch(switchId) == null) {
-                Switch sw = vl.getNodeBreakerView().newSwitch()
-                        .setFictitious(true)
-                        .setId(switchId)
-                        .setName(t.name())
-                        .setNode1(iidmNodeForConductingEquipment)
-                        .setNode2(iidmNodeForConnectivityNode)
-                        .setOpen(true)
-                        .setKind(SwitchKind.BREAKER)
-                        .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                        .add();
-                sw.setProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL, "true");
-            }
-        }
+        // TODO(Luma): do not add an internal connection if is has already been added?
+        vl.getNodeBreakerView().newInternalConnection()
+                .setNode1(iidmNodeForConductingEquipment)
+                .setNode2(iidmNodeForConnectivityNode)
+                .add();
 
         return iidmNodeForConductingEquipment;
-    }
-
-    private static boolean createFictitiousSwitch(CgmesImport.FictitiousSwitchesCreationMode mode, boolean isSwitchEnd) {
-        switch (mode) {
-            case ALWAYS:
-                return true;
-            case NEVER:
-                return false;
-            case ALWAYS_EXCEPT_SWITCHES:
-                return !isSwitchEnd;
-            default:
-                throw new IllegalStateException("Unsupported specified mode to create fictitious switches for disconnected terminals: " + mode.name());
-        }
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {
@@ -147,5 +85,4 @@ public class NodeMapping {
 
     private final Map<String, RNode> cgmes2iidm;
     private final Map<VoltageLevel, Integer> voltageLevelNumNodes;
-    private final Context context;
 }

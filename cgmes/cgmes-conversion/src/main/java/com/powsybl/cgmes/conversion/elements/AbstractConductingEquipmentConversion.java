@@ -143,7 +143,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return true;
     }
 
-    void updateTerminalData(Network network, Identifiable<?> identifiable) {
+    void updateTerminalData(Identifiable<?> identifiable) {
         // FIXME(Luma) we try to gather terminal data for this equipment ...
         //  do we have to take into account the eventual cgmes naming strategy??
         //Identifiable<?> idable = network.getIdentifiable(id);
@@ -344,20 +344,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     int iidmNode() {
-        return iidmNode(1, true);
+        return iidmNode(1);
     }
 
     int iidmNode(int n) {
-        return iidmNode(n, true);
-    }
-
-    int iidmNode(int n, boolean equipmentIsConnected) {
         if (!context.nodeBreaker()) {
             throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
         }
         VoltageLevel vl = terminals[n - 1].voltageLevel;
         CgmesTerminal t = terminals[n - 1].t;
-        return context.nodeMapping().iidmNodeForTerminal(t, type.equals("Switch"), vl, equipmentIsConnected);
+        return context.nodeMapping().iidmNodeForTerminal(t, vl);
     }
 
     String busId() {
@@ -413,10 +409,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     private PowerFlow stateVariablesPowerFlow() {
         return terminals[0].t.flow();
-    }
-
-    public PowerFlow stateVariablesPowerFlow(int n) {
-        return terminals[n - 1].t.flow();
     }
 
     private PowerFlow steadyStateHypothesisPowerFlow() {
@@ -584,8 +576,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
                 .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setNode1(iidmNode(1, branchIsClosed))
-                .setNode2(iidmNode(2, branchIsClosed));
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
         } else {
             String busId1 = busId(1);
             String busId2 = busId(2);

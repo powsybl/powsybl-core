@@ -58,7 +58,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         if (load == null) {
             return;
         }
-        updateTerminalData(network, load);
+        updateTerminalData(load);
         double pFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "pFixed"));
         double qFixed = Double.parseDouble(load.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "qFixed"));
         load.setP0(p0(pFixed)).setQ0(q0(qFixed));
