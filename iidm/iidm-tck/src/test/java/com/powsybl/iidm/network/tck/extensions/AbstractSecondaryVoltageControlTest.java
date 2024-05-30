@@ -52,7 +52,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
     }
 
     @Test
-    void test() throws IOException {
+    public void test() throws IOException {
         assertEquals(1, control.getControlZones().size());
         assertTrue(control.getControlZone("z1").isPresent());
         ControlZone z1 = control.getControlZones().get(0);
@@ -71,7 +71,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
     }
 
     @Test
-    void pilotPointTargetVoltageNotificationTest() {
+    public void pilotPointTargetVoltageNotificationTest() {
         boolean[] updated = new boolean[1];
         network.addListener(new DefaultNetworkListener() {
             @Override
@@ -90,7 +90,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
     }
 
     @Test
-    void controlUnitParticipateNotificationTest() {
+    public void controlUnitParticipateNotificationTest() {
         boolean[] updated = new boolean[1];
         network.addListener(new DefaultNetworkListener() {
             @Override
@@ -110,7 +110,7 @@ public abstract class AbstractSecondaryVoltageControlTest {
     }
 
     @Test
-    void extensionRemovalAndCreationNotificationTest() {
+    public void extensionRemovalAndCreationNotificationTest() {
         boolean[] removedBefore = new boolean[1];
         boolean[] removedAfter = new boolean[1];
         boolean[] created = new boolean[1];

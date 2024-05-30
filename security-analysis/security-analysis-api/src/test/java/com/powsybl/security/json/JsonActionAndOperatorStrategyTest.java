@@ -46,7 +46,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             operatorStrategies.write(bos);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/OperatorStrategyFileOldVersionReferenceTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileOldVersionReferenceTest.json"), new ByteArrayInputStream(bos.toByteArray()));
         }
     }
 
@@ -55,7 +55,7 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.1.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             operatorStrategies.write(bos);
-            ComparisonUtils.compareTxt(getClass().getResourceAsStream("/OperatorStrategyFileOldVersionReferenceTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileOldVersionReferenceTest.json"), new ByteArrayInputStream(bos.toByteArray()));
         }
     }
 

@@ -26,7 +26,7 @@ public class LoadingLimitsMapping {
         this.context = Objects.requireNonNull(context);
     }
 
-    public LoadingLimitsAdder<?, ?> computeIfAbsentLoadingLimitsAdder(String id, Supplier<LoadingLimitsAdder<?, ?>> supplier) {
+    public LoadingLimitsAdder computeIfAbsentLoadingLimitsAdder(String id, Supplier<LoadingLimitsAdder<?, ?>> supplier) {
         return adders.computeIfAbsent(id, s -> supplier.get());
     }
 

@@ -401,7 +401,7 @@ class VariantManagerImplTest {
         }).start();
         cdl1.await();
         if (exceptionThrown[0] != null) {
-            throw new IllegalStateException(exceptionThrown[0]);
+            fail(exceptionThrown[0]);
         }
     }
 

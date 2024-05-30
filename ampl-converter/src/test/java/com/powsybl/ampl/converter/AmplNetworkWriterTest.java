@@ -11,10 +11,7 @@ import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -33,7 +30,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
-            compareTxt(getClass().getResourceAsStream("/" + refFileName), actual);
+            assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
         }
     }
 
@@ -277,5 +274,29 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
         assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0]"));
 
+    }
+
+    @Test
+    void writeLineWithDifferentNominalVoltageAtEnds() throws IOException {
+        Network network = SvcTestCaseFactory.create();
+        network.getVoltageLevel("VL2").setNominalV(400);
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/line-with-different-nominal-voltage-at-ends-test-case.txt");
+    }
+
+    @Test
+    void writeZeroImpedanceLineWithDifferentNominalVoltageAtEnds() throws IOException {
+        Network network = SvcTestCaseFactory.create();
+        network.getVoltageLevel("VL2").setNominalV(400);
+        network.getLine("L1").setR(0)
+                                .setX(0);
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/zero-impedance-line-with-different-nominal-voltage-at-ends-test-case.txt");
     }
 }

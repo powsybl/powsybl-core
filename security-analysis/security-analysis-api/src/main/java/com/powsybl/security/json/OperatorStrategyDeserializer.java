@@ -10,7 +10,6 @@ package com.powsybl.security.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.powsybl.security.json.OperatorStrategyListDeserializer.OPERATOR_STRATEGY_LIST_SOURCE_VERSION_ATTRIBUTE;
 import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
@@ -44,7 +44,7 @@ public class OperatorStrategyDeserializer extends StdDeserializer<OperatorStrate
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
-    private static class ParsingContext {
+    private static final class ParsingContext {
         String version;
         String id;
         ContingencyContextType contingencyContextType;
