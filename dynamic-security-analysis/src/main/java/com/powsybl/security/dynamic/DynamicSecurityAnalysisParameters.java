@@ -19,6 +19,9 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
+ * Parameters for dynamic security analysis computation.
+ * Extensions may be added, for instance for implementation-specific parameters.
+ *
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
 public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisParameters<DynamicSecurityAnalysisParameters> {
@@ -43,6 +46,11 @@ public class DynamicSecurityAnalysisParameters extends AbstractSecurityAnalysisP
             this.contingenciesStartTime = contingenciesStartTime;
         }
 
+        /**
+         * Defines when the contingencies start during the dynamic simulation.
+         * Must be between {@link DynamicSimulationParameters#getStartTime()} and {@link DynamicSimulationParameters#getStopTime()} ()}
+         * @return
+         */
         public int getContingenciesStartTime() {
             return contingenciesStartTime;
         }
