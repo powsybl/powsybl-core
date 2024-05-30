@@ -18,7 +18,9 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
@@ -30,21 +32,25 @@ public class OdreGeoDataCsvLoader {
 
     public static List<SubstationGeoData> getSubstationsGeoData(Path path) {
         try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
-            return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader).values());
+            if (FileValidator.validateSubstations(path)) {
+                return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader).values());
+            } else {
+                return Collections.emptyList();
+            }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
-        try (BufferedReader aerialBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(aerialLinesFilePath))));
-            BufferedReader undergroundBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(undergroundLinesFilePath))));
-            BufferedReader substationBufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))));
-            ) {
-            return new ArrayList<>(GeographicDataParser.parseLines(aerialBufferedReader, undergroundBufferedReader,
-                GeographicDataParser.parseSubstations(substationBufferedReader)).values());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        Map<String, BufferedReader> mapValidation = FileValidator.validateLines(List.of(substationPath,
+                aerialLinesFilePath, undergroundLinesFilePath));
+        if (mapValidation.size() == 3) {
+            return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
+                    mapValidation.get(FileValidator.UNDERGROUND_LINES),
+                    GeographicDataParser.parseSubstations(mapValidation.get(FileValidator.SUBSTATIONS))).values());
+        } else {
+            return Collections.emptyList();
         }
     }
 }

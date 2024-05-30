@@ -40,28 +40,31 @@ public final class FileValidator {
     private static final Logger LOGGER = LoggerFactory.getLogger(FileValidator.class);
     static final String COUNTRY_FR = "FR";
     static final CsvPreference CSV_PREFERENCE = new CsvPreference.Builder('"', ';', System.lineSeparator()).build();
-    static final String TYPE = "text/csv";
-    public static final String CODE_LIGNE_1 = "code_ligne";
-    public static final String CODE_LIGNE_2 = "identification_2";
-    public static final String CODE_LIGNE_3 = "identification_3";
-    public static final String CODE_LIGNE_4 = "identification_4";
-    public static final String CODE_LIGNE_5 = "identification_5";
-    public static final String CODE_LIGNE_KEY_1 = "id1";
-    public static final String CODE_LIGNE_KEY_2 = "id2";
-    public static final String CODE_LIGNE_KEY_3 = "id3";
-    public static final String CODE_LIGNE_KEY_4 = "id4";
-    public static final String CODE_LIGNE_KEY_5 = "id5";
-    static final Map<String, String> IDS_COLUMNS_NAME = Map.of("id1", CODE_LIGNE_1, "id2", CODE_LIGNE_2, "id3", CODE_LIGNE_3, "id4", CODE_LIGNE_4, "id5", CODE_LIGNE_5);
+    public static final String SUBSTATIONS = "substations";
+    public static final String AERIAL_LINES = "aerial-lines";
+    public static final String UNDERGROUND_LINES = "underground-lines";
+    static final String EQUIPMENT_TYPE = "type_ouvrage";
+    static final String NULL_EQUIPMENT_TYPE = "NULL";
+    static final String AERIAL_EQUIPMENT_TYPE = "AERIEN";
+    static final String UNDERGROUND_EQUIPMENT_TYPE = "SOUTERRAIN";
+    public static final String LINE_ID_1 = "code_ligne";
+    public static final String LINE_ID_2 = "identification_2";
+    public static final String LINE_ID_3 = "identification_3";
+    public static final String LINE_ID_4 = "identification_4";
+    public static final String LINE_ID_5 = "identification_5";
+    public static final String LINE_ID_KEY_1 = "id1";
+    public static final String LINE_ID_KEY_2 = "id2";
+    public static final String LINE_ID_KEY_3 = "id3";
+    public static final String LINE_ID_KEY_4 = "id4";
+    public static final String LINE_ID_KEY_5 = "id5";
+    static final Map<String, String> IDS_COLUMNS_NAME = Map.of("id1", LINE_ID_1, "id2", LINE_ID_2, "id3", LINE_ID_3, "id4", LINE_ID_4, "id5", LINE_ID_5);
     public static final String GEO_SHAPE = "geo_shape";
-    static final String CODE_POSTE = "code_poste";
-    static final String LONGITUDE_POSTE_DD = "longitude_poste";
-    static final String LATITUDE_POSTE_DD = "latitude_poste";
-    private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = List.of(CODE_POSTE, LONGITUDE_POSTE_DD, LATITUDE_POSTE_DD);
-    private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
-    private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(CODE_LIGNE_1, CODE_LIGNE_2, CODE_LIGNE_3, CODE_LIGNE_4, CODE_LIGNE_5, GEO_SHAPE);
-    private static final String SUBSTATIONS = "postes-electriques";
-    private static final String AERIAL_LINES = "lignes-aeriennes";
-    private static final String UNDERGROUND_LINES = "lignes-souterraines";
+    static final String SUBSTATION_ID = "code_poste";
+    static final String SUBSTATION_LONGITUDE = "longitude_poste";
+    static final String SUBSTATION_LATITUDE = "latitude_poste";
+    private static final List<String> SUBSTATIONS_EXPECTED_HEADERS = List.of(SUBSTATION_ID, SUBSTATION_LONGITUDE, SUBSTATION_LATITUDE);
+    private static final List<String> AERIAL_LINES_EXPECTED_HEADERS = List.of(LINE_ID_1, LINE_ID_2, LINE_ID_3, LINE_ID_4, LINE_ID_5, GEO_SHAPE);
+    private static final List<String> UNDERGROUND_LINES_EXPECTED_HEADERS = List.of(LINE_ID_1, LINE_ID_2, LINE_ID_3, LINE_ID_4, LINE_ID_5, GEO_SHAPE);
 
     public static boolean validateSubstations(Path path) {
         try (BufferedReader fileReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8));
@@ -87,19 +90,19 @@ public final class FileValidator {
                 final String[] headersString = mapReader.getHeader(true);
                 final List<String> headers = List.of(headersString);
                 Map<String, String> row = mapReader.read(headersString);
-                String typeOuvrage = row.get("type_ouvrage");
-                switch ((typeOuvrage != null) ? typeOuvrage : "NULL") {
-                    case "NULL":
-                        getIfSubstationsOrLogError(mapResult, path, headers, typeOuvrage);
+                String equipmentType = row.get(EQUIPMENT_TYPE);
+                switch ((equipmentType != null) ? equipmentType : NULL_EQUIPMENT_TYPE) {
+                    case NULL_EQUIPMENT_TYPE:
+                        getIfSubstationsOrLogError(mapResult, path, headers, equipmentType);
                         break;
-                    case "AERIEN":
+                    case AERIAL_EQUIPMENT_TYPE:
                         getResultOrLogError(headers, AERIAL_LINES_EXPECTED_HEADERS, mapResult, AERIAL_LINES, path);
                         break;
-                    case "SOUTERRAIN":
+                    case UNDERGROUND_EQUIPMENT_TYPE:
                         getResultOrLogError(headers, UNDERGROUND_LINES_EXPECTED_HEADERS, mapResult, UNDERGROUND_LINES, path);
                         break;
                     default:
-                        LOGGER.error("The file {} has no known equipment type : {}", path.getFileName(), typeOuvrage);
+                        LOGGER.error("The file {} has no known equipment type : {}", path.getFileName(), equipmentType);
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);

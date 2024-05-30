@@ -57,9 +57,9 @@ public final class GeographicDataParser {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                String id = row.get(FileValidator.CODE_POSTE);
-                double lon = Double.parseDouble(row.get(FileValidator.LONGITUDE_POSTE_DD));
-                double lat = Double.parseDouble(row.get(FileValidator.LATITUDE_POSTE_DD));
+                String id = row.get(FileValidator.SUBSTATION_ID);
+                double lon = Double.parseDouble(row.get(FileValidator.SUBSTATION_LONGITUDE));
+                double lat = Double.parseDouble(row.get(FileValidator.SUBSTATION_LATITUDE));
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
                     SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
@@ -165,7 +165,7 @@ public final class GeographicDataParser {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.CODE_LIGNE_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
+                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
                 GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;

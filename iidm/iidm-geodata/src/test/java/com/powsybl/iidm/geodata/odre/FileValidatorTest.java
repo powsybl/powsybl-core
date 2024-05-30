@@ -25,15 +25,15 @@ class FileValidatorTest {
     @Test
     void whenCallingValidate() throws URISyntaxException {
         Path file = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/substations.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/lignes-aeriennes-rte-nv.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/aerial-lines.csv").toURI());
         Path undergroundLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/lignes-souterraines-rte-nv.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/underground-lines.csv").toURI());
         Path substationsFile = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/postes-electriques-rte.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/substations.csv").toURI());
         Path invalidFile = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/postes-electriques-rte-erreur.csv").toURI());
+                .getClassLoader().getResource("eurostag-test/substations-error.csv").toURI());
 
         // test substations file validator with valid file
         assertTrue(FileValidator.validateSubstations(file));

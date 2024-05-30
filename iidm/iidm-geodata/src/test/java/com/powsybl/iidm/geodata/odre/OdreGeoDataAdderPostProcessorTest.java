@@ -110,21 +110,21 @@ class OdreGeoDataAdderPostProcessorTest {
         processor.process(network, computationManager);
         assertNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
 
-        Path path = platformConfig.getConfigDir().map(p -> p.resolve("postes-electriques-rte.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/postes-electriques-rte.csv"), path);
+        Path path = platformConfig.getConfigDir().map(p -> p.resolve("substations.csv")).orElse(null);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/substations.csv"), path);
         processor.process(network, computationManager);
 
         assertNotNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
         assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
 
-        Path aerialLinePath = platformConfig.getConfigDir().map(p -> p.resolve("lignes-aeriennes-rte-nv.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/lignes-aeriennes-rte-nv.csv"), aerialLinePath);
+        Path aerialLinePath = platformConfig.getConfigDir().map(p -> p.resolve("aerial-lines.csv")).orElse(null);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/aerial-lines.csv"), aerialLinePath);
         processor.process(network, computationManager);
 
         assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
 
-        Path undergroundLinePath = platformConfig.getConfigDir().map(p -> p.resolve("lignes-souterraines-rte-nv.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/lignes-souterraines-rte-nv.csv"), undergroundLinePath);
+        Path undergroundLinePath = platformConfig.getConfigDir().map(p -> p.resolve("underground-lines.csv")).orElse(null);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/underground-lines.csv"), undergroundLinePath);
         processor.process(network, computationManager);
 
         assertNotNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));

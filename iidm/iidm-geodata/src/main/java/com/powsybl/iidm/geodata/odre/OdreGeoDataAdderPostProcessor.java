@@ -28,9 +28,9 @@ import java.util.Objects;
 public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
 
     public static final String NAME = "odreGeoDataImporter";
-    public static final Map<String, String> DEFAULT_FILE_NAMES = Map.of("substations", "postes-electriques-rte.csv",
-            "aerial-lines", "lignes-aeriennes-rte-nv.csv",
-            "underground-lines", "lignes-souterraines-rte-nv.csv");
+    public static final Map<String, String> DEFAULT_FILE_NAMES = Map.of("substations", "substations.csv",
+            "aerial-lines", "aerial-lines.csv",
+            "underground-lines", "underground-lines.csv");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OdreGeoDataAdderPostProcessor.class);
     private final Path substationsFilePath;
