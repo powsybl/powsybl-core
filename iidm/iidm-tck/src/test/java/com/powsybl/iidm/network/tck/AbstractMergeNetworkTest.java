@@ -457,7 +457,7 @@ public abstract class AbstractMergeNetworkTest {
         AreaType n1Tso = addAreaType(n1, "tso");
         AreaType n2Bz = addAreaType(n2, "bz");
         Area n1TsoA = addArea(n1, "tsoA", n1Tso);
-        Area n2BzB = n2.newArea().setId("bzB").setAreaType(n2Bz).setAcNetInterchangeTarget(100.).add();
+        Area n2BzB = n2.newArea().setId("bzB").setName("bzB_Name").setAreaType(n2Bz).setFictitious(true).setAcNetInterchangeTarget(100.).add();
         n1TsoA.addVoltageLevel(n1.getVoltageLevel("vl1"));
         n2BzB.addVoltageLevel(n2.getVoltageLevel("vl2"));
 
@@ -467,6 +467,7 @@ public abstract class AbstractMergeNetworkTest {
         checkAreas(merged, List.of("tsoA", "bzB"));
         final Area mergedBzB = merged.getArea("bzB");
         assertNotNull(mergedBzB);
+        assertTrue(mergedBzB.isFictitious());
         assertTrue(mergedBzB.getAcNetInterchangeTarget().isPresent());
         assertEquals(100., mergedBzB.getAcNetInterchangeTarget().get());
 
@@ -484,6 +485,7 @@ public abstract class AbstractMergeNetworkTest {
         checkAreas(n2Detached, List.of("bzB"));
         final Area detachedBzB = n2Detached.getArea("bzB");
         assertNotNull(detachedBzB);
+        assertTrue(detachedBzB.isFictitious());
         assertTrue(detachedBzB.getAcNetInterchangeTarget().isPresent());
         assertEquals(100., detachedBzB.getAcNetInterchangeTarget().get());
     }
@@ -509,11 +511,15 @@ public abstract class AbstractMergeNetworkTest {
     private static void checkAreas(final Network merged, final List<String> expectedAreaIds) {
         assertEquals(expectedAreaIds.size(), merged.getAreaStream().count());
         assertTrue(merged.getAreaStream().map(Area::getId).toList().containsAll(expectedAreaIds));
+        final List<String> expectedNames = expectedAreaIds.stream().map(id -> id + "_Name").toList();
+        assertTrue(merged.getAreaStream().map(Area::getNameOrId).toList().containsAll(expectedNames));
     }
 
     private static void checkAreaTypes(final Network merged, final List<String> expectedAreaTypeIds) {
         assertEquals(expectedAreaTypeIds.size(), merged.getAreaTypeStream().count());
         assertTrue(merged.getAreaTypeStream().map(AreaType::getId).toList().containsAll(expectedAreaTypeIds));
+        final List<String> expectedNames = expectedAreaTypeIds.stream().map(id -> id + "_Name").toList();
+        assertTrue(merged.getAreaTypeStream().map(AreaType::getNameOrId).toList().containsAll(expectedNames));
     }
 
     @Test
