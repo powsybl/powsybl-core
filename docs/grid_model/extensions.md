@@ -60,7 +60,7 @@ This extension models the status of a connectable. The status could be `IN_OPERA
 
 ## Busbar section position
 
-This extension gives positions information about a busbar section. The `busBarIndex` gives the position of the bus bar section relatively to other bus bars. The `sectionIndex` gives the position of the bus bar section within the corresponding bus bar. Note that a bus bar is a set of bus bar sections. Hence, the sections of a same bus bar should have the same bus bar index. The bus bar indices induce an order of bus bars within the voltage level, which usually reflects the bus bars physical relative positions. Similarly, the section indices induce an order of sections of a same bus bar, which usually reflects their physical relative position.
+This extension gives positions information about a busbar section. The `busbarIndex` gives the position of the busbar section relatively to other busbars. The `sectionIndex` gives the position of the busbar section within the corresponding busbar. Note that a busbar is a set of busbar sections. Hence, the sections of a same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of a same busbar, which usually reflects their physical relative position.
 
 ## Connectable position
 
