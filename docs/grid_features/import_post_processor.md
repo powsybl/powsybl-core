@@ -91,5 +91,49 @@ import:
 
 **Note:** This post-processor rely on the [load flow results completion]() module.
 
+## Geographical data import post-processor
+
+One way to add [geographical positions]() on a network is to use the import post-processor named odreGeoDataImporter, that will automatically add the geographical positions extensions to the network model.
+
+This processor uses geographical position data formatted in multiple csv files, as it can be obtained on the website [OpenData Réseaux-Energie](https://odre.opendatasoft.com) for the network of the French TSO RTE.
+
+Using the links in the table below, you can obtain the RTE data CSV files, to be used as reference for input data formatting.
+
+An English version of the Etalab Open License v2.0 is available [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf), and the usage conditions of the ODRE website can be found at the bottom of the pages (in French only).
+
+| Network element type | RTE data CSV file link                                                                                                                                               |
+|----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Substations          | [https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/export/](https://odre.opendatasoft.com/explore/dataset/postes-electriques-rte/export/)         |
+| Aerial lines         | [https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/)       |
+| Underground lines    | [https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/) |
+
+To use this import post-processor, add the `com.powsybl:powsybl-iidm-geodata` to your classpath and enable it setting the `postProcessors` and `odre-geo-data-importe-post-processor` modules :
+
+**YAML configuration:**
+```yaml
+import:
+  postProcessors:
+    - odreGeoDataImporter
+
+odre-geo-data-importer-post-processor:
+  substations: /path/to/substations.csv
+  aerial-lines: /path/to/aerial-lines.csv
+  underground-lines: /path/to/underground-lines.csv
+```
+
+**XML configuration:**
+```xml
+<import>
+    <postProcessors>odreGeoDataImporter</postProcessors>
+</import>
+<odre-geo-data-importer-post-processor>
+    <substations>/path/to/substations.csv</substations>
+    <aerial-lines>/path/to/aerial-lines.csv</aerial-lines>
+    <underground-lines>/path/to/underground-lines.csv</underground-lines>
+</odre-geo-data-importer-post-processor>
+```
+
+The paths to the different files can be absolute paths or paths relative to the directory where your command is launched.
+
 ## Going further
 - [Create a post-processor](): Learn how to implement your own post-processor 
