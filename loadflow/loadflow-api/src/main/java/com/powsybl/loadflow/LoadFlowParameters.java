@@ -189,7 +189,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public LoadFlowParameters() {
         this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
                 .stream()
-                .map(loader -> loader.get())
+                .map(ServiceLoader.Provider::get)
                 .collect(Collectors.toList()));
     }
 
@@ -199,11 +199,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
             List<String> names = defaultParametersLoaders.stream()
                     .map(LoadFlowDefaultParametersLoader::getSourceName)
                     .collect(Collectors.toList());
-            LOGGER.warn("Multiple JSON loadflow parameters files have been found in the class path : " + names + ". No default parameters file loaded");
+            LOGGER.warn("Multiple default loadflow parameters classes have been found in the class path : {}. No default parameters file loaded",
+                    names);
         } else if (numberOfLoadersFound == 1) {
             LoadFlowDefaultParametersLoader loader = defaultParametersLoaders.get(0);
             JsonLoadFlowParameters.update(this, loader.loadDefaultParametersFromFile());
-            LOGGER.info("Default loadflow configuration has been updated using the reference file from " + loader.getSourceName());
+            LOGGER.info("Default loadflow configuration has been updated using the reference file from parameters loader '{}'", loader.getSourceName());
         }
     }
 
