@@ -35,7 +35,7 @@ In the PowSyBl grid model, the Network contains [substations](#substation), whic
 | $CaseDate$ | Date and time of the target network that is being modeled |
 | $ForecastDistance$ | Number of minutes between the network generation date and the case date |
 
-The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../../index.html#grid-formats). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
+The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../grid_exchange_formats/index.md). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
 
 **Available extensions**
 
@@ -306,9 +306,9 @@ We expect $bPerSection$ to be a non zero value. The disconnected status of the l
 
 - For Non Linear Shunt Compensators
 
-| Attribute | Unit | Description |
-| --------- | ---- |------------ |
-| $Sections$ | [Section](#Section) | The Partition of all the shunt compensator's sections |
+| Attribute | Unit                | Description |
+| --------- |---------------------|------------ |
+| $Sections$ | [Section](#section) | The Partition of all the shunt compensator's sections |
 
 ### Section
 
@@ -652,7 +652,7 @@ The positive loss factor `LossFactor` is used to model the losses during the con
 
   Note that at the terminal on the AC side, $Q$ is always positive: the converter station always consumes reactive power.
 
-#### LCC Converter Station
+### LCC Converter Station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
 
 An LCC converter station is made with electronic switches that can only be turned on (thyristors). Below are some characteristics:
