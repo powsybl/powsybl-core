@@ -103,11 +103,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Optional<Area> getArea(AreaType areaType) {
+    public Optional<Area> getArea(String areaType) {
         if (removed) {
             throwAreasRemovedVoltageLevel();
         }
-        return areas.stream().filter(area -> area.getAreaType() == areaType).findFirst();
+        return areas.stream().filter(area -> Objects.equals(area.getAreaType(), areaType)).findFirst();
     }
 
     private void throwAreasRemovedVoltageLevel() {
@@ -126,7 +126,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         final Optional<Area> previousArea = this.getArea(area.getAreaType());
         if (previousArea.isPresent() && previousArea.get() != area) {
             // This instance already has a different area with the same AreaType
-            throw new PowsyblException("VoltageLevel " + id + " is already in Area of the same type=" + previousArea.get().getAreaType().getNameOrId() + " with id=" + previousArea.get().getId());
+            throw new PowsyblException("VoltageLevel " + id + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
         }
         // No conflict, add the area to this voltageLevel and vice versa
         areas.add(area);

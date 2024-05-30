@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
@@ -28,7 +27,7 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
 
     @Override
     protected void writeRootElementAttributes(final Area area, final Network parent, final NetworkSerializerContext context) {
-        context.getWriter().writeStringAttribute("areaType", context.getAnonymizer().anonymizeString(area.getAreaType().getId()));
+        context.getWriter().writeStringAttribute("areaType", context.getAnonymizer().anonymizeString(area.getAreaType()));
         area.getAcNetInterchangeTarget().ifPresent(target -> context.getWriter().writeDoubleAttribute("acNetInterchangeTarget", target));
         area.getAcNetInterchangeTolerance().ifPresent(tolerance -> context.getWriter().writeDoubleAttribute("acNetInterchangeTolerance", tolerance));
     }
@@ -52,13 +51,9 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
 
     @Override
     protected Area readRootElementAttributes(final AreaAdder adder, final Network parent, final NetworkDeserializerContext context) {
-        String areaTypeId = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("areaType"));
+        String areaType = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("areaType"));
         double acNetInterchangeTarget = context.getReader().readDoubleAttribute("acNetInterchangeTarget", Double.NaN);
         double acNetInterchangeTolerance = context.getReader().readDoubleAttribute("acNetInterchangeTolerance", Double.NaN);
-        AreaType areaType = parent.getAreaType(areaTypeId);
-        if (areaType == null) {
-            throw new PowsyblException("Area Type Identifiable '" + areaTypeId + "' not found");
-        }
         return adder.setAreaType(areaType)
                     .setAcNetInterchangeTarget(acNetInterchangeTarget)
                     .setAcNetInterchangeTolerance(acNetInterchangeTolerance)

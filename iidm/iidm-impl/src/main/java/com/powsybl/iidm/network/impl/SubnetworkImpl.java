@@ -116,24 +116,13 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
-    public AreaTypeAdder newAreaType() {
-        return getNetwork().newAreaType();
-    }
-
-    @Override
-    public Iterable<AreaType> getAreaTypes() {
+    public Iterable<String> getAreaTypes() {
         return getAreaTypeStream().toList();
     }
 
     @Override
-    public Stream<AreaType> getAreaTypeStream() {
+    public Stream<String> getAreaTypeStream() {
         return getAreaStream().map(Area::getAreaType).distinct();
-    }
-
-    @Override
-    public AreaType getAreaType(String id) {
-        AreaType areaType = getNetwork().getAreaType(id);
-        return Iterables.contains(getAreaTypes(), areaType) ? areaType : null;
     }
 
     @Override

@@ -27,7 +27,7 @@ package com.powsybl.iidm.network;
  */
 public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
-    AreaAdder setAreaType(AreaType areaType);
+    AreaAdder setAreaType(String areaType);
 
     AreaAdder setAcNetInterchangeTarget(Double acNetInterchangeTarget);
 
@@ -39,13 +39,6 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder addProperty(String key, String value);
 
-    /**
-     * Replicates the attributes of the given Area, except the voltage levels and boundary terminals.
-     * @return the AreaAdder
-     */
-    AreaAdder copy(Area otherArea);
-
     @Override
     Area add();
-
 }

@@ -50,11 +50,11 @@ import java.util.stream.Stream;
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">AreaType</td>
- *             <td style="border: 1px solid black">AreaType</td>
+ *             <td style="border: 1px solid black">String</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The type of zone that this Area represents</td>
+ *             <td style="border: 1px solid black">The type of zone that this Area represents. For instance: "ControlArea", "BiddingZone", "Country"...</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">AcNetInterchangeTarget</td>
@@ -77,14 +77,13 @@ import java.util.stream.Stream;
  *
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
- * @see AreaType
  * @see VoltageLevel
  * @see BoundaryTerminal
  * @see AreaAdder
  */
 public interface Area extends Identifiable<Area> {
 
-    AreaType getAreaType();
+    String getAreaType();
 
     Iterable<VoltageLevel> getVoltageLevels();
 

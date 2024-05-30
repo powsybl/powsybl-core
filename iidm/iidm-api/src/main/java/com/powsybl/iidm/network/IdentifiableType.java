@@ -16,7 +16,6 @@ public enum IdentifiableType {
     SUBSTATION,
     VOLTAGE_LEVEL,
     AREA,
-    AREA_TYPE,
     HVDC_LINE,
     BUS,
     SWITCH,

@@ -20,7 +20,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private final Ref<NetworkImpl> networkRef;
 
-    private AreaType areaType;
+    private String areaType;
 
     private Double acNetInterchangeTarget;
 
@@ -42,7 +42,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return networkRef.get();
     }
 
-    public AreaAdder setAreaType(AreaType areaType) {
+    public AreaAdder setAreaType(String areaType) {
         this.areaType = areaType;
         return this;
     }
@@ -87,7 +87,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return networkRef;
     }
 
-    protected AreaType getAreaType() {
+    protected String getAreaType() {
         return areaType;
     }
 

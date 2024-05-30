@@ -21,7 +21,8 @@ import java.util.stream.Stream;
  */
 public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
-    private final AreaType areaType;
+    private final Ref<SubnetworkImpl> subnetworkRef;
+    private final String areaType;
     private final Double acNetInterchangeTarget;
     private final Double acNetInterchangeTolerance;
     private final List<Area.BoundaryTerminal> boundaryTerminals;
@@ -49,7 +50,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public AreaType getAreaType() {
+    public String getAreaType() {
         return areaType;
     }
 

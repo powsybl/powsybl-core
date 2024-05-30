@@ -27,10 +27,9 @@ public abstract class AbstractAreaTest {
 
     final Network network = EurostagTutorialExample1Factory.createWithAreas();
 
-    final AreaType biddingZone = network.getAreaType("bz");
-    final AreaType region = network.getAreaType("rg");
-
-    final AreaType aic = network.getAreaType("aic");
+    final String biddingZone = "bz";
+    final String region = "rg";
+    final String aic = "aic";
     final Area biddingZoneA = network.getArea("bza");
     final Area biddingZoneB = network.getArea("bzb");
     final Area regionA = network.getArea("rga");
@@ -39,11 +38,6 @@ public abstract class AbstractAreaTest {
     @Test
     void areaAttributesTest() {
         assertEquals(IdentifiableType.AREA, biddingZoneA.getType());
-        assertEquals(IdentifiableType.AREA_TYPE, biddingZone.getType());
-
-        assertEquals("rg", region.getId());
-        assertEquals("Region", region.getNameOrId());
-        assertEquals(network, region.getNetwork());
 
         assertEquals("bza", biddingZoneA.getId());
         assertEquals("BZ_A", biddingZoneA.getNameOrId());
@@ -73,7 +67,7 @@ public abstract class AbstractAreaTest {
     @Test
     void areaIterableAndStreamGetterCheck() {
         List<Area> areas = List.of(biddingZoneA, biddingZoneB, regionA, aicA);
-        List<AreaType> areaTypes = List.of(biddingZone, region, aic);
+        List<String> areaTypes = List.of(biddingZone, region, aic);
 
         assertEquals(areas, network.getAreaStream().toList());
         assertEquals(areaTypes, network.getAreaTypeStream().toList());
@@ -111,17 +105,13 @@ public abstract class AbstractAreaTest {
     @Test
     void checkSubnetworkNewAreas() {
         Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
-        AreaType areaType = subnetwork.newAreaType()
-                .setId("areatype")
-                .setName("AreaType")
-                .add();
         Area area = subnetwork.newArea()
                 .setId("area")
                 .setName("Area")
-                .setAreaType(areaType)
+                .setAreaType("controlArea")
                 .add();
 
-        assertTrue(Iterables.contains(network.getAreaTypes(), areaType));
+        assertTrue(Iterables.contains(network.getAreaTypes(), "controlArea"));
         assertTrue(Iterables.contains(network.getAreas(), area));
     }
 

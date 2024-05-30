@@ -618,13 +618,9 @@ public interface Network extends Container<Network> {
      */
     int getCountryCount();
 
-    AreaTypeAdder newAreaType();
+    Iterable<String> getAreaTypes();
 
-    Iterable<AreaType> getAreaTypes();
-
-    Stream<AreaType> getAreaTypeStream();
-
-    AreaType getAreaType(String id);
+    Stream<String> getAreaTypeStream();
 
     AreaAdder newArea();
 

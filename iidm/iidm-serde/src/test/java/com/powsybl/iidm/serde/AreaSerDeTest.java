@@ -55,8 +55,8 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         final Load load2 = vl1.newLoad().setId("L2").setBus("N2").setP0(0).setQ0(0).add();
 
         // Add area types and areas to the network
-        final AreaType biddingZoneType = network.newAreaType().setId("BiddingZone").add();
-        final AreaType controlAreaType = network.newAreaType().setId("ControlArea").add();
+        final String biddingZoneType = "BiddingZone";
+        final String controlAreaType = "ControlArea";
         network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").addBoundaryTerminal(load1.getTerminal(), true)
                .addBoundaryTerminal(load2.getTerminal(), false).add();
         network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addBoundaryTerminal(load1.getTerminal(), true)

@@ -350,7 +350,6 @@ public final class NetworkSerDe {
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
-        writeAreaTypes(n, context);
         writeAreas(n, context);
     }
 
@@ -364,23 +363,11 @@ public final class NetworkSerDe {
         context.getWriter().writeEndNodes();
     }
 
-    private static void writeAreaTypes(Network n, NetworkSerializerContext context) {
-        context.getWriter().writeStartNodes();
-        for (AreaType areaType : IidmSerDeUtil.sorted(n.getAreaTypes(), context.getOptions())) {
-            if (isElementWrittenInsideNetwork(areaType, n, context)) {
-                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaTypeSerDe.ROOT_ELEMENT_NAME,
-                        IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
-                AreaTypeSerDe.INSTANCE.write(areaType, n, context);
-            }
-        }
-        context.getWriter().writeEndNodes();
-    }
-
     private static void writeAreas(Network n, NetworkSerializerContext context) {
         context.getWriter().writeStartNodes();
         for (Area area : IidmSerDeUtil.sorted(n.getAreas(), context.getOptions())) {
             if (isElementWrittenInsideNetwork(area, n, context)) {
-                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaTypeSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
                         IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
                 AreaSerDe.INSTANCE.write(area, n, context);
             }
@@ -582,7 +569,6 @@ public final class NetworkSerDe {
                 Map.entry(AbstractSwitchSerDe.ARRAY_ELEMENT_NAME, AbstractSwitchSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(AbstractTransformerSerDe.STEP_ARRAY_ELEMENT_NAME, AbstractTransformerSerDe.STEP_ROOT_ELEMENT_NAME),
                 Map.entry(AliasesSerDe.ARRAY_ELEMENT_NAME, AliasesSerDe.ROOT_ELEMENT_NAME),
-                Map.entry(AreaTypeSerDe.ARRAY_ELEMENT_NAME, AreaTypeSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(AreaSerDe.ARRAY_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BatterySerDe.ARRAY_ELEMENT_NAME, BatterySerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BoundaryTerminalSerDe.ARRAY_ELEMENT_NAME, BoundaryTerminalSerDe.ROOT_ELEMENT_NAME),
@@ -646,7 +632,6 @@ public final class NetworkSerDe {
             case AliasesSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
             case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(networks.peek(), context);
             case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound);
-            case AreaTypeSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadAreaTypes(context, networks);
             case AreaSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadArea(context, networks);
             case VoltageLevelSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
             case SubstationSerDe.ROOT_ELEMENT_NAME -> SubstationSerDe.INSTANCE.read(networks.peek(), context);
@@ -679,12 +664,6 @@ public final class NetworkSerDe {
                 elementName -> readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
-    }
-
-    private static void checkSupportedAndReadAreaTypes(NetworkDeserializerContext context, Deque<Network> networks) {
-        IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaTypeSerDe.ARRAY_ELEMENT_NAME,
-                IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
-        AreaTypeSerDe.INSTANCE.read(networks.peek(), context);
     }
 
     private static void checkSupportedAndReadArea(NetworkDeserializerContext context, Deque<Network> networks) {

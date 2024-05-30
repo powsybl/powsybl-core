@@ -909,7 +909,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Stream<Area> getAreasStream();
 
-    Optional<Area> getArea(AreaType areaType);
+    Optional<Area> getArea(String areaType);
 
     void addArea(Area area);
 
