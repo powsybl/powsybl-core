@@ -7,15 +7,20 @@
  */
 package com.powsybl.matpower.converter;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.ByteStreams;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -28,12 +33,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
-import java.util.Objects;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.FieldPosition;
+import java.util.Locale;
 import java.util.Properties;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -52,19 +57,36 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     private void exportToMatAndCompareTo(Network network, String refJsonFile) throws IOException {
         Properties parameters = new Properties();
         parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
-        exportToMatAndCompareTo(network, refJsonFile, parameters);
+        exportToMatAndCompareTo(network, refJsonFile, parameters, null);
     }
 
     private void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters) throws IOException {
+        exportToMatAndCompareTo(network, refJsonFile, parameters, null);
+    }
+
+    private void exportToMatAndCompareTo(Network network, String refJsonFile, Properties parameters, DecimalFormat decimalFormat) throws IOException {
         MemDataSource dataSource = new MemDataSource();
         new MatpowerExporter(platformConfig).export(network, parameters, dataSource);
         byte[] mat = dataSource.getData(null, "mat");
         MatpowerModel model = MatpowerReader.read(new ByteArrayInputStream(mat), network.getId());
-        String json = new ObjectMapper()
-                .writerWithDefaultPrettyPrinter()
-                .writeValueAsString(model);
-        assertEquals(new String(ByteStreams.toByteArray(Objects.requireNonNull(MatpowerExporterTest.class.getResourceAsStream(refJsonFile))), StandardCharsets.UTF_8),
-                json);
+
+        // Map to JSON with a specific serializer for doubles if decimal format is received
+        ObjectMapper jsonMapper = new ObjectMapper();
+        if (decimalFormat != null) {
+            jsonMapper.registerModule(new SimpleModule().addSerializer(double.class, new JsonSerializer<>() {
+                @Override
+                public void serialize(Double value, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+                    if (value == null) {
+                        jsonGenerator.writeNull();
+                    } else {
+                        jsonGenerator.writeNumber(decimalFormat.format(value));
+                    }
+                }
+            }));
+        }
+        String json = jsonMapper.writerWithDefaultPrettyPrinter().writeValueAsString(model);
+
+        ComparisonUtils.assertTxtEquals(MatpowerExporterTest.class.getResourceAsStream(refJsonFile), json);
     }
 
     @Test
@@ -128,6 +150,8 @@ class MatpowerExporterTest extends AbstractSerDeTest {
     @Test
     void testNonRegulatingGenOnPVBus() throws IOException {
         var network = EurostagTutorialExample1Factory.create();
+        Bus slackBus = network.getBusView().getBus("VLHV1_0");
+        SlackTerminal.attach(slackBus);
         network.getVoltageLevel("VLGEN").newGenerator()
                 .setId("GEN2")
                 .setBus("NGEN")
@@ -243,5 +267,94 @@ class MatpowerExporterTest extends AbstractSerDeTest {
                 .setR(0.00000001)
                 .setX(0.00000003);
         exportToMatAndCompareTo(network, "/small-impedance-line.json");
+    }
+
+    @Test
+    void testExportCase9DcLine() throws IOException {
+        MatpowerModel matpowerModel = MatpowerModelFactory.create9Dcline();
+        String caseId = matpowerModel.getCaseName();
+        Path matFile = tmpDir.resolve(caseId + ".mat");
+        MatpowerWriter.write(matpowerModel, matFile, true);
+
+        var network = new MatpowerImporter().importData(DataSourceUtil.createDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+
+        exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
+    }
+
+    static class DecimalFormat14 extends DecimalFormat {
+        private static final DecimalFormatSymbols SYMBOLS = DecimalFormatSymbols.getInstance(Locale.US);
+        private static final DecimalFormat SCI = new DecimalFormat("0.0###############E0", SYMBOLS);
+
+        DecimalFormat14() {
+            super("0.0", SYMBOLS);
+            super.setMaximumFractionDigits(14);
+        }
+
+        @Override
+        public StringBuffer format(double number, StringBuffer result, FieldPosition fieldPosition) {
+            if (number != 0.0 && Math.abs(number) < 1e-5 || Math.abs(number) > 1e10) {
+                return SCI.format(number, result, fieldPosition);
+            }
+            return super.format(number, result, fieldPosition);
+        }
+    }
+
+    @Test
+    void testBusesToBeExported() throws IOException {
+        Network network = createThreeComponentsConnectedByHvdcLinesNetwork();
+        Properties parameters = new Properties();
+        parameters.setProperty(MatpowerExporter.WITH_BUS_NAMES_PARAMETER_NAME, "true");
+        // Write all doubles with a maximum precision of 15 fraction digits to avoid macOS 14 small diffs in output
+        exportToMatAndCompareTo(network, "/threeComponentsConnectedByHvdcLines.json", parameters, new DecimalFormat14());
+    }
+
+    private static Network createThreeComponentsConnectedByHvdcLinesNetwork() {
+        Network network = Network.create("threeComponentsConnectedByHvdcLines", "iidm");
+
+        // Component 1
+        VoltageLevel vl11 = network.newSubstation().setId("S11").add()
+                .newVoltageLevel().setId("VL11").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl11.getBusBreakerView().newBus().setId("BUS-11").add();
+
+        VoltageLevel vl12 = network.newSubstation().setId("S12").add()
+                .newVoltageLevel().setId("VL12").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl12.getBusBreakerView().newBus().setId("BUS-12").add();
+
+        // Component 2
+        VoltageLevel vl21 = network.newSubstation().setId("S21").add()
+                .newVoltageLevel().setId("VL21").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl21.getBusBreakerView().newBus().setId("BUS-21").add();
+
+        VoltageLevel vl22 = network.newSubstation().setId("S22").add()
+                .newVoltageLevel().setId("VL22").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl22.getBusBreakerView().newBus().setId("BUS-22").add();
+
+        // Component 3
+        VoltageLevel vl31 = network.newSubstation().setId("S31").add()
+                .newVoltageLevel().setId("VL31").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl31.getBusBreakerView().newBus().setId("BUS-31").add();
+
+        VoltageLevel vl32 = network.newSubstation().setId("S32").add()
+                .newVoltageLevel().setId("VL32").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl32.getBusBreakerView().newBus().setId("BUS-32").add();
+
+        vl11.newGenerator().setId("GENERATOR-11").setBus("BUS-11").setTargetP(10.0).setTargetQ(8.0).setTargetV(410.0).setMinP(0.0).setMaxP(15.0).setVoltageRegulatorOn(true).add();
+        SlackTerminal.attach(network.getBusBreakerView().getBus("BUS-11"));
+        vl22.newLoad().setId("LOAD-22").setBus("BUS-22").setP0(5.0).setQ0(4.0).add();
+        vl32.newLoad().setId("LOAD-32").setBus("BUS-32").setP0(5.0).setQ0(4.0).add();
+
+        network.newLine().setId("LINE-11-12").setBus1("BUS-11").setBus2("BUS-12").setR(0.0).setX(1.0).add();
+        network.newLine().setId("LINE-21-22").setBus1("BUS-21").setBus2("BUS-22").setR(0.0).setX(1.0).add();
+        network.newLine().setId("LINE-31-32").setBus1("BUS-31").setBus2("BUS-32").setR(0.0).setX(1.0).add();
+
+        vl12.newLccConverterStation().setId("LCC-12").setBus("BUS-12").setPowerFactor(0.90f).setLossFactor(0.0f).add();
+        vl21.newLccConverterStation().setId("LCC-21").setBus("BUS-21").setPowerFactor(0.90f).setLossFactor(0.0f).add();
+        network.newHvdcLine().setId("HVDCLINE-12-21").setConverterStationId1("LCC-12").setConverterStationId2("LCC-21").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+
+        vl12.newVscConverterStation().setId("VSC-12").setBus("BUS-12").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageSetpoint(410.0).setVoltageRegulatorOn(true).add();
+        vl31.newVscConverterStation().setId("VSC-31").setBus("BUS-31").setLossFactor(0.0f).setReactivePowerSetpoint(4.0).setVoltageSetpoint(410.0).setVoltageRegulatorOn(true).add();
+        network.newHvdcLine().setId("HVDCLINE-12-31").setConverterStationId1("VSC-12").setConverterStationId2("VSC-31").setNominalV(400.0).setActivePowerSetpoint(5.0).setMaxP(5.0).setR(0.0).setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER).add();
+
+        return network;
     }
 }

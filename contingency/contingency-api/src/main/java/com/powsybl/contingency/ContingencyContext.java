@@ -15,14 +15,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Objects;
 
 /**
+ * A contingency context has several usages in security analysis and in sensitivity analysis.
+ * For a security analysis, it is a way to describe for which contingency we want some network results
+ * or for which contingency we want limit reductions to be applied. For a sensitivity analysis, it is a way
+ * to describe for which contingency we want to compute sensitivity factors.
+ * See {@link ContingencyContextType} for the type of context to use. In case of a SPECIFIC contingency context,
+ * the id of the contingency must be provided.
+ *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
- * <p>
- * provide the context to get information of the network after a security analysis
- * it contains a contingency's id and a context type. Context type defines
- * if we want the information in a pre-contingency state, a post-contingency state or both.
- * contingency's id is defined if informations are needed after
- * a specific contingency computation
  */
 @JsonPropertyOrder({"contextType", "contingencyId"})
 public class ContingencyContext {

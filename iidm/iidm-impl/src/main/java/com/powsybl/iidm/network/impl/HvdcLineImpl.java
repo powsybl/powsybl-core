@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -95,7 +95,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
+        ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
@@ -156,7 +156,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint,
-                n.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0);
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
         String variantId = n.getVariantManager().getVariantId(variantIndex);

@@ -50,6 +50,8 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -592,6 +594,46 @@ class EquipmentExportTest extends AbstractSerDeTest {
     private static boolean loadOriginalClass(Load load, String originalClass) {
         String cgmesClass = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
         return cgmesClass != null && cgmesClass.equals(originalClass);
+    }
+
+    @Test
+    void testExportEquivalentInjectionBaseVoltage() throws IOException {
+        // Ensure equivalent injections outside boundaries are exported with a reference to a base voltage
+
+        // Create a minimal network with a generator labelled as CGMES equivalent injection
+        Network network = Network.create("testEIexport", "IIDM");
+        VoltageLevel vl = network.newVoltageLevel().setId("VL1").setNominalV(400.0).setTopologyKind(TopologyKind.BUS_BREAKER).add();
+        vl.getBusBreakerView().newBus().setId("Bus1").add();
+        Generator g = vl.newGenerator().setId("Generator1").setBus("Bus1")
+                .setVoltageRegulatorOn(true).setTargetV(400)
+                .setTargetP(0).setMinP(0).setMaxP(10)
+                .add();
+        g.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, "EquivalentInjection");
+
+        // Export to CGMES only the EQ instance file
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, "EQ");
+        String basename = "test-EI-export";
+        network.write("CGMES", exportParams, tmpDir.resolve(basename));
+
+        // Read the exported EQ file
+        String eqFilename = String.format("%s_%s.xml", basename, "EQ");
+        String eqFileContent = Files.readString(tmpDir.resolve(eqFilename));
+
+        // Obtain the equivalent injection reference to base voltage
+        Pattern eiBaseVoltageRegex = Pattern.compile("(?s)<cim:EquivalentInjection rdf:ID=\"_Generator1\".*ConductingEquipment.BaseVoltage rdf:resource=\"#(.*?)\".*</cim:EquivalentInjection>");
+        Matcher matcher = eiBaseVoltageRegex.matcher(eqFileContent);
+        assertTrue(matcher.find());
+        String eiBaseVoltageId = matcher.group(1);
+
+        // Obtain the (unique) base voltage defined in the EQ file
+        Pattern baseVoltageDefinitionRegex = Pattern.compile("cim:BaseVoltage rdf:ID=\"(.*?)\"");
+        matcher = baseVoltageDefinitionRegex.matcher(eqFileContent);
+        assertTrue(matcher.find());
+        String baseVoltageId = matcher.group(1);
+
+        // Check that the equivalent injection base voltage is the base voltage defined in the exported EQ file
+        assertEquals(baseVoltageId, eiBaseVoltageId);
     }
 
     @Test

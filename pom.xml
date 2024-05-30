@@ -135,7 +135,7 @@
         <threeten.version>1.7.2</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.9.0</univocity-parsers.version>
-        <xmlunit.version>2.9.1</xmlunit.version>
+        <xmlunit.version>2.10.0</xmlunit.version>
         <xz.version>1.9</xz.version>
         <zstdjni.version>1.5.5-5</zstdjni.version>
 
