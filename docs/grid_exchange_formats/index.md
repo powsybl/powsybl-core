@@ -15,5 +15,5 @@ ieee/ieee.md
 matpower/index.md
 psse/index.md
 ucte/index.md
-xiidm/xiidm.md
+iidm/index.md
 ```

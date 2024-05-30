@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+Copyright (c) 2021, RTE (http://www.rte-france.com)
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.
+-->
+
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   width="400"
+   height="400"
+   version="1.1">
+  <style>
+<![CDATA[
+text {font-size:13.75px;font-family:sans-serif;fill:#000000}
+.dashed-line1 {fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:6, 6}
+.dashed-line2 {fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;stroke-dasharray:8, 4}
+.line {fill:none;stroke:#000000;stroke-width:2;stroke-linecap:butt;}
+.arrow {fill:#000000;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter}
+]]>
+  </style>
+  <g>
+    <text
+       x="4.5"
+       y="22">branch current (A)</text>
+    <path
+       class="arrow"
+       d="m 5,40 5,-10 l 5,10 z" />
+    <path
+       class="line"
+       d="m 10,30 v 320" />
+    <path
+       class="dashed-line2"
+       d="m 10,350 v 40" />
+    <text
+       x="265"
+       y="315">permanent limit</text>
+    <text
+       x="100"
+       y="355">acceptable permanently</text>
+    <path
+       class="dashed-line1"
+       d="M 10,310 H 260" />
+    <text
+       x="265"
+       y="235">temporary limit x s</text>
+    <text
+       x="100"
+       y="275">acceptable x s</text>
+    <path
+       class="dashed-line1"
+       d="M 10,230 H 260" />
+    <text
+       x="265"
+       y="155">temporary limit y s</text>
+    <text
+       x="100"
+       y="195">acceptable y s</text>
+    <path
+       class="dashed-line1"
+       d="M 10,150 H 260" />
+    <text
+       x="265"
+       y="75">temporary limit z s</text>
+    <text
+       x="100"
+       y="115">acceptable z s</text>
+    <path
+       class="dashed-line1"
+       d="M 10,70 H 260" />
+  </g>
+</svg>
