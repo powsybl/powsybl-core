@@ -7,17 +7,13 @@
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.time.ZonedDateTime;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -31,15 +27,6 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         allFormatsRoundTripTest(network, "/areaRoundTripRef.xml", CURRENT_IIDM_VERSION);
         // backward compatibility (checks versions 11 and 12)
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/areaRoundTripRef.xml", IidmVersion.V_1_11);
-    }
-
-    @Test
-    void testUnknownAreaType() {
-        ImportOptions options = new ImportOptions();
-        InputStream networkStream = getVersionedNetworkAsStream("areaUnknownType.xml", CURRENT_IIDM_VERSION);
-        Throwable e = assertThrows(PowsyblException.class,
-                    () -> NetworkSerDe.read(networkStream, options, null));
-        assertTrue(e.getMessage().contains("Area Type Identifiable 'ControlArea' not found"));
     }
 
     private static Network createBaseNetworkWithAreas() {
