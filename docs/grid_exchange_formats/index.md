@@ -9,11 +9,11 @@ or network simulation via different tools: check them out below.
 maxdepth: 2
 ---
 
-ampl/ampl.md
+ampl/index.md
 cgmes/index.md
 ieee/ieee.md
-matpower/matpower.md
-psse/psse.md
-ucte/ucte.md
+matpower/index.md
+psse/index.md
+ucte/index.md
 iidm/index.md
 ```
