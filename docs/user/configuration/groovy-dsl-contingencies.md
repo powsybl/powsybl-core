@@ -10,7 +10,7 @@ The `groovy-dsl-contingencies` module is used by the `com.powsybl.action.dsl.Gro
 ## Required properties
 
 **dsl-file**  
-The `dsl-file` property is a required property that defines the path of the groovy script defining the list of contingencies to simulate. Read the [documentation](../../simulation/securityanalysis/contingency-dsl.md) page to learn more about the syntax of the `GroovyDslContingenciesProvider`.
+The `dsl-file` property is a required property that defines the path of the groovy script defining the list of contingencies to simulate. Read the [documentation](../../simulation/security/contingency-dsl.md) page to learn more about the syntax of the `GroovyDslContingenciesProvider`.
 
 ## Examples
 

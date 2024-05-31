@@ -44,19 +44,19 @@ Allowed EXTENSIONS values are []
 ### Required arguments
 
 **\-\-case-file**  
-This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../index.html#grid-formats) depend on the execution class path.
+This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 ### Optional arguments
 
 **\-\-contingencies-file**  
-This option defines the path of the contingencies files. If this parameter is not set, the security violations are checked on the base state only. This file is a groovy script that respects the [contingency DSL](../../simulation/securityanalysis/contingency-dsl.md) syntax.
+This option defines the path of the contingencies files. If this parameter is not set, the security violations are checked on the base state only. This file is a groovy script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax.
 
 **\-\-external**  
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
 
 
 **\-\-import-parameters**  
-This option defines the path of the [importer](../../glossary.md#importer)'s configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../index.html#grid-formats).
+This option defines the path of the [importer](../../glossary.md#importer)'s configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
 **\-\-limit-types**  
 This option allows to filter certain types of violations. It overrides the default configuration defined in the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md) configuration module. The supported types are the following: `CURRENT`, `LOW_VOLTAGE`, `HIGH_VOLTAGE`, `LOW_SHORT_CIRCUIT_CURRENT`, `HIGH_SHORT_CIRCUIT_CURRENT` and `OTHER`.
@@ -152,7 +152,7 @@ Use the `--with-extensions` parameter to activate a list of `com.powsybl.securit
 implementations.
 
 # Configuration
-To run a security analysis, one has to configure the [componentDefaultConfig](../configuration/modules/componentDefaultConfig.md)
+To run a security analysis, one has to configure the [componentDefaultConfig](../configuration/componentDefaultConfig.md)
 module to indicate the implementations to use for:
 - the `com.powsybl.security.SecurityAnalysis` to use, by setting the `SecurityAnalysisFactory` property
 - the `com.powsybl.contingency.ContingenciesProvider` to use, by setting the `ContingenciesProviderFactory` property
@@ -181,7 +181,7 @@ load-flow:
 
 To learn more about contingencies or available `ContingenciesProvider` read this [documentation](../contingencies/index.md) page.
 
-To learn how to filter violations, read the [limit-violation-default-filter](../configuration/modules/limit-violation-default-filter.md)
+To learn how to filter violations, read the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md)
 module documentation page.
 
 To learn more about configuration files, read the [SecurityAnalysisParameters](../configuration/parameters/SecurityAnalysisParameters.md)

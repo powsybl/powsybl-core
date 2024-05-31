@@ -4,7 +4,7 @@ layout: default
 
 # iTools action-simulator
 
-The `action-simulator` command loads a grid file and run a [security analysis with remedial actions](../../simulation/securityanalysis/index.md). This tool is used to create or validate a strategy in order to solve violations. 
+The `action-simulator` command loads a grid file and run a [security analysis with remedial actions](../../simulation/security/security.md). This tool is used to create or validate a strategy in order to solve violations. 
 
 ## Usage
 ```
@@ -49,7 +49,7 @@ Available arguments are:
 ### Required arguments
 
 **--case-file**  
-This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../index.html#grid-formats) depend on the execution class path.
+This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 **--dsl-file**  
 This option defines the path of the strategy to evaluate. This is a groovy script that respects the [action DSL](../../simulation/securityanalysis/action-dsl.md) syntax.
@@ -66,13 +66,13 @@ This option defines the list of contingencies to simulate. If this parameter is 
 If this option is passed, a case file is exported after each round of the simulation. Otherwise, a single case file is exported at the end of the simulation (once there is no more violations or matching rules).
 
 **\-\-import-parameters**  
-This option defines the path of the [importer](../../glossary.md#importer)'s configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../index.html#grid-formats).
+This option defines the path of the [importer](../../glossary.md#importer)'s configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
 **\-\-output-case-folder**  
 This option defines the path to the folder in which the case files will be exported.
 
 **\-\-output-case-format**  
-This option defines the format of the output case files. The list of [supported formats](../../index.html#grid-formats) are listed between brackets in the command help.
+This option defines the format of the output case files. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help.
 
 **\-\-output-compression-format**  
 This option defines the compression format of the case files. The list of supported formats are listed between brackets in the command help.
@@ -96,7 +96,7 @@ Currently the only simulator which is supported is the [load-flow based]() simul
 <span style="color: red">TODO</span>
 
 ## Examples
-This example shows a small [action DSL](../../simulation/securityanalysis/action-dsl.md) script:
+This example shows a small [action DSL](../../simulation/security/action-dsl.md) script:
 ```groovy
 contingency('HV_line_1') {
     equipments 'NHV1_NHV2_1'

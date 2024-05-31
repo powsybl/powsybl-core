@@ -3,7 +3,7 @@ layout: default
 ---
 
 # Contingency DSL
-The contingency DSL is a domain specific language written in groovy for the creation of a contingency list, used in [security analyses](index.md) or [sensitivity analyses](../sensitivity/index.md). At the moment, it's possible to simulate the loss of a generator, a static VAR compensator, a shunt, a power line, a power transformer, a HVDC line or a busbar section. 
+The contingency DSL is a domain specific language written in groovy for the creation of a contingency list, used in [security analyses](./security.md) or [sensitivity analyses](../sensitivity/sensitivity.md). At the moment, it's possible to simulate the loss of a generator, a static VAR compensator, a shunt, a power line, a power transformer, a HVDC line or a busbar section. 
 
 * TOC
 {:toc}
