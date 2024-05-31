@@ -32,7 +32,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType, Double acNetInterchangeTarget,
                        Double acNetInterchangeTolerance) {
         super(id, name, fictitious);
-        this.networkRef = ref;
+        this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
         this.areaType = Objects.requireNonNull(areaType);
         this.acNetInterchangeTarget = acNetInterchangeTarget;
@@ -87,6 +87,23 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
      */
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
+        if (voltagelevels.contains(voltageLevel)) {
+            // Nothing to do
+            return;
+        }
+
+        // Check that the VoltageLevel belongs to the same network or subnetwork
+        if (subnetworkRef.get() != voltageLevel.getParentNetwork() && networkRef.get() != voltageLevel.getParentNetwork()) {
+            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " cannot be added to Area " + id + ". They do not belong to the same network or subnetwork");
+        }
+
+        // Check if the voltageLevel is already in another Area of the same type
+        final Optional<Area> previousArea = voltageLevel.getArea(this.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != this) {
+            // This instance already has a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
+        }
+        // No conflict, add the area to this voltageLevel and vice versa
         voltagelevels.add(voltageLevel);
         voltageLevel.addArea(this);
     }
@@ -106,6 +123,10 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public void addBoundaryTerminal(Terminal terminal, boolean ac) {
+        Network terminalNetwork = terminal.getConnectable().getParentNetwork();
+        if (subnetworkRef.get() != terminalNetwork && networkRef.get() != terminalNetwork) {
+            throw new PowsyblException("Terminal of connectable " + terminal.getConnectable().getId() + " cannot be added to Area " + id + " boundaries. They do not belong to the same network or subnetwork");
+        }
         boundaryTerminals.add(new Area.BoundaryTerminal(terminal, ac));
     }
 
