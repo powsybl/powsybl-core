@@ -79,43 +79,6 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void checkSubnetworkGetAreas() {
-        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
-
-        VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
-                .setId("sub1_vl1")
-                .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-
-        assertEquals(List.of(), subnetwork.getAreaTypeStream().toList());
-        assertEquals(List.of(), subnetwork.getAreaStream().toList());
-
-        biddingZoneA.addVoltageLevel(sn1VL1);
-
-        assertEquals(List.of(biddingZone), subnetwork.getAreaTypeStream().toList());
-        assertEquals(List.of(biddingZoneA), subnetwork.getAreaStream().toList());
-
-        assertEquals(1, Iterables.size(subnetwork.getAreas()));
-        assertTrue(Iterables.contains(subnetwork.getAreas(), biddingZoneA));
-        assertEquals(1, Iterables.size(subnetwork.getAreaTypes()));
-        assertTrue(Iterables.contains(subnetwork.getAreaTypes(), biddingZone));
-    }
-
-    @Test
-    void checkSubnetworkNewAreas() {
-        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
-        Area area = subnetwork.newArea()
-                .setId("area")
-                .setName("Area")
-                .setAreaType("controlArea")
-                .add();
-
-        assertTrue(Iterables.contains(network.getAreaTypes(), "controlArea"));
-        assertTrue(Iterables.contains(network.getAreas(), area));
-    }
-
-    @Test
     void addVoltageLevelsToAreaTest() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
@@ -186,6 +149,50 @@ public abstract class AbstractAreaTest {
         assertEquals(expectedMessage, e2.getMessage());
         assertEquals(expectedMessage, e3.getMessage());
         assertEquals("Cannot add areas to removed voltage level dummy", e4.getMessage());
+    }
+
+    @Test
+    void throwAddVoltageLevelOtherNetwork() {
+        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
+        VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
+                .setId("sub1_vl1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.addVoltageLevel(sn1VL1));
+        assertEquals("VoltageLevel sub1_vl1 cannot be added to Area bza. They do not belong to the same network or subnetwork", e.getMessage());
+    }
+
+    @Test
+    void addBoundary() {
+        Terminal terminal = network.getLoad("LOAD").getTerminal();
+        biddingZoneA.addBoundaryTerminal(terminal, true);
+        var expectedBoundaries = List.of(new Area.BoundaryTerminal(terminal, true));
+        assertEquals(expectedBoundaries, biddingZoneA.getBoundaryTerminals());
+        assertEquals(expectedBoundaries, biddingZoneA.getBoundaryTerminalStream().toList());
+    }
+
+    @Test
+    void throwBoundaryOtherNetwork() {
+        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
+        VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
+                .setId("sub1_vl1")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Bus bus = sn1VL1.getBusBreakerView().newBus()
+                .setId("sub1_bus")
+                .add();
+        Load load = sn1VL1.newLoad()
+                .setId("sub1_load")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setBus(bus.getId())
+                .add();
+        Terminal terminal = load.getTerminal();
+        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.addBoundaryTerminal(terminal, true));
+        assertEquals("Terminal of connectable sub1_load cannot be added to Area bza boundaries. They do not belong to the same network or subnetwork", e.getMessage());
     }
 
 }

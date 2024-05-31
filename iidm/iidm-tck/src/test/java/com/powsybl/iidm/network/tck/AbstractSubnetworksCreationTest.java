@@ -38,6 +38,20 @@ public abstract class AbstractSubnetworksCreationTest {
     }
 
     @Test
+    public void testAreaCreation() {
+        // On root network level
+        addArea(network, "a0", "Area0", "AreaType0");
+        assertAreaCounts(1, 0, 0);
+
+        // On subnetwork level
+        addArea(subnetwork1, "a1", "Area1", "AreaType1");
+        assertAreaCounts(2, 1, 0);
+
+        Throwable e = assertThrows(PowsyblException.class, () -> addArea(subnetwork1, "a0", "Area12", "AreaType2"));
+        assertTrue(e.getMessage().contains("The network Root already contains an object 'AreaImpl' with the id 'a0'"));
+    }
+
+    @Test
     public void testSubstationCreation() {
         // On root network level
         addSubstation(network, "s0");
@@ -444,6 +458,14 @@ public abstract class AbstractSubnetworksCreationTest {
         assertEquals(expected, subnetwork2.getValidationLevel());
     }
 
+    private Area addArea(Network network, String id, String name, String areaType) {
+        return network.newArea()
+                .setId(id)
+                .setName(name)
+                .setAreaType(areaType)
+                .add();
+    }
+
     private Substation addSubstation(Network network, String substationId) {
         return network.newSubstation()
                 .setId(substationId)
@@ -539,6 +561,12 @@ public abstract class AbstractSubnetworksCreationTest {
 
     private String getBusId(String vlId3) {
         return "bus_" + vlId3;
+    }
+
+    void assertAreaCounts(int total, int onSubnetwork1, int onSubnetwork2) {
+        assertEquals(total, network.getAreaCount());
+        assertEquals(onSubnetwork1, subnetwork1.getAreaCount());
+        assertEquals(onSubnetwork2, subnetwork2.getAreaCount());
     }
 
     void assertSubstationCounts(int total, int onSubnetwork1, int onSubnetwork2) {
