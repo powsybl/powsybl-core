@@ -82,12 +82,12 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
             ".iidm");
 
         // Assertions
-        Set<String> filesInArchive = dataSource.listNames(".*");
-        assertEquals(2, filesInArchive.size());
-        assertTrue(filesInArchive.contains("foo.iidm"));
-        assertTrue(filesInArchive.contains("foo_bar.iidm"));
-        assertFalse(filesInArchive.contains("foo_baz.iidm"));
-        assertFalse(filesInArchive.contains("subfolder/foo_baz.iidm"));
+        Set<String> files = dataSource.listNames(".*");
+        assertEquals(2, files.size());
+        assertTrue(files.contains("foo.iidm"));
+        assertTrue(files.contains("foo_bar.iidm"));
+        assertFalse(files.contains("foo_baz.iidm"));
+        assertFalse(files.contains("subfolder/foo_baz.iidm"));
     }
 
     @Test
