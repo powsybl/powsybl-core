@@ -27,7 +27,6 @@ print(f'appended {source_path}')
 project = 'PowSyBl Core'
 module_name = "powsybl-core"
 github_repository = "https://github.com/powsybl/powsybl-core/"
-readthedoc_repository = "https://powsybl-core.readthedocs.io/"
 
 # Build year for the copyright
 copyright_year = f'2018-{ datetime.datetime.now().year }'
@@ -107,7 +106,7 @@ html_favicon = "_static/favicon.ico"
 
 html_context = {
     "copyright_year": copyright_year,
-    "sidebar_logo_href": readthedoc_repository,
+    "sidebar_logo_href": "https://powsybl.readthedocs.io/",
     "github_repository": github_repository
 }
 
