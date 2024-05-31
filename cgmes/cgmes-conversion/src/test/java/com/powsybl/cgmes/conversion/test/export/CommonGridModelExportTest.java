@@ -7,14 +7,23 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.time.ZonedDateTime;
 import java.util.*;
@@ -341,6 +350,95 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals("http://elia.be/CGMES/2.4.15", getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
         assertEquals("http://tennet.nl/CGMES/2.4.15", getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
         assertEquals("Regional Coordination Center", getOccurrences(updatedCgmSvXml, REGEX_MAS).iterator().next());
+    }
+
+    @Test
+    void testFaraoUseCase() {
+        // We use MicroGrid base case assembled as the CGM model to export
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource();
+        Network cgmNetwork = Network.read(ds);
+
+        // Check the version of the individual files in the test case
+        int currentVersion = readVersion(ds, "MicroGridTestConfiguration_BC_BE_SSH_V2.xml").orElseThrow();
+        int sshNLVersion = readVersion(ds, "MicroGridTestConfiguration_BC_NL_SSH_V2.xml").orElseThrow();
+        int svVersion = readVersion(ds, "MicroGridTestConfiguration_BC_Assembled_SV_V2.xml").orElseThrow();
+        assertEquals(currentVersion, sshNLVersion);
+        assertEquals(currentVersion, svVersion);
+        Network[] ns = cgmNetwork.getSubnetworks().toArray(new Network[] {});
+        assertEquals(currentVersion, ns[0].getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow().getVersion());
+        assertEquals(currentVersion, ns[1].getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow().getVersion());
+
+        // If we export this CGM we expected the output files to on current version + 1
+        int expectedOutputVersion = currentVersion + 1;
+
+        // Export with the same parameters of the FARAO use case
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.PROFILES, List.of("SV", "SSH"));
+        exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
+        exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+        exportParams.put(CgmesExport.CGM_EXPORT, true);
+        exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, true);
+        exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "MAS1");
+
+        MemDataSource memDataSource = new MemDataSource();
+        cgmNetwork.write("CGMES", exportParams, memDataSource);
+        for (Map.Entry<Country, String> entry : TSO_BY_COUNTRY.entrySet()) {
+            Country country = entry.getKey();
+            // For this unit test we do not need the TSO from the entry value
+            String filenameFromCgmesExport = cgmNetwork.getNameOrId() + "_" + country.toString() + "_SSH.xml";
+
+            // The CGM network does not have metadata models, only the subnetworks
+            assertEquals((CgmesMetadataModels) null, cgmNetwork.getExtension(CgmesMetadataModels.class));
+
+            // The metadata models in memory are NEVER updated after export (this is by design)
+            // Look for the subnetwork of the current country
+            Network nc = cgmNetwork.getSubnetworks().stream().filter(n -> country == n.getSubstations().iterator().next().getCountry().orElseThrow()).toList().get(0);
+            int sshVersionInNetworkMetadataModels = nc.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow().getVersion();
+            assertEquals(currentVersion, sshVersionInNetworkMetadataModels);
+
+            // To know the exported version we should read what has been written in the output files
+            int sshVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
+            assertEquals(expectedOutputVersion, sshVersionInOutput);
+        }
+        String filenameFromCgmesExport = cgmNetwork.getNameOrId() + "_SV.xml";
+        // We have to read it from inside the SV file ...
+        int svVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
+        assertEquals(expectedOutputVersion, svVersionInOutput);
+    }
+
+    private static final Map<Country, String> TSO_BY_COUNTRY = Map.of(
+            Country.BE, "Elia",
+            Country.NL, "Tennet");
+
+    private static Optional<Integer> readVersion(ReadOnlyDataSource ds, String filename) {
+        try {
+            return readVersion(ds.newInputStream(filename));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Optional<Integer> readVersion(InputStream is) {
+        try {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            boolean insideModelVersion = false;
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("Model.version")) {
+                    insideModelVersion = true;
+                } else if (next == XMLStreamConstants.END_ELEMENT) {
+                    insideModelVersion = false;
+                } else if (next == XMLStreamConstants.CHARACTERS && insideModelVersion) {
+                    String version = reader.getText();
+                    reader.close();
+                    return Optional.of(Integer.parseInt(version));
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return Optional.empty();
     }
 
     private Network bareNetwork2Subnetworks() {
