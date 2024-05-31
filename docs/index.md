@@ -17,8 +17,13 @@ hidden: true
 todo:
     - fix links when pages are added
 ---
-
 grid_exchange_formats/index
+grid_model/index.md
+grid_features/index.md
 data/timeseries
 simulation/index
+user/index.md
 ```
+
+# TODO
+
