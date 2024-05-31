@@ -265,6 +265,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public int getAreaTypeCount() {
+        return Iterables.size(getAreaTypes());
+    }
+
+    @Override
     public AreaAdder newArea() {
         return new AreaAdderImpl(ref, subnetworkRef);
     }
@@ -282,6 +287,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public Area getArea(String id) {
         return index.get(id, AreaImpl.class);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return index.getAll(AreaImpl.class).size();
     }
 
     @Override

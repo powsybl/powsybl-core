@@ -622,6 +622,8 @@ public interface Network extends Container<Network> {
 
     Stream<String> getAreaTypeStream();
 
+    int getAreaTypeCount();
+
     AreaAdder newArea();
 
     /**
@@ -635,6 +637,8 @@ public interface Network extends Container<Network> {
     Stream<Area> getAreaStream();
 
     Area getArea(String id);
+
+    int getAreaCount();
 
     /**
      * Get a builder to create a new substation.

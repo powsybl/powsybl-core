@@ -125,6 +125,11 @@ public class SubnetworkImpl extends AbstractNetwork {
     }
 
     @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
     public AreaAdder newArea() {
         return new AreaAdderImpl(rootNetworkRef, ref);
     }
@@ -143,6 +148,11 @@ public class SubnetworkImpl extends AbstractNetwork {
     public Area getArea(String id) {
         Area area = getNetwork().getArea(id);
         return contains(area) ? area : null;
+    }
+
+    @Override
+    public int getAreaCount() {
+        return (int) getAreaStream().count();
     }
 
     @Override
