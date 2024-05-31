@@ -8,6 +8,7 @@
 package com.powsybl.loadflow;
 
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
@@ -18,8 +19,8 @@ public abstract class AbstractLoadFlowDefaultParametersLoader implements LoadFlo
     private final String jsonParametersFile;
 
     AbstractLoadFlowDefaultParametersLoader(String name, String jsonParametersFile) {
-        this.name = name;
-        this.jsonParametersFile = jsonParametersFile;
+        this.name = Objects.requireNonNull(name);
+        this.jsonParametersFile = Objects.requireNonNull(jsonParametersFile);
     }
 
     @Override
