@@ -37,8 +37,6 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac);
 
-    AreaAdder addProperty(String key, String value);
-
     @Override
     Area add();
 }

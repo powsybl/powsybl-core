@@ -32,8 +32,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private final List<Area.BoundaryTerminal> boundaryTerminals;
 
-    private final Properties properties = new Properties();
-
     AreaAdderImpl(Ref<NetworkImpl> networkRef, final RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
         this.subnetworkRef = subnetworkRef;
@@ -70,11 +68,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    public AreaAdder addProperty(String key, String value) {
-        properties.setProperty(key, value);
-        return this;
-    }
-
     protected Ref<NetworkImpl> getNetworkRef() {
         return networkRef;
     }
@@ -106,7 +99,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
                 getAcNetInterchangeTolerance());
         area.getBoundaryTerminals().addAll(getBoundaryTerminals());
         getVoltageLevels().forEach(area::addVoltageLevel);
-        area.getProperties().putAll(properties);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
         return area;
