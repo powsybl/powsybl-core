@@ -1,0 +1,15 @@
+{
+  "version" : "2.1",
+  "reportRoot" : {
+    "messageKey" : "root",
+    "children" : [ {
+      "messageKey" : "child"
+    } ]
+  },
+  "dictionaries" : {
+    "default" : {
+      "child" : "Child message",
+      "root" : "Root message"
+    }
+  }
+}
