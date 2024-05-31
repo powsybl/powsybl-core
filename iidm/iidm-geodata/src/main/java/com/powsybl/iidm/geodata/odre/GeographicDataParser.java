@@ -8,9 +8,9 @@
 package com.powsybl.iidm.geodata.odre;
 
 import com.google.common.collect.Lists;
-import com.powsybl.iidm.geodata.dto.GeoShape;
-import com.powsybl.iidm.geodata.dto.LineGeoData;
-import com.powsybl.iidm.geodata.dto.SubstationGeoData;
+import com.powsybl.iidm.geodata.elements.GeoShape;
+import com.powsybl.iidm.geodata.elements.LineGeoData;
+import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.DistanceCalculator;
 import com.powsybl.iidm.geodata.utils.GeoShapeDeserializer;
 import com.powsybl.iidm.geodata.utils.LineGraph;

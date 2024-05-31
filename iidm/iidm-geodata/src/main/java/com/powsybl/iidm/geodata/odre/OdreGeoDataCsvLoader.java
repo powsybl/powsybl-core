@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
-import com.powsybl.iidm.geodata.dto.LineGeoData;
-import com.powsybl.iidm.geodata.dto.SubstationGeoData;
+import com.powsybl.iidm.geodata.elements.LineGeoData;
+import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
 
 import java.io.BufferedReader;

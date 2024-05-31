@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.powsybl.iidm.geodata.dto.GeoShape;
+import com.powsybl.iidm.geodata.elements.GeoShape;
 import com.powsybl.iidm.network.extensions.Coordinate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.geodata.utils;
 
-import com.powsybl.iidm.geodata.dto.LineGeoData;
-import com.powsybl.iidm.geodata.dto.SubstationGeoData;
+import com.powsybl.iidm.geodata.elements.LineGeoData;
+import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;

@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
-import com.powsybl.iidm.geodata.dto.LineGeoData;
+import com.powsybl.iidm.geodata.elements.LineGeoData;
 import org.junit.jupiter.api.Test;
 
 import java.net.URISyntaxException;
