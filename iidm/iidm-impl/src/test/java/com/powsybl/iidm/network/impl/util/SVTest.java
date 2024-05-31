@@ -275,4 +275,20 @@ class SVTest {
         assertEquals(130.037, danglingLine.getBoundary().getV(), tol);
         assertEquals(0.995, danglingLine.getBoundary().getAngle(), tol);
     }
+
+    @Test
+    void testWithZeroImpedanceDanglingLine() {
+        double tol = 0.001;
+        Network network = DanglingLineNetworkFactory.createWithGeneration();
+        DanglingLine danglingLine = network.getDanglingLine("DL");
+        danglingLine.setR(0.0).setX(0.0);
+        danglingLine.getTerminal().setP(-298.937);
+        danglingLine.getTerminal().setQ(-7.413);
+        danglingLine.getTerminal().getBusView().getBus().setAngle(0.0);
+        danglingLine.getTerminal().getBusView().getBus().setV(100.0);
+        assertEquals(298.937, danglingLine.getBoundary().getP(), tol);
+        assertEquals(7.413, danglingLine.getBoundary().getQ(), tol);
+        assertEquals(100.0, danglingLine.getBoundary().getV(), tol);
+        assertEquals(0.0, danglingLine.getBoundary().getAngle(), tol);
+    }
 }

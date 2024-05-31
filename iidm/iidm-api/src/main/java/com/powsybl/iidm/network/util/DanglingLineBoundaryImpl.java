@@ -33,7 +33,11 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+        if (zeroImpedance(parent)) {
+            return getV(b);
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+        }
     }
 
     @Override
@@ -44,7 +48,11 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+        if (zeroImpedance(parent)) {
+            return getAngle(b);
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+        }
     }
 
     @Override
@@ -54,7 +62,11 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+        if (zeroImpedance(parent)) {
+            return -t.getP();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+        }
     }
 
     @Override
@@ -64,7 +76,11 @@ public class DanglingLineBoundaryImpl implements Boundary {
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+        if (zeroImpedance(parent)) {
+            return -t.getQ();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+        }
     }
 
     @Override
@@ -95,5 +111,10 @@ public class DanglingLineBoundaryImpl implements Boundary {
         // run is needed, especially if the generation is regulating voltage.
         // This could be improved later.
         return !parent.isPaired() && valid(parent.getP0(), parent.getQ0()) && parent.getGeneration() == null;
+    }
+
+    private static boolean zeroImpedance(DanglingLine parent) {
+        // Simple way to deal with zero impedance dangling line.
+        return parent.getR() == 0.0 && parent.getX() == 0.0;
     }
 }
