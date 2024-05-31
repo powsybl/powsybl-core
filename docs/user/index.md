@@ -8,5 +8,6 @@ maxdepth: 1
 ---
 
 itools/index.md
+configuration/index.md
 ```
 

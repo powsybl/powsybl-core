@@ -10,6 +10,7 @@ grid_model/index.md
 grid_features/index.md
 simulation/index.md
 user/index.md
+developer/api_guide/index.md
 ```
 
 # TODO
