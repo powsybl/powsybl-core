@@ -34,14 +34,29 @@ public class Parameter {
 
     private final ParameterScope scope;
 
-    public Parameter(String name, ParameterType type, String description, Object defaultValue,
-                     List<Object> possibleValues, ParameterScope scope) {
+    private final ParameterUsageRestrictions usageRestrictions;
+
+    private final String categoryKey;
+
+    private final String unitSymbol;
+
+    private Parameter(String name, ParameterType type, String description, Object defaultValue,
+                      List<Object> possibleValues, ParameterScope scope, ParameterUsageRestrictions usageRestrictions,
+                      String categoryKey, String unitSymbol) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
         this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
-        this.scope = scope;
+        this.scope = Objects.requireNonNull(scope);
+        this.usageRestrictions = usageRestrictions;
+        this.categoryKey = categoryKey;
+        this.unitSymbol = unitSymbol;
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope) {
+        this(name, type, description, defaultValue, possibleValues, scope, null, null, null);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
@@ -51,6 +66,63 @@ public class Parameter {
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue) {
         this(name, type, description, defaultValue, null);
+    }
+
+    public static Builder builder(String name, ParameterType type, String description, Object defaultValue) {
+        return new Builder(name, type, description, defaultValue);
+    }
+
+    public static final class Builder {
+        private final String name;
+        private final ParameterType type;
+        private final String description;
+        private final Object defaultValue;
+        private List<Object> possibleValues = null;
+        private ParameterScope scope = ParameterScope.FUNCTIONAL;
+        private ParameterUsageRestrictions usageRestrictions = null;
+        private String categoryKey = null;
+        private String unitSymbol = null;
+
+        private Builder(String name, ParameterType type, String description, Object defaultValue) {
+            this.name = name;
+            this.type = type;
+            this.description = description;
+            this.defaultValue = defaultValue;
+        }
+
+        public Builder withPossibleValues(List<Object> possibleValues) {
+            this.possibleValues = possibleValues;
+            return this;
+        }
+
+        public Builder withScope(ParameterScope scope) {
+            this.scope = scope;
+            return this;
+        }
+
+        public Builder withUsageRestrictions(ParameterUsageRestrictions usageRestrictions) {
+            this.usageRestrictions = usageRestrictions;
+            return this;
+        }
+
+        public ParameterUsageRestrictions.Adder newUsageRestriction() {
+            return new ParameterUsageRestrictions.Adder(this);
+        }
+
+        public Builder withCategoryKey(String categoryKey) {
+            this.categoryKey = categoryKey;
+            return this;
+        }
+
+        public Builder withUnitSymbol(String unitSymbol) {
+            this.unitSymbol = unitSymbol;
+            return this;
+        }
+
+        public Parameter build() {
+            return new Parameter(name, type, description, defaultValue, possibleValues, scope, usageRestrictions,
+                    categoryKey, unitSymbol);
+        }
     }
 
     private static void checkValue(Class<?> typeClass, Object value) {
@@ -104,24 +176,17 @@ public class Parameter {
 
     public static Object read(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
         Objects.requireNonNull(configuredParameter);
-        switch (configuredParameter.getType()) {
-            case BOOLEAN:
-                return readBoolean(prefix, parameters, configuredParameter, defaultValueConfig);
-            case STRING:
-                return readString(prefix, parameters, configuredParameter, defaultValueConfig);
-            case STRING_LIST:
-                return readStringList(prefix, parameters, configuredParameter, defaultValueConfig);
-            case DOUBLE:
-                return readDouble(prefix, parameters, configuredParameter, defaultValueConfig);
-            case INTEGER:
-                return readInteger(prefix, parameters, configuredParameter, defaultValueConfig);
-            default:
-                throw new IllegalStateException("Unknown parameter type: " + configuredParameter.getType());
-        }
+        return switch (configuredParameter.getType()) {
+            case BOOLEAN -> readBoolean(prefix, parameters, configuredParameter, defaultValueConfig);
+            case STRING -> readString(prefix, parameters, configuredParameter, defaultValueConfig);
+            case STRING_LIST -> readStringList(prefix, parameters, configuredParameter, defaultValueConfig);
+            case DOUBLE -> readDouble(prefix, parameters, configuredParameter, defaultValueConfig);
+            case INTEGER -> readInteger(prefix, parameters, configuredParameter, defaultValueConfig);
+        };
     }
 
-    public static Object read(String prefix, Properties paramaters, Parameter configuredParameter) {
-        return read(prefix, paramaters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+    public static Object read(String prefix, Properties parameters, Parameter configuredParameter) {
+        return read(prefix, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
     }
 
     public static boolean readBoolean(String prefix, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
@@ -172,11 +237,11 @@ public class Parameter {
             value = supplier.apply(moduleConfig, configuredParameter.getNames());
 
             // check that if possible values are configured, value is contained in possible values
-            if (value != null
-                    && configuredParameter.getPossibleValues() != null) {
-                checkPossibleValuesContainsValue(configuredParameter.getPossibleValues(), value,
+            Optional<List<Object>> possibleValues = configuredParameter.getPossibleValues();
+            if (value != null && possibleValues.isPresent()) {
+                checkPossibleValuesContainsValue(possibleValues.get(), value,
                     v -> new IllegalArgumentException("Value " + v + " of parameter " + configuredParameter.getName() +
-                                                      " is not contained in possible values " + configuredParameter.getPossibleValues()));
+                                                      " is not contained in possible values " + possibleValues.get()));
             }
         }
         // if none, use configured parameters
@@ -216,11 +281,23 @@ public class Parameter {
         return defaultValue;
     }
 
-    public List<Object> getPossibleValues() {
-        return possibleValues;
+    public Optional<List<Object>> getPossibleValues() {
+        return Optional.ofNullable(possibleValues);
     }
 
     public ParameterScope getScope() {
         return scope;
+    }
+
+    public Optional<ParameterUsageRestrictions> getUsageRestrictions() {
+        return Optional.ofNullable(usageRestrictions);
+    }
+
+    public Optional<String> getCategoryKey() {
+        return Optional.ofNullable(categoryKey);
+    }
+
+    public Optional<String> getUnitSymbol() {
+        return Optional.ofNullable(unitSymbol);
     }
 }

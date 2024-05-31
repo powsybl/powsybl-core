@@ -20,6 +20,7 @@ import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -109,7 +110,11 @@ class ParameterTest {
         assertEquals(ParameterType.STRING, p1.getType());
         assertEquals("a param", p1.getDescription());
         assertEquals("a", p1.getDefaultValue());
-        assertEquals(List.of("a", "b", "c"), p1.getPossibleValues());
+        assertEquals(List.of("a", "b", "c"), p1.getPossibleValues().orElseThrow());
+        Parameter p2 = Parameter.builder("p2", ParameterType.STRING, "another param", "v2")
+                .withPossibleValues(List.of("v1", "v2", "v3"))
+                .build();
+        assertEquals(List.of("v1", "v2", "v3"), p2.getPossibleValues().orElseThrow());
     }
 
     @Test
@@ -131,11 +136,95 @@ class ParameterTest {
         assertEquals(ParameterScope.FUNCTIONAL, param.getScope());
         Parameter param2 = new Parameter("test-param2", ParameterType.STRING, "", "yes", null, ParameterScope.TECHNICAL);
         assertEquals(ParameterScope.TECHNICAL, param2.getScope());
+        Parameter param3 = Parameter.builder("test-param3", ParameterType.STRING, "", "yes").build();
+        assertEquals(ParameterScope.FUNCTIONAL, param3.getScope());
+        Parameter param4 = Parameter.builder("test-param24", ParameterType.STRING, "", "yes")
+                .withScope(ParameterScope.TECHNICAL).build();
+        assertEquals(ParameterScope.TECHNICAL, param4.getScope());
     }
 
     @Test
     void intParameterNullDefaultValueErrorTest() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> new Parameter("i", ParameterType.INTEGER, "an integer", null));
         assertEquals("With Integer parameter you are not allowed to pass a null default value", e.getMessage());
+    }
+
+    @Test
+    void getParameterUsageRestrictionsTest() {
+        String key1 = "p1";
+        String key2 = "p2";
+        String key3 = "p3";
+
+        Parameter param1 = new Parameter(key1, ParameterType.STRING, "a 1st param", "a", List.of("a", "b", "c"));
+        Parameter param2 = Parameter.builder(key2, ParameterType.BOOLEAN, "a 2nd param", Boolean.FALSE).build();
+
+        // Using the adder
+        Parameter param3 = Parameter.builder(key3, ParameterType.STRING, "", "yes")
+                .newUsageRestriction()
+                    .withRestriction(key1, Set.of("b", "c"))
+                    .withRestriction(key2, Boolean.FALSE)
+                .add()
+                .build();
+        assertFalse(param1.getUsageRestrictions().isPresent());
+        assertFalse(param2.getUsageRestrictions().isPresent());
+        assertTrue(param3.getUsageRestrictions().isPresent());
+        ParameterUsageRestrictions restrictions = param3.getUsageRestrictions().orElseThrow();
+        assertEquals(Set.of(key1, key2), restrictions.getParametersWithRestrictions());
+        assertEquals(Set.of("b", "c"), restrictions.getValuesForParameter(key1));
+        assertEquals(Set.of(Boolean.FALSE), restrictions.getValuesForParameter(key2));
+
+        // Using the builder
+        ParameterUsageRestrictions restrictions2 = ParameterUsageRestrictions.builder()
+                .add(key1, Set.of("a", "b"))
+                .add(key3, "maybe")
+                .build();
+        Parameter param4 = Parameter.builder("test-param2", ParameterType.STRING, "", "yes")
+                .withUsageRestrictions(restrictions2)
+                .build();
+        Parameter param5 = Parameter.builder("test-param3", ParameterType.STRING, "", "yes")
+                .withUsageRestrictions(restrictions2)
+                .build();
+        assertTrue(param4.getUsageRestrictions().isPresent());
+        assertTrue(param5.getUsageRestrictions().isPresent());
+        restrictions = param4.getUsageRestrictions().orElseThrow();
+        assertEquals(Set.of(key1, key3), restrictions.getParametersWithRestrictions());
+        assertEquals(Set.of("a", "b"), restrictions.getValuesForParameter(key1));
+        assertEquals(Set.of("maybe"), restrictions.getValuesForParameter(key3));
+        restrictions = param5.getUsageRestrictions().orElseThrow();
+        assertEquals(Set.of(key1, key3), restrictions.getParametersWithRestrictions());
+        assertEquals(Set.of("a", "b"), restrictions.getValuesForParameter(key1));
+        assertEquals(Set.of("maybe"), restrictions.getValuesForParameter(key3));
+    }
+
+    @Test
+    void getCategoryKeyTest() {
+        Parameter param0 = new Parameter("p0", ParameterType.BOOLEAN, "param0", Boolean.FALSE);
+        Parameter param1 = Parameter.builder("p1", ParameterType.BOOLEAN, "a param", Boolean.FALSE).build();
+        Parameter param2 = Parameter.builder("p2", ParameterType.BOOLEAN, "another param", Boolean.FALSE)
+                .withCategoryKey("Category")
+                .build();
+        Parameter param3 = Parameter.builder("p3", ParameterType.BOOLEAN, "yet another param", Boolean.FALSE)
+                .withCategoryKey("Category 2")
+                .build();
+        assertFalse(param0.getCategoryKey().isPresent());
+        assertFalse(param1.getCategoryKey().isPresent());
+        assertEquals("Category", param2.getCategoryKey().orElseThrow());
+        assertEquals("Category 2", param3.getCategoryKey().orElseThrow());
+    }
+
+    @Test
+    void getUnitSymbolTest() {
+        Parameter param0 = new Parameter("p0", ParameterType.BOOLEAN, "param0", Boolean.FALSE);
+        Parameter param1 = Parameter.builder("p1", ParameterType.BOOLEAN, "a param", Boolean.FALSE).build();
+        Parameter param2 = Parameter.builder("p2", ParameterType.DOUBLE, "another param", 0.)
+                .withUnitSymbol(ParameterUnit.MEGA_WATT)
+                .build();
+        Parameter param3 = Parameter.builder("p3", ParameterType.INTEGER, "yet another param", 380)
+                .withUnitSymbol(ParameterUnit.KILO_VOLT)
+                .build();
+        assertFalse(param0.getUnitSymbol().isPresent());
+        assertFalse(param1.getUnitSymbol().isPresent());
+        assertEquals(ParameterUnit.MEGA_WATT, param2.getUnitSymbol().orElseThrow());
+        assertEquals(ParameterUnit.KILO_VOLT, param3.getUnitSymbol().orElseThrow());
     }
 }

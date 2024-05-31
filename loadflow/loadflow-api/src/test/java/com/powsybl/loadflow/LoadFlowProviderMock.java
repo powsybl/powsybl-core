@@ -103,4 +103,9 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     public List<Parameter> getSpecificParameters() {
         return PARAMETERS;
     }
+
+    @Override
+    public List<String> getUnsupportedGenericParameters() {
+        return Collections.emptyList();
+    }
 }
