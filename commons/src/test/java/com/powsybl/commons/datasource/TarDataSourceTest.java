@@ -111,7 +111,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, TAR_FILENAME, BASENAME);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, TAR_FILENAME, BASENAME, "");
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -215,7 +215,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSource dataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),
-            "foo");
+            "foo", "");
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> {
             try (InputStream ignored = dataSource.newInputStream("foo.bar")) {
@@ -228,7 +228,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSource newDataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),
-            "foo");
+            "foo", "");
         exception = assertThrows(PowsyblException.class, () -> {
             try (InputStream ignored = newDataSource.newInputStream("foo.bar")) {
                 fail();

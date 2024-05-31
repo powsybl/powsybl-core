@@ -67,7 +67,7 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
     }
 
     private void exportNetwork(RunningContext context) {
-        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), compressionFormat, null);
+        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), "", compressionFormat, null);
         context.getNetwork().write(loader, outputCaseFormat, new Properties(), dataSource);
     }
 

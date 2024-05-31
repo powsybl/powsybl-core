@@ -69,15 +69,13 @@ class DataSourceBuilder {
         if (baseName == null) {
             throw new PowsyblException("Datasource baseName cannot be null");
         }
+        if (sourceFormat == null) {
+            throw new PowsyblException("Source format cannot be null");
+        }
 
         // Create the datasource
         if (compressionFormat == CompressionFormat.ZIP || archiveFormat == ArchiveFormat.ZIP) {
-            if (compressionFormat != null && archiveFormat != null && !(compressionFormat == CompressionFormat.ZIP && archiveFormat == ArchiveFormat.ZIP)) {
-                throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
-            }
-            return archiveFileName == null ?
-                new ZipDataSource(directory, baseName, sourceFormat, observer) :
-                new ZipDataSource(directory, archiveFileName, baseName, sourceFormat, observer);
+            return buildZip();
         } else if (archiveFormat == ArchiveFormat.TAR) {
             return archiveFileName == null ?
                 new TarDataSource(directory, baseName, compressionFormat, sourceFormat, observer) :
@@ -96,5 +94,14 @@ class DataSourceBuilder {
                 }
             };
         }
+    }
+
+    DataSource buildZip() {
+        if (compressionFormat != null && archiveFormat != null && !(compressionFormat == CompressionFormat.ZIP && archiveFormat == ArchiveFormat.ZIP)) {
+            throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
+        }
+        return archiveFileName == null ?
+            new ZipDataSource(directory, baseName, sourceFormat, observer) :
+            new ZipDataSource(directory, archiveFileName, baseName, sourceFormat, observer);
     }
 }

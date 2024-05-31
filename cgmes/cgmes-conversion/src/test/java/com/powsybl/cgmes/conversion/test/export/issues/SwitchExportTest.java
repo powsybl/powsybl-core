@@ -104,7 +104,7 @@ class SwitchExportTest extends AbstractSerDeTest {
         // Check that the coupler is preserved when exported to CGMES
         String basename = n.getNameOrId();
         n.write("CGMES", null, tmpDir.resolve(basename));
-        Network n1 = Network.read(DataSourceUtil.createDataSource(tmpDir, "", basename));
+        Network n1 = Network.read(DataSourceUtil.createDataSource(tmpDir, basename, ""));
         assertNotNull(n1.getSwitch("coupler"));
     }
 

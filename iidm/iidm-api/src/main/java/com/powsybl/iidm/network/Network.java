@@ -1482,7 +1482,7 @@ public interface Network extends Container<Network> {
      * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, ReportNode reportNode) {
-        write(loader, format, parameters, DataSourceUtil.createDataSource(Paths.get(directory), "", baseName), reportNode);
+        write(loader, format, parameters, DataSourceUtil.createDataSource(Paths.get(directory), baseName, ""), reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {

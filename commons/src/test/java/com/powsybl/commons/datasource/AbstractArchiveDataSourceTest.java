@@ -58,7 +58,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         unlistedFiles = filesInArchive.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createDataSource(testDir, fileName, baseName);
+        DataSource dataSource = DataSourceUtil.createDataSource(testDir, fileName, baseName, sourceFormat);
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);
@@ -78,7 +78,8 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         DataSource dataSource = DataSourceUtil.createDataSource(
             path.getParent(),
             path.getFileName().toString(),
-            "foo");
+            "foo",
+            ".iidm");
 
         // Assertions
         Set<String> filesInArchive = dataSource.listNames(".*");
@@ -99,7 +100,8 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         DataSource dataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),
-            "foo");
+            "foo",
+            ".bar");
 
         UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> {
             try (OutputStream ignored = dataSource.newOutputStream("foo.bar", true)) {

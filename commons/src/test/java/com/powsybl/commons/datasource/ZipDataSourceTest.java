@@ -95,7 +95,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, BASENAME);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, BASENAME, "");
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -179,7 +179,8 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSource dataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),
-            "foo");
+            "foo",
+            "");
 
         try (InputStream is = dataSource.newInputStream("foo.bar")) {
             assertNull(is);
@@ -189,7 +190,8 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSource newDataSource = DataSourceUtil.createDataSource(
             file.getParent(),
             file.getFileName().toString(),
-            "foo");
+            "foo",
+            "");
         try (InputStream is = newDataSource.newInputStream("foo.bar")) {
             assertNull(is);
         }

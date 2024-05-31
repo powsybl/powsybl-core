@@ -74,7 +74,7 @@ class PsseExporterTest extends AbstractSerDeTest {
         Path file = fileSystem.getPath(pathName + fileName);
 
         Properties properties = null;
-        DataSource dataSource = DataSourceUtil.createDataSource(path, "", baseName);
+        DataSource dataSource = DataSourceUtil.createDataSource(path, baseName, "");
         new PsseExporter().export(network, properties, dataSource);
 
         try (InputStream is = Files.newInputStream(file)) {

@@ -58,12 +58,32 @@ public interface DataSourceUtil {
             .build();
     }
 
+    static DataSource createDataSource(Path directory, String archiveFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
+
+        // Get the file information
+        FileInformation fileInformation = new FileInformation(archiveFileName);
+
+        return createDataSource(directory, archiveFileName, baseName, sourceFormat, fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
+    }
+
+    static DataSource createDataSource(Path directory, String archiveFileName, String baseName, String sourceFormat) {
+        return createDataSource(directory, archiveFileName, baseName, sourceFormat, null);
+    }
+
     static DataSource createDataSource(Path directory, String baseName, String sourceFormat, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
         return createDataSource(directory, null, baseName, sourceFormat, archiveFormat, compressionFormat, observer);
     }
 
-    static DataSource createDataSource(Path directory, String baseName, CompressionFormat compressionFormat, DataSourceObserver observer) {
-        return createDataSource(directory, null, baseName, "", null, compressionFormat, observer);
+    static DataSource createDataSource(Path directory, String baseName, String sourceFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
+        return createDataSource(directory, null, baseName, sourceFormat, null, compressionFormat, observer);
+    }
+
+    static DataSource createDataSource(Path directory, String baseName, String sourceFormat, DataSourceObserver observer) {
+        return createDataSource(directory, null, baseName, sourceFormat, null, null, observer);
+    }
+
+    static DataSource createDataSource(Path directory, String baseName, String sourceFormat) {
+        return createDataSource(directory, null, baseName, sourceFormat, null, null, null);
     }
 
     static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {
@@ -75,19 +95,6 @@ public interface DataSourceUtil {
         return fileInformation.getArchiveFormat() == null ?
             createDataSource(directory, null, fileInformation.getBaseName(), fileInformation.getSourceFormat(), fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer) :
             createDataSource(directory, fileName, "", "", fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
-    }
-
-    static DataSource createDataSource(Path directory, String fileName, String baseName, DataSourceObserver observer) {
-
-        // Get the file information
-        FileInformation fileInformation = new FileInformation(fileName);
-
-        // Datasource creation
-        return createDataSource(directory, fileName, baseName, fileInformation.getSourceFormat(), fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
-    }
-
-    static DataSource createDataSource(Path directory, String fileName, String baseName) {
-        return createDataSource(directory, fileName, baseName, null);
     }
 
     static DataSource createDataSource(Path directory, String fileName) {

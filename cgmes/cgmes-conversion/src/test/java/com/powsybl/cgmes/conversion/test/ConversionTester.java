@@ -162,17 +162,17 @@ public class ConversionTester {
         XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
-            xmlExporter.export(expected, null, DataSourceUtil.createDataSource(path, "", "expected"));
+            xmlExporter.export(expected, null, DataSourceUtil.createDataSource(path, "expected", ""));
         }
         if (actual != null) {
-            xmlExporter.export(actual, null, DataSourceUtil.createDataSource(path, "", "actual"));
+            xmlExporter.export(actual, null, DataSourceUtil.createDataSource(path, "actual", ""));
         }
     }
 
     private static void exportCgmes(String name, String impl, Network network) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl + "-");
-        new CgmesExport().export(network, null, DataSourceUtil.createDataSource(path, "", "foo"));
+        new CgmesExport().export(network, null, DataSourceUtil.createDataSource(path, "foo", ""));
     }
 
     private static String subsetFromName(String name) {
