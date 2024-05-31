@@ -12,7 +12,9 @@ import com.google.common.jimfs.Jimfs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -24,8 +26,9 @@ class DataSourceUtilTest {
     private FileSystem fileSystem;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        Files.createDirectories(fileSystem.getPath("/tmp"));
     }
 
     @Test

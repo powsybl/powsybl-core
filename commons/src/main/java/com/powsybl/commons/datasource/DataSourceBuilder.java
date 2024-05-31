@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
@@ -63,15 +64,7 @@ class DataSourceBuilder {
 
     DataSource build() {
         // Check the mandatory parameters
-        if (directory == null) {
-            throw new PowsyblException("Datasource directory cannot be null");
-        }
-        if (baseName == null) {
-            throw new PowsyblException("Datasource baseName cannot be null");
-        }
-        if (sourceFormat == null) {
-            throw new PowsyblException("Source format cannot be null");
-        }
+        buildChecks();
 
         // Create the datasource
         if (compressionFormat == CompressionFormat.ZIP || archiveFormat == ArchiveFormat.ZIP) {
@@ -96,7 +89,22 @@ class DataSourceBuilder {
         }
     }
 
-    DataSource buildZip() {
+    private void buildChecks() {
+        if (directory == null) {
+            throw new PowsyblException("Datasource directory cannot be null");
+        }
+        if (!Files.isDirectory(directory)) {
+            throw new PowsyblException("Datasource directory has to be a directory");
+        }
+        if (baseName == null) {
+            throw new PowsyblException("Datasource baseName cannot be null");
+        }
+        if (sourceFormat == null) {
+            throw new PowsyblException("Source format cannot be null");
+        }
+    }
+
+    private DataSource buildZip() {
         if (compressionFormat != null && archiveFormat != null && !(compressionFormat == CompressionFormat.ZIP && archiveFormat == ArchiveFormat.ZIP)) {
             throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
         }

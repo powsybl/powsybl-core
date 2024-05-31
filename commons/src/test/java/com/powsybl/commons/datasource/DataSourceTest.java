@@ -33,9 +33,10 @@ class DataSourceTest {
     private Path directory;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         directory = fileSystem.getPath("/test/");
+        Files.createDirectories(directory);
     }
 
     @AfterEach

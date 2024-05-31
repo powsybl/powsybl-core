@@ -13,7 +13,9 @@ import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,9 +28,10 @@ class DataSourceBuilderTest {
     protected Path testDir;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         testDir = fileSystem.getPath("/tmp");
+        Files.createDirectories(testDir);
     }
 
     @Test
@@ -73,6 +76,12 @@ class DataSourceBuilderTest {
         // Directory missing
         PowsyblException exception = assertThrows(PowsyblException.class, builder::build);
         assertEquals("Datasource directory cannot be null", exception.getMessage());
+
+        // Directory parameter is not a directory but a file
+        Path file = testDir.resolve("fake.zip");
+        builder.withDirectory(file);
+        exception = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Datasource directory has to be a directory", exception.getMessage());
 
         // Base name missing
         builder.withDirectory(testDir);
