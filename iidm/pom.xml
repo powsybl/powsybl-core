@@ -35,6 +35,7 @@
         <module>iidm-serde</module>
         <module>iidm-tck</module>
         <module>iidm-test</module>
+        <module>iidm-geodata</module>
     </modules>
 
 </project>
