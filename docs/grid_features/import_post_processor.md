@@ -95,11 +95,9 @@ import:
 
 One way to add geographical positions on a network is to use the import post-processor named odreGeoDataImporter, that will automatically add the [LinePosition](../grid_model/extensions.md#line-position) and [SubstationPosition](../grid_model/extensions.md#substation-position) extensions to the network model.
 
-This processor uses geographical position data formatted in multiple csv files, as it can be obtained on the website [OpenData Réseaux-Energie](https://odre.opendatasoft.com) for the network of the French TSO RTE.
+This processor uses geographical position data formatted in multiple csv files, as it can be obtained on the website [OpenData Réseaux-Énergie](https://odre.opendatasoft.com) for the network of the French TSO RTE.
 
 Using the links in the table below, you can obtain the RTE data CSV files, to be used as reference for input data formatting.
-
-An English version of the Etalab Open License v2.0 is available [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf), and the usage conditions of the ODRE website can be found at the bottom of the pages (in French only).
 
 | Network element type | RTE data CSV file link                                                                                                                                               |
 |----------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -107,7 +105,11 @@ An English version of the Etalab Open License v2.0 is available [here](https://w
 | Aerial lines         | [https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/)       |
 | Underground lines    | [https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/) |
 
-To use this import post-processor, add the `com.powsybl:powsybl-iidm-geodata` to your classpath and enable it setting the `postProcessors` and `odre-geo-data-importe-post-processor` modules :
+<span style="font-size:0.75em;">(To download these files, you should first accept the usage conditions of the ODRÉ website, which can be found - in French only - at the bottom of the pages, and the Etalab Open License v2.0, available in English [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf).)</span>
+
+<br/>
+
+To use this import post-processor, add the `com.powsybl:powsybl-iidm-geodata` to your classpath and enable it setting the `postProcessors` and `odre-geo-data-importer-post-processor` modules :
 
 **YAML configuration:**
 ```yaml
