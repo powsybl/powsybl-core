@@ -4,7 +4,7 @@ A load flow result is considered *acceptable* if it describes a feasible steady-
 More practically, generations of practitioners have set quasi-standard ways to describe them that makes it possible to define precise rules.
 They are described below for the different elements of the network.
 
-#### Buses
+### Buses
 
 The first law of Kirchhoff must be satisfied for every bus for active and reactive power:
 
@@ -13,7 +13,7 @@ $$\begin{equation}
 \left| \sum_{branches} Q + \sum_{injections} Q \right| \leq \epsilon \\
 \end{equation}$$
 
-#### Branches
+### Branches
 Lines and two windings transformers are converted into classical PI models:
 
 ```
@@ -36,7 +36,7 @@ Lines and two windings transformers are converted into classical PI models:
     - $(g_1, b_1)$ and $(g_2, b_2)$: Complex shunt impedance on each side (S).
     - $(r, x)$: Complex series impedance $(\Omega)$.
 
-Thanks to Kirchhoff laws (see the [line](../../grid/model/index.md#line) and [2-winding transformer](../../grid/model/index.md#two-windings-transformer) documentation), estimations of powers are computed according to the voltages and the characteristics of the branch:
+Thanks to Kirchhoff laws (see the [line](../../grid_model/network_subnetwork.md#line) and [2-winding transformer](../../grid_model/network_subnetwork.md#two-windings-transformer) documentation), estimations of powers are computed according to the voltages and the characteristics of the branch:
 
 $(P_1^{calc}, Q_1^{calc}, P_2^{calc}, Q_2^{calc}) = f(\text{Voltages}, \text{Characteristics})$
 
@@ -83,7 +83,6 @@ If the voltage regulation is activated, the generator is modeled as a $PV$ node.
 The voltage target should be reached, except if reactive bounds are hit. Then, the generator is switched to $PQ$ node and the reactive power should be equal to a limit.
 Mathematically speaking, one of the following 3 conditions should be met:
 
-$$
 \begin{align*}
 |V - targetV| & \leq && \epsilon && \& && minQ & \leq & Q \leq maxQ \\
 V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\

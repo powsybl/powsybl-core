@@ -260,7 +260,7 @@ In case the line is a boundary, a pairing key $pairingKey$ (in previous network 
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](extensions.md#cgmes-dangling-line-boundary-node)
+- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-dangling-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -445,7 +445,7 @@ $$
 - [Connectable position](extensions.md#connectable-position)
 - [Branch Observability](extensions.md#branch-observability)
 - [Branch Status](extensions.md#branch-status)
-- [CGMES Line Boundary Node](extensions.md#cgmes-line-boundary-node)
+- [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)

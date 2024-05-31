@@ -95,7 +95,7 @@ The parameters may also be overridden with a JSON file, in which case the config
 }
 ```
 
-### Available parameters
+### Generic parameters
 
 **dc**  
 The `dc` property is an optional property that defines if you want to run an AC power flow (`false`) or a DC power flow (`true`).  
@@ -116,12 +116,12 @@ The default value is `true`.
 
 **balanceType**  
 The `balanceType` property is an optional property that defines, if `distributedSlack` parameter is set to true, how to manage the distribution. Several algorithms are supported. All algorithms follow the same scheme: only some elements are participating in the slack distribution, with a given participation factor. Three options are available:
-- If using `PROPORTIONAL_TO_GENERATION_P_MAX` then the participating elements are the generators. The participation factor is computed using the maximum active power target $MaxP$ and the active power control droop. The default droop value is `4`. If present, the simulator uses the droop of the generator given by the [active power control extension](../../grid/model/extensions.md#active-power-control).
+- If using `PROPORTIONAL_TO_GENERATION_P_MAX` then the participating elements are the generators. The participation factor is computed using the maximum active power target $MaxP$ and the active power control droop. The default droop value is `4`. If present, the simulator uses the droop of the generator given by the [active power control extension](../../grid_model/extensions.md#active-power-control).
 - If using `PROPORTIONAL_TO_GENERATION_P` then the participating elements are the generators. The participation factor is computed using the active power set point $TargetP$.
 - If using `PROPORTIONAL_TO_GENERATION_REMAINING_MARGIN` then the participating elements are the generators. The participation factor is computed using the difference between the maximum active power target $MaxP$ with active power set point $TargetP$.
-- If using `PROPORTIONAL_TO_GENERATION_PARTICIPATION_FACTOR` then the participating elements are the generators. The simulator uses the participation factors of the generators given by the [active power control extension](../../grid/model/extensions.md#active-power-control).
+- If using `PROPORTIONAL_TO_GENERATION_PARTICIPATION_FACTOR` then the participating elements are the generators. The simulator uses the participation factors of the generators given by the [active power control extension](../../grid_model/extensions.md#active-power-control).
 - If using `PROPORTIONAL_TO_LOAD` then the participating elements are the loads. The participation factor is computed using the active power $P0$.
-- If using `PROPORTIONAL_TO_CONFORM_LOAD` then the participating elements are the loads which have a conform active power part. The participation factor is computed using the [load detail extension](../../grid/model/extensions.md#load-detail), which specifies the variable and the fixed parts of $P0$. The slack is distributed only on loads that have a variable part. If the extension is not available on a load, the whole $P0$ is considered as a variable.
+- If using `PROPORTIONAL_TO_CONFORM_LOAD` then the participating elements are the loads which have a conform active power part. The participation factor is computed using the [load detail extension](../../grid_model/extensions.md#load-detail), which specifies the variable and the fixed parts of $P0$. The slack is distributed only on loads that have a variable part. If the extension is not available on a load, the whole $P0$ is considered as a variable.
 
 This default value is `PROPORTIONAL_TO_GENERATION_P_MAX`.
 
@@ -130,11 +130,11 @@ The `countriesToBalance` property is an optional property that defines the list 
 country which participating elements are used for slack distribution. If the slack is distributed but this parameter is not set, the slack distribution is performed over all countries present in the network.
 
 **readSlackBus**  
-The `readSlackBus` is an optional property that defines if the slack bus has to be selected in the network through the [slack terminal extension](../../grid/model/extensions.md#slack-terminal).  
+The `readSlackBus` is an optional property that defines if the slack bus has to be selected in the network through the [slack terminal extension](../../grid_model/extensions.md#slack-terminal).  
 The default value is `false`.
 
 **writeSlackBus**   
-The `writeSlackBus` is an optional property that says if the slack bus has to be written in the network using the [slack terminal extension](../../grid/model/extensions.md#slack-terminal) after a load flow computation.  
+The `writeSlackBus` is an optional property that says if the slack bus has to be written in the network using the [slack terminal extension](../../grid_model/extensions.md#slack-terminal) after a load flow computation.  
 The default value is `false`.
 
 **useReactiveLimits**  

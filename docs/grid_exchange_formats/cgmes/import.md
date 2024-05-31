@@ -339,7 +339,7 @@ If the CGMES `Switch` has one of its end in the boundary area, it is mapped to a
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data, that are needed to export a network in CIM-CGMES format, are stored in several extensions. 
 
-### CIM-CGMES control areas
+### CGMES control areas
 
 This extension models all the control areas contained in the network as modeled in CIM-CGMES.
 
@@ -362,7 +362,7 @@ It is possible to retrieve a control area by its ID. It is also possible to iter
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
-### CIM-CGMES dangling line boundary node
+### CGMES dangling line boundary node
 
 This extension is used to add some CIM-CGMES characteristics to dangling lines.
 
@@ -374,7 +374,7 @@ This extension is used to add some CIM-CGMES characteristics to dangling lines.
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
-### CIM-CGMES line boundary node
+### CGMES line boundary node
 
 This extension is used to add some CIM-CGMES characteristics to tie lines.
 
@@ -385,15 +385,11 @@ This extension is used to add some CIM-CGMES characteristics to tie lines.
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
-### CIM-CGMES Tap Changers
+### CGMES Tap Changers
 
 <span style="color: red">TODO</span>
 
-### CIM-CGMES SSH metadata
-
-<span style="color: red">TODO</span>
-
-### CIM-CGMES SV metadata
+### CGMES metadata model
 
 <span style="color: red">TODO</span>
 
@@ -401,9 +397,11 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 <span style="color: red">TODO</span>
 
+### CGMES model
+
 ## Options
 
-These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **iidm.import.cgmes.boundary-location**  
 Optional property that defines the directory path where the CGMES importer can find the boundary files (`EQBD` and `TPBD` profiles) if they are not present in the imported zip file. By default, its value is `<ITOOLS_CONFIG_DIR>/CGMES/boundary`.
@@ -459,7 +457,7 @@ Optional property that defines which CGMES profile is used to initialize tap pos
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
 **iidm.import.cgmes.store-cgmes-model-as-network-extension**    
-Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](../model/extensions.md#cgmes-model). The default value is `true`.
+Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](#). The default value is `true`.
 
 **iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**  
 Optional property that defines if the CGMES conversion context will be stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
