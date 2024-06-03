@@ -17,8 +17,6 @@ import java.time.ZonedDateTime;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -548,7 +546,7 @@ public final class ValidationUtil {
     private static ValidationLevel checkLoadingLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
                                                      boolean throwException, ReportNode reportNode) {
         ValidationLevel validationLevel = ValidationUtil.checkPermanentLimit(validable, permanentLimit, temporaryLimits, throwException, reportNode);
-        ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits, throwException, reportNode);
+        ValidationUtil.checkTemporaryLimits(validable, permanentLimit, temporaryLimits);
         return validationLevel;
     }
 
@@ -571,8 +569,7 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    private static ValidationLevel checkTemporaryLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits,
-                                                       boolean throwException, ReportNode reportNode) {
+    private static void checkTemporaryLimits(Validable validable, double permanentLimit, Collection<LoadingLimits.TemporaryLimit> temporaryLimits) {
         // check temporary limits are consistent with permanent
         if (LOGGER.isDebugEnabled()) {
             double previousLimit = Double.NaN;
@@ -588,17 +585,6 @@ public final class ValidationUtil {
                 previousLimit = tl.getValue();
             }
         }
-        // check name unicity
-        AtomicReference<ValidationLevel> validationLevel = new AtomicReference<>(ValidationLevel.STEADY_STATE_HYPOTHESIS);
-        temporaryLimits.stream()
-                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
-                .forEach((name, temporaryLimits1) -> {
-                    if (temporaryLimits1.size() > 1) {
-                        throwExceptionOrLogError(validable, temporaryLimits1.size() + " temporary limits have the same name " + name, throwException, reportNode);
-                        validationLevel.set(ValidationLevel.min(validationLevel.get(), ValidationLevel.EQUIPMENT));
-                    }
-                });
-        return validationLevel.get();
     }
 
     public static ValidationLevel checkLossFactor(Validable validable, float lossFactor, ValidationLevel validationLevel, ReportNode reportNode) {
