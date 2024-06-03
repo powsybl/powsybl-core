@@ -129,7 +129,7 @@ public class DefaultSecurityAnalysis {
         return LoadFlow
             .runAsync(network, workingVariantId, computationManager, loadFlowParameters, reportNode)
             .thenCompose(loadFlowResult -> {
-                if (loadFlowResult.isOk()) {
+                if (!loadFlowResult.isFailed()) {
                     return CompletableFuture
                         .runAsync(() -> {
                             network.getVariantManager().setWorkingVariant(workingVariantId);
@@ -225,9 +225,9 @@ public class DefaultSecurityAnalysis {
         network.getVariantManager().setWorkingVariant(postContVariantId);
         SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder =
                 resultBuilder.contingency(contingency)
-                        .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
+                        .setStatus(!lfResult.isFailed() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
                         .setConnectivityResult(new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()));
-        if (lfResult.isOk()) {
+        if (!lfResult.isFailed()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
             StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitors().get(contingency.getId());
