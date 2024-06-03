@@ -30,12 +30,12 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private final Set<VoltageLevel> voltageLevels;
 
-    private final List<Area.BoundaryTerminal> boundaryTerminals;
+    private final List<AreaBoundary> boundaries;
 
     AreaAdderImpl(Ref<NetworkImpl> networkRef, final RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
         this.subnetworkRef = subnetworkRef;
-        this.boundaryTerminals = new ArrayList<>();
+        this.boundaries = new ArrayList<>();
         this.voltageLevels = new HashSet<>();
     }
 
@@ -63,8 +63,13 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    public AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac) {
-        this.boundaryTerminals.add(new Area.BoundaryTerminal(terminal, ac));
+    public AreaAdder addAreaBoundary(Terminal terminal, boolean ac) {
+        this.boundaries.add(new AreaBoundaryImpl(terminal, ac));
+        return this;
+    }
+
+    public AreaAdder addAreaBoundary(DanglingLine danglingLine, boolean ac) {
+        this.boundaries.add(new AreaBoundaryImpl(danglingLine, ac));
         return this;
     }
 
@@ -88,8 +93,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return voltageLevels;
     }
 
-    protected List<Area.BoundaryTerminal> getBoundaryTerminals() {
-        return boundaryTerminals;
+    protected List<AreaBoundary> getAreaBoundaries() {
+        return boundaries;
     }
 
     @Override
@@ -97,7 +102,12 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
                 getAcNetInterchangeTolerance());
-        getBoundaryTerminals().forEach(bt -> area.addBoundaryTerminal(bt.terminal(), bt.ac()));
+        getAreaBoundaries().forEach(boundary ->
+                boundary.getTerminal()
+                        .ifPresentOrElse(terminal -> area.addAreaBoundary(terminal, boundary.isAc()),
+                                () -> boundary.getDanglingLine()
+                                        .ifPresent(danglingLine -> area.addAreaBoundary(danglingLine, boundary.isAc())))
+        );
         getVoltageLevels().forEach(area::addVoltageLevel);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);

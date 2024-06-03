@@ -35,7 +35,9 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder addVoltageLevel(VoltageLevel voltageLevel);
 
-    AreaAdder addBoundaryTerminal(Terminal terminal, boolean ac);
+    AreaAdder addAreaBoundary(Terminal terminal, boolean side);
+
+    AreaAdder addAreaBoundary(DanglingLine danglingLine, boolean side);
 
     @Override
     Area add();

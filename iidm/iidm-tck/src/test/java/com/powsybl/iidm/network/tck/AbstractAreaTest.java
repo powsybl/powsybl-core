@@ -11,11 +11,13 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -56,12 +58,10 @@ public abstract class AbstractAreaTest {
         assertEquals(List.of(vlhv2), aicA.getVoltageLevelStream().toList());
 
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
-        final Terminal boundary2 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_2).getTerminal2();
+        final DanglingLine boundary2 = network.getDanglingLine("danglingLine1");
         final Terminal boundary3 = network.getGenerator("GEN").getTerminal();
-        final List<Area.BoundaryTerminal> boundaries = List.of(new Area.BoundaryTerminal(boundary1, true),
-                new Area.BoundaryTerminal(boundary2, false), new Area.BoundaryTerminal(boundary3, true));
-        assertEquals(boundaries, aicA.getBoundaryTerminals());
-        assertEquals(boundaries, aicA.getBoundaryTerminalStream().toList());
+        final List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(boundary1, true), Pair.of(boundary2, false), Pair.of(boundary3, true));
+        assertBoundaries(expectedBoundaries, aicA);
     }
 
     @Test
@@ -165,12 +165,39 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void addBoundary() {
+    void addAreaBoundaryTerminal() {
         Terminal terminal = network.getLoad("LOAD").getTerminal();
-        biddingZoneA.addBoundaryTerminal(terminal, true);
-        var expectedBoundaries = List.of(new Area.BoundaryTerminal(terminal, true));
-        assertEquals(expectedBoundaries, biddingZoneA.getBoundaryTerminals());
-        assertEquals(expectedBoundaries, biddingZoneA.getBoundaryTerminalStream().toList());
+        biddingZoneA.addAreaBoundary(terminal, true);
+        List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(terminal, true));
+        assertBoundaries(expectedBoundaries, biddingZoneA);
+    }
+
+    @Test
+    void addAreaBoundaryDanglingLine() {
+        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
+        DanglingLine danglingLine = vlhv1.newDanglingLine()
+                .setId("danglingLine")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(0.0)
+                .setX(0.0)
+                .setBus("NHV1")
+                .add();
+        biddingZoneA.addAreaBoundary(danglingLine, true);
+        List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(danglingLine, true));
+        assertBoundaries(expectedBoundaries, biddingZoneA);
+    }
+
+    void assertBoundaries(List<Pair<? extends Object, Boolean>> expectedBoundaries, Area area) {
+        List<Pair<? extends Object, Boolean>> actualBoundariesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
+                .map(b -> b.getTerminal().isPresent() ? Pair.of(b.getTerminal().get(), b.isAc()) : Pair.of(b.getDanglingLine().get(), b.isAc()))
+                .toList();
+        List<Pair<? extends Object, Boolean>> actualBoundariesFromStream = area.getAreaBoundaryStream()
+                .map(b -> b.getTerminal().isPresent() ? Pair.of(b.getTerminal().get(), b.isAc()) : Pair.of(b.getDanglingLine().get(), b.isAc()))
+                .toList();
+
+        assertEquals(expectedBoundaries, actualBoundariesFromIterable);
+        assertEquals(expectedBoundaries, actualBoundariesFromStream);
     }
 
     @Test
@@ -191,7 +218,7 @@ public abstract class AbstractAreaTest {
                 .setBus(bus.getId())
                 .add();
         Terminal terminal = load.getTerminal();
-        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.addBoundaryTerminal(terminal, true));
+        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.addAreaBoundary(terminal, true));
         assertEquals("Terminal of connectable sub1_load cannot be added to Area bza boundaries. They do not belong to the same network or subnetwork", e.getMessage());
     }
 

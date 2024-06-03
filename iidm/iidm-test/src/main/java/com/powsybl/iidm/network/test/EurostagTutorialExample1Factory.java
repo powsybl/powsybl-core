@@ -896,8 +896,18 @@ public final class EurostagTutorialExample1Factory {
                 .setName("Region_A")
                 .setAreaType("region")
                 .add();
+
+        final VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         final Line nhv1Nhv2Line1 = network.getLine(NHV1_NHV2_1);
-        final Line nhv1Nhv2Line2 = network.getLine(NHV1_NHV2_2);
+        final DanglingLine danglingLineVlhv1 = vlhv1.newDanglingLine()
+                .setId("danglingLine1")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.5)
+                .setX(20.0)
+                .setBus("NHV1")
+                .setPairingKey("XNODE1")
+                .add();
         network.newArea()
                 .setAcNetInterchangeTarget(10.0)
                 .setAcNetInterchangeTolerance(0.1)
@@ -905,9 +915,9 @@ public final class EurostagTutorialExample1Factory {
                 .setName("Aic_A")
                 .setAreaType("aic")
                 .addVoltageLevel(network.getVoltageLevel(VLHV2))
-                .addBoundaryTerminal(nhv1Nhv2Line1.getTerminal1(), true)
-                .addBoundaryTerminal(nhv1Nhv2Line2.getTerminal2(), false)
-                .addBoundaryTerminal(network.getGenerator("GEN").getTerminal(), true)
+                .addAreaBoundary(nhv1Nhv2Line1.getTerminal1(), true)
+                .addAreaBoundary(danglingLineVlhv1, false)
+                .addAreaBoundary(network.getGenerator("GEN").getTerminal(), true)
                 .add();
         return network;
     }

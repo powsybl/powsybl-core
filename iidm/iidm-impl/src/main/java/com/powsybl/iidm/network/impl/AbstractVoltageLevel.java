@@ -119,8 +119,25 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         if (removed) {
             throw new PowsyblException("Cannot add areas to removed voltage level " + id);
         }
-        area.addVoltageLevel(this);
+        if (areas.contains(area)) {
+            // Nothing to do
+            return;
+        }
+
+        // Check that the VoltageLevel belongs to the same network or subnetwork
+        if (area.getParentNetwork() != getParentNetwork()) {
+            throw new PowsyblException("VoltageLevel " + getId() + " cannot be added to Area " + area.getId() + ". They do not belong to the same network or subnetwork");
+        }
+
+        // Check if the voltageLevel is already in another Area of the same type
+        final Optional<Area> previousArea = getArea(area.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != area) {
+            // This instance already has a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
+        }
+        // No conflict, add the area to this voltageLevel and vice versa
         areas.add(area);
+        area.addVoltageLevel(this);
     }
 
     @Override

@@ -25,9 +25,10 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final String areaType;
     private final Double acNetInterchangeTarget;
     private final Double acNetInterchangeTolerance;
-    private final List<Area.BoundaryTerminal> boundaryTerminals;
 
-    private final Set<VoltageLevel> voltagelevels = new LinkedHashSet<>();
+    private final List<AreaBoundary> areaBoundaries;
+
+    private final Set<VoltageLevel> voltagelevels;
 
     public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType, Double acNetInterchangeTarget,
                        Double acNetInterchangeTolerance) {
@@ -37,7 +38,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         this.areaType = Objects.requireNonNull(areaType);
         this.acNetInterchangeTarget = acNetInterchangeTarget;
         this.acNetInterchangeTolerance = acNetInterchangeTolerance;
-        this.boundaryTerminals = new ArrayList<>();
+        this.voltagelevels = new LinkedHashSet<>();
+        this.areaBoundaries = new ArrayList<>();
     }
 
     @Override
@@ -87,30 +89,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
      */
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
-        if (voltagelevels.contains(voltageLevel)) {
-            // Nothing to do
-            return;
-        }
-
-        // Check that the VoltageLevel belongs to the same network or subnetwork
-        if (subnetworkRef.get() != voltageLevel.getParentNetwork() && networkRef.get() != voltageLevel.getParentNetwork()) {
-            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " cannot be added to Area " + id + ". They do not belong to the same network or subnetwork");
-        }
-
-        // Check if the voltageLevel is already in another Area of the same type
-        final Optional<Area> previousArea = voltageLevel.getArea(this.getAreaType());
-        if (previousArea.isPresent() && previousArea.get() != this) {
-            // This instance already has a different area with the same AreaType
-            throw new PowsyblException("VoltageLevel " + voltageLevel.getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
-        }
-        // No conflict, add the area to this voltageLevel and vice versa
-        voltagelevels.add(voltageLevel);
         voltageLevel.addArea(this);
-    }
-
-    @Override
-    public void removeBoundaryTerminal(Terminal terminal) {
-        boundaryTerminals.removeIf(boundaryTerminal -> boundaryTerminal.terminal().equals(terminal));
+        voltagelevels.add(voltageLevel);
     }
 
     @Override
@@ -122,21 +102,41 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public void addBoundaryTerminal(Terminal terminal, boolean ac) {
-        Network terminalNetwork = terminal.getConnectable().getParentNetwork();
-        if (subnetworkRef.get() != terminalNetwork && networkRef.get() != terminalNetwork) {
-            throw new PowsyblException("Terminal of connectable " + terminal.getConnectable().getId() + " cannot be added to Area " + id + " boundaries. They do not belong to the same network or subnetwork");
+    public void addAreaBoundary(Terminal terminal, boolean ac) {
+        checkBoundaryNetwork(terminal.getConnectable().getParentNetwork(), "Terminal of connectable " + terminal.getConnectable().getId());
+        areaBoundaries.add(new AreaBoundaryImpl(terminal, ac));
+    }
+
+    @Override
+    public void addAreaBoundary(DanglingLine danglingLine, boolean ac) {
+        checkBoundaryNetwork(danglingLine.getParentNetwork(), "DanglingLine " + danglingLine.getId());
+        areaBoundaries.add(new AreaBoundaryImpl(danglingLine, ac));
+    }
+
+    @Override
+    public void removeAreaBoundary(Terminal terminal) {
+        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getTerminal().orElse(null), terminal)).findFirst().orElse(null));
+    }
+
+    @Override
+    public void removeAreaBoundary(DanglingLine danglingLine) {
+        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getDanglingLine().orElse(null), danglingLine)).findFirst().orElse(null));
+    }
+
+    @Override
+    public Iterable<AreaBoundary> getAreaBoundaries() {
+        return areaBoundaries;
+    }
+
+    @Override
+    public Stream<AreaBoundary> getAreaBoundaryStream() {
+        return areaBoundaries.stream();
+    }
+
+    void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
+        if (getParentNetwork() != network) {
+            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getId() + " boundaries. They do not belong to the same network or subnetwork");
         }
-        boundaryTerminals.add(new Area.BoundaryTerminal(terminal, ac));
     }
 
-    @Override
-    public List<BoundaryTerminal> getBoundaryTerminals() {
-        return boundaryTerminals;
-    }
-
-    @Override
-    public Stream<BoundaryTerminal> getBoundaryTerminalStream() {
-        return boundaryTerminals.stream();
-    }
 }

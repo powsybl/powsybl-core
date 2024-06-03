@@ -91,11 +91,17 @@ public interface Area extends Identifiable<Area> {
 
     void addVoltageLevel(VoltageLevel voltageLevel);
 
-    void addBoundaryTerminal(Terminal terminal, boolean ac);
+    void addAreaBoundary(Terminal terminal, boolean ac);
 
-    Iterable<BoundaryTerminal> getBoundaryTerminals();
+    void addAreaBoundary(DanglingLine danglingLine, boolean ac);
 
-    Stream<BoundaryTerminal> getBoundaryTerminalStream();
+    void removeAreaBoundary(Terminal terminal);
+
+    void removeAreaBoundary(DanglingLine danglingLine);
+
+    Iterable<AreaBoundary> getAreaBoundaries();
+
+    Stream<AreaBoundary> getAreaBoundaryStream();
 
     @Override
     default IdentifiableType getType() {
@@ -113,8 +119,6 @@ public interface Area extends Identifiable<Area> {
      * @return the net interchange tolerance
      */
     Optional<Double> getAcNetInterchangeTolerance();
-
-    void removeBoundaryTerminal(Terminal terminal);
 
     void removeVoltageLevel(VoltageLevel voltageLevel);
 
@@ -161,5 +165,4 @@ public interface Area extends Identifiable<Area> {
      * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
      * @see Area
      */
-    record BoundaryTerminal(Terminal terminal, boolean ac) { }
 }
