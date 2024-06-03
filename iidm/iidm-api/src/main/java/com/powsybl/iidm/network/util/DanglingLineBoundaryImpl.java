@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.network.util.DanglingLineData.zeroImpedance;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -111,10 +113,5 @@ public class DanglingLineBoundaryImpl implements Boundary {
         // run is needed, especially if the generation is regulating voltage.
         // This could be improved later.
         return !parent.isPaired() && valid(parent.getP0(), parent.getQ0()) && parent.getGeneration() == null;
-    }
-
-    private static boolean zeroImpedance(DanglingLine parent) {
-        // Simple way to deal with zero impedance dangling line.
-        return parent.getR() == 0.0 && parent.getX() == 0.0;
     }
 }
