@@ -24,7 +24,8 @@ public interface NetworkElementIdentifier {
     enum IdentifierType {
         ID_BASED,
         VOLTAGE_LEVELS_AND_ORDER,
-        LIST
+        LIST,
+        ID_WITH_WILDCARDS
     }
 
     IdentifierType getType();
