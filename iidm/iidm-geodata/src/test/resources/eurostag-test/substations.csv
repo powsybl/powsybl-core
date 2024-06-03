@@ -1,0 +1,3 @@
+﻿code_poste;nom_poste;fonction;etat;tension;longitude_poste;latitude_poste;geo_point_poste
+P1;P1;POSTE DE TRANSFORMATION;E;380kV;1;2;2,1
+P2;P2;POSTE DE TRANSFORMATION;E;380kV;3;4;4,3
