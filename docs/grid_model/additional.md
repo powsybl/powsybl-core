@@ -17,6 +17,52 @@ With the reactive capability curve limits, the reactive power limitation depends
 The curve is defined as a set of points that associate, to each active power value, a minimum and maximum reactive power value.
 In between the defined points of the curve, the reactive power limits are computed through a linear interpolation.
 
+### Examples
+
+This example shows how to use the `MinMaxReactiveLimits` and `ReactiveCapabilityCurve` classes:
+```java
+Generator generator = network.getGenerator("G");
+if (generator.getReactiveLimits().getKind() == ReactiveLimitsKind.MIN_MAX) {
+    MinMaxReactiveLimits limits = generator.getReactiveLimits(MinMaxReactiveLimits.class);
+    System.out.println("MinMaxReactiveLimits: [" + limits.getMinQ() + ", " + limits.getMaxQ() + "]");
+} else {
+    ReactiveCapabilityCurve limits = generator.getReactiveLimits(ReactiveCapabilityCurve.class);
+    System.out.println("ReactiveCapabilityCurve:");
+    limits.getPoints().forEach(p -> System.out.println("\t" + p.getP() + " -> [" + p.getMinQ() + ", " + p.getMaxQ() + "]"));
+}
+```
+
+This example shows how to create a new `MinMaxReactiveLimits` object:
+```java
+Generator generator = network.getGenerator("G");
+generator.newMinMaxReactiveLimits()
+    .setMinQ(-100.0)
+    .setMaxQ(100.0)
+    .add();
+```
+
+This example shows how to create a new `ReactiveCapabilityCurve` object:
+```java
+Generator generator = network.getGenerator("G");
+generator.newReactiveCapabilityCurve()
+    .beginPoint()
+        .setP(-10)
+        .setMinQ(-10)
+        .setMaxQ(10)
+    .endPoint()
+    .beginPoint()
+        .setP(0)
+        .setMinQ(-20)
+        .setMaxQ(20)
+    .endPoint()
+    .beginPoint()
+        .setP(10)
+        .setMinQ(-15)
+        .setMaxQ(-15)
+    .endPoint()
+    .add();
+```
+
 ## Loading Limits
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LoadingLimits.html)
 
@@ -48,6 +94,53 @@ In PowSyBl, users can store a collection of limits:
 - Lines and transformers are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
   Users can then choose the active set according to their needs.
 
+#### Examples
+
+Two examples are provided below, with their corresponding limits scheme, to show clearly how to create a new `CurrentLimits` instance.
+
+##### First example
+This first example creates a `CurrentLimits` instance containing one permanent limit and two temporary limits.
+```java
+CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
+    .setPermanentLimit(100.0)
+    .beginTemporaryLimit()
+        .setName("TL1")
+        .setValue(120.0)
+        .setAcceptableDuration(20 * 60)
+    .endTemporaryLimit()
+    .beginTemporaryLimit()
+        .setName("TL2")
+        .setValue(140.0)
+        .setAcceptableDuration(10 * 60)
+    .endTemporaryLimit()
+    .add();
+```
+![Current limits scheme_example1](img/currentLimitsExample1.svg)
+
+##### Second example
+This second example creates a `CurrentLimits` instance containing one permanent limit and three temporary limits, one of them having an infinite limit value.
+```java
+CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
+    .setPermanentLimit(700.0)
+    .beginTemporaryLimit()
+        .setName("IT20")
+        .setValue(800.0)
+        .setAcceptableDuration(20 * 60)
+    .endTemporaryLimit()
+    .beginTemporaryLimit()
+        .setName("IT10")
+        .setValue(900.0)
+        .setAcceptableDuration(10 * 60)
+    .endTemporaryLimit()
+    .beginTemporaryLimit()
+        .setName("IT1")
+        .setValue(Double.POSITIVE_INFINITY)
+        .setAcceptableDuration(60)
+    .endTemporaryLimit()
+    .add();
+```
+![Current limits scheme_example2](img/currentLimitsExample2.svg)
+
 ## Phase tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
 
@@ -73,14 +166,52 @@ The phase tap changer can always switch tap positions while loaded, which is not
 
 Each step of a phase tap changer has the following attributes:
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $r_{\phi, tap}$ | % | The resistance deviation in percent of nominal value |
-| $x_{\phi, tap}$ | % | The reactance deviation in percent of nominal value |
-| $g_{\phi, tap}$ | % | The conductance deviation in percent of nominal value |
-| $b_{\phi, tap}$ | % | The susceptance deviation in percent of nominal value |
-| $\rho_{\phi, tap}$ | p.u. | The voltage ratio in per unit of the rated voltages |
-| $\alpha_{\phi, tap}$ | $^{\circ}$ | Angle difference |
+| Attribute            | Unit       | Description                                           |
+|----------------------|------------|-------------------------------------------------------|
+| $r_{\phi, tap}$      | %          | The resistance deviation in percent of nominal value  |
+| $x_{\phi, tap}$      | %          | The reactance deviation in percent of nominal value   |
+| $g_{\phi, tap}$      | %          | The conductance deviation in percent of nominal value |
+| $b_{\phi, tap}$      | %          | The susceptance deviation in percent of nominal value |
+| $\rho_{\phi, tap}$   | p.u.       | The voltage ratio in per unit of the rated voltages   |
+| $\alpha_{\phi, tap}$ | $^{\circ}$ | Angle difference                                      |
+
+**Example**
+
+This example shows how to add a phase tap changer to a two windings transformer:
+```java
+twoWindingsTransformer.newPhaseTapChanger()
+    .setLowTapPosition(-1)
+    .setTapPosition(0)
+    .setRegulating(true)
+    .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+    .setRegulationValue(25)
+    .setRegulationTerminal(twoWindingsTransformer.getTerminal2())
+    .beginStep()
+        .setAlpha(-10)
+        .setRho(0.99)
+        .setR(1.)
+        .setX(2.)
+        .setG(0.5)
+        .setB(0.5)
+        .endStep()
+    .beginStep()
+        .setAlpha(0)
+        .setRho(1)
+        .setR(1.)
+        .setX(2.)
+        .setG(0.5)
+        .setB(0.5)
+        .endStep()
+    .beginStep()
+        .setAlpha(10)
+        .setRho(1.01)
+        .setR(1.)
+        .setX(2.)
+        .setG(0.5)
+        .setB(0.5)
+        .endStep()
+    .add()
+```
 
 ## Ratio tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
@@ -103,10 +234,45 @@ A ratio tap changer is described by a set of tap positions (or steps) within whi
 
 Each step of a ratio tap changer has the following attributes:
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $r_{r, tap}$ | % | The resistance deviation in percent of nominal value |
-| $x_{r, tap}$ | % | The reactance deviation in percent of nominal value |
-| $g_{r, tap}$ | % | The conductance deviation in percent of nominal value |
-| $b_{r, tap}$ | % | The susceptance deviation in percent of nominal value |
-| $\rho_{r, tap}$ | p.u. | The voltage ratio in per unit of the rated voltages |
+| Attribute       | Unit | Description                                           |
+|-----------------|------|-------------------------------------------------------|
+| $r_{r, tap}$    | %    | The resistance deviation in percent of nominal value  |
+| $x_{r, tap}$    | %    | The reactance deviation in percent of nominal value   |
+| $g_{r, tap}$    | %    | The conductance deviation in percent of nominal value |
+| $b_{r, tap}$    | %    | The susceptance deviation in percent of nominal value |
+| $\rho_{r, tap}$ | p.u. | The voltage ratio in per unit of the rated voltages   |
+
+**Example**
+
+This example shows how to add a ratio tap changer to a two windings transformer:
+```java
+twoWindingsTransformer.newRatioTapChanger()
+    .setLowTapPosition(-1)
+    .setTapPosition(0)
+    .setLoadTapChangingCapabilities(true)
+    .setRegulating(true)
+    .setTargetV(25)
+    .setRegulationTerminal(twoWindingsTransformer.getTerminal1())
+    .beginStep()
+        .setRho(0.95)
+        .setR(1.)
+        .setX(2.)
+        .setG(0.5)
+        .setB(0.5)
+        .endStep()
+    .beginStep()
+        .setRho(1)
+        .setR(1.)
+        .setX(2.)
+        .setG(0.5)
+        .setB(0.5)
+        .endStep()
+    .beginStep()
+        .setRho(1.05)
+        .setR(1.)
+        .setX(2.)
+        .setG(0.5)
+        .setB(0.5)
+        .endStep()
+    .add()
+```
