@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -26,22 +27,38 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     private final TDoubleArrayList droop;
     private final TDoubleArrayList participationFactor;
 
+    private final TDoubleArrayList minPOverride;
+    private final TDoubleArrayList maxPOverride;
+
     private final List<TDoubleArrayList> allTDoubleArrayLists;
 
     public ActivePowerControlImpl(T component,
                                   boolean participate,
                                   double droop,
                                   double participationFactor) {
+        this(component, participate, droop, participationFactor, Double.NaN, Double.NaN);
+    }
+
+    public ActivePowerControlImpl(T component,
+                                  boolean participate,
+                                  double droop,
+                                  double participationFactor,
+                                  double minPOverride,
+                                  double maxPOverride) {
         super(component);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);
         this.droop = new TDoubleArrayList(variantArraySize);
         this.participationFactor = new TDoubleArrayList(variantArraySize);
-        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor);
+        this.minPOverride = new TDoubleArrayList(variantArraySize);
+        this.maxPOverride = new TDoubleArrayList(variantArraySize);
+        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minPOverride, this.maxPOverride);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
             this.participationFactor.add(participationFactor);
+            this.minPOverride.add(minPOverride);
+            this.maxPOverride.add(maxPOverride);
         }
     }
 
@@ -94,8 +111,37 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             participate.set(index, participate.get(sourceIndex));
-            droop.set(index, droop.get(sourceIndex));
             allTDoubleArrayLists.forEach(dl -> dl.set(index, dl.get(sourceIndex)));
+        }
+    }
+
+    @Override
+    public Optional<Double> getMinPOverride() {
+        double result = minPOverride.get(getVariantIndex());
+        return Double.isNaN(result) ? Optional.empty() : Optional.of(result);
+    }
+
+    @Override
+    public void setMinPOverride(Double minPOverride) {
+        if (minPOverride == null) {
+            this.minPOverride.set(getVariantIndex(), Double.NaN);
+        } else {
+            this.minPOverride.set(getVariantIndex(), minPOverride);
+        }
+    }
+
+    @Override
+    public Optional<Double> getMaxPOverride() {
+        double result = maxPOverride.get(getVariantIndex());
+        return Double.isNaN(result) ? Optional.empty() : Optional.of(result);
+    }
+
+    @Override
+    public void setMaxPOverride(Double maxPOverride) {
+        if (maxPOverride == null) {
+            this.maxPOverride.set(getVariantIndex(), Double.NaN);
+        } else {
+            this.maxPOverride.set(getVariantIndex(), maxPOverride);
         }
     }
 }
