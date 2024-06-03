@@ -7,10 +7,9 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
-
-import java.util.Optional;
 
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
@@ -22,25 +21,31 @@ public class AreaBoundarySerDe {
     static final String ROOT_ELEMENT_NAME = "areaBoundary";
     static final String ARRAY_ELEMENT_NAME = "AreaBoundaries";
 
+    public static final String TERMINAL_REF = "terminalRef";
+
     protected void write(final Area holder, final NetworkSerializerContext context) {
         final TreeDataWriter writer = context.getWriter();
         writer.writeStartNodes();
         for (AreaBoundary boundary : holder.getAreaBoundaries()) {
-
-            // TODO finir la serde, voir comment on gère le fait d'avoir les term et dangling lines en optionel
             writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
-            boundary.getTerminal().ifPresent(terminal -> TerminalRefSerDe.writeTerminalRefAttribute(terminal, context));
-            boundary.getDanglingLine().ifPresent(danglingLine -> writer.writeStringAttribute("danglingLine", danglingLine.getId()));
             writer.writeBooleanAttribute("ac", boundary.isAc());
+            boundary.getTerminal().ifPresent(terminal -> TerminalRefSerDe.writeTerminalRef(terminal, context, TERMINAL_REF));
+            boundary.getDanglingLine().ifPresent(danglingLine -> DanglingLineRefSerDe.writeDanglingLineRef(danglingLine, context));
             writer.writeEndNode();
         }
         writer.writeEndNodes();
     }
 
-    protected void read(final Area boundaryTerminalHolder, final NetworkDeserializerContext context) {
+    protected void read(final Area holder, final NetworkDeserializerContext context) {
         boolean ac = context.getReader().readBooleanAttribute("ac");
-        Terminal terminal = TerminalRefSerDe.readTerminal(context, boundaryTerminalHolder.getNetwork());
-        String danglingLineId = context.getReader().readStringAttribute("danglingLine");
-
+        AreaBoundaryAdder adder = holder.newAreaBoundary().setAc(ac);
+        context.getReader().readChildNodes(elementName -> {
+            switch (elementName) {
+                case TERMINAL_REF -> TerminalRefSerDe.readTerminalRef(context, holder.getNetwork(), adder::setTerminal);
+                case DanglingLineRefSerDe.ROOT_ELEMENT_NAME -> DanglingLineRefSerDe.readDanglingLineRef(context, holder.getNetwork(), adder::setDanglingLine);
+                default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + elementName + ". Should be " + DanglingLineRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
+            }
+        });
+        context.getEndTasks().add(adder::add);
     }
 }

@@ -7,23 +7,23 @@
                 <iidm:bus id="N2"/>
             </iidm:busBreakerTopology>
             <iidm:load id="L1" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="N1" connectableBus="N1"/>
-            <iidm:load id="L2" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="N2" connectableBus="N2"/>
+            <iidm:danglingLine id="DL1" r="0.0" x="0.0" b="0.0" g="0.0" p0="0.0" q0="0.0" bus="N2" connectableBus="N2"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="sub2"/>
     <iidm:area id="BidZoneId1" name="BidZoneName1" areaType="BiddingZone">
         <iidm:voltageLevelRef id="VL1"/>
-        <iidm:boundaryTerminal ac="true">
+        <iidm:areaBoundary ac="true">
             <iidm:terminalRef id="L1"/>
-        </iidm:boundaryTerminal>
-        <iidm:boundaryTerminal ac="false">
-            <iidm:terminalRef id="L2"/>
-        </iidm:boundaryTerminal>
+        </iidm:areaBoundary>
+        <iidm:areaBoundary ac="false">
+            <iidm:danglingLineRef id="DL1"/>
+        </iidm:areaBoundary>
     </iidm:area>
     <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone" acNetInterchangeTarget="100.0" acNetInterchangeTolerance="1.0">
-        <iidm:boundaryTerminal ac="true">
+        <iidm:areaBoundary ac="true">
             <iidm:terminalRef id="L1"/>
-        </iidm:boundaryTerminal>
+        </iidm:areaBoundary>
     </iidm:area>
     <iidm:area id="ControlAreaId1" name="ControlAreaName1" areaType="ControlArea">
         <iidm:voltageLevelRef id="VL1"/>

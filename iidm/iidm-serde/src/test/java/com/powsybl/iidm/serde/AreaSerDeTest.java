@@ -39,14 +39,14 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         vl1.getBusBreakerView().newBus().setId("N1").add();
         vl1.getBusBreakerView().newBus().setId("N2").add();
         final Load load1 = vl1.newLoad().setId("L1").setBus("N1").setP0(0).setQ0(0).add();
-        final Load load2 = vl1.newLoad().setId("L2").setBus("N2").setP0(0).setQ0(0).add();
+        final DanglingLine danglingLine = vl1.newDanglingLine().setId("DL1").setBus("N2").setR(0.0).setX(0.0).setP0(0).setQ0(0).add();
 
         // Add area types and areas to the network
         final String biddingZoneType = "BiddingZone";
         final String controlAreaType = "ControlArea";
-        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").addBoundaryTerminal(load1.getTerminal(), true)
-               .addBoundaryTerminal(load2.getTerminal(), false).add();
-        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addBoundaryTerminal(load1.getTerminal(), true)
+        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").addAreaBoundary(load1.getTerminal(), true)
+               .addAreaBoundary(danglingLine, false).add();
+        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addAreaBoundary(load1.getTerminal(), true)
                .setAcNetInterchangeTarget(100.).setAcNetInterchangeTolerance(1.).add();
         network.newArea().setAreaType(controlAreaType).setId("ControlAreaId1").setName("ControlAreaName1").add();
         vl1.addArea(network.getArea("BidZoneId1"));
