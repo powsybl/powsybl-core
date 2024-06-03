@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>Criterion checking that at least one side of a network element belongs to a country defined in a list.</p>
+ * <p>Criterion checking that one of side of the network element belongs to a country defined in a list.</p>
+ * <p>When <code>filter</code> is called with a non-null <code>side</code>, only the country on this particular side
+ * is checked. Else, the validation is performed on whichever side.</p>
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
 public class AtLeastOneCountryCriterion implements Criterion {
@@ -40,7 +42,12 @@ public class AtLeastOneCountryCriterion implements Criterion {
 
     @Override
     public boolean filter(NetworkElement networkElement) {
-        return filterWithCountries(getCountriesToCheck(networkElement));
+        return filter(networkElement, null);
+    }
+
+    @Override
+    public boolean filter(NetworkElement networkElement, ThreeSides side) {
+        return filterWithCountries(getCountriesToCheck(networkElement, side));
     }
 
     public List<Country> getCountries() {
@@ -55,8 +62,10 @@ public class AtLeastOneCountryCriterion implements Criterion {
         }
     }
 
-    private List<Country> getCountriesToCheck(NetworkElement networkElement) {
-        return Arrays.asList(networkElement.getCountry1().orElse(null), networkElement.getCountry2().orElse(null));
+    private List<Country> getCountriesToCheck(NetworkElement networkElement, ThreeSides side) {
+        return side != null ?
+                Collections.singletonList(networkElement.getCountry(side).orElse(null)) :
+                Arrays.asList(networkElement.getCountry1().orElse(null), networkElement.getCountry2().orElse(null));
     }
 
     private boolean filterWithCountries(List<Country> countriesToCheck) {
