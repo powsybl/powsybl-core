@@ -10,23 +10,28 @@ package com.powsybl.iidm.serde;
 import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.*;
 
+import java.util.Optional;
+
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
-public class BoundaryTerminalSerDe {
+public class AreaBoundarySerDe {
 
-    static final BoundaryTerminalSerDe INSTANCE = new BoundaryTerminalSerDe();
-    static final String ROOT_ELEMENT_NAME = "boundaryTerminal";
-    static final String ARRAY_ELEMENT_NAME = "boundaryTerminals";
+    static final AreaBoundarySerDe INSTANCE = new AreaBoundarySerDe();
+    static final String ROOT_ELEMENT_NAME = "areaBoundary";
+    static final String ARRAY_ELEMENT_NAME = "AreaBoundaries";
 
     protected void write(final Area holder, final NetworkSerializerContext context) {
         final TreeDataWriter writer = context.getWriter();
         writer.writeStartNodes();
-        for (Area.BoundaryTerminal boundaryTerminal : holder.getBoundaryTerminals()) {
+        for (AreaBoundary boundary : holder.getAreaBoundaries()) {
+
+            // TODO finir la serde, voir comment on gère le fait d'avoir les term et dangling lines en optionel
             writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
-            writer.writeBooleanAttribute("ac", boundaryTerminal.ac());
-            TerminalRefSerDe.writeTerminalRef(boundaryTerminal.terminal(), context, "terminalRef");
+            boundary.getTerminal().ifPresent(terminal -> TerminalRefSerDe.writeTerminalRefAttribute(terminal, context));
+            boundary.getDanglingLine().ifPresent(danglingLine -> writer.writeStringAttribute("danglingLine", danglingLine.getId()));
+            writer.writeBooleanAttribute("ac", boundary.isAc());
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -34,9 +39,8 @@ public class BoundaryTerminalSerDe {
 
     protected void read(final Area boundaryTerminalHolder, final NetworkDeserializerContext context) {
         boolean ac = context.getReader().readBooleanAttribute("ac");
-        context.getReader().readChildNodes(elementName -> {
-            Terminal terminal = TerminalRefSerDe.readTerminal(context, boundaryTerminalHolder.getNetwork());
-            boundaryTerminalHolder.addBoundaryTerminal(terminal, ac);
-        });
+        Terminal terminal = TerminalRefSerDe.readTerminal(context, boundaryTerminalHolder.getNetwork());
+        String danglingLineId = context.getReader().readStringAttribute("danglingLine");
+
     }
 }

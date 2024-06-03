@@ -571,7 +571,7 @@ public final class NetworkSerDe {
                 Map.entry(AliasesSerDe.ARRAY_ELEMENT_NAME, AliasesSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(AreaSerDe.ARRAY_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BatterySerDe.ARRAY_ELEMENT_NAME, BatterySerDe.ROOT_ELEMENT_NAME),
-                Map.entry(BoundaryTerminalSerDe.ARRAY_ELEMENT_NAME, BoundaryTerminalSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(AreaBoundarySerDe.ARRAY_ELEMENT_NAME, AreaBoundarySerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),

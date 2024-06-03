@@ -35,7 +35,7 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     @Override
     protected void writeSubElements(final Area area, final Network parent, final NetworkSerializerContext context) {
         writeVoltageLevels(area, context);
-        BoundaryTerminalSerDe.INSTANCE.write(area, context);
+        AreaBoundarySerDe.INSTANCE.write(area, context);
     }
 
     private void writeVoltageLevels(Area area, NetworkSerializerContext context) {
@@ -65,7 +65,7 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case VoltageLevelRefSerDe.ROOT_ELEMENT_NAME -> VoltageLevelRefSerDe.readVoltageLevelRef(context, area.getNetwork(), area::addVoltageLevel);
-                case BoundaryTerminalSerDe.ROOT_ELEMENT_NAME -> BoundaryTerminalSerDe.INSTANCE.read(area, context);
+                case AreaBoundarySerDe.ROOT_ELEMENT_NAME -> AreaBoundarySerDe.INSTANCE.read(area, context);
                 default -> readSubElement(elementName, area, context);
             }
         });
