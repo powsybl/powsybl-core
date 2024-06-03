@@ -1,5 +1,17 @@
 {
-  "version" : "2.0",
+  "version" : "2.1",
+  "dictionaries" : {
+    "default" : {
+      "UcteReading" : "Reading UCTE network file",
+      "fixUcteLines" : "Fix UCTE lines",
+      "fixUcteNodes" : "Fix UCTE nodes",
+      "fixUcteRegulations" : "Fix UCTE regulations",
+      "fixUcteTransformer" : "Fix UCTE transformers",
+      "importAllParallel" : "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
+      "importDataSource" : "Import data source ${dataSource}",
+      "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
+    }
+  },
   "reportRoot" : {
     "messageKey" : "importAllParallel",
     "values" : {
@@ -165,18 +177,6 @@
           "messageKey" : "fixUcteRegulations"
         } ]
       } ]
-    } ],
-    "dictionaries" : {
-      "default" : {
-        "UcteReading" : "Reading UCTE network file",
-        "fixUcteLines" : "Fix UCTE lines",
-        "fixUcteNodes" : "Fix UCTE nodes",
-        "fixUcteRegulations" : "Fix UCTE regulations",
-        "fixUcteTransformer" : "Fix UCTE transformers",
-        "importAllParallel" : "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
-        "importDataSource" : "Import data source ${dataSource}",
-        "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
-      }
-    }
+    } ]
   }
 }

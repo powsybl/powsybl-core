@@ -151,7 +151,7 @@ class RemoveFeederBayTest {
         assertEquals("Cannot remove feeder bay for connectable ${connectableId}, as it is a busbarSection", reportNode.getChildren().get(0).getMessageTemplate());
         Map<String, TypedValue> values = reportNode.getChildren().get(0).getValues();
         assertEquals(2, values.size());
-        assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.REPORT_SEVERITY_KEY));
+        assertEquals(TypedValue.ERROR_SEVERITY, values.get(ReportConstants.SEVERITY_KEY));
         assertEquals("BBS_TEST_1_1", values.get("connectableId").getValue());
         assertEquals(TypedValue.UNTYPED, values.get("connectableId").getType());
     }
