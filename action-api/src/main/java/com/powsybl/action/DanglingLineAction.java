@@ -7,6 +7,9 @@
  */
 package com.powsybl.action;
 
+import com.powsybl.iidm.modification.DanglingLineModification;
+import com.powsybl.iidm.modification.NetworkModification;
+
 import java.util.Objects;
 
 /**
@@ -43,5 +46,35 @@ public class DanglingLineAction extends AbstractLoadAction {
     @Override
     public String getType() {
         return NAME;
+    }
+
+    @Override
+    public NetworkModification toModification() {
+        return new DanglingLineModification(
+                getDanglingLineId(),
+                isRelativeValue(),
+                getActivePowerValue().stream().boxed().findFirst().orElse(null),
+                getReactivePowerValue().stream().boxed().findFirst().orElse(null)
+        );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        DanglingLineAction that = (DanglingLineAction) o;
+        return Objects.equals(danglingLineId, that.danglingLineId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), danglingLineId);
     }
 }

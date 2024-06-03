@@ -86,7 +86,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setSectionCount(int sectionCount) {
         NetworkImpl n = getNetwork();
-        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel());
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel(),
+                getNetwork().getReportNodeContext().getReportNode());
         if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
@@ -101,7 +102,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensator unsetSectionCount() {
         NetworkImpl n = getNetwork();
-        ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", n.getMinValidationLevel());
+        ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", n.getMinValidationLevel(),
+                n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
         Integer oldValue = this.sectionCount.set(variantIndex, null);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -175,8 +177,10 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), n.getMinValidationLevel());
-        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.get(variantIndex), n.getMinValidationLevel());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, voltageRegulatorOn, targetDeadband.get(variantIndex),
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         boolean oldValue = regulatingPoint.setRegulating(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -193,7 +197,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setTargetV(double targetV) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), targetV, n.getMinValidationLevel());
+        ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), targetV,
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -210,7 +215,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setTargetDeadband(double targetDeadband) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, regulatingPoint.isRegulating(variantIndex), targetDeadband, n.getMinValidationLevel());
+        ValidationUtil.checkTargetDeadband(this, SHUNT_COMPENSATOR, regulatingPoint.isRegulating(variantIndex), targetDeadband,
+                n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
@@ -270,5 +276,4 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     protected String getTypeDescription() {
         return "Shunt compensator";
     }
-
 }

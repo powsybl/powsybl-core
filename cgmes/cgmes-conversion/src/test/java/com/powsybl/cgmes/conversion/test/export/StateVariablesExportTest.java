@@ -663,22 +663,28 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     @Test
     void testDisconnectedTerminalForSlack() {
         Network network = EurostagTutorialExample1Factory.createWithLFResults();
-        Pattern svInjectionPattern = Pattern.compile("<cim:SvInjection rdf:ID=");
+        Pattern svInjectionPattern = Pattern.compile("cim:SvInjection.TopologicalNode rdf:resource=\"#(.*)\"/>");
 
         // Set slack terminal
         Terminal terminal = network.getGenerator("GEN").getTerminal();
         SlackTerminal.reset(network.getVoltageLevel("VLGEN"), terminal);
 
         // Export only the CGMES SV instance file and check that no SvInjection is present (slack bus is balanced)
-        String svBalanced = exportSv(network, "tmp-slackTerminal-balanced");
+        String svBalanced = export(network, "tmp-slackTerminal-balanced").sv;
         assertFalse(svInjectionPattern.matcher(svBalanced).find());
 
         // Introduce a mismatch in the slack bus
         terminal.setP(0);
 
         // Export again, now an SvInjection must be present in the SV output (slack has a mismatch)
-        String svMismatch = exportSv(network, "tmp-slackTerminal-mismatch");
-        assertTrue(svInjectionPattern.matcher(svMismatch).find());
+        // And it should refer to a TopologicalNode present in the TP output
+        ExportedContent exportedMismatch = export(network, "tmp-slackTerminal-mismatch");
+        Matcher m = svInjectionPattern.matcher(exportedMismatch.sv);
+        assertTrue(exportedMismatch.sv.contains("cim:SvInjection.TopologicalNode"));
+        assertTrue(m.find());
+        String svInjectionTopologicalNode = m.group(1);
+        String tnDefinition = "cim:TopologicalNode rdf:ID=\"" + svInjectionTopologicalNode + "\"";
+        assertTrue(exportedMismatch.tp.contains(tnDefinition));
 
         // Disconnect the generator
         terminal.disconnect();
@@ -686,17 +692,24 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertNull(terminal.getBusView().getBus());
 
         // We still have a mismatch, but we do not have a slack bus to assign it, no SvInjection in the output
-        String svDisconnected = exportSv(network, "tmp-slackTerminal-disconnected");
+        String svDisconnected = export(network, "tmp-slackTerminal-disconnected").sv;
         assertFalse(svInjectionPattern.matcher(svDisconnected).find());
     }
 
-    private String exportSv(Network network, String basename) {
+    record ExportedContent(String sv, String tp) {
+    }
+
+    private ExportedContent export(Network network, String basename) {
         Path outputPath = tmpDir.resolve(basename);
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.PROFILES, "SV");
+        exportParams.put(CgmesExport.PROFILES, "SV,TP");
+        exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
         network.write("CGMES", exportParams, outputPath);
         try {
-            return Files.readString(tmpDir.resolve(String.format("%s_SV.xml", basename)));
+            return new ExportedContent(
+                    Files.readString(tmpDir.resolve(String.format("%s_SV.xml", basename))),
+                    Files.readString(tmpDir.resolve(String.format("%s_TP.xml", basename)))
+            );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

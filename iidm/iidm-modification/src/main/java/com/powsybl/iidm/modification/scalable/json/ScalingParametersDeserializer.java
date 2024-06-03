@@ -16,6 +16,7 @@ import com.powsybl.iidm.modification.scalable.Scalable;
 import com.powsybl.iidm.modification.scalable.ScalingParameters;
 
 import java.io.IOException;
+import java.util.HashSet;
 
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.ONESHOT;
 import static com.powsybl.iidm.modification.scalable.ScalingParameters.Priority.RESPECT_OF_VOLUME_ASKED;
@@ -66,6 +67,10 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: priority", version, "1.1");
                     parser.nextToken();
                     parameters.setPriority(JsonUtil.readValue(context, parser, ScalingParameters.Priority.class));
+                }
+                case "ignoredInjectionIds" -> {
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
+                    parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
                 }
                 default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
             }
