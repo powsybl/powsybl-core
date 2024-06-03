@@ -12,7 +12,7 @@ Then open `build-docs/index.html` in your browser.
 
 If you want to add links to another documentation, add the corresponding repository to the `conf.py` file.
 In order to automatically get the version specified in the `pom.xml`, please use the same naming as the version: if you define the
-Groovy version with `<groovy.version>`, then use `groovy` as key.
+Groovy version with `<groovy.version>`, then use `groovy` as key. The specified URL should start with `https://` and end with `latest/` (the final `/` is mandatory).
 For example, to add a link to the documentation of Sphinx, you need to add the following lines:
 ~~~python
 # This parameter might already be present, just add the new value
@@ -38,7 +38,8 @@ If you want to link a specific part of a page, use one of those examples:
 ~~~
 *Note: for the last examples to work, there need to be a corresponding reference in the external documentation.
 For those examples, `(ref-role)=` has been added right before the corresponding title
-in the [Cross-referencing syntax page](inv:sphinx:std:doc#usage/referencing).*
+in the [Cross-referencing syntax page](inv:sphinx:std:doc#usage/referencing). Another way to make it work is to use the `autosectionlabel` module in Sphinx to
+automatically generate anchors for each title.*
 
 *Note²: if the build fails, try with the `-E` option to clear the cache:*
 ~~~bash
