@@ -137,3 +137,35 @@ intersphinx_disabled_reftypes = ["*"]
 
 # Generate one file per method
 autosummary_generate = True
+
+
+# -- Dependencies versions ---------------------------------------------------
+# This part will automatically look in the pom.xml to find versions corresponding to the dependencies whose
+# documentation is used in the present one, except if it's a SNAPSHOT version of if a specific version has been chosen
+# in intersphinx_mapping
+
+# Get the URL without the default version
+def extract_base_url(url):
+    default_version = "latest"
+
+    m = re.match(r'(https\:\/\/.*)' + default_version + r'\/', url)
+    if m:
+        return m.group(1)
+
+# Replace the default version in the URL with the version from the pom.xml
+def replace_versions(intersphinx_mapping, file):
+    with open(file) as f:
+        for line in f:
+            m = re.match(r'^ {8}\<(.*)\.version\>(.*)\<\/(.*)\.version\>', line)
+            if m and m.group(1) == m.group(3):
+                dependency = m.group(1)
+                version = m.group(2)
+                if "SNAPSHOT" not in version and dependency in intersphinx_mapping:
+                    urlStart = extract_base_url(intersphinx_mapping[dependency][0])
+                    if urlStart:
+                        intersphinx_mapping[dependency] = (urlStart + version + "/", None)
+            if "</properties>" in line:
+                break
+    return intersphinx_mapping
+
+intersphinx_mapping = replace_versions(intersphinx_mapping, file_with_version)
