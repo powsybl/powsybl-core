@@ -304,9 +304,7 @@ public class DefaultSecurityAnalysis {
         if (violationDetector != null) {
             violationDetector.checkAll(contingency, network, consumer);
         } else {
-            // TODO For now, contingencies are ignored in the default security analysis
-            //  (same behavior as using the default LimitViolationDetector)
-            //  This should change to fully support LimitReductions
+            // The contingency will be taken into account with full support of LimitReductions.
             LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), 1., consumer);
         }
     }

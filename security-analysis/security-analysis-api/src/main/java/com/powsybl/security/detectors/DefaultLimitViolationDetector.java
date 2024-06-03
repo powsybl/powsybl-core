@@ -113,21 +113,21 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        boolean overloadOnTemporary = false;
+        boolean noOverloadOnTemporary = true;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            overloadOnTemporary = checkTemporary(branch, side, limitReductionValue, value, consumer, type);
+            noOverloadOnTemporary = checkTemporary(branch, side, limitReductionValue, value, consumer, type);
         }
-        if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
+        if (noOverloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReductionValue, value, consumer, type);
         }
     }
 
     public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        boolean overloadOnTemporary = false;
+        boolean noOverloadOnTemporary = true;
         if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
-            overloadOnTemporary = checkTemporary(transformer, side, limitReductionValue, value, consumer, type);
+            noOverloadOnTemporary = checkTemporary(transformer, side, limitReductionValue, value, consumer, type);
         }
-        if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
+        if (noOverloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(transformer, side, limitReductionValue, value, consumer, type);
         }
     }

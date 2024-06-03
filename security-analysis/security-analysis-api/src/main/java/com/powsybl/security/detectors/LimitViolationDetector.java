@@ -475,6 +475,7 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for temporary limit checks
+     * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
     default boolean checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
@@ -488,13 +489,14 @@ public interface LimitViolationDetector {
                     limitReductionValue,
                     value,
                     side));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 
     /**
      * Generic implementation for temporary limit checks
+     * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
     default boolean checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
@@ -508,8 +510,8 @@ public interface LimitViolationDetector {
                     limitReductionValue,
                     value,
                     side));
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }

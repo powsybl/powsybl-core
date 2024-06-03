@@ -116,8 +116,8 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
     @Test
     void detectTemporaryActivePowerLimitOnSide2OfLine1() {
         Line line1 = networkWithFixedLimits.getLine("NHV1_NHV2_1");
-        detector.checkTemporary(line1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
-
+        boolean ok = detector.checkTemporary(line1, TwoSides.TWO, 1.0f, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+        assertFalse(ok); // A violation was detected
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
@@ -126,6 +126,8 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                       assertSame(TwoSides.TWO, l.getSideAsTwoSides());
                       assertNotEquals(PERMANENT_LIMIT_NAME, l.getLimitName());
                   });
+        // No violation detected
+        assertTrue(detector.checkTemporary(line1, TwoSides.TWO, 1.0f, 100., violationsCollector::add, LimitType.ACTIVE_POWER));
     }
 
     @Test
@@ -210,8 +212,8 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
     void detectTemporaryCurrentLimitOverloadOn3WT() {
         ThreeWindingsTransformer transformer = networkWithCurrentLimitsOn3WT.getThreeWindingsTransformer("3WT");
         // also test with branch one or two
-        detector.checkTemporary(transformer, ThreeSides.THREE, 1.0f, 12, violationsCollector::add, LimitType.CURRENT);
-
+        boolean ok = detector.checkTemporary(transformer, ThreeSides.THREE, 1.0f, 12, violationsCollector::add, LimitType.CURRENT);
+        assertFalse(ok); // A violation was detected
         Assertions.assertThat(violationsCollector)
                 .hasSize(1)
                 .allSatisfy(l -> {
@@ -220,6 +222,8 @@ class DefaultLimitViolationDetectorTest extends AbstractLimitViolationDetectionT
                     assertSame(ThreeSides.THREE, l.getSide());
                     assertEquals(600, l.getAcceptableDuration());
                 });
+        // No violation detected
+        assertTrue(detector.checkTemporary(transformer, ThreeSides.THREE, 1.0f, 0., violationsCollector::add, LimitType.CURRENT));
     }
 
     @Test
