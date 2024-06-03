@@ -3,6 +3,7 @@
 ```{toctree}
 :hidden:
 convert_network.md
+cim_anonymizer.md
 ```
 
 The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (MacOS is not supported yet).
@@ -78,7 +79,7 @@ The `iTools` script relies on a [plugin mechanism](): the commands are discovere
 | Command                                                                   | Theme | Description |
 |---------------------------------------------------------------------------| ----- | ----------- |
 | [action-simulator](action-simulator.md)                                   | Computation | Run a security analysis with remedial actions |
-| [cim-anonymizer](cim-anonymizer.md)                                       | Data conversion | Anonymize CIM files |
+| [cim-anonymizer](cim_anonymizer.md)                                       | Data conversion | Anonymize CIM files |
 | [compare-security-analysis-results](compare-security-analysis-results.md) | Computation | Compare security analysis results |
 | [convert-network](convert_network.md)                                     | Data conversion | Convert a grid file from a format to another |
 | [dynamic-simulation](dynamic-simulation.md)                               | Computation | Run a dynamic simulation |
