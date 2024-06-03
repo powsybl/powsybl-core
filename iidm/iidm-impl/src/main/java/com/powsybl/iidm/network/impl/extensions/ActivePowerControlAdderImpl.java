@@ -51,8 +51,8 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public ActivePowerControlAdder<I> withMinPOverridde(double minPOverridde) {
-        this.minPOverride = minPOverridde;
+    public ActivePowerControlAdder<I> withMinPOverride(double minPOverride) {
+        this.minPOverride = minPOverride;
         return this;
     }
 

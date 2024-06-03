@@ -21,7 +21,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -44,13 +46,36 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void test() throws IOException {
-        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", CURRENT_IIDM_VERSION);
+    void testPLimitOverride() throws IOException {
+        network.getGenerator("GEN").getExtension(ActivePowerControl.class).setMaxPOverride(100.);
+        network.getBattery("BAT").getExtension(ActivePowerControl.class).setMinPOverride(10.);
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlWithLimitRoundTripRef.xml", CURRENT_IIDM_VERSION);
+
+        Generator gen2 = network2.getGenerator("GEN");
+        assertNotNull(gen2);
+        ActivePowerControl<Generator> activePowerControl1 = gen2.getExtension(ActivePowerControl.class);
+        assertNotNull(activePowerControl1);
+        assertEquals(100, activePowerControl1.getMaxPOverride().get());
+        assertTrue(activePowerControl1.getMinPOverride().isEmpty());
 
         Battery bat2 = network2.getBattery("BAT");
         assertNotNull(bat2);
         ActivePowerControl<Battery> activePowerControl2 = bat2.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl2);
+        assertTrue(activePowerControl2.getMaxPOverride().isEmpty());
+        assertEquals(10, activePowerControl2.getMinPOverride().get());
+    }
+
+    @Test
+    void testIidmV11() throws IOException {
+        Network network2 = allFormatsRoundTripTest(network, "/activePowerControlRoundTripRef.xml", IidmVersion.V_1_11);
+
+        Battery bat2 = network2.getBattery("BAT");
+        assertNotNull(bat2);
+        ActivePowerControl<Battery> activePowerControl2 = bat2.getExtension(ActivePowerControl.class);
+        assertNotNull(activePowerControl2);
+        assertTrue(activePowerControl2.getMaxPOverride().isEmpty());
+        assertTrue(activePowerControl2.getMinPOverride().isEmpty());
     }
 
     @Test

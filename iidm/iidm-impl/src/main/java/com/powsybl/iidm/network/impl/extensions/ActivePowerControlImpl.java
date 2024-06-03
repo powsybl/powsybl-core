@@ -122,12 +122,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     @Override
-    public void setMinPOverride(Double minPOverride) {
-        if (minPOverride == null) {
-            this.minPOverride.set(getVariantIndex(), Double.NaN);
-        } else {
-            this.minPOverride.set(getVariantIndex(), minPOverride);
-        }
+    public void setMinPOverride(double minPOverride) {
+        this.minPOverride.set(getVariantIndex(), minPOverride);
     }
 
     @Override
@@ -137,11 +133,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     @Override
-    public void setMaxPOverride(Double maxPOverride) {
-        if (maxPOverride == null) {
-            this.maxPOverride.set(getVariantIndex(), Double.NaN);
-        } else {
-            this.maxPOverride.set(getVariantIndex(), maxPOverride);
-        }
+    public void setMaxPOverride(double maxPOverride) {
+        this.maxPOverride.set(getVariantIndex(), maxPOverride);
     }
 }

@@ -113,7 +113,7 @@ public abstract class AbstractActivePowerControlTest {
                 .withDroop(4.0)
                 .withParticipate(true)
                 .withParticipationFactor(1.2)
-                .withMinPOverridde(10)
+                .withMinPOverride(10)
                 .withMaxPOverride(100)
                 .add();
         ActivePowerControl<Battery> activePowerControl = bat.getExtension(ActivePowerControl.class);
@@ -131,13 +131,11 @@ public abstract class AbstractActivePowerControlTest {
         activePowerControl.setParticipate(false);
         activePowerControl.setParticipationFactor(3.0);
         activePowerControl.setMaxPOverride(110.);
-        activePowerControl.setMinPOverride(null);
-        checkValues4(activePowerControl);
         activePowerControl.setMinPOverride(Double.NaN);
         checkValues4(activePowerControl);
 
         activePowerControl.setMinPOverride(11.);
-        activePowerControl.setMaxPOverride(null);
+        activePowerControl.setMaxPOverride(Double.NaN);
         checkValues5(activePowerControl);
 
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);

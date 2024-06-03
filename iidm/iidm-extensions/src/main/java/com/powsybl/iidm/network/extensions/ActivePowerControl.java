@@ -63,9 +63,9 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
 
     /**
      * Sets the overridden minimal active power.
-     * @param pMinOverride  The overridden value of Pmin. A Null or Nan value removes the override.
+     * @param pMinOverride  The overridden value of Pmin. A Nan value removes the override.
      */
-    void setMinPOverride(Double pMinOverride);
+    void setMinPOverride(double pMinOverride);
 
     /**
      * @return if present, provides the overridden value of pmax to be used for active power control operations.
@@ -74,7 +74,7 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
 
     /**
      * Sets the overridden maximal active power.
-     * @param pMaxOverride The overridden value of Pmax. A Null or Nan value removes the override.
+     * @param pMaxOverride The overridden value of Pmax. A Nan value removes the override.
      */
-    void setMaxPOverride(Double pMaxOverride);
+    void setMaxPOverride(double pMaxOverride);
 }
