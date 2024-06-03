@@ -12,7 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *

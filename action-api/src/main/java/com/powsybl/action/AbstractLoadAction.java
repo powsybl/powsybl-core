@@ -7,6 +7,7 @@
  */
 package com.powsybl.action;
 
+import java.util.Objects;
 import java.util.OptionalDouble;
 
 /**
@@ -47,5 +48,25 @@ public abstract class AbstractLoadAction extends AbstractAction {
 
     public OptionalDouble getReactivePowerValue() {
         return reactivePowerValue == null ? OptionalDouble.empty() : OptionalDouble.of(reactivePowerValue);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        AbstractLoadAction that = (AbstractLoadAction) o;
+        return relativeValue == that.relativeValue && Objects.equals(activePowerValue, that.activePowerValue) && Objects.equals(reactivePowerValue, that.reactivePowerValue);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), relativeValue, activePowerValue, reactivePowerValue);
     }
 }
