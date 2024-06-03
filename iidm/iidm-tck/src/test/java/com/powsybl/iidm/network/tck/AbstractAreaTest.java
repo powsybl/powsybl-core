@@ -58,9 +58,11 @@ public abstract class AbstractAreaTest {
         assertEquals(List.of(vlhv2), aicA.getVoltageLevelStream().toList());
 
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
-        final DanglingLine boundary2 = network.getDanglingLine("danglingLine1");
-        final Terminal boundary3 = network.getGenerator("GEN").getTerminal();
-        final List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(boundary1, true), Pair.of(boundary2, false), Pair.of(boundary3, true));
+        final Terminal boundary2 = network.getGenerator("GEN").getTerminal();
+        final DanglingLine boundary3 = network.getDanglingLine("danglingLine1");
+        final List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(boundary1, true),
+                Pair.of(boundary2, true),
+                Pair.of(boundary3, false));
         assertBoundaries(expectedBoundaries, aicA);
     }
 
@@ -167,7 +169,10 @@ public abstract class AbstractAreaTest {
     @Test
     void addAreaBoundaryTerminal() {
         Terminal terminal = network.getLoad("LOAD").getTerminal();
-        biddingZoneA.addAreaBoundary(terminal, true);
+        biddingZoneA.newAreaBoundary()
+                .setTerminal(terminal)
+                .setAc(true)
+                .add();
         List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(terminal, true));
         assertBoundaries(expectedBoundaries, biddingZoneA);
     }
@@ -183,9 +188,29 @@ public abstract class AbstractAreaTest {
                 .setX(0.0)
                 .setBus("NHV1")
                 .add();
-        biddingZoneA.addAreaBoundary(danglingLine, true);
+        biddingZoneA.newAreaBoundary()
+                .setDanglingLine(danglingLine)
+                .setAc(true)
+                .add();
         List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(danglingLine, true));
         assertBoundaries(expectedBoundaries, biddingZoneA);
+    }
+
+    @Test
+    void removeAreaBoundaries() {
+        Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
+        Terminal boundary2 = network.getGenerator("GEN").getTerminal();
+        DanglingLine boundary3 = network.getDanglingLine("danglingLine1");
+
+        aicA.removeAreaBoundary(boundary1);
+        List<Pair<? extends Object, Boolean>> expectedBoundaries =
+                List.of(Pair.of(boundary2, true),
+                        Pair.of(boundary3, false));
+        assertBoundaries(expectedBoundaries, aicA);
+
+        aicA.removeAreaBoundary(boundary3);
+        expectedBoundaries = List.of(Pair.of(boundary2, true));
+        assertBoundaries(expectedBoundaries, aicA);
     }
 
     void assertBoundaries(List<Pair<? extends Object, Boolean>> expectedBoundaries, Area area) {
@@ -218,7 +243,7 @@ public abstract class AbstractAreaTest {
                 .setBus(bus.getId())
                 .add();
         Terminal terminal = load.getTerminal();
-        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.addAreaBoundary(terminal, true));
+        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.newAreaBoundary().setTerminal(terminal).setAc(true).add());
         assertEquals("Terminal of connectable sub1_load cannot be added to Area bza boundaries. They do not belong to the same network or subnetwork", e.getMessage());
     }
 

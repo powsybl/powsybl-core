@@ -102,15 +102,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public void addAreaBoundary(Terminal terminal, boolean ac) {
-        checkBoundaryNetwork(terminal.getConnectable().getParentNetwork(), "Terminal of connectable " + terminal.getConnectable().getId());
-        areaBoundaries.add(new AreaBoundaryImpl(terminal, ac));
-    }
-
-    @Override
-    public void addAreaBoundary(DanglingLine danglingLine, boolean ac) {
-        checkBoundaryNetwork(danglingLine.getParentNetwork(), "DanglingLine " + danglingLine.getId());
-        areaBoundaries.add(new AreaBoundaryImpl(danglingLine, ac));
+    public AreaBoundaryAdderImpl newAreaBoundary() {
+        return new AreaBoundaryAdderImpl(this);
     }
 
     @Override
@@ -131,6 +124,19 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public Stream<AreaBoundary> getAreaBoundaryStream() {
         return areaBoundaries.stream();
+    }
+
+    protected void addAreaBoundary(AreaBoundaryImpl areaBoundary) {
+        Optional<Terminal> terminal = areaBoundary.getTerminal();
+        Optional<DanglingLine> danglingLine = areaBoundary.getDanglingLine();
+        if (terminal.isPresent()) {
+            checkBoundaryNetwork(terminal.get().getConnectable().getParentNetwork(), "Terminal of connectable " + terminal.get().getConnectable().getId());
+        } else if (danglingLine.isPresent()) {
+            checkBoundaryNetwork(danglingLine.get().getParentNetwork(), "Dangling Line " + danglingLine.get().getId());
+        } else {
+            throw new PowsyblException("AreaBoundary must have a terminal or a dangling line");
+        }
+        areaBoundaries.add(areaBoundary);
     }
 
     void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {

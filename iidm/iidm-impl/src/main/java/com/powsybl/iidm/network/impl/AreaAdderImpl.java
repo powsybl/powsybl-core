@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.*;
+import org.jgrapht.alg.util.Pair;
 
 import java.util.*;
 
@@ -30,12 +31,15 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private final Set<VoltageLevel> voltageLevels;
 
-    private final List<AreaBoundary> boundaries;
+    private final List<Pair<Terminal, Boolean>> terminalBoundaries;
+
+    private final List<Pair<DanglingLine, Boolean>> danglingLineBoundaries;
 
     AreaAdderImpl(Ref<NetworkImpl> networkRef, final RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
         this.subnetworkRef = subnetworkRef;
-        this.boundaries = new ArrayList<>();
+        this.terminalBoundaries = new ArrayList<>();
+        this.danglingLineBoundaries = new ArrayList<>();
         this.voltageLevels = new HashSet<>();
     }
 
@@ -64,12 +68,12 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
     }
 
     public AreaAdder addAreaBoundary(Terminal terminal, boolean ac) {
-        this.boundaries.add(new AreaBoundaryImpl(terminal, ac));
+        this.terminalBoundaries.add(Pair.of(terminal, ac));
         return this;
     }
 
     public AreaAdder addAreaBoundary(DanglingLine danglingLine, boolean ac) {
-        this.boundaries.add(new AreaBoundaryImpl(danglingLine, ac));
+        this.danglingLineBoundaries.add(Pair.of(danglingLine, ac));
         return this;
     }
 
@@ -93,8 +97,12 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return voltageLevels;
     }
 
-    protected List<AreaBoundary> getAreaBoundaries() {
-        return boundaries;
+    protected List<Pair<Terminal, Boolean>> getTerminalAreaBoundaries() {
+        return terminalBoundaries;
+    }
+
+    protected List<Pair<DanglingLine, Boolean>> getDanglingLineAreaBoundaries() {
+        return danglingLineBoundaries;
     }
 
     @Override
@@ -102,12 +110,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
                 getAcNetInterchangeTolerance());
-        getAreaBoundaries().forEach(boundary ->
-                boundary.getTerminal()
-                        .ifPresentOrElse(terminal -> area.addAreaBoundary(terminal, boundary.isAc()),
-                                () -> boundary.getDanglingLine()
-                                        .ifPresent(danglingLine -> area.addAreaBoundary(danglingLine, boundary.isAc())))
-        );
+        getTerminalAreaBoundaries().forEach(pair -> area.newAreaBoundary().setTerminal(pair.getFirst()).setAc(pair.getSecond()).add());
+        getDanglingLineAreaBoundaries().forEach(pair -> area.newAreaBoundary().setDanglingLine(pair.getFirst()).setAc(pair.getSecond()).add());
         getVoltageLevels().forEach(area::addVoltageLevel);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
