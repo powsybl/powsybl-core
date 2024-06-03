@@ -122,14 +122,14 @@ public interface ReportNodeAdderOrBuilder<T extends ReportNodeAdderOrBuilder<T>>
     T withUntypedValue(String key, boolean value);
 
     /**
-     * Provide the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#REPORT_SEVERITY_KEY} key to build the {@link ReportNode} with.
-     * @param severity the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#REPORT_SEVERITY_KEY} key
+     * Provide the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#SEVERITY_KEY} key to build the {@link ReportNode} with.
+     * @param severity the {@link TypedValue#SEVERITY} typed value associated to {@link ReportConstants#SEVERITY_KEY} key
      * @return a reference to this object
      */
     T withSeverity(TypedValue severity);
 
     /**
-     * Provide the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#REPORT_SEVERITY_KEY} key to build the {@link ReportNode} with.
+     * Provide the {@link String} value for the {@link TypedValue#SEVERITY} type associated to {@link ReportConstants#SEVERITY_KEY} key to build the {@link ReportNode} with.
      * @param severity the {@link String} value
      * @return a reference to this object
      */

@@ -377,4 +377,29 @@ public abstract class AbstractConnectableTest {
         twt.getTerminals().forEach(terminal -> assertNull(terminal.getBusView().getBus()));
         twt.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
     }
+
+    @Test
+    public void oneTerminalConnectedTest() {
+        // Network creation
+        Network network = createNetwork();
+
+        // Useful elements
+        Line line2 = network.getLine("L2");
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("twt");
+
+        // Line1 and twt are fully connected
+        assertFalse(line2.getTerminal1().isConnected());
+        assertTrue(line2.getTerminal2().isConnected());
+        assertFalse(twt.getTerminal(ThreeSides.ONE).isConnected());
+        assertTrue(twt.getTerminal(ThreeSides.TWO).isConnected());
+        assertTrue(twt.getTerminal(ThreeSides.THREE).isConnected());
+
+        // Connection of side one only
+        assertTrue(line2.connect(SwitchPredicates.IS_BREAKER, ThreeSides.ONE));
+        assertTrue(line2.getTerminal1().isConnected());
+
+        // disconnect the twt on side 3
+        assertTrue(twt.disconnect(SwitchPredicates.IS_BREAKER_OR_DISCONNECTOR, ThreeSides.THREE));
+        assertFalse(twt.getTerminal(ThreeSides.THREE).isConnected());
+    }
 }
