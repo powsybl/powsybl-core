@@ -82,15 +82,17 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertSame(twoWindingsTransformer, vl1.getTwoWindingsTransformers().iterator().next());
         assertSame(twoWindingsTransformer, vl1.getTwoWindingsTransformerStream().findFirst().get());
 
-        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer,
-                twoWindingsTransformer.getTerminal(TwoSides.ONE));
+        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.ONE));
         assertTrue(twoWindingsTransformer.getOptionalRatioTapChanger().isPresent());
-        assertSame(ratioTapChangerInLeg1, twoWindingsTransformer.getRatioTapChanger());
+        ratioTapChangerInLeg1.setTargetV(12).setTapPosition(2);
+        assertEquals(ratioTapChangerInLeg1.getTargetV(), twoWindingsTransformer.getRatioTapChanger().getTargetV(), 0.0);
+        assertEquals(ratioTapChangerInLeg1.getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition());
 
-        PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer,
-                twoWindingsTransformer.getTerminal(TwoSides.TWO));
+        PhaseTapChanger phaseTapChangerInLeg1 = createPhaseTapChanger(twoWindingsTransformer, twoWindingsTransformer.getTerminal(TwoSides.TWO));
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
-        assertSame(phaseTapChangerInLeg1, twoWindingsTransformer.getPhaseTapChanger());
+        phaseTapChangerInLeg1.setTapPosition(2).setTargetDeadband(1);
+        assertEquals(phaseTapChangerInLeg1.getTargetDeadband(), twoWindingsTransformer.getPhaseTapChanger().getTargetDeadband(), 0.0);
+        assertEquals(phaseTapChangerInLeg1.getTapPosition(), twoWindingsTransformer.getPhaseTapChanger().getTapPosition());
     }
 
     @Test
