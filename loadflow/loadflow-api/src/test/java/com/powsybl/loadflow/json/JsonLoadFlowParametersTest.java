@@ -259,7 +259,7 @@ public class JsonLoadFlowParametersTest extends AbstractSerDeTest {
 
         @Override
         public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
-            return new DummyExtension();
+            return createMapper().readValue(jsonParser, DummyExtension.class);
         }
 
         @Override

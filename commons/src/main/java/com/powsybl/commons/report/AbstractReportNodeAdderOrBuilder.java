@@ -97,13 +97,13 @@ public abstract class AbstractReportNodeAdderOrBuilder<T extends ReportNodeAdder
         if (!severity.getType().equals(TypedValue.SEVERITY)) {
             throw new IllegalArgumentException("Expected a " + TypedValue.SEVERITY + " but received " + severity.getType());
         }
-        values.put(ReportConstants.REPORT_SEVERITY_KEY, severity);
+        values.put(ReportConstants.SEVERITY_KEY, severity);
         return self();
     }
 
     @Override
     public T withSeverity(String severity) {
-        values.put(ReportConstants.REPORT_SEVERITY_KEY, new TypedValue(severity, TypedValue.SEVERITY));
+        values.put(ReportConstants.SEVERITY_KEY, new TypedValue(severity, TypedValue.SEVERITY));
         return self();
     }
 
