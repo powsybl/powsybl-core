@@ -510,3 +510,60 @@ ReferenceTerminals.add(terminal);
 ```
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+## Substation Position
+
+This extension is attached to a Substation and is used to store the geographical coordinates of the Substation.
+The coordinates are stored using latitude and longitude.
+
+| Attribute  | Type         | Unit | Required | Default value | Description                                  |
+|------------|--------------|------|----------|---------------|----------------------------------------------|
+| coordinate | `Coordinate` | -    | yes      | -             | The latitude and longitude of the substation |
+
+Example of code to get the coordinates of a substation :
+```java
+Coordinate stationCoordinate = network.getSubstation("P1").getExtension(SubstationPosition.class)
+    .getCoordinate();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the SubstationPositionAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+Substation station = network.getSubstation("P1");
+station.newExtension(SubstationPositionAdder.class)
+        .withCoordinate(new Coordinate(48, 2))
+        .add();
+```
+
+## Line Position
+
+This extension is attached to a Line and is used to store the geographical coordinates of the Line.
+The coordinates are stored using latitude and longitude.
+The extension consists of a list of coordinates that can be used to trace the line on a map. 
+
+| Attribute   | Type               | Unit | Required | Default value | Description                                     |
+|-------------|--------------------|------|----------|---------------|-------------------------------------------------|
+| coordinates | `list<Coordinate>` | -    | yes      | -             | The list of points coordinates forming the line |
+
+Example of code to get the coordinates of a line :
+```java
+List<Coordinate> stationCoordinates = network.getLine("L1").getExtension(LinePosition.class)
+    .getCoordinates();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the LinePositionAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+Line line = network.getLine("L1");
+line.newExtension(LinePositionAdder.class)
+    .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
+    .add();
+```
