@@ -100,7 +100,7 @@ PowSybl [`VoltatgeLevels`](../../grid_model/network_subnetwork.md#voltage-level)
 
 ### Control areas
 
-PowSyBl [`ControlAreas`](import.md#extensions) are exported as CGMES `ControlAreas`.
+PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as CGMES `ControlAreas`.
 
 <span style="color: red">TODO details</span>
 

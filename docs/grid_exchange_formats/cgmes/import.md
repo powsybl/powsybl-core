@@ -457,7 +457,7 @@ Optional property that defines which CGMES profile is used to initialize tap pos
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
 **iidm.import.cgmes.store-cgmes-model-as-network-extension**    
-Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](#). The default value is `true`.
+Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model). The default value is `true`.
 
 **iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**  
 Optional property that defines if the CGMES conversion context will be stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
