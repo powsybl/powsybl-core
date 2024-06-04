@@ -14,6 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -296,7 +297,7 @@ public class DefaultSecurityAnalysis {
         if (violationDetector != null) {
             violationDetector.checkAll(network, consumer);
         } else {
-            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), 1., consumer);
+            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), new LimitsComputer.NoModificationsImpl(), consumer);
         }
     }
 
@@ -304,8 +305,10 @@ public class DefaultSecurityAnalysis {
         if (violationDetector != null) {
             violationDetector.checkAll(contingency, network, consumer);
         } else {
-            // TODO: Take the contingency into account with full support of LimitReductions.
-            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), 1., consumer);
+            // TODO For now, contingencies are ignored in the default security analysis
+            //  (same behavior as using the default LimitViolationDetector)
+            //  This should change to fully support LimitReductions
+            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), new LimitsComputer.NoModificationsImpl(), consumer);
         }
     }
 }

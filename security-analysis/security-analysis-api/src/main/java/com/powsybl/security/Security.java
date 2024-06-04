@@ -10,8 +10,12 @@ package com.powsybl.security;
 
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.security.detectors.LoadingLimitType;
+import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 import com.powsybl.security.results.PostContingencyResult;
 
 import java.io.IOException;
@@ -61,28 +65,36 @@ public final class Security {
     }
 
     public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, double limitReductionValue) {
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(currentLimitTypes);
         // allow to increase the limits
         if (limitReductionValue <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
+        return checkLimits(network, currentLimitTypes, new SimpleLimitsComputer(limitReductionValue));
+    }
+
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(currentLimitTypes);
         List<LimitViolation> violations = new ArrayList<>();
-        LimitViolationDetection.checkAll(network, currentLimitTypes, limitReductionValue, violations::add);
+        LimitViolationDetection.checkAll(network, currentLimitTypes, limitsComputer, violations::add);
         return violations;
     }
 
     public static List<LimitViolation> checkLimitsDc(Network network, double limitReductionValue, double dcPowerFactor) {
-        Objects.requireNonNull(network);
         // allow to increase the limits
         if (limitReductionValue <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
+        return checkLimitsDc(network, new SimpleLimitsComputer(limitReductionValue), dcPowerFactor);
+    }
+
+    public static List<LimitViolation> checkLimitsDc(Network network, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, double dcPowerFactor) {
+        Objects.requireNonNull(network);
         if (dcPowerFactor <= 0 || dcPowerFactor > 1) {
             throw new IllegalArgumentException("Invalid DC power factor " + dcPowerFactor);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        LimitViolationDetection.checkAllDc(network, dcPowerFactor, EnumSet.allOf(LoadingLimitType.class), limitReductionValue, violations::add);
+        LimitViolationDetection.checkAllDc(network, dcPowerFactor, EnumSet.allOf(LoadingLimitType.class), limitsComputer, violations::add);
         return violations;
     }
 
