@@ -127,22 +127,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     protected void addAreaBoundary(AreaBoundaryImpl areaBoundary) {
-        Optional<Terminal> terminal = areaBoundary.getTerminal();
-        Optional<DanglingLine> danglingLine = areaBoundary.getDanglingLine();
-        if (terminal.isPresent()) {
-            checkBoundaryNetwork(terminal.get().getConnectable().getParentNetwork(), "Terminal of connectable " + terminal.get().getConnectable().getId());
-        } else if (danglingLine.isPresent()) {
-            checkBoundaryNetwork(danglingLine.get().getParentNetwork(), "Dangling Line " + danglingLine.get().getId());
-        } else {
-            throw new PowsyblException("AreaBoundary must have a terminal or a dangling line");
-        }
         areaBoundaries.add(areaBoundary);
-    }
-
-    void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
-        if (getParentNetwork() != network) {
-            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getId() + " boundaries. They do not belong to the same network or subnetwork");
-        }
     }
 
 }

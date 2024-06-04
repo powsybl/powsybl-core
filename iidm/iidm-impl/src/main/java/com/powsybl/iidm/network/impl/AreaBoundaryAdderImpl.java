@@ -8,7 +8,10 @@
 
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import java.util.Objects;
+
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
@@ -22,10 +25,10 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
 
     Terminal terminal;
 
-    boolean ac;
+    Boolean ac;
 
     AreaBoundaryAdderImpl(AreaImpl area) {
-        this.area = area;
+        this.area = Objects.requireNonNull(area);
     }
 
     protected AreaImpl getArea() {
@@ -40,7 +43,7 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         return terminal;
     }
 
-    protected boolean isAc() {
+    protected Boolean isAc() {
         return ac;
     }
 
@@ -66,10 +69,23 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
 
     @Override
     public void add() {
-        if (danglingLine != null) {
-            getArea().addAreaBoundary(new AreaBoundaryImpl(danglingLine, ac));
+        if (isAc() == null) {
+            throw new PowsyblException("AreaBoundary must have an attribute 'ac' set to be added");
+        }
+        if (getDanglingLine() != null) {
+            checkBoundaryNetwork(getDanglingLine().getParentNetwork(), "DanglingLine" + getDanglingLine().getId());
+            getArea().addAreaBoundary(new AreaBoundaryImpl(getDanglingLine(), isAc()));
+        } else if (getTerminal() != null) {
+            checkBoundaryNetwork(getTerminal().getConnectable().getParentNetwork(), "Terminal of connectable " + getTerminal().getConnectable().getId());
+            getArea().addAreaBoundary(new AreaBoundaryImpl(getTerminal(), isAc()));
         } else {
-            getArea().addAreaBoundary(new AreaBoundaryImpl(terminal, ac));
+            throw new PowsyblException("AreaBoundary must have a 'terminal' or a 'dangling line' attribute set to be added");
+        }
+    }
+
+    void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
+        if (getArea().getParentNetwork() != network) {
+            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getArea().getId() + " boundaries. They do not belong to the same network or subnetwork");
         }
     }
 
