@@ -1,6 +1,6 @@
 # Advanced
 
-Network elements can be described in an advanced way: reactive limits, loading limits, phase and ratio tap changers.
+Network elements can be described in an advanced way with reactive limits, loading limits, phase and ratio tap changers.
 
 ## Reactive limits
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ReactiveLimits.html)
