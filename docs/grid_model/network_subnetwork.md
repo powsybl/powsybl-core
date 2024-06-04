@@ -256,7 +256,11 @@ Optional:
 
 In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined besides the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line, for both UCTE or CIM-CGMES formats.
 
-// TODO, add boundary
+A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
+with a single terminal located on network side, but sometimes we need state variables such as active or reactive powers on
+the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
+are automatically computed using information from the terminal of the dangling line.  
+
 
 **Available extensions**
 
