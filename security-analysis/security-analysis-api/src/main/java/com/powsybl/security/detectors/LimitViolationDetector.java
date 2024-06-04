@@ -5,12 +5,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * SPDX-License-Identifier: MPL-2.0
  */
-package com.powsybl.security;
+package com.powsybl.security.detectors;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationDetection;
+import com.powsybl.security.LimitViolationType;
 
 import java.util.function.Consumer;
 
@@ -431,17 +434,7 @@ public interface LimitViolationDetector {
      * @return The matching LimitViolationTYpe
      */
     default LimitViolationType toLimitViolationType(LimitType type) {
-        switch (type) {
-            case ACTIVE_POWER:
-                return LimitViolationType.ACTIVE_POWER;
-            case APPARENT_POWER:
-                return LimitViolationType.APPARENT_POWER;
-            case CURRENT:
-                return LimitViolationType.CURRENT;
-            case VOLTAGE:
-            default:
-                throw new UnsupportedOperationException(String.format("Unsupported conversion for %s from limit type to limit violation type.", type.name()));
-        }
+        return LimitViolationDetection.toLimitViolationType(type);
     }
 
     /**
@@ -482,8 +475,9 @@ public interface LimitViolationDetector {
 
     /**
      * Generic implementation for temporary limit checks
+     * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
-    default void checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default boolean checkTemporary(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(branch.getId(),
@@ -495,13 +489,16 @@ public interface LimitViolationDetector {
                     limitReductionValue,
                     value,
                     side));
+            return false;
         }
+        return true;
     }
 
     /**
      * Generic implementation for temporary limit checks
+     * @return <code>true</code> if no overload was detected, <code>false</code> otherwise.
      */
-    default void checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    default boolean checkTemporary(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
         if (overload != null) {
             consumer.accept(new LimitViolation(transformer.getId(),
@@ -513,6 +510,8 @@ public interface LimitViolationDetector {
                     limitReductionValue,
                     value,
                     side));
+            return false;
         }
+        return true;
     }
 }
