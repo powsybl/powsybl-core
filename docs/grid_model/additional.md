@@ -1,7 +1,6 @@
-# Additional network models
+# Advanced
 
-In this section, the additional models available in IIDM are described: reactive limits, current limits, voltage regulation, phase and ratio tap changers.
-They can be used by various equipment models.
+Network elements can be described in an advanced way: reactive limits, loading limits, phase and ratio tap changers.
 
 ## Reactive limits
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ReactiveLimits.html)
