@@ -319,6 +319,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-geodata</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-loadflow-api</artifactId>
             <version>${project.version}</version>
         </dependency>

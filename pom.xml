@@ -140,7 +140,7 @@
         <xz.version>1.9</xz.version>
         <zstdjni.version>1.5.5-5</zstdjni.version>
 
-        <powsyblmathnative.version>1.3.0</powsyblmathnative.version>
+        <powsyblmathnative.version>1.3.1</powsyblmathnative.version>
     </properties>
 
     <profiles>
@@ -421,6 +421,11 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-iidm-extensions</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-iidm-geodata</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

@@ -31,7 +31,6 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
      */
     public static SecurityAnalysisRunParameters getDefault() {
         return new SecurityAnalysisRunParameters()
-                .setDetector(DEFAULT_DETECTOR_SUPPLIER.get())
                 .setFilter(DEFAULT_FILTER_SUPPLIER.get())
                 .setSecurityAnalysisParameters(DEFAULT_SA_PARAMETERS_SUPPLIER.get())
                 .setComputationManager(DEFAULT_COMPUTATION_MANAGER_SUPPLIER.get());

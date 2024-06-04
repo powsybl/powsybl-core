@@ -683,7 +683,8 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertTrue(exportedMismatch.sv.contains("cim:SvInjection.TopologicalNode"));
         assertTrue(m.find());
         String svInjectionTopologicalNode = m.group(1);
-        assertTrue(exportedMismatch.tp.contains(svInjectionTopologicalNode));
+        String tnDefinition = "cim:TopologicalNode rdf:ID=\"" + svInjectionTopologicalNode + "\"";
+        assertTrue(exportedMismatch.tp.contains(tnDefinition));
 
         // Disconnect the generator
         terminal.disconnect();

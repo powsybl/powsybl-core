@@ -29,7 +29,6 @@ import static org.mockito.Mockito.*;
 class SecurityAnalysisExecutionImplTest {
 
     private static LimitViolationFilter filter;
-    private static LimitViolationDetector detector;
     private static ContingenciesProvider contingencies;
     private static SecurityAnalysisParameters parameters;
     private static SecurityAnalysisExecution execution;
@@ -40,14 +39,12 @@ class SecurityAnalysisExecutionImplTest {
     @BeforeAll
     static void setUpClass() {
         filter = Mockito.mock(LimitViolationFilter.class);
-        detector = Mockito.mock(LimitViolationDetector.class);
         contingencies = Mockito.mock(ContingenciesProvider.class);
         parameters = Mockito.mock(SecurityAnalysisParameters.class);
 
         execution = new SecurityAnalysisExecutionImpl("ExecutionImplTestProvider",
             execInput -> new SecurityAnalysisInput(execInput.getNetworkVariant())
                     .setFilter(filter)
-                    .setDetector(detector)
                     .setContingencies(contingencies)
                     .setParameters(parameters)
         );
@@ -74,7 +71,6 @@ class SecurityAnalysisExecutionImplTest {
 
         @Override
         public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
-            assertSame(SecurityAnalysisExecutionImplTest.detector, runParameters.getDetector());
             assertSame(SecurityAnalysisExecutionImplTest.filter, runParameters.getFilter());
             assertSame(SecurityAnalysisExecutionImplTest.computationManager, runParameters.getComputationManager());
             assertSame(SecurityAnalysisExecutionImplTest.parameters, runParameters.getSecurityAnalysisParameters());
