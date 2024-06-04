@@ -10,7 +10,6 @@ package com.powsybl.security;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
@@ -27,7 +26,6 @@ public abstract class AbstractSecurityAnalysisInput<T extends AbstractSecurityAn
     private final NetworkVariant networkVariant;
     private final Set<SecurityAnalysisInterceptor> interceptors;
     private LimitViolationFilter filter;
-    private LimitViolationDetector detector;
     private ContingenciesProvider contingencies;
 
     protected AbstractSecurityAnalysisInput(Network network, String variantId) {
@@ -38,7 +36,6 @@ public abstract class AbstractSecurityAnalysisInput<T extends AbstractSecurityAn
         this.networkVariant = Objects.requireNonNull(networkVariant);
         this.interceptors = new HashSet<>();
         this.filter = new LimitViolationFilter();
-        this.detector = new DefaultLimitViolationDetector();
         this.contingencies = ContingenciesProviders.emptyProvider();
     }
 
@@ -49,25 +46,12 @@ public abstract class AbstractSecurityAnalysisInput<T extends AbstractSecurityAn
         return contingencies;
     }
 
-    /**
-     * Get specified {@link LimitViolationDetector}.
-     */
-    public LimitViolationDetector getLimitViolationDetector() {
-        return detector;
-    }
-
     public LimitViolationFilter getFilter() {
         return filter;
     }
 
     public Set<SecurityAnalysisInterceptor> getInterceptors() {
         return Collections.unmodifiableSet(interceptors);
-    }
-
-    public T setDetector(LimitViolationDetector detector) {
-        Objects.requireNonNull(detector);
-        this.detector = detector;
-        return self();
     }
 
     public T setContingencies(ContingenciesProvider contingencies) {

@@ -65,7 +65,6 @@ public class DynamicSecurityAnalysisExecutionImpl implements DynamicSecurityAnal
                 .setDynamicSecurityAnalysisParameters(input.getParameters())
                 .setComputationManager(computationManager)
                 .setFilter(input.getFilter())
-                .setDetector(input.getLimitViolationDetector())
                 .setInterceptors(new ArrayList<>(input.getInterceptors()))
                 .setOperatorStrategies(data.getOperatorStrategies())
                 .setActions(data.getActions())

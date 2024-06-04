@@ -28,7 +28,6 @@ public class DynamicSecurityAnalysisRunParameters extends AbstractSecurityAnalys
      */
     public static DynamicSecurityAnalysisRunParameters getDefault() {
         return new DynamicSecurityAnalysisRunParameters()
-                .setDetector(DEFAULT_DETECTOR_SUPPLIER.get())
                 .setFilter(DEFAULT_FILTER_SUPPLIER.get())
                 .setDynamicSecurityAnalysisParameters(DEFAULT_SA_PARAMETERS_SUPPLIER.get())
                 .setComputationManager(DEFAULT_COMPUTATION_MANAGER_SUPPLIER.get());

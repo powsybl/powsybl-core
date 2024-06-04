@@ -11,7 +11,6 @@ import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.strategy.OperatorStrategy;
@@ -26,11 +25,9 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractSecurityAnalysisRunParameters<T extends AbstractSecurityAnalysisRunParameters<T>> {
 
-    protected static final Supplier<LimitViolationDetector> DEFAULT_DETECTOR_SUPPLIER = DefaultLimitViolationDetector::new;
     protected static final Supplier<LimitViolationFilter> DEFAULT_FILTER_SUPPLIER = LimitViolationFilter::load;
     protected static final Supplier<ComputationManager> DEFAULT_COMPUTATION_MANAGER_SUPPLIER = LocalComputationManager::getDefault;
 
-    private LimitViolationDetector detector;
     private LimitViolationFilter filter;
     private ComputationManager computationManager;
     private List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
@@ -38,17 +35,6 @@ public abstract class AbstractSecurityAnalysisRunParameters<T extends AbstractSe
     private List<Action> actions = new ArrayList<>();
     private List<StateMonitor> monitors = new ArrayList<>();
     private ReportNode reportNode = ReportNode.NO_OP;
-
-    /**
-     * {@link LimitViolationDetector} getter<br>
-     * If null, sets the field to its default value with {@link #DEFAULT_DETECTOR_SUPPLIER} before returning it.
-     */
-    public LimitViolationDetector getDetector() {
-        if (detector == null) {
-            setDetector(DEFAULT_DETECTOR_SUPPLIER.get());
-        }
-        return detector;
-    }
 
     /**
      * {@link LimitViolationFilter} getter<br>
@@ -90,12 +76,6 @@ public abstract class AbstractSecurityAnalysisRunParameters<T extends AbstractSe
 
     public ReportNode getReportNode() {
         return reportNode;
-    }
-
-    public T setDetector(LimitViolationDetector detector) {
-        Objects.requireNonNull(detector, "LimitViolationDetector should not be null");
-        this.detector = detector;
-        return self();
     }
 
     public T setFilter(LimitViolationFilter filter) {
