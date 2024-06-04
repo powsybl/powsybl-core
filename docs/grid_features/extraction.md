@@ -74,7 +74,7 @@ NetworkPredicate p1 = new NominalVoltageNetworkPredicate(0.0, Double.MAX_VALUE);
 NetworkPredicate p2 = new NominalVoltageNetworkPredicate(225.0, 400.0);
 ```
 
-## Network reduction
+## Reduction
 
 The `com.powsybl.iidm.reducer.NetworkReducer` interface provides one method, in charge of the reduction of the network:
 ```java
