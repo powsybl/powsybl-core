@@ -6,14 +6,14 @@ or network simulation via different tools: check them out below.
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 1
 ---
 
-ampl/index.md
 cgmes/index.md
+ucte/index.md
 ieee/ieee.md
+iidm/index.md
 matpower/index.md
 psse/index.md
-ucte/index.md
-iidm/index.md
+ampl/index.md
 ```
