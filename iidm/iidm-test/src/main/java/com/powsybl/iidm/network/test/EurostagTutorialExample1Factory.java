@@ -29,6 +29,7 @@ public final class EurostagTutorialExample1Factory {
     public static final String NHV1_NHV2_2 = "NHV1_NHV2_2";
     public static final String NGEN_NHV1 = "NGEN_NHV1";
     public static final String NHV2_NLOAD = "NHV2_NLOAD";
+    public static final String XNODE_1 = "XNODE1";
 
     private EurostagTutorialExample1Factory() {
     }
@@ -219,7 +220,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(1E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV1")
-                .setPairingKey("XNODE1")
+                .setPairingKey(XNODE_1)
                 .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_2)
@@ -230,7 +231,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(2E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV2")
-                .setPairingKey("XNODE1")
+                .setPairingKey(XNODE_1)
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_1)
@@ -897,7 +898,7 @@ public final class EurostagTutorialExample1Factory {
                 .setAreaType("region")
                 .add();
 
-        final VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
+        final VoltageLevel vlhv1 = network.getVoltageLevel(VLHV1);
         final Line nhv1Nhv2Line1 = network.getLine(NHV1_NHV2_1);
         final DanglingLine danglingLineVlhv1 = vlhv1.newDanglingLine()
                 .setId("danglingLine1")
@@ -906,7 +907,7 @@ public final class EurostagTutorialExample1Factory {
                 .setR(1.5)
                 .setX(20.0)
                 .setBus("NHV1")
-                .setPairingKey("XNODE1")
+                .setPairingKey(XNODE_1)
                 .add();
         network.newArea()
                 .setAcNetInterchangeTarget(10.0)

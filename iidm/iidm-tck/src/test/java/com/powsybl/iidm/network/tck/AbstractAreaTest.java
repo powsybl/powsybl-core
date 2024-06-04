@@ -243,8 +243,20 @@ public abstract class AbstractAreaTest {
                 .setBus(bus.getId())
                 .add();
         Terminal terminal = load.getTerminal();
-        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.newAreaBoundary().setTerminal(terminal).setAc(true).add());
+        AreaBoundaryAdder areaBoundaryAdder = biddingZoneA.newAreaBoundary().setTerminal(terminal).setAc(true);
+        Throwable e = assertThrows(PowsyblException.class, areaBoundaryAdder::add);
         assertEquals("Terminal of connectable sub1_load cannot be added to Area bza boundaries. They do not belong to the same network or subnetwork", e.getMessage());
+    }
+
+    @Test
+    void throwBoundaryAttributeNotSet() {
+        final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
+        AreaBoundaryAdder areaBoundaryAdder1 = biddingZoneA.newAreaBoundary().setAc(true);
+        Throwable e1 = assertThrows(PowsyblException.class, areaBoundaryAdder1::add);
+        assertEquals("AreaBoundary must have a 'terminal' or a 'dangling line' attribute set to be added", e1.getMessage());
+        AreaBoundaryAdder areaBoundaryAdder2 = biddingZoneA.newAreaBoundary().setTerminal(boundary1);
+        Throwable e2 = assertThrows(PowsyblException.class, areaBoundaryAdder2::add);
+        assertEquals("AreaBoundary must have an attribute 'ac' set to be added", e2.getMessage());
     }
 
 }
