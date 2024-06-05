@@ -24,10 +24,23 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<SubnetworkImpl> subnetworkRef;
     private final String areaType;
     private final Double acNetInterchangeTarget;
-
     private final List<AreaBoundary> areaBoundaries;
-
     private final Set<VoltageLevel> voltagelevels;
+
+    private final class AreaListener extends DefaultNetworkListener {
+        @Override
+        public void beforeRemoval(Identifiable identifiable) {
+            if (identifiable instanceof DanglingLine danglingLine) {
+                // if dangling line removed from network, remove its boundary from this extension
+                AreaImpl.this.removeAreaBoundary(danglingLine);
+            } else if (identifiable instanceof Connectable<?> connectable) {
+                // if connectable removed from network, remove its terminals from this extension
+                connectable.getTerminals().forEach(AreaImpl.this::removeAreaBoundary);
+            }
+        }
+    }
+
+    private final NetworkListener areaListener;
 
     public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
                     Double acNetInterchangeTarget) {
@@ -38,6 +51,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         this.acNetInterchangeTarget = acNetInterchangeTarget;
         this.voltagelevels = new LinkedHashSet<>();
         this.areaBoundaries = new ArrayList<>();
+        this.areaListener = new AreaListener();
+        getNetwork().addListener(this.areaListener);
     }
 
     @Override

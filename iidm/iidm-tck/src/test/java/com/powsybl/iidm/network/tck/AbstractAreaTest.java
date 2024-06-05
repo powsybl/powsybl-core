@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -27,15 +28,23 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractAreaTest {
 
-    final Network network = EurostagTutorialExample1Factory.createWithAreas();
-
     final String biddingZone = "biddingZone";
     final String region = "region";
     final String aic = "aic";
-    final Area biddingZoneA = network.getArea("bza");
-    final Area biddingZoneB = network.getArea("bzb");
-    final Area regionA = network.getArea("rga");
-    final Area aicA = network.getArea("aic_a");
+    Network network;
+    Area biddingZoneA;
+    Area biddingZoneB;
+    Area regionA;
+    Area aicA;
+
+    @BeforeEach
+    void setUp() {
+        network = EurostagTutorialExample1Factory.createWithAreas();
+        biddingZoneA = network.getArea("bza");
+        biddingZoneB = network.getArea("bzb");
+        regionA = network.getArea("rga");
+        aicA = network.getArea("aic_a");
+    }
 
     @Test
     void areaAttributesTest() {
@@ -228,6 +237,19 @@ public abstract class AbstractAreaTest {
         aicA.removeAreaBoundary(boundary3);
         expectedBoundaries = List.of(Pair.of(boundary2, true));
         assertBoundaries(expectedBoundaries, aicA);
+    }
+
+    @Test
+    void removeEquipmentRemovesAreaBoundary() {
+        assertEquals(3, aicA.getAreaBoundaryStream().count());
+
+        // Deleting equipment from the network should automatically delete their AreaBoundary-s
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).remove();
+        network.getGenerator("GEN").remove();
+        network.getDanglingLine("danglingLine1").remove();
+
+        assertEquals(0, aicA.getAreaBoundaryStream().count());
+        assertBoundaries(List.of(), aicA);
     }
 
     void assertBoundaries(List<Pair<? extends Object, Boolean>> expectedBoundaries, Area area) {
