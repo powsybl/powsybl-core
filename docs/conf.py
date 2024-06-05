@@ -159,7 +159,7 @@ def replace_versions(intersphinx_mapping, file):
                 if "SNAPSHOT" not in version and dependency in intersphinx_mapping:
                     url_start = extract_base_url(intersphinx_mapping[dependency][0])
                     if url_start:
-                        intersphinx_mapping[dependency] = (urlStart + version + "/", None)
+                        intersphinx_mapping[dependency] = (url_start + version + "/", None)
             if "</properties>" in line:
                 break
     return intersphinx_mapping
