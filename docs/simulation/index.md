@@ -1,9 +1,10 @@
 # Simulation
 
-One major aim of the PowSyBl project is to make it easy to plug it with different solvers for grid simulation.
-At the moment, four types of simulations are supported: power flow, security analysis, time-domain simulation and sensitivity analysis.
-For each of them, one or several simulators is officially supported, but it is also possible to plug your own simulator within the framework.
-Below comes a description of the various types of simulation and supported solvers.
+One major aim of the PowSyBl project is to make it easy to plug it with different simulators or optimisation tools for
+grid calculations. At the moment, five types of calculations are supported: load flow, security analysis, sensitivity analysis,
+time-domain simulation (also called dynamic simulation), short-circuit analysis, optimal power flows, etc. For each of them,
+one or several simulators is officially supported, but it is also possible to plug your own simulator within the library.
+Below comes a description of the various types of simulation and supported implementations.
 
 ```{toctree}
 ---
