@@ -64,6 +64,25 @@ public abstract class AbstractAreaTest {
                 Pair.of(boundary2, true),
                 Pair.of(boundary3, false));
         assertBoundaries(expectedBoundaries, aicA);
+        AreaBoundary dcBoundary = aicA.getAreaBoundaryStream().filter(boundary -> !boundary.isAc()).findFirst().orElse(null);
+        assertEquals(5., dcBoundary.getP());
+        assertEquals(3., dcBoundary.getQ());
+    }
+
+    @Test
+    void areaNetPositionComputation() {
+        // Check current Net Interchanges (NaN P values are ignored)
+        assertEquals(-0., aicA.getAcNetInterchange());
+        assertEquals(-5., aicA.getDcNetInterchange());
+        assertEquals(-5., aicA.getTotalNetInterchange());
+
+        // Update the AreaBoundary active power and check that the net positions values are recomputed accordingly
+        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1().setP(10);
+        network.getGenerator("GEN").getTerminal().setP(10);
+        network.getDanglingLine("danglingLine1").setP0(30);
+        assertEquals(-20., aicA.getAcNetInterchange());
+        assertEquals(-30., aicA.getDcNetInterchange());
+        assertEquals(-50., aicA.getTotalNetInterchange());
     }
 
     @Test

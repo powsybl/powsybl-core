@@ -43,11 +43,11 @@ public class AreaBoundaryImpl implements AreaBoundary {
 
     @Override
     public double getP() {
-        return 0;
+        return danglingLine != null ? danglingLine.getP0() : terminal.getP();
     }
 
     @Override
     public double getQ() {
-        return 0;
+        return danglingLine != null ? danglingLine.getQ0() : terminal.getQ();
     }
 }

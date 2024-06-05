@@ -30,8 +30,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final Set<VoltageLevel> voltagelevels;
 
-    public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType, Double acNetInterchangeTarget,
-                       Double acNetInterchangeTolerance) {
+    public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
+                    Double acNetInterchangeTarget, Double acNetInterchangeTolerance) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
@@ -75,6 +75,21 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public Optional<Double> getAcNetInterchangeTarget() {
         return Optional.ofNullable(acNetInterchangeTarget);
+    }
+
+    @Override
+    public Double getAcNetInterchange() {
+        return -areaBoundaries.stream().filter(AreaBoundary::isAc).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+    }
+
+    @Override
+    public Double getDcNetInterchange() {
+        return -areaBoundaries.stream().filter(areaBoundary -> !areaBoundary.isAc()).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+    }
+
+    @Override
+    public Double getTotalNetInterchange() {
+        return getAcNetInterchange() + getDcNetInterchange();
     }
 
     @Override

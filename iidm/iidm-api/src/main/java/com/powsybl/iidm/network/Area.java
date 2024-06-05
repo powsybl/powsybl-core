@@ -113,6 +113,24 @@ public interface Area extends Identifiable<Area> {
     Optional<Double> getAcNetInterchangeTarget();
 
     /**
+     * Get the current AC Net Interchange of this area in MW, using load sign convention
+     * @return the AC net position
+     */
+    Double getAcNetInterchange();
+
+    /**
+     * Get the current DC Net Interchange of this area in MW, using load sign convention
+     * @return the DC net position
+     */
+    Double getDcNetInterchange();
+
+    /**
+     * Get the current total (AC+DC) Net Interchange of this area in MW, using load sign convention
+     * @return the total net position
+     */
+    Double getTotalNetInterchange();
+
+    /**
      * Get the optional net interchange tolerance in MW
      * @return the net interchange tolerance
      */

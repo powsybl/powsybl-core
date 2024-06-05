@@ -4,7 +4,7 @@ import java.util.Optional;
 
 /**
  * An AreaBoundary is a boundary of an <code>Area</code>.
- * <p> It is composed or a terminal or a dangling line, associated with a boolean telling if it is an AC or DC boundary.
+ * <p> It is composed of a terminal or a dangling line, associated with a boolean telling if it is an AC or DC boundary.
  * <p> To create and add an AreaBoundary, see {@link AreaAdder#addAreaBoundary(Terminal, boolean)} or {@link AreaAdder#addAreaBoundary(DanglingLine, boolean)}
  *
  * <p>

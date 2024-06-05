@@ -902,8 +902,8 @@ public final class EurostagTutorialExample1Factory {
         final Line nhv1Nhv2Line1 = network.getLine(NHV1_NHV2_1);
         final DanglingLine danglingLineVlhv1 = vlhv1.newDanglingLine()
                 .setId("danglingLine1")
-                .setP0(0.0)
-                .setQ0(0.0)
+                .setP0(5.0)
+                .setQ0(3.0)
                 .setR(1.5)
                 .setX(20.0)
                 .setBus("NHV1")
