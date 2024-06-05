@@ -188,7 +188,7 @@ $> ./itools run-script --file extraction.groovy network.xiidm network2.xiidm
 ```
 
 ### Import post-processor
-This example shows how to automatically reduce networks when they are loaded, using the [groovy post-processors](import-post-processor.md#groovy-post-processor) with the same script as above. Note that the script will be applied each time a case file will be loaded. If you want to do it only once, use the [previous method](#groovy-scripting).
+This example shows how to automatically reduce networks when they are loaded, using the [groovy post-processors](import_post_processor.md#groovy-post-processor) with the same script as above. Note that the script will be applied each time a case file will be loaded. If you want to do it only once, use the [previous method](#groovy-scripting).
 
 The script is a little different from the previous one:
 ```groovy
@@ -209,9 +209,9 @@ import:
 groovy-post-processor:
     script: /home/user/network-reduction.groovy
 ```
-For more information about the configuration of the groovy post-processor, please refer to this [documentation page](import-post-processor.md#groovy-post-processor).
+For more information about the configuration of the groovy post-processor, please refer to this [documentation page](import_post_processor.md#groovy-post-processor).
 
-Then, we run the [convert-network](../user/itools/convert-network.md) command:
+Then, we run the [convert-network](../user/itools/convert_network.md) command:
 ```shell
 $> ./itools convert-network --input-file /home/user/input.xiidm
 --output-file /home/user/output.xiidm --output-format XIIDM

@@ -1,6 +1,7 @@
 # iTools convert-network
 
-The `convert-network` command is used to convert a grid file from a format to another. The input format is automatically detected, whereas the output format must be specified.
+The `convert-network` command is used to convert a grid file from a format to another. The input format is automatically
+detected, whereas the output format must be specified.
 
 ## Usage
 ```
@@ -42,14 +43,14 @@ This option defines the format of the output file. The list of [supported format
 ### Optional arguments
 
 **\-\-export-parameters**  
-This option defines the path of the [exporter](../../glossary.md#exporter)'s configuration file. It's possible to overload one or many parameters using the `-E property=value` syntax. The list of supported properties depends on the [output format](../../grid_exchange_formats/index.md).
+This option defines the path of the exporter's configuration file. It's possible to overload one or many parameters using the `-E property=value` syntax. The list of supported properties depends on the [output format](../../grid_exchange_formats/index.md).
 
 **\-\-import-parameters**  
-This option defines the path of the [importer](../../glossary.md#importer)'s configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
+This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
 ## Examples
 
-This example shows how to convert a [UCTE-DEF](../../grid_exchange_formats/ucte/index.md) file to an [XIIDM](../../grid_exchange_formats/xiidm/index.md) file:
+This example shows how to convert a [UCTE-DEF](../../grid_exchange_formats/ucte/index.md) file to an [XIIDM](../../grid_exchange_formats/iidm/index.md) file:
 ```
 $> itools convert-network --input-file case-file.uct --output-format XIIDM --output-file case-file.xiidm
 ```
