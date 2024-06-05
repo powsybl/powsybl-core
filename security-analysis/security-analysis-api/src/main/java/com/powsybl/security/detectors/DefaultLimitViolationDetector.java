@@ -8,7 +8,6 @@
 package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 
@@ -114,19 +113,21 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     }
 
     public void checkLimitViolation(Branch branch, TwoSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReductionValue, value, type);
-        if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
-            checkTemporary(branch, side, limitReductionValue, value, consumer, type);
-        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+        boolean noOverloadOnTemporary = true;
+        if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
+            noOverloadOnTemporary = checkTemporary(branch, side, limitReductionValue, value, consumer, type);
+        }
+        if (noOverloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(branch, side, limitReductionValue, value, consumer, type);
         }
     }
 
     public void checkLimitViolation(ThreeWindingsTransformer transformer, ThreeSides side, double value, Consumer<LimitViolation> consumer, LimitType type) {
-        Overload overload = LimitViolationUtils.checkTemporaryLimits(transformer, side, limitReductionValue, value, type);
-        if (currentLimitTypes.contains(LoadingLimitType.TATL) && overload != null) {
-            checkTemporary(transformer, side, limitReductionValue, value, consumer, type);
-        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+        boolean noOverloadOnTemporary = true;
+        if (currentLimitTypes.contains(LoadingLimitType.TATL)) {
+            noOverloadOnTemporary = checkTemporary(transformer, side, limitReductionValue, value, consumer, type);
+        }
+        if (noOverloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(transformer, side, limitReductionValue, value, consumer, type);
         }
     }

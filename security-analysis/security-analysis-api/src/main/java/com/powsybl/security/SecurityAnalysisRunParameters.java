@@ -11,7 +11,6 @@ import com.powsybl.action.Action;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
@@ -28,12 +27,10 @@ import java.util.function.Supplier;
  */
 public class SecurityAnalysisRunParameters {
 
-    private static final Supplier<LimitViolationDetector> DEFAULT_DETECTOR_SUPPLIER = DefaultLimitViolationDetector::new;
     private static final Supplier<LimitViolationFilter> DEFAULT_FILTER_SUPPLIER = LimitViolationFilter::load;
     private static final Supplier<SecurityAnalysisParameters> DEFAULT_SA_PARAMETERS_SUPPLIER = SecurityAnalysisParameters::load;
     private static final Supplier<ComputationManager> DEFAULT_COMPUTATION_MANAGER_SUPPLIER = LocalComputationManager::getDefault;
 
-    private LimitViolationDetector detector;
     private LimitViolationFilter filter;
     private ComputationManager computationManager;
     private SecurityAnalysisParameters securityAnalysisParameters;
@@ -50,21 +47,9 @@ public class SecurityAnalysisRunParameters {
      */
     public static SecurityAnalysisRunParameters getDefault() {
         return new SecurityAnalysisRunParameters()
-                .setDetector(DEFAULT_DETECTOR_SUPPLIER.get())
                 .setFilter(DEFAULT_FILTER_SUPPLIER.get())
                 .setSecurityAnalysisParameters(DEFAULT_SA_PARAMETERS_SUPPLIER.get())
                 .setComputationManager(DEFAULT_COMPUTATION_MANAGER_SUPPLIER.get());
-    }
-
-    /**
-     * {@link LimitViolationDetector} getter<br>
-     * If null, sets the field to its default value with {@link #DEFAULT_DETECTOR_SUPPLIER} before returning it.
-     */
-    public LimitViolationDetector getDetector() {
-        if (detector == null) {
-            setDetector(DEFAULT_DETECTOR_SUPPLIER.get());
-        }
-        return detector;
     }
 
     /**
@@ -122,12 +107,6 @@ public class SecurityAnalysisRunParameters {
 
     public ReportNode getReportNode() {
         return reportNode;
-    }
-
-    public SecurityAnalysisRunParameters setDetector(LimitViolationDetector detector) {
-        Objects.requireNonNull(detector, "LimitViolationDetector should not be null");
-        this.detector = detector;
-        return this;
     }
 
     public SecurityAnalysisRunParameters setFilter(LimitViolationFilter filter) {
