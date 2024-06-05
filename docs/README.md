@@ -16,8 +16,6 @@ sphinx-build -a docs ./build-docs
 
 **Second option: running commands from your IDE HMI**
 
-![runningCommandsFromIDE.png](runningCommandsFromIDE.png)
-
 ~~~bash
 pip install -r requirements.txt
 ~~~
