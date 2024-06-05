@@ -5,9 +5,7 @@ They are published on powsybl.readthedocs.io/ and pull requests are built and pr
 
 When modifying the website content, you can easily preview the result on your PC.
 
-**First option: running commands from a terminal**
-
-Navigate to the root of the project and run:
+**First option - in a terminal, navigate to the root of the project and run the following commands:**
 
 ~~~bash
 pip install -r docs/requirements.txt
