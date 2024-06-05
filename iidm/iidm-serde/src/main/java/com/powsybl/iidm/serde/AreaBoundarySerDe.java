@@ -30,7 +30,7 @@ public class AreaBoundarySerDe {
             writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             writer.writeBooleanAttribute("ac", boundary.isAc());
             boundary.getTerminal().ifPresent(terminal -> TerminalRefSerDe.writeTerminalRef(terminal, context, TERMINAL_REF));
-            boundary.getDanglingLine().ifPresent(danglingLine -> DanglingLineRefSerDe.writeDanglingLineRef(danglingLine, context));
+            boundary.getBoundary().ifPresent(danglingLineBoundary -> BoundaryRefSerDe.writeBoundaryRef(danglingLineBoundary, context));
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -42,8 +42,8 @@ public class AreaBoundarySerDe {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
                 case TERMINAL_REF -> TerminalRefSerDe.readTerminalRef(context, holder.getNetwork(), adder::setTerminal);
-                case DanglingLineRefSerDe.ROOT_ELEMENT_NAME -> DanglingLineRefSerDe.readDanglingLineRef(context, holder.getNetwork(), adder::setDanglingLine);
-                default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + elementName + ". Should be " + DanglingLineRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
+                case BoundaryRefSerDe.ROOT_ELEMENT_NAME -> BoundaryRefSerDe.readBoundaryRef(context, holder.getNetwork(), adder::setBoundary);
+                default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + elementName + ". Should be " + BoundaryRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
             }
         });
         context.getEndTasks().add(adder::add);

@@ -1,7 +1,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.AreaBoundary;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
@@ -10,18 +10,18 @@ import java.util.Optional;
 public class AreaBoundaryImpl implements AreaBoundary {
     final Terminal terminal;
 
-    final DanglingLine danglingLine;
+    final Boundary boundary;
 
     final boolean ac;
 
     AreaBoundaryImpl(Terminal terminal, boolean ac) {
         this.terminal = Objects.requireNonNull(terminal);
-        this.danglingLine = null;
+        this.boundary = null;
         this.ac = Objects.requireNonNull(ac);
     }
 
-    AreaBoundaryImpl(DanglingLine danglingLine, boolean ac) {
-        this.danglingLine = Objects.requireNonNull(danglingLine);
+    AreaBoundaryImpl(Boundary boundary, boolean ac) {
+        this.boundary = Objects.requireNonNull(boundary);
         this.terminal = null;
         this.ac = Objects.requireNonNull(ac);
     }
@@ -32,8 +32,8 @@ public class AreaBoundaryImpl implements AreaBoundary {
     }
 
     @Override
-    public Optional<DanglingLine> getDanglingLine() {
-        return Optional.ofNullable(danglingLine);
+    public Optional<Boundary> getBoundary() {
+        return Optional.ofNullable(boundary);
     }
 
     @Override
@@ -43,11 +43,11 @@ public class AreaBoundaryImpl implements AreaBoundary {
 
     @Override
     public double getP() {
-        return danglingLine != null ? danglingLine.getP0() : terminal.getP();
+        return boundary != null ? boundary.getP() : terminal.getP();
     }
 
     @Override
     public double getQ() {
-        return danglingLine != null ? danglingLine.getQ0() : terminal.getQ();
+        return boundary != null ? boundary.getQ() : terminal.getQ();
     }
 }

@@ -136,7 +136,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public void removeAreaBoundary(DanglingLine danglingLine) {
-        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getDanglingLine().orElse(null), danglingLine)).findFirst().orElse(null));
+        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getBoundary().orElse(null), danglingLine)).findFirst().orElse(null));
     }
 
     @Override

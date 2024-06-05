@@ -13,7 +13,7 @@ package com.powsybl.iidm.network;
  */
 
 public interface AreaBoundaryAdder {
-    AreaBoundaryAdder setDanglingLine(DanglingLine danglingLine);
+    AreaBoundaryAdder setBoundary(Boundary boundary);
 
     AreaBoundaryAdder setTerminal(Terminal terminal);
 

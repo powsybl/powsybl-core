@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.serde;
 
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 
@@ -16,27 +17,27 @@ import java.util.function.Consumer;
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */
-public final class DanglingLineRefSerDe {
+public final class BoundaryRefSerDe {
 
     private static final String ID = "id";
 
-    public static final String ROOT_ELEMENT_NAME = "danglingLineRef";
+    public static final String ROOT_ELEMENT_NAME = "boundaryRef";
 
-    public static void readDanglingLineRef(NetworkDeserializerContext context, Network network, Consumer<DanglingLine> endTaskTerminalConsumer) {
+    public static void readBoundaryRef(NetworkDeserializerContext context, Network network, Consumer<Boundary> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         context.getReader().readEndNode();
         context.getEndTasks().add(() -> {
             DanglingLine danglingLine = network.getDanglingLine(id);
-            endTaskTerminalConsumer.accept(danglingLine);
+            endTaskTerminalConsumer.accept(danglingLine.getBoundary());
         });
     }
 
-    public static void writeDanglingLineRef(DanglingLine danglingLine, NetworkSerializerContext context) {
+    public static void writeBoundaryRef(Boundary boundary, NetworkSerializerContext context) {
         context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
-        context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(danglingLine.getId()));
+        context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
         context.getWriter().writeEndNode();
     }
 
-    private DanglingLineRefSerDe() {
+    private BoundaryRefSerDe() {
     }
 }

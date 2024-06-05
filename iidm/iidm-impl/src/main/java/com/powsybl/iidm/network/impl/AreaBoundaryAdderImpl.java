@@ -21,7 +21,7 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
 
     AreaImpl area;
 
-    DanglingLine danglingLine;
+    Boundary boundary;
 
     Terminal terminal;
 
@@ -35,8 +35,8 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         return area;
     }
 
-    protected DanglingLine getDanglingLine() {
-        return danglingLine;
+    protected Boundary getBoundary() {
+        return boundary;
     }
 
     protected Terminal getTerminal() {
@@ -48,8 +48,8 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
     }
 
     @Override
-    public AreaBoundaryAdder setDanglingLine(DanglingLine danglingLine) {
-        this.danglingLine = danglingLine;
+    public AreaBoundaryAdder setBoundary(Boundary boundary) {
+        this.boundary = boundary;
         this.terminal = null;
         return this;
     }
@@ -57,7 +57,7 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
     @Override
     public AreaBoundaryAdder setTerminal(Terminal terminal) {
         this.terminal = terminal;
-        this.danglingLine = null;
+        this.boundary = null;
         return this;
     }
 
@@ -72,14 +72,14 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         if (isAc() == null) {
             throw new PowsyblException("AreaBoundary must have an attribute 'ac' set to be added");
         }
-        if (getDanglingLine() != null) {
-            checkBoundaryNetwork(getDanglingLine().getParentNetwork(), "DanglingLine" + getDanglingLine().getId());
-            getArea().addAreaBoundary(new AreaBoundaryImpl(getDanglingLine(), isAc()));
+        if (getBoundary() != null) {
+            checkBoundaryNetwork(getBoundary().getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + getBoundary().getDanglingLine().getId());
+            getArea().addAreaBoundary(new AreaBoundaryImpl(getBoundary(), isAc()));
         } else if (getTerminal() != null) {
             checkBoundaryNetwork(getTerminal().getConnectable().getParentNetwork(), "Terminal of connectable " + getTerminal().getConnectable().getId());
             getArea().addAreaBoundary(new AreaBoundaryImpl(getTerminal(), isAc()));
         } else {
-            throw new PowsyblException("AreaBoundary must have a 'terminal' or a 'dangling line' attribute set to be added");
+            throw new PowsyblException("AreaBoundary must have a 'terminal' or a 'boundary' attribute set to be added");
         }
     }
 

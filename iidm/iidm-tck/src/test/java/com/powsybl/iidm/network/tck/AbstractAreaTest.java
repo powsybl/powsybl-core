@@ -212,7 +212,7 @@ public abstract class AbstractAreaTest {
                 .setBus("NHV1")
                 .add();
         biddingZoneA.newAreaBoundary()
-                .setDanglingLine(danglingLine)
+                .setBoundary(danglingLine.getBoundary())
                 .setAc(true)
                 .add();
         Map<Object, Boolean> expectedBoundaries = Map.of(danglingLine, true);
@@ -248,7 +248,7 @@ public abstract class AbstractAreaTest {
     }
 
     void assertBoundaries(Map<Object, Boolean> expectedBoundaries, Area area) {
-        final Function<AreaBoundary, ?> getBoundaryOrTerminalFunction = areaBoundary -> areaBoundary.getTerminal().isPresent() ? areaBoundary.getTerminal().get() : areaBoundary.getDanglingLine().get();
+        final Function<AreaBoundary, ?> getBoundaryOrTerminalFunction = areaBoundary -> areaBoundary.getTerminal().isPresent() ? areaBoundary.getTerminal().get() : areaBoundary.getBoundary().get();
         Map<Object, Boolean> actualBoundariesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
                                                                     .collect(Collectors.toMap(getBoundaryOrTerminalFunction, AreaBoundary::isAc));
         Map<Object, Boolean> actualBoundariesFromStream = area.getAreaBoundaryStream()

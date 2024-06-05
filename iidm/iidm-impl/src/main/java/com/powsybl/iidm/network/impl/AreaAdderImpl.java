@@ -99,7 +99,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget());
         getTerminalAreaBoundaries().forEach(pair -> area.newAreaBoundary().setTerminal(pair.getFirst()).setAc(pair.getSecond()).add());
-        getDanglingLineAreaBoundaries().forEach(pair -> area.newAreaBoundary().setDanglingLine(pair.getFirst()).setAc(pair.getSecond()).add());
+        getDanglingLineAreaBoundaries().forEach(pair -> area.newAreaBoundary().setBoundary(pair.getFirst().getBoundary()).setAc(pair.getSecond()).add());
         getVoltageLevels().forEach(area::addVoltageLevel);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
