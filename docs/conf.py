@@ -24,7 +24,7 @@ print(f'appended {source_path}')
 # -- Project information -----------------------------------------------------
 
 # Only those 4 parameters have to be modified for each specific repository
-project = 'PowSyBl Core'
+project = 'powsybl-core'
 module_name = "powsybl-core"
 github_repository = "https://github.com/powsybl/powsybl-core/"
 
@@ -54,9 +54,6 @@ with open(file_with_version) as f:
     else:  # AKA no-break
         version = release = "dev"
 
-
-# Short project name
-short_project = project.split(" ", 1)[1] if project.split(" ", 1)[0] == "PowSyBl" else project
 
 # -- General configuration ---------------------------------------------------
 
@@ -104,7 +101,6 @@ autosectionlabel_maxdepth = 2
 html_theme = "furo"
 
 html_title = f"{project} v{release}"
-html_short_title = f'{short_project} v{release}'
 
 html_logo = '_static/logos/logo_lfe_powsybl.svg'
 html_favicon = "_static/favicon.ico"
