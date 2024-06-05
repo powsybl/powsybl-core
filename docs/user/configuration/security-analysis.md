@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # security-analysis
 
 The `security-analysis` module is used to configure the execution of the [security-analysis](../itools/security-analysis.md) command.

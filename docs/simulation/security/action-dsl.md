@@ -1,18 +1,11 @@
----
-layout: default
----
-
 # Action DSL
-The action DSL is a domain specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](index.md). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
-
-* TOC
-{:toc}
+The action DSL is a domain specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](security.md#operator-strategies). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
 
 ## Contingencies
 The contingencies are defined in the same way that is described in the [contingency DSL](contingency-dsl.md). Are supported:
 - N-1 contingencies that triggers a single equipment at a time
 - N-K contingencies that triggers multiple equipments at a time
-- busbar contingencies that triggers a [busbar section](../../grid/model/index.md#busbar-section), a N-K contingency that triggers all the equipments connected to that busbar section.
+- busbar contingencies that triggers a [busbar section](../../grid_model/network_subnetwork.md#busbar-section), a N-K contingency that triggers all the equipments connected to that busbar section.
 
 ## Actions
 The actions are modifications that could be made on the network to solve a security issue. It could be topology modification like opening or closing a switch, setpoints modification, tap position modification. PowSyBl provides a set of predefined actions, but this possibilities are infinite as you can create custom actions or groovy scripts.
@@ -61,7 +54,7 @@ action('open-SW1-and-SW2') {
 ```
 
 ### Generator modification
-The `generatorModification` task is a task that can modify the setpoints and the regulation mode of a [generator](../../grid/model/index.md#generator). It supports the modification of:
+The `generatorModification` task is a task that can modify the setpoints and the regulation mode of a [generator](../../grid_model/network_subnetwork.md#generator). It supports the modification of:
 - the active power limits
 - the active power setpoints as an absolute value or with an increment
 - the voltage setpoint, the reactive power setpoint and the regulation mode
@@ -150,7 +143,7 @@ action('decrement-tap-position') {
 ```
 
 #### optimizePhaseShifterTap
-The `optimizePhaseShifterTap` task is used to change the tap position of a phase tap changer until the intensity is closest to the limit but does not exceed it. This task runs a [power flow](../powerflow/index.md) each time the tap is changed to compute the new intensity value of the PST.
+The `optimizePhaseShifterTap` task is used to change the tap position of a phase tap changer until the intensity is closest to the limit but does not exceed it. This task runs a [load flow](../loadflow/loadflow.md) each time the tap is changed to compute the new intensity value of the PST.
 ```groovy
 action('optimize-tap-position') {
     description "Find the tap position to be closest to the limit"
@@ -216,12 +209,12 @@ rule('rule-ID') {
 
 #### Network binding
 The network binding adds keywords in the DSL to get equipments by their IDs. At the moment, the following keywords are supported:
-- `line`: to retrieve a [line](../../grid/model/index.md#line) or a [tie line](../../grid/model/index.md#tie-line)
-- `transformer`: to retrieve a [two windings transformer](../../grid/model/index.md#two-windings-transformer)
-- `branch`: to retrieve a [line](../../grid/model/index.md#line), a [tie line](../../grid/model/index.md#tie-line) or a [two windings transformer](../../grid/model/index.md#two-windings-transformer)
-- `generator`: to retrieve a [generator](../../grid/model/index.md#generator)
-- `load`: to retrieve a [load](../../grid/model/index.md#load)
-- `_switch` and `switch_` to retrieve a [switch](../../grid/model/index.md#nb-switch)
+- `line`: to retrieve a [line](../../grid_model/network_subnetwork.md#line)
+- `transformer`: to retrieve a [two windings transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
+- `branch`: to retrieve a [line](../../grid_model/network_subnetwork.md#line), a [tie line](../../grid_model/network_subnetwork.md#tie-line) or a [two windings transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
+- `generator`: to retrieve a [generator](../../grid_model/network_subnetwork.md#generator)
+- `load`: to retrieve a [load](../../grid_model/network_subnetwork.md#load)
+- `_switch` and `switch_` to retrieve a [switch](../../grid_model/network_subnetwork.md#breakerswitch)
 
 **Note:** the `switch` keyword is reserved in Groovy, so pay attention to prefix or postfix with an underscore.
 

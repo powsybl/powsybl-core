@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # iTools security-analysis
 
 The `security-analysis` command loads a grid file and run a [security analysis](../../simulation/security/security.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation the results are printed or exported to a file.
@@ -56,7 +52,7 @@ This option defines the path of the contingencies files. If this parameter is no
 
 
 **\-\-import-parameters**  
-This option defines the path of the [importer](../../glossary.md#importer)'s configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
+This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
 **\-\-limit-types**  
 This option allows to filter certain types of violations. It overrides the default configuration defined in the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md) configuration module. The supported types are the following: `CURRENT`, `LOW_VOLTAGE`, `HIGH_VOLTAGE`, `LOW_SHORT_CIRCUIT_CURRENT`, `HIGH_SHORT_CIRCUIT_CURRENT` and `OTHER`.

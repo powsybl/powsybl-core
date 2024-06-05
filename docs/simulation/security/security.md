@@ -1,24 +1,17 @@
----
-layout: default
----
-
 # Security analysis
-
-* TOC
-{:toc}
 
 ## Introduction
 The security analysis is a simulation that check violations on a network. These checks can be done on the base case or after a contingency, with or without remedial actions. A security analysis can monitor network states, in pre-contingency state, after a contingency and after a remedial action.
 
 There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipments, the violations can have different types:
-- Current, active power and apparent power: this kind of violations can be detected on a branch (line, two windings transformer, tie line) or on a three windings transformer, if the computed value is greater than its [permanent limit](../../grid/model/index.md#loading-limits) or one of its [temporary limits](../../grid/model/index.md#loading-limits).
-- Voltage: this kind of violations can be detected on a bus or a bus bar section, if the computed voltage is out of the low-high voltage limits of a [voltage level](../../grid/model/index.md#voltage-level).
+- Current, active power and apparent power: this kind of violations can be detected on a branch (line, two windings transformer, tie line) or on a three windings transformer, if the computed value is greater than its [permanent limit](../../grid_model/additional.md#loading-limits) or one of its [temporary limits](../../grid_model/additional.md#loading-limits).
+- Voltage: this kind of violations can be detected on a bus or a bus bar section, if the computed voltage is out of the low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
 - Voltage angle: this kind of violations can be detected if the voltage angle difference between the buses associated to two terminals is out of the low-high voltage angle limits defined in the network.
 
 ## Inputs
 
 ### Network
-The first input of the security analysis is a network. As this simulation is based on a [load flow](../powerflow/index.md) engine for a list of contingencies, this network should converge in the pre-contingency state.
+The first input of the security analysis is a network. As this simulation is based on a [load flow](../loadflow/loadflow.md) engine for a list of contingencies, this network should converge in the pre-contingency state.
 
 ### Contingencies
 The security analysis needs a list of contingencies as an input. When contingencies are provided, the violations are detected on the network at pre-contingency state, but also after applying each contingency. The supported elementary contingencies are:
