@@ -46,11 +46,11 @@ A substation represents a specific geographical location with equipment grouped 
 
 **Characteristics**
 
-| Attribute | Description |
-| --------- | ----------- |
-| $Country$ | To specify in which country the substation is located |
-| $GeographicalTags$ | They make it possible to accurately locate the substation |
-| $TSO$ | To track to which [TSO](../../glossary.md#tso) the substation belongs |
+| Attribute | Description                                                         |
+| --------- |---------------------------------------------------------------------|
+| $Country$ | To specify in which country the substation is located               |
+| $GeographicalTags$ | They make it possible to accurately locate the substation  |
+| $TSO$ | To track to which Transmission System Operator the substation belongs |
 
 All three attributes are optional.
 
