@@ -101,7 +101,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         List<LimitReduction> limitReductionList = new ArrayList<>();
         LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
-            .withMonitoringOnly(true)
+            .withMonitoringOnly(false)
             .withContingencyContext(ContingencyContext.none())
             .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
             .withLimitDurationCriteria(new PermanentDurationCriterion())

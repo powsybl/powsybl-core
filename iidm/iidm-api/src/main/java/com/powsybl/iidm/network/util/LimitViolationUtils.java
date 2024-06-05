@@ -164,7 +164,7 @@ public final class LimitViolationUtils {
     }
 
     public static Optional<? extends LimitsContainer<LoadingLimits>> getLimits(Identifiable<?> transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
-        return computer.computeLimits(transformer, type, side, true);
+        return computer.computeLimits(transformer, type, side, false);
     }
 
     public static Optional<LoadingLimits> getLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
