@@ -12,15 +12,13 @@ IIDM is the internal format used in Powsybl because it is designed for running s
 Several exchange formats result from this internal format:
 - XIIDM, which corresponds to an XML export of IIDM,
 - JIIDM, which corresponds to a JSON export of IIDM,
-- BIIDM, which corresponds to a binary export (this is still a beta-feature). 
-
-## Examples
+- BIIDM, which corresponds to a binary export (this is still a beta-feature).
 
 Below are two export from a same network:
 - one XML export (XIIDM exchange format)
 - one JSON export (JIIDM exchange format)
 
-### XIIDM example
+## XIIDM
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
@@ -66,7 +64,7 @@ Below are two export from a same network:
 </iidm:network>
 ```
 
-### JIIDM example
+## JIIDM
 ```json
 {
   "version" : "1.12",
