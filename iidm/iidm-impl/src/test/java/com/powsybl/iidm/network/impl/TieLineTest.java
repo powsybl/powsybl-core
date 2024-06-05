@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import java.time.ZonedDateTime;
+
+import com.powsybl.iidm.network.util.TieLineUtil;
 import org.junit.jupiter.api.Test;
 
 import com.powsybl.iidm.network.util.LinkData;
@@ -271,6 +273,76 @@ class TieLineTest {
 
         assertSame(s1vl1, tieLine.getDanglingLine1().getTerminal().getVoltageLevel());
         assertSame(s2vl1, tieLine.getDanglingLine2().getTerminal().getVoltageLevel());
+    }
+
+    @Test
+    void tieLineTestZeroImpedanceDl1() {
+        // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
+        CaseSv caseSv0 = createCase0();
+        Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.TWO, caseSv0);
+        Branch<?> branch = n.getBranch("TWO + TWO");
+        assertTrue(branch instanceof TieLine);
+
+        TieLine tieLine = (TieLine) branch;
+        tieLine.getDanglingLine1().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+
+        double tol = 1.0e-6;
+        assertEquals(tieLine.getDanglingLine2().getR(), tieLine.getR(), tol);
+        assertEquals(tieLine.getDanglingLine2().getX(), tieLine.getX(), tol);
+        assertEquals(tieLine.getDanglingLine2().getG(), tieLine.getG2(), tol);
+        assertEquals(tieLine.getDanglingLine2().getB(), tieLine.getB2(), tol);
+        assertEquals(0.0, tieLine.getG1(), tol);
+        assertEquals(0.0, tieLine.getB1(), tol);
+
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+    }
+
+    @Test
+    void tieLineTestZeroImpedanceDl2() {
+        // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
+        CaseSv caseSv0 = createCase0();
+        Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.TWO, caseSv0);
+        Branch<?> branch = n.getBranch("TWO + TWO");
+        assertTrue(branch instanceof TieLine);
+
+        TieLine tieLine = (TieLine) branch;
+        tieLine.getDanglingLine2().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+
+        double tol = 1.0e-6;
+        assertEquals(tieLine.getDanglingLine1().getR(), tieLine.getR(), tol);
+        assertEquals(tieLine.getDanglingLine1().getX(), tieLine.getX(), tol);
+        assertEquals(tieLine.getDanglingLine1().getG(), tieLine.getG1(), tol);
+        assertEquals(tieLine.getDanglingLine1().getB(), tieLine.getB1(), tol);
+        assertEquals(0.0, tieLine.getG2(), tol);
+        assertEquals(0.0, tieLine.getB2(), tol);
+
+        assertEquals(tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+        assertEquals(tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+    }
+
+    @Test
+    void tieLineTestZeroImpedanceDl1AndDl2() {
+        // Line1 from node1 to boundaryNode, Line2 from node2 to boundaryNode
+        CaseSv caseSv0 = createCase0();
+        Network n = createNetworkWithTieLine(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.TWO, caseSv0);
+        Branch<?> branch = n.getBranch("TWO + TWO");
+        assertTrue(branch instanceof TieLine);
+
+        TieLine tieLine = (TieLine) branch;
+        tieLine.getDanglingLine1().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+        tieLine.getDanglingLine2().setR(0.0).setX(0.0).setG(0.0).setB(0.0);
+
+        double tol = 1.0e-6;
+        assertEquals(0.0, tieLine.getR(), tol);
+        assertEquals(0.0, tieLine.getX(), tol);
+        assertEquals(0.0, tieLine.getG1(), tol);
+        assertEquals(0.0, tieLine.getB1(), tol);
+        assertEquals(0.0, tieLine.getG2(), tol);
+        assertEquals(0.0, tieLine.getB2(), tol);
+
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(), TieLineUtil.getBoundaryV(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
+        assertEquals(tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(), TieLineUtil.getBoundaryAngle(tieLine.getDanglingLine1(), tieLine.getDanglingLine2()), tol);
     }
 
     private static Network createNetworkWithTieLine(NetworkFactory networkFactory,
