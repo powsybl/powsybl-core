@@ -48,7 +48,7 @@ Available arguments are:
 This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
 **--dsl-file**  
-This option defines the path of the strategy to evaluate. This is a groovy script that respects the [action DSL](../../simulation/securityanalysis/action-dsl.md) syntax.
+This option defines the path of the strategy to evaluate. This is a groovy script that respects the [action DSL](../../simulation/security/action-dsl.md) syntax.
 
 ### Optional parameters
 

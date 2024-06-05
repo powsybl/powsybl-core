@@ -175,12 +175,12 @@ load-flow:
 </config>
 ```
 
-To learn more about contingencies or available `ContingenciesProvider` read this [documentation](../contingencies/index.md) page.
+To learn more about contingencies or available `ContingenciesProvider` read this [documentation](../../simulation/security/security.md#contingencies) page.
 
 To learn how to filter violations, read the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md)
 module documentation page.
 
-To learn more about configuration files, read the [SecurityAnalysisParameters](../configuration/parameters/SecurityAnalysisParameters.md)
+To learn more about configuration files, read the [security analysis parameters](../../simulation/security/security.md#parameters)
 documentation page.
 
 
@@ -212,12 +212,12 @@ It enables, for example, to customize what should be considered a limit violatio
 
 This preprocessing may use the contingencies file provided to the command line tool as an input.
 
-In order to use a preprocessor, you will need to configure it in the [security-analysis](../configuration/security-analysis-config.md) configuration module.
+In order to use a preprocessor, you will need to configure it in the [security-analysis](../configuration/security-analysis.md) configuration module.
 
 # Security-analysis implementations
 
 ## Slow implementation
-Read this [documentation](../loadflow/security-analysis.md) page to learn how to configure Powsybl to use the
+Read this [documentation](../../simulation/security/security-analysis-implementations.md#load-flow-based-implementation) page to learn how to configure Powsybl to use the
 `SecurityAnalysisImpl` implementation, a load-flow based implementation for security limits detection.
 
 ## OpenLoadFlow
