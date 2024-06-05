@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -33,20 +32,20 @@ public class TerminalMockSerDe extends AbstractVersionableNetworkExtensionSerDe<
 
     public TerminalMockSerDe() {
         super("terminalMock", TerminalMockExt.class, "mock",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.2"))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.3"))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.4"))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.5"))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.6"))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.7"))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.8"))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.9"))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.10"))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.11"))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.12"))
+                ImmutableMap.<IidmVersion, List<String>>builder()
+                        .put(IidmVersion.V_1_0, List.of("1.0"))
+                        .put(IidmVersion.V_1_1, List.of("1.1"))
+                        .put(IidmVersion.V_1_2, List.of("1.2"))
+                        .put(IidmVersion.V_1_3, List.of("1.3"))
+                        .put(IidmVersion.V_1_4, List.of("1.4"))
+                        .put(IidmVersion.V_1_5, List.of("1.5"))
+                        .put(IidmVersion.V_1_6, List.of("1.6"))
+                        .put(IidmVersion.V_1_7, List.of("1.7"))
+                        .put(IidmVersion.V_1_8, List.of("1.8"))
+                        .put(IidmVersion.V_1_9, List.of("1.9"))
+                        .put(IidmVersion.V_1_10, List.of("1.10"))
+                        .put(IidmVersion.V_1_11, List.of("1.11"))
+                        .put(IidmVersion.V_1_12, List.of("1.12"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")

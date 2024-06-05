@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
@@ -30,11 +29,11 @@ public abstract class AbstractVersionableNetworkExtensionSerDe<T extends Extenda
     private final String extensionName;
     private final Class<? super E> extensionClass;
     private final String namespacePrefix;
-    private final Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions = new EnumMap<>(IidmVersion.class);
+    private final Map<IidmVersion, List<String>> extensionVersions = new EnumMap<>(IidmVersion.class);
     private final BiMap<String, String> namespaceUris = HashBiMap.create();
 
     protected AbstractVersionableNetworkExtensionSerDe(String extensionName, Class<? super E> extensionClass, String namespacePrefix,
-                                                       Map<IidmVersion, ImmutableSortedSet<String>> extensionVersions, Map<String, String> namespaceUris) {
+                                                       Map<IidmVersion, List<String>> extensionVersions, Map<String, String> namespaceUris) {
         this.extensionName = Objects.requireNonNull(extensionName);
         this.extensionClass = Objects.requireNonNull(extensionClass);
         this.namespacePrefix = Objects.requireNonNull(namespacePrefix);

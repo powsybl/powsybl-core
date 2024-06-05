@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -34,17 +33,17 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
     public SlackTerminalSerDe() {
 
         super("slackTerminal", SlackTerminal.class, "slt",
-            new ImmutableMap.Builder<IidmVersion, ImmutableSortedSet<String>>()
-                .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.0"))
-                .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.1"))
-                .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.2"))
-                .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.3"))
-                .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.4"))
-                .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.5"))
-                .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.5"))
+            new ImmutableMap.Builder<IidmVersion, List<String>>()
+                .put(IidmVersion.V_1_3, List.of("1.0"))
+                .put(IidmVersion.V_1_4, List.of("1.1"))
+                .put(IidmVersion.V_1_5, List.of("1.2"))
+                .put(IidmVersion.V_1_6, List.of("1.3"))
+                .put(IidmVersion.V_1_7, List.of("1.4"))
+                .put(IidmVersion.V_1_8, List.of("1.5"))
+                .put(IidmVersion.V_1_9, List.of("1.5"))
+                .put(IidmVersion.V_1_10, List.of("1.5"))
+                .put(IidmVersion.V_1_11, List.of("1.5"))
+                .put(IidmVersion.V_1_12, List.of("1.5"))
                 .build(),
             new ImmutableMap.Builder<String, String>()
                 .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")

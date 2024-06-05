@@ -10,7 +10,6 @@ package com.powsybl.iidm.serde;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -29,9 +28,9 @@ public class LoadMockSerDe extends AbstractVersionableNetworkExtensionSerDe<Load
 
     public LoadMockSerDe() {
         super("loadMock", LoadMockExt.class, "lmock",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0"))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1", "1.2"))
+                ImmutableMap.<IidmVersion, List<String>>builder()
+                        .put(IidmVersion.V_1_0, List.of("1.0"))
+                        .put(IidmVersion.V_1_1, List.of("1.1", "1.2"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_mock/1_0")

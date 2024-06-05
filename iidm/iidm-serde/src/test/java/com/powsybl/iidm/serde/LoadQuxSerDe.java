@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -18,6 +17,7 @@ import com.powsybl.iidm.network.test.LoadQuxExt;
 import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -27,8 +27,8 @@ public class LoadQuxSerDe extends AbstractVersionableNetworkExtensionSerDe<Load,
 
     public LoadQuxSerDe() {
         super("loadQux", LoadQuxExt.class, "lq",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0"))
+                ImmutableMap.<IidmVersion, List<String>>builder()
+                        .put(IidmVersion.V_1_0, List.of("1.0"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.powsybl.org/schema/iidm/ext/load_qux/1_0")

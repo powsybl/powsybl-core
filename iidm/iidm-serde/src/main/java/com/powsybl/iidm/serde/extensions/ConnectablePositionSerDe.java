@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -35,20 +34,20 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
 
     public ConnectablePositionSerDe() {
         super(ConnectablePosition.NAME, ConnectablePosition.class, "cp",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of(V_1_0, V_1_1))
+                ImmutableMap.<IidmVersion, List<String>>builder()
+                        .put(IidmVersion.V_1_0, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_1, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_2, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_3, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_4, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_5, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_6, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_7, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_8, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_9, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_10, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_11, List.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_12, List.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")

@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde.extensions;
 
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
@@ -36,20 +35,20 @@ public class GeneratorStartupSerDe extends AbstractVersionableNetworkExtensionSe
 
     public GeneratorStartupSerDe() {
         super(GeneratorStartup.NAME, GeneratorStartup.class, "gs",
-                ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmVersion.V_1_0, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_1, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of(ITESLA_1_0, V_1_0, V_1_1))
+                ImmutableMap.<IidmVersion, List<String>>builder()
+                        .put(IidmVersion.V_1_0, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_1, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_2, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_3, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_4, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_5, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_6, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_7, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_8, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_9, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_10, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_11, List.of(ITESLA_1_0, V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_12, List.of(ITESLA_1_0, V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(ITESLA_1_0, "http://www.itesla_project.eu/schema/iidm/ext/generator_startup/1_0")
