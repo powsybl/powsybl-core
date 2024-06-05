@@ -7,7 +7,7 @@ When modifying the website content, you can easily preview the result on your PC
 
 **First option - in a terminal, navigate to the root of the project and run the following commands:**
 
-~~~bash
+~~~
 pip install -r docs/requirements.txt
 sphinx-build -a docs ./build-docs
 ~~~
