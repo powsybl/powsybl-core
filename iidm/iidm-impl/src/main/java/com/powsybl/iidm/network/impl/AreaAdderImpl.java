@@ -27,8 +27,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private Double acNetInterchangeTarget;
 
-    private Double acNetInterchangeTolerance;
-
     private final Set<VoltageLevel> voltageLevels;
 
     private final List<Pair<Terminal, Boolean>> terminalBoundaries;
@@ -54,11 +52,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     public AreaAdder setAcNetInterchangeTarget(Double acNetInterchangeTarget) {
         this.acNetInterchangeTarget = acNetInterchangeTarget;
-        return this;
-    }
-
-    public AreaAdder setAcNetInterchangeTolerance(Double acNetInterchangeTolerance) {
-        this.acNetInterchangeTolerance = acNetInterchangeTolerance;
         return this;
     }
 
@@ -89,10 +82,6 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return acNetInterchangeTarget;
     }
 
-    protected Double getAcNetInterchangeTolerance() {
-        return acNetInterchangeTolerance;
-    }
-
     protected Set<VoltageLevel> getVoltageLevels() {
         return voltageLevels;
     }
@@ -108,8 +97,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
     @Override
     public Area add() {
         String id = checkAndGetUniqueId();
-        AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget(),
-                getAcNetInterchangeTolerance());
+        AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget());
         getTerminalAreaBoundaries().forEach(pair -> area.newAreaBoundary().setTerminal(pair.getFirst()).setAc(pair.getSecond()).add());
         getDanglingLineAreaBoundaries().forEach(pair -> area.newAreaBoundary().setDanglingLine(pair.getFirst()).setAc(pair.getSecond()).add());
         getVoltageLevels().forEach(area::addVoltageLevel);

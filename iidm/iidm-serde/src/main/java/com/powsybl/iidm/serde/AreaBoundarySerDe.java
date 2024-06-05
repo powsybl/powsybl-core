@@ -19,7 +19,7 @@ public class AreaBoundarySerDe {
 
     static final AreaBoundarySerDe INSTANCE = new AreaBoundarySerDe();
     static final String ROOT_ELEMENT_NAME = "areaBoundary";
-    static final String ARRAY_ELEMENT_NAME = "AreaBoundaries";
+    static final String ARRAY_ELEMENT_NAME = "areaBoundaries";
 
     public static final String TERMINAL_REF = "terminalRef";
 

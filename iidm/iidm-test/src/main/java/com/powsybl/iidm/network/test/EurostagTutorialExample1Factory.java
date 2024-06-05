@@ -911,7 +911,6 @@ public final class EurostagTutorialExample1Factory {
                 .add();
         network.newArea()
                 .setAcNetInterchangeTarget(10.0)
-                .setAcNetInterchangeTolerance(0.1)
                 .setId("aic_a")
                 .setName("Aic_A")
                 .setAreaType("aic")

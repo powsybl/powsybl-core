@@ -45,13 +45,11 @@ public abstract class AbstractAreaTest {
         assertEquals("BZ_A", biddingZoneA.getNameOrId());
         assertEquals(biddingZone, biddingZoneA.getAreaType());
         assertEquals(Optional.empty(), biddingZoneA.getAcNetInterchangeTarget());
-        assertEquals(Optional.empty(), biddingZoneA.getAcNetInterchangeTolerance());
 
         assertEquals("aic_a", aicA.getId());
         assertEquals("Aic_A", aicA.getNameOrId());
         assertEquals(aic, aicA.getAreaType());
         assertEquals(Optional.of(10.0), aicA.getAcNetInterchangeTarget());
-        assertEquals(Optional.of(0.1), aicA.getAcNetInterchangeTolerance());
 
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
         assertEquals(Set.of(vlhv2), aicA.getVoltageLevels());

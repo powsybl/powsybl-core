@@ -31,8 +31,6 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder setAcNetInterchangeTarget(Double acNetInterchangeTarget);
 
-    AreaAdder setAcNetInterchangeTolerance(Double acNetInterchangeTolerance);
-
     AreaAdder addVoltageLevel(VoltageLevel voltageLevel);
 
     AreaAdder addAreaBoundary(Terminal terminal, boolean side);

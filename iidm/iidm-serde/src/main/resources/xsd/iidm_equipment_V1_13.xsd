@@ -728,7 +728,6 @@
                 </xs:sequence>
                 <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="acNetInterchangeTarget" use="optional" type="xs:double"/>
-                <xs:attribute name="acNetInterchangeTolerance" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 /**
  * An Area is a geographical zone of a given type.
- * <p> It is composed of a collection of voltage levels, and a collection of boundary terminals.
+ * <p> It is composed of a collection of voltage levels, and a collection of area boundaries.
  * <p> Areas can represent different granularities depending on their types. For instance: control areas, bidding zones, countries...
  * <p> To create an Area, see {@link AreaAdder}
  *
@@ -63,14 +63,6 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The optional target AC Net Interchange of this area in MW, using load sign convention</td>
- *         </tr>
- *         <tr>
- *             <td style="border: 1px solid black">AcNetInterchangeTolerance</td>
- *             <td style="border: 1px solid black">Double</td>
- *             <td style="border: 1px solid black">-</td>
- *             <td style="border: 1px solid black">no</td>
- *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The optional net interchange tolerance in MW</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -129,12 +121,6 @@ public interface Area extends Identifiable<Area> {
      * @return the total net position
      */
     Double getTotalNetInterchange();
-
-    /**
-     * Get the optional net interchange tolerance in MW
-     * @return the net interchange tolerance
-     */
-    Optional<Double> getAcNetInterchangeTolerance();
 
     void removeVoltageLevel(VoltageLevel voltageLevel);
 

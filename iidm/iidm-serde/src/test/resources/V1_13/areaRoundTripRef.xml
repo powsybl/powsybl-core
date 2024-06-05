@@ -20,7 +20,7 @@
             <iidm:danglingLineRef id="DL1"/>
         </iidm:areaBoundary>
     </iidm:area>
-    <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone" acNetInterchangeTarget="100.0" acNetInterchangeTolerance="1.0">
+    <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone" acNetInterchangeTarget="100.0">
         <iidm:areaBoundary ac="true">
             <iidm:terminalRef id="L1"/>
         </iidm:areaBoundary>
