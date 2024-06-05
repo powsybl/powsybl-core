@@ -6,8 +6,7 @@ In this section, you'll discover the basics about PowSyBl: how to install it, ru
 ---
 maxdepth: 1
 ---
-
-itools/index.md
 configuration/index.md
+itools/index.md
 ```
 

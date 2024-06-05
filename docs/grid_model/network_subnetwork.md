@@ -46,11 +46,11 @@ A substation represents a specific geographical location with equipment grouped 
 
 **Characteristics**
 
-| Attribute | Description |
-| --------- | ----------- |
-| $Country$ | To specify in which country the substation is located |
-| $GeographicalTags$ | They make it possible to accurately locate the substation |
-| $TSO$ | To track to which [TSO](../../glossary.md#tso) the substation belongs |
+| Attribute | Description                                                         |
+| --------- |---------------------------------------------------------------------|
+| $Country$ | To specify in which country the substation is located               |
+| $GeographicalTags$ | They make it possible to accurately locate the substation  |
+| $TSO$ | To track to which Transmission System Operator the substation belongs |
 
 All three attributes are optional.
 
@@ -264,7 +264,7 @@ are automatically computed using information from the terminal of the dangling l
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](extensions.md#cgmes-dangling-line-boundary-node)
+- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-dangling-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -449,7 +449,7 @@ $$
 - [Connectable position](extensions.md#connectable-position)
 - [Branch Observability](extensions.md#branch-observability)
 - [Branch Status](extensions.md#branch-status)
-- [CGMES Line Boundary Node](extensions.md#cgmes-line-boundary-node)
+- [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)

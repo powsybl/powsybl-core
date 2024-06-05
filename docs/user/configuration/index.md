@@ -85,15 +85,3 @@ Configuration properties can also be overridden using system's environment varia
 - [simulation-parameters](simulation-parameters.md)
 - [table-formatter](table-formatter.md)
 
-```{toctree}
----
-maxdepth: 1
----
-
-external-security-analysis-config.md
-groovy-dsl-contingencies.md
-limit-violation-default-filter.md
-security-analysis.md
-componentDefaultConfig.md
-```
-
