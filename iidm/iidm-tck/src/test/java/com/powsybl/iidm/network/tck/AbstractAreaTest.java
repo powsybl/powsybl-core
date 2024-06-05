@@ -11,13 +11,12 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -67,9 +66,7 @@ public abstract class AbstractAreaTest {
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         final Terminal boundary2 = network.getGenerator("GEN").getTerminal();
         final DanglingLine boundary3 = network.getDanglingLine("danglingLine1");
-        final List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(boundary1, true),
-                Pair.of(boundary2, true),
-                Pair.of(boundary3, false));
+        final Map<Object, Boolean> expectedBoundaries = Map.of(boundary1, true, boundary2, true, boundary3, false);
         assertBoundaries(expectedBoundaries, aicA);
         AreaBoundary dcBoundary = aicA.getAreaBoundaryStream().filter(boundary -> !boundary.isAc()).findFirst().orElse(null);
         assertEquals(5., dcBoundary.getP());
@@ -199,7 +196,7 @@ public abstract class AbstractAreaTest {
                 .setTerminal(terminal)
                 .setAc(true)
                 .add();
-        List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(terminal, true));
+        Map<Object, Boolean> expectedBoundaries = Map.of(terminal, true);
         assertBoundaries(expectedBoundaries, biddingZoneA);
     }
 
@@ -218,7 +215,7 @@ public abstract class AbstractAreaTest {
                 .setDanglingLine(danglingLine)
                 .setAc(true)
                 .add();
-        List<Pair<? extends Object, Boolean>> expectedBoundaries = List.of(Pair.of(danglingLine, true));
+        Map<Object, Boolean> expectedBoundaries = Map.of(danglingLine, true);
         assertBoundaries(expectedBoundaries, biddingZoneA);
     }
 
@@ -229,13 +226,11 @@ public abstract class AbstractAreaTest {
         DanglingLine boundary3 = network.getDanglingLine("danglingLine1");
 
         aicA.removeAreaBoundary(boundary1);
-        List<Pair<? extends Object, Boolean>> expectedBoundaries =
-                List.of(Pair.of(boundary2, true),
-                        Pair.of(boundary3, false));
+        Map<Object, Boolean> expectedBoundaries = Map.of(boundary2, true, boundary3, false);
         assertBoundaries(expectedBoundaries, aicA);
 
         aicA.removeAreaBoundary(boundary3);
-        expectedBoundaries = List.of(Pair.of(boundary2, true));
+        expectedBoundaries = Map.of(boundary2, true);
         assertBoundaries(expectedBoundaries, aicA);
     }
 
@@ -249,17 +244,15 @@ public abstract class AbstractAreaTest {
         network.getDanglingLine("danglingLine1").remove();
 
         assertEquals(0, aicA.getAreaBoundaryStream().count());
-        assertBoundaries(List.of(), aicA);
+        assertBoundaries(Map.of(), aicA);
     }
 
-    void assertBoundaries(List<Pair<? extends Object, Boolean>> expectedBoundaries, Area area) {
-        List<Pair<? extends Object, Boolean>> actualBoundariesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
-                .map(b -> b.getTerminal().isPresent() ? Pair.of(b.getTerminal().get(), b.isAc()) : Pair.of(b.getDanglingLine().get(), b.isAc()))
-                .toList();
-        List<Pair<? extends Object, Boolean>> actualBoundariesFromStream = area.getAreaBoundaryStream()
-                .map(b -> b.getTerminal().isPresent() ? Pair.of(b.getTerminal().get(), b.isAc()) : Pair.of(b.getDanglingLine().get(), b.isAc()))
-                .toList();
-
+    void assertBoundaries(Map<Object, Boolean> expectedBoundaries, Area area) {
+        final Function<AreaBoundary, ?> getBoundaryOrTerminalFunction = areaBoundary -> areaBoundary.getTerminal().isPresent() ? areaBoundary.getTerminal().get() : areaBoundary.getDanglingLine().get();
+        Map<Object, Boolean> actualBoundariesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
+                                                                    .collect(Collectors.toMap(getBoundaryOrTerminalFunction, AreaBoundary::isAc));
+        Map<Object, Boolean> actualBoundariesFromStream = area.getAreaBoundaryStream()
+                                                         .collect(Collectors.toMap(getBoundaryOrTerminalFunction, AreaBoundary::isAc));
         assertEquals(expectedBoundaries, actualBoundariesFromIterable);
         assertEquals(expectedBoundaries, actualBoundariesFromStream);
     }
