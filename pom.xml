@@ -96,22 +96,24 @@
             ../../../distribution-core/target/site/jacoco-aggregate/jacoco.xml
         </sonar.coverage.jacoco.xmlReportPaths>
 
-        <assertj.version>3.25.3</assertj.version>
+        <assertj.version>3.26.0</assertj.version>
         <autoservice.version>1.1.1</autoservice.version>
-        <commonscli.version>1.7.0</commonscli.version>
-        <commonscompress.version>1.26.1</commonscompress.version>
+        <commonscli.version>1.8.0</commonscli.version>
+        <commonscompress.version>1.26.2</commonscompress.version>
         <commons-configuration2.version>2.10.1</commons-configuration2.version>
         <commonsio.version>2.16.1</commonsio.version>
         <commonslang3.version>3.14.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <commonstext.version>1.12.0</commonstext.version>
         <ejml.version>0.43.1</ejml.version>
+        <!-- findbugs cannot be updated until graphviz is updated/replaced since findbugs groupdId changed -->
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <gdata.version>1.47.1_1</gdata.version>
+        <!-- graphviz-builder seems abandoned - to be replaced ? -->
         <graphviz-builder.version>1.0.12</graphviz-builder.version>
         <groovy.version>4.0.21</groovy.version>
-        <guava.version>33.2.0-jre</guava.version>
+        <guava.version>33.2.1-jre</guava.version>
         <jackson.version>2.17.1</jackson.version>
         <jackson-databind.version>2.17.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
@@ -133,7 +135,9 @@
         <stringtemplate.version>4.3.4</stringtemplate.version>
         <testcontainers.version>1.19.8</testcontainers.version>
         <threeten.version>1.8.0</threeten.version>
+        <!-- trove4j seems abandoned - to be replaced ? -->
         <trove4j.version>3.0.3</trove4j.version>
+        <!-- univocity-parsers seems abandoned - to be replaced ? -->
         <univocity-parsers.version>2.9.0</univocity-parsers.version>
         <xmlunit.version>2.10.0</xmlunit.version>
         <xz.version>1.9</xz.version>
