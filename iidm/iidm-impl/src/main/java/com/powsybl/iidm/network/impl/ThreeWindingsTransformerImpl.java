@@ -230,7 +230,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return transformer.getId() + " " + getLegAttribute();
         }
 
-        public Identifiable getTransformer() {
+        public ThreeWindingsTransformer getTransformer() {
             return transformer;
         }
 
