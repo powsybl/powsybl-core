@@ -63,7 +63,6 @@ Configuration properties can also be overridden using system's environment varia
 - [groovy-dsl-contingencies](groovy-dsl-contingencies.md)
 - [groovy-post-processor](../../grid_features/import_post_processor.md#groovy-post-processor)
 - [import-export-parameters-default-value](import-export-parameters-default-value.md)
-- [javaScriptPostProcessor](../../grid_features/import_post_processor.md#javascript-post-processor)
 - [limit-violation-default-filter](limit-violation-default-filter.md)
 - [load-flow](load-flow.md)
 - [load-flow-action-simulator](load-flow-action-simulator.md)
