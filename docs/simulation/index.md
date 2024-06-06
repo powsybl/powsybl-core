@@ -12,7 +12,7 @@ maxdepth: 2
 ---
 
 loadflow/index.md
-security/security.md
+security/index.md
 sensitivity/sensitivity.md
 shortcircuit/index.md
 dynamic_simulation/index.md

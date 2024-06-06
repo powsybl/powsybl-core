@@ -162,7 +162,7 @@ reducer.reduce(network);
 ```
 
 ### Groovy scripting
-This example shows how to do a network reduction, using the [run-script](../../user/itools/run-script.md) command.
+This example shows how to do a network reduction, using the [run-script](../user/itools/run-script.md) command.
 
 First, we need a groovy script to do the reduction:
 ```groovy

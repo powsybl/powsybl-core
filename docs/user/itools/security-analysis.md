@@ -216,10 +216,4 @@ In order to use a preprocessor, you will need to configure it in the [security-a
 
 # Security-analysis implementations
 
-## Slow implementation
-Read this [documentation](../../simulation/security/security-analysis-implementations.md#load-flow-based-implementation) page to learn how to configure Powsybl to use the
-`SecurityAnalysisImpl` implementation, a load-flow based implementation for security limits detection.
-
-## OpenLoadFlow
-<span style="color: red">TODO</span>
-
+Different implementations are available to run security analyses on [page](../../simulation/security/implementations.md).

@@ -20,8 +20,8 @@ todo:
 grid_exchange_formats/index
 grid_model/index.md
 grid_features/index.md
-data/timeseries
 simulation/index
+data/timeseries
 user/index.md
 ```
 

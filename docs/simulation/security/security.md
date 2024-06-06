@@ -298,25 +298,8 @@ limit-violation-default-filter:
         - HIGH_VOLTAGE
 ```
 
-## Implementations
-
-Different implementations are available to run security analyses:
-- [Load flow based](security-analysis-implementations.md#load-flow-based-implementation): a simple security analysis implementation based on a load flow engine
-- OpenLoadFlow
-- DynaFlow
-
 ## Going further
 To go further about the security analysis, check the following content:
-- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line 
+- Different implementations are available to run security analyses on [page](implementations.md).
+- [Run a security analysis through an iTools command](../../user/itools/security-analysis.md): Learn how to perform a security analysis from the command line. 
 
-```{toctree}
----
-caption: Security analysis
-maxdepth: 2
-hidden: true
----
-
-action-dsl.md
-contingency-dsl.md
-security-analysis-implementations.md
-```
