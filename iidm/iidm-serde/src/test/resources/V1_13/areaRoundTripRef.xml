@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="test" caseDate="2020-03-04T13:20:30.476+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" id="sub" caseDate="2020-03-04T13:20:30.476+01:00" forecastDistance="0" sourceFormat="format" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+        <iidm:substation id="sub3">
+            <iidm:voltageLevel id="VL2" nominalV="1.0" topologyKind="BUS_BREAKER">
+                <iidm:busBreakerTopology>
+                    <iidm:bus id="N3"/>
+                </iidm:busBreakerTopology>
+            </iidm:voltageLevel>
+        </iidm:substation>
+        <iidm:area id="BidZoneId3" name="BidZoneName3" areaType="BiddingZone">
+            <iidm:voltageLevelRef id="VL2"/>
+        </iidm:area>
+    </iidm:network>
     <iidm:substation id="sub1">
         <iidm:voltageLevel id="VL1" nominalV="1.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
