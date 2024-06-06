@@ -4,7 +4,7 @@ A load flow result is considered *acceptable* if it describes a feasible steady-
 More practically, generations of practitioners have set quasi-standard ways to describe them that makes it possible to define precise rules.
 They are described below for the different elements of the network.
 
-### Buses
+## Buses
 
 The first law of Kirchhoff must be satisfied for every bus for active and reactive power:
 
@@ -13,7 +13,7 @@ $$\begin{equation}
 \left| \sum_{branches} Q + \sum_{injections} Q \right| \leq \epsilon \\
 \end{equation}$$
 
-### Branches
+## Branches
 Lines and two windings transformers are converted into classical PI models:
 
 ```
@@ -40,12 +40,12 @@ Thanks to Kirchhoff laws (see the [line](../grid_model/network_subnetwork.md#lin
 
 $(P_1^{calc}, Q_1^{calc}, P_2^{calc}, Q_2^{calc}) = f(\text{Voltages}, \text{Characteristics})$
 
-#### Three-windings transformers
+## Three-windings transformers
 To be implemented, based on a conversion into 3 two-windings transformers.
 
-#### Generators
+## Generators
 
-##### Active power
+### Active power
 There may be an imbalance between the sum of generator active power setpoints $\text{targetP}$ on one side and consumption
 and losses on the other side, after the load flow optimization process. Note that, if it is possible to modify the setpoints during the computation
 (for example if the results were computed by an Optimal Power Flow and not a Power Flow), there should be no imbalance left.
@@ -73,7 +73,7 @@ $P <- P \times \hat{K} \times F$
 where $\hat{K}$ is a proportionality factor, usually defined for each unit by $\dfrac{P_{max}}{\sum{F}}$, $\dfrac{targetP}{\sum{F}}$ or $\dfrac{P_{diff}}{\sum{F}}$
 depending on the adjustment mode (the sums run over all the units participating in the compensation).
 
-##### Voltage and reactive power
+### Voltage and reactive power
 
 If the voltage regulation is deactivated, it is expected that:
 
@@ -90,10 +90,10 @@ targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
 \end{align*}
 $$
 
-#### Loads
+## Loads
 To be implemented, with tests similar to generators with voltage regulation.
 
-#### Shunts
+## Shunts
 A shunt is expected not to generate or absorb active power:
 
 $\left| P \right| < \epsilon$
