@@ -88,7 +88,6 @@ Mathematically speaking, one of the following 3 conditions should be met:
 V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\
 targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
 \end{align*}
-$$
 
 ## Loads
 To be implemented, with tests similar to generators with voltage regulation.
