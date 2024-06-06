@@ -70,22 +70,14 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
     @Override
     public void add() {
         if (isAc() == null) {
-            throw new PowsyblException("AreaBoundary must have an attribute 'ac' set to be added");
+            throw new PowsyblException("AreaBoundary must have a non-null attribute 'ac' to be added");
         }
         if (getBoundary() != null) {
-            checkBoundaryNetwork(getBoundary().getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + getBoundary().getDanglingLine().getId());
             getArea().addAreaBoundary(new AreaBoundaryImpl(getBoundary(), isAc()));
         } else if (getTerminal() != null) {
-            checkBoundaryNetwork(getTerminal().getConnectable().getParentNetwork(), "Terminal of connectable " + getTerminal().getConnectable().getId());
             getArea().addAreaBoundary(new AreaBoundaryImpl(getTerminal(), isAc()));
         } else {
-            throw new PowsyblException("AreaBoundary must have a 'terminal' or a 'boundary' attribute set to be added");
-        }
-    }
-
-    void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
-        if (getArea().getParentNetwork() != network) {
-            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getArea().getId() + " boundaries. They do not belong to the same network or subnetwork");
+            throw new PowsyblException("AreaBoundary must have a non-null 'terminal' or 'boundary' attribute be added");
         }
     }
 

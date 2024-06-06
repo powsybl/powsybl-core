@@ -285,10 +285,10 @@ public abstract class AbstractAreaTest {
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         AreaBoundaryAdder areaBoundaryAdder1 = biddingZoneA.newAreaBoundary().setAc(true);
         Throwable e1 = assertThrows(PowsyblException.class, areaBoundaryAdder1::add);
-        assertEquals("AreaBoundary must have a 'terminal' or a 'boundary' attribute set to be added", e1.getMessage());
+        assertEquals("AreaBoundary must have a non-null 'terminal' or 'boundary' attribute be added", e1.getMessage());
         AreaBoundaryAdder areaBoundaryAdder2 = biddingZoneA.newAreaBoundary().setTerminal(boundary1);
         Throwable e2 = assertThrows(PowsyblException.class, areaBoundaryAdder2::add);
-        assertEquals("AreaBoundary must have an attribute 'ac' set to be added", e2.getMessage());
+        assertEquals("AreaBoundary must have a non-null attribute 'ac' to be added", e2.getMessage());
     }
 
 }

@@ -17,13 +17,13 @@ public class AreaBoundaryImpl implements AreaBoundary {
     AreaBoundaryImpl(Terminal terminal, boolean ac) {
         this.terminal = Objects.requireNonNull(terminal);
         this.boundary = null;
-        this.ac = Objects.requireNonNull(ac);
+        this.ac = ac;
     }
 
     AreaBoundaryImpl(Boundary boundary, boolean ac) {
         this.boundary = Objects.requireNonNull(boundary);
         this.terminal = null;
-        this.ac = Objects.requireNonNull(ac);
+        this.ac = ac;
     }
 
     @Override

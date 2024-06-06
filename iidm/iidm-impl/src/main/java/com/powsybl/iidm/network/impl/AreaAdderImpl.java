@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.ref.RefChain;
 import com.powsybl.iidm.network.*;
-import org.jgrapht.alg.util.Pair;
 
 import java.util.*;
 
@@ -29,15 +28,15 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private final Set<VoltageLevel> voltageLevels;
 
-    private final List<Pair<Terminal, Boolean>> terminalAreaBoundaries;
+    private final Map<Terminal, Boolean> terminalAreaBoundaries;
 
-    private final List<Pair<Boundary, Boolean>> boundaryAreaBoundaries;
+    private final Map<Boundary, Boolean> boundaryAreaBoundaries;
 
     AreaAdderImpl(Ref<NetworkImpl> networkRef, final RefChain<SubnetworkImpl> subnetworkRef) {
         this.networkRef = networkRef;
         this.subnetworkRef = subnetworkRef;
-        this.terminalAreaBoundaries = new ArrayList<>();
-        this.boundaryAreaBoundaries = new ArrayList<>();
+        this.terminalAreaBoundaries = new HashMap<>();
+        this.boundaryAreaBoundaries = new HashMap<>();
         this.voltageLevels = new HashSet<>();
     }
 
@@ -61,12 +60,12 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
     }
 
     public AreaAdder addAreaBoundary(Terminal terminal, boolean ac) {
-        this.terminalAreaBoundaries.add(Pair.of(terminal, ac));
+        this.terminalAreaBoundaries.put(terminal, ac);
         return this;
     }
 
     public AreaAdder addAreaBoundary(Boundary boundary, boolean ac) {
-        this.boundaryAreaBoundaries.add(Pair.of(boundary, ac));
+        this.boundaryAreaBoundaries.put(boundary, ac);
         return this;
     }
 
@@ -86,11 +85,11 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return voltageLevels;
     }
 
-    protected List<Pair<Terminal, Boolean>> getTerminalAreaBoundaries() {
+    protected Map<Terminal, Boolean> getTerminalAreaBoundaries() {
         return terminalAreaBoundaries;
     }
 
-    protected List<Pair<Boundary, Boolean>> getBoundaryAreaBoundaries() {
+    protected Map<Boundary, Boolean> getBoundaryAreaBoundaries() {
         return boundaryAreaBoundaries;
     }
 
@@ -98,8 +97,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
     public Area add() {
         String id = checkAndGetUniqueId();
         AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget());
-        getTerminalAreaBoundaries().forEach(pair -> area.newAreaBoundary().setTerminal(pair.getFirst()).setAc(pair.getSecond()).add());
-        getBoundaryAreaBoundaries().forEach(pair -> area.newAreaBoundary().setBoundary(pair.getFirst()).setAc(pair.getSecond()).add());
+        getTerminalAreaBoundaries().forEach((terminal, ac) -> area.newAreaBoundary().setTerminal(terminal).setAc(ac).add());
+        getBoundaryAreaBoundaries().forEach((boundary, ac) -> area.newAreaBoundary().setBoundary(boundary).setAc(ac).add());
         getVoltageLevels().forEach(area::addVoltageLevel);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);

@@ -150,7 +150,17 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     protected void addAreaBoundary(AreaBoundaryImpl areaBoundary) {
+        Optional<Terminal> terminal = areaBoundary.getTerminal();
+        Optional<Boundary> boundary = areaBoundary.getBoundary();
+        boundary.ifPresent(b -> checkBoundaryNetwork(b.getDanglingLine().getParentNetwork(), "Boundary of DanglingLine" + b.getDanglingLine().getId()));
+        terminal.ifPresent(t -> checkBoundaryNetwork(t.getConnectable().getParentNetwork(), "Terminal of connectable " + t.getConnectable().getId()));
         areaBoundaries.add(areaBoundary);
+    }
+
+    void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
+        if (getParentNetwork() != network) {
+            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getId() + " boundaries. They do not belong to the same network or subnetwork");
+        }
     }
 
 }
