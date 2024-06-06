@@ -15,5 +15,5 @@ loadflow/index.md
 security/index.md
 sensitivity/sensitivity.md
 shortcircuit/index.md
-dynamic_simulation/index.md
+dynamic/index.md
 ```
