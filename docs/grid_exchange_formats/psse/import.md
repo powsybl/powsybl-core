@@ -8,7 +8,7 @@ The import module reads and converts a PSS®E power flow data file to the PowSyB
 First, input data is obtained by reading and parsing the input file and as result a PSS®E model is created in memory. This model can be viewed as a set of Java classes where each data block of the PSS®E model is associated with a specific Java class that describes all their attributes or data items. Then, some inconsistency checks are performed on this model. If the validation succeeds the PSS®E model is converted to a PowSyBl grid model.
 
 ## Options
-Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **psse.import.ignore-base-voltage**  
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.

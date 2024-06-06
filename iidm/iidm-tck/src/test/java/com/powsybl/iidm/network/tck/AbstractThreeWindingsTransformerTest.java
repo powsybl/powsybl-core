@@ -81,6 +81,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(2.3, leg1.getB(), 0.0);
         leg1.setRatedS(2.4);
         assertEquals(2.4, leg1.getRatedS(), 0.0);
+        assertEquals("twt", leg1.getTransformer().getId());
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();

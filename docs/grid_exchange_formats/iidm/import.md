@@ -3,7 +3,7 @@
 <span style="color: red">TODO</span>
 
 ## Options
-These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **iidm.import.xml.throw-exception-if-extension-not-found**  
 The `iidm.import.xml.throw-exception-if-extension-not-found` property is an optional property that defines if the XIIDM importer throws an exception while trying to import an unknown or undeserializable extension or if it just ignores it. Its default value is `false`.
