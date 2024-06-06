@@ -35,7 +35,7 @@ The `output-writer` property is an optional property that defines the output for
 If this property is set to `CSV`, in the output files a line contains all values of a validated equipment. If the property is set to `CSV_MULTILINE`, in the output files the values of an equipment are split in multiple lines, one value for each line, see examples below:
 
 **Example of output in CSV format:**
-```csv
+```
 id;p;q;v;nominalV;reactivePowerSetpoint;voltageSetpoint;connected;regulationMode;bMin;bMax;mainComponent;validation
 CSPCH.TC1;-0,00000;93,6368;238,307;225,000;0,00000;238,307;true;VOLTAGE;-0,00197531;0,00493827;true;success
 CSPDO.TC1;-0,00000;0,00000;240,679;225,000;0,00000;240,713;true;VOLTAGE;-0,00493827;0,00493827;true;success
@@ -43,7 +43,7 @@ CSPDO.TC1;-0,00000;0,00000;240,679;225,000;0,00000;240,713;true;VOLTAGE;-0,00493
 ```
 
 **Example of output in CSV_MULTILINE format:**
-```csv
+```
 id;characteristic;value
 CSPCH.TC1;p;-0,00000
 CSPCH.TC1;q;93,6368

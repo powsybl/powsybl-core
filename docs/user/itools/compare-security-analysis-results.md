@@ -17,7 +17,7 @@ and equipment) violation is less than a predefined threshold
   
 The comparison process can optionally output in a CSV file all the compared values (pre and post-contingency load flow computation outcomes, and related constraints violations), with a corresponding comparison result (`equivalent`,`different`). See example below.
 
-```csv
+```
 Contingency;StatusResult1;StatusResult2;Equipment;End;ViolationType;ViolationNameResult1;ValueResult1;LimitResult1;ViolationNameResult2;ValueResult2;LimitResult2;ActionsResult1;ActionsResult2;Comparison
 ;converge;converge;;;;;;;;;;;;equivalent
 ;;;NHV1_NHV2_1;ONE;CURRENT;;1100,00;950,000;;1100,09;950,000;;;equivalent
