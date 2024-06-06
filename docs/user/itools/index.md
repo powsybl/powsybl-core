@@ -1,5 +1,22 @@
 # iTools
 
+```{toctree}
+---
+maxdepth: 1
+hidden: true
+---
+action-simulator.md
+cim-anonymizer.md
+compare-security-analysis-results.md
+convert_network.md
+dynamic-simulation.md
+loadflow.md
+loadflow-validation.md
+run-script.md
+security-analysis.md
+sensitivity-computation.md
+```
+
 The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (MacOS is not supported yet).
 
 An `iTools` package is constituted of:

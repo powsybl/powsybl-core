@@ -1,4 +1,4 @@
-# Compare security analysis results
+# iTools compare security analysis results
 
 The `compare-security-analysis-results` command is used to compare [security-analysis](../../simulation/security/security.md#outputs) results, stored in JSON.
 
