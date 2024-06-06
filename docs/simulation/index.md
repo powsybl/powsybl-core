@@ -8,7 +8,7 @@ Below comes a description of the various types of simulation.
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 1
 ---
 
 loadflow/index.md
