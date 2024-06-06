@@ -1,6 +1,6 @@
 # iTools action-simulator
 
-The `action-simulator` command loads a grid file and run a [security analysis with remedial actions](../../simulation/security/security.md). This tool is used to create or validate a strategy in order to solve violations. 
+The `action-simulator` command loads a grid file and run a [security analysis with remedial actions](../../simulation/security/index.md). This tool is used to create or validate a strategy in order to solve violations. 
 
 ## Usage
 ```

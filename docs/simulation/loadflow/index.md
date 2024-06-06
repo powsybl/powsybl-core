@@ -45,6 +45,5 @@ The following power flow implementations are supported:
 - [Dynaflow](TODO)
 
 ## Going further
-To go further about the power flow with PowSyBl, check the following pages:
 - [Run a power flow through an iTools command](../../user/itools/loadflow.md): Learn how to perform a power flow calculation from the command line
 - [Load flow tutorial](../../developer/tutorials/loadflow.md)

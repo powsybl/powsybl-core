@@ -85,7 +85,7 @@ Configuration properties can also be overridden using system's environment varia
 - [load-flow](load-flow.md)
 - [load-flow-action-simulator](load-flow-action-simulator.md)
 - [load-flow-based-phase-shifter-optimizer](load-flow-based-phase-shifter-optimizer.md)
-- [load-flow-default-parameters](../../simulation/loadflow/index#generic-parameters)
+- [load-flow-default-parameters](../../simulation/loadflow/configuration#generic-parameters)
 - [loadflow-results-completion-parameters](loadflow-results-completion-parameters.md)
 - [loadflow-validation](loadflow-validation.md)
 - [local-app-file-system](local-app-file-system.md)

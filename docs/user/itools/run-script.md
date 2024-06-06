@@ -56,7 +56,7 @@ saveNetwork(format, network, parameters, file)
 ### Run a power flow
 The `LoadFlow` extension adds a `loadflow` function to run a [load flow](../../simulation/loadflow/index) simulation to a network. This function has two parameters:
 - the network object (mandatory)
-- the [load-flow parameters](../../simulation/loadflow/index#generic-parameters) (optional). If this parameter is not set, the parameters are loaded from the configuration.
+- the [load-flow parameters](../../simulation/loadflow/configuration#generic-parameters) (optional). If this parameter is not set, the parameters are loaded from the configuration.
 
 In order to benefit from this feature, add `com.powsybl:powsybl-loadflow-scripting` to your classpath.  
 

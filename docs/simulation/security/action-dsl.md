@@ -1,5 +1,5 @@
 # Action DSL
-The action DSL is a domain specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](security.md#operator-strategies). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
+The action DSL is a domain specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](index.md#operator-strategies). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
 
 ## Contingencies
 The contingencies are defined in the same way that is described in the [contingency DSL](contingency-dsl.md). Are supported:
@@ -11,7 +11,7 @@ The contingencies are defined in the same way that is described in the [continge
 The actions are modifications that could be made on the network to solve a security issue. It could be topology modification like opening or closing a switch, setpoints modification, tap position modification. PowSyBl provides a set of predefined actions, but this possibilities are infinite as you can create custom actions or groovy scripts.
 
 An action is constituted of:
-- an unique identifier to reference this action in the [rules](#rules)
+- a unique identifier to reference this action in the [rules](#rules)
 - an optional description to explain the purpose of the action
 - a list of tasks that are executed when the action is applied
 

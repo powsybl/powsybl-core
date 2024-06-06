@@ -1,6 +1,6 @@
 # iTools security-analysis
 
-The `security-analysis` command loads a grid file and run a [security analysis](../../simulation/security/security.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation the results are printed or exported to a file.
+The `security-analysis` command loads a grid file and run a [security analysis](../../simulation/security/index.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation the results are printed or exported to a file.
 
 ## Usage
 ```
@@ -175,12 +175,12 @@ load-flow:
 </config>
 ```
 
-To learn more about contingencies or available `ContingenciesProvider` read this [documentation](../../simulation/security/security.md#contingencies) page.
+To learn more about contingencies or available `ContingenciesProvider` read this [documentation](../../simulation/security/index.md#contingencies) page.
 
 To learn how to filter violations, read the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md)
 module documentation page.
 
-To learn more about configuration files, read the [security analysis parameters](../../simulation/security/security.md#parameters)
+To learn more about configuration files, read the [security analysis parameters](../../simulation/security/configuration.md#parameters)
 documentation page.
 
 
