@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # componentDefaultConfig
 The `componentDefaultConfig` module is used to configure the implementation of plugins the framework has to use for specific features (e.g. computation, etc.). Contrary to the other modules, it is impossible to give an exhaustive list of the existing properties.
 

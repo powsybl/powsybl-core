@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # external-security-analysis-config
 The `external-security-analysis-config` module is used in the `com.powsybl.security.distributed.ExternalSecurityAnalysis` class, an implementation of the `com.powsybl.security.SecurityAnalysis` interface, that submits the execution of a [security-analysis](../itools/security-analysis.md) command to the ComputationManager, when it's launched in external mode.
 

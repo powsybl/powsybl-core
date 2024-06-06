@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # iTools loadflow
 
 The `loadflow` command loads a grid file and run a [load flow](../../simulation/loadflow/index.md) simulation. At the end, the results and the modified network can be exported to files.

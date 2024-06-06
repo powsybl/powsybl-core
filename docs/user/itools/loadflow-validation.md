@@ -1,17 +1,8 @@
----
-layout: default
-latex: true
----
-
 # iTools loadflow-validation
 
 The `loadflow-validation` command is used to validate load-flow results of a network. The command, besides validating
 the results, also prints the data of the validated equipments in output files.
 The consistency checks performed by the load flow validation may also be applied to results obtained with an optimal power flow or to the final state of a long dynamic simulation.
-
-* TOC
-{:toc}
-
 
 ## Usage
 
