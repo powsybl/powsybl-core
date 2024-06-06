@@ -54,9 +54,9 @@ saveNetwork(format, network, parameters, file)
 ```
 
 ### Run a power flow
-The `LoadFlow` extension adds a `loadflow` function to run a [load flow](../../simulation/loadflow/loadflow.md) simulation to a network. This function has two parameters:
+The `LoadFlow` extension adds a `loadflow` function to run a [load flow](../../simulation/loadflow/index) simulation to a network. This function has two parameters:
 - the network object (mandatory)
-- the [load-flow parameters](../../simulation/loadflow/loadflow.md#generic-parameters) (optional). If this parameter is not set, the parameters are loaded from the configuration.
+- the [load-flow parameters](../../simulation/loadflow/index#generic-parameters) (optional). If this parameter is not set, the parameters are loaded from the configuration.
 
 In order to benefit from this feature, add `com.powsybl:powsybl-loadflow-scripting` to your classpath.  
 
@@ -97,7 +97,7 @@ Hello John
 ```
 
 ### Example 2 - Run a power flow
-The following example shows how to load a network from a file, run a [load flow](../../simulation/loadflow/loadflow.md) simulation and export the modified network to another file. This script is equivalent to the iTools [loadflow](loadflow.md) command.
+The following example shows how to load a network from a file, run a [load flow](../../simulation/loadflow/index) simulation and export the modified network to another file. This script is equivalent to the iTools [loadflow](loadflow.md) command.
 
 **Content of the loadflow.groovy file:**
 ```groovy

@@ -10,7 +10,7 @@ There is a violation if the computed value is greater than the maximum allowed v
 ## Inputs
 
 ### Network
-The first input of the security analysis is a network. As this simulation is based on a [load flow](../loadflow/loadflow.md) engine for a list of contingencies, this network should converge in the pre-contingency state.
+The first input of the security analysis is a network. As this simulation is based on a [load flow](../loadflow/index) engine for a list of contingencies, this network should converge in the pre-contingency state.
 
 ### Contingencies
 The security analysis needs a list of contingencies as an input. When contingencies are provided, the violations are detected on the network at pre-contingency state, but also after applying each contingency. The supported elementary contingencies are:

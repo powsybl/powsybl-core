@@ -143,7 +143,7 @@ action('decrement-tap-position') {
 ```
 
 #### optimizePhaseShifterTap
-The `optimizePhaseShifterTap` task is used to change the tap position of a phase tap changer until the intensity is closest to the limit but does not exceed it. This task runs a [load flow](../loadflow/loadflow.md) each time the tap is changed to compute the new intensity value of the PST.
+The `optimizePhaseShifterTap` task is used to change the tap position of a phase tap changer until the intensity is closest to the limit but does not exceed it. This task runs a [load flow](../loadflow/index) each time the tap is changed to compute the new intensity value of the PST.
 ```groovy
 action('optimize-tap-position') {
     description "Find the tap position to be closest to the limit"

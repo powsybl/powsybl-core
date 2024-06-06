@@ -116,7 +116,7 @@ Use the `--run-computation` parameter to run a computation before the validation
 Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks. 
 The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`.
 
-To learn more about the different checks, read the [loadflow validation](../../simulation/loadflow/loadflow_validation.md) documentation page.
+To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation.md) documentation page.
 
 ### Summary
 The following table summarizes the possible combinations of `compare-results` and `run-computation` parameters, and the

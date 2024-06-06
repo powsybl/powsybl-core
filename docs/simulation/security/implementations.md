@@ -24,7 +24,7 @@ componentDefaultConfig:
 </componentDefaultConfig>
 ```
 
-Remember that this implementation relies on a load flow engine. It will automatically use the default implementation, except if there are many in your classpath. In that specific case, you have to adjust your configuration defining the name of the load flow engine to use. Please refer to the [load flow](../loadflow/loadflow.md) page to know the list of available implementations.
+Remember that this implementation relies on a load flow engine. It will automatically use the default implementation, except if there are many in your classpath. In that specific case, you have to adjust your configuration defining the name of the load flow engine to use. Please refer to the [load flow](../loadflow/index) page to know the list of available implementations.
 
 **YAML configuration:**
 ```yaml
