@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # Parameters
 The `dynamic-simulation-default-parameters` module is used every time a dynamic-simulation is run. It defines the default values for the most common parameters a `com.powsybl.dynamicsimulation.DynamicSimulation` implementation should be able to handle. 
 

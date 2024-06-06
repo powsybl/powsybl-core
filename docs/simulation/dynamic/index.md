@@ -1,15 +1,16 @@
----
-layout: default
-latex: true
----
-
 # Dynamic simulation
 
 The dynamic simulation aims at capturing the transient response of the system, and not only to compute the steady state solution.
 It may or not involve the activation of events like a line disconnection for example.
 
-* TOC
-{:toc}
+```{toctree}
+---
+hidden: true
+maxdepth: 1
+---
+configuration.md
+parameters.md
+```
 
 ## Inputs
 
@@ -94,15 +95,3 @@ The default values of all the optional properties are read from the {doc}`parame
 ### Specific parameters
 Some implementation use specific parameters that can be defined in the configuration file or in the JSON parameters file:
 - [Dynawo](dynawo/index.md#specific-parameters)
-
-
-```{toctree}
----
-maxdepth: 2
-hidden: true
----
-api_guide_dynamic-simulation
-configuration.md
-parameters.md
-itools_dynamic-simulation.md
-```
