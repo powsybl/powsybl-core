@@ -79,8 +79,3 @@ This example shows how to specify the threshold to be used in the comparison:
 $> itools compare-security-analysis-results --result1-file $HOME/result1.json --result2-file $HOME/result2.json --output-file $HOME/comparison_results.csv  --threshold 0.1
 Comparison result: success
 ```
-
-# Going further
-To go further, check the following content:
--[security-analysis](security-analysis.md): an iTools command to run [security analyses](../../simulation/security/security.md)
-
