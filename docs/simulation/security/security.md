@@ -1,6 +1,5 @@
 # Security analysis
 
-## Introduction
 The security analysis is a simulation that check violations on a network. These checks can be done on the base case or after a contingency, with or without remedial actions. A security analysis can monitor network states, in pre-contingency state, after a contingency and after a remedial action.
 
 There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipments, the violations can have different types:
@@ -22,7 +21,7 @@ The security analysis needs a list of contingencies as an input. When contingenc
 - Busbar section contingency for node/breaker topologies
 - Line, two-winding transformer and tie line contingencies (branch contingency)
 - Three-winding transformer contingency
-- Hvdc line contingency
+- HVDC line contingency
 
 A contingency is made of contingency elements. A contingency can trigger one element at a time (N-1) or several elements at a time (N-K). Bus bar and bus contingencies are special N-K contingencies as they trigger all the equipments connected to a given bus bar section.
 
@@ -36,10 +35,10 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 - Change the regulation status of a tap changer
 - Change `targetP`, `targetQ`, regulation status and `targetV` of a generator
 - Change the regulation mode of a static var compensator and its associated set point.
-- Enabled or disabled AC emulation for Hvdc line (with the possibility to change `P0` and `droop` for AC emulation and active power set point and converter mode for set point operating mode)
+- Enabled or disabled AC emulation for HVDC line (with the possibility to change `P0` and `droop` for AC emulation and active power set point and converter mode for set point operating mode)
 
 Remedial actions can be *preventive* or *curative*:
-- preventive: these actions are implemented before the violation occurs, for example if the flow of a monitored line is between `90%` and `100%`. Use contingency context `none` for that.
+- preventive: these actions are implemented before the violation occurs, for example if the flow of a monitored line is between `90%` and `100%`. Use contingency context `NONE` for that.
 - curative: these actions are implemented after a violation occurs, for example if the flow of the monitored line is greater than `100%`.
 
 ### Conditions
