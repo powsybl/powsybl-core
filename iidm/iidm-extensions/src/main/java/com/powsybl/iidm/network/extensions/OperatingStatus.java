@@ -32,7 +32,7 @@ public interface OperatingStatus<I extends Identifiable<I>> extends Extension<I>
     static boolean isAllowedIdentifiable(Identifiable<?> identifiable) {
         Objects.requireNonNull(identifiable);
         return switch (identifiable.getType()) {
-            case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, HVDC_LINE, TIE_LINE -> true;
+            case BUSBAR_SECTION, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, DANGLING_LINE, HVDC_LINE, TIE_LINE -> true;
             default -> false;
         };
     }
