@@ -100,7 +100,7 @@ $\left| P \right| < \epsilon$
 A shunt is expected to generate reactive power according to the number of activated sections and to the susceptance per section $B$:
 $\left| Q + \text{#sections} * B  V^2 \right| < \epsilon$
 
-#### Static VAR Compensators
+## Static VAR Compensators
 Static VAR Compensators behave like generators producing 0 active power except that their reactive bounds are expressed
 in susceptance, so that they are voltage dependent.
 
@@ -111,17 +111,17 @@ $targetP = 0$ MW
 - If the regulation mode is `VOLTAGE`, it behaves like a generator with voltage regulation with the following bounds (dependent on the voltage, which is not the case for generators):
   $minQ = - Bmax * V^2$ and $maxQ = - Bmin V^2$
 
-#### HVDC lines
+## HVDC lines
 To be done.
 
-##### VSC
+## VSC
 VSC converter stations behave like generators with the additional constraints that the sum of active power on converter
 stations paired by a cable is equal to the losses on the converter stations plus the losses on the cable.
 
-##### LCC
+## LCC
 To be done.
 
-#### Transformers with a ratio tap changer
+## Transformers with a ratio tap changer
 
 Transformers with a ratio tap changer have a tap with a finite discrete number of position that allows to change their transformer ratio.
 Let's assume that the logic is based on deadband: if the deviation between the measurement
