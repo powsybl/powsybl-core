@@ -32,11 +32,6 @@ public class DanglingLineData {
     public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
 
-        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
-        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
-        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
-        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
-
         double u1 = getV(danglingLine);
         double theta1 = getTheta(danglingLine);
 
@@ -45,6 +40,17 @@ public class DanglingLineData {
             boundaryBusTheta = Double.NaN;
             return;
         }
+
+        if (zeroImpedance(danglingLine)) {
+            boundaryBusU = u1;
+            boundaryBusTheta = theta1;
+            return;
+        }
+
+        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
+        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
+        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
+        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
@@ -102,6 +108,11 @@ public class DanglingLineData {
 
     public double getBoundaryBusTheta() {
         return boundaryBusTheta;
+    }
+
+    public static boolean zeroImpedance(DanglingLine parent) {
+        // Simple way to deal with zero impedance dangling line.
+        return parent.getR() == 0.0 && parent.getX() == 0.0;
     }
 }
 
