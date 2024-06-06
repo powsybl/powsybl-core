@@ -65,25 +65,25 @@ public abstract class AbstractAreaTest {
 
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         final Terminal boundary2 = network.getGenerator("GEN").getTerminal();
-        final DanglingLine boundary3 = network.getDanglingLine("danglingLine1");
+        final Boundary boundary3 = network.getDanglingLine("danglingLine1").getBoundary();
         final Map<Object, Boolean> expectedBoundaries = Map.of(boundary1, true, boundary2, true, boundary3, false);
         assertBoundaries(expectedBoundaries, aicA);
         AreaBoundary dcBoundary = aicA.getAreaBoundaryStream().filter(boundary -> !boundary.isAc()).findFirst().orElse(null);
-        assertEquals(5., dcBoundary.getP());
-        assertEquals(3., dcBoundary.getQ());
+        assertEquals(-5., dcBoundary.getP());
+        assertEquals(-3., dcBoundary.getQ());
     }
 
     @Test
     void areaNetPositionComputation() {
         // Check current Net Interchanges (NaN P values are ignored)
         assertEquals(-0., aicA.getAcNetInterchange());
-        assertEquals(-5., aicA.getDcNetInterchange());
-        assertEquals(-5., aicA.getTotalNetInterchange());
+        assertEquals(5., aicA.getDcNetInterchange());
+        assertEquals(5., aicA.getTotalNetInterchange());
 
         // Update the AreaBoundary active power and check that the net positions values are recomputed accordingly
         network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1().setP(10);
         network.getGenerator("GEN").getTerminal().setP(10);
-        network.getDanglingLine("danglingLine1").setP0(30);
+        network.getDanglingLine("danglingLine1").setP0(-30);
         assertEquals(-20., aicA.getAcNetInterchange());
         assertEquals(-30., aicA.getDcNetInterchange());
         assertEquals(-50., aicA.getTotalNetInterchange());
@@ -215,7 +215,7 @@ public abstract class AbstractAreaTest {
                 .setBoundary(danglingLine.getBoundary())
                 .setAc(true)
                 .add();
-        Map<Object, Boolean> expectedBoundaries = Map.of(danglingLine, true);
+        Map<Object, Boolean> expectedBoundaries = Map.of(danglingLine.getBoundary(), true);
         assertBoundaries(expectedBoundaries, biddingZoneA);
     }
 
@@ -223,7 +223,7 @@ public abstract class AbstractAreaTest {
     void removeAreaBoundaries() {
         Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         Terminal boundary2 = network.getGenerator("GEN").getTerminal();
-        DanglingLine boundary3 = network.getDanglingLine("danglingLine1");
+        Boundary boundary3 = network.getDanglingLine("danglingLine1").getBoundary();
 
         aicA.removeAreaBoundary(boundary1);
         Map<Object, Boolean> expectedBoundaries = Map.of(boundary2, true, boundary3, false);
@@ -285,7 +285,7 @@ public abstract class AbstractAreaTest {
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         AreaBoundaryAdder areaBoundaryAdder1 = biddingZoneA.newAreaBoundary().setAc(true);
         Throwable e1 = assertThrows(PowsyblException.class, areaBoundaryAdder1::add);
-        assertEquals("AreaBoundary must have a 'terminal' or a 'dangling line' attribute set to be added", e1.getMessage());
+        assertEquals("AreaBoundary must have a 'terminal' or a 'boundary' attribute set to be added", e1.getMessage());
         AreaBoundaryAdder areaBoundaryAdder2 = biddingZoneA.newAreaBoundary().setTerminal(boundary1);
         Throwable e2 = assertThrows(PowsyblException.class, areaBoundaryAdder2::add);
         assertEquals("AreaBoundary must have an attribute 'ac' set to be added", e2.getMessage());

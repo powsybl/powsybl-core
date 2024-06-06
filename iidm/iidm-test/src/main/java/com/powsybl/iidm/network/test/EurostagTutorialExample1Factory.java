@@ -916,7 +916,7 @@ public final class EurostagTutorialExample1Factory {
                 .setAreaType("aic")
                 .addVoltageLevel(network.getVoltageLevel(VLHV2))
                 .addAreaBoundary(nhv1Nhv2Line1.getTerminal1(), true)
-                .addAreaBoundary(danglingLineVlhv1, false)
+                .addAreaBoundary(danglingLineVlhv1.getBoundary(), false)
                 .addAreaBoundary(network.getGenerator("GEN").getTerminal(), true)
                 .add();
         return network;

@@ -87,7 +87,7 @@ public interface Area extends Identifiable<Area> {
 
     void removeAreaBoundary(Terminal terminal);
 
-    void removeAreaBoundary(DanglingLine danglingLine);
+    void removeAreaBoundary(Boundary boundary);
 
     Iterable<AreaBoundary> getAreaBoundaries();
 

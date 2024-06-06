@@ -35,7 +35,7 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder addAreaBoundary(Terminal terminal, boolean side);
 
-    AreaAdder addAreaBoundary(DanglingLine danglingLine, boolean side);
+    AreaAdder addAreaBoundary(Boundary boundary, boolean side);
 
     @Override
     Area add();

@@ -32,7 +32,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         public void beforeRemoval(Identifiable identifiable) {
             if (identifiable instanceof DanglingLine danglingLine) {
                 // if dangling line removed from network, remove its boundary from this extension
-                AreaImpl.this.removeAreaBoundary(danglingLine);
+                AreaImpl.this.removeAreaBoundary(danglingLine.getBoundary());
             } else if (identifiable instanceof Connectable<?> connectable) {
                 // if connectable removed from network, remove its terminals from this extension
                 connectable.getTerminals().forEach(AreaImpl.this::removeAreaBoundary);
@@ -135,8 +135,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public void removeAreaBoundary(DanglingLine danglingLine) {
-        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getBoundary().orElse(null), danglingLine)).findFirst().orElse(null));
+    public void removeAreaBoundary(Boundary boundary) {
+        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getBoundary().orElse(null), boundary)).findFirst().orElse(null));
     }
 
     @Override
