@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # limit-violation-default-filter
 The `limit-violation-default-filter` module is used by the [security-analysis](../itools/security-analysis.md) and the
 [action-simulator](../itools/action-simulator.md) commands to filter the violations displayed.

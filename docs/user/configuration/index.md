@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # Configuration
 
 The configuration mechanism supports YAML and XML file formats. The framework looks inside all the folders specified to the [powsybl_config_dirs](../itools/index.md#configuration) property in the [itools.conf](../itools/index.md#configuration) file for configuration files. The framework uses the [powsybl_config_name](../itools/index.md#configuration) property as the basename of the configuration files. It looks for a YAML file first, then for a XML file. The XML file will be used only if the YAML configuration file has not been found.

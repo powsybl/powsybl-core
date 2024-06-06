@@ -9,7 +9,7 @@ When modifying the website content, you can easily preview the result on your PC
 
 ~~~
 pip install -r docs/requirements.txt
-sphinx-build -a ../docs/ ./build-docs
+sphinx-build -a docs ./build-docs
 ~~~
 
 **Second option - run the following commands directly from your IDE GUI**
