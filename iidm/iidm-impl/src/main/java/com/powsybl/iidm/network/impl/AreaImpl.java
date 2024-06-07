@@ -92,12 +92,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public Double getAcNetInterchange() {
-        return -areaBoundaries.stream().filter(AreaBoundary::isAc).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+        return areaBoundaries.stream().filter(AreaBoundary::isAc).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
     @Override
     public Double getDcNetInterchange() {
-        return -areaBoundaries.stream().filter(areaBoundary -> !areaBoundary.isAc()).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+        return areaBoundaries.stream().filter(areaBoundary -> !areaBoundary.isAc()).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
     @Override

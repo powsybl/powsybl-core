@@ -76,17 +76,17 @@ public abstract class AbstractAreaTest {
     @Test
     void areaNetPositionComputation() {
         // Check current Net Interchanges (NaN P values are ignored)
-        assertEquals(-0., aicA.getAcNetInterchange());
-        assertEquals(5., aicA.getDcNetInterchange());
-        assertEquals(5., aicA.getTotalNetInterchange());
+        assertEquals(0., aicA.getAcNetInterchange());
+        assertEquals(-5., aicA.getDcNetInterchange());
+        assertEquals(-5., aicA.getTotalNetInterchange());
 
         // Update the AreaBoundary active power and check that the net positions values are recomputed accordingly
         network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1().setP(10);
         network.getGenerator("GEN").getTerminal().setP(10);
         network.getDanglingLine("danglingLine1").setP0(-30);
-        assertEquals(-20., aicA.getAcNetInterchange());
-        assertEquals(-30., aicA.getDcNetInterchange());
-        assertEquals(-50., aicA.getTotalNetInterchange());
+        assertEquals(20., aicA.getAcNetInterchange());
+        assertEquals(30., aicA.getDcNetInterchange());
+        assertEquals(50., aicA.getTotalNetInterchange());
     }
 
     @Test
