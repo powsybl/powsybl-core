@@ -434,9 +434,11 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 <span style="color: red">TODO</span>
 
-### CGMES model
+### CIM characteristics
 
 <span style="color: red">TODO</span>
+
+### CGMES model
 
 ## Options
 
