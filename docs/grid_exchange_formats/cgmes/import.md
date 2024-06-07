@@ -121,7 +121,7 @@ If the `EquivalentInjection` is outside the boundary area, it will be mapped to 
 If the `EquivalentInjection` is at the boundary area, its regulating voltage data will be mapped to the generation data inside the PowSyBl `DanglingLine` created at the boundary point and its values for `P`, `Q` will be used to define the DanglingLine `P0`, `Q0`. Please note that the said `DanglingLine` can be created from an [`ACLineSegment`](#aclinesegment), a [`Switch`](#switch-switch-breaker-disconnector-loadbreakswitch-protectedswitch-grounddisconnector),
 an [`EquivalentBranch`](#equivalentbranch) or a [`PowerTransformer`](#powertransformer).
 
-Attributes of the PowSyBl generator or of the PowSyBl dangling line's generation are created as such:
+Attributes of the PowSyBl generator or of the PowSyBl dangling line generation are created as such:
 - `MinP`/`MaxP` are copied from CGMES `minP`/`maxP` if defined, otherwise they are set to `-Double.MAX_VALUE`/`Double.MAX_VALUE`.
 - `TargetP`/`TargetQ` are set from `SSH` or `SV` values depending on which are defined. CGMES values for `p`/`q` are given with load sign convention, so a change in sign is applied when copying them to `TargetP`/`TargetQ`.
 - `TargetV` The `regulationTarget` property is copied if it is not equal to zero. Otherwise, the nominal voltage associated to the connected terminal of the `equivalentInjection` is assigned. For CGMES Equivalent Injections the voltage regulation is allowed only at the point of connection.
@@ -152,7 +152,7 @@ If the `ACLineSegment` is mapped to a PowSyBl [`Line`](../../grid_model/network_
 - `B1` is calculated as half of CGMES `bch`
 - `B2` is calculated as half of CGMES `bch`
 
-If the `ACLineSegment` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `ACLineSegment` is mapped to an unpaired PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G` is copied from CMGES `gch` if defined, `0.0` otherwise
@@ -161,13 +161,13 @@ If the `ACLineSegment` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/
 - `P0` is copied from CGMES `P` of the terminal at boundary side
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
-If the `ACLineSegment` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
+If the `ACLineSegment` is mapped to a paired PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
 - `G1` is `0.0` is the dangling line is on side `ONE` of the Tie Line. If the dangling line Line is on side `TWO` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
-- `G2` is `0.0` is the dangling line Line is on side `TWO` of the Tie Line. If the dangling line Line is on side `ONE` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
-- `B1` is `0.0` is the dangling line Line is on side `ONE` of the Tie Line. If the dangling line Line is on side `TWO` of the Tie Line, it is copied from CGMES `bch`.
-- `B2` is `0.0` is the dangling line Line is on side `TWO` of the Tie Line. If the dangling line Line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
+- `G2` is `0.0` is the dangling line is on side `TWO` of the Tie Line. If the dangling line Line is on side `ONE` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
+- `B1` is `0.0` is the dangling line is on side `ONE` of the Tie Line. If the dangling line Line is on side `TWO` of the Tie Line, it is copied from CGMES `bch`.
+- `B2` is `0.0` is the dangling line is on side `TWO` of the Tie Line. If the dangling line Line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
 - `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries
 
 ### EquivalentBranch
@@ -178,7 +178,7 @@ If the `EquivalentBranch` is outside the boundary area, it will be mapped to a P
 
 If the `EquivalentBranch` is completely inside the boundary area, if the boundaries are not imported, it is ignored. Otherwise, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line).
 
-If the `EquivalentBranch` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalNode) in the boundary area.
+If the `EquivalentBranch` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalnode) in the boundary area.
 - If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
@@ -341,7 +341,7 @@ A CGMES `StaticVarCompensator` is mapped to a PowSyBl [`StaticVarCompensator`](.
 - `Bmin` is calculated from CGMES `inductiveRating`: if it is defined and not equals to `0`, `Bmin` is `1 / inductiveRating`. Else, it is `-Double.MAX_VALUE`.
 - `Bmax` is calculated from CGMES `capacitiveRating`: if it defined and not equals to `0`, `Bmax` is `1 / capacitiveRating`. Else, it is `Double.MAX_VALUE`.
 
-A PowSyBl [`VoltagePerReactivePowerControl`](../model/extensions.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
+A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#voltage-per-reactive-power-control) extension is also created from the CGMES `StaticVarCompensator` and linked to the PowSyBl `StaticVarCompensator` with its `slope` attribute copied from CGMES `slope` if the latter is `0` or positive.
 
 <span style="color: red">TODO regulation</span>
 
@@ -362,7 +362,7 @@ If the CGMES `Switch` has its ends both inside the same voltage level, it is map
 If the CGMES `Switch` has its ends in different voltage levels inside the same IGM, it is mapped to a [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) but the voltage levels, and potentially the substations, that contain its ends are merged: they are mapped to only one voltage level and/or substation.
 The created PowSyBl `Switch` has its attributes defined as described above.
 
-If the `Switch` has one side inside the boundary area and the other side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
+If the `Switch` has one side inside the boundary area and the other side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalnode) in the boundary area.
 - If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
@@ -380,7 +380,7 @@ If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/n
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data, that are needed to export a network in CIM-CGMES format, are stored in several extensions.
 
-### CIM-CGMES control areas
+### CGMES control areas
 
 This extension models all the control areas contained in the network as modeled in CIM-CGMES.
 
@@ -403,7 +403,7 @@ It is possible to retrieve a control area by its ID. It is also possible to iter
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
-### CIM-CGMES dangling line boundary node
+### CGMES dangling line boundary node
 
 This extension is used to add some CIM-CGMES characteristics to dangling lines.
 
@@ -415,7 +415,7 @@ This extension is used to add some CIM-CGMES characteristics to dangling lines.
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
-### CIM-CGMES line boundary node
+### CGMES line boundary node
 
 This extension is used to add some CIM-CGMES characteristics to tie lines.
 
@@ -430,11 +430,7 @@ This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
 <span style="color: red">TODO</span>
 
-### CGMES SSH metadata
-
-<span style="color: red">TODO</span>
-
-### CGMES SV metadata
+### CGMES metadata model
 
 <span style="color: red">TODO</span>
 
