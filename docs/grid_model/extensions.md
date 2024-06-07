@@ -54,10 +54,6 @@ This extension contains the sub-object `ObservabilityQuality`.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
-## Branch status
-
-This extension models the status of a connectable. The status could be `IN_OPERATION`, `PLANNED_OUTAGE` or `FORCED_OUTAGE`.
-
 ## Busbar section position
 
 This extension gives positions information about a busbar section. The `busbarIndex` gives the position of the busbar section relatively to other busbars. The `sectionIndex` gives the position of the busbar section within the corresponding busbar. Note that a busbar is a set of busbar sections. Hence, the sections of a same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of a same busbar, which usually reflects their physical relative position.
@@ -567,3 +563,11 @@ line.newExtension(LinePositionAdder.class)
     .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
     .add();
 ```
+
+## Operating status
+
+This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
+three-winding transformers, HVDC line and a dangling line. The status could be:
+- `IN_OPERATION`: equipment in service. 
+- `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
+- `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
