@@ -29,14 +29,17 @@ abstract class AbstractFeederResult implements FeederResult {
         this.side = side;
     }
 
+    @Override
     public String getConnectableId() {
         return connectableId;
     }
 
+    @Override
     public ThreeSides getSide() {
         return side;
     }
 
+    @Override
     public TwoSides getSideAsTwoSides() {
         return Objects.requireNonNull(side).toTwoSides();
     }
