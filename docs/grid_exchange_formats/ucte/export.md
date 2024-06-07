@@ -3,7 +3,7 @@
 <span style="color: red">TODO</span>
 
 ## Options
-These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **ucte.export.naming-strategy**  
 The `ucte.export.naming-strategy` property is an optional property that defines the naming strategy to be used for UCTE export.
