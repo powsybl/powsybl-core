@@ -7,6 +7,11 @@
  */
 package com.powsybl.shortcircuit;
 
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
+
+import javax.annotation.Nullable;
+
 /**
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
@@ -16,5 +21,17 @@ public interface FeederResult {
      * The ID of the connectable contributing to the three-phase short-circuit current.
      */
     String getConnectableId();
+
+    /**
+     * The side of the equipment where the result applies.
+     * Will be {@code null} for equipments other than branches and three windings transformers.
+     */
+    @Nullable
+    ThreeSides getSide();
+
+    /**
+     * The side of the equipment with two sides (like branch) where the result applies.
+     */
+    TwoSides getSideAsTwoSides();
 
 }
