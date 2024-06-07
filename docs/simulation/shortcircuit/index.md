@@ -13,6 +13,7 @@ maxdepth: 2
 hidden: true
 ---
 
+api_guide.md
 parameters.md
 inputs.md
 outputs.md
