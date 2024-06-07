@@ -1,8 +1,20 @@
 # iTools
 
 ```{toctree}
-:hidden:
+---
+maxdepth: 1
+hidden: true
+---
+action-simulator.md
+cim-anonymizer.md
+compare-security-analysis-results.md
 convert_network.md
+dynamic-simulation.md
+loadflow.md
+loadflow-validation.md
+run-script.md
+security-analysis.md
+sensitivity-computation.md
 cim_anonymizer.md
 ```
 
@@ -76,18 +88,18 @@ Sometimes, it could be useful for a user to have its own logging configuration t
 ## Available commands
 The `iTools` script relies on a [plugin mechanism](): the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
 
-| Command                                                                   | Theme | Description |
-|---------------------------------------------------------------------------| ----- | ----------- |
-| [action-simulator](action-simulator.md)                                   | Computation | Run a security analysis with remedial actions |
-| [cim-anonymizer](cim_anonymizer.md)                                       | Data conversion | Anonymize CIM files |
-| [compare-security-analysis-results](compare-security-analysis-results.md) | Computation | Compare security analysis results |
-| [convert-network](convert_network.md)                                     | Data conversion | Convert a grid file from a format to another |
-| [dynamic-simulation](dynamic-simulation.md)                               | Computation | Run a dynamic simulation |
-| [loadflow](loadflow.md)                                                   | Computation | Run a power flow simulation |
-| [loadflow-validation](loadflow-validation.md)                             | Computation | Validate load flow results on a network |
-| [run-script](run-script.md)                                               | Script | Run a script on top of PowSyBl | 
-| [security-analysis](security-analysis.md)                                 | Computation | Run a security analysis |
-| [sensitivity-computation](sensitivity-computation.md)                     | Computation | Run a sensitivity analysis |
+| Command                                                                     | Theme           | Description |
+|-----------------------------------------------------------------------------| --------------- | ----------- |
+| [action-simulator](./action-simulator.md)                                   | Computation     | Run a security analysis with remedial actions |
+| [cim-anonymizer](cim_anonymizer.md)                                         | Data conversion | Anonymize CIM files |
+| [compare-security-analysis-results](./compare-security-analysis-results.md) | Computation     | Compare security analysis results |
+| [convert-network](convert_network.md)                                       | Data conversion | Convert a grid file from a format to another |
+| [dynamic-simulation](dynamic-simulation.md)                                 | Computation     | Run a dynamic simulation |
+| [loadflow](loadflow.md)                                                     | Computation     | Run a power flow simulation |
+| [loadflow-validation](loadflow-validation.md)                               | Computation     | Validate load flow results on a network |
+| [run-script](run-script.md)                                                 | Script          | Run a script on top of PowSyBl | 
+| [security-analysis](./security-analysis.md)                                 | Computation     | Run a security analysis |
+| [sensitivity-computation](sensitivity-computation.md)                       | Computation     | Run a sensitivity analysis |
 
 ## Going further
 The following links could also be useful:

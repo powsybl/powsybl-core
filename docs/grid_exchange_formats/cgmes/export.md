@@ -100,13 +100,13 @@ PowSybl [`VoltatgeLevels`](../../grid_model/network_subnetwork.md#voltage-level)
 
 ### Control areas
 
-PowSyBl [`ControlAreas`](../model/extensions.md#cim-cgmes-control-areas) are exported as CGMES `ControlAreas`.
+PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as CGMES `ControlAreas`.
 
 <span style="color: red">TODO details</span>
 
 ## Options
 
-These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **iidm.export.cgmes.base-name**  
 Optional property that defines the base name of the exported files. Exported CGMES files' names will look like this:
