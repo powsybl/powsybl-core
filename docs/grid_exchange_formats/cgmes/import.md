@@ -426,19 +426,19 @@ This extension is used to add some CIM-CGMES characteristics to tie lines.
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
-### CIM-CGMES Tap Changers
+### CGMES Tap Changers
 
 <span style="color: red">TODO</span>
 
-### CIM-CGMES SSH metadata
+### CGMES SSH metadata
 
 <span style="color: red">TODO</span>
 
-### CIM-CGMES SV metadata
+### CGMES SV metadata
 
 <span style="color: red">TODO</span>
 
-### CIM characteristics
+### CGMES model
 
 <span style="color: red">TODO</span>
 
@@ -487,7 +487,7 @@ Optional property that defines which naming strategy is used to transform GMES i
 **iidm.import.cgmes.post-processors**  
 Optional property that defines all the CGMES post-processors which will be activated after import.
 By default, it is an empty list.
-One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](../../developer/repositories/powsybl-diagram.md) repository, named [CgmesDLImportPostProcessor](#CgmesDLImportPostProcessor).
+One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](../../developer/repositories/powsybl-diagram.md) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
 
 **iidm.import.cgmes.powsybl-triplestore**  
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
@@ -499,7 +499,7 @@ Optional property that defines which CGMES profile is used to initialize tap pos
 Optional property that defines if IIDM IDs must be obtained from the CGMES `mRID` (master resource identifier) or the CGMES `rdfID` (Resource Description Framework identifier). The default value is `mRID`.
 
 **iidm.import.cgmes.store-cgmes-model-as-network-extension**    
-Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](../model/extensions.md#cgmes-model). The default value is `true`.
+Optional property that defines if the whole CGMES model is stored in the imported IIDM network as an [extension](import.md#cgmes-model). The default value is `true`.
 
 **iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension**  
 Optional property that defines if the CGMES conversion context will be stored as an extension of the IIDM output network. It is useful for external validation of the mapping made between CGMES and IIDM. Its default value is `false`.
