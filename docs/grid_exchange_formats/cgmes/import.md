@@ -136,7 +136,7 @@ If the `ACLineSegment` is outside the boundary area, it will be mapped to a PowS
 
 If the `ACLineSegment` is completely inside the boundary area, if the boundaries are not imported, it is ignored. Otherwise, it is mapped to a PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line).
 
-If the `ACLineSegment` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
+If the `ACLineSegment` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalnode) in the boundary area.
 - If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
@@ -296,7 +296,7 @@ Please note that in this case, if `PowerTransformerEnds` are in different substa
 
 If a CGMES `PowerTransformer` has two `PowerTransformerEnds`, both completely inside the boundary area, and if the boundary area is not imported, the `PowerTransformer` is ignored. Otherwise, it is mapped to a PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-windings-transformer).
 
-If the `PowerTransformer` has one `PowerTransformerEnd` inside the boundary area and the other outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
+If the `PowerTransformer` has one `PowerTransformerEnd` inside the boundary area and the other outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#topologicalnode) in the boundary area.
 - If there is no other connected to this `TopologicalNode`, it is mapped to a PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there is one or more other branches connected to this `TopologicalNode` and they are all in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line).
 - If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../../grid_model/network_subnetwork.md#tie-line).
