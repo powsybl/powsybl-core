@@ -113,6 +113,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         }
     }
 
+    /**
+     * Whether limit violations should be returned after the calculation.
+     * They indicate whether the maximum or minimum allowable current has been reached.
+     */
     public boolean isWithLimitViolations() {
         return withLimitViolations;
     }
@@ -196,7 +200,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a sub-transient study, a multiplicative coefficient to obtain the sub-transient reactance of the generators
+    /** In the case of a sub-transient study, a multiplicative coefficient to obtain the sub-transient reactance of the generators
      * from the transient reactance. By default, X''d = 0.7 * X'd.
      */
     public double getSubTransientCoefficient() {
@@ -304,6 +308,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * Validates the ShortCircuitParameters. If the initial voltage profile mode is set to configured, then the voltage ranges should not be empty.
+     */
     public void validate() {
         if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRanges == null || voltageRanges.isEmpty())) {
             throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");
