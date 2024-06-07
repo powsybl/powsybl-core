@@ -705,16 +705,10 @@
     <xs:complexType name="VoltageLevelRef">
         <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
     </xs:complexType>
-    <xs:complexType name="BoundaryRef">
-        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
-    </xs:complexType>
     <xs:complexType name="AreaBoundary">
-        <xs:sequence>
-            <xs:choice minOccurs="0" maxOccurs="unbounded">
-                <xs:element name="terminalRef" type="iidm:TerminalRef"/>
-                <xs:element name="boundaryRef" type="iidm:BoundaryRef"/>
-            </xs:choice>
-        </xs:sequence>
+        <xs:attribute name="type" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="side" type="iidm:Side"/>
         <xs:attribute name="ac" use="required" type="xs:boolean"/>
     </xs:complexType>
     <xs:complexType name="Area">

@@ -29,8 +29,14 @@ public class AreaBoundarySerDe {
         for (AreaBoundary boundary : holder.getAreaBoundaries()) {
             writer.writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
             writer.writeBooleanAttribute("ac", boundary.isAc());
-            boundary.getTerminal().ifPresent(terminal -> TerminalRefSerDe.writeTerminalRef(terminal, context, TERMINAL_REF));
-            boundary.getBoundary().ifPresent(danglingLineBoundary -> BoundaryRefSerDe.writeBoundaryRef(danglingLineBoundary, context));
+            boundary.getTerminal().ifPresent(terminal -> {
+                writer.writeStringAttribute("type", TERMINAL_REF);
+                TerminalRefSerDe.writeTerminalRefAttribute(terminal, context, writer);
+            });
+            boundary.getBoundary().ifPresent(danglingLineBoundary -> {
+                writer.writeStringAttribute("type", BoundaryRefSerDe.ROOT_ELEMENT_NAME);
+                BoundaryRefSerDe.writeBoundaryRefAttributes(danglingLineBoundary, context);
+            });
             writer.writeEndNode();
         }
         writer.writeEndNodes();
@@ -39,13 +45,13 @@ public class AreaBoundarySerDe {
     protected void read(final Area holder, final NetworkDeserializerContext context) {
         boolean ac = context.getReader().readBooleanAttribute("ac");
         AreaBoundaryAdder adder = holder.newAreaBoundary().setAc(ac);
-        context.getReader().readChildNodes(elementName -> {
-            switch (elementName) {
-                case TERMINAL_REF -> TerminalRefSerDe.readTerminalRef(context, holder.getNetwork(), adder::setTerminal);
-                case BoundaryRefSerDe.ROOT_ELEMENT_NAME -> BoundaryRefSerDe.readBoundaryRef(context, holder.getNetwork(), adder::setBoundary);
-                default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + elementName + ". Should be " + BoundaryRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
-            }
-        });
+        String type = context.getReader().readStringAttribute("type");
+        switch (type) {
+            case TERMINAL_REF -> TerminalRefSerDe.readTerminalRefAttributes(context, holder.getNetwork(), adder::setTerminal);
+            case BoundaryRefSerDe.ROOT_ELEMENT_NAME -> BoundaryRefSerDe.readBoundaryRef(context, holder.getNetwork(), adder::setBoundary);
+            default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + type + ". Should be " + BoundaryRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
+        }
+        context.getReader().readEndNode();
         context.getEndTasks().add(adder::add);
     }
 }

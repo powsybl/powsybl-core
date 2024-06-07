@@ -40,6 +40,7 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         network.newSubstation().setId("sub2").add();
         vl1.getBusBreakerView().newBus().setId("N1").add();
         vl1.getBusBreakerView().newBus().setId("N2").add();
+        Line line = network.newLine().setId("Line1").setVoltageLevel1("VL1").setBus1("N1").setVoltageLevel2("VL1").setBus2("N2").setR(0.0).setX(0.0).add();
 
         Substation s2 = subnetwork.newSubstation().setId("sub3").add();
         VoltageLevel vl2 = s2.newVoltageLevel().setId("VL2").setNominalV(1).setTopologyKind(TopologyKind.BUS_BREAKER).add();
@@ -53,7 +54,7 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         final String controlAreaType = "ControlArea";
         network.newArea().setAreaType(biddingZoneType).setId("BidZoneId1").setName("BidZoneName1").addAreaBoundary(load1.getTerminal(), true)
                .addAreaBoundary(danglingLine.getBoundary(), false).add();
-        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addAreaBoundary(load1.getTerminal(), true)
+        network.newArea().setAreaType(biddingZoneType).setId("BidZoneId2").setName("BidZoneName2").addAreaBoundary(line.getTerminal1(), true)
                .setAcNetInterchangeTarget(100.).add();
         network.newArea().setAreaType(controlAreaType).setId("ControlAreaId1").setName("ControlAreaName1").add();
         vl1.addArea(network.getArea("BidZoneId1"));

@@ -25,17 +25,14 @@ public final class BoundaryRefSerDe {
 
     public static void readBoundaryRef(NetworkDeserializerContext context, Network network, Consumer<Boundary> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
-        context.getReader().readEndNode();
         context.getEndTasks().add(() -> {
             DanglingLine danglingLine = network.getDanglingLine(id);
             endTaskTerminalConsumer.accept(danglingLine.getBoundary());
         });
     }
 
-    public static void writeBoundaryRef(Boundary boundary, NetworkSerializerContext context) {
-        context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ROOT_ELEMENT_NAME);
+    public static void writeBoundaryRefAttributes(Boundary boundary, NetworkSerializerContext context) {
         context.getWriter().writeStringAttribute(ID, context.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
-        context.getWriter().writeEndNode();
     }
 
     private BoundaryRefSerDe() {
