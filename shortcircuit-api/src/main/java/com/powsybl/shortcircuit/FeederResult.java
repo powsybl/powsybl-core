@@ -30,7 +30,7 @@ public interface FeederResult {
     ThreeSides getSide();
 
     /**
-     * The side of the equipment with two sides (like branch) where the violation occurred.
+     * The side of the equipment with two sides (like branch) where the result applies.
      */
     TwoSides getSideAsTwoSides();
 
