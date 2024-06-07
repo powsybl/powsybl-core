@@ -49,9 +49,13 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
     /**
      * Run an asynchronous single dynamic security analysis job.
      * <p>
-     * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
-     * are be collected in the {@link com.powsybl.computation.ComputationException} too.
+     * This method should complete with an exception if there is an exception thrown in the security analysis, in order
+     * to be able to collect execution's logs in that case.
+     * The original exception should be wrapped in {@link com.powsybl.computation.ComputationException}, together with
+     * the out and err logs, within a {@link java.util.concurrent.CompletionException}.
      *
+     * <p>
+     * Example of use:
      * <pre> {@code
      * try {
      *       SecurityAnalysisResult result = dynamicSecurityAnalysis.run(network, variantId, dynamicModelsSupplier, eventModelsSupplier, contingenciesProvider, runParameters).join();
