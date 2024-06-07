@@ -16,7 +16,7 @@ This extension is used to configure the participation factor of the generator, t
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                                                           |
 |----------------------|---------|------------------------|----------|---------------|---------------------------------------------------------------------------------------|
 | participate          | boolean | -                      | yes      | -             | The participation status                                                              |
-| droop                | double  | None (repartition key) | no       | -             | The participation factor equals Pmax / droop                                          |
+| droop                | double  | None (repartition key) | no       | -             | The participation factor equals maxP / droop                                          |
 | participation factor | double  | None (repartition key) | no       | -             | Defines the participation factor explicitly                                           |
 | maxP override        | double  | MW                     | no       | -             | If defined, this limit is used for slack distribution instead of the generator's maxP |
 | minP override        | double  | MW                     | no       | -             | if defined, this limit is used for slack distribution instead of the generator's minP |             
