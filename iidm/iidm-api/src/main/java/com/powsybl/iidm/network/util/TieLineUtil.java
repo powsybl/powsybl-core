@@ -278,13 +278,13 @@ public final class TieLineUtil {
     public static double getR(DanglingLine dl1, DanglingLine dl2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
-        return adm.y12().negate().reciprocal().getReal() + 0.0;
+        return zeroImpedanceLine(adm) ? 0.0 : adm.y12().negate().reciprocal().getReal() + 0.0;
     }
 
     public static double getX(DanglingLine dl1, DanglingLine dl2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
-        return adm.y12().negate().reciprocal().getImaginary() + 0.0;
+        return zeroImpedanceLine(adm) ? 0.0 : adm.y12().negate().reciprocal().getImaginary() + 0.0;
     }
 
     public static double getG1(DanglingLine dl1, DanglingLine dl2) {
@@ -326,7 +326,9 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
-        if (zeroImpedanceLine(adm1)) {
+        if (zeroImpedanceLine(adm1) && zeroImpedanceLine(adm2)) {
+            return adm1;
+        } else if (zeroImpedanceLine(adm1)) {
             return adm2;
         } else if (zeroImpedanceLine(adm2)) {
             return adm1;
@@ -353,7 +355,15 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
                 new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
-        return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
+        if (zeroImpedanceLine(adm1) && zeroImpedanceLine(adm2)) {
+            return v1;
+        } else if (zeroImpedanceLine(adm1)) {
+            return v1;
+        } else if (zeroImpedanceLine(adm2)) {
+            return v2;
+        } else {
+            return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
+        }
     }
 
     /**

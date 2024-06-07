@@ -46,11 +46,11 @@ A substation represents a specific geographical location with equipment grouped 
 
 **Characteristics**
 
-| Attribute | Description |
-| --------- | ----------- |
-| $Country$ | To specify in which country the substation is located |
-| $GeographicalTags$ | They make it possible to accurately locate the substation |
-| $TSO$ | To track to which [TSO](../../glossary.md#tso) the substation belongs |
+| Attribute | Description                                                         |
+| --------- |---------------------------------------------------------------------|
+| $Country$ | To specify in which country the substation is located               |
+| $GeographicalTags$ | They make it possible to accurately locate the substation  |
+| $TSO$ | To track to which Transmission System Operator the substation belongs |
 
 All three attributes are optional.
 
@@ -256,11 +256,15 @@ Optional:
 
 In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined besides the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line, for both UCTE or CIM-CGMES formats.
 
-// TODO, add boundary
+A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
+with a single terminal located on network side, but sometimes we need state variables such as active or reactive powers on
+the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
+are automatically computed using information from the terminal of the dangling line.  
+
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](extensions.md#cgmes-dangling-line-boundary-node)
+- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-dangling-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -445,7 +449,7 @@ $$
 - [Connectable position](extensions.md#connectable-position)
 - [Branch Observability](extensions.md#branch-observability)
 - [Branch Status](extensions.md#branch-status)
-- [CGMES Line Boundary Node](extensions.md#cgmes-line-boundary-node)
+- [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
