@@ -11,7 +11,6 @@ package com.powsybl.security;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.results.PostContingencyResult;
 
@@ -69,7 +68,7 @@ public final class Security {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        new DefaultLimitViolationDetector(limitReductionValue, currentLimitTypes).checkAll(network, violations::add);
+        LimitViolationDetection.checkAll(network, currentLimitTypes, limitReductionValue, violations::add);
         return violations;
     }
 
@@ -83,7 +82,7 @@ public final class Security {
             throw new IllegalArgumentException("Invalid DC power factor " + dcPowerFactor);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        new DefaultLimitViolationDetector(limitReductionValue, EnumSet.allOf(LoadingLimitType.class)).checkAllDc(network, dcPowerFactor, violations::add);
+        LimitViolationDetection.checkAllDc(network, dcPowerFactor, EnumSet.allOf(LoadingLimitType.class), limitReductionValue, violations::add);
         return violations;
     }
 

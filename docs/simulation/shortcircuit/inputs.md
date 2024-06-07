@@ -37,4 +37,4 @@ The attributes to fill of a `BranchFault` are:
 **A list of FaultParameters**
 
 Optionally, it is possible to specify a list of `FaultParameters`. Each `FaultParameter` will override the default parameters for a given fault.
-For more information on parameters, see [above](#faultparameters).
+For more information on parameters, see [above](parameters.md#faultparameters).
