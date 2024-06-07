@@ -25,8 +25,8 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
 
     @Override
     public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
-        DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, runParameters.getDetector(),
-                runParameters.getFilter(), runParameters.getComputationManager(), runParameters.getMonitors(), runParameters.getReportNode());
+        DefaultSecurityAnalysis securityAnalysis = new DefaultSecurityAnalysis(network, runParameters.getFilter(),
+                runParameters.getComputationManager(), runParameters.getMonitors(), runParameters.getReportNode());
         runParameters.getInterceptors().forEach(securityAnalysis::addInterceptor);
         return securityAnalysis.run(workingVariantId, runParameters.getSecurityAnalysisParameters(), contingenciesProvider);
     }
