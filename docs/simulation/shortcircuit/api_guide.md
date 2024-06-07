@@ -2,7 +2,7 @@
 layout: default
 ---
 
-# Short circuit API
+# Short-circuit API
 
 The class `com.powsybl.shortcircuit.ShortCircuitAnalysis` is the main entry point to run a short-circuit analysis on a network.
 It provides the static methods `run` and `runAsync`. These methods will run the computation and only differ in the
