@@ -2,3 +2,4 @@ sphinx==7.1.2
 sphinx-tabs
 furo==2024.1.29
 myst-parser
+sphinx-copybutton
