@@ -188,6 +188,35 @@ This extension contains the sub-object `ObservabilityQuality`.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+## Line Position
+
+This extension is attached to a Line and is used to store the geographical coordinates of the Line.
+The coordinates are stored using latitude and longitude.
+The extension consists of a list of coordinates that can be used to trace the line on a map.
+
+| Attribute   | Type               | Unit | Required | Default value | Description                                     |
+|-------------|--------------------|------|----------|---------------|-------------------------------------------------|
+| coordinates | `list<Coordinate>` | -    | yes      | -             | The list of points coordinates forming the line |
+
+Example of code to get the coordinates of a line :
+```java
+List<Coordinate> stationCoordinates = network.getLine("L1").getExtension(LinePosition.class)
+    .getCoordinates();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the LinePositionAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+Line line = network.getLine("L1");
+line.newExtension(LinePositionAdder.class)
+    .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
+    .add();
+```
+
 ## Load asymmetrical
 
 A balanced load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$.
@@ -312,6 +341,62 @@ The Measurement class characteristics are the following:
 | valid             | boolean             | -    | no       | -             | The validity status (if true, the measured value cannot be NaN) |
 | side              | ThreeSides          | -    | no       | -             | The equipment side associated to the measurement                |
 
+## Operating status
+
+This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
+three-winding transformers, HVDC line and a dangling line. The status could be:
+- `IN_OPERATION`: equipment in service.
+- `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
+- `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
+
+## Reference Priority
+
+This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
+a power flow calculation, i.e. which bus will be used with a zero voltage angle.
+Use this extension before a computation to force the reference bus selection.
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+today supports Reference Priorities on generators only when this feature is activated.
+
+The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
+0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
+
+| Attribute | Type       | Unit | Required | Default value | Description            |
+|-----------|------------|------|----------|---------------|------------------------|
+| Terminal  | `Terminal` | -    | yes      | -             | The reference terminal |
+| Priority  | `Integer`  | -    | yes      | 0             | The reference priority |
+
+ ```java
+ReferencePriority.set(generator, 1);
+
+int priority = ReferencePriority.get(generator); // note: returns zero if none defined
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+
+## Reference Terminals
+
+This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priority).
+
+The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
+0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
+
+| Attribute | Type            | Unit | Required | Default value | Description             |
+|-----------|-----------------|------|----------|---------------|-------------------------|
+| terminals | `Set<Terminal>` | -    | yes      | -             | The reference terminals |
+
+ ```java
+Set<Terminal> referenceTerminals = ReferenceTerminals.getTerminals(network);
+
+ReferenceTerminals.reset(network);
+
+ReferenceTerminals.add(terminal);
+```
+
+This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
 ## Remote reactive power control
 
 This extensions is used for generators with a remote reactive control.
@@ -342,6 +427,34 @@ SlackTerminal.attach(bus);
 ```
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
+
+## Substation Position
+
+This extension is attached to a Substation and is used to store the geographical coordinates of the Substation.
+The coordinates are stored using latitude and longitude.
+
+| Attribute  | Type         | Unit | Required | Default value | Description                                  |
+|------------|--------------|------|----------|---------------|----------------------------------------------|
+| coordinate | `Coordinate` | -    | yes      | -             | The latitude and longitude of the substation |
+
+Example of code to get the coordinates of a substation :
+```java
+Coordinate stationCoordinate = network.getSubstation("P1").getExtension(SubstationPosition.class)
+    .getCoordinate();
+```
+
+This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
+
+When adding the extension, the SubstationPositionAdder extension should be used.
+
+Example of code to add the extension:
+
+```java
+Substation station = network.getSubstation("P1");
+station.newExtension(SubstationPositionAdder.class)
+        .withCoordinate(new Coordinate(48, 2))
+        .add();
+```
 
 ## Three-windings transformer phase angle clock
 
@@ -388,7 +501,6 @@ transformer.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
         .withRatioTapChanger1Status(true)
         .add();
 ```
-
 
 ## Two-windings transformer phase angle clock
 
@@ -457,117 +569,3 @@ svc.newExtension(VoltagePerReactivePowerControlAdder.class)
 ```
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
-
-
-## Reference Priority
-
-This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
-a power flow calculation, i.e. which bus will be used with a zero voltage angle.
-Use this extension before a computation to force the reference bus selection.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
-today supports Reference Priorities on generators only when this feature is activated.
-
-The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
-0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
-
-| Attribute | Type       | Unit | Required | Default value | Description            |
-|-----------|------------|------|----------|---------------|------------------------|
-| Terminal  | `Terminal` | -    | yes      | -             | The reference terminal |
-| Priority  | `Integer`  | -    | yes      | 0             | The reference priority |
-
- ```java
-ReferencePriority.set(generator, 1);
-
-int priority = ReferencePriority.get(generator); // note: returns zero if none defined
-```
-
-This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
-
-
-## Reference Terminals
-
-This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
-today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priority).
-
-The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
-0 means "do not use as reference", 1 is "highest priority", 2 "second priority", etc.
-
-| Attribute | Type            | Unit | Required | Default value | Description             |
-|-----------|-----------------|------|----------|---------------|-------------------------|
-| terminals | `Set<Terminal>` | -    | yes      | -             | The reference terminals |
-
- ```java
-Set<Terminal> referenceTerminals = ReferenceTerminals.getTerminals(network);
-
-ReferenceTerminals.reset(network);
-
-ReferenceTerminals.add(terminal);
-```
-
-This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
-
-## Substation Position
-
-This extension is attached to a Substation and is used to store the geographical coordinates of the Substation.
-The coordinates are stored using latitude and longitude.
-
-| Attribute  | Type         | Unit | Required | Default value | Description                                  |
-|------------|--------------|------|----------|---------------|----------------------------------------------|
-| coordinate | `Coordinate` | -    | yes      | -             | The latitude and longitude of the substation |
-
-Example of code to get the coordinates of a substation :
-```java
-Coordinate stationCoordinate = network.getSubstation("P1").getExtension(SubstationPosition.class)
-    .getCoordinate();
-```
-
-This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
-
-When adding the extension, the SubstationPositionAdder extension should be used.
-
-Example of code to add the extension:
-
-```java
-Substation station = network.getSubstation("P1");
-station.newExtension(SubstationPositionAdder.class)
-        .withCoordinate(new Coordinate(48, 2))
-        .add();
-```
-
-## Line Position
-
-This extension is attached to a Line and is used to store the geographical coordinates of the Line.
-The coordinates are stored using latitude and longitude.
-The extension consists of a list of coordinates that can be used to trace the line on a map. 
-
-| Attribute   | Type               | Unit | Required | Default value | Description                                     |
-|-------------|--------------------|------|----------|---------------|-------------------------------------------------|
-| coordinates | `list<Coordinate>` | -    | yes      | -             | The list of points coordinates forming the line |
-
-Example of code to get the coordinates of a line :
-```java
-List<Coordinate> stationCoordinates = network.getLine("L1").getExtension(LinePosition.class)
-    .getCoordinates();
-```
-
-This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
-
-When adding the extension, the LinePositionAdder extension should be used.
-
-Example of code to add the extension:
-
-```java
-Line line = network.getLine("L1");
-line.newExtension(LinePositionAdder.class)
-    .withCoordinates(List.of(new Coordinate(48, 2), new Coordinate(48.1, 2.1)))
-    .add();
-```
-
-## Operating status
-
-This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
-three-winding transformers, HVDC line and a dangling line. The status could be:
-- `IN_OPERATION`: equipment in service. 
-- `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
-- `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
