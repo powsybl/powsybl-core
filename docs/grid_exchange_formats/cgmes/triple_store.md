@@ -3,7 +3,7 @@ A triplestore or RDF store is a purpose-built database for the storage and retri
 entity composed of subject-predicate-object such as "Generator is in France", or in RDF/XML:
 ```xml
 <rdf:description rdf:about="generator">
-  <generator:in>France</generator:in>
+    <generator:in>France</generator:in>
 </rdf:description>
 ```
 
