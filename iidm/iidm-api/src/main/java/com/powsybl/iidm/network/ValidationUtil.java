@@ -562,9 +562,9 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "permanent limit must be defined if temporary limits are present", throwException, reportNode);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.EQUIPMENT);
         }
-        if (!Double.isNaN(permanentLimit) && permanentLimit <= 0) {
+        if (!Double.isNaN(permanentLimit) && permanentLimit < 0) {
             // because it is forbidden for SSH and EQ validation levels.
-            throw new ValidationException(validable, "permanent limit must be > 0");
+            throw new ValidationException(validable, "permanent limit must be >= 0");
         }
         return validationLevel;
     }

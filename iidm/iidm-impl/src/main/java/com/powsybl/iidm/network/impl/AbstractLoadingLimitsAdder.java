@@ -74,8 +74,8 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
             if (Double.isNaN(value)) {
                 throw new ValidationException(validable, "temporary limit value is not set");
             }
-            if (value <= 0) {
-                throw new ValidationException(validable, "temporary limit value must be > 0");
+            if (value < 0) {
+                throw new ValidationException(validable, "temporary limit value must be >= 0");
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(validable, "acceptable duration is not set");
