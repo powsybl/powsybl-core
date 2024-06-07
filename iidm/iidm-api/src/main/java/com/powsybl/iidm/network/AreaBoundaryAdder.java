@@ -8,6 +8,18 @@
 package com.powsybl.iidm.network;
 
 /**
+ * To create an AreaBoundary, from a <code>Area</code> instance call
+ * the {@link Area#newAreaBoundary()} method to get an AreaBoundary builder instance.
+ * <p>
+ * Example:
+ *<pre>
+ *    Area a = ...
+ *    AreaBoundary ab = a.newAreaBoundary()
+ *            .setAc(true)
+ *            ...
+ *        .add();
+ *</pre>
+ *
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
  */

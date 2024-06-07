@@ -905,14 +905,41 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Substation> getSubstation();
 
+    /**
+     * Get an iterable on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
     Iterable<Area> getAreas();
 
+    /**
+     * Get a stream on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
     Stream<Area> getAreasStream();
 
+    /**
+     * Get the Area that this voltage level belongs to for a given area type.
+     *
+     * @param areaType the area type
+     * @return the optional area or empty if not found
+     */
     Optional<Area> getArea(String areaType);
 
+    /**
+     * Add the voltage level to an area.
+     *
+     * @param area the area
+     * @throws PowsyblException if the area is in another network or if the voltage level already belongs to an area of the same type
+     */
     void addArea(Area area);
 
+    /**
+     * Remove the voltage level from an area.
+     *
+     * @param area the area
+     */
     void removeArea(Area area);
 
     default Substation getNullableSubstation() {

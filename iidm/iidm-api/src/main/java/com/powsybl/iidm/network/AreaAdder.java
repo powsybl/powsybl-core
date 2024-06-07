@@ -14,7 +14,7 @@ package com.powsybl.iidm.network;
  * Example:
  *<pre>
  *    Network n = ...
- *    Substation s = n.newArea()
+ *    Area a = n.newArea()
  *            .setId("FR")
  *            ...
  *        .add();
