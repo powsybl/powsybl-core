@@ -2,7 +2,7 @@
 
 <span style="color: red">TODO</span>
 
-Please note that PowSyBl only ever export CGMES networks as CGMES Node/Breaker networks without consideration of the topology level of the PowSyBl network.
+Please note that PowSyBl only ever exports CGMES networks as CGMES Node/Breaker networks without consideration of the topology level of the PowSyBl network.
 
 ## Conversion from PowSyBl grid model to CGMES
 

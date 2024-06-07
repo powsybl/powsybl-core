@@ -15,4 +15,4 @@ Loading from RDF/XML files to the Triplestore is highly optimized by these engin
 [Eclipse RDF4J™](https://rdf4j.org/about/) is an open source modular Java framework for working with RDF data. This includes parsing, storing, inferencing and querying of/over such data. It offers an easy-to-use API that can be connected to all leading RDF storage solutions. It allows you to connect with SPARQL endpoints and create applications
 that leverage the power of Linked Data and Semantic Web.
 
-Its in-memory implementation is the default triplestore engine use by PowSyBl for CIM-CGMES import.
+Its in-memory implementation is the default triplestore engine used by PowSyBl for CIM-CGMES import.

@@ -139,9 +139,9 @@ If the `ACLineSegment` is completely inside the boundary area, if the boundaries
 If the `ACLineSegment` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
 - If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line).
 - If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `ACLineSegments` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#hdangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `ACLineSegments` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
   - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
 
 If the `ACLineSegment` is mapped to a PowSyBl [`Line`](../model/index.md#line):
@@ -161,13 +161,13 @@ If the `ACLineSegment` is mapped to a PowSyBl [`DanglingLine`](../model/index.md
 - `P0` is copied from CGMES `P` of the terminal at boundary side
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
-If the `ACLineSegment` is mapped to a PowSyBl [`HalfLine`](../model/index.md#half-line):
+If the `ACLineSegment` is mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line):
 - `R` is copied from CGMES `r`
 - `X` is copied from CGMES `x`
-- `G1` is `0.0` is the Half Line is on side `ONE` of the Tie Line. If the Half Line is on side `TWO` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
-- `G2` is `0.0` is the Half Line is on side `TWO` of the Tie Line. If the Half Line is on side `ONE` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
-- `B1` is `0.0` is the Half Line is on side `ONE` of the Tie Line. If the Half Line is on side `TWO` of the Tie Line, it is copied from CGMES `bch`.
-- `B2` is `0.0` is the Half Line is on side `TWO` of the Tie Line. If the Half Line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
+- `G1` is `0.0` is the dangling line is on side `ONE` of the Tie Line. If the dangling line Line is on side `TWO` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
+- `G2` is `0.0` is the dangling line Line is on side `TWO` of the Tie Line. If the dangling line Line is on side `ONE` of the Tie Line, it is copied from CGMES `gch` if defined, `0.0` otherwise.
+- `B1` is `0.0` is the dangling line Line is on side `ONE` of the Tie Line. If the dangling line Line is on side `TWO` of the Tie Line, it is copied from CGMES `bch`.
+- `B2` is `0.0` is the dangling line Line is on side `TWO` of the Tie Line. If the dangling line Line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
 - `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries
 
 ### EquivalentBranch
@@ -181,9 +181,9 @@ If the `EquivalentBranch` is completely inside the boundary area, if the boundar
 If the `EquivalentBranch` has one side inside the boundary area and one side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
 - If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line).
 - If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches connected with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
+  - If there are only two branches connected with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
   - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
 
 If the `EquivalentBranch` is mapped to a PowSyBl [`Line`](../model/index.md#line):
@@ -299,9 +299,9 @@ If a CGMES `PowerTransformer` has two `PowerTransformerEnds`, both completely in
 If the `PowerTransformer` has one `PowerTransformerEnd` inside the boundary area and the other outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
 - If there is no other connected to this `TopologicalNode`, it is mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line).
 - If there is one or more other branches connected to this `TopologicalNode` and they are all in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
   - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
 
 In every case, a `PowerTransformer` with two `PowerTransformerEnds` is mapped to an intermediary model that corresponds to a PowSyBl [`TwoWindingsTransformer`](../model/index.md#two-windings-transformer).
@@ -311,7 +311,7 @@ and [`ConvertedT2xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgme
 If the `PowerTransformer` is finally mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line), its structural attributes (`R`, `X`, `G` and `B`) are calculated from the intermediary model's attributes, and the ratio from its ratio tap changer and/or its phase tap changer.
 `P0` and `Q0` are set from CGMES `P` and `Q` values at boundary side; `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries.
 
-If the `PowerTransformer` is finally mapped to a PowSyBl [`HalfLine`](../model/index.md#half-line), its attributes are calculated using a standard $$\pi$$ model with distributed parameters.
+If the `PowerTransformer` is finally mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line), its attributes are calculated using a standard $$\pi$$ model with distributed parameters.
 
 #### PowerTransformer with three PowerTransformerEnds
 
@@ -348,7 +348,7 @@ A PowSyBl [`VoltagePerReactivePowerControl`](../model/extensions.md#voltage-per-
 ### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector)
 
 CGMES `Switches`, `Breakers`, `Disconnectors`, `LoadBreakSwitches`, `ProtectedSwitches` and `GroundDisconnectors` are
-all imported in the same manner. For convenience purpose, we will now use CGMES `Switch` as a say but keep in mind that this section is valid for all these CGMES classes.
+all imported in the same manner. For convenience purposes, we will now use CGMES `Switch` as a say but keep in mind that this section is valid for all these CGMES classes.
 
 If the CGMES `Switch` has its ends both inside the same voltage level, it is mapped to a PowSyBl [`Switch`](../model/index.md#breakerswitch) with attributes as described below:
 - `SwitchKind` is defined depending on the CGMES class
@@ -365,9 +365,9 @@ The created PowSyBl `Switch` has its attributes defined as described above.
 If the `Switch` has one side inside the boundary area and the other side outside the boundary area, the importer checks if another branch is connected to the same CGMES [`TopologicalNode`](#TopologicalNode) in the boundary area.
 - If there is no other branch connected to this `TopologicalNode`, it will be mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line).
 - If there are one or more other branches connected to this `TopologicalNode` and they all are in the same `SubGeographicalRegion`, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
-- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
+- If there is exactly one other branch connected to this `TopologicalNode` in another `SubGeographicalRegion`, they will both be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line).
 - If there are two or more other branches connected to this `TopologicalNode` in different `SubGeographicalRegions`:
-  - If there are only two branches with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both mapped to PowSyBl [`HalfLines`](../model/index.md#half-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
+  - If there are only two branches with their boundary terminal connected **and** in different `SubGeographicalRegion`, they will both mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line), which are part of the same PowSyBl [`TieLine`](../model/index.md#tie-line) and all other `EquivalentBranches` will be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
   - Otherwise, they will all be mapped to PowSyBl [`DanglingLines`](../model/index.md#dangling-line).
 
 If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../model/index.md#dangling-line), its attributes are as described below:
