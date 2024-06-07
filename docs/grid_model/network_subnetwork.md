@@ -98,11 +98,13 @@ When defining the model, the user has to specify how the different equipment con
 ## Area
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Area.html)
 
-An Area represents geographical zone defined by the [voltage levels](#voltage-level) that it contains and by its boundaries, that can be terminals of equipments or [dangling lines](#dangling-line).
+An Area represents geographical zone defined by the [voltage levels](#voltage-level) that it contains and by its boundaries, that can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
+
+Areas can represent various granularities depending on their types. For instance: control areas, bidding zones, countries...
 
 A [voltage level](#voltage-level) can belong to several Areas, as long as they all have different types.
 
-The powerflow through the boundary terminals and dangling lines can be summed and used to perform calculations for area interchange control.
+The powerflow through the area boundaries can be summed and used to perform calculations for area interchange control.
 
 **Characteristics**
 
