@@ -1,13 +1,14 @@
 # Triple store
-A triplestore or RDF store is a purpose-built database for the storage and retrieval of triples through semantic queries. A triple is a data
-entity composed of subject-predicate-object such as "Generator is in France", or in RDF/XML:
+A triplestore or RDF store is a purpose-built database for the storage and retrieval of triples through semantic queries. 
+A triple is a data entity composed of subject-predicate-object such as "Generator is in France" or in RDF/XML:
 ```xml
 <rdf:description rdf:about="generator">
     <generator:in>France</generator:in>
 </rdf:description>
 ```
 
-Input CGMES data read from CIM/XML files is stored natively in a purpose specific database for RDF statements (a Triplestore). There are multiple open-source implementations of Triplestore engines that could be easily plugged in PowSyBl.
+Input CGMES data read from CIM/XML files is stored natively in a purpose-specific database for RDF statements (a Triplestore). 
+There are multiple open-source implementations of Triplestore engines that could be easily plugged in PowSyBl.
 The only supported Triplestore engine used by PowSyBl is [RDF4J](https://rdf4j.org/).
 Loading from RDF/XML files to the Triplestore is highly optimized by these engines. Furthermore, the Triplestore repository can be configured to use an in-memory store, allowing faster access to data.
 
