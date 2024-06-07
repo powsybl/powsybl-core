@@ -1,7 +1,3 @@
----
-layout: default
----
-
 # iTools loadflow
 
 The `loadflow` command loads a grid file and run a [load flow](../../simulation/loadflow/index.md) simulation. At the end, the results and the modified network can be exported to files.
@@ -55,7 +51,7 @@ This option defines the path where to export the modified network.
 This option defines the format of the output case file. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help. This option is required if `--output-case-file` is used.
 
 **\-\-output-file**  
-This option defines the path where to export the [results](../../simulation/loadflow/loadflow.md#outputs) of the load flow.
+This option defines the path where to export the [results](../../simulation/loadflow/index.md#outputs) of the load flow.
 
 **\-\-output-format**  
 This option defines the format of the output file. The supported format are `CSV` and `JSON`. This option is required if the `--output-file` is used.
@@ -65,13 +61,13 @@ This option defines the path of the [parameters](#parameters) file of the simula
 
 ## Simulators
 
-The available power flow simulators implementations are described [here](../../simulation/loadflow/loadflow.md#implementations).
+The available power flow simulators implementations are described [here](../../simulation/loadflow/index.md#implementations).
 
 ## Parameters
-The available parameters are described [here](../../simulation/loadflow/loadflow.md#parameters).
+The available parameters are described [here](../../simulation/loadflow/configuration.md#parameters).
 
 ## Results
-The expected results are described in the [load flow documentation](../../simulation/loadflow/loadflow.md#outputs)
+The expected results are described in the [load flow documentation](../../simulation/loadflow/index.md#outputs)
 
 ## Examples
 The following example shows how to run a power flow simulation, using the default configuration:

@@ -8,12 +8,12 @@ Below comes a description of the various types of simulation.
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 1
 ---
 
 loadflow/index.md
-security/security.md
+security/index.md
 sensitivity/sensitivity.md
 shortcircuit/index.md
-dynamic_simulation/index.md
+dynamic/index.md
 ```

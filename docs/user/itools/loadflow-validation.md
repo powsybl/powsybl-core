@@ -1,17 +1,8 @@
----
-layout: default
-latex: true
----
-
 # iTools loadflow-validation
 
 The `loadflow-validation` command is used to validate load-flow results of a network. The command, besides validating
 the results, also prints the data of the validated equipments in output files.
 The consistency checks performed by the load flow validation may also be applied to results obtained with an optimal power flow or to the final state of a long dynamic simulation.
-
-* TOC
-{:toc}
-
 
 ## Usage
 
@@ -125,7 +116,7 @@ Use the `--run-computation` parameter to run a computation before the validation
 Use the `--types` parameter to define the types of checks to run. If this parameter is not set, run all the checks. 
 The supported types are `FLOWS`, `GENERATORS`, `BUSES`, `SVCS`, `SHUNTS`, `TWTS`.
 
-To learn more about the different checks, read the [loadflow validation](../../simulation/loadflow/loadflow_validation.md) documentation page.
+To learn more about the different checks, read the [loadflow validation](../../grid_features/loadflow_validation.md) documentation page.
 
 ### Summary
 The following table summarizes the possible combinations of `compare-results` and `run-computation` parameters, and the
