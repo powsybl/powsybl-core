@@ -57,24 +57,24 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
     void setParticipationFactor(double participationFactor);
 
     /**
-     * @return if present, provides the overridden value of pmin to be used for active power control operations.
+     * @return if present, provides the overridden value of minP to be used for active power control operations.
      */
     Optional<Double> getMinPOverride();
 
     /**
      * Sets the overridden minimal active power.
-     * @param pMinOverride  The overridden value of Pmin. A Nan value removes the override.
+     * @param pMinOverride  The overridden value of minP. A Nan value removes the override.
      */
     void setMinPOverride(double pMinOverride);
 
     /**
-     * @return if present, provides the overridden value of pmax to be used for active power control operations.
+     * @return if present, provides the overridden value of maxP to be used for active power control operations.
      */
     Optional<Double> getMaxPOverride();
 
     /**
      * Sets the overridden maximal active power.
-     * @param pMaxOverride The overridden value of Pmax. A Nan value removes the override.
+     * @param pMaxOverride The overridden value of maxP. A Nan value removes the override.
      */
     void setMaxPOverride(double pMaxOverride);
 }
