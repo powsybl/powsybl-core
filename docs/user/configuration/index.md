@@ -1,10 +1,24 @@
 # Configuration
 
-The configuration mechanism supports YAML and XML file formats. The framework looks inside all the folders specified to
-the [powsybl_config_dirs](../itools/index.md#configuration) property
-in the [itools.conf](../itools/index.md#configuration) file for configuration files. The framework uses the
-[powsybl_config_name](../itools/index.md#configuration) property as the basename of the configuration files. It looks for
-a YAML file first, then for a XML file. The XML file will be used only if the YAML configuration file has not been found.
+```{toctree}
+---
+maxdepth: 1
+hidden: true
+---
+componentDefaultConfig.md
+external-security-analysis-config.md
+groovy-dsl-contingencies.md
+import-export-parameters-default-value.md
+limit-violation-default-filter.md
+load-flow.md
+load-flow-action-simulator.md
+load-flow-based-phase-shifter-optimizer.md
+loadflow-results-completion-parameters.md
+loadflow-validation.md
+security-analysis.md
+```
+
+The configuration mechanism supports YAML and XML file formats. The framework looks inside all the folders specified to the [powsybl_config_dirs](../itools/index.md#configuration) property in the [itools.conf](../itools/index.md#configuration) file for configuration files. The framework uses the [powsybl_config_name](../itools/index.md#configuration) property as the basename of the configuration files. It looks for a YAML file first, then for a XML file. The XML file will be used only if the YAML configuration file has not been found.
 
 The configuration can also be configured using the system's environment variables. These variables should respect the
 following format: `MODULE_NAME__PROPERTY_NAME`. Note that these variables will overload the XML/YAML configuration files.
@@ -67,20 +81,19 @@ Configuration properties can also be overridden using system's environment varia
 - [groovy-dsl-contingencies](groovy-dsl-contingencies.md)
 - [groovy-post-processor](../../grid_features/import_post_processor.md#groovy-post-processor)
 - [import-export-parameters-default-value](import-export-parameters-default-value.md)
-- [javaScriptPostProcessor](../../grid_features/import_post_processor.md#javascript-post-processor)
 - [limit-violation-default-filter](limit-violation-default-filter.md)
 - [load-flow](load-flow.md)
 - [load-flow-action-simulator](load-flow-action-simulator.md)
 - [load-flow-based-phase-shifter-optimizer](load-flow-based-phase-shifter-optimizer.md)
-- [load-flow-default-parameters](../../simulation/loadflow/loadflow.md#generic-parameters)
+- [load-flow-default-parameters](../../simulation/loadflow/configuration.md#generic-parameters)
 - [loadflow-results-completion-parameters](loadflow-results-completion-parameters.md)
 - [loadflow-validation](loadflow-validation.md)
 - [local-app-file-system](local-app-file-system.md)
 - [mapdb-app-file-system](mapdb-app-file-system.md)
 - [network](network.md)
-- [open-loadflow-default-parameters]()
+- [open-loadflow-default-parameters](../../simulation/loadflow/configuration.md#specific-parameters)
 - [remote-service](remote-service.md)
-- [security](security.md)
-- [security-analysis](security-analysis.md)
+- [security-analysis](../../simulation/security/configuration.md#parameters)
 - [simulation-parameters](simulation-parameters.md)
 - [table-formatter](table-formatter.md)
+

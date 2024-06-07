@@ -11,7 +11,7 @@ Note that some extensions provided by PowSyBl aren't supported in the [persisten
 Every extension is considered as serializable unless explicitly specified as non-serializable in XML-IIDM.
 
 ## Active power control
-This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/loadflow.md#generic-parameters) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
+This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#generic-parameters) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
 | Attribute            | Type    | Unit                   | Required | Default value | Description                                  |
 |----------------------|---------|------------------------|----------|---------------|----------------------------------------------|
@@ -331,9 +331,9 @@ This extensions is used for generators with a remote reactive control.
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
 of a power flow calculation i.e. which bus will be used to balance the active and reactive power in load flow analysis.
 Use this extension before a computation to force the slack bus selection. You should enable default load flow parameter
-[`isReadSlackBus`](../simulation/loadflow/loadflow.md#generic-parameters). Use this extension after a computation to attach
+[`isReadSlackBus`](../simulation/loadflow/configuration.md#generic-parameters). Use this extension after a computation to attach
 to the network the slack bus that has been selected by the load flow engine (one by connected component). You should enable
-default load flow parameter [`isWriteSlackBus`](../simulation/loadflow/loadflow.md#generic-parameters).
+default load flow parameter [`isWriteSlackBus`](../simulation/loadflow/configuration.md#generic-parameters).
 
 The slack bus is defined through the terminal of a connectable that belongs to the bus. It is totally allowed to define a disconnected terminal as slack as the connectable could be reconnected during a grid study.
 
