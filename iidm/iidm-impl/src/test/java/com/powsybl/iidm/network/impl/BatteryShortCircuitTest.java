@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
@@ -14,8 +15,7 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
@@ -39,5 +39,23 @@ class BatteryShortCircuitTest {
         assertEquals(2.0f, batteryShortCircuits.getDirectTransX(), 0f);
         batteryShortCircuits.setStepUpTransformerX(3.0f);
         assertEquals(3.0f, batteryShortCircuits.getStepUpTransformerX(), 0f);
+    }
+
+    @Test
+    void testNaNDirectTransX() {
+        Network network = BatteryNetworkFactory.create();
+        Battery battery = network.getBattery("BAT");
+        assertNotNull(battery);
+        BatteryShortCircuitAdder adder = (BatteryShortCircuitAdder) battery.newExtension(BatteryShortCircuitAdder.class)
+            .withDirectTransX(Double.NaN);
+        PowsyblException e = assertThrows(PowsyblException.class, adder::add);
+        assertEquals("Undefined directTransX", e.getMessage());
+
+        battery.newExtension(BatteryShortCircuitAdder.class)
+            .withDirectTransX(1.0f)
+            .add();
+        BatteryShortCircuit batteryShortCircuits = battery.getExtension(BatteryShortCircuit.class);
+        PowsyblException e1 = assertThrows(PowsyblException.class, () -> batteryShortCircuits.setDirectTransX(Double.NaN));
+        assertEquals("Undefined directTransX", e1.getMessage());
     }
 }
