@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -20,33 +21,65 @@ import org.junit.jupiter.api.Test;
 class SwitchModificationsTest {
 
     private final Network network = NetworkTest1Factory.create();
+    private final String existingSwitchId = "generator1Breaker1";
+    private final String notExistingSwitchId = "dummy";
 
     @Test
     void test() {
-        String switchId = "generator1Breaker1";
 
-        Switch sw = network.getSwitch(switchId);
+        Switch sw = network.getSwitch(existingSwitchId);
         Generator generator = network.getGenerator("generator1");
 
         assertFalse(sw.isOpen());
         assertTrue(generator.getTerminal().isConnected());
 
-        new OpenSwitch(switchId).apply(network);
+        new OpenSwitch(existingSwitchId).apply(network);
         assertTrue(sw.isOpen());
         assertFalse(generator.getTerminal().isConnected());
 
-        new CloseSwitch(switchId).apply(network);
+        new CloseSwitch(existingSwitchId).apply(network);
         assertFalse(sw.isOpen());
         assertTrue(generator.getTerminal().isConnected());
     }
 
     @Test
     void testInvalidOpenSwitch() {
-        assertThrows(RuntimeException.class, () -> new OpenSwitch("dummy").apply(network));
+        OpenSwitch openSwitch = new OpenSwitch(notExistingSwitchId);
+        assertThrows(RuntimeException.class, () -> openSwitch.apply(network));
     }
 
     @Test
     void testInvalidCloseSwitch() {
-        assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network));
+        CloseSwitch closeSwitch = new CloseSwitch(notExistingSwitchId);
+        assertThrows(RuntimeException.class, () -> closeSwitch.apply(network));
+    }
+
+    @Test
+    void testDryRun() {
+        // CloseSwitch - Passing dryRun
+        CloseSwitch closeSwitchPassing = new CloseSwitch(existingSwitchId);
+        assertTrue(closeSwitchPassing.dryRun(network));
+
+        // CloseSwitch - Failing dryRun
+        ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        CloseSwitch closeSwitchFailing = new CloseSwitch(notExistingSwitchId);
+        assertFalse(closeSwitchFailing.dryRun(network, reportNodeCloseSwitch));
+        assertEquals("Dry-run failed for CloseSwitch. The issue is: Switch 'dummy' not found",
+            reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
+
+        // OpenSwitch - Passing dryRun
+        OpenSwitch openSwitchPassing = new OpenSwitch(existingSwitchId);
+        assertTrue(openSwitchPassing.dryRun(network));
+
+        // OpenSwitch - Failing dryRun
+        ReportNode reportNodeOpenSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        OpenSwitch openSwitchFailing = new OpenSwitch(notExistingSwitchId);
+        assertFalse(openSwitchFailing.dryRun(network, reportNodeOpenSwitch));
+        assertEquals("Dry-run failed for OpenSwitch. The issue is: Switch 'dummy' not found",
+            reportNodeOpenSwitch.getChildren().get(0).getChildren().get(0).getMessage());
     }
 }

@@ -61,6 +61,10 @@ public interface NetworkModification {
      */
     void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
 
+    boolean dryRun(Network network);
+
+    boolean dryRun(Network network, ReportNode reportNode);
+
     /**
      * Test the application of the modification to the given network by checking prerequisites.
      */

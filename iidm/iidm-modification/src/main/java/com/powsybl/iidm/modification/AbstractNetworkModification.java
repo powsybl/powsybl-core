@@ -82,9 +82,19 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
+    public boolean dryRun(Network network) {
+        return dryRun(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), ReportNode.NO_OP);
+    }
+
+    @Override
+    public boolean dryRun(Network network, ReportNode reportNode) {
+        return dryRun(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
+    }
+
+    @Override
     public boolean dryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
         String templateKey = "networkModificationDryRun";
-        String messageTemplate = "Dry-run: Checking if a network modification can be applied on network ${networkNameOrId}";
+        String messageTemplate = "Dry-run: Checking if a network modification can be applied on network '${networkNameOrId}'";
         ReportNode dryRunReportNode = reportNode.newReportNode()
             .withMessageTemplate(templateKey, messageTemplate)
             .withUntypedValue("networkNameOrId", network.getNameOrId())

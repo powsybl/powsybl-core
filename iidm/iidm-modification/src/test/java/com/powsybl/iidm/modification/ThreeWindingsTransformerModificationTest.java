@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class TestThreeWindingsTransformerModification {
+class ThreeWindingsTransformerModificationTest {
 
     private Network network;
     private ThreeWindingsTransformer t3wt;
