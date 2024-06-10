@@ -11,7 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.iidm.network.util.PermanentLimitOverload;
+import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
 
 import java.util.Set;
@@ -117,7 +117,7 @@ public final class LimitViolationDetection {
             }
         }
         if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            PermanentLimitOverload overload = LimitViolationUtils.checkPermanentLimit(branch, side, value, type, limitsComputer);
+            PermanentLimitCheckResult overload = LimitViolationUtils.checkPermanentLimit(branch, side, value, type, limitsComputer);
             if (overload.isOverload()) {
                 double limit = branch.getLimits(type, side).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
                 consumer.accept(new LimitViolation(branch.getId(),
@@ -182,7 +182,7 @@ public final class LimitViolationDetection {
             }
         }
         if (!overloadOnTemporary && currentLimitTypes.contains(LoadingLimitType.PATL)) {
-            PermanentLimitOverload overload = LimitViolationUtils.checkPermanentLimit(transformer, side, limitsComputer, value, type);
+            PermanentLimitCheckResult overload = LimitViolationUtils.checkPermanentLimit(transformer, side, limitsComputer, value, type);
             if (overload.isOverload()) {
                 double limit = transformer.getLeg(side).getLimits(type).map(LoadingLimits::getPermanentLimit).orElseThrow(PowsyblException::new);
                 consumer.accept(new LimitViolation(transformer.getId(),

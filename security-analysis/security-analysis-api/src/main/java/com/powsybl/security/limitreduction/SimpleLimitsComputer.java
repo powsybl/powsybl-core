@@ -17,6 +17,10 @@ import java.util.Optional;
 
 /**
  *
+ * Limits computer that takes a single limit reduction values for all the identifiers and applicable in pre and post contingencies
+ * it does not store any values in the cache
+ * it uses {@SimpleLimitsReducer}
+ *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class SimpleLimitsComputer implements LimitsComputer<Identifiable<?>, LoadingLimits> {
@@ -27,6 +31,7 @@ public class SimpleLimitsComputer implements LimitsComputer<Identifiable<?>, Loa
         this.limitReduction = limitReduction;
     }
 
+    @Override
     public Optional<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
         return limits.map(limits1 -> new SimpleLimitsReducer(limits1, limitReduction).getLimits());

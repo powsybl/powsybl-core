@@ -111,5 +111,9 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.ONE, 1101, violationsCollector::add, computer);
         Assertions.assertEquals(1, violationsCollector.size());
         Assertions.assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
+        Assertions.assertEquals(Integer.MAX_VALUE, violationsCollector.get(0).getAcceptableDuration());
+        Assertions.assertEquals(1101, violationsCollector.get(0).getValue(), 0.01);
+        Assertions.assertEquals(500., violationsCollector.get(0).getLimit(), 0.01);
+        Assertions.assertEquals(ThreeSides.ONE, violationsCollector.get(0).getSide());
     }
 }

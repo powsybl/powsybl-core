@@ -8,7 +8,10 @@
 package com.powsybl.iidm.network.util;
 
 /**
+ *
+ * Class that collects data about an overload of a permanent limit
+ *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public record PermanentLimitOverload(boolean isOverload, double limitReductionValue) {
+public record PermanentLimitCheckResult(boolean isOverload, double limitReductionValue) {
 }

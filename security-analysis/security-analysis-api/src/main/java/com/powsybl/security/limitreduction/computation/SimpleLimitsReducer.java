@@ -10,6 +10,7 @@ package com.powsybl.security.limitreduction.computation;
 import com.powsybl.iidm.network.LoadingLimits;
 
 /**
+ * Limits reducer applying the same reduction value for the permanent and every temporary limits.
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */

@@ -90,7 +90,7 @@ public final class LimitViolationUtils {
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
             if (i >= previousLimit && i < tl.getValue()) {
                 return new OverloadImpl(tl, previousLimitName, previousLimit,
-                    limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer) limitsContainer).getTemporaryLimitReduction(tl.getAcceptableDuration()) : 1);
+                    limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getTemporaryLimitReduction(tl.getAcceptableDuration()) : 1);
             }
             previousLimitName = tl.getName();
             previousLimit = tl.getValue();
@@ -98,19 +98,19 @@ public final class LimitViolationUtils {
         return null;
     }
 
-    private static PermanentLimitOverload checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i) {
+    private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i) {
         return checkPermanentLimitIfAny(limitsContainer, i, 1);
     }
 
-    private static PermanentLimitOverload checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
+    private static PermanentLimitCheckResult checkPermanentLimitIfAny(LimitsContainer<LoadingLimits> limitsContainer, double i, double limitReductionValue) {
         double permanentLimit = limitsContainer.getLimits().getPermanentLimit();
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
-            return new PermanentLimitOverload(false, limitReductionValue);
+            return new PermanentLimitCheckResult(false, limitReductionValue);
         }
         if (i >= permanentLimit * limitReductionValue) {
-            return new PermanentLimitOverload(true, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer) limitsContainer).getPermanentLimitReduction() : limitReductionValue);
+            return new PermanentLimitCheckResult(true, limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : limitReductionValue);
         }
-        return new PermanentLimitOverload(false, limitReductionValue);
+        return new PermanentLimitCheckResult(false, limitReductionValue);
     }
 
     public static boolean checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
@@ -119,10 +119,10 @@ public final class LimitViolationUtils {
             .orElse(false);
     }
 
-    public static PermanentLimitOverload checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static PermanentLimitCheckResult checkPermanentLimit(Branch<?> branch, TwoSides side, double i, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return getLimits(branch, side.toThreeSides(), type, computer)
                 .map(l -> checkPermanentLimitIfAny(l, i))
-                .orElse(new PermanentLimitOverload(false, 1.0));
+                .orElse(new PermanentLimitCheckResult(false, 1.0));
     }
 
     public static boolean checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, double limitReductionValue, double i, LimitType type) {
@@ -131,7 +131,7 @@ public final class LimitViolationUtils {
             .orElse(false);
     }
 
-    public static PermanentLimitOverload checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
+    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitsComputer<Identifiable<?>, LoadingLimits> computer, double i, LimitType type) {
         return getLimits(transformer, side, type, computer)
                 .map(l -> checkPermanentLimitIfAny(l, i))
                 .orElse(null);
@@ -151,7 +151,7 @@ public final class LimitViolationUtils {
         return checkPermanentLimit(transformer, side, limitReductionValue, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
-    public static PermanentLimitOverload checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
+    public static PermanentLimitCheckResult checkPermanentLimit(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type, LimitsComputer<Identifiable<?>, LoadingLimits> computer) {
         return checkPermanentLimit(transformer, side, computer, getValueForLimit(transformer.getTerminal(side), type), type);
     }
 
