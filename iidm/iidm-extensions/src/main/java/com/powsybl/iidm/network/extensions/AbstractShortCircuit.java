@@ -11,7 +11,6 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 
 /**
- *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
 public interface AbstractShortCircuit<T extends Extendable<T>> extends Extension<T> {
@@ -37,7 +36,7 @@ public interface AbstractShortCircuit<T extends Extendable<T>> extends Extension
     AbstractShortCircuit<T> setDirectTransX(double directTransX);
 
     /**
-     * Get the step-up transformer reactance if the generator has a non-modeled step-up transformer.
+     * Get the step-up transformer reactance if the generator or battery has a non-modeled step-up transformer.
      */
     double getStepUpTransformerX();
 
