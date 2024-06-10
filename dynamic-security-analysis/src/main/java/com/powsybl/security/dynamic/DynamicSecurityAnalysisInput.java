@@ -7,8 +7,6 @@
 package com.powsybl.security.dynamic;
 
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.AbstractSecurityAnalysisInput;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
@@ -26,12 +24,7 @@ import java.util.Objects;
 public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<DynamicSecurityAnalysisInput> {
 
     private final DynamicModelsSupplier dynamicModels;
-    private EventModelsSupplier eventModels;
     private DynamicSecurityAnalysisParameters parameters;
-
-    public DynamicSecurityAnalysisInput(Network network, String variantId, DynamicModelsSupplier dynamicModelsSupplier) {
-        this(new NetworkVariant(network, variantId), dynamicModelsSupplier);
-    }
 
     public DynamicSecurityAnalysisInput(NetworkVariant networkVariant, DynamicModelsSupplier dynamicModelsSupplier) {
         super(networkVariant);
