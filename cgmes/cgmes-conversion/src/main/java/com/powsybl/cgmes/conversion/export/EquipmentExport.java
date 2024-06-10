@@ -46,10 +46,6 @@ import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
 public final class EquipmentExport {
 
     private static final String AC_DC_CONVERTER_DC_TERMINAL = "ACDCConverterDCTerminal";
-    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER = "activePower";
-    private static final String PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW = "currentFlow";
-    private static final String RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE = "voltage";
-    private static final String RATIO_TAP_CHANGER_REGULATION_MODE_REACTIVE_POWER = "reactivePower";
     private static final String TERMINAL_BOUNDARY = "Terminal_Boundary";
     private static final Logger LOG = LoggerFactory.getLogger(EquipmentExport.class);
 
@@ -384,15 +380,9 @@ public final class EquipmentExport {
         Set<String> generatingUnitsWritten = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
             String cgmesOriginalClass = generator.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.SYNCHRONOUS_MACHINE);
-            Terminal regulatingTerminal = generator.getRegulatingTerminal();
-            String mode = RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-
-            // Not possible to re-export local reactive power control.
             RemoteReactivePowerControl rrpc = generator.getExtension(RemoteReactivePowerControl.class);
-            if (rrpc != null) {
-                regulatingTerminal = rrpc.getRegulatingTerminal();
-                mode = RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-            }
+            String mode = CgmesExportUtil.getGeneratorRegulatingControlMode(generator, rrpc);
+            Terminal regulatingTerminal = mode.equals(RegulatingControlEq.REGULATING_CONTROL_VOLTAGE) ? generator.getRegulatingTerminal() : rrpc.getRegulatingTerminal();
             switch (cgmesOriginalClass) {
                 case CgmesNames.EQUIVALENT_INJECTION:
                     String reactiveCapabilityCurveId = writeReactiveCapabilityCurve(generator, cimNamespace, writer, context);
@@ -612,24 +602,12 @@ public final class EquipmentExport {
     private static void writeStaticVarCompensators(Network network, Map<Terminal, String> mapTerminal2Id, Set<String> regulatingControlsWritten, String cimNamespace,
                                                    XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            String mode = getSvcMode(svc);
+            String mode = CgmesExportUtil.getSvcMode(svc);
             String regulatingControlId = RegulatingControlEq.writeRegulatingControlEq(svc, exportedTerminalId(mapTerminal2Id, svc.getRegulatingTerminal()), regulatingControlsWritten, mode, cimNamespace, writer, context);
             double inductiveRating = svc.getBmin() != 0 ? 1 / svc.getBmin() : 0;
             double capacitiveRating = svc.getBmax() != 0 ? 1 / svc.getBmax() : 0;
             StaticVarCompensatorEq.write(context.getNamingStrategy().getCgmesId(svc), svc.getNameOrId(), context.getNamingStrategy().getCgmesId(svc.getTerminal().getVoltageLevel()), regulatingControlId, inductiveRating, capacitiveRating, svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer, context);
         }
-    }
-
-    private static String getSvcMode(StaticVarCompensator svc) {
-        String mode = RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
-        StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
-        if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER
-                || regulationMode == StaticVarCompensator.RegulationMode.OFF
-                && SteadyStateHypothesisExport.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint())
-                && !SteadyStateHypothesisExport.isValidVoltageSetpoint(svc.getVoltageSetpoint())) {
-            mode = RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
-        }
-        return mode;
     }
 
     private static void writeLines(Network network, Map<Terminal, String> mapTerminal2Id, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
@@ -863,7 +841,7 @@ public final class EquipmentExport {
             Optional<String> regulatingControlId = getTapChangerControlId(eq, tapChangerId);
             String cgmesRegulatingControlId = null;
             if (regulatingControlId.isPresent() && CgmesExportUtil.regulatingControlIsDefined(ptc)) {
-                String mode = getPhaseTapChangerRegulationMode(ptc);
+                String mode = CgmesExportUtil.getPhaseTapChangerRegulationMode(ptc);
                 String controlName = twtName + "_PTC_RC";
                 String terminalId = CgmesExportUtil.getTerminalId(ptc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
@@ -904,14 +882,6 @@ public final class EquipmentExport {
         return Optional.empty();
     }
 
-    private static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
-        return switch (ptc.getRegulationMode()) {
-            case CURRENT_LIMITER -> PHASE_TAP_CHANGER_REGULATION_MODE_CURRENT_FLOW;
-            case ACTIVE_POWER_CONTROL -> PHASE_TAP_CHANGER_REGULATION_MODE_ACTIVE_POWER;
-            default -> throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
-        };
-    }
-
     private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
         int neutralStep = ptc.getLowTapPosition();
         double minAlpha = Math.abs(ptc.getStep(neutralStep).getAlpha());
@@ -947,7 +917,10 @@ public final class EquipmentExport {
                 String terminalId = CgmesExportUtil.getTerminalId(rtc.getRegulationTerminal(), context);
                 cgmesRegulatingControlId = context.getNamingStrategy().getCgmesId(regulatingControlId.get());
                 if (!regulatingControlsWritten.contains(cgmesRegulatingControlId)) {
-                    String tccMode = (rtc.getRegulationMode() == RatioTapChanger.RegulationMode.REACTIVE_POWER) ? RATIO_TAP_CHANGER_REGULATION_MODE_REACTIVE_POWER : RATIO_TAP_CHANGER_REGULATION_MODE_VOLTAGE;
+                    String tccMode = CgmesExportUtil.getTcMode(rtc);
+                    if (tccMode.equals(RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER)) {
+                        controlMode = "reactive";
+                    }
                     TapChangerEq.writeControl(cgmesRegulatingControlId, controlName, tccMode, terminalId, cimNamespace, writer, context);
                     regulatingControlsWritten.add(cgmesRegulatingControlId);
                 }

@@ -1068,6 +1068,11 @@ class EquipmentExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
 
+            // RTC without control
+            network = EurostagTutorialExample1Factory.createWithoutRtcControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(eq, "_NHV2_NLOAD_RTC_RC", "", "dummy");
+
             // RTC local with VOLTAGE
             network = EurostagTutorialExample1Factory.create();
             eq = getEQ(network, baseName, tmpDir, exportParams);
@@ -1098,7 +1103,41 @@ class EquipmentExportTest extends AbstractSerDeTest {
             testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "voltage");
+            testTcTccWithAttribute(eq, "_NHV2_NLOAD_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+
+            // 3w without control
+            network = EurostagTutorialExample1Factory.createWith3wWithoutControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "", "dummy");
+
+            // 3w with local voltage control
+            network = EurostagTutorialExample1Factory.createWith3wWithVoltageControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "voltage");
+
+            // 3w with local reactive control
+            network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_NGEN_V2_NHV1_PT_T_1", "reactivePower");
+
+            // 3w with remote voltage
+            network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "voltage");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "voltage");
+
+            // 3w with remote reactive
+            network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(eq, "_NGEN_V2_NHV1_RTC_RC", "_GEN_SM_T_1", "reactivePower");
         }
     }
 
@@ -1148,12 +1187,12 @@ class EquipmentExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "dummy");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_SVC2_SVC_T_1", "voltage");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "dummy");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "reactivePower");
@@ -1162,7 +1201,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "dummy");
+            testRcEqRcWithAttribute(eq, "_SVC2_RC", "_L2_EC_T_1", "voltage");
         }
     }
 
@@ -1204,7 +1243,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
 
             // SC nonlinear
             network = ShuntTestCaseFactory.createNonLinear();
@@ -1232,7 +1272,8 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
             eq = getEQ(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(eq, "_SHUNT_RC", "", "");
+            testRcEqRcWithAttribute(eq, "_SHUNT_RC", "_LOAD_EC_T_1", "voltage");
+            testRcEqRCWithoutAttribute(eq, "", "", "reactivePower");
         }
     }
 
@@ -1278,6 +1319,50 @@ class EquipmentExportTest extends AbstractSerDeTest {
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             eq = getEQ(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
+
+            // Generator with local reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
+            // Generator with remote reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "reactivePower");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
+            // Generator without control
+            network = EurostagTutorialExample1Factory.createWithoutControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_GEN_SM_T_1", "voltage");
+
+            // Generator with remote terminal without control
+            network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(eq, "_GEN_RC", "_NHV2_NLOAD_PT_T_1", "voltage");
+
+            // Generator without control capability
+            network = EurostagTutorialExample1Factory.create();
+            network.getGenerator("GEN").newMinMaxReactiveLimits().setMaxQ(0).setMinQ(0).add();
+            eq = getEQ(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(eq, "_GEN_RC", "", "dummy");
         }
     }
 

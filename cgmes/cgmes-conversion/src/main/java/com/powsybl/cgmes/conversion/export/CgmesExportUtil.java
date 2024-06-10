@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -21,6 +22,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -511,6 +513,68 @@ public final class CgmesExportUtil {
             kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
         }
         return kind;
+    }
+
+    public static boolean isValidVoltageSetpoint(double v) {
+        return Double.isFinite(v) && v > 0;
+    }
+
+    public static boolean isValidReactivePowerSetpoint(double q) {
+        return Double.isFinite(q);
+    }
+
+    public static String getGeneratorRegulatingControlMode(Generator generator, RemoteReactivePowerControl rrpc) {
+        if (rrpc == null) {
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        }
+        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
+        boolean enabledReactivePowerControl = rrpc.isEnabled();
+
+        if (enabledVoltageControl) {
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        } else if (enabledReactivePowerControl) {
+            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+        } else {
+            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
+            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
+            if (validReactiveSetpoint && !validVoltageSetpoint) {
+                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            }
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        }
+    }
+
+    public static String getSvcMode(StaticVarCompensator svc) {
+        if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE)) {
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        } else if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.REACTIVE_POWER)) {
+            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+        } else {
+            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getVoltageSetpoint());
+            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            if (validReactiveSetpoint && !validVoltageSetpoint) {
+                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            }
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        }
+    }
+
+    public static String getTcMode(RatioTapChanger rtc) {
+        if (rtc.getRegulationMode() == null) {
+            throw new PowsyblException("Regulation mode not defined for RTC.");
+        }
+        return switch (rtc.getRegulationMode()) {
+            case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+        };
+    }
+
+    public static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
+        return switch (ptc.getRegulationMode()) {
+            case CURRENT_LIMITER -> RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW;
+            case ACTIVE_POWER_CONTROL -> RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
+            default -> throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
+        };
     }
 
     public static boolean isMinusOrMaxValue(double value) {

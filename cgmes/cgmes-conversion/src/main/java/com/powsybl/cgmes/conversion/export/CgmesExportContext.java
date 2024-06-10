@@ -388,7 +388,7 @@ public class CgmesExportContext {
     }
 
     private static boolean hasVoltageControlCapability(Generator generator) {
-        if (Double.isNaN(generator.getTargetV()) || generator.getReactiveLimits() == null) {
+        if (generator.getReactiveLimits() == null) {
             return false;
         }
 
@@ -432,7 +432,8 @@ public class CgmesExportContext {
                 continue;
             }
             String regulatingControlId = shuntCompensator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            if (regulatingControlId == null && SteadyStateHypothesisExport.isValidVoltageSetpoint(shuntCompensator.getTargetV())) {
+            if (regulatingControlId == null && (CgmesExportUtil.isValidVoltageSetpoint(shuntCompensator.getTargetV())
+                                            || !Objects.equals(shuntCompensator, shuntCompensator.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(shuntCompensator), Part.REGULATING_CONTROL);
                 shuntCompensator.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }
@@ -442,12 +443,11 @@ public class CgmesExportContext {
     private void addIidmMappingsStaticVarCompensators(Network network) {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
             String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL);
-            boolean validVoltageSetpoint = SteadyStateHypothesisExport.isValidVoltageSetpoint(svc.getVoltageSetpoint());
-            boolean validReactiveSetpoint = SteadyStateHypothesisExport.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
-            if (regulatingControlId == null && (
-                    svc.getRegulationMode() == StaticVarCompensator.RegulationMode.VOLTAGE ||
-                            svc.getRegulationMode() == StaticVarCompensator.RegulationMode.REACTIVE_POWER ||
-                            validVoltageSetpoint && !validReactiveSetpoint || !validVoltageSetpoint && validReactiveSetpoint)) {
+            boolean validVoltageSetpoint = CgmesExportUtil.isValidVoltageSetpoint(svc.getVoltageSetpoint());
+            boolean validReactiveSetpoint = CgmesExportUtil.isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            if (regulatingControlId == null && (validReactiveSetpoint
+                                                || validVoltageSetpoint
+                                                || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()))) {
                 regulatingControlId = namingStrategy.getCgmesId(ref(svc), Part.REGULATING_CONTROL);
                 svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + REGULATING_CONTROL, regulatingControlId);
             }

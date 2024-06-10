@@ -451,6 +451,11 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "SSH");
 
+            // RTC without control
+            network = EurostagTutorialExample1Factory.createWithoutRtcControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "", "", "", "", "");
+
             // RTC local with VOLTAGE
             network = EurostagTutorialExample1Factory.create();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
@@ -482,6 +487,40 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "100", "M");
+
+            // 3w without control
+            network = EurostagTutorialExample1Factory.createWith3wWithoutControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "", "", "", "", "");
+
+            // 3w with local voltage control
+            network = EurostagTutorialExample1Factory.createWith3wWithVoltageControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "158", "k");
+
+            // 3w with local reactive control
+            network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "100", "M");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "100", "M");
+
+            // 3w with remote voltage
+            network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "158", "k");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "158", "k");
+
+            // 3w with remote reactive
+            network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "100", "M");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "100", "M");
         }
     }
 
@@ -531,12 +570,12 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
             network = SvcTestCaseFactory.createLocalOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
 
             // Remote
             network = SvcTestCaseFactory.createRemoteOffNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
             network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
@@ -545,7 +584,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
             network = SvcTestCaseFactory.createRemoteOffBothTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
         }
     }
 
@@ -587,7 +626,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "0", "k");
 
             // SC nonlinear
             network = ShuntTestCaseFactory.createNonLinear();
@@ -616,7 +655,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
 
             network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
             ssh = getSSH(network, baseName, tmpDir, exportParams);
-            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "0", "k");
         }
     }
 
@@ -662,6 +701,50 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
             ssh = getSSH(network, baseName, tmpDir, exportParams);
             testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
+
+            // Generator with local reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+
+            // Generator with remote reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+
+            // Generator without control
+            network = EurostagTutorialExample1Factory.createWithoutControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+
+            // Generator with remote terminal without control
+            network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+
+            // Generator without control capability
+            network = EurostagTutorialExample1Factory.create();
+            network.getGenerator("GEN").newMinMaxReactiveLimits().setMaxQ(0).setMinQ(0).add();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
         }
     }
 
