@@ -59,6 +59,17 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getShuntCompensator(shuntCompensatorId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "ShuntCompensatorModification",
+                "ShuntCompensator '" + shuntCompensatorId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
     private static void setTargetV(ShuntCompensator shuntCompensator) {
         if (shuntCompensator.isVoltageRegulatorOn()) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(), shuntCompensator.getRegulatingTerminal().getBusView().getBus(),

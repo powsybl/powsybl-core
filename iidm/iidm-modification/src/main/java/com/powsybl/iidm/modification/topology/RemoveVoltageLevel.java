@@ -65,4 +65,15 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getVoltageLevel(voltageLevelId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "RemoveVoltageLevel",
+                "Voltage level '" + voltageLevelId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
 }

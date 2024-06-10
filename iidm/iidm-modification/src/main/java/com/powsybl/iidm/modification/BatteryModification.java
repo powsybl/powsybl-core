@@ -48,6 +48,17 @@ public class BatteryModification extends AbstractNetworkModification {
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getBattery(batteryId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "BatteryModification",
+                "Battery '" + batteryId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
     public String getBatteryId() {
         return batteryId;
     }

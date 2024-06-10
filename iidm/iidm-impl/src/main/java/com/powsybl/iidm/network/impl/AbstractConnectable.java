@@ -206,6 +206,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return connect(isTypeSwitchToOperate, side, false);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean dryRun) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -247,6 +252,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             return false;
         }
 
+        // Exit if it's a dry run
+        if (dryRun) {
+            return true;
+        }
+
         // Connect all bus-breaker terminals
         for (TerminalExt terminal : getTerminals(side)) {
             if (!terminal.isConnected()
@@ -273,6 +283,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return disconnect(isSwitchOpenable, side, false);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean dryRun) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -309,6 +324,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         // Exit if the connectable is already fully disconnected
         if (isAlreadyDisconnected) {
             return false;
+        }
+
+        // Exit if it's a dry run
+        if (dryRun) {
+            return true;
         }
 
         // Disconnect all bus-breaker terminals

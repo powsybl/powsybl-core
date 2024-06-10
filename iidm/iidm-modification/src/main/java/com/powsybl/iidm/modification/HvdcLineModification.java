@@ -69,6 +69,23 @@ public class HvdcLineModification extends AbstractNetworkModification {
         applyToHvdcAngleDroopActivePowerControlExtension(hvdcLine);
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getHvdcLine(hvdcId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "HvdcLineModification",
+                "HvdcLine '" + hvdcId + "' not found");
+        }
+        if (activePowerSetpoint == null || relativeValue != null && relativeValue) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "HvdcLineModification",
+                "Relative value is set to true but it will not be applied since active power setpoint is undefined (null)");
+        }
+        return dryRunConclusive;
+    }
+
     private void applyToHvdcAngleDroopActivePowerControlExtension(HvdcLine hvdcLine) {
         HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         if (acEmulationEnabled != null) {

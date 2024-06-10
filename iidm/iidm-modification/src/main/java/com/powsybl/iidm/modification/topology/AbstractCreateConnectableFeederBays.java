@@ -31,6 +31,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeederBays.class);
+    private static final String NETWORK_MODIFICATION_NAME = "AbstractCreateConnectableFeederBays";
 
     protected final int[] sides;
 
@@ -74,6 +75,41 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         createdConnectable(reportNode, connectable);
 
         createExtensionAndTopology(connectable, network, namingStrategy, reportNode);
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        for (int side : sides) {
+            // Get the busOrBusbarSection corresponding to the side parameter
+            String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
+            Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
+
+            if (busOrBusbarSection == null) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    String.format("Bus or busbar section %s not found", busOrBusbarSectionId));
+            } else if (busOrBusbarSection instanceof BusbarSection bbs && (getPositionOrder(side) == null || getPositionOrder(side) < 0)) {
+                if (getPositionOrder(side) == null) {
+                    dryRunConclusive = false;
+                    reportOnInconclusiveDryRun(reportNode,
+                        NETWORK_MODIFICATION_NAME,
+                        "Position order is null for attachment in node-breaker voltage level " + bbs.getTerminal().getVoltageLevel().getId());
+                } else if (getPositionOrder(side) < 0) {
+                    dryRunConclusive = false;
+                    reportOnInconclusiveDryRun(reportNode,
+                        NETWORK_MODIFICATION_NAME,
+                        "Position order is negative for attachment in node-breaker voltage level " + bbs.getTerminal().getVoltageLevel().getId() + ": " + getPositionOrder(side));
+                }
+            } else if (!(busOrBusbarSection instanceof Bus)) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    String.format("Unsupported type %s for identifiable %s", busOrBusbarSection.getType(), busOrBusbarSectionId));
+            }
+            // TODO: should we go further and check the values in the Adder (as it is done in adder.add())?
+        }
+        return dryRunConclusive;
     }
 
     private boolean checkOrders(int side, VoltageLevel voltageLevel, ReportNode reportNode, boolean throwException) {

@@ -49,6 +49,8 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertConnectVoltageLevelOnLine.class);
 
+    private static final String NETWORK_MODIFICATION_NAME = "RevertConnectVoltageLevelOnLine";
+
     private final String line1Id;
     private final String line2Id;
 
@@ -159,6 +161,31 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         // remove voltage level and substation in common, if necessary
         removeVoltageLevelAndSubstation(commonVl, reportNode);
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        dryRunConclusive = checkLine(network, line1Id, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
+        dryRunConclusive = checkLine(network, line2Id, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
+
+        // Check and find the voltage level in common
+        if (dryRunConclusive) {
+            // Since dryRunConclusive is true, the lines cannot be null so no check is needed
+            Line line1 = network.getLine(line1Id);
+            Line line2 = network.getLine(line2Id);
+            Set<String> vlIds = new HashSet<>();
+            vlIds.add(line1.getTerminal1().getVoltageLevel().getId());
+            vlIds.add(line1.getTerminal2().getVoltageLevel().getId());
+            vlIds.add(line2.getTerminal1().getVoltageLevel().getId());
+            vlIds.add(line2.getTerminal2().getVoltageLevel().getId());
+            if (vlIds.size() != 3) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    String.format("Lines %s and %s should have one and only one voltage level in common at their extremities", line1Id, line2Id));
+            }
+        }
+        return dryRunConclusive;
     }
 
     public String getLine1Id() {

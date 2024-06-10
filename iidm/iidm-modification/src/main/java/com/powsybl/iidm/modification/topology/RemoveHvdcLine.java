@@ -69,6 +69,17 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getHvdcLine(hvdcLineId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "RemoveHvdcLine",
+                "HvdcLine '" + hvdcLineId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
     private static ShuntCompensator getShuntCompensator(String id, Network network, boolean throwException, ReportNode reportNode) {
         ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {

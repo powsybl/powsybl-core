@@ -66,6 +66,11 @@ class SecurityAnalysisTest {
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
             ((Bus) network.getIdentifiable("NHV2")).setV(380.0).setAngle(-0.10);
         }
+
+        @Override
+        protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+            return true;
+        }
     }
 
     private FileSystem fileSystem;

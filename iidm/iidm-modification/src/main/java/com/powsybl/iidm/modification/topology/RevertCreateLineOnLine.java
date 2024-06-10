@@ -52,6 +52,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
     private static final String LINE_REMOVED_MESSAGE = "Line {} removed";
+    private static final String NETWORK_MODIFICATION_NAME = "RevertCreateLineOnLine";
 
     /**
      * Constructor.
@@ -180,6 +181,28 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
         // remove attached voltage level and attached substation, if necessary
         removeVoltageLevelAndSubstation(tappedVoltageLevel, reportNode);
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        dryRunConclusive = checkLine(network, lineToBeMerged1Id, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
+        dryRunConclusive = checkLine(network, lineToBeMerged2Id, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
+
+        if (dryRunConclusive) {
+            Line lineToBeMerged1 = network.getLine(lineToBeMerged1Id);
+            Line lineToBeMerged2 = network.getLine(lineToBeMerged2Id);
+            Line lineToBeDeleted = network.getLine(lineToBeDeletedId);
+
+            // tee point is the voltage level in common with lineToBeMerged1, lineToBeMerged2 and lineToBeDeleted
+            VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(lineToBeMerged1, lineToBeMerged2, lineToBeDeleted);
+            if (teePoint == null) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    String.format("No common voltage level found for %s, %s and %s", lineToBeMerged1, lineToBeMerged2, lineToBeDeleted));
+            }
+        }
+        return dryRunConclusive;
     }
 
     public String getLineToBeMerged1Id() {

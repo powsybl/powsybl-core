@@ -59,6 +59,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
     private static final String LINE_NOT_FOUND_LOG_MESSAGE = "Line {} is not found";
     private static final String LINE_REMOVED_LOG_MESSAGE = "Line {} removed";
+    private static final String NETWORK_MODIFICATION_NAME = "CreateCouplingDevice";
 
     /**
      * Constructor.
@@ -216,6 +217,43 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // remove tee point
         removeVoltageLevelAndSubstation(teePoint, reportNode);
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        Line tpLine1 = network.getLine(teePointLine1Id);
+        Line tpLine2 = network.getLine(teePointLine2Id);
+        Line tpLineToRemove = network.getLine(teePointLineToRemoveId);
+        if (tpLine1 == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine1Id));
+        }
+        if (tpLine2 == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine2Id));
+        }
+        if (tpLineToRemove == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLineToRemoveId));
+        }
+
+        // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
+        if (tpLine1 != null && tpLine2 != null && tpLineToRemove != null) {
+            VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
+            if (teePoint == null) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    String.format("No common voltage level found for %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
+            }
+        }
+        return dryRunConclusive;
     }
 
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {

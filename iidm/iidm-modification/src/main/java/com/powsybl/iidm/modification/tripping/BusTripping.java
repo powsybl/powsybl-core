@@ -8,6 +8,9 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -34,5 +37,16 @@ public class BusTripping extends AbstractTripping {
         for (Terminal t : bus.getConnectedTerminals()) {
             TrippingTopologyTraverser.traverse(t, switchesToOpen, terminalsToDisconnect, traversedTerminals);
         }
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getBusBreakerView().getBus(id) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "BusTripping",
+                "Bus '" + id + "' not found");
+        }
+        return dryRunConclusive;
     }
 }
