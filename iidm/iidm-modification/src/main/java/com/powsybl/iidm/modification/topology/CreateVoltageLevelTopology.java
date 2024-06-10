@@ -31,6 +31,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateVoltageLevelTopology.class);
+    private static final String NETWORK_MODIFICATION_NAME = "CreateVoltageLevelTopology";
 
     private final String voltageLevelId;
 
@@ -57,12 +58,19 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.switchKinds = switchKinds;
     }
 
-    private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode, boolean throwException) {
+    private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode,
+                                                boolean throwException, boolean isDryRun) {
         if (count < min) {
             LOG.error("{} must be >= {}", type, min);
-            countLowerThanMin(reportNode, type, min);
-            if (throwException) {
-                throw new PowsyblException(type + " must be >= " + min);
+            if (isDryRun) {
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    String.format("%s must be >= %d", type, min));
+            } else {
+                countLowerThanMin(reportNode, type, min);
+                if (throwException) {
+                    throw new PowsyblException(type + " must be >= " + min);
+                }
             }
             return false;
         }
@@ -70,11 +78,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     private boolean checkCountAttributes(int lowBusOrBusbarIndex, int alignedBusesOrBusbarCount, int lowSectionIndex,
-                                         int sectionCount, boolean throwException, ReportNode reportNode) {
-        return checkCountAttributes(lowBusOrBusbarIndex, "low busbar index", 0, reportNode, throwException) &&
-        checkCountAttributes(alignedBusesOrBusbarCount, "busbar count", 1, reportNode, throwException) &&
-        checkCountAttributes(lowSectionIndex, "low section index", 0, reportNode, throwException) &&
-        checkCountAttributes(sectionCount, "section count", 1, reportNode, throwException);
+                                         int sectionCount, boolean throwException, ReportNode reportNode, boolean isDryRun) {
+        return checkCountAttributes(lowBusOrBusbarIndex, "low busbar index", 0, reportNode, throwException, isDryRun) &&
+        checkCountAttributes(alignedBusesOrBusbarCount, "busbar count", 1, reportNode, throwException, isDryRun) &&
+        checkCountAttributes(lowSectionIndex, "low section index", 0, reportNode, throwException, isDryRun) &&
+        checkCountAttributes(sectionCount, "section count", 1, reportNode, throwException, isDryRun);
     }
 
     private static boolean checkSwitchKinds(List<SwitchKind> switchKinds, int sectionCount, ReportNode reportNode, boolean throwException) {
@@ -133,7 +141,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         //checks
-        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reportNode)) {
+        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reportNode, false)) {
             return;
         }
 
@@ -168,6 +176,41 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reportNode, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        // Checks on the attributes
+        dryRunConclusive = checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, reportNode, true);
+
+        // Get the voltage level
+        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                "Voltage level is null");
+        } else if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            if (switchKinds.size() != sectionCount - 1) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    "Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
+            }
+            if (switchKinds.contains(null)) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    "All switch kinds must be defined");
+            }
+            if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
+                dryRunConclusive = false;
+                reportOnInconclusiveDryRun(reportNode,
+                    NETWORK_MODIFICATION_NAME,
+                    "Switch kinds must be DISCONNECTOR or BREAKER");
+            }
+        }
+        return dryRunConclusive;
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {

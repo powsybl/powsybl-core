@@ -54,4 +54,15 @@ public class LoadModification extends AbstractLoadModification {
         getP0().ifPresent(value -> load.setP0((isRelativeValue() ? load.getP0() : 0) + value));
         getQ0().ifPresent(value -> load.setQ0((isRelativeValue() ? load.getQ0() : 0) + value));
     }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getLoad(getLoadId()) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "LoadModification",
+                "Load '" + getLoadId() + "' not found");
+        }
+        return dryRunConclusive;
+    }
 }

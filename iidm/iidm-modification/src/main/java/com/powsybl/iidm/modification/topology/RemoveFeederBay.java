@@ -62,6 +62,24 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         LOGGER.info("Connectable {} removed", connectableId);
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "RemoveFeederBay",
+                String.format("Connectable not found: %s", connectableId));
+        }
+        if (connectable instanceof BusbarSection) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "RemoveFeederBay",
+                String.format("BusbarSection connectables are not allowed as RemoveFeederBay input: %s", connectableId));
+        }
+        return dryRunConclusive;
+    }
+
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
         Graph<Integer, Object> graph = new Pseudograph<>(Object.class);
         int node = terminal.getNodeBreakerView().getNode();
@@ -220,19 +238,19 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
-        if (connectable instanceof BusbarSection) {
-            LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
-            removeFeederBayBusbarSectionReport(reportNode, connectableId);
-            if (throwException) {
-                throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
-            }
-            return false;
-        }
         if (connectable == null) {
             LOGGER.error("Connectable {} not found", connectableId);
             notFoundConnectableReport(reportNode, connectableId);
             if (throwException) {
                 throw new PowsyblException("Connectable not found: " + connectableId);
+            }
+            return false;
+        }
+        if (connectable instanceof BusbarSection) {
+            LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
+            removeFeederBayBusbarSectionReport(reportNode, connectableId);
+            if (throwException) {
+                throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
             }
             return false;
         }

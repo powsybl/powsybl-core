@@ -69,6 +69,17 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getTwoWindingsTransformer(getTransformerId()) == null && network.getThreeWindingsTransformer(getTransformerId()) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "AbstractTapPositionModification",
+                TRANSFORMER_STR + getTransformerId() + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
     /**
      * @param isTapHolder predicate to test if the leg has the correct Tap
      * @return The leg either indicated in the constructor, or the unique one matching the predicate, null otherwise

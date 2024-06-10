@@ -45,6 +45,17 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getThreeWindingsTransformer(transformerId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "ThreeWindingsTransformerModification",
+                "ThreeWindingsTransformer '" + transformerId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
     private static double calculateNewRatedU(double ratedU, double ratedU0, double newRatedU0) {
         return ratedU * newRatedU0 / ratedU0;
     }

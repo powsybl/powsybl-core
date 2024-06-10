@@ -58,6 +58,17 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (getNetworkElement(network, elementId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "AbstractSetpointModification",
+                "Connectable '" + elementId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
     public abstract String getElementName();
 
     protected abstract void setVoltageSetpoint(T networkElement, Double voltageSetpoint);

@@ -36,4 +36,15 @@ public class OpenSwitch extends AbstractNetworkModification {
         }
         sw.setOpen(true);
     }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getSwitch(switchId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "OpenSwitch",
+                "Switch '" + switchId + "' not found");
+        }
+        return dryRunConclusive;
+    }
 }

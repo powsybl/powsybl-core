@@ -20,6 +20,7 @@ import com.powsybl.iidm.serde.NetworkSerDe;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -40,6 +41,14 @@ public class NetworkModificationList extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy,
+                          ComputationManager computationManager, ReportNode reportNode) {
+        AtomicBoolean result = new AtomicBoolean(true);
+        modificationList.forEach(modification -> result.set(result.get() && modification.dryRun(network, namingStrategy, computationManager, reportNode)));
+        return result.get();
     }
 
     public boolean fullDryRun(Network network) {

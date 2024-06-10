@@ -60,4 +60,9 @@ public interface NetworkModification {
      * in case of error.
      */
     void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
+
+    /**
+     * Test the application of the modification to the given network by checking prerequisites.
+     */
+    boolean dryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
 }

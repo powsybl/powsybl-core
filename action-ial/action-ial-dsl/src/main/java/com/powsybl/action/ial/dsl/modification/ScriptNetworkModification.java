@@ -36,4 +36,10 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
                       ComputationManager computationManager, ReportNode reportNode) {
         script.call(network, computationManager);
     }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        // TODO: what do we do here?
+        return true;
+    }
 }

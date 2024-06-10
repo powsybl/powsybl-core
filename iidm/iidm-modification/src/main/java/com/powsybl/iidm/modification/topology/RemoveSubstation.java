@@ -52,5 +52,16 @@ public class RemoveSubstation extends AbstractNetworkModification {
         removedSubstationReport(reportNode, substationId);
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);
     }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getSubstation(substationId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "RemoveSubstation",
+                "Substation '" + substationId + "' not found");
+        }
+        return dryRunConclusive;
+    }
 }
 

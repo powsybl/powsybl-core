@@ -78,4 +78,22 @@ public class ConnectableConnection extends AbstractNetworkModification {
         }
         connectableConnectionReport(reportNode, connectable, hasBeenConnected, side);
     }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "ConnectableConnection",
+                "Connectable '" + connectableId + "' not found");
+        } else if (!connectable.connect(isTypeSwitchToOperate, side, true)) {
+            // TODO : differenciate the cases where the connectable does not exist, where it is already connected, where it cannot be connected, etc.
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "ConnectableConnection",
+                "Connection failed");
+        }
+        return dryRunConclusive;
+    }
 }

@@ -9,6 +9,9 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 
@@ -31,5 +34,16 @@ public class GeneratorTripping extends AbstractInjectionTripping {
         }
 
         return injection;
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getGenerator(id) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "GeneratorTripping",
+                "Generator '" + id + "' not found");
+        }
+        return dryRunConclusive;
     }
 }
