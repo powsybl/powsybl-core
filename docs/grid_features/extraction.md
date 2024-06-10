@@ -5,7 +5,7 @@ This module is used to extract a portion of a network on an area of interest def
 ## Define an area of interest
 
 The network reduction is relying on a `NetworkPredicate` instance, to define an area of interest (i.e. a list of equipments to keep in the network after the reduction). 
-The equipments outside this area will be removed and the lines, transformers and HVDC lines connecting voltage levels inside and outside this area will be replaced by injections (loads or dangling lines, depending on the implementation).
+The equipments outside this area are removed and the lines, transformers and HVDC lines connecting voltage levels inside and outside this area will be replaced by injections (loads or dangling lines, depending on the implementation).
 
 
 Before doing the reduction, one has to define the area of interest, using the `com.powsybl.iidm.reducer.NetworkPredicate` interface. This interface declares two methods:
@@ -102,13 +102,20 @@ The three windings transformers are replaced by a [load](../grid_model/network_s
 
 ##### Replacements by loads
 
-The load created in place of a branch has the same ID and name as the replaced branch. The type of the load is set as `FICTITIOUS` and its $$P_0$$ and $$Q_0$$ are set to the $$P$$ and $$Q$$ of the relevant terminal, depending on which side is kept in the network. If the branch is disconnected, $$P_0$$ and $$Q_0$$ are set to `NaN`. The connectivity information (node or bus depending on the voltage level topology) is conserved.
+The load created in place of a branch has the same ID and name as the replaced branch. 
+The type of the load is set as `FICTITIOUS` and its $$P_0$$ and $$Q_0$$ are set to the $$P$$ and $$Q$$ of the relevant terminal, depending on which side is kept in the network. 
+If the branch is disconnected, $$P_0$$ and $$Q_0$$ are set to `NaN`. 
+The connectivity information (node or bus depending on the voltage level topology) is kept.
+However, the operational limits and extensions from the original branch are not retained.
 
 ##### Replacements by dangling lines
 
-The dangling line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the dangling line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle). The conductance and susceptance are set to the $$G_1$$ and $$B_1$$ or to $$G_2$$ and $$B_2$$ depending on which side is kept in the network. 
+The dangling line created in place of a line has the same ID and name as the replaced line. The resistance and reactance of the dangling line are equals to half of the resistance and reactance of the replaced line (we consider that the line is cut in the middle). 
+The conductance and susceptance are set to the $$G_1$$ and $$B_1$$ or to $$G_2$$ and $$B_2$$ depending on which side is kept in the network. 
 
-The $$P_0$$ and $$Q_0$$ are set to the $$P$$ and $$Q$$ of the corresponding terminal, depending on which side is kept in the network. If the line is disconnected, $$P_0$$ and $$Q_0$$ are set to `NaN`. The connectivity information (node or bus depending on the voltage level topology) is conserved.
+The $$P_0$$ and $$Q_0$$ are set to the $$P$$ and $$Q$$ of the corresponding terminal, depending on which side is kept in the network. If the line is disconnected, $$P_0$$ and $$Q_0$$ are set to `NaN`. 
+The connectivity information (node or bus depending on the voltage level topology) is kept.
+However, the operational limits and extensions from the original branch are not retained.
 
 #### Options
 
