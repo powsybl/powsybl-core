@@ -9,50 +9,50 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
-import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
+import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
 
 /**
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class GeneratorShortCircuitAdderImpl extends AbstractExtensionAdder<Generator, GeneratorShortCircuit>
-    implements GeneratorShortCircuitAdder {
+public class BatteryShortCircuitAdderImpl extends AbstractExtensionAdder<Battery, BatteryShortCircuit>
+    implements BatteryShortCircuitAdder {
 
     double directTransX = 0;
     double directSubtransX = Double.NaN;
     double stepUpTransformerX = Double.NaN;
 
-    protected GeneratorShortCircuitAdderImpl(Generator extendable) {
+    protected BatteryShortCircuitAdderImpl(Battery extendable) {
         super(extendable);
     }
 
     @Override
-    protected GeneratorShortCircuit createExtension(Generator extendable) {
-        return new GeneratorShortCircuitImpl(extendable, directSubtransX, directTransX, stepUpTransformerX);
+    protected BatteryShortCircuit createExtension(Battery extendable) {
+        return new BatteryShortCircuitImpl(extendable, directSubtransX, directTransX, stepUpTransformerX);
     }
 
     @Override
-    public GeneratorShortCircuitAdder withDirectTransX(double directTransX) {
+    public BatteryShortCircuitAdder withDirectTransX(double directTransX) {
         this.directTransX = directTransX;
         return this;
     }
 
     @Override
-    public GeneratorShortCircuitAdder withDirectSubtransX(double directSubtransX) {
+    public BatteryShortCircuitAdder withDirectSubtransX(double directSubtransX) {
         this.directSubtransX = directSubtransX;
         return this;
     }
 
     @Override
-    public GeneratorShortCircuitAdder withStepUpTransformerX(double stepUpTransformerX) {
+    public BatteryShortCircuitAdder withStepUpTransformerX(double stepUpTransformerX) {
         this.stepUpTransformerX = stepUpTransformerX;
         return this;
     }
 
     @Override
-    public GeneratorShortCircuit add() {
+    public BatteryShortCircuit add() {
         if (Double.isNaN(directTransX)) {
             throw new PowsyblException("Undefined directTransX");
         }
