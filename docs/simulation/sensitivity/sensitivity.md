@@ -6,7 +6,7 @@ The sensitivity analysis module is dedicated to computing the linearized impact 
 
 A sensitivity value is the numerical estimation of the partial derivative of the observed function with respect to the variable of impact.
 The sensitivity analysis can also be seen as the computation of partial derivatives on the network model.
-For example, it may be used to know, among a group of selected lines, which are the most impacted by a change in a generator production or a change of tap on a phase tap changer. The user story about [RSC capacity calculation](../../user/user-stories/capacity_calculation_rsc.md) provides an example of application of the sensitivity analysis.
+For example, it may be used to know, among a group of selected lines, which are the most impacted by a change in a generator production or a change of tap on a phase tap changer. The user story about [RSC capacity calculation](https://www.powsybl.org/pages/documentation/user/user-stories/capacity_calculation_rsc.html) provides an example of application of the sensitivity analysis.
 
 ## Sensitivity analysis inputs
 
