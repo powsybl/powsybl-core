@@ -14,11 +14,11 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.*;
+import static com.powsybl.iidm.modification.util.ModificationReports.undefinedPercent;
+import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedIdentifiableType;
 
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
