@@ -37,7 +37,6 @@ public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<
         super(networkVariant);
         Objects.requireNonNull(dynamicModelsSupplier);
         this.dynamicModels = dynamicModelsSupplier;
-        this.eventModels = EventModelsSupplier.empty();
         this.parameters = new DynamicSecurityAnalysisParameters();
     }
 
@@ -49,19 +48,9 @@ public class DynamicSecurityAnalysisInput extends AbstractSecurityAnalysisInput<
         return dynamicModels;
     }
 
-    public EventModelsSupplier getEventModels() {
-        return eventModels;
-    }
-
     public DynamicSecurityAnalysisInput setParameters(DynamicSecurityAnalysisParameters parameters) {
         Objects.requireNonNull(parameters);
         this.parameters = parameters;
-        return self();
-    }
-
-    public DynamicSecurityAnalysisInput setEventModelsSupplier(EventModelsSupplier eventModels) {
-        Objects.requireNonNull(eventModels);
-        this.eventModels = eventModels;
         return self();
     }
 

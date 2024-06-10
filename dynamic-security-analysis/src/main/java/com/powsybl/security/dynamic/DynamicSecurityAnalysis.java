@@ -15,12 +15,9 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.dynamicsimulation.DynamicModel;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.dynamicsimulation.EventModel;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisReport;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -53,48 +50,37 @@ public final class DynamicSecurityAnalysis {
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network,
                                                                   String workingVariantId,
                                                                   DynamicModelsSupplier dynamicModelsSupplier,
-                                                                  EventModelsSupplier eventModelsSupplier,
                                                                   ContingenciesProvider contingenciesProvider,
                                                                   DynamicSecurityAnalysisRunParameters runParameters) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingVariantId, "WorkingVariantId should not be null");
             Objects.requireNonNull(dynamicModelsSupplier, "Dynamic model supplier should not be null");
-            Objects.requireNonNull(eventModelsSupplier, "Event models supplier should not be null");
             Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
-            return provider.run(network, workingVariantId, dynamicModelsSupplier, eventModelsSupplier, contingenciesProvider, runParameters);
+            return provider.run(network, workingVariantId, dynamicModelsSupplier, contingenciesProvider, runParameters);
         }
 
-        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
-            return runAsync(network, network.getVariantManager().getWorkingVariantId(), (n, r) -> dynamicModels, (n, r) -> eventModels, n -> contingencies, runParameters);
-        }
-
-        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies) {
-            return runAsync(network, dynamicModels, eventModels, contingencies, DynamicSecurityAnalysisRunParameters.getDefault());
+        public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
+            return runAsync(network, network.getVariantManager().getWorkingVariantId(), (n, r) -> dynamicModels, n -> contingencies, runParameters);
         }
 
         public CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies) {
-            return runAsync(network, dynamicModels, Collections.emptyList(), contingencies);
+            return runAsync(network, dynamicModels, contingencies, DynamicSecurityAnalysisRunParameters.getDefault());
         }
 
         public SecurityAnalysisReport run(Network network,
                                                                   String workingVariantId,
                                                                   DynamicModelsSupplier dynamicModelsSupplier,
-                                                                  EventModelsSupplier eventModelsSupplier,
                                                                   ContingenciesProvider contingenciesProvider,
                                                                   DynamicSecurityAnalysisRunParameters runParameters) {
-            return runAsync(network, workingVariantId, dynamicModelsSupplier, eventModelsSupplier, contingenciesProvider, runParameters).join();
+            return runAsync(network, workingVariantId, dynamicModelsSupplier, contingenciesProvider, runParameters).join();
         }
 
-        public SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
-            return run(network, network.getVariantManager().getWorkingVariantId(), (n, r) -> dynamicModels, (n, r) -> eventModels, n -> contingencies, runParameters);
-        }
-
-        public SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies) {
-            return run(network, dynamicModels, eventModels, contingencies, DynamicSecurityAnalysisRunParameters.getDefault());
+        public SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
+            return run(network, network.getVariantManager().getWorkingVariantId(), (n, r) -> dynamicModels, n -> contingencies, runParameters);
         }
 
         public SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies) {
-            return run(network, dynamicModels, Collections.emptyList(), contingencies);
+            return run(network, dynamicModels, contingencies, DynamicSecurityAnalysisRunParameters.getDefault());
         }
 
         @Override
@@ -134,18 +120,13 @@ public final class DynamicSecurityAnalysis {
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network,
                                                               String workingVariantId,
                                                               DynamicModelsSupplier dynamicModelsSupplier,
-                                                              EventModelsSupplier eventModelsSupplier,
                                                               ContingenciesProvider contingenciesProvider,
                                                               DynamicSecurityAnalysisRunParameters runParameters) {
-        return find().runAsync(network, workingVariantId, dynamicModelsSupplier, eventModelsSupplier, contingenciesProvider, runParameters);
+        return find().runAsync(network, workingVariantId, dynamicModelsSupplier, contingenciesProvider, runParameters);
     }
 
-    public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
-        return find().runAsync(network, dynamicModels, eventModels, contingencies, runParameters);
-    }
-
-    public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies) {
-        return find().runAsync(network, dynamicModels, eventModels, contingencies);
+    public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
+        return find().runAsync(network, dynamicModels, contingencies, runParameters);
     }
 
     public static CompletableFuture<SecurityAnalysisReport> runAsync(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies) {
@@ -155,18 +136,13 @@ public final class DynamicSecurityAnalysis {
     public static SecurityAnalysisReport run(Network network,
                                       String workingVariantId,
                                       DynamicModelsSupplier dynamicModelsSupplier,
-                                      EventModelsSupplier eventModelsSupplier,
                                       ContingenciesProvider contingenciesProvider,
                                       DynamicSecurityAnalysisRunParameters runParameters) {
-        return find().run(network, workingVariantId, dynamicModelsSupplier, eventModelsSupplier, contingenciesProvider, runParameters);
+        return find().run(network, workingVariantId, dynamicModelsSupplier, contingenciesProvider, runParameters);
     }
 
-    public static SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
-        return find().run(network, dynamicModels, eventModels, contingencies, runParameters);
-    }
-
-    public static SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<EventModel> eventModels, List<Contingency> contingencies) {
-        return find().run(network, dynamicModels, eventModels, contingencies);
+    public static SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies, DynamicSecurityAnalysisRunParameters runParameters) {
+        return find().run(network, dynamicModels, contingencies, runParameters);
     }
 
     public static SecurityAnalysisReport run(Network network, List<DynamicModel> dynamicModels, List<Contingency> contingencies) {

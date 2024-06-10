@@ -15,7 +15,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -58,7 +57,7 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
      * Example of use:
      * <pre> {@code
      * try {
-     *       SecurityAnalysisResult result = dynamicSecurityAnalysis.run(network, variantId, dynamicModelsSupplier, eventModelsSupplier, contingenciesProvider, runParameters).join();
+     *       SecurityAnalysisResult result = dynamicSecurityAnalysis.run(network, variantId, dynamicModelsSupplier, contingenciesProvider, runParameters).join();
      *   } catch (CompletionException e) {
      *       if (e.getCause() instanceof ComputationException) {
      *           ComputationException computationException = (ComputationException) e.getCause();
@@ -79,7 +78,6 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
      * @param network IIDM network on which the security analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
      * @param dynamicModelsSupplier supplies list of dynamic models for the dynamic simulation part
-     * @param eventModelsSupplier supplies list of event models for the dynamic simulation part
      * @param contingenciesProvider provides list of contingencies
      * @param runParameters runner parameters
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
@@ -87,7 +85,6 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
     CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                   String workingVariantId,
                                                   DynamicModelsSupplier dynamicModelsSupplier,
-                                                  EventModelsSupplier eventModelsSupplier,
                                                   ContingenciesProvider contingenciesProvider,
                                                   DynamicSecurityAnalysisRunParameters runParameters);
 

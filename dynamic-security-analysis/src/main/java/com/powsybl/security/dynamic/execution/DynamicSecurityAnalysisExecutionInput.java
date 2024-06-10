@@ -12,7 +12,6 @@ import com.powsybl.security.dynamic.DynamicSecurityAnalysisParameters;
 import com.powsybl.security.execution.AbstractSecurityAnalysisExecutionInput;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
@@ -21,7 +20,6 @@ public class DynamicSecurityAnalysisExecutionInput extends AbstractSecurityAnaly
 
     private DynamicSecurityAnalysisParameters parameters;
     private ByteSource dynamicModelsSource;
-    private ByteSource eventModelsSource;
 
     public DynamicSecurityAnalysisParameters getParameters() {
         return parameters;
@@ -31,10 +29,6 @@ public class DynamicSecurityAnalysisExecutionInput extends AbstractSecurityAnaly
         return dynamicModelsSource;
     }
 
-    public Optional<ByteSource> getEventModelsSource() {
-        return Optional.ofNullable(eventModelsSource);
-    }
-
     public DynamicSecurityAnalysisExecutionInput setParameters(DynamicSecurityAnalysisParameters parameters) {
         this.parameters = Objects.requireNonNull(parameters);
         return self();
@@ -42,11 +36,6 @@ public class DynamicSecurityAnalysisExecutionInput extends AbstractSecurityAnaly
 
     public DynamicSecurityAnalysisExecutionInput setDynamicModelsSource(ByteSource dynamicModelsSource) {
         this.dynamicModelsSource = Objects.requireNonNull(dynamicModelsSource);
-        return self();
-    }
-
-    public DynamicSecurityAnalysisExecutionInput setEventModelsSource(ByteSource eventModelsSource) {
-        this.eventModelsSource = Objects.requireNonNull(eventModelsSource);
         return self();
     }
 

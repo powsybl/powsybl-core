@@ -72,7 +72,6 @@ public class DynamicSecurityAnalysisExecutionImpl implements DynamicSecurityAnal
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getDynamicModels(),
-                input.getEventModels(),
                 input.getContingenciesProvider(),
                 runParameters);
     }

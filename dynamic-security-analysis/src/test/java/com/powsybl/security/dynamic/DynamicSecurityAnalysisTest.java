@@ -8,7 +8,6 @@
 package com.powsybl.security.dynamic;
 
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.SecurityAnalysisReport;
@@ -63,16 +62,14 @@ class DynamicSecurityAnalysisTest {
     @Test
     void testProviderRunCombinations() {
         assertNotNull(DynamicSecurityAnalysis.run(network, Collections.emptyList(), Collections.emptyList()));
-        assertNotNull(DynamicSecurityAnalysis.run(network, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
-        assertNotNull(DynamicSecurityAnalysis.run(network, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), dynamicSecurityAnalysisRunParameters));
-        assertNotNull(DynamicSecurityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), contingenciesProvider, DynamicSecurityAnalysisRunParameters.getDefault()));
+        assertNotNull(DynamicSecurityAnalysis.run(network, Collections.emptyList(), Collections.emptyList(), dynamicSecurityAnalysisRunParameters));
+        assertNotNull(DynamicSecurityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(), DynamicModelsSupplierMock.empty(), contingenciesProvider, dynamicSecurityAnalysisRunParameters));
     }
 
     @Test
     void testProviderAsyncCombinations() {
         assertNotNull(DynamicSecurityAnalysis.runAsync(network, Collections.emptyList(), Collections.emptyList()));
-        assertNotNull(DynamicSecurityAnalysis.runAsync(network, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()));
-        assertNotNull(DynamicSecurityAnalysis.runAsync(network, Collections.emptyList(), Collections.emptyList(), Collections.emptyList(), dynamicSecurityAnalysisRunParameters));
-        assertNotNull(DynamicSecurityAnalysis.runAsync(network, network.getVariantManager().getWorkingVariantId(), DynamicModelsSupplierMock.empty(), EventModelsSupplier.empty(), contingenciesProvider, DynamicSecurityAnalysisRunParameters.getDefault()));
+        assertNotNull(DynamicSecurityAnalysis.runAsync(network, Collections.emptyList(), Collections.emptyList(), dynamicSecurityAnalysisRunParameters));
+        assertNotNull(DynamicSecurityAnalysis.runAsync(network, network.getVariantManager().getWorkingVariantId(), DynamicModelsSupplierMock.empty(), contingenciesProvider, dynamicSecurityAnalysisRunParameters));
     }
 }

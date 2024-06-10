@@ -12,7 +12,6 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.dynamic.json.DynamicSecurityDummyExtension;
@@ -35,7 +34,7 @@ import static org.mockito.Mockito.when;
 public class DynamicSecurityAnalysisProviderMock implements DynamicSecurityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
+    public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
         CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
         SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
         when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));

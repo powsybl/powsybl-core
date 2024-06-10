@@ -16,7 +16,6 @@ import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.dynamicsimulation.DynamicModelsSupplier;
-import com.powsybl.dynamicsimulation.EventModelsSupplier;
 import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.iidm.network.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
@@ -88,10 +87,9 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
         Options options = command.getOptions();
-        assertCommand(command, "dynamic-security-analysis", 16, 2);
+        assertCommand(command, "dynamic-security-analysis", 15, 2);
         assertOption(options, "case-file", true, true);
         assertOption(options, "dynamic-models-file", true, true);
-        assertOption(options, "event-models-file", false, true);
         assertOption(options, "parameters-file", false, true);
         assertOption(options, "limit-types", false, true);
         assertOption(options, "output-file", false, true);
@@ -154,7 +152,6 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
         assertThat(input.getResultExtensions()).containsExactly("ext1", "ext2");
 
         parseOptionalFile(input, SecurityAnalysisToolConstants.CONTINGENCIES_FILE_OPTION, "contingencies", input::getContingenciesSource);
-        parseOptionalFile(input, DynamicSecurityAnalysisToolConstants.EVENT_MODELS_FILE_OPTION, "eventModels", input::getEventModelsSource);
     }
 
     void parseOptionalFile(DynamicSecurityAnalysisExecutionInput input, String optionName, String fileName, Supplier<Optional<ByteSource>> getSource) throws IOException {
@@ -299,7 +296,7 @@ class DynamicSecurityAnalysisToolTest extends AbstractToolTest {
     public static class DynamicSecurityAnalysisExceptionProviderMock implements DynamicSecurityAnalysisProvider {
 
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, DynamicModelsSupplier dynamicModelsSupplier, ContingenciesProvider contingenciesProvider, DynamicSecurityAnalysisRunParameters runParameters) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

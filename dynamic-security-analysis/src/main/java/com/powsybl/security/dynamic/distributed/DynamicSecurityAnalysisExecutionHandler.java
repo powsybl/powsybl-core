@@ -33,7 +33,6 @@ public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurity
         DynamicSecurityAnalysisCommandOptions> {
 
     private static final String DYNAMIC_MODELS_FILE = "dynamicModels.groovy";
-    private static final String EVENT_MODELS_FILE = "eventModels.groovy";
 
     /**
      * Creates a new security analysis execution handler.
@@ -58,10 +57,6 @@ public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurity
         addParametersFile(options, workingDir, input.getParameters());
         mapInputToCommand(workingDir, options);
         addDynamicModelsFile(options, workingDir, input.getDynamicModelsSource());
-        input.getEventModelsSource().ifPresent(
-                source -> addEventModelsFile(options, workingDir, source)
-        );
-
         return new CommandExecution(options.toCommand(), executionCount);
     }
 
@@ -79,21 +74,10 @@ public class DynamicSecurityAnalysisExecutionHandler<R> extends AbstractSecurity
         return workingDir.resolve(DYNAMIC_MODELS_FILE);
     }
 
-    private static Path getEventModelsPath(Path workingDir) {
-        return workingDir.resolve(EVENT_MODELS_FILE);
-    }
-
     private static void addDynamicModelsFile(DynamicSecurityAnalysisCommandOptions options, Path workingDir, ByteSource source) {
         Path dest = getDynamicModelsPath(workingDir);
         options.dynamicModelsFile(dest);
         LOGGER.debug("Writing dynamic models to file {}", dest);
-        copySourceToPath(source, dest);
-    }
-
-    private static void addEventModelsFile(DynamicSecurityAnalysisCommandOptions options, Path workingDir, ByteSource source) {
-        Path dest = getEventModelsPath(workingDir);
-        options.eventModelsFile(dest);
-        LOGGER.debug("Writing event models to file {}", dest);
         copySourceToPath(source, dest);
     }
 }
