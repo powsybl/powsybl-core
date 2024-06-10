@@ -23,8 +23,8 @@ import java.util.Objects;
 public abstract class AbstractPhaseShifterModification extends AbstractNetworkModification {
 
     protected final String phaseShifterId;
-    private static final String TRANSFORMER_NOT_FOUND = "Transformer %s not found";
-    private static final String NOT_A_PHASE_SHIFTER = "Transformer %s is not a phase shifter";
+    private static final String TRANSFORMER_NOT_FOUND = "Transformer '%s' not found";
+    private static final String NOT_A_PHASE_SHIFTER = "Transformer '%s' is not a phase shifter";
 
     protected AbstractPhaseShifterModification(String phaseShifterId) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
