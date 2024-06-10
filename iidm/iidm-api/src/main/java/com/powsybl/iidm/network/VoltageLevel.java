@@ -151,7 +151,7 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">List of Areas it belongs to (at most one area for each AreaType)</td>
+ *             <td style="border: 1px solid black">List of Areas it belongs to (at most one area for each area type)</td>
  *         </tr>
  *     </tbody>
  * </table>

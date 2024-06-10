@@ -40,7 +40,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
-    /** Areas associated to this VoltageLevel, with at most one area for each AreaType */
+    /** Areas associated to this VoltageLevel, with at most one area for each area type */
     private final Set<Area> areas = new LinkedHashSet<>();
 
     private boolean removed = false;

@@ -640,12 +640,12 @@ public interface Network extends Container<Network> {
     AreaAdder newArea();
 
     /**
-     * @return all existing areas, which may include several areas for each AreaType
+     * @return all existing areas, which may include several areas for each area type
      */
     Iterable<Area> getAreas();
 
     /**
-     * @return all existing areas, which may include several areas for each AreaType
+     * @return all existing areas, which may include several areas for each area type
      */
     Stream<Area> getAreaStream();
 
