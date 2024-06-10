@@ -13,6 +13,7 @@ Each implementation is identified by its name, that should be unique in the clas
 
 ## Parameters
 
+(loadflow-generic-parameters)=
 ### Generic parameters
 
 You may configure some generic parameters for all load flow implementations:

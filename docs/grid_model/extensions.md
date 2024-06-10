@@ -1,3 +1,4 @@
+(grid-model-extensions)=
 # Grid model extensions
 
 The grid model contains enough data to basically describe supported components and run power flow computations, but it may not be sufficient for more complex studies.
@@ -10,6 +11,7 @@ Note that some extensions provided by PowSyBl aren't supported in the [persisten
 
 Every extension is considered as serializable unless explicitly specified as non-serializable in XML-IIDM.
 
+(active-power-control-extension)=
 ## Active power control
 This extension is used to configure the participation factor of the generator, typically in the case of a load flow computation with distributed slack enabled (with [balance type](../simulation/loadflow/configuration.md#generic-parameters) on generator). This extension is attached to a [generator](network_subnetwork.md#generator) or a [battery](network_subnetwork.md#battery).
 
@@ -32,6 +34,7 @@ The participation status and the participation factor are multi-variants: they c
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(branch-observability-extension)=
 ## Branch observability
 
 This extension models branches' flows' observability on both sides, obtained after a state estimation.
@@ -54,14 +57,17 @@ This extension contains the sub-object `ObservabilityQuality`.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(busbar-section-position-extension)=
 ## Busbar section position
 
 This extension gives positions information about a busbar section. The `busbarIndex` gives the position of the busbar section relatively to other busbars. The `sectionIndex` gives the position of the busbar section within the corresponding busbar. Note that a busbar is a set of busbar sections. Hence, the sections of a same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of a same busbar, which usually reflects their physical relative position.
 
+(connectable-position-extension)=
 ## Connectable position
 
 <span style="color: red">TODO</span>
 
+(coordinated-reactive-power-extension)=
 ## Coordinated reactive control
 
 Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percent of reactive coordinated control that comes from a generator. This extension is attached to a [generator](network_subnetwork.md#generator).
@@ -81,6 +87,7 @@ Please note that the sum of the $qPercent$ values of the generators coordinating
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(discrete-measurements-extensions)=
 ## Discrete measurements
 
 This extension is used to store discrete measurements (such as tap positions, switch positions etc.) collected in substations.
@@ -101,10 +108,12 @@ The DiscreteMeasurement class characteristics are the following:
 | value      | Object                         | -    | no       | -             | The discrete measurement value                                                                                   |
 | valid      | boolean                        | -    | no       | -             | The validity status (if true, the discrete measured value cannot be null)                                        |
 
+(entsoe-area-extension)=
 ## ENTSO-E area
 
 <span style="color: red">TODO</span>
 
+(hvdc-angle-droop-active-power-control-extension)=
 ## HVDC angle droop active power control
 
 This is an extension dedicated to DC line in order to model AC emulation. For a VSC converter station operating in AC emulation, its active power setpoint is given by
@@ -117,14 +126,17 @@ $$P = P0 + k~(ph1 - ph2)$$
 | droop     | float   | MW by degree | yes      | -             | k in the equation                    |
 | enabled   | boolean | -            | yes      | -             | if the AC emulation is active or not |
 
+(hvdc-operator-active-power-range-extension)=
 ## HVDC operator active power range
 
 This extension enables to replace the operational limits of an DC line in AC emulation. In that case, the VSC converter stations min active power and max active power are not used. 
 
+(generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
 
 <span style="color: red">TODO</span>
 
+(generator-short-circuit)=
 ## Generator short-circuit
 
 This extension models the generators data used for short-circuit calculations. Depending on the type of short-circuit study to be 
@@ -148,6 +160,7 @@ generator.newExtension(GeneratorShortCircuitAdder.class)
     .add();
 ```
 
+(identifiable-short-circuit-extension)=
 ## Identifiable short-circuit
 
 This extension models the maximum and minimum short-circuit current admissible for any identifiable.
@@ -168,6 +181,7 @@ bus.newExtension(IdentifiableShortCircuitAdder.class)
 ```
 The code is similar for every identifiable.
 
+(injection-observability-extension)=
 ## Injection observability
 
 This extension models injections' flows' observability, obtained after a state estimation.
@@ -188,6 +202,7 @@ This extension contains the sub-object `ObservabilityQuality`.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(line-position-extension)=
 ## Line Position
 
 This extension is attached to a Line and is used to store the geographical coordinates of the Line.
@@ -217,6 +232,7 @@ line.newExtension(LinePositionAdder.class)
     .add();
 ```
 
+(load-asymmetrical-extension)=
 ## Load asymmetrical
 
 A balanced load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$.
@@ -295,6 +311,7 @@ load.newExtension(LoadAsymmetricalAdder.class)
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(load-detail-extension)=
 ## Load detail
 A load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$. This extension is used to detail :
 - In the total amount of active power what is fixed and what is time-dependant (also called variable). The time-dependant part can be adjusted for production equals consumption.
@@ -321,6 +338,7 @@ All of this extension's attributes are multi-variants: they can vary from one va
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(measurements-extension)=
 ## Measurements
 
 This extension is used to store measurements collected in substations.
@@ -341,6 +359,7 @@ The Measurement class characteristics are the following:
 | valid             | boolean             | -    | no       | -             | The validity status (if true, the measured value cannot be NaN) |
 | side              | ThreeSides          | -    | no       | -             | The equipment side associated to the measurement                |
 
+(operating-status-extension)=
 ## Operating status
 
 This is an extension of `Identifiable`, but it is restricted to some identifiable types: busbar sections, all branches,
@@ -349,6 +368,7 @@ three-winding transformers, HVDC line and a dangling line. The status could be:
 - `PLANNED_OUTAGE`: outage due to an unscheduled putting out of service of the equipment.
 - `FORCED_OUTAGE`: outage due to a programmed taking out of service of the equipment.
 
+(reference-priority-extension)=
 ## Reference Priority
 
 This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
@@ -373,7 +393,7 @@ int priority = ReferencePriority.get(generator); // note: returns zero if none d
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
-
+(reference-terminals-extension)=
 ## Reference Terminals
 
 This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
@@ -397,6 +417,7 @@ ReferenceTerminals.add(terminal);
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
+(remote-reactive-power-control-extension)=
 ## Remote reactive power control
 
 This extensions is used for generators with a remote reactive control.
@@ -407,6 +428,7 @@ This extensions is used for generators with a remote reactive control.
 | targetQ            | double     | MVar | yes      | -             | The targetQ at remote regulating terminal          |
 | regulatingTerminal | `Terminal` | -    | yes      | -             | The regulating terminal                            |
 
+(slack-terminal-extension)=
 ## Slack terminal
 
 This extension is attached to a [voltage level](network_subnetwork.md#voltage-level) and is used to define the slack bus
@@ -428,6 +450,7 @@ SlackTerminal.attach(bus);
 
 This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 
+(substation-position-extension)=
 ## Substation Position
 
 This extension is attached to a Substation and is used to store the geographical coordinates of the Substation.
@@ -456,6 +479,7 @@ station.newExtension(SubstationPositionAdder.class)
         .add();
 ```
 
+(three-windings-transformer-phase-angle-clock-extension)=
 ## Three-windings transformer phase angle clock
 
 This extension is used to model the Vector Group of a three windings transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three windings transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three windings transformer](network_subnetwork.md#three-windings-transformer).
@@ -474,6 +498,7 @@ transformer.newExtension(ThreeWindingsTransformerPhaseAngleClock.class)
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
+(three-windings-transformer-to-be-estimated-extension)=
 ## Three-windings transformer to be estimated
 
 This extension is used to indicate if a three-winding transformer tap changer is to be estimated during a state estimation, i.e. if its tap position should be an output of the state estimation.
@@ -502,6 +527,7 @@ transformer.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
         .add();
 ```
 
+(two-windings-transformer-phase-angle-clock-extension)=
 ## Two-windings transformer phase angle clock
 
 This extension is used to model the Vector Group of a two windings transformer. The phase angle clock is modeled at side 2 of a two windings transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two windings transformer](network_subnetwork.md#two-windings-transformer).
@@ -518,6 +544,7 @@ transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
 
 This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
 
+(two-windings-transformer-to-be-estimated-extension)=
 ## Two-windings transformer to be estimated
 
 This extension is used to indicate if a two-winding transformer tap changer is to be estimated during a state estimation, i.e. if its tap position should be an output of the state estimation.
@@ -548,6 +575,7 @@ transformer.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
         .add();
 ```
 
+(voltage-per-reactive-power-control-extension)=
 ## Voltage per reactive power control
 
 This extension is used to model voltage control of static VAR compensators. This extension is attached to a [static VAR compensator](network_subnetwork.md#static-var-compensator).
