@@ -114,7 +114,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                 writeEndComment(" END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA", outputStream);
 
                 SubstationSwitchingDeviceData switchingDeviceData = new SubstationSwitchingDeviceData();
-                write(switchingDeviceData.buildRecords(substation.getSwitchingDevices(), context.getFieldNames(INTERNAL_SUBSTATION_SWITCHING_DEVICE), nodeData.quotedFields(), context), outputStream);
+                write(switchingDeviceData.buildRecords(substation.getSwitchingDevices(), context.getFieldNames(INTERNAL_SUBSTATION_SWITCHING_DEVICE), switchingDeviceData.quotedFields(), context), outputStream);
                 writeEndComment(" END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA", outputStream);
 
                 write(writeEquipmentTerminalData(substation.getEquipmentTerminals(), context), outputStream);
@@ -157,7 +157,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationSwitchingDeviceData extends AbstractRecordGroup<PsseSubstationSwitchingDevice> {
             SubstationSwitchingDeviceData() {
                 super(INTERNAL_SUBSTATION_SWITCHING_DEVICE, "ni", "nj", "ckt", "name", "type", "status", "nstat", "x", "rate1", "rate2", "rate3");
-                withQuotedFields(QUOTED_FIELDS);
+                withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
             }
 
             @Override
@@ -286,7 +286,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
         private static class SubstationSwitchingDevicexData extends AbstractRecordGroup<PsseSubstationSwitchingDevicex> {
             SubstationSwitchingDevicexData() {
                 super(INTERNAL_SUBSTATION_SWITCHING_DEVICE);
-                withQuotedFields(QUOTED_FIELDS);
+                withQuotedFields(QUOTED_FIELDS_SWITCHING_DEVICES);
             }
 
             @Override
@@ -321,4 +321,5 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
     }
 
     private static final String[] QUOTED_FIELDS = {"name", "type", "id", "ckt", "eqid"};
+    private static final String[] QUOTED_FIELDS_SWITCHING_DEVICES = {"name", "ckt"};
 }
