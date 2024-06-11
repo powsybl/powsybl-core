@@ -19,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.OptionalDouble;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -55,7 +56,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
         assertNotNull(gen2);
         ActivePowerControl<Generator> activePowerControl1 = gen2.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl1);
-        assertEquals(100, activePowerControl1.getMaxPOverride().get());
+        assertEquals(OptionalDouble.of(100), activePowerControl1.getMaxPOverride());
         assertTrue(activePowerControl1.getMinPOverride().isEmpty());
 
         Battery bat2 = network2.getBattery("BAT");
@@ -63,7 +64,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
         ActivePowerControl<Battery> activePowerControl2 = bat2.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl2);
         assertTrue(activePowerControl2.getMaxPOverride().isEmpty());
-        assertEquals(10, activePowerControl2.getMinPOverride().get());
+        assertEquals(OptionalDouble.of(10), activePowerControl2.getMinPOverride());
     }
 
     @Test

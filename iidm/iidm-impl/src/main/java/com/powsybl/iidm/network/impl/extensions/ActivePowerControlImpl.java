@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
-import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -116,9 +116,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     @Override
-    public Optional<Double> getMinPOverride() {
+    public OptionalDouble getMinPOverride() {
         double result = minPOverride.get(getVariantIndex());
-        return Double.isNaN(result) ? Optional.empty() : Optional.of(result);
+        return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(result);
     }
 
     @Override
@@ -127,9 +127,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     @Override
-    public Optional<Double> getMaxPOverride() {
+    public OptionalDouble getMaxPOverride() {
         double result = maxPOverride.get(getVariantIndex());
-        return Double.isNaN(result) ? Optional.empty() : Optional.of(result);
+        return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(result);
     }
 
     @Override

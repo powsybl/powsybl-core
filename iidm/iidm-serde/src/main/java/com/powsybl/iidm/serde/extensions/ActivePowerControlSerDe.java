@@ -65,8 +65,9 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
             context.getWriter().writeDoubleAttribute("participationFactor", activePowerControl.getParticipationFactor());
         }
         if ("1.2".compareTo(extVersionStr) <= 0) {
-            context.getWriter().writeOptionalDoubleAttribute("maxPOverride", activePowerControl.getMaxPOverride().orElse(null));
-            context.getWriter().writeOptionalDoubleAttribute("minPOverride", activePowerControl.getMinPOverride().orElse(null));
+            // not using writeOptionalDouble and trusting implementation convention: : writeDoubleAttribute does not write NaN values in human-readable formats JSON/XML
+            context.getWriter().writeDoubleAttribute("maxPOverride", activePowerControl.getMaxPOverride().orElse(Double.NaN));
+            context.getWriter().writeDoubleAttribute("minPOverride", activePowerControl.getMinPOverride().orElse(Double.NaN));
         }
     }
 
@@ -95,8 +96,9 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
             participationFactor = context.getReader().readDoubleAttribute("participationFactor");
         }
         if ("1.2".compareTo(extVersionStr) <= 0) {
-            maxPOverride = context.getReader().readOptionalDoubleAttribute("maxPOverride").orElse(Double.NaN);
-            minPOverride = context.getReader().readOptionalDoubleAttribute("minPOverride").orElse(Double.NaN);
+            // not using readOptionalDouble and trusting implementation convention: readDoubleAttribute returns Nan if attribute is absent in human-readable formats (JSON / XML)
+            maxPOverride = context.getReader().readDoubleAttribute("maxPOverride");
+            minPOverride = context.getReader().readDoubleAttribute("minPOverride");
         }
         context.getReader().readEndNode();
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);

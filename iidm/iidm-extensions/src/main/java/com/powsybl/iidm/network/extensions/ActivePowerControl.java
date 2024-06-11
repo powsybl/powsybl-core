@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.extensions;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 
-import java.util.Optional;
+import java.util.OptionalDouble;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -59,7 +59,7 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
     /**
      * @return if present, provides the overridden value of minP to be used for active power control operations.
      */
-    Optional<Double> getMinPOverride();
+    OptionalDouble getMinPOverride();
 
     /**
      * Sets the overridden minimal active power.
@@ -70,7 +70,7 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
     /**
      * @return if present, provides the overridden value of maxP to be used for active power control operations.
      */
-    Optional<Double> getMaxPOverride();
+    OptionalDouble getMaxPOverride();
 
     /**
      * Sets the overridden maximal active power.

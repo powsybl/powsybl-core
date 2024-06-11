@@ -180,8 +180,8 @@ public abstract class AbstractActivePowerControlTest {
         assertTrue(activePowerControl.isParticipate());
         assertEquals(4.0, activePowerControl.getDroop(), 0.0);
         assertEquals(1.2, activePowerControl.getParticipationFactor(), 0.0);
-        assertEquals(10, activePowerControl.getMinPOverride().get());
-        assertEquals(100, activePowerControl.getMaxPOverride().get());
+        assertEquals(10, activePowerControl.getMinPOverride().getAsDouble());
+        assertEquals(100, activePowerControl.getMaxPOverride().getAsDouble());
     }
 
     private static void checkValues4(ActivePowerControl<Battery> activePowerControl) {
@@ -189,7 +189,7 @@ public abstract class AbstractActivePowerControlTest {
         assertEquals(6.0, activePowerControl.getDroop(), 0.0);
         assertEquals(3.0, activePowerControl.getParticipationFactor(), 0.0);
         assertTrue(activePowerControl.getMinPOverride().isEmpty());
-        assertEquals(110, activePowerControl.getMaxPOverride().get());
+        assertEquals(110, activePowerControl.getMaxPOverride().getAsDouble());
     }
 
     private static void checkValues5(ActivePowerControl<Battery> activePowerControl) {
@@ -197,6 +197,6 @@ public abstract class AbstractActivePowerControlTest {
         assertEquals(6.0, activePowerControl.getDroop(), 0.0);
         assertEquals(3.0, activePowerControl.getParticipationFactor(), 0.0);
         assertTrue(activePowerControl.getMaxPOverride().isEmpty());
-        assertEquals(11, activePowerControl.getMinPOverride().get());
+        assertEquals(11, activePowerControl.getMinPOverride().getAsDouble());
     }
 }
