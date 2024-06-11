@@ -16,7 +16,8 @@ A sensitivity value is the numerical estimation of the partial derivative of the
 The sensitivity analysis can also be seen as the computation of partial derivatives on the network model.
 For example, it may be used to know, among a group of selected lines, which are the most impacted by a change in a generator production or a change of tap on a phase tap changer. The user story about [RSC capacity calculation](https://www.powsybl.org/pages/documentation/user/user-stories/capacity_calculation_rsc.html) provides an example of application of the sensitivity analysis.
 
-## Sensitivity analysis inputs
+(sensitivity-analysis-inputs)=
+## Inputs
 
 ### Network
 The first input for the sensitivity analysis module is an IIDM network.
@@ -97,7 +98,8 @@ shall be calculated on the network at state N, but also after the application of
 
 At the moment the only available sensitivity simulator officially compatible with PowSyBl is the one available through OpenLoadFlow. In this case, the network is provided only once in state N, and then all the calculations are done successively by modifying the Jacobian matrix directly in the solver based on the contingencies input. The network is thus loaded only once, which improves performance.
 
-## Sensitivity analysis outputs
+(sensitivity-analysis-outputs)=
+## Outputs
 
 (sensitivity-values)=
 ### Sensitivity values
