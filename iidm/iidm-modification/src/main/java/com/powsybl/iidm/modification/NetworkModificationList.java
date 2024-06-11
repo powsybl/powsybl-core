@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -47,9 +46,9 @@ public class NetworkModificationList extends AbstractNetworkModification {
     @Override
     protected boolean applyDryRun(Network network, NamingStrategy namingStrategy,
                           ComputationManager computationManager, ReportNode reportNode) {
-        AtomicBoolean result = new AtomicBoolean(true);
-        modificationList.forEach(modification -> result.set(result.get() && modification.dryRun(network, namingStrategy, computationManager, reportNode)));
-        return result.get();
+        return !hasImpactOnNetwork() && isLocalDryRunPossible() ?
+            getFlattenedModificationList().stream().allMatch(modification -> modification.dryRun(network, namingStrategy, computationManager, reportNode)) :
+            fullDryRun(network, namingStrategy, computationManager, reportNode);
     }
 
     @Override
