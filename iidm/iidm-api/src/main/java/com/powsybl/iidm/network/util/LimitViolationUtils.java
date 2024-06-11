@@ -167,6 +167,21 @@ public final class LimitViolationUtils {
         return computer.computeLimits(transformer, type, side, false);
     }
 
+    /**
+     * @deprecated should use {@link #getLoadingLimits(Identifiable, LimitType, ThreeSides)} instead
+     */
+    @Deprecated(since = "6.4.0")
+    public static Optional<? extends LoadingLimits> getLimits(Branch<?> branch, TwoSides side, LimitType type) {
+        return branch.getLimits(type, side);
+    }
+    /**
+     * @deprecated should use {@link #getLoadingLimits(Identifiable, LimitType, ThreeSides)} instead
+     */
+    @Deprecated(since = "6.4.0")
+    public static Optional<? extends LoadingLimits> getLimits(ThreeWindingsTransformer transformer, ThreeSides side, LimitType type) {
+        return transformer.getLeg(side).getLimits(type);
+    }
+
     public static Optional<LoadingLimits> getLoadingLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side) {
         return switch (identifiable.getType()) {
             case LINE -> (Optional<LoadingLimits>) ((Line) identifiable).getLimits(limitType, side.toTwoSides());
