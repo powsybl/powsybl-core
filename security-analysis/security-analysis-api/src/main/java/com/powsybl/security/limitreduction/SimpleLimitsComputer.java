@@ -18,7 +18,7 @@ import java.util.Optional;
 /**
  * <p>A limits computer that takes a single limit reduction value for all the identifiers, and applies it on each permanent and temporary limit, for pre- and post-contingency states.</p>
  * <p>It does not store any values in cache and uses a {@link SimpleLimitsReducer}.</p>
- * 
+ *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class SimpleLimitsComputer implements LimitsComputer<Identifiable<?>, LoadingLimits> {
