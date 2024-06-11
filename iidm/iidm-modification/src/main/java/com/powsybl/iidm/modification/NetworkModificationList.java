@@ -46,9 +46,17 @@ public class NetworkModificationList extends AbstractNetworkModification {
     @Override
     protected boolean applyDryRun(Network network, NamingStrategy namingStrategy,
                           ComputationManager computationManager, ReportNode reportNode) {
-        return !hasImpactOnNetwork() && isLocalDryRunPossible() ?
-            getFlattenedModificationList().stream().allMatch(modification -> modification.dryRun(network, namingStrategy, computationManager, reportNode)) :
-            fullDryRun(network, namingStrategy, computationManager, reportNode);
+        if (!hasImpactOnNetwork() && isLocalDryRunPossible()) {
+            dryRunConclusive = getFlattenedModificationList().stream().allMatch(modification -> modification.dryRun(network, namingStrategy, computationManager, reportNode));
+            if (!dryRunConclusive) {
+                reportOnInconclusiveDryRun(reportNode,
+                    "NetworkModificationList",
+                    "At least one dry run on a network modification from the list failed");
+            }
+        } else {
+            dryRunConclusive = fullDryRun(network, namingStrategy, computationManager, reportNode);
+        }
+        return dryRunConclusive;
     }
 
     @Override
