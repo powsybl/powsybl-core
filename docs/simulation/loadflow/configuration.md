@@ -1,7 +1,7 @@
 # Configuration
 
 ## Implementation
-If you have several implementation in your classpath, you need to choose which implementation to use in your configuration file:
+If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file:
 ```yaml
 load-flow:
   default-impl-name: "<IMPLEMENTATION_NAME>"

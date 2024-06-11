@@ -2,14 +2,14 @@
 
 (sensitivity-implementation-config)=
 ## Implementation
-If you have several implementation in your classpath, you need to choose which implementation to use in your configuration file:
+If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file:
 ```yaml
 sensitivity-analysis:
   default-impl-name: "<IMPLEMENTATION_NAME>"
 ```
 
 Each implementation is identified by its name, that should be unique in the classpath.
-Use "OpenLoadFlow" to use PowSyBl OpenLoadFlow sensitivity analysis.
+Use "OpenLoadFlow" to use PowSyBl OpenLoadFlow's sensitivity analysis implementation.
 
 (sensitivity-generic-parameter)=
 ## Parameters
