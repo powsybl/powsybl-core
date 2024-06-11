@@ -66,12 +66,12 @@
 6,'NDCLINE',6,1,1.0,0.0
 7,'NGEN',6,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',0,1,0.0,0.0,0.0,0.0
-2,3,'1 ','Sw-LineToBus2','2',1,1,0.0,0.0,0.0,0.0
-2,4,'1 ','Sw-T2wToBus3','2',1,1,0.0,0.0,0.0,0.0
-2,5,'1 ','Sw-T3wToBus3Bus4','2',1,1,0.0,0.0,0.0,0.0
-1,6,'1 ','Sw-LineDcToBus5','2',1,1,0.0,0.0,0.0,0.0
-1,7,'1 ','Sw-Gen','2',1,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,0,1,0.0,0.0,0.0,0.0
+2,3,'1 ','Sw-LineToBus2',2,1,1,0.0,0.0,0.0,0.0
+2,4,'1 ','Sw-T2wToBus3',2,1,1,0.0,0.0,0.0,0.0
+2,5,'1 ','Sw-T3wToBus3Bus4',2,1,1,0.0,0.0,0.0,0.0
+1,6,'1 ','Sw-LineDcToBus5',2,1,1,0.0,0.0,0.0,0.0
+1,7,'1 ','Sw-Gen',2,1,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 6,7,'M','1 '
 6,6,'D','EATL P1     '
@@ -87,10 +87,10 @@
 4,'NLOAD',8,1,1.0,0.0
 5,'NFSHUNT',7,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',0,1,0.0,0.0,0.0,0.0
-1,3,'1 ','Sw-LineToBus1','2',1,1,0.0,0.0,0.0,0.0
-1,4,'1 ','Sw-Load','2',0,1,0.0,0.0,0.0,0.0
-2,5,'1 ','Sw-FixedShunt','2',1,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,0,1,0.0,0.0,0.0,0.0
+1,3,'1 ','Sw-LineToBus1',2,1,1,0.0,0.0,0.0,0.0
+1,4,'1 ','Sw-Load',2,0,1,0.0,0.0,0.0,0.0
+2,5,'1 ','Sw-FixedShunt',2,1,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 8,4,'L','1 '
 7,5,'F','1 '
@@ -104,10 +104,10 @@
 4,'NT3W',3,1,1.0,0.0
 5,'NLOAD',10,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',0,1,0.0,0.0,0.0,0.0
-1,3,'1 ','Sw-T2w','2',1,1,0.0,0.0,0.0,0.0
-1,4,'1 ','Sw-T3w','2',1,1,0.0,0.0,0.0,0.0
-2,5,'1 ','Sw-Load','2',0,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,0,1,0.0,0.0,0.0,0.0
+1,3,'1 ','Sw-T2w',2,1,1,0.0,0.0,0.0,0.0
+1,4,'1 ','Sw-T3w',2,1,1,0.0,0.0,0.0,0.0
+2,5,'1 ','Sw-Load',2,0,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 10,5,'L','1 '
 3,3,'2',1,'1 '
@@ -120,9 +120,9 @@
 3,'NT3W',4,1,1.0,0.0
 4,'NLOAD',12,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',0,1,0.0,0.0,0.0,0.0
-1,3,'1 ','Sw-T3w','2',1,1,0.0,0.0,0.0,0.0
-2,4,'1 ','Sw-Load','2',0,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,0,1,0.0,0.0,0.0,0.0
+1,3,'1 ','Sw-T3w',2,1,1,0.0,0.0,0.0,0.0
+2,4,'1 ','Sw-Load',2,0,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 12,4,'L','1 '
 4,3,'3',1,3,'1 '
@@ -135,10 +135,10 @@
 4,'NLOAD',14,1,1.0,0.0
 5,'NSSHUNT',13,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',0,1,0.0,0.0,0.0,0.0
-1,3,'1 ','Sw-DcLine','2',1,1,0.0,0.0,0.0,0.0
-1,4,'1 ','Sw-Load','2',0,1,0.0,0.0,0.0,0.0
-2,5,'1 ','Sw-SwitchedShunt','2',1,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,0,1,0.0,0.0,0.0,0.0
+1,3,'1 ','Sw-DcLine',2,1,1,0.0,0.0,0.0,0.0
+1,4,'1 ','Sw-Load',2,0,1,0.0,0.0,0.0,0.0
+2,5,'1 ','Sw-SwitchedShunt',2,1,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 14,4,'L','1 '
 13,5,'S','1 '
