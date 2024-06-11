@@ -67,7 +67,7 @@ This extension gives positions information about a busbar section. The `busbarIn
 
 <span style="color: red">TODO</span>
 
-(coordinated-reactive-power-extension)=
+(coordinated-reactive-control-extension)=
 ## Coordinated reactive control
 
 Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percent of reactive coordinated control that comes from a generator. This extension is attached to a [generator](network_subnetwork.md#generator).
