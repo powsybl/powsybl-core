@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.3.1</version>
+        <version>6.3.2-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-extensions</artifactId>
