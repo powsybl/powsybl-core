@@ -17,9 +17,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * <p>Criterion checking that one of side of the network element belongs to a country defined in a list.</p>
- * <p>When <code>filter</code> is called with a non-null <code>side</code>, only the country on this particular side
- * is checked.</p>
+ * <p>Criterion checking that one of the sides of the network element belongs to a country defined in a list.</p>
+ * <p>When {@link #filter(NetworkElement, ThreeSides)}} is called with a non-null <code>side</code>, only the country
+ * on this particular side is checked.</p>
  * @author Olivier Perrin {@literal <olivier.perrin@rte-france.com>}
  */
 public class AtLeastOneCountryCriterion implements Criterion {
