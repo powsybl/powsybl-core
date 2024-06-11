@@ -56,6 +56,16 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private static double calculateNewRatedU(double ratedU, double ratedU0, double newRatedU0) {
         return ratedU * newRatedU0 / ratedU0;
     }

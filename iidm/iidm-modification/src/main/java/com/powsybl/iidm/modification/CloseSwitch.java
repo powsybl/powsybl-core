@@ -46,4 +46,14 @@ public class CloseSwitch extends AbstractNetworkModification {
         }
         return dryRunConclusive;
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
 }

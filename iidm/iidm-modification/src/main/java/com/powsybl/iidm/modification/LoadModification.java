@@ -65,4 +65,14 @@ public class LoadModification extends AbstractLoadModification {
         }
         return dryRunConclusive;
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
 }

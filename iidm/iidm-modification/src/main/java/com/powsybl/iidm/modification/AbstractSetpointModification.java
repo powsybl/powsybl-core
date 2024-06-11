@@ -69,6 +69,16 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     public abstract String getElementName();
 
     protected abstract void setVoltageSetpoint(T networkElement, Double voltageSetpoint);

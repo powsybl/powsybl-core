@@ -33,4 +33,14 @@ public class PhaseShifterSetAsFixedTap extends AbstractPhaseShifterModification 
         phaseTapChanger.setRegulating(false);
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
 }

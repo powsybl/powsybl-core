@@ -70,6 +70,16 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private static void setTargetV(ShuntCompensator shuntCompensator) {
         if (shuntCompensator.isVoltageRegulatorOn()) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(), shuntCompensator.getRegulatingTerminal().getBusView().getBus(),

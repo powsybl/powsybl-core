@@ -71,6 +71,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
 
     @Override
     protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        // TODO: fix this
         if (network.getTwoWindingsTransformer(getTransformerId()) == null && network.getThreeWindingsTransformer(getTransformerId()) == null) {
             dryRunConclusive = false;
             reportOnInconclusiveDryRun(reportNode,
@@ -78,6 +79,11 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
                 TRANSFORMER_STR + getTransformerId() + "' not found");
         }
         return dryRunConclusive;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 
     /**

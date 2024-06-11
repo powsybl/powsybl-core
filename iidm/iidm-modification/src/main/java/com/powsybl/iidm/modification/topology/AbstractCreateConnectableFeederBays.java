@@ -112,6 +112,11 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private boolean checkOrders(int side, VoltageLevel voltageLevel, ReportNode reportNode, boolean throwException) {
         TopologyKind topologyKind = voltageLevel.getTopologyKind();
         Integer positionOrder = getPositionOrder(side);

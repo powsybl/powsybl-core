@@ -205,6 +205,11 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     public String getLineToBeMerged1Id() {
         return lineToBeMerged1Id;
     }

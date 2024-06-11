@@ -80,6 +80,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
         Graph<Integer, Object> graph = new Pseudograph<>(Object.class);
         int node = terminal.getNodeBreakerView().getNode();

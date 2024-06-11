@@ -55,6 +55,17 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        // TODO: see TODO in applyDryRun
+        return true;
+    }
+
     public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);

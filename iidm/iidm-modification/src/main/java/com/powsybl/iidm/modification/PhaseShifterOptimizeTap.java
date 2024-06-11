@@ -46,4 +46,9 @@ public class PhaseShifterOptimizeTap extends AbstractPhaseShifterModification {
         }
         return dryRunConclusive;
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
 }

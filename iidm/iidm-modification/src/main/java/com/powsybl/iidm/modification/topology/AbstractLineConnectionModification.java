@@ -148,6 +148,11 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode, Logger logger) {
         if (identifiable instanceof Bus bus) {
             return bus.getVoltageLevel();

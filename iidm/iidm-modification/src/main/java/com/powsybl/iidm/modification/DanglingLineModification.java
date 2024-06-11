@@ -56,6 +56,16 @@ public class DanglingLineModification extends AbstractLoadModification {
     }
 
     @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
+    @Override
     protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
         if (network.getDanglingLine(getDanglingLineId()) == null) {
             dryRunConclusive = false;

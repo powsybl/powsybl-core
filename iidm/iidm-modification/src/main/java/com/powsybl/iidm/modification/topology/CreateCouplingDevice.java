@@ -140,6 +140,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     /**
      * Apply the modification on the two specified busbar sections
      */

@@ -45,4 +45,14 @@ public class PhaseShifterShiftTap extends AbstractPhaseShifterModification {
         phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
                 phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
 }

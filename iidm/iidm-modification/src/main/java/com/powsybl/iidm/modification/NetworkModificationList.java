@@ -17,6 +17,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.serde.NetworkSerDe;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -49,6 +50,38 @@ public class NetworkModificationList extends AbstractNetworkModification {
         AtomicBoolean result = new AtomicBoolean(true);
         modificationList.forEach(modification -> result.set(result.get() && modification.dryRun(network, namingStrategy, computationManager, reportNode)));
         return result.get();
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        List<NetworkModification> flatModificationList = getFlattenedModificationList();
+
+        // Empty list
+        if (flatModificationList.isEmpty()) {
+            return false;
+        }
+
+        // Check if any network modification from the list - except the last element - has an impact on the network
+        return flatModificationList.subList(0, flatModificationList.size() - 1)
+            .stream()
+            .anyMatch(NetworkModification::hasImpactOnNetwork);
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return modificationList.stream().allMatch(NetworkModification::isLocalDryRunPossible);
+    }
+
+    private List<NetworkModification> getFlattenedModificationList() {
+        List<NetworkModification> flatModificationList = new ArrayList<>();
+        modificationList.forEach(networkModification -> {
+            if (networkModification instanceof NetworkModificationList networkModificationList) {
+                flatModificationList.addAll(networkModificationList.getFlattenedModificationList());
+            } else {
+                flatModificationList.add(networkModification);
+            }
+        });
+        return flatModificationList;
     }
 
     public boolean fullDryRun(Network network) {

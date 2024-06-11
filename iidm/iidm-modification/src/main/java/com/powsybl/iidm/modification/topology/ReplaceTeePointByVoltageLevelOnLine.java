@@ -256,6 +256,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {
         TopologyKind topologyKind = tappedVoltageLevel.getTopologyKind();
         if (topologyKind == TopologyKind.BUS_BREAKER) {

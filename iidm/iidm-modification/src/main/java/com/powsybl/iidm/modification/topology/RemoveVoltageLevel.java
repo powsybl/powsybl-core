@@ -76,4 +76,9 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
 }

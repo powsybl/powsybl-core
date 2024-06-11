@@ -63,5 +63,10 @@ public class RemoveSubstation extends AbstractNetworkModification {
         }
         return dryRunConclusive;
     }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
 }
 

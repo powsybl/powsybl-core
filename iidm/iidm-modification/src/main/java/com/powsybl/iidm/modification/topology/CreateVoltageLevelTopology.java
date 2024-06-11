@@ -213,6 +213,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {
         int node = 0;
         for (int sectionNum = lowSectionIndex; sectionNum < lowSectionIndex + sectionCount; sectionNum++) {

@@ -105,6 +105,16 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     protected abstract boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return true;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return false;
+    }
+
     protected static void reportOnInconclusiveDryRun(ReportNode reportNode, String networkModification, String cause) {
         reportNode.newReportNode()
             .withMessageTemplate("networkModificationsDryRun-failure",

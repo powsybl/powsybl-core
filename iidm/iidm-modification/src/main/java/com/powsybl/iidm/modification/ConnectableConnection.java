@@ -96,4 +96,15 @@ public class ConnectableConnection extends AbstractNetworkModification {
         }
         return dryRunConclusive;
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        // TODO: see TODO in applyDryRun
+        return true;
+    }
 }

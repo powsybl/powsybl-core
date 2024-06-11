@@ -59,6 +59,16 @@ public class BatteryModification extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     public String getBatteryId() {
         return batteryId;
     }

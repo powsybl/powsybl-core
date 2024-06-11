@@ -70,6 +70,16 @@ public class HvdcLineModification extends AbstractNetworkModification {
     }
 
     @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
+    @Override
     protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
         if (network.getHvdcLine(hvdcId) == null) {
             dryRunConclusive = false;

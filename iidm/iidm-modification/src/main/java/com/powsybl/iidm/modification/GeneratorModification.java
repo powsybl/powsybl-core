@@ -79,6 +79,16 @@ public class GeneratorModification extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private void applyTargetP(Generator g, boolean skipOtherConnectionChange) {
         Double newTargetP;
         if (modifs.getTargetP() != null) {

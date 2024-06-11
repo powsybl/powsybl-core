@@ -188,6 +188,11 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     public String getLine1Id() {
         return line1Id;
     }

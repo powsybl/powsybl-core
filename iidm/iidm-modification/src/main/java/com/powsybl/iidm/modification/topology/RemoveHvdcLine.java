@@ -80,6 +80,11 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private static ShuntCompensator getShuntCompensator(String id, Network network, boolean throwException, ReportNode reportNode) {
         ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {

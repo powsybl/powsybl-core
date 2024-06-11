@@ -60,6 +60,16 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         return dryRunConclusive;
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     static void connect(Generator g) {
         Objects.requireNonNull(g);
 
