@@ -192,6 +192,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
             voltageLevel.removeArea(this);
         }
         network.getListeners().notifyAfterRemoval(id);
+        network.removeListener(this.areaListener);
         removed = true;
     }
 
