@@ -82,11 +82,11 @@ public final class TerminalRefSerDe {
     public static void readTerminalRef(NetworkDeserializerContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
+        context.getReader().readEndNode();
         context.getEndTasks().add(() -> {
             Terminal t = resolve(id, side, network);
             endTaskTerminalConsumer.accept(t);
         });
-        context.getReader().readEndNode();
     }
 
     public static Terminal resolve(String id, ThreeSides side, Network network) {

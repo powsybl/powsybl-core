@@ -25,11 +25,11 @@ public final class BoundaryRefSerDe {
 
     public static void readBoundaryRef(NetworkDeserializerContext context, Network network, Consumer<Boundary> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
+        context.getReader().readEndNode();
         context.getEndTasks().add(() -> {
             DanglingLine danglingLine = network.getDanglingLine(id);
             endTaskTerminalConsumer.accept(danglingLine.getBoundary());
         });
-        context.getReader().readEndNode();
     }
 
     public static void writeBoundaryRefAttributes(Boundary boundary, NetworkSerializerContext context) {
