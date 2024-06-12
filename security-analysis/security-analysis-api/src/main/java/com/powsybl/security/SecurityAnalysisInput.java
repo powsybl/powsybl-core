@@ -10,10 +10,9 @@ package com.powsybl.security;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
-import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -33,7 +32,6 @@ public class SecurityAnalysisInput {
     private final NetworkVariant networkVariant;
     private Set<SecurityAnalysisInterceptor> interceptors;
     private LimitViolationFilter filter;
-    private LimitViolationDetector detector;
     private ContingenciesProvider contingencies;
     private SecurityAnalysisParameters parameters;
 
@@ -45,7 +43,6 @@ public class SecurityAnalysisInput {
         this.networkVariant = Objects.requireNonNull(networkVariant);
         this.interceptors = new HashSet<>();
         this.filter = new LimitViolationFilter();
-        this.detector = new DefaultLimitViolationDetector();
         this.contingencies = ContingenciesProviders.emptyProvider();
         this.parameters = new SecurityAnalysisParameters();
     }
@@ -64,25 +61,12 @@ public class SecurityAnalysisInput {
         return contingencies;
     }
 
-    /**
-     * Get specified {@link LimitViolationDetector}.
-     */
-    public LimitViolationDetector getLimitViolationDetector() {
-        return detector;
-    }
-
     public LimitViolationFilter getFilter() {
         return filter;
     }
 
     public Set<SecurityAnalysisInterceptor> getInterceptors() {
         return Collections.unmodifiableSet(interceptors);
-    }
-
-    public SecurityAnalysisInput setDetector(LimitViolationDetector detector) {
-        Objects.requireNonNull(detector);
-        this.detector = detector;
-        return this;
     }
 
     public SecurityAnalysisInput setContingencies(ContingenciesProvider contingencies) {

@@ -112,6 +112,11 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains dangling line {}, discarded from scaling", id);
+            return 0;
+        }
+
         DanglingLine dl = n.getDanglingLine(id);
 
         double done = 0;

@@ -9,6 +9,7 @@ package com.powsybl.action;
 
 import com.powsybl.iidm.network.ThreeSides;
 
+import java.util.Objects;
 import java.util.OptionalDouble;
 
 /**
@@ -62,5 +63,25 @@ public class RatioTapChangerRegulationAction extends AbstractTapChangerRegulatio
 
     public OptionalDouble getTargetV() {
         return targetV == null ? OptionalDouble.empty() : OptionalDouble.of(targetV);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+        RatioTapChangerRegulationAction that = (RatioTapChangerRegulationAction) o;
+        return Objects.equals(targetV, that.targetV);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), targetV);
     }
 }
