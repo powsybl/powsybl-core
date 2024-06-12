@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.tck.extensions;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.math.matrix.ComplexMatrix;
+import org.apache.commons.math3.complex.Complex;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,6 +79,24 @@ public abstract class AbstractFortescueExtensionTest {
     }
 
     @Test
+    public void testAsymmetricalLine() {
+        var network = EurostagTutorialExample1Factory.create();
+        var l = network.getLine("NHV1_NHV2_1");
+        LineAsymmetrical asymmetrical = l.newExtension(LineAsymmetricalAdder.class)
+                .withOpenPhaseA(true)
+                .withOpenPhaseB(false)
+                .withOpenPhaseC(true)
+                .add();
+
+        assertTrue(asymmetrical.isOpenPhaseA());
+        assertFalse(asymmetrical.isOpenPhaseB());
+        assertTrue(asymmetrical.isOpenPhaseC());
+
+        asymmetrical.setOpenPhaseA(false);
+        assertFalse(asymmetrical.isOpenPhaseA());
+    }
+
+    @Test
     public void testTwoWindingsTransformer() {
         var network = EurostagTutorialExample1Factory.create();
         var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
@@ -120,6 +140,45 @@ public abstract class AbstractFortescueExtensionTest {
         assertEquals(0.33d, fortescue.getGroundingX1());
         assertEquals(0.045d, fortescue.getGroundingR2());
         assertEquals(0.0001d, fortescue.getGroundingX2());
+    }
+
+    @Test
+    public void testAsymmetricalTwoWindingsTransformer() {
+        ComplexMatrix yA = new ComplexMatrix(3, 3);
+        yA.set(0, 0, new Complex(0.3465, 1.0179));
+        yA.set(0, 1, new Complex(0.1560, 0.5017));
+        yA.set(0, 2, new Complex(0.1580, 0.4236));
+        yA.set(1, 0, new Complex(0.1560, 0.5017));
+        yA.set(1, 1, new Complex(0.3375, 1.0478));
+        yA.set(1, 2, new Complex(0.1535, 0.3849));
+        yA.set(2, 0, new Complex(0.1580, 0.4236));
+        yA.set(2, 1, new Complex(0.1535, 0.3849));
+        yA.set(2, 2, new Complex(0.3414, 1.0348));
+        ComplexMatrix yBC = new ComplexMatrix(3, 3);
+        yBC.set(0, 0, new Complex(1.0, 0.0));
+        yBC.set(1, 1, new Complex(1.0, 0.0));
+        yBC.set(2, 2, new Complex(1.0, 0.0));
+
+        var network = EurostagTutorialExample1Factory.create();
+        var twt = network.getTwoWindingsTransformer("NGEN_NHV1");
+        TwoWindingsTransformerAsymmetrical asymmetrical = twt.newExtension(TwoWindingsTransformerAsymmetricalAdder.class)
+                .withOpenPhaseA1(true)
+                .withOpenPhaseB1(false)
+                .withOpenPhaseC1(true)
+                .withOpenPhaseA2(false)
+                .withOpenPhaseB2(true)
+                .withOpenPhaseC2(false)
+                .withAdmittanceMatrixA(yA)
+                .withAdmittanceMatrixB(yBC)
+                .withAdmittanceMatrixC(yBC)
+                .add();
+
+        assertEquals(true, asymmetrical.isOpenPhaseA1());
+        assertEquals(false, asymmetrical.isOpenPhaseB1());
+        assertEquals(true, asymmetrical.isOpenPhaseC1());
+        assertEquals(false, asymmetrical.isOpenPhaseA2());
+        assertEquals(true, asymmetrical.isOpenPhaseB2());
+        assertEquals(false, asymmetrical.isOpenPhaseC2());
     }
 
     @Test

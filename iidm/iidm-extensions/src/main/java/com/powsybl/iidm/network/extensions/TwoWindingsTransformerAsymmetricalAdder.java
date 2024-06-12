@@ -29,9 +29,9 @@ public interface TwoWindingsTransformerAsymmetricalAdder extends ExtensionAdder<
 
     TwoWindingsTransformerAsymmetricalAdder withOpenPhaseC2(boolean openPhaseC2);
 
-    TwoWindingsTransformerAsymmetricalAdder withYA(ComplexMatrix yA);
+    TwoWindingsTransformerAsymmetricalAdder withAdmittanceMatrixA(ComplexMatrix yA);
 
-    TwoWindingsTransformerAsymmetricalAdder withYB(ComplexMatrix yB);
+    TwoWindingsTransformerAsymmetricalAdder withAdmittanceMatrixB(ComplexMatrix yB);
 
-    TwoWindingsTransformerAsymmetricalAdder withYC(ComplexMatrix yC);
+    TwoWindingsTransformerAsymmetricalAdder withAdmittanceMatrixC(ComplexMatrix yC);
 }

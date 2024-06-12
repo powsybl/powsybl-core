@@ -14,8 +14,7 @@ import com.powsybl.math.matrix.ComplexMatrix;
 /**
  * An asymmetrical line is modeled by:
  * - the connection status of each phase A, B and C.
- * - its physical characteristics Rz, Xz, Rn and Zn (knowing that Rp and Rp, balanced characteristics, are present in
- * the line attributes). From these values, we compute the Fortescue admittance matrix admittanceMatrixABC for computation engine.
+ * - the three-phase admittance matrix.
  *
  * @author Jean-Baptiste Heyberger {@literal <jbheyberger at gmail.com>}
  */

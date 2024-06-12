@@ -123,7 +123,6 @@ public class ComplexMatrix {
                 complexMatrix.set(i, j, new Complex(t11, t21));
             }
         }
-
         return complexMatrix;
     }
 }
