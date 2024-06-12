@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -31,7 +32,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     private final class AreaListener extends DefaultNetworkListener {
         @Override
-        public void beforeRemoval(Identifiable identifiable) {
+        public void beforeRemoval(Identifiable<?> identifiable) {
             if (identifiable instanceof DanglingLine danglingLine) {
                 // if dangling line removed from network, remove its boundary from this extension
                 AreaImpl.this.removeAreaBoundary(danglingLine.getBoundary());
@@ -39,6 +40,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
                 // if connectable removed from network, remove its terminals from this extension
                 connectable.getTerminals().forEach(AreaImpl.this::removeAreaBoundary);
             }
+            // updating the voltageLevels set whet a voltage level is removed from the network is handled by the remove() method of VoltageLevel
         }
     }
 
@@ -101,19 +103,24 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public Double getAcNetInterchange() {
         throwIfRemoved("AC net interchange");
-        return areaBoundaries.stream().filter(AreaBoundary::isAc).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+        return getInterchange(AreaBoundary::isAc);
     }
 
     @Override
     public Double getDcNetInterchange() {
         throwIfRemoved("DC net interchange");
-        return areaBoundaries.stream().filter(areaBoundary -> !areaBoundary.isAc()).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
+        return getInterchange(areaBoundary -> !areaBoundary.isAc());
     }
 
     @Override
     public Double getTotalNetInterchange() {
         throwIfRemoved("total net interchange");
-        return getAcNetInterchange() + getDcNetInterchange();
+        return getInterchange(areaBoundary -> true);
+    }
+
+    Double getInterchange(Predicate<AreaBoundary> predicate) {
+        throwIfRemoved("interchange");
+        return areaBoundaries.stream().filter(predicate).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
     /**
