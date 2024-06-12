@@ -174,6 +174,7 @@ public final class LimitViolationUtils {
     public static Optional<? extends LoadingLimits> getLimits(Branch<?> branch, TwoSides side, LimitType type) {
         return branch.getLimits(type, side);
     }
+
     /**
      * @deprecated should use {@link #getLoadingLimits(Identifiable, LimitType, ThreeSides)} instead
      */
