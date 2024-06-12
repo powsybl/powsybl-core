@@ -571,7 +571,6 @@ public final class ValidationUtil {
             LOGGER.info("permanent limit is set to 0");
         }
 
-
         return validationLevel;
     }
 
