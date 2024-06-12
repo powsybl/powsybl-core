@@ -350,7 +350,8 @@ public final class NetworkSerDe {
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
-        writeAreas(n, context);
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () -> writeAreas(n, context));
     }
 
     private static void writeSubnetworks(Network n, NetworkSerializerContext context) {

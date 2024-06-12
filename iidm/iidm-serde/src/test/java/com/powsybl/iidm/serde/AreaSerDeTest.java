@@ -25,6 +25,7 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
     void testNetworkAreas() throws IOException {
         Network network = createBaseNetworkWithAreas();
         allFormatsRoundTripTest(network, "/areaRoundTripRef.xml", CURRENT_IIDM_VERSION);
+        allFormatsRoundTripTest(network, "/areaRoundTripRef.xml", IidmVersion.V_1_12);
         // backward compatibility (checks versions 11 and 12)
         allFormatsRoundTripFromVersionedXmlFromMinToCurrentVersionTest("/areaRoundTripRef.xml", IidmVersion.V_1_11);
     }
