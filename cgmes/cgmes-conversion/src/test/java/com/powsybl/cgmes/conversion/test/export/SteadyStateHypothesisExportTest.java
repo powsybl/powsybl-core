@@ -64,7 +64,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesMetadataModels);
-        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -77,7 +77,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesMetadataModels);
-        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
+        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -89,7 +89,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesMetadataModels);
-        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
+        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -98,7 +98,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringCgmesMetadataModels,
@@ -111,7 +111,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::sameScenarioTime,
                 ExportXmlCompare::ensuringIncreasedModelVersion,
                 ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
@@ -119,7 +119,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringHvdcLinePmax)));
     }
 
-    private boolean test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
+    private boolean test(ReadOnlyDataSource dataSource, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
@@ -316,30 +316,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             throw new RuntimeException(e);
         }
         return sshExportedControlAreas;
-    }
-
-    private static final String ATTR_RESOURCE = "resource";
-    private static final String MODEL_SUPERSEDES = "Model.Supersedes";
-
-    private static String readSshModelSupersedes(Path ssh) {
-        String modelSupersedes;
-        try (InputStream is = Files.newInputStream(ssh)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            while (reader.hasNext()) {
-                int next = reader.next();
-                if (next == XMLStreamConstants.START_ELEMENT) {
-                    if (reader.getLocalName().equals(MODEL_SUPERSEDES)) {
-                        modelSupersedes = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, ATTR_RESOURCE);
-                        reader.close();
-                        return modelSupersedes;
-                    }
-                }
-            }
-            reader.close();
-        } catch (XMLStreamException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
     }
 
     @Test
