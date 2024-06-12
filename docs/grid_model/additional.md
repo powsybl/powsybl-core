@@ -8,9 +8,11 @@ Network elements can be described in an advanced way with reactive limits, loadi
 The reactive limits may be used to model limitations of the reactive power of
 [generators](./network_subnetwork.md#generator), [VSC converter stations](./network_subnetwork.md#vsc-converter-station) and [batteries](./network_subnetwork.md#battery).
 
+(min-max-reactive-limits)=
 ### Min-Max reactive limits
 With the min-max reactive limits, the reactive power does not depend on the active power. For any active power value, the reactive power value is in the [minQ, maxQ] interval.
 
+(reactive-capability-curve)=
 ### Reactive capability curve
 With the reactive capability curve limits, the reactive power limitation depends on the active power value. This dependency is based on a curve provided by the user.
 The curve is defined as a set of points that associate, to each active power value, a minimum and maximum reactive power value.
@@ -62,6 +64,7 @@ generator.newReactiveCapabilityCurve()
     .add();
 ```
 
+(loading-limits)=
 ## Loading Limits
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LoadingLimits.html)
 
@@ -86,6 +89,7 @@ Please look at this scheme to fully understand the modelling (the following exam
 
 Note that, following this modelling, in general the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero. If temporary limits are modeled, the permanent limit becomes mandatory.
 
+(limit-group-collection)=
 ### Limit group collection
 In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer for example), the time of the day (day vs night) etc.
 In PowSyBl, users can store a collection of limits:
@@ -140,6 +144,7 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
 ```
 ![Current limits scheme_example2](img/currentLimitsExample2.svg)
 
+(phase-tap-changer)=
 ## Phase tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
 
@@ -212,6 +217,7 @@ twoWindingsTransformer.newPhaseTapChanger()
     .add()
 ```
 
+(ratio-tap-changer)=
 ## Ratio tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
 
