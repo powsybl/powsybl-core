@@ -119,7 +119,6 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     Double getInterchange(Predicate<AreaBoundary> predicate) {
-        throwIfRemoved("interchange");
         return areaBoundaries.stream().filter(predicate).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
