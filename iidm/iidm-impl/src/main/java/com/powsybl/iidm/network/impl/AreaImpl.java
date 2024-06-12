@@ -40,7 +40,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
                 // if connectable removed from network, remove its terminals from this extension
                 connectable.getTerminals().forEach(AreaImpl.this::removeAreaBoundary);
             }
-            // updating the voltageLevels set whet a voltage level is removed from the network is handled by the remove() method of VoltageLevel
+            // If the identifiable removed is a VoltageLevel: the area voltageLevels attribute will be updated by VoltageLevel::remove()
         }
     }
 
