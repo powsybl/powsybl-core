@@ -11,21 +11,21 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.iidm.network.extensions.AbstractShortCircuit;
+import com.powsybl.iidm.network.extensions.ShortCircuitExtension;
 
 /**
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public abstract class AbstractShortCircuitImpl<T extends Extendable<T>> extends AbstractExtension<T>
-    implements AbstractShortCircuit<T> {
+public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>> extends AbstractExtension<T>
+    implements ShortCircuitExtension<T> {
 
     private double directSubtransX; // X''d
     private double directTransX; // X'd
     private double stepUpTransformerX; // Reactance of the step-up transformer
 
-    protected AbstractShortCircuitImpl(T extendable, double directSubtransX, double directTransX,
-                                    double stepUpTransformerX) {
+    protected AbstractShortCircuitExtensionImpl(T extendable, double directSubtransX, double directTransX,
+                                                double stepUpTransformerX) {
         super(extendable);
         this.directSubtransX = directSubtransX;
         this.directTransX = directTransX;
@@ -38,7 +38,7 @@ public abstract class AbstractShortCircuitImpl<T extends Extendable<T>> extends 
     }
 
     @Override
-    public AbstractShortCircuitImpl<T> setDirectSubtransX(double directSubtransX) {
+    public AbstractShortCircuitExtensionImpl<T> setDirectSubtransX(double directSubtransX) {
         this.directSubtransX = directSubtransX;
         return this;
     }
@@ -49,7 +49,7 @@ public abstract class AbstractShortCircuitImpl<T extends Extendable<T>> extends 
     }
 
     @Override
-    public AbstractShortCircuitImpl<T> setDirectTransX(double directTransX) {
+    public AbstractShortCircuitExtensionImpl<T> setDirectTransX(double directTransX) {
         if (Double.isNaN(directTransX)) {
             throw new PowsyblException("Undefined directTransX");
         }
@@ -63,7 +63,7 @@ public abstract class AbstractShortCircuitImpl<T extends Extendable<T>> extends 
     }
 
     @Override
-    public AbstractShortCircuitImpl<T> setStepUpTransformerX(double stepUpTransformerX) {
+    public AbstractShortCircuitExtensionImpl<T> setStepUpTransformerX(double stepUpTransformerX) {
         this.stepUpTransformerX = stepUpTransformerX;
         return this;
     }

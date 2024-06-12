@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Generator;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface GeneratorShortCircuit extends AbstractShortCircuit<Generator> {
+public interface GeneratorShortCircuit extends ShortCircuitExtension<Generator> {
 
     String NAME = "generatorShortCircuit";
 

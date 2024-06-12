@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Battery;
  * The short-circuit reactances for batteries.
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface BatteryShortCircuit extends AbstractShortCircuit<Battery> {
+public interface BatteryShortCircuit extends ShortCircuitExtension<Battery> {
 
     String NAME = "batteryShortCircuit";
 

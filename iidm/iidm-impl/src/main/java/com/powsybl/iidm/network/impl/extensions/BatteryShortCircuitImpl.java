@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuit;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class BatteryShortCircuitImpl extends AbstractShortCircuitImpl<Battery> implements BatteryShortCircuit {
+public class BatteryShortCircuitImpl extends AbstractShortCircuitExtensionImpl<Battery> implements BatteryShortCircuit {
     public BatteryShortCircuitImpl(Battery battery, double directSubtransX, double directTransX,
                                      double stepUpTransformerX) {
         super(battery, directSubtransX, directTransX, stepUpTransformerX);

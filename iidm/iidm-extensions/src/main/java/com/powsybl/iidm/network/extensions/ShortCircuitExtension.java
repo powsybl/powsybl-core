@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.Extension;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface AbstractShortCircuit<T extends Extendable<T>> extends Extension<T> {
+public interface ShortCircuitExtension<T extends Extendable<T>> extends Extension<T> {
 
     /**
      * Get the direct-axis sub-transient reactance (also known as X''d)
@@ -23,7 +23,7 @@ public interface AbstractShortCircuit<T extends Extendable<T>> extends Extension
     /**
      * Set the direct-axis sub-transient reactance (also known as X''d)
      */
-    AbstractShortCircuit<T> setDirectSubtransX(double directSubtransX);
+    ShortCircuitExtension<T> setDirectSubtransX(double directSubtransX);
 
     /**
      * Get the direct-axis transient reactance (also known as X'd)
@@ -33,7 +33,7 @@ public interface AbstractShortCircuit<T extends Extendable<T>> extends Extension
     /**
      * Set the direct-axis transient reactance (also known as X'd)
      */
-    AbstractShortCircuit<T> setDirectTransX(double directTransX);
+    ShortCircuitExtension<T> setDirectTransX(double directTransX);
 
     /**
      * Get the step-up transformer reactance if the generator or battery has a non-modeled step-up transformer.
@@ -43,6 +43,6 @@ public interface AbstractShortCircuit<T extends Extendable<T>> extends Extension
     /**
      * Set the step-up transformer reactance
      */
-    AbstractShortCircuit<T> setStepUpTransformerX(double setUpTransformerX);
+    ShortCircuitExtension<T> setStepUpTransformerX(double setUpTransformerX);
 
 }
