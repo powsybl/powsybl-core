@@ -288,9 +288,11 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertEquals(2, merged.getAreaTypeCount());
         assertEquals(1, subnetwork1.getAreaTypeCount());
         assertEquals(1, subnetwork2.getAreaTypeCount());
-        assertCollection(List.of(id("areaType1", ID_1), id("areaType1", ID_2)), merged.getAreaTypeStream().toList());
-        assertCollection(List.of(id("areaType1", ID_1)), subnetwork1.getAreaTypeStream().toList());
-        assertCollection(List.of(id("areaType1", ID_2)), subnetwork2.getAreaTypeStream().toList());
+        String areaTypeId1 = id("areaType1", ID_1);
+        String areaTypeId2 = id("areaType1", ID_2);
+        assertCollection(List.of(areaTypeId1, areaTypeId2), merged.getAreaTypeStream().toList());
+        assertCollection(List.of(areaTypeId1), subnetwork1.getAreaTypeStream().toList());
+        assertCollection(List.of(areaTypeId2), subnetwork2.getAreaTypeStream().toList());
     }
 
     @Test

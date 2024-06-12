@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -46,7 +47,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void areaAttributesTest() {
+    public void areaAttributesTest() {
         assertEquals(IdentifiableType.AREA, biddingZoneA.getType());
 
         assertEquals("bza", biddingZoneA.getId());
@@ -74,7 +75,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void areaNetPositionComputation() {
+    public void areaNetPositionComputation() {
         // Check current Net Interchanges (NaN P values are ignored)
         assertEquals(0., aicA.getAcNetInterchange());
         assertEquals(-5., aicA.getDcNetInterchange());
@@ -90,7 +91,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void areaIterableAndStreamGetterCheck() {
+    public void areaIterableAndStreamGetterCheck() {
         List<Area> areas = List.of(biddingZoneA, biddingZoneB, regionA, aicA);
         List<String> areaTypes = List.of(biddingZone, region, aic);
 
@@ -104,7 +105,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void addVoltageLevelsToAreaTest() {
+    public void addVoltageLevelsToAreaTest() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
 
@@ -117,7 +118,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void addSameVoltageLevelToAreaTest() {
+    public void addSameVoltageLevelToAreaTest() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         biddingZoneA.addVoltageLevel(vlhv1);
         vlhv1.addArea(biddingZoneA);
@@ -127,7 +128,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void addAreasToVoltageLevelTest() {
+    public void addAreasToVoltageLevelTest() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         vlhv1.addArea(biddingZoneA);
         regionA.addVoltageLevel(vlhv1);
@@ -138,7 +139,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void throwAddNewAreaSameTypeTest() {
+    public void throwAddNewAreaSameTypeTest() {
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
         biddingZoneA.addVoltageLevel(vlhv2);
         var e1 = assertThrows(PowsyblException.class, () -> biddingZoneB.addVoltageLevel(vlhv2));
@@ -150,7 +151,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void throwRemovedVoltageLevel() {
+    public void throwRemovedVoltageLevel() {
         VoltageLevel dummy = network.newVoltageLevel()
                 .setId("dummy")
                 .setNominalV(400.0)
@@ -177,7 +178,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void throwAddVoltageLevelOtherNetwork() {
+    public void throwAddVoltageLevelOtherNetwork() {
         Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
         VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
                 .setId("sub1_vl1")
@@ -190,7 +191,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void addAreaBoundaryTerminal() {
+    public void addAreaBoundaryTerminal() {
         Terminal terminal = network.getLoad("LOAD").getTerminal();
         biddingZoneA.newAreaBoundary()
                 .setTerminal(terminal)
@@ -201,7 +202,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void addAreaBoundaryDanglingLine() {
+    public void addAreaBoundaryDanglingLine() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         DanglingLine danglingLine = vlhv1.newDanglingLine()
                 .setId("danglingLine")
@@ -220,7 +221,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void removeAreaBoundaries() {
+    public void removeAreaBoundaries() {
         Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         Terminal boundary2 = network.getGenerator("GEN").getTerminal();
         Boundary boundary3 = network.getDanglingLine("danglingLine1").getBoundary();
@@ -235,7 +236,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void removeEquipmentRemovesAreaBoundary() {
+    public void removeEquipmentRemovesAreaBoundary() {
         assertEquals(3, aicA.getAreaBoundaryStream().count());
 
         // Deleting equipment from the network should automatically delete their AreaBoundary-s
@@ -247,18 +248,33 @@ public abstract class AbstractAreaTest {
         assertBoundaries(Map.of(), aicA);
     }
 
-    void assertBoundaries(Map<Object, Boolean> expectedBoundaries, Area area) {
-        final Function<AreaBoundary, ?> getBoundaryOrTerminalFunction = areaBoundary -> areaBoundary.getTerminal().isPresent() ? areaBoundary.getTerminal().get() : areaBoundary.getBoundary().get();
-        Map<Object, Boolean> actualBoundariesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
-                                                                    .collect(Collectors.toMap(getBoundaryOrTerminalFunction, AreaBoundary::isAc));
-        Map<Object, Boolean> actualBoundariesFromStream = area.getAreaBoundaryStream()
-                                                         .collect(Collectors.toMap(getBoundaryOrTerminalFunction, AreaBoundary::isAc));
-        assertEquals(expectedBoundaries, actualBoundariesFromIterable);
-        assertEquals(expectedBoundaries, actualBoundariesFromStream);
+    void assertBoundaries(Map<Object, Boolean> expectedAreaBoundaries, Area area) {
+        final Function<Object, Pair<String, ThreeSides>> getAreaBoundaryIdAndSide = object -> {
+            if (object instanceof Terminal terminal) {
+                return Pair.of(terminal.getConnectable().getId(), terminal.getSide());
+            } else if (object instanceof Boundary boundary) {
+                return Pair.of(boundary.getDanglingLine().getId(), null);
+            } else if (object instanceof AreaBoundary areaBoundary) {
+                return areaBoundary.getTerminal().isPresent()
+                        ? Pair.of(areaBoundary.getTerminal().get().getConnectable().getId(), areaBoundary.getTerminal().get().getSide())
+                        : Pair.of(areaBoundary.getBoundary().orElseThrow().getDanglingLine().getId(), null);
+            } else {
+                throw new IllegalArgumentException("Unexpected object type: " + object.getClass());
+            }
+        };
+
+        Map<Pair<String, ThreeSides>, Boolean> expectedBoundaryAttributes = expectedAreaBoundaries.entrySet().stream()
+                .collect(Collectors.toMap(entry -> getAreaBoundaryIdAndSide.apply(entry.getKey()), Map.Entry::getValue));
+        Map<Pair<String, ThreeSides>, Boolean> actualAttributesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
+                .collect(Collectors.toMap(getAreaBoundaryIdAndSide, AreaBoundary::isAc));
+        Map<Pair<String, ThreeSides>, Boolean> actualAttributesFromStream = area.getAreaBoundaryStream()
+                .collect(Collectors.toMap(getAreaBoundaryIdAndSide, AreaBoundary::isAc));
+        assertEquals(expectedBoundaryAttributes, actualAttributesFromIterable);
+        assertEquals(expectedBoundaryAttributes, actualAttributesFromStream);
     }
 
     @Test
-    void throwBoundaryOtherNetwork() {
+    public void throwBoundaryOtherNetwork() {
         Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
         VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
                 .setId("sub1_vl1")
@@ -281,7 +297,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void throwBoundaryAttributeNotSet() {
+    public void throwBoundaryAttributeNotSet() {
         final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
         AreaBoundaryAdder areaBoundaryAdder1 = biddingZoneA.newAreaBoundary().setAc(true);
         Throwable e1 = assertThrows(PowsyblException.class, areaBoundaryAdder1::add);
