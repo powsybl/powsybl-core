@@ -7,8 +7,11 @@
  */
 package com.powsybl.security.limitreduction;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.limitmodification.LimitsComputer;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.limitmodification.AbstractLimitsComputerWithCache;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.limitreduction.computation.SimpleLimitsReducer;
@@ -17,11 +20,11 @@ import java.util.Optional;
 
 /**
  * <p>A limits computer that takes a single limit reduction value for all the identifiers, and applies it on each permanent and temporary limit, for pre- and post-contingency states.</p>
- * <p>It does not store any values in cache and uses a {@link SimpleLimitsReducer}.</p>
+ * <p>Computed values are stored in cache to avoid recomputing them.</p>
  *
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class SimpleLimitsComputer implements LimitsComputer<Identifiable<?>, LoadingLimits> {
+public class SimpleLimitsComputer extends AbstractLimitsComputerWithCache<Identifiable<?>, LoadingLimits> {
 
     private final double limitReduction;
 
@@ -30,7 +33,7 @@ public class SimpleLimitsComputer implements LimitsComputer<Identifiable<?>, Loa
     }
 
     @Override
-    public Optional<LimitsContainer<LoadingLimits>> computeLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
+    protected Optional<LimitsContainer<LoadingLimits>> computeUncachedLimits(Identifiable<?> identifiable, LimitType limitType, ThreeSides side, boolean monitoringOnly) {
         Optional<LoadingLimits> limits = LimitViolationUtils.getLoadingLimits(identifiable, limitType, side);
         return limits.map(limits1 -> new SimpleLimitsReducer(limits1, limitReduction).getLimits());
     }

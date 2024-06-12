@@ -52,7 +52,7 @@ public final class Security {
     }
 
     public static List<LimitViolation> checkLimits(Network network) {
-        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), 1f);
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), LimitsComputer.NO_MODIFICATIONS);
     }
 
     public static List<LimitViolation> checkLimits(Network network, double limitReductionValue) {
@@ -70,6 +70,10 @@ public final class Security {
             throw new IllegalArgumentException("Bad limit reduction " + limitReductionValue);
         }
         return checkLimits(network, currentLimitTypes, new SimpleLimitsComputer(limitReductionValue));
+    }
+
+    public static List<LimitViolation> checkLimits(Network network, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitsComputer);
     }
 
     public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
