@@ -112,8 +112,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
      */
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
-        voltageLevel.addArea(this);
-        voltagelevels.add(voltageLevel);
+        if (voltagelevels.add(voltageLevel)) {
+            voltageLevel.addArea(this);
+        }
     }
 
     @Override
@@ -131,12 +132,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public void removeAreaBoundary(Terminal terminal) {
-        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getTerminal().orElse(null), terminal)).findFirst().orElse(null));
+        areaBoundaries.removeIf(b -> Objects.equals(b.getTerminal().orElse(null), terminal));
     }
 
     @Override
     public void removeAreaBoundary(Boundary boundary) {
-        areaBoundaries.remove(areaBoundaries.stream().filter(b -> Objects.equals(b.getBoundary().orElse(null), boundary)).findFirst().orElse(null));
+        areaBoundaries.removeIf(b -> Objects.equals(b.getBoundary().orElse(null), boundary));
     }
 
     @Override
@@ -159,7 +160,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
         if (getParentNetwork() != network) {
-            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getId() + " boundaries. They do not belong to the same network or subnetwork");
+            throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getId() + " boundaries. It does not belong to the same network or subnetwork.");
         }
     }
 
