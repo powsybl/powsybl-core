@@ -126,7 +126,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
         // Check that the VoltageLevel belongs to the same network or subnetwork
         if (area.getParentNetwork() != getParentNetwork()) {
-            throw new PowsyblException("VoltageLevel " + getId() + " cannot be added to Area " + area.getId() + ". They do not belong to the same network or subnetwork");
+            throw new PowsyblException("VoltageLevel " + getId() + " cannot be added to Area " + area.getId() + ". It does not belong to the same network or subnetwork.");
         }
 
         // Check if the voltageLevel is already in another Area of the same type

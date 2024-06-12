@@ -70,14 +70,14 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
     @Override
     public void add() {
         if (isAc() == null) {
-            throw new PowsyblException("AreaBoundary must have a non-null attribute 'ac' to be added");
+            throw new PowsyblException("AreaBoundary AC flag is not set.");
         }
         if (getBoundary() != null) {
             getArea().addAreaBoundary(new AreaBoundaryImpl(getBoundary(), isAc()));
         } else if (getTerminal() != null) {
             getArea().addAreaBoundary(new AreaBoundaryImpl(getTerminal(), isAc()));
         } else {
-            throw new PowsyblException("AreaBoundary must have a non-null 'terminal' or 'boundary' attribute be added");
+            throw new PowsyblException("No AreaBoundary element (terminal or boundary) is set.");
         }
     }
 
