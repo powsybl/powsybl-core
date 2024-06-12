@@ -29,6 +29,7 @@ public final class BoundaryRefSerDe {
             DanglingLine danglingLine = network.getDanglingLine(id);
             endTaskTerminalConsumer.accept(danglingLine.getBoundary());
         });
+        context.getReader().readEndNode();
     }
 
     public static void writeBoundaryRefAttributes(Boundary boundary, NetworkSerializerContext context) {

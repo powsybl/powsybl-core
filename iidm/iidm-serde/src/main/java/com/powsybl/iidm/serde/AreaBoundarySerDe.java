@@ -47,11 +47,10 @@ public class AreaBoundarySerDe {
         AreaBoundaryAdder adder = holder.newAreaBoundary().setAc(ac);
         String type = context.getReader().readStringAttribute("type");
         switch (type) {
-            case TERMINAL_REF -> TerminalRefSerDe.readTerminalRefAttributes(context, holder.getNetwork(), adder::setTerminal);
+            case TERMINAL_REF -> TerminalRefSerDe.readTerminalRef(context, holder.getNetwork(), adder::setTerminal);
             case BoundaryRefSerDe.ROOT_ELEMENT_NAME -> BoundaryRefSerDe.readBoundaryRef(context, holder.getNetwork(), adder::setBoundary);
             default -> throw new PowsyblException("Unexpected element for AreaBoundary: " + type + ". Should be " + BoundaryRefSerDe.ROOT_ELEMENT_NAME + " or " + TERMINAL_REF);
         }
-        context.getReader().readEndNode();
         context.getEndTasks().add(adder::add);
     }
 }

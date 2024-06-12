@@ -79,17 +79,13 @@ public final class TerminalRefSerDe {
         return TerminalRefSerDe.resolve(id, side, n);
     }
 
-    public static void readTerminalRefAttributes(NetworkDeserializerContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
+    public static void readTerminalRef(NetworkDeserializerContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute(ID));
         ThreeSides side = context.getReader().readEnumAttribute(SIDE, ThreeSides.class);
         context.getEndTasks().add(() -> {
             Terminal t = resolve(id, side, network);
             endTaskTerminalConsumer.accept(t);
         });
-    }
-
-    public static void readTerminalRef(NetworkDeserializerContext context, Network network, Consumer<Terminal> endTaskTerminalConsumer) {
-        readTerminalRefAttributes(context, network, endTaskTerminalConsumer);
         context.getReader().readEndNode();
     }
 
