@@ -47,7 +47,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    public void areaAttributesTest() {
+    public void areaAttributes() {
         assertEquals(IdentifiableType.AREA, biddingZoneA.getType());
 
         assertEquals("bza", biddingZoneA.getId());
@@ -105,7 +105,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    public void addVoltageLevelsToAreaTest() {
+    public void addVoltageLevelsToArea() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
 
@@ -118,7 +118,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    public void addSameVoltageLevelToAreaTest() {
+    public void addSameVoltageLevelToArea() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         biddingZoneA.addVoltageLevel(vlhv1);
         vlhv1.addArea(biddingZoneA);
@@ -128,7 +128,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    public void addAreasToVoltageLevelTest() {
+    public void addAreasToVoltageLevel() {
         VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
         vlhv1.addArea(biddingZoneA);
         regionA.addVoltageLevel(vlhv1);
@@ -139,7 +139,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    public void throwAddNewAreaSameTypeTest() {
+    public void throwAddNewAreaSameType() {
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
         biddingZoneA.addVoltageLevel(vlhv2);
         var e1 = assertThrows(PowsyblException.class, () -> biddingZoneB.addVoltageLevel(vlhv2));
@@ -305,6 +305,32 @@ public abstract class AbstractAreaTest {
         AreaBoundaryAdder areaBoundaryAdder2 = biddingZoneA.newAreaBoundary().setTerminal(boundary1);
         Throwable e2 = assertThrows(PowsyblException.class, areaBoundaryAdder2::add);
         assertEquals("AreaBoundary AC flag is not set.", e2.getMessage());
+    }
+
+    @Test
+    public void removeArea() {
+        biddingZoneA.remove();
+        assertFalse(Iterables.contains(network.getAreas(), biddingZoneA));
+        assertFalse(network.getAreaStream().toList().contains(biddingZoneA));
+
+        Throwable e1 = assertThrows(PowsyblException.class, biddingZoneA::getAreaType);
+        assertEquals("Cannot access area type of removed area bza", e1.getMessage());
+        Throwable e2 = assertThrows(PowsyblException.class, biddingZoneA::getAcNetInterchangeTarget);
+        assertEquals("Cannot access AC net interchange target of removed area bza", e2.getMessage());
+        Throwable e3 = assertThrows(PowsyblException.class, biddingZoneA::getAcNetInterchange);
+        assertEquals("Cannot access AC net interchange of removed area bza", e3.getMessage());
+        Throwable e4 = assertThrows(PowsyblException.class, biddingZoneA::getDcNetInterchange);
+        assertEquals("Cannot access DC net interchange of removed area bza", e4.getMessage());
+        Throwable e5 = assertThrows(PowsyblException.class, biddingZoneA::getTotalNetInterchange);
+        assertEquals("Cannot access total net interchange of removed area bza", e5.getMessage());
+        Throwable e6 = assertThrows(PowsyblException.class, biddingZoneA::getVoltageLevels);
+        assertEquals("Cannot access voltage levels of removed area bza", e6.getMessage());
+        Throwable e7 = assertThrows(PowsyblException.class, biddingZoneA::getVoltageLevelStream);
+        assertEquals("Cannot access voltage levels of removed area bza", e7.getMessage());
+        Throwable e8 = assertThrows(PowsyblException.class, biddingZoneA::getAreaBoundaries);
+        assertEquals("Cannot access area boundaries of removed area bza", e8.getMessage());
+        Throwable e9 = assertThrows(PowsyblException.class, biddingZoneA::getAreaBoundaryStream);
+        assertEquals("Cannot access area boundaries of removed area bza", e9.getMessage());
     }
 
 }

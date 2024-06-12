@@ -27,6 +27,8 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final List<AreaBoundary> areaBoundaries;
     private final Set<VoltageLevel> voltagelevels;
 
+    protected boolean removed = false;
+
     private final class AreaListener extends DefaultNetworkListener {
         @Override
         public void beforeRemoval(Identifiable identifiable) {
@@ -57,11 +59,13 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public NetworkImpl getNetwork() {
+        throwIfRemoved("network");
         return networkRef.get();
     }
 
     @Override
     public Network getParentNetwork() {
+        throwIfRemoved("network");
         return Optional.ofNullable((Network) subnetworkRef.get()).orElse(getNetwork());
     }
 
@@ -72,36 +76,43 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public String getAreaType() {
+        throwIfRemoved("area type");
         return areaType;
     }
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
+        throwIfRemoved("voltage levels");
         return voltagelevels;
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
+        throwIfRemoved("voltage levels");
         return voltagelevels.stream();
     }
 
     @Override
     public Optional<Double> getAcNetInterchangeTarget() {
+        throwIfRemoved("AC net interchange target");
         return Optional.ofNullable(acNetInterchangeTarget);
     }
 
     @Override
     public Double getAcNetInterchange() {
+        throwIfRemoved("AC net interchange");
         return areaBoundaries.stream().filter(AreaBoundary::isAc).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
     @Override
     public Double getDcNetInterchange() {
+        throwIfRemoved("DC net interchange");
         return areaBoundaries.stream().filter(areaBoundary -> !areaBoundary.isAc()).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
     @Override
     public Double getTotalNetInterchange() {
+        throwIfRemoved("total net interchange");
         return getAcNetInterchange() + getDcNetInterchange();
     }
 
@@ -142,11 +153,13 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public Iterable<AreaBoundary> getAreaBoundaries() {
+        throwIfRemoved("area boundaries");
         return areaBoundaries;
     }
 
     @Override
     public Stream<AreaBoundary> getAreaBoundaryStream() {
+        throwIfRemoved("area boundaries");
         return areaBoundaries.stream();
     }
 
@@ -161,6 +174,24 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     void checkBoundaryNetwork(Network network, String boundaryTypeAndId) {
         if (getParentNetwork() != network) {
             throw new PowsyblException(boundaryTypeAndId + " cannot be added to Area " + getId() + " boundaries. It does not belong to the same network or subnetwork.");
+        }
+    }
+
+    @Override
+    public void remove() {
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+        network.getIndex().remove(this);
+        for (VoltageLevel voltageLevel : new HashSet<>(voltagelevels)) {
+            voltageLevel.removeArea(this);
+        }
+        network.getListeners().notifyAfterRemoval(id);
+        removed = true;
+    }
+
+    void throwIfRemoved(String attribute) {
+        if (removed) {
+            throw new PowsyblException("Cannot access " + attribute + " of removed area " + id);
         }
     }
 

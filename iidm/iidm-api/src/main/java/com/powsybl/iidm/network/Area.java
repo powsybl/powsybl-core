@@ -124,4 +124,6 @@ public interface Area extends Identifiable<Area> {
 
     void removeVoltageLevel(VoltageLevel voltageLevel);
 
+    void remove();
+
 }
