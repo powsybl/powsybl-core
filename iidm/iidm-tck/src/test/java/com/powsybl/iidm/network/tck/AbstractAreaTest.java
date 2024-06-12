@@ -91,6 +91,13 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
+    public void areaNetPositionComputationWithoutNoBoundaries() {
+        assertEquals(0., regionA.getAcNetInterchange());
+        assertEquals(0., regionA.getDcNetInterchange());
+        assertEquals(0., regionA.getTotalNetInterchange());
+    }
+
+    @Test
     public void areaIterableAndStreamGetterCheck() {
         List<Area> areas = List.of(biddingZoneA, biddingZoneB, regionA, aicA);
         List<String> areaTypes = List.of(biddingZone, region, aic);
