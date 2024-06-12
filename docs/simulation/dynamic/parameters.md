@@ -1,13 +1,36 @@
 # Parameters
 The `dynamic-simulation-default-parameters` module is used every time a dynamic-simulation is run. It defines the default values for the most common parameters a `com.powsybl.dynamicsimulation.DynamicSimulation` implementation should be able to handle. 
 
+You may configure some generic parameters for all implementations:
+```yaml
+dynamic-simulation-default-parameters:
+    startTime: 0
+    stopTime: 1
+```
+
+The parameters may also be overridden with a JSON file, in which case the configuration will look like:
+```json
+{
+  "version" : "1.0",
+  "startTime" : 0,
+  "stopTime" : 1,
+  "extensions" : {
+    ...
+  }
+}
+```
+
 ## Optional properties
 
 **startTime**  
-The `startTime` property is an optional property that defines the instant of time at which the dynamic simulation begins, in seconds. The default value of this property is `0`.
+`startTime` defines when the simulation begins, in seconds. The default value of this property is `0`.
 
 **stopTime**  
-The `stopTime` property is an optional property that defined the instant of time at which the dynamic simulation ends, in seconds. The default value of this property is `1`.
+`stopTime` defines when the simulation stops, in seconds. The default value of this property is `1`.
+
+## Specific parameters
+Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
+- [Dynawo](TODO)
 
 ## Examples
 

@@ -24,22 +24,22 @@ The inputs of a dynamic simulation are the following:
 - a configuration file to configure the curves to export at the end of the simulation
 
 ### Dynamic models mapping
-At the moment, the only way to associate dynamic models to static components is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo dynamic model DSL](dynawo/index.md#dynamic-models-dsl)
+For the moment, the only way to associate dynamic models to static components is through a groovy script. Note that the syntax of this script is specific to each simulator:
+- [Dynawo dynamic model DSL](TODO)
 
 ### Event models mapping
-At the moment, the only way to add events to the simulation is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo event model DSL](dynawo/index.md#event-models-dsl)
+For the moment, the only way to add events to the simulation is through a groovy script. Note that the syntax of this script is specific to each simulator:
+- [Dynawo event model DSL](TODO)
 
 ### Curves configuration
-At the moment, the only way to monitor dynamic variables of the simulation in order to export curves at the end of the simulation is to provide a groovy script to the simulation. Note that the syntax of this script is specific to each simulator:
-- [Dynawo curves DSL](dynawo/index.md#curves-dsl)
+For the moment, the only way to monitor dynamic variables of the simulation in order to export curves at the end of the simulation is to provide a groovy script to the simulation. Note that the syntax of this script is specific to each simulator:
+- [Dynawo curves DSL](TODO)
 
 ## Outputs
 
 The outputs of a dynamic simulation are:
 - the updated static network (which may have been topologically modified depending on the events or automatons defined as inputs)
-- a zipped file containing the different results of the dynamic simulation:
+- the different results of the dynamic simulation:
     - some curves, asked for by the user to track the evolution of specific variables throughout the simulation
     - some aggregated data regarding constraints, like a security analysis output
     - timelines, that contain the list of events that occurred during the dynamic simulation, be them planned beforehand through events, or not
@@ -47,51 +47,7 @@ The outputs of a dynamic simulation are:
 
 ## Implementations
 
-At the moment, the only available implementation of dynamic simulation compatible with PowSyBl is the one provided by [Dynawo](dynawo/index.md).
+For the moment, the only available implementation is provided by powsybl-dynawo, which links PowSyBl with [Dynaωo](http://dynawo.org) open source suite.
 
-## Configuration
-
-You first need to choose which implementation to use in your configuration file:
-```yaml
-dynamic-simulation:
-  default-impl-name: "<IMPLEMENTATION_NAME>"
-```
-
-Each implementation is identified by its name, that may be unique in the classpath:
-- use "dynawo" to use [Dynawo](dynawo/index.md) implementation
-
-## Parameters
-
-Then, configure some generic parameters for all implementations:
-```yaml
-dynamic-simulation-default-parameters:
-    startTime: 0
-    stopTime: 1
-```
-
-The parameters may also be overridden with a JSON file, in which case the configuration will look like:
-```json
-{
-  "version" : "1.0",
-  "startTime" : 0,
-  "stopTime" : 1,
-  "extensions" : {
-    ...
-  }
-}
-```
-
-### Available parameters
-
-**startTime**  
-The `startTime` parameter is an optional parameter that defines when the simulation begins, in seconds. By default, it's set to `0s`.
-
-**stopTime**  
-The `stopTime` parameter is an optional parameter that defines when the simulation stops, in seconds. By default, it's set to `1s`.
-
-### Default parameters
-The default values of all the optional properties are read from the {doc}`parameters` module, defined in the configuration file.
-
-### Specific parameters
-Some implementation use specific parameters that can be defined in the configuration file or in the JSON parameters file:
-- [Dynawo](dynawo/index.md#specific-parameters)
+## Going further
+- [Run a dynamic simulation through an iTools command](../../user/itools/dynamic-simulation.md): Learn how to perform a dynamic simulation from the command line
