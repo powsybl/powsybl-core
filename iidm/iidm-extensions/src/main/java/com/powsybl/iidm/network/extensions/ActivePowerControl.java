@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.extensions;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
 
+import java.util.OptionalDouble;
+
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
  */
@@ -54,4 +56,25 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
      */
     void setParticipationFactor(double participationFactor);
 
+    /**
+     * @return if present, provides the overridden value of minP to be used for active power control operations.
+     */
+    OptionalDouble getMinPOverride();
+
+    /**
+     * Sets the overridden minimal active power.
+     * @param pMinOverride  The overridden value of minP. A Nan value removes the override.
+     */
+    void setMinPOverride(double pMinOverride);
+
+    /**
+     * @return if present, provides the overridden value of maxP to be used for active power control operations.
+     */
+    OptionalDouble getMaxPOverride();
+
+    /**
+     * Sets the overridden maximal active power.
+     * @param pMaxOverride The overridden value of maxP. A Nan value removes the override.
+     */
+    void setMaxPOverride(double pMaxOverride);
 }
