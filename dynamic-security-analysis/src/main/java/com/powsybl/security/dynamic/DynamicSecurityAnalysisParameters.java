@@ -33,16 +33,16 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
 
     public static class ContingenciesParameters {
 
-        static final int DEFAULT_CONTINGENCIES_START_TIME = 5;
+        static final double DEFAULT_CONTINGENCIES_START_TIME = 5d;
 
         @JsonProperty("contingencies-start-time")
-        private int contingenciesStartTime;
+        private double contingenciesStartTime;
 
         public ContingenciesParameters() {
             this(DEFAULT_CONTINGENCIES_START_TIME);
         }
 
-        public ContingenciesParameters(int contingenciesStartTime) {
+        public ContingenciesParameters(double contingenciesStartTime) {
             this.contingenciesStartTime = contingenciesStartTime;
         }
 
@@ -51,17 +51,17 @@ public class DynamicSecurityAnalysisParameters extends AbstractExtendable<Dynami
          * Must be between {@link DynamicSimulationParameters#getStartTime()} and {@link DynamicSimulationParameters#getStopTime()} ()}
          * @return
          */
-        public int getContingenciesStartTime() {
+        public double getContingenciesStartTime() {
             return contingenciesStartTime;
         }
 
-        public ContingenciesParameters setContingenciesStartTime(int contingenciesStartTime) {
+        public ContingenciesParameters setContingenciesStartTime(double contingenciesStartTime) {
             this.contingenciesStartTime = contingenciesStartTime;
             return this;
         }
 
         public void load(ModuleConfig config) {
-            setContingenciesStartTime(config.getIntProperty("contingencies-start-time", DEFAULT_CONTINGENCIES_START_TIME));
+            setContingenciesStartTime(config.getDoubleProperty("contingencies-start-time", DEFAULT_CONTINGENCIES_START_TIME));
         }
     }
 
