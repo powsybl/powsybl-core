@@ -34,8 +34,8 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         assertNotNull(bat);
         bat.newExtension(BatteryShortCircuitAdder.class)
             .withDirectTransX(1.0)
-            .withDirectSubtransX(1.0)
-            .withStepUpTransformerX(1.0)
+            .withDirectSubtransX(2.0)
+            .withStepUpTransformerX(3.0)
             .add();
         BatteryShortCircuit batteryShortCircuits = bat.getExtension(BatteryShortCircuit.class);
 
@@ -46,8 +46,8 @@ class BatteryShortCircuitXmlSerDeTest extends AbstractIidmSerDeTest {
         BatteryShortCircuit batteryShortCircuits2 = bat2.getExtension(BatteryShortCircuit.class);
         assertNotNull(batteryShortCircuits2);
 
-        assertEquals(batteryShortCircuits.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0f);
-        assertEquals(batteryShortCircuits.getDirectSubtransX(), batteryShortCircuits2.getDirectSubtransX(), 0f);
-        assertEquals(batteryShortCircuits.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0f);
+        assertEquals(batteryShortCircuits.getDirectTransX(), batteryShortCircuits2.getDirectTransX(), 0.001d);
+        assertEquals(batteryShortCircuits.getDirectSubtransX(), batteryShortCircuits2.getDirectSubtransX(), 0.001d);
+        assertEquals(batteryShortCircuits.getStepUpTransformerX(), batteryShortCircuits2.getStepUpTransformerX(), 0.001d);
     }
 }
