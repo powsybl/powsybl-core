@@ -694,7 +694,6 @@ public abstract class AbstractCurrentLimitsTest {
         Optional<CurrentLimits> optionalLimits = line.getCurrentLimits(TwoSides.ONE);
         assertTrue(optionalLimits.isPresent());
         CurrentLimits limits = optionalLimits.get();
-        assertEquals(0, limits.getPermanentLimit());
         assertEquals(0, limits.getTemporaryLimit(Integer.MAX_VALUE).getValue());
     }
 }

@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -28,6 +30,8 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
 
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
+
+        private static final Logger LOGGER = LoggerFactory.getLogger(ValidationUtil.class);
 
         private String name;
 
@@ -76,6 +80,9 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
             }
             if (value < 0) {
                 throw new ValidationException(validable, "temporary limit value must be >= 0");
+            }
+            if (value == 0) {
+                LOGGER.info("temporary limit value is set to 0");
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(validable, "acceptable duration is not set");

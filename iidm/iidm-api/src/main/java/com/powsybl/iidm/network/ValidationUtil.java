@@ -566,6 +566,12 @@ public final class ValidationUtil {
             // because it is forbidden for SSH and EQ validation levels.
             throw new ValidationException(validable, "permanent limit must be >= 0");
         }
+        if (!Double.isNaN(permanentLimit) && permanentLimit == 0) {
+            // log if zero
+            LOGGER.info("permanent limit is set to 0");
+        }
+
+
         return validationLevel;
     }
 
