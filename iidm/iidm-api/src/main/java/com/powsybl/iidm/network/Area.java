@@ -106,19 +106,19 @@ public interface Area extends Identifiable<Area> {
 
     /**
      * Get the current AC Net Interchange of this area in MW, using load sign convention
-     * @return the AC net position
+     * @return the AC net position (0 if no boundary)
      */
     Double getAcNetInterchange();
 
     /**
      * Get the current DC Net Interchange of this area in MW, using load sign convention
-     * @return the DC net position
+     * @return the DC net position (0 if no boundary)
      */
     Double getDcNetInterchange();
 
     /**
      * Get the current total (AC+DC) Net Interchange of this area in MW, using load sign convention
-     * @return the total net position
+     * @return the total net position (0 if no boundary)
      */
     Double getTotalNetInterchange();
 

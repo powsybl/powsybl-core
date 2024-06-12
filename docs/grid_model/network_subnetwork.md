@@ -104,7 +104,8 @@ Areas can represent various granularities depending on their types. For instance
 
 A [voltage level](#voltage-level) can belong to several Areas, as long as they all have different types.
 
-The powerflow through the area boundaries can be summed and used to perform calculations for area interchange control.
+The powerflow through the area boundaries can be summed and used to perform calculations for area interchange control.   
+The area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting. If the Area has no boundary, the interchange is considered 0 MW.
 
 **Characteristics**
 
