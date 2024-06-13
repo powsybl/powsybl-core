@@ -15,11 +15,16 @@ import com.powsybl.iidm.network.extensions.GeneratorShortCircuitAdder;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class GeneratorShortCircuitAdderImpl extends AbstractShortCircuitExtensionAdderImpl<Generator, GeneratorShortCircuit>
+public class GeneratorShortCircuitAdderImpl extends AbstractShortCircuitExtensionAdderImpl<Generator, GeneratorShortCircuit, GeneratorShortCircuitAdder>
         implements GeneratorShortCircuitAdder {
 
     protected GeneratorShortCircuitAdderImpl(Generator extendable) {
         super(extendable);
+    }
+
+    @Override
+    protected GeneratorShortCircuitAdder self() {
+        return this;
     }
 
     @Override

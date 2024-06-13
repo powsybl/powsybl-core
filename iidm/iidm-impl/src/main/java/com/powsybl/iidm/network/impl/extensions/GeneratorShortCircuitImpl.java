@@ -15,10 +15,15 @@ import com.powsybl.iidm.network.extensions.GeneratorShortCircuit;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class GeneratorShortCircuitImpl extends AbstractShortCircuitExtensionImpl<Generator> implements GeneratorShortCircuit {
+public class GeneratorShortCircuitImpl extends AbstractShortCircuitExtensionImpl<Generator, GeneratorShortCircuitImpl> implements GeneratorShortCircuit {
 
     public GeneratorShortCircuitImpl(Generator generator, double directSubtransX, double directTransX,
                                      double stepUpTransformerX) {
         super(generator, directSubtransX, directTransX, stepUpTransformerX);
+    }
+
+    @Override
+    protected GeneratorShortCircuitImpl self() {
+        return this;
     }
 }

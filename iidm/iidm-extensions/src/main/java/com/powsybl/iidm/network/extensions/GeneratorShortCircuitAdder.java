@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Generator;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface GeneratorShortCircuitAdder extends ShortCircuitExtensionAdder<Generator, GeneratorShortCircuit> {
+public interface GeneratorShortCircuitAdder extends ShortCircuitExtensionAdder<Generator, GeneratorShortCircuit, GeneratorShortCircuitAdder> {
 
     @Override
     default Class<GeneratorShortCircuit> getExtensionClass() {

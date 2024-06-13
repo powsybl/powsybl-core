@@ -15,16 +15,18 @@ import com.powsybl.commons.extensions.ExtensionAdder;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface ShortCircuitExtensionAdder<T extends Extendable<T>, C extends ShortCircuitExtension<T>> extends ExtensionAdder<T, C> {
+public interface ShortCircuitExtensionAdder<T extends Extendable<T>,
+        C extends ShortCircuitExtension<T>,
+        A extends ShortCircuitExtensionAdder<T, C, ?>> extends ExtensionAdder<T, C> {
 
     @Override
     default Class<C> getExtensionClass() {
         throw new PowsyblException("Not yet implemented");
     }
 
-    ShortCircuitExtensionAdder<T, C> withDirectTransX(double directTransX);
+    A withDirectTransX(double directTransX);
 
-    ShortCircuitExtensionAdder<T, C> withDirectSubtransX(double direcSubtransX);
+    A withDirectSubtransX(double direcSubtransX);
 
-    ShortCircuitExtensionAdder<T, C> withStepUpTransformerX(double stepUpTransformerX);
+    A withStepUpTransformerX(double stepUpTransformerX);
 }

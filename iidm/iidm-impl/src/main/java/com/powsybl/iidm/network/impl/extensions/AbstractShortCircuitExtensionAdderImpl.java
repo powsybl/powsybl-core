@@ -17,8 +17,11 @@ import com.powsybl.iidm.network.extensions.ShortCircuitExtensionAdder;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public abstract class AbstractShortCircuitExtensionAdderImpl<T extends Extendable<T>, C extends ShortCircuitExtension<T>> extends AbstractExtensionAdder<T, C>
-    implements ShortCircuitExtensionAdder<T, C> {
+public abstract class AbstractShortCircuitExtensionAdderImpl<T extends Extendable<T>,
+            C extends ShortCircuitExtension<T>,
+            A extends ShortCircuitExtensionAdder<T, C, ?>>
+        extends AbstractExtensionAdder<T, C>
+        implements ShortCircuitExtensionAdder<T, C, A> {
 
     double directTransX = 0;
     double directSubtransX = Double.NaN;
@@ -28,27 +31,29 @@ public abstract class AbstractShortCircuitExtensionAdderImpl<T extends Extendabl
         super(extendable);
     }
 
+    protected abstract A self();
+
     @Override
     protected C createExtension(T extendable) {
         throw new PowsyblException("Not implemented");
     }
 
     @Override
-    public ShortCircuitExtensionAdder<T, C> withDirectTransX(double directTransX) {
+    public A withDirectTransX(double directTransX) {
         this.directTransX = directTransX;
-        return this;
+        return self();
     }
 
     @Override
-    public ShortCircuitExtensionAdder<T, C> withDirectSubtransX(double directSubtransX) {
+    public A withDirectSubtransX(double directSubtransX) {
         this.directSubtransX = directSubtransX;
-        return this;
+        return self();
     }
 
     @Override
-    public ShortCircuitExtensionAdder<T, C> withStepUpTransformerX(double stepUpTransformerX) {
+    public A withStepUpTransformerX(double stepUpTransformerX) {
         this.stepUpTransformerX = stepUpTransformerX;
-        return this;
+        return self();
     }
 
     @Override

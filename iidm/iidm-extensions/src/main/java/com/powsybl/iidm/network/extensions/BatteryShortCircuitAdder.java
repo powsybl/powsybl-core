@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Battery;
 /**
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public interface BatteryShortCircuitAdder extends ShortCircuitExtensionAdder<Battery, BatteryShortCircuit> {
+public interface BatteryShortCircuitAdder extends ShortCircuitExtensionAdder<Battery, BatteryShortCircuit, BatteryShortCircuitAdder> {
 
     @Override
     default Class<BatteryShortCircuit> getExtensionClass() {

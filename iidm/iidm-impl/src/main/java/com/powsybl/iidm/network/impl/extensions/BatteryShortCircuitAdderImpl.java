@@ -15,11 +15,16 @@ import com.powsybl.iidm.network.extensions.BatteryShortCircuitAdder;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public class BatteryShortCircuitAdderImpl extends AbstractShortCircuitExtensionAdderImpl<Battery, BatteryShortCircuit>
+public class BatteryShortCircuitAdderImpl extends AbstractShortCircuitExtensionAdderImpl<Battery, BatteryShortCircuit, BatteryShortCircuitAdder>
     implements BatteryShortCircuitAdder {
 
     protected BatteryShortCircuitAdderImpl(Battery extendable) {
         super(extendable);
+    }
+
+    @Override
+    protected BatteryShortCircuitAdder self() {
+        return this;
     }
 
     @Override

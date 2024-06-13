@@ -17,8 +17,9 @@ import com.powsybl.iidm.network.extensions.ShortCircuitExtension;
  *
  * @author Coline Piloquet {@literal <coline.piloquet@rte-france.fr>}
  */
-public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>> extends AbstractExtension<T>
-    implements ShortCircuitExtension<T> {
+public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>, S extends AbstractShortCircuitExtensionImpl<T, ?>>
+        extends AbstractExtension<T>
+        implements ShortCircuitExtension<T> {
 
     private double directSubtransX; // X''d
     private double directTransX; // X'd
@@ -32,15 +33,17 @@ public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>>
         this.stepUpTransformerX = stepUpTransformerX;
     }
 
+    protected abstract S self();
+
     @Override
     public double getDirectSubtransX() {
         return directSubtransX;
     }
 
     @Override
-    public AbstractShortCircuitExtensionImpl<T> setDirectSubtransX(double directSubtransX) {
+    public S setDirectSubtransX(double directSubtransX) {
         this.directSubtransX = directSubtransX;
-        return this;
+        return self();
     }
 
     @Override
@@ -49,12 +52,12 @@ public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>>
     }
 
     @Override
-    public AbstractShortCircuitExtensionImpl<T> setDirectTransX(double directTransX) {
+    public S setDirectTransX(double directTransX) {
         if (Double.isNaN(directTransX)) {
             throw new PowsyblException("Undefined directTransX");
         }
         this.directTransX = directTransX;
-        return this;
+        return self();
     }
 
     @Override
@@ -63,8 +66,8 @@ public abstract class AbstractShortCircuitExtensionImpl<T extends Extendable<T>>
     }
 
     @Override
-    public AbstractShortCircuitExtensionImpl<T> setStepUpTransformerX(double stepUpTransformerX) {
+    public S setStepUpTransformerX(double stepUpTransformerX) {
         this.stepUpTransformerX = stepUpTransformerX;
-        return this;
+        return self();
     }
 }
