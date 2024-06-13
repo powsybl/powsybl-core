@@ -94,7 +94,6 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         assertEquals("1", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
         assertEquals("1", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
         assertEquals("1", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
-
     }
 
     @Test
