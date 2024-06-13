@@ -295,13 +295,17 @@ public class CgmesExport implements Exporter {
         }
 
         // QoCDC, rule CgmSvSshVersionMismatch: SSHs and SV must have same version
-        // If version has been provided as a parameter, use it, otherwise take the max version of updated models
+        // If version has been provided as a parameter, use it, otherwise take the max version of models and increment
         if (context.getModelVersion() == null || context.getModelVersion().isEmpty()) {
-            int maxVersion = maxOfVersionAndValue(network, CgmesSubset.STATE_VARIABLES, 2);
+            // If there is no version number found in the input files getVersionNumber will return -1
+            int currentVersion = getVersionNumber(network, CgmesSubset.STATE_VARIABLES);
             for (Network subnetwork : network.getSubnetworks()) {
-                maxVersion = maxOfVersionAndValue(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, maxVersion);
+                currentVersion = Math.max(getVersionNumber(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS), currentVersion);
             }
-            context.setModelVersion(String.valueOf(maxVersion));
+            // If no version number has been read, it is assumed everything was at version "1", so next version is "2"
+            // Although from QoCDC it is not clear if first version of IGMs should be "0" or "1"
+            int nextVersion = currentVersion >= 0 ? currentVersion + 1 : 2;
+            context.setModelVersion(String.valueOf(nextVersion));
         }
     }
 
@@ -359,22 +363,19 @@ public class CgmesExport implements Exporter {
     }
 
     /**
-     * Get the max value between a version number of a network subset model and another given value.
+     * Get the version number of a network subset model
      * @param network The network for which the subset model is looked for.
      * @param subset The subset of the network to look for.
-     * @param value The other value considered for the max.
-     * @return The max value between the version number of a network subset model and the given value.
+     * @return The version number of a network subset model, -1 if no version is found
      */
-    private int maxOfVersionAndValue(Network network, CgmesSubset subset, int value) {
+    private int getVersionNumber(Network network, CgmesSubset subset) {
         // Retrieve model version
         // In the case of a CGM export, the SSH subsets are updated and their version number is incremented
         CgmesMetadataModels networkModels = network.getExtension(CgmesMetadataModels.class);
         Optional<CgmesMetadataModel> networkSubsetModel = networkModels != null ?
                 networkModels.getModelForSubset(subset) :
                 Optional.empty();
-        int modelUpdate = (subset == CgmesSubset.STEADY_STATE_HYPOTHESIS) ? 1 : 0;
-
-        return Math.max(value, networkSubsetModel.map(CgmesMetadataModel::getVersion).orElse(1) + modelUpdate);
+        return networkSubsetModel.map(CgmesMetadataModel::getVersion).orElse(-1);
     }
 
     /**

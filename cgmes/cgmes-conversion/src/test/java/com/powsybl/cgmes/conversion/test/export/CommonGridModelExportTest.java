@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -60,6 +61,43 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
     private static final Pattern REGEX_MAS = Pattern.compile("Model.modelingAuthoritySet>(.*?)<");
 
     @Test
+    void testIgmExportNoModelsNoPropertiesVersion() throws IOException {
+        Network network = bareNetwork2Subnetworks();
+        // Perform a simple IGM export and read the exported files
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.CGM_EXPORT, false);
+        String basename = "test_bare_igm_be";
+        network.getSubnetwork("Network_BE").write("CGMES", exportParams, tmpDir.resolve(basename));
+        String exportedBeSshXml = Files.readString(tmpDir.resolve(basename + "_SSH.xml"));
+        String exportedBeSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
+
+        // There is no version number for original models, so if exported as IGM they would have version equals to 1
+        assertEquals("1", getFirstOccurrence(exportedBeSshXml, REGEX_VERSION));
+        assertEquals("1", getFirstOccurrence(exportedBeSvXml, REGEX_VERSION));
+    }
+
+    @Test
+    void testCgmExportWithModelsVersion() throws IOException {
+        Network network = bareNetwork2Subnetworks();
+        addModelsForSubnetworks(network, 0);
+
+        // Perform a CGM export and read the exported files
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.CGM_EXPORT, true);
+        String basename = "test_bare_models_0";
+        network.write("CGMES", exportParams, tmpDir.resolve(basename));
+        String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
+        String updatedNlSshXml = Files.readString(tmpDir.resolve(basename + "_NL_SSH.xml"));
+        String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
+
+        // Version number should be increased from original models and be the same for all instance files
+        assertEquals("1", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
+        assertEquals("1", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("1", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
+
+    }
+
+    @Test
     void testCgmExportNoModelsNoProperties() throws IOException {
         // Create a simple network with two subnetworks
         Network network = bareNetwork2Subnetworks();
@@ -74,20 +112,20 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
 
         // Scenario time should be the same for all models
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedBeSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedNlSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedCgmSvXml, REGEX_SCENARIO_TIME).iterator().next());
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedCgmSvXml, REGEX_SCENARIO_TIME));
 
         // Description should be the default one
-        assertEquals("SSH Model", getOccurrences(updatedBeSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("SSH Model", getOccurrences(updatedNlSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("SV Model", getOccurrences(updatedCgmSvXml, REGEX_DESCRIPTION).iterator().next());
+        assertEquals("SSH Model", getFirstOccurrence(updatedBeSshXml, REGEX_DESCRIPTION));
+        assertEquals("SSH Model", getFirstOccurrence(updatedNlSshXml, REGEX_DESCRIPTION));
+        assertEquals("SV Model", getFirstOccurrence(updatedCgmSvXml, REGEX_DESCRIPTION));
 
         // There is no version number for original models, so if exported as IGM they would have version equals to 1
         // Version number for updated models is increased by 1, so it equals to 2 in the end
-        assertEquals("2", getOccurrences(updatedBeSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("2", getOccurrences(updatedNlSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("2", getOccurrences(updatedCgmSvXml, REGEX_VERSION).iterator().next());
+        assertEquals("2", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
+        assertEquals("2", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("2", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
 
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         // Here the version number part of the id 1 for original models and 2 for updated ones
@@ -101,25 +139,25 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Each updated IGM SSH should supersede the original one
         String originalBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_1_1D__FM";
-        assertEquals(originalBeSshId, getOccurrences(updatedBeSshXml, REGEX_SUPERSEDES).iterator().next());
-        assertEquals(originalNlSshId, getOccurrences(updatedNlSshXml, REGEX_SUPERSEDES).iterator().next());
+        assertEquals(originalBeSshId, getFirstOccurrence(updatedBeSshXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlSshId, getFirstOccurrence(updatedNlSshXml, REGEX_SUPERSEDES));
 
         // Profiles should be consistent with the instance files
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedBeSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedNlSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getOccurrences(updatedCgmSvXml, REGEX_PROFILE).iterator().next());
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstOccurrence(updatedCgmSvXml, REGEX_PROFILE));
 
         // All MAS should be equal to the default one since none has been provided
-        assertEquals("powsybl.org", getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
-        assertEquals("powsybl.org", getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
-        assertEquals("powsybl.org", getOccurrences(updatedCgmSvXml, REGEX_MAS).iterator().next());
+        assertEquals("powsybl.org", getFirstOccurrence(updatedBeSshXml, REGEX_MAS));
+        assertEquals("powsybl.org", getFirstOccurrence(updatedNlSshXml, REGEX_MAS));
+        assertEquals("powsybl.org", getFirstOccurrence(updatedCgmSvXml, REGEX_MAS));
     }
 
     @Test
     void testCgmExportWithModelsForSubnetworks() throws IOException {
         // Create a simple network with two subnetworks
         Network network = bareNetwork2Subnetworks();
-        addModelsForSubnetworks(network);
+        addModelsForSubnetworks(network, 1);
 
         // Perform a CGM export and read the exported files
         Properties exportParams = new Properties();
@@ -131,19 +169,19 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
 
         // Scenario time should be the same for all models
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedBeSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedNlSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedCgmSvXml, REGEX_SCENARIO_TIME).iterator().next());
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedCgmSvXml, REGEX_SCENARIO_TIME));
 
         // IGM descriptions should be the ones provided in subnetwork models, CGM description should be the default one
-        assertEquals("BE network description", getOccurrences(updatedBeSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("NL network description", getOccurrences(updatedNlSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("SV Model", getOccurrences(updatedCgmSvXml, REGEX_DESCRIPTION).iterator().next());
+        assertEquals("BE network description", getFirstOccurrence(updatedBeSshXml, REGEX_DESCRIPTION));
+        assertEquals("NL network description", getFirstOccurrence(updatedNlSshXml, REGEX_DESCRIPTION));
+        assertEquals("SV Model", getFirstOccurrence(updatedCgmSvXml, REGEX_DESCRIPTION));
 
         // Version number should be increased from original models and be the same for all instance files
-        assertEquals("2", getOccurrences(updatedBeSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("2", getOccurrences(updatedNlSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("2", getOccurrences(updatedCgmSvXml, REGEX_VERSION).iterator().next());
+        assertEquals("2", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
+        assertEquals("2", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("2", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
 
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
@@ -156,26 +194,26 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Each updated IGM SSH should supersede the original one
         String originalBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_1_1D__FM";
-        assertEquals(originalBeSshId, getOccurrences(updatedBeSshXml, REGEX_SUPERSEDES).iterator().next());
-        assertEquals(originalNlSshId, getOccurrences(updatedNlSshXml, REGEX_SUPERSEDES).iterator().next());
+        assertEquals(originalBeSshId, getFirstOccurrence(updatedBeSshXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlSshId, getFirstOccurrence(updatedNlSshXml, REGEX_SUPERSEDES));
 
         // Profiles should be consistent with the instance files
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedBeSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedNlSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getOccurrences(updatedCgmSvXml, REGEX_PROFILE).iterator().next());
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstOccurrence(updatedCgmSvXml, REGEX_PROFILE));
 
         // IGM MAS should be the ones provided in subnetwork models, CGM MAS should be the default one
-        assertEquals("http://elia.be/CGMES/2.4.15", getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
-        assertEquals("http://tennet.nl/CGMES/2.4.15", getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
-        assertEquals("powsybl.org", getOccurrences(updatedCgmSvXml, REGEX_MAS).iterator().next());
+        assertEquals("http://elia.be/CGMES/2.4.15", getFirstOccurrence(updatedBeSshXml, REGEX_MAS));
+        assertEquals("http://tennet.nl/CGMES/2.4.15", getFirstOccurrence(updatedNlSshXml, REGEX_MAS));
+        assertEquals("powsybl.org", getFirstOccurrence(updatedCgmSvXml, REGEX_MAS));
     }
 
     @Test
     void testCgmExportWithModelsForAllNetworks() throws IOException {
         // Create a simple network with two subnetworks
         Network network = bareNetwork2Subnetworks();
-        addModelsForSubnetworks(network);
-        addModelForNetwork(network);
+        addModelsForSubnetworks(network, 1);
+        addModelForNetwork(network, 3);
 
         // Perform a CGM export and read the exported files
         Properties exportParams = new Properties();
@@ -188,25 +226,25 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // The main network has a different scenario time than the subnetworks
         // All updated models should get that scenario time
-        assertEquals("2022-03-04T05:30:00Z", getOccurrences(updatedBeSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2022-03-04T05:30:00Z", getOccurrences(updatedNlSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2022-03-04T05:30:00Z", getOccurrences(updatedCgmSvXml, REGEX_SCENARIO_TIME).iterator().next());
+        assertEquals("2022-03-04T05:30:00Z", getFirstOccurrence(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2022-03-04T05:30:00Z", getFirstOccurrence(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2022-03-04T05:30:00Z", getFirstOccurrence(updatedCgmSvXml, REGEX_SCENARIO_TIME));
 
         // IGM descriptions should be the ones provided in subnetwork models, CGM description should be the one provided in main network model
-        assertEquals("BE network description", getOccurrences(updatedBeSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("NL network description", getOccurrences(updatedNlSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("Merged network description", getOccurrences(updatedCgmSvXml, REGEX_DESCRIPTION).iterator().next());
+        assertEquals("BE network description", getFirstOccurrence(updatedBeSshXml, REGEX_DESCRIPTION));
+        assertEquals("NL network description", getFirstOccurrence(updatedNlSshXml, REGEX_DESCRIPTION));
+        assertEquals("Merged network description", getFirstOccurrence(updatedCgmSvXml, REGEX_DESCRIPTION));
 
-        // The main network has a different version number than the subnetworks
-        // All updated models should get that version number
-        assertEquals("3", getOccurrences(updatedBeSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("3", getOccurrences(updatedNlSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("3", getOccurrences(updatedCgmSvXml, REGEX_VERSION).iterator().next());
+        // The main network has a different version number (3) than the subnetworks (1)
+        // Updated models should use next version taking into account the max version number of inputs (next version is 4)
+        assertEquals("4", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
 
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         // The model of the main network brings an additional dependency
-        String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_3_1D__FM";
-        String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_3_1D__FM";
+        String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
+        String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         String additionalDependency = "Additional dependency";
@@ -216,20 +254,20 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Each updated IGM SSH should supersede the original one
         String originalBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_1_1D__FM";
-        assertEquals(originalBeSshId, getOccurrences(updatedBeSshXml, REGEX_SUPERSEDES).iterator().next());
-        assertEquals(originalNlSshId, getOccurrences(updatedNlSshXml, REGEX_SUPERSEDES).iterator().next());
+        assertEquals(originalBeSshId, getFirstOccurrence(updatedBeSshXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlSshId, getFirstOccurrence(updatedNlSshXml, REGEX_SUPERSEDES));
 
         // Profiles should be consistent with the instance files
         // The model of the main network brings an additional profile
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedBeSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedNlSshXml, REGEX_PROFILE).iterator().next());
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedNlSshXml, REGEX_PROFILE));
         Set<String> expectedProfiles = Set.of("Additional profile", "http://entsoe.eu/CIM/StateVariables/4/1");
         assertEquals(expectedProfiles, getOccurrences(updatedCgmSvXml, REGEX_PROFILE));
 
         // IGM MAS should be the ones provided in subnetwork models, CGM MAS should be the one provided in main network model
-        assertEquals("http://elia.be/CGMES/2.4.15", getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
-        assertEquals("http://tennet.nl/CGMES/2.4.15", getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
-        assertEquals("Modeling Authority", getOccurrences(updatedCgmSvXml, REGEX_MAS).iterator().next());
+        assertEquals("http://elia.be/CGMES/2.4.15", getFirstOccurrence(updatedBeSshXml, REGEX_MAS));
+        assertEquals("http://tennet.nl/CGMES/2.4.15", getFirstOccurrence(updatedNlSshXml, REGEX_MAS));
+        assertEquals("Modeling Authority", getFirstOccurrence(updatedCgmSvXml, REGEX_MAS));
     }
 
     @Test
@@ -250,19 +288,19 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedCgmSvXml = Files.readString(tmpDir.resolve(basename + "_SV.xml"));
 
         // Scenario time should be the same for all models
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedBeSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedNlSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2021-02-03T04:30:00Z", getOccurrences(updatedCgmSvXml, REGEX_SCENARIO_TIME).iterator().next());
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2021-02-03T04:30:00Z", getFirstOccurrence(updatedCgmSvXml, REGEX_SCENARIO_TIME));
 
         // Description should be the one provided as parameter and be the same for all instance files
-        assertEquals("Common Grid Model export", getOccurrences(updatedBeSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("Common Grid Model export", getOccurrences(updatedNlSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("Common Grid Model export", getOccurrences(updatedCgmSvXml, REGEX_DESCRIPTION).iterator().next());
+        assertEquals("Common Grid Model export", getFirstOccurrence(updatedBeSshXml, REGEX_DESCRIPTION));
+        assertEquals("Common Grid Model export", getFirstOccurrence(updatedNlSshXml, REGEX_DESCRIPTION));
+        assertEquals("Common Grid Model export", getFirstOccurrence(updatedCgmSvXml, REGEX_DESCRIPTION));
 
         // Version number should be the one provided as parameter and be the same for all instance files
-        assertEquals("4", getOccurrences(updatedBeSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("4", getOccurrences(updatedNlSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("4", getOccurrences(updatedCgmSvXml, REGEX_VERSION).iterator().next());
+        assertEquals("4", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
 
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         String updatedBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_4_1D__FM";
@@ -275,26 +313,26 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Each updated IGM SSH should supersede the original one
         String originalBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_1_1D__FM";
-        assertEquals(originalBeSshId, getOccurrences(updatedBeSshXml, REGEX_SUPERSEDES).iterator().next());
-        assertEquals(originalNlSshId, getOccurrences(updatedNlSshXml, REGEX_SUPERSEDES).iterator().next());
+        assertEquals(originalBeSshId, getFirstOccurrence(updatedBeSshXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlSshId, getFirstOccurrence(updatedNlSshXml, REGEX_SUPERSEDES));
 
         // Profiles should be consistent with the instance files
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedBeSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedNlSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getOccurrences(updatedCgmSvXml, REGEX_PROFILE).iterator().next());
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedNlSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/StateVariables/4/1", getFirstOccurrence(updatedCgmSvXml, REGEX_PROFILE));
 
         // IGM MAS should be the default ones, CGM MAS should be the one provided as parameter
-        assertEquals("powsybl.org", getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
-        assertEquals("powsybl.org", getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
-        assertEquals("Regional Coordination Center", getOccurrences(updatedCgmSvXml, REGEX_MAS).iterator().next());
+        assertEquals("powsybl.org", getFirstOccurrence(updatedBeSshXml, REGEX_MAS));
+        assertEquals("powsybl.org", getFirstOccurrence(updatedNlSshXml, REGEX_MAS));
+        assertEquals("Regional Coordination Center", getFirstOccurrence(updatedCgmSvXml, REGEX_MAS));
     }
 
     @Test
     void testCgmExportWithModelsAndProperties() throws IOException {
         // Create a simple network with two subnetworks
         Network network = bareNetwork2Subnetworks();
-        addModelsForSubnetworks(network);
-        addModelForNetwork(network);
+        addModelsForSubnetworks(network, 1);
+        addModelForNetwork(network, 2);
 
         // Perform a CGM export and read the exported files
         Properties exportParams = new Properties();
@@ -310,19 +348,19 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // The main network has a different scenario time than the subnetworks
         // All updated models should get that scenario time
-        assertEquals("2022-03-04T05:30:00Z", getOccurrences(updatedBeSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2022-03-04T05:30:00Z", getOccurrences(updatedNlSshXml, REGEX_SCENARIO_TIME).iterator().next());
-        assertEquals("2022-03-04T05:30:00Z", getOccurrences(updatedCgmSvXml, REGEX_SCENARIO_TIME).iterator().next());
+        assertEquals("2022-03-04T05:30:00Z", getFirstOccurrence(updatedBeSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2022-03-04T05:30:00Z", getFirstOccurrence(updatedNlSshXml, REGEX_SCENARIO_TIME));
+        assertEquals("2022-03-04T05:30:00Z", getFirstOccurrence(updatedCgmSvXml, REGEX_SCENARIO_TIME));
 
         // Both the models and a property define the description. The property should prevail.
-        assertEquals("Common Grid Model export", getOccurrences(updatedBeSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("Common Grid Model export", getOccurrences(updatedNlSshXml, REGEX_DESCRIPTION).iterator().next());
-        assertEquals("Common Grid Model export", getOccurrences(updatedCgmSvXml, REGEX_DESCRIPTION).iterator().next());
+        assertEquals("Common Grid Model export", getFirstOccurrence(updatedBeSshXml, REGEX_DESCRIPTION));
+        assertEquals("Common Grid Model export", getFirstOccurrence(updatedNlSshXml, REGEX_DESCRIPTION));
+        assertEquals("Common Grid Model export", getFirstOccurrence(updatedCgmSvXml, REGEX_DESCRIPTION));
 
         // Both the models and a property define the version number. The property should prevail.
-        assertEquals("4", getOccurrences(updatedBeSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("4", getOccurrences(updatedNlSshXml, REGEX_VERSION).iterator().next());
-        assertEquals("4", getOccurrences(updatedCgmSvXml, REGEX_VERSION).iterator().next());
+        assertEquals("4", getFirstOccurrence(updatedBeSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstOccurrence(updatedNlSshXml, REGEX_VERSION));
+        assertEquals("4", getFirstOccurrence(updatedCgmSvXml, REGEX_VERSION));
 
         // The updated CGM SV should depend on the updated IGMs SSH and on the original IGMs TP
         // The model of the main network brings an additional dependency
@@ -337,19 +375,19 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Each updated IGM SSH should supersede the original one
         String originalBeSshId = "urn:uuid:Network_BE_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_1_1D__FM";
-        assertEquals(originalBeSshId, getOccurrences(updatedBeSshXml, REGEX_SUPERSEDES).iterator().next());
-        assertEquals(originalNlSshId, getOccurrences(updatedNlSshXml, REGEX_SUPERSEDES).iterator().next());
+        assertEquals(originalBeSshId, getFirstOccurrence(updatedBeSshXml, REGEX_SUPERSEDES));
+        assertEquals(originalNlSshId, getFirstOccurrence(updatedNlSshXml, REGEX_SUPERSEDES));
 
         // Profiles should be consistent with the instance files, CGM SV has an additional profile
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedBeSshXml, REGEX_PROFILE).iterator().next());
-        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getOccurrences(updatedNlSshXml, REGEX_PROFILE).iterator().next());
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedBeSshXml, REGEX_PROFILE));
+        assertEquals("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1", getFirstOccurrence(updatedNlSshXml, REGEX_PROFILE));
         Set<String> expectedProfiles = Set.of("Additional profile", "http://entsoe.eu/CIM/StateVariables/4/1");
         assertEquals(expectedProfiles, getOccurrences(updatedCgmSvXml, REGEX_PROFILE));
 
         // Both the model and a property define the main network MAS. The property should prevail.
-        assertEquals("http://elia.be/CGMES/2.4.15", getOccurrences(updatedBeSshXml, REGEX_MAS).iterator().next());
-        assertEquals("http://tennet.nl/CGMES/2.4.15", getOccurrences(updatedNlSshXml, REGEX_MAS).iterator().next());
-        assertEquals("Regional Coordination Center", getOccurrences(updatedCgmSvXml, REGEX_MAS).iterator().next());
+        assertEquals("http://elia.be/CGMES/2.4.15", getFirstOccurrence(updatedBeSshXml, REGEX_MAS));
+        assertEquals("http://tennet.nl/CGMES/2.4.15", getFirstOccurrence(updatedNlSshXml, REGEX_MAS));
+        assertEquals("Regional Coordination Center", getFirstOccurrence(updatedCgmSvXml, REGEX_MAS));
     }
 
     @Test
@@ -457,14 +495,14 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         return Network.merge(network1, network2);
     }
 
-    private void addModelsForSubnetworks(Network network) {
+    private void addModelsForSubnetworks(Network network, int version) {
         // Add a model to the 2 Subnetworks
         network.getSubnetwork("Network_BE")
                 .newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
                 .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setDescription("BE network description")
-                .setVersion(1)
+                .setVersion(version)
                 .setModelingAuthoritySet("http://elia.be/CGMES/2.4.15")
                 .addDependentOn("BE EQ model ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
@@ -475,7 +513,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .newModel()
                 .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
                 .setDescription("NL network description")
-                .setVersion(1)
+                .setVersion(version)
                 .setModelingAuthoritySet("http://tennet.nl/CGMES/2.4.15")
                 .addDependentOn("NL EQ model ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
@@ -483,19 +521,27 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .add();
     }
 
-    private void addModelForNetwork(Network network) {
+    private void addModelForNetwork(Network network, int version) {
         // Add a model to the merged network
         network.setCaseDate(ZonedDateTime.parse("2022-03-04T05:30:00.000+00:00"))
                 .newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
                 .setSubset(CgmesSubset.STATE_VARIABLES)
                 .setDescription("Merged network description")
-                .setVersion(3)
+                .setVersion(version)
                 .setModelingAuthoritySet("Modeling Authority")
                 .addDependentOn("Additional dependency")
                 .addProfile("Additional profile")
                 .add()
                 .add();
+    }
+
+    private String getFirstOccurrence(String xml, Pattern pattern) {
+        Matcher matcher = pattern.matcher(xml);
+        if (matcher.find()) {
+            return matcher.group(1);
+        }
+        throw new PowsyblException("Pattern not found " + pattern);
     }
 
     private Set<String> getOccurrences(String xml, Pattern pattern) {
