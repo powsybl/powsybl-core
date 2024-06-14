@@ -2,7 +2,7 @@
 
 <span style="color: red">TODO</span>
 
-Please note that PowSyBl only ever exports CGMES networks as CGMES Node/Breaker networks without consideration of the topology level of the PowSyBl network.
+Please note that PowSyBl only ever exports CIM-CGMES networks as CGMES Node/Breaker networks without consideration of the topology level of the PowSyBl network.
 
 ## Conversion from PowSyBl grid model to CGMES
 
@@ -10,85 +10,85 @@ The following sections describe in detail how each supported PowSyBl network mod
 
 ### Battery
 
-PowSyBl [`Batteries`](../../grid_model/network_subnetwork.md#battery) are exported as CGMES `SynchronousMachine` with CGMES `HydroGeneratingUnits`.
+PowSyBl [`Battery`](../../grid_model/network_subnetwork.md#battery) is exported as `SynchronousMachine` with `HydroGeneratingUnit`.
 
 <span style="color: red">TODO details</span>
 
 ### BusbarSection
 
-PowSyBl [`BusbarSections`](../../grid_model/network_subnetwork.md#busbar-section) are exported as CGMES `BusbarSections`.
+PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section) is exported as CGMES `BusbarSection`.
 
 <span style="color: red">TODO details</span>
 
 ### DanglingLine
 
-PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line) are exported as several CGMES network component.
-Each dangling line will be exported as one CGMES `EquivalentInjection` and one CGMES `ACLineSegment`.
+PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
+Each dangling line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
 ### Generator
 
-PowSyBl [`Generators`](../../grid_model/network_subnetwork.md#generator) are exported as CGMES `SynchronousMachines`.
+PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
 
 <span style="color: red">TODO details</span>
 
 ### HVDC line and HVDC converter stations
 
-A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) are exported as a CGMES `DCLineSegment` and two CGMES `DCConverterUnits`.
+A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) are exported as a `DCLineSegment` with two `DCConverterUnits`.
 
 <span style="color: red">TODO details</span>
 
 ### Line
 
-PowSyBl [`Lines`](../../grid_model/network_subnetwork.md#line) are exported as CGMES `ACLineSegment`.
+PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
 ### Load
 
-PowSyBl [`Loads`](../../grid_model/network_subnetwork.md#load) are exported as CGMES `ConformLoads`, `NonConformLoads` or `EnergyConsumers` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail)..
+PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
 <span style="color: red">TODO details</span>
 
 ### Shunt compensator
 
-PowSyBl [`ShuntCompensators`](../../grid_model/network_subnetwork.md#shunt-compensator) are exported as CGMES `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
+PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
 
 <span style="color: red">TODO details</span>
 
 ### StaticVarCompensator
 
-PowSyBl [`StaticVarCompensators`](../../grid_model/network_subnetwork.md#static-var-compensator) are exported as CGMES `StaticVarCompensators`.
+PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-var-compensator) is exported as `StaticVarCompensator`.
 
 <span style="color: red">TODO details</span>
 
 ### Substation
 
-PowSyBl [`Substations`](../../grid_model/network_subnetwork.md#substation) are exported as CGMES `Substations`.
+PowSyBl [`Substation`](../../grid_model/network_subnetwork.md#substation) is exported as `Substation`.
 
 <span style="color: red">TODO details</span>
 
 ### Switch
 
-PowSyBl [`Switches`](../../grid_model/network_subnetwork.md#breakerswitch) are exported as CGMES `Breakers`, `Disconnectors` or `LoadBreakSwitches` depending on its `SwitchKind`.
+PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is exported as CGMES `Breaker`, `Disconnector` or `LoadBreakSwitch` depending on its `SwitchKind`.
 
 <span style="color: red">TODO details</span>
 
 ### ThreeWindingsTransformer
 
-PowSyBl [`ThreeWindingsTransformers`](../../grid_model/network_subnetwork.md#three-windings-transformer) are exported as CGMES `PowerTransformers` with three CGMES `PowerTransformerEnds`.
+PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-windings-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
 <span style="color: red">TODO details</span>
 
 ### TwoWindingsTransformer
 
-PowSyBl [`TwoWindingsTransformers`](../../grid_model/network_subnetwork.md#two-windings-transformer) are exported as CGMES `PowerTransformers` with two CGMES `PowerTransformerEnds`.
+PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-windings-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
 <span style="color: red">TODO details</span>
 
 ### Voltage level
 
-PowSybl [`VoltatgeLevels`](../../grid_model/network_subnetwork.md#voltage-level) are exported as CGMES `VoltageLevels`.
+PowSybl [`VoltatgeLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`.
 
 <span style="color: red">TODO details</span>
 
@@ -96,7 +96,7 @@ PowSybl [`VoltatgeLevels`](../../grid_model/network_subnetwork.md#voltage-level)
 
 ### Control areas
 
-PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as CGMES `ControlAreas`.
+PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as several `ControlArea`.
 
 <span style="color: red">TODO details</span>
 
