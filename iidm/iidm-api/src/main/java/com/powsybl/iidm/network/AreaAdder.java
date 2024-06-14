@@ -29,7 +29,7 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     AreaAdder setAreaType(String areaType);
 
-    AreaAdder setAcInterchangeTarget(Double acInterchangeTarget);
+    AreaAdder setAcInterchangeTarget(double acInterchangeTarget);
 
     AreaAdder addVoltageLevel(VoltageLevel voltageLevel);
 

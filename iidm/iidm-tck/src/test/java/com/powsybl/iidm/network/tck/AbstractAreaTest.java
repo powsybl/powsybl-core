@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.util.*;
 
@@ -84,6 +85,100 @@ public abstract class AbstractAreaTest {
         assertFalse(regionAB.getAcInterchangeTarget().isPresent());
         assertEquals(Set.of(vlgen, vlhv1, vlhv2, vlload), regionAB.getVoltageLevels());
         assertEquals(0, regionAB.getAreaBoundaryStream().count());
+    }
+
+    @Test
+    public void testSetterGetter() {
+        controlAreaA.setAcInterchangeTarget(123.0);
+        assertTrue(controlAreaA.getAcInterchangeTarget().isPresent());
+        assertEquals(123.0, controlAreaA.getAcInterchangeTarget().get());
+        controlAreaA.setAcInterchangeTarget(Double.NaN);
+        assertTrue(controlAreaA.getAcInterchangeTarget().isEmpty());
+    }
+
+    @Test
+    public void testChangesNotification() {
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+
+        // Get initial values
+        double oldValue = controlAreaA.getAcInterchangeTarget().orElseThrow();
+        // Change values
+        controlAreaA.setAcInterchangeTarget(Double.NaN);
+
+        // Check update notification
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, oldValue, Double.NaN);
+
+        // Change values
+        controlAreaA.setAcInterchangeTarget(123.4);
+
+        // Check update notification
+        Mockito.verify(mockedListener, Mockito.times(1))
+                .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, Double.NaN, 123.4);
+
+        // At this point
+        // no more changes is taking into account
+
+        // Simulate exception for onUpdate calls
+        Mockito.doThrow(new PowsyblException()).when(mockedListener)
+                .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, oldValue, 123.4);
+
+        // Case when same value is set
+        controlAreaA.setAcInterchangeTarget(123.4);
+        // Case when no listener is registered
+        network.removeListener(mockedListener);
+        controlAreaA.setAcInterchangeTarget(123.4);
+
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Set observer changes
+        network.addListener(mockedListener);
+
+        // Init variant manager
+        VariantManager variantManager = network.getVariantManager();
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+
+        variantManager.setWorkingVariant("s4");
+        // check values cloned by extend
+        assertEquals(-602.6, controlAreaA.getAcInterchangeTarget().orElseThrow(), 0.0);
+        // change values in s4
+        controlAreaA.setAcInterchangeTarget(123.0);
+        // Check P0 & Q0 update notification
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(controlAreaA, "acInterchangeTarget", "s4", -602.6, 123.0);
+
+        // remove s2
+        variantManager.removeVariant("s2");
+
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
+        // check values cloned by allocate
+        assertEquals(123.0, controlAreaA.getAcInterchangeTarget().orElseThrow(), 0.0);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(-602.6, controlAreaA.getAcInterchangeTarget().orElseThrow(), 0.0);
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        try {
+            controlAreaA.getAcInterchangeTarget();
+            fail();
+        } catch (Exception ignored) {
+            // ignore
+        }
+
+        // Remove observer changes
+        network.removeListener(mockedListener);
     }
 
     @Test

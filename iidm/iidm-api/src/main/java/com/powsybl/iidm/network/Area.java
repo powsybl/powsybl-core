@@ -76,26 +76,68 @@ import java.util.stream.Stream;
  */
 public interface Area extends Identifiable<Area> {
 
+    /**
+     * Get the type of this area
+     */
     String getAreaType();
 
+    /**
+     * Get all area voltage levels.
+     */
     Iterable<VoltageLevel> getVoltageLevels();
 
+    /**
+     * Get all area voltage levels.
+     */
     Stream<VoltageLevel> getVoltageLevelStream();
 
+    /**
+     * Adds a voltage level to the area.
+     * @param voltageLevel voltage level to be added
+     */
     void addVoltageLevel(VoltageLevel voltageLevel);
 
+    /**
+     * @return adder to create a new area boundary
+     */
     AreaBoundaryAdder newAreaBoundary();
 
+    /**
+     * If exists, remove the area boundary associated with the provided terminal.
+     * The Terminal and it's Connectable is not removed from the network, but is not part of the Area anymore.
+     * @param terminal terminal
+     */
     void removeAreaBoundary(Terminal terminal);
 
+    /**
+     * If exists, remove the area boundary associated with the provided DanglingLine's Boundary.
+     * The DanglingLine and Boundary is not removed from the network, but is not part of the Area anymore.
+     * @param boundary DanglingLine's boundary
+     */
     void removeAreaBoundary(Boundary boundary);
 
+    /**
+     * If found, returns the area boundary associated with the provided DanglingLine's Boundary.
+     * Otherwise, null is returned.
+     * @param boundary DanglingLine's boundary
+     */
     AreaBoundary getAreaBoundary(Boundary boundary);
 
+    /**
+     * If found, returns the area boundary associated with the provided Terminal.
+     * Otherwise, null is returned.
+     * @param terminal terminal
+     */
     AreaBoundary getAreaBoundary(Terminal terminal);
 
+    /**
+     * Get all area boundaries.
+     */
     Iterable<AreaBoundary> getAreaBoundaries();
 
+    /**
+     * Get all area boundaries.
+     */
     Stream<AreaBoundary> getAreaBoundaryStream();
 
     @Override
@@ -104,10 +146,19 @@ public interface Area extends Identifiable<Area> {
     }
 
     /**
-     * Get the optional target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import)
+     * Get the optional target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
+     * <p>Depends on the working variant.</p>
      * @return the AC Interchange target (MW)
      */
     Optional<Double> getAcInterchangeTarget();
+
+    /**
+     * Set the target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
+     * Providing Double.NaN removes the target.
+     * <p>Depends on the working variant.</p>
+     * @param acInterchangeTarget new AC interchange target (MW)
+     */
+    Area setAcInterchangeTarget(double acInterchangeTarget);
 
     /**
      * Get the current AC Interchange of this area in MW, in load sign convention (negative is export, positive is import)
@@ -127,6 +178,11 @@ public interface Area extends Identifiable<Area> {
      */
     double getTotalInterchange();
 
+    /**
+     * Removes the provided VoltageLevel from the area. The VoltageLevel is not removed from the network,
+     * the VoltageLevel is not part of the Area anymore.
+     * @param voltageLevel the VoltageLevel to be removed from the Area.
+     */
     void removeVoltageLevel(VoltageLevel voltageLevel);
 
     void remove();

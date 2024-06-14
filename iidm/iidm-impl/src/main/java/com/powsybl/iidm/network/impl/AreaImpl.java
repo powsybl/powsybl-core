@@ -11,6 +11,7 @@ import com.powsybl.commons.ref.Ref;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -24,11 +25,14 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
     private final String areaType;
-    private final Double acInterchangeTarget;
     private final List<AreaBoundary> areaBoundaries;
     private final Set<VoltageLevel> voltageLevels;
 
     protected boolean removed = false;
+
+    // attributes depending on the variant
+
+    private final TDoubleArrayList acInterchangeTarget;
 
     private final class AreaListener extends DefaultNetworkListener {
         @Override
@@ -47,14 +51,19 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final NetworkListener areaListener;
 
     public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
-                    Double acInterchangeTarget) {
+                    double acInterchangeTarget) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
         this.areaType = Objects.requireNonNull(areaType);
-        this.acInterchangeTarget = acInterchangeTarget;
         this.voltageLevels = new LinkedHashSet<>();
         this.areaBoundaries = new ArrayList<>();
+
+        int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
+        this.acInterchangeTarget = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.acInterchangeTarget.add(acInterchangeTarget);
+        }
         this.areaListener = new AreaListener();
         getNetwork().addListener(this.areaListener);
     }
@@ -97,7 +106,22 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public Optional<Double> getAcInterchangeTarget() {
         throwIfRemoved("AC interchange target");
-        return Optional.ofNullable(acInterchangeTarget);
+        double target = acInterchangeTarget.get(getNetwork().getVariantIndex());
+        if (Double.isNaN(target)) {
+            return Optional.empty();
+        }
+        return Optional.of(target);
+    }
+
+    @Override
+    public Area setAcInterchangeTarget(double acInterchangeTarget) {
+        NetworkImpl n = getNetwork();
+        int variantIndex = n.getVariantIndex();
+        double oldValue = this.acInterchangeTarget.set(variantIndex, acInterchangeTarget);
+        String variantId = n.getVariantManager().getVariantId(variantIndex);
+        n.invalidateValidationLevel();
+        notifyUpdate("acInterchangeTarget", variantId, oldValue, acInterchangeTarget);
+        return this;
     }
 
     @Override
@@ -219,6 +243,39 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     void throwIfRemoved(String attribute) {
         if (removed) {
             throw new PowsyblException("Cannot access " + attribute + " of removed area " + id);
+        }
+    }
+
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        acInterchangeTarget.ensureCapacity(acInterchangeTarget.size() + number);
+        for (int i = 0; i < number; i++) {
+            acInterchangeTarget.add(acInterchangeTarget.get(sourceIndex));
+        }
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+        acInterchangeTarget.remove(acInterchangeTarget.size() - number, number);
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
+        // nothing to do
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+        for (int index : indexes) {
+            acInterchangeTarget.set(index, acInterchangeTarget.get(sourceIndex));
         }
     }
 

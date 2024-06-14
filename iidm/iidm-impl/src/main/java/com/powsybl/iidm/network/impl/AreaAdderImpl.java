@@ -24,7 +24,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private String areaType;
 
-    private Double acInterchangeTarget;
+    private double acInterchangeTarget;
 
     private final Set<VoltageLevel> voltageLevels;
 
@@ -38,6 +38,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         this.terminalAreaBoundaries = new HashMap<>();
         this.boundaryAreaBoundaries = new HashMap<>();
         this.voltageLevels = new HashSet<>();
+        this.acInterchangeTarget = Double.NaN;
     }
 
     public NetworkImpl getNetwork() {
@@ -49,7 +50,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    public AreaAdder setAcInterchangeTarget(Double acInterchangeTarget) {
+    public AreaAdder setAcInterchangeTarget(double acInterchangeTarget) {
         this.acInterchangeTarget = acInterchangeTarget;
         return this;
     }
@@ -77,7 +78,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return areaType;
     }
 
-    protected Double getAcInterchangeTarget() {
+    protected double getAcInterchangeTarget() {
         return acInterchangeTarget;
     }
 
