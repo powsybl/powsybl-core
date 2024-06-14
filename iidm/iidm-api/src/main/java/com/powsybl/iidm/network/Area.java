@@ -7,7 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Optional;
+import java.util.OptionalDouble;
 import java.util.stream.Stream;
 
 /**
@@ -148,9 +148,10 @@ public interface Area extends Identifiable<Area> {
     /**
      * Get the optional target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
      * <p>Depends on the working variant.</p>
+     *
      * @return the AC Interchange target (MW)
      */
-    Optional<Double> getAcInterchangeTarget();
+    OptionalDouble getAcInterchangeTarget();
 
     /**
      * Set the target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).

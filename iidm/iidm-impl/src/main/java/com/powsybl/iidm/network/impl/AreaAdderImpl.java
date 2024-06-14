@@ -70,37 +70,17 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    protected Ref<NetworkImpl> getNetworkRef() {
-        return networkRef;
-    }
-
-    protected String getAreaType() {
-        return areaType;
-    }
-
-    protected double getAcInterchangeTarget() {
-        return acInterchangeTarget;
-    }
-
     protected Set<VoltageLevel> getVoltageLevels() {
         return voltageLevels;
-    }
-
-    protected Map<Terminal, Boolean> getTerminalAreaBoundaries() {
-        return terminalAreaBoundaries;
-    }
-
-    protected Map<Boundary, Boolean> getBoundaryAreaBoundaries() {
-        return boundaryAreaBoundaries;
     }
 
     @Override
     public Area add() {
         String id = checkAndGetUniqueId();
-        AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcInterchangeTarget());
-        getTerminalAreaBoundaries().forEach((terminal, ac) -> area.newAreaBoundary().setTerminal(terminal).setAc(ac).add());
-        getBoundaryAreaBoundaries().forEach((boundary, ac) -> area.newAreaBoundary().setBoundary(boundary).setAc(ac).add());
-        getVoltageLevels().forEach(area::addVoltageLevel);
+        AreaImpl area = new AreaImpl(networkRef, subnetworkRef, id, getName(), isFictitious(), areaType, acInterchangeTarget);
+        terminalAreaBoundaries.forEach((terminal, ac) -> area.newAreaBoundary().setTerminal(terminal).setAc(ac).add());
+        boundaryAreaBoundaries.forEach((boundary, ac) -> area.newAreaBoundary().setBoundary(boundary).setAc(ac).add());
+        voltageLevels.forEach(area::addVoltageLevel);
         getNetwork().getIndex().checkAndAdd(area);
         getNetwork().getListeners().notifyCreation(area);
         return area;

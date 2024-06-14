@@ -429,7 +429,7 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(mergedBzB);
         assertTrue(mergedBzB.isFictitious());
         assertTrue(mergedBzB.getAcInterchangeTarget().isPresent());
-        assertEquals(100., mergedBzB.getAcInterchangeTarget().get());
+        assertEquals(100., mergedBzB.getAcInterchangeTarget().getAsDouble());
 
         // Detach n1, and check its content
         Network n1Detached = merged.getSubnetwork(n1.getId()).detach();
@@ -447,7 +447,7 @@ public abstract class AbstractMergeNetworkTest {
         assertNotNull(detachedBzB);
         assertTrue(detachedBzB.isFictitious());
         assertTrue(detachedBzB.getAcInterchangeTarget().isPresent());
-        assertEquals(100., detachedBzB.getAcInterchangeTarget().get());
+        assertEquals(100., detachedBzB.getAcInterchangeTarget().getAsDouble());
     }
 
     @Test

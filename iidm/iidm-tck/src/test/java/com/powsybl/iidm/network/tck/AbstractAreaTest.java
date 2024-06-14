@@ -91,7 +91,7 @@ public abstract class AbstractAreaTest {
     public void testSetterGetter() {
         controlAreaA.setAcInterchangeTarget(123.0);
         assertTrue(controlAreaA.getAcInterchangeTarget().isPresent());
-        assertEquals(123.0, controlAreaA.getAcInterchangeTarget().get());
+        assertEquals(123.0, controlAreaA.getAcInterchangeTarget().getAsDouble());
         controlAreaA.setAcInterchangeTarget(Double.NaN);
         assertTrue(controlAreaA.getAcInterchangeTarget().isEmpty());
     }

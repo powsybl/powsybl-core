@@ -30,7 +30,11 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     @Override
     protected void writeRootElementAttributes(final Area area, final Network parent, final NetworkSerializerContext context) {
         context.getWriter().writeStringAttribute("areaType", context.getAnonymizer().anonymizeString(area.getAreaType()));
-        context.getWriter().writeOptionalDoubleAttribute("acInterchangeTarget", area.getAcInterchangeTarget().orElse(null));
+        Double acInterchangeTarget = null;
+        if (area.getAcInterchangeTarget().isPresent()) {
+            acInterchangeTarget = area.getAcInterchangeTarget().getAsDouble();
+        }
+        context.getWriter().writeOptionalDoubleAttribute("acInterchangeTarget", acInterchangeTarget);
     }
 
     @Override

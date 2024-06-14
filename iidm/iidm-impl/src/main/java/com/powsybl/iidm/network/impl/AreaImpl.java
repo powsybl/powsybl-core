@@ -104,13 +104,13 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public Optional<Double> getAcInterchangeTarget() {
+    public OptionalDouble getAcInterchangeTarget() {
         throwIfRemoved("AC interchange target");
         double target = acInterchangeTarget.get(getNetwork().getVariantIndex());
         if (Double.isNaN(target)) {
-            return Optional.empty();
+            return OptionalDouble.empty();
         }
-        return Optional.of(target);
+        return OptionalDouble.of(target);
     }
 
     @Override
