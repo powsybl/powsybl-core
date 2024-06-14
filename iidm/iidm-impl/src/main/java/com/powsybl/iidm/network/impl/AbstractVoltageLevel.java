@@ -104,6 +104,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public Optional<Area> getArea(String areaType) {
+        Objects.requireNonNull(areaType);
         if (removed) {
             throwAreasRemovedVoltageLevel();
         }
@@ -116,6 +117,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public void addArea(Area area) {
+        Objects.requireNonNull(area);
         if (removed) {
             throw new PowsyblException("Cannot add areas to removed voltage level " + id);
         }
@@ -142,6 +144,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public void removeArea(Area area) {
+        Objects.requireNonNull(area);
         if (removed) {
             throw new PowsyblException("Cannot remove areas from removed voltage level " + id);
         }
