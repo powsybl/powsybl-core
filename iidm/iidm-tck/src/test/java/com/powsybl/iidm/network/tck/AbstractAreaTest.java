@@ -190,6 +190,27 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
+    void testAddSameBoundary() {
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        // re-add
+        controlAreaA.newAreaBoundary().setBoundary(dlXnode1A.getBoundary()).setAc(true).add();
+        controlAreaA.newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(true).add();
+        // no change
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(-602.631, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(0.0, controlAreaA.getDcInterchange());
+        assertEquals(-602.631, controlAreaA.getTotalInterchange(), DELTA);
+
+        // change them to DC
+        controlAreaA.newAreaBoundary().setBoundary(dlXnode1A.getBoundary()).setAc(false).add();
+        controlAreaA.newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(0.0, controlAreaA.getAcInterchange());
+        assertEquals(-602.631, controlAreaA.getDcInterchange(), DELTA);
+        assertEquals(-602.631, controlAreaA.getTotalInterchange(), DELTA);
+    }
+
+    @Test
     void testWithDc() {
         // remove entirely control area B, set one dangling line AC, the other one DC
         controlAreaB.remove();
@@ -197,7 +218,6 @@ public abstract class AbstractAreaTest {
         tieLine1.remove();
         tieLine2.remove();
         network.getSubstation("P2").remove();
-        controlAreaA.removeAreaBoundary(dlXnode2A.getBoundary());
         controlAreaA.newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
         dlXnode1A.setP0(290.0);
         dlXnode2A.setP0(310.0);

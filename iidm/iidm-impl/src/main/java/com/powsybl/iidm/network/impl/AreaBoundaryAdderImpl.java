@@ -72,9 +72,12 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         if (isAc() == null) {
             throw new PowsyblException("AreaBoundary AC flag is not set.");
         }
+        // we remove before adding, to forbid duplicates and allow updating ac to true/false
         if (getBoundary() != null) {
+            getArea().removeAreaBoundary(getBoundary());
             getArea().addAreaBoundary(new AreaBoundaryImpl(getBoundary(), isAc()));
         } else if (getTerminal() != null) {
+            getArea().removeAreaBoundary(getTerminal());
             getArea().addAreaBoundary(new AreaBoundaryImpl(getTerminal(), isAc()));
         } else {
             throw new PowsyblException("No AreaBoundary element (terminal or boundary) is set.");
