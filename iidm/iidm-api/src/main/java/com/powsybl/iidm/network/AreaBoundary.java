@@ -63,6 +63,8 @@ import java.util.Optional;
  */
 public interface AreaBoundary {
 
+    Area getArea();
+
     Optional<Terminal> getTerminal();
 
     Optional<Boundary> getBoundary();

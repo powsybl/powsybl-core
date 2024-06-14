@@ -75,10 +75,10 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         // we remove before adding, to forbid duplicates and allow updating ac to true/false
         if (getBoundary() != null) {
             getArea().removeAreaBoundary(getBoundary());
-            getArea().addAreaBoundary(new AreaBoundaryImpl(getBoundary(), isAc()));
+            getArea().addAreaBoundary(new AreaBoundaryImpl(getArea(), getBoundary(), isAc()));
         } else if (getTerminal() != null) {
             getArea().removeAreaBoundary(getTerminal());
-            getArea().addAreaBoundary(new AreaBoundaryImpl(getTerminal(), isAc()));
+            getArea().addAreaBoundary(new AreaBoundaryImpl(getArea(), getTerminal(), isAc()));
         } else {
             throw new PowsyblException("No AreaBoundary element (terminal or boundary) is set.");
         }

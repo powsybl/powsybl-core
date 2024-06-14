@@ -129,6 +129,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
      */
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
+        Objects.requireNonNull(voltageLevel);
         if (voltageLevels.add(voltageLevel)) {
             voltageLevel.addArea(this);
         }
@@ -136,6 +137,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public void removeVoltageLevel(VoltageLevel voltageLevel) {
+        Objects.requireNonNull(voltageLevel);
         voltageLevels.remove(voltageLevel);
         if (Iterables.contains(voltageLevel.getAreas(), this)) {
             voltageLevel.removeArea(this);
@@ -149,12 +151,30 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     @Override
     public void removeAreaBoundary(Terminal terminal) {
+        Objects.requireNonNull(terminal);
         areaBoundaries.removeIf(b -> Objects.equals(b.getTerminal().orElse(null), terminal));
     }
 
     @Override
     public void removeAreaBoundary(Boundary boundary) {
+        Objects.requireNonNull(boundary);
         areaBoundaries.removeIf(b -> Objects.equals(b.getBoundary().orElse(null), boundary));
+    }
+
+    @Override
+    public AreaBoundary getAreaBoundary(Boundary boundary) {
+        Objects.requireNonNull(boundary);
+        return areaBoundaries.stream()
+                .filter(ab -> Objects.equals(ab.getBoundary().orElse(null), boundary))
+                .findFirst().orElse(null);
+    }
+
+    @Override
+    public AreaBoundary getAreaBoundary(Terminal terminal) {
+        Objects.requireNonNull(terminal);
+        return areaBoundaries.stream()
+                .filter(ab -> Objects.equals(ab.getTerminal().orElse(null), terminal))
+                .findFirst().orElse(null);
     }
 
     @Override

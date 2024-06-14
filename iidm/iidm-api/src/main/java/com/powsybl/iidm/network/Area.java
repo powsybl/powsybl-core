@@ -90,6 +90,10 @@ public interface Area extends Identifiable<Area> {
 
     void removeAreaBoundary(Boundary boundary);
 
+    AreaBoundary getAreaBoundary(Boundary boundary);
+
+    AreaBoundary getAreaBoundary(Terminal terminal);
+
     Iterable<AreaBoundary> getAreaBoundaries();
 
     Stream<AreaBoundary> getAreaBoundaryStream();
