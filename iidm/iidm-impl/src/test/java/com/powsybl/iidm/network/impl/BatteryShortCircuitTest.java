@@ -29,16 +29,20 @@ class BatteryShortCircuitTest {
         assertNotNull(bat);
         bat.newExtension(BatteryShortCircuitAdder.class)
             .withDirectTransX(1.0f)
-            .withStepUpTransformerX(1.0f)
+            .withDirectSubtransX(2.0f)
+            .withStepUpTransformerX(3.0f)
             .add();
         BatteryShortCircuit batteryShortCircuits = bat.getExtension(BatteryShortCircuit.class);
         assertEquals("batteryShortCircuit", batteryShortCircuits.getName());
-        assertEquals(1.0f, batteryShortCircuits.getDirectTransX(), 0f);
-        assertEquals(1.0f, batteryShortCircuits.getStepUpTransformerX(), 0f);
+        assertEquals(1.0f, batteryShortCircuits.getDirectTransX(), 0.01d);
+        assertEquals(2.0f, batteryShortCircuits.getDirectSubtransX(), 0.01d);
+        assertEquals(3.0f, batteryShortCircuits.getStepUpTransformerX(), 0.01d);
         batteryShortCircuits.setDirectTransX(2.0f);
-        assertEquals(2.0f, batteryShortCircuits.getDirectTransX(), 0f);
-        batteryShortCircuits.setStepUpTransformerX(3.0f);
-        assertEquals(3.0f, batteryShortCircuits.getStepUpTransformerX(), 0f);
+        assertEquals(2.0f, batteryShortCircuits.getDirectTransX(), 0.01d);
+        batteryShortCircuits.setDirectSubtransX(3.0f);
+        assertEquals(3.0f, batteryShortCircuits.getDirectSubtransX(), 0.01d);
+        batteryShortCircuits.setStepUpTransformerX(4.0f);
+        assertEquals(4.0f, batteryShortCircuits.getStepUpTransformerX(), 0.01d);
     }
 
     @Test
@@ -46,7 +50,7 @@ class BatteryShortCircuitTest {
         Network network = BatteryNetworkFactory.create();
         Battery battery = network.getBattery("BAT");
         assertNotNull(battery);
-        BatteryShortCircuitAdder adder = (BatteryShortCircuitAdder) battery.newExtension(BatteryShortCircuitAdder.class)
+        BatteryShortCircuitAdder adder = battery.newExtension(BatteryShortCircuitAdder.class)
             .withDirectTransX(Double.NaN);
         PowsyblException e = assertThrows(PowsyblException.class, adder::add);
         assertEquals("Undefined directTransX", e.getMessage());
