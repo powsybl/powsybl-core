@@ -18,6 +18,7 @@ import java.time.ZonedDateTime;
 public final class EurostagTutorialExample1Factory {
 
     private static final String VLGEN = "VLGEN";
+    private static final String VLLOAD = "VLLOAD";
     public static final String CASE_DATE = "2018-01-01T11:00:00+01:00";
     public static final String DANGLING_LINE_XNODE1_1 = "NHV1_XNODE1";
     public static final String DANGLING_LINE_XNODE1_2 = "XNODE1_NHV2";
@@ -68,7 +69,7 @@ public final class EurostagTutorialExample1Factory {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
         VoltageLevel vlload = p2.newVoltageLevel()
-                .setId("VLLOAD")
+                .setId(VLLOAD)
                 .setNominalV(150.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
@@ -880,45 +881,42 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
-    public static Network createWithAreas() {
-        Network network = create();
+    public static Network createWithTieLinesAndAreas() {
+        return createWithTieLinesAndAreas(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithTieLinesAndAreas(NetworkFactory networkFactory) {
+        Network network = createWithTieLines(networkFactory);
         network.newArea()
-                .setId("bza")
-                .setName("BZ_A")
-                .setAreaType("biddingZone")
+                .setId("ControlArea_A")
+                .setName("Control Area A")
+                .setAreaType("ControlArea")
+                .setAcInterchangeTarget(-602.6)
+                .addVoltageLevel(network.getVoltageLevel(VLGEN))
+                .addVoltageLevel(network.getVoltageLevel(VLHV1))
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE1_1).getBoundary(), true)
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_1).getBoundary(), true)
                 .add();
         network.newArea()
-                .setId("bzb")
-                .setName("BZ_B")
-                .setAreaType("biddingZone")
+                .setId("ControlArea_B")
+                .setName("Control Area B")
+                .setAreaType("ControlArea")
+                .setAcInterchangeTarget(+602.6)
+                .addVoltageLevel(network.getVoltageLevel(VLHV2))
+                .addVoltageLevel(network.getVoltageLevel(VLLOAD))
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE1_2).getBoundary(), true)
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_2).getBoundary(), true)
                 .add();
         network.newArea()
-                .setId("rga")
-                .setName("Region_A")
-                .setAreaType("region")
+                .setId("Region_AB")
+                .setName("Region AB")
+                .setAreaType("Region")
+                .addVoltageLevel(network.getVoltageLevel(VLGEN))
+                .addVoltageLevel(network.getVoltageLevel(VLHV1))
+                .addVoltageLevel(network.getVoltageLevel(VLHV2))
+                .addVoltageLevel(network.getVoltageLevel(VLLOAD))
                 .add();
 
-        final VoltageLevel vlhv1 = network.getVoltageLevel(VLHV1);
-        final Line nhv1Nhv2Line1 = network.getLine(NHV1_NHV2_1);
-        final DanglingLine danglingLineVlhv1 = vlhv1.newDanglingLine()
-                .setId("danglingLine1")
-                .setP0(5.0)
-                .setQ0(3.0)
-                .setR(1.5)
-                .setX(20.0)
-                .setBus("NHV1")
-                .setPairingKey(XNODE_1)
-                .add();
-        network.newArea()
-                .setAcInterchangeTarget(10.0)
-                .setId("aic_a")
-                .setName("Aic_A")
-                .setAreaType("aic")
-                .addVoltageLevel(network.getVoltageLevel(VLHV2))
-                .addAreaBoundary(nhv1Nhv2Line1.getTerminal1(), true)
-                .addAreaBoundary(danglingLineVlhv1.getBoundary(), false)
-                .addAreaBoundary(network.getGenerator("GEN").getTerminal(), true)
-                .add();
         return network;
     }
 }

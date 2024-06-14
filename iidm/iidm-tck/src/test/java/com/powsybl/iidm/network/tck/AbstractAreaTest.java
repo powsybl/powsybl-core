@@ -11,14 +11,10 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,256 +24,255 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public abstract class AbstractAreaTest {
 
-    final String biddingZone = "biddingZone";
-    final String region = "region";
-    final String aic = "aic";
+    private static final String CONTROL_AREA_TYPE = "ControlArea";
+    private static final String REGION_AREA_TYPE = "Region";
+    public static final double DELTA = 1e-3;
     Network network;
-    Area biddingZoneA;
-    Area biddingZoneB;
-    Area regionA;
-    Area aicA;
+    Area controlAreaA;
+    Area controlAreaB;
+    Area regionAB;
+    VoltageLevel vlgen;
+    VoltageLevel vlhv1;
+    VoltageLevel vlhv2;
+    VoltageLevel vlload;
+    DanglingLine dlXnode1A;
+    DanglingLine dlXnode1B;
+    DanglingLine dlXnode2A;
+    DanglingLine dlXnode2B;
+    TieLine tieLine1;
+    TieLine tieLine2;
 
     @BeforeEach
     void setUp() {
-        network = EurostagTutorialExample1Factory.createWithAreas();
-        biddingZoneA = network.getArea("bza");
-        biddingZoneB = network.getArea("bzb");
-        regionA = network.getArea("rga");
-        aicA = network.getArea("aic_a");
+        network = EurostagTutorialExample1Factory.createWithTieLinesAndAreas();
+        controlAreaA = network.getArea("ControlArea_A");
+        controlAreaB = network.getArea("ControlArea_B");
+        regionAB = network.getArea("Region_AB");
+        vlgen = network.getVoltageLevel("VLGEN");
+        vlhv1 = network.getVoltageLevel("VLHV1");
+        vlhv2 = network.getVoltageLevel("VLHV2");
+        vlload = network.getVoltageLevel("VLLOAD");
+        dlXnode1A = network.getDanglingLine("NHV1_XNODE1");
+        dlXnode1B = network.getDanglingLine("XNODE1_NHV2");
+        dlXnode2A = network.getDanglingLine("NVH1_XNODE2");
+        dlXnode2B = network.getDanglingLine("XNODE2_NHV2");
+        tieLine1 = network.getTieLine("NHV1_NHV2_1");
+        tieLine2 = network.getTieLine("NHV1_NHV2_2");
     }
 
     @Test
     public void areaAttributes() {
-        assertEquals(IdentifiableType.AREA, biddingZoneA.getType());
+        assertEquals(IdentifiableType.AREA, controlAreaA.getType());
 
-        assertEquals("bza", biddingZoneA.getId());
-        assertEquals("BZ_A", biddingZoneA.getNameOrId());
-        assertEquals(biddingZone, biddingZoneA.getAreaType());
-        assertEquals(Optional.empty(), biddingZoneA.getAcInterchangeTarget());
+        assertEquals("ControlArea_A", controlAreaA.getId());
+        assertEquals("Control Area A", controlAreaA.getOptionalName().orElseThrow());
+        assertEquals(CONTROL_AREA_TYPE, controlAreaA.getAreaType());
+        assertEquals(-602.6, controlAreaA.getAcInterchangeTarget().orElseThrow());
+        assertEquals(Set.of(vlgen, vlhv1), controlAreaA.getVoltageLevels());
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        var boundary1aFound = controlAreaA.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent() && b.isAc() && b.getBoundary().get().getDanglingLine() == dlXnode1A).toList();
+        assertEquals(1, boundary1aFound.size());
+        var boundary1a = boundary1aFound.get(0);
+        assertEquals(-301.315, boundary1a.getP(), DELTA);
+        assertEquals(-116.524, boundary1a.getQ(), DELTA);
+        var boundary2aFound = controlAreaA.getAreaBoundaryStream().filter(b -> b.getBoundary().isPresent() && b.isAc() && b.getBoundary().get().getDanglingLine() == dlXnode2A).toList();
+        assertEquals(1, boundary2aFound.size());
+        var boundary2a = boundary2aFound.get(0);
+        assertEquals(-301.315, boundary2a.getP(), DELTA);
+        assertEquals(-116.524, boundary2a.getQ(), DELTA);
 
-        assertEquals("aic_a", aicA.getId());
-        assertEquals("Aic_A", aicA.getNameOrId());
-        assertEquals(aic, aicA.getAreaType());
-        assertEquals(Optional.of(10.0), aicA.getAcInterchangeTarget());
+        assertEquals("ControlArea_B", controlAreaB.getId());
+        assertEquals("Control Area B", controlAreaB.getOptionalName().orElseThrow());
+        assertEquals(CONTROL_AREA_TYPE, controlAreaB.getAreaType());
+        assertEquals(+602.6, controlAreaB.getAcInterchangeTarget().orElseThrow());
+        assertEquals(Set.of(vlhv2, vlload), controlAreaB.getVoltageLevels());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
 
-        VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
-        assertEquals(Set.of(vlhv2), aicA.getVoltageLevels());
-        assertEquals(List.of(vlhv2), aicA.getVoltageLevelStream().toList());
-
-        final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
-        final Terminal boundary2 = network.getGenerator("GEN").getTerminal();
-        final Boundary boundary3 = network.getDanglingLine("danglingLine1").getBoundary();
-        final Map<Object, Boolean> expectedBoundaries = Map.of(boundary1, true, boundary2, true, boundary3, false);
-        assertBoundaries(expectedBoundaries, aicA);
-        AreaBoundary dcBoundary = aicA.getAreaBoundaryStream().filter(boundary -> !boundary.isAc()).findFirst().orElseThrow();
-        assertEquals(-5., dcBoundary.getP());
-        assertEquals(-3., dcBoundary.getQ());
+        assertEquals("Region_AB", regionAB.getId());
+        assertEquals("Region AB", regionAB.getOptionalName().orElseThrow());
+        assertEquals(REGION_AREA_TYPE, regionAB.getAreaType());
+        assertFalse(regionAB.getAcInterchangeTarget().isPresent());
+        assertEquals(Set.of(vlgen, vlhv1, vlhv2, vlload), regionAB.getVoltageLevels());
+        assertEquals(0, regionAB.getAreaBoundaryStream().count());
     }
 
     @Test
-    public void areaNetPositionComputation() {
-        // Check current Net Interchanges (NaN P values are ignored)
-        assertEquals(0., aicA.getAcInterchange());
-        assertEquals(-5., aicA.getDcInterchange());
-        assertEquals(-5., aicA.getTotalInterchange());
+    public void areaInterchangeComputation() {
+        assertEquals(-602.631, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(0.0, controlAreaA.getDcInterchange());
+        assertEquals(-602.631, controlAreaA.getTotalInterchange(), DELTA);
 
-        // Update the AreaBoundary active power and check that the net positions values are recomputed accordingly
-        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1().setP(10);
-        network.getGenerator("GEN").getTerminal().setP(10);
-        network.getDanglingLine("danglingLine1").setP0(-30);
-        assertEquals(20., aicA.getAcInterchange());
-        assertEquals(30., aicA.getDcInterchange());
-        assertEquals(50., aicA.getTotalInterchange());
-    }
+        assertEquals(+603.563, controlAreaB.getAcInterchange(), DELTA);
+        assertEquals(0.0, controlAreaB.getDcInterchange());
+        assertEquals(+603.563, controlAreaB.getTotalInterchange(), DELTA);
 
-    @Test
-    public void areaNetPositionComputationWithoutNoBoundaries() {
-        assertEquals(0., regionA.getAcInterchange());
-        assertEquals(0., regionA.getDcInterchange());
-        assertEquals(0., regionA.getTotalInterchange());
+        // no boundaries defined
+        assertEquals(0.0, regionAB.getAcInterchange());
+        assertEquals(0.0, regionAB.getDcInterchange());
+        assertEquals(0.0, regionAB.getTotalInterchange());
+
+        // verify NaN do not mess up the calculation
+        dlXnode1A.getTerminal().setP(Double.NaN);
+        assertEquals(-301.315, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(0.0, controlAreaA.getDcInterchange());
+        assertEquals(-301.315, controlAreaA.getTotalInterchange(), DELTA);
     }
 
     @Test
     public void areaIterableAndStreamGetterCheck() {
-        List<Area> areas = List.of(biddingZoneA, biddingZoneB, regionA, aicA);
-        List<String> areaTypes = List.of(biddingZone, region, aic);
+        List<Area> areas = List.of(controlAreaA, controlAreaB, regionAB);
+        List<String> areaTypes = List.of(CONTROL_AREA_TYPE, REGION_AREA_TYPE);
 
         assertEquals(areas, network.getAreaStream().toList());
         assertEquals(areaTypes, network.getAreaTypeStream().toList());
 
-        assertEquals(4, Iterables.size(network.getAreas()));
+        assertEquals(3, Iterables.size(network.getAreas()));
         areas.forEach(area -> assertTrue(Iterables.contains(network.getAreas(), area)));
-        assertEquals(3, Iterables.size(network.getAreaTypes()));
+        assertEquals(2, Iterables.size(network.getAreaTypes()));
         areaTypes.forEach(areaType -> assertTrue(Iterables.contains(network.getAreaTypes(), areaType)));
     }
 
     @Test
     public void addVoltageLevelsToArea() {
-        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
-        VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
+        var newVl = vlhv1.getNullableSubstation().newVoltageLevel()
+                .setId("NewVl")
+                .setNominalV(400.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
 
-        biddingZoneA.addVoltageLevel(vlhv1);
-        vlhv2.addArea(biddingZoneA);
+        // we can add new VL from the area
+        controlAreaA.addVoltageLevel(newVl);
+        // or from the new VL
+        newVl.addArea(regionAB);
 
-        assertEquals(Set.of(biddingZoneA), vlhv1.getAreas());
-        assertEquals(Set.of(biddingZoneA, aicA), vlhv2.getAreas());
-        assertEquals(Set.of(vlhv1, vlhv2), biddingZoneA.getVoltageLevels());
+        assertEquals(Set.of(controlAreaA, regionAB), newVl.getAreas());
+        assertEquals(Set.of(vlgen, vlhv1, newVl), controlAreaA.getVoltageLevels());
+        assertEquals(Set.of(vlhv2, vlload), controlAreaB.getVoltageLevels());
+        assertEquals(Set.of(vlgen, vlhv1, newVl, vlhv2, vlload), regionAB.getVoltageLevels());
     }
 
     @Test
     public void addSameVoltageLevelToArea() {
-        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
-        biddingZoneA.addVoltageLevel(vlhv1);
-        vlhv1.addArea(biddingZoneA);
+        // vlhv1 already in controlAreaA, no-op
+        controlAreaA.addVoltageLevel(vlhv1);
+        vlhv1.addArea(controlAreaA);
 
-        assertEquals(Set.of(biddingZoneA), vlhv1.getAreas());
-        assertEquals(Set.of(vlhv1), biddingZoneA.getVoltageLevels());
+        assertEquals(Set.of(controlAreaA, regionAB), vlhv1.getAreas());
+        assertEquals(Set.of(vlgen, vlhv1), controlAreaA.getVoltageLevels());
     }
 
     @Test
-    public void addAreasToVoltageLevel() {
-        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
-        vlhv1.addArea(biddingZoneA);
-        regionA.addVoltageLevel(vlhv1);
+    void testWithTerminals() {
+        // change boundary to be at transformer NGEN_NHV1 side 2
+        controlAreaA.removeAreaBoundary(dlXnode1A.getBoundary());
+        controlAreaA.removeAreaBoundary(dlXnode2A.getBoundary());
+        controlAreaB.removeAreaBoundary(dlXnode1B.getBoundary());
+        controlAreaB.removeAreaBoundary(dlXnode2B.getBoundary());
 
-        assertEquals(Set.of(biddingZoneA, regionA), vlhv1.getAreas());
-        assertEquals(Set.of(vlhv1), biddingZoneA.getVoltageLevels());
-        assertEquals(Set.of(vlhv1), regionA.getVoltageLevels());
+        TwoWindingsTransformer ngenNhv1 = network.getTwoWindingsTransformer("NGEN_NHV1");
+        controlAreaA.newAreaBoundary().setTerminal(ngenNhv1.getTerminal2()).setAc(true).add();
+        controlAreaB.newAreaBoundary().setTerminal(dlXnode1A.getTerminal()).setAc(true).add();
+        controlAreaB.newAreaBoundary().setTerminal(dlXnode2A.getTerminal()).setAc(true).add();
+
+        assertEquals(-604.891, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(0.0, controlAreaA.getDcInterchange());
+        assertEquals(-604.891, controlAreaA.getTotalInterchange(), DELTA);
+
+        assertEquals(+604.888, controlAreaB.getAcInterchange(), DELTA);
+        assertEquals(0.0, controlAreaB.getDcInterchange());
+        assertEquals(+604.888, controlAreaB.getTotalInterchange(), DELTA);
+
+        // verify NaN do not mess up the calculation
+        ngenNhv1.getTerminal2().setP(Double.NaN);
+        assertEquals(0.0, controlAreaA.getAcInterchange());
+        assertEquals(0.0, controlAreaA.getDcInterchange());
+        assertEquals(0.0, controlAreaA.getTotalInterchange());
+    }
+
+    @Test
+    void testWithDc() {
+        // remove entirely control area B, set one dangling line AC, the other one DC
+        controlAreaB.remove();
+        regionAB.remove();
+        tieLine1.remove();
+        tieLine2.remove();
+        network.getSubstation("P2").remove();
+        controlAreaA.removeAreaBoundary(dlXnode2A.getBoundary());
+        controlAreaA.newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
+        dlXnode1A.setP0(290.0);
+        dlXnode2A.setP0(310.0);
+        assertEquals(-290.0, controlAreaA.getAcInterchange(), DELTA);
+        assertEquals(-310.0, controlAreaA.getDcInterchange());
+        assertEquals(-600.0, controlAreaA.getTotalInterchange(), DELTA);
     }
 
     @Test
     public void throwAddNewAreaSameType() {
-        VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
-        biddingZoneA.addVoltageLevel(vlhv2);
-        var e1 = assertThrows(PowsyblException.class, () -> biddingZoneB.addVoltageLevel(vlhv2));
-        var e2 = assertThrows(PowsyblException.class, () -> vlhv2.addArea(biddingZoneB));
-
-        String expectedMessage = "VoltageLevel VLHV2 is already in Area of the same type=biddingZone with id=bza";
-        assertEquals(expectedMessage, e1.getMessage());
-        assertEquals(expectedMessage, e2.getMessage());
+        var e1 = assertThrows(PowsyblException.class, () -> controlAreaA.addVoltageLevel(vlhv2));
+        assertEquals("VoltageLevel VLHV2 is already in Area of the same type=ControlArea with id=ControlArea_B", e1.getMessage());
+        var e2 = assertThrows(PowsyblException.class, () -> vlhv1.addArea(controlAreaB));
+        assertEquals("VoltageLevel VLHV1 is already in Area of the same type=ControlArea with id=ControlArea_A", e2.getMessage());
     }
 
     @Test
     public void throwRemovedVoltageLevel() {
-        VoltageLevel dummy = network.newVoltageLevel()
-                .setId("dummy")
+        VoltageLevel newVoltageLevel = network.newVoltageLevel()
+                .setId("newVoltageLevel")
                 .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .setLowVoltageLimit(0.0)
-                .setHighVoltageLimit(0.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
 
-        dummy.addArea(biddingZoneB);
-        assertEquals(Set.of(dummy), biddingZoneB.getVoltageLevels());
-        dummy.remove();
-        assertEquals(Set.of(), biddingZoneB.getVoltageLevels());
+        newVoltageLevel.addArea(controlAreaB);
+        assertEquals(Set.of(vlhv2, vlload, newVoltageLevel), controlAreaB.getVoltageLevels());
+        newVoltageLevel.remove();
+        assertEquals(Set.of(vlhv2, vlload), controlAreaB.getVoltageLevels());
 
-        Throwable e1 = assertThrows(PowsyblException.class, () -> dummy.getArea(biddingZone));
-        Throwable e2 = assertThrows(PowsyblException.class, dummy::getAreas);
-        Throwable e3 = assertThrows(PowsyblException.class, dummy::getAreasStream);
-        Throwable e4 = assertThrows(PowsyblException.class, () -> dummy.addArea(biddingZoneA));
+        Throwable e1 = assertThrows(PowsyblException.class, () -> newVoltageLevel.getArea(CONTROL_AREA_TYPE));
+        Throwable e2 = assertThrows(PowsyblException.class, newVoltageLevel::getAreas);
+        Throwable e3 = assertThrows(PowsyblException.class, newVoltageLevel::getAreasStream);
+        Throwable e4 = assertThrows(PowsyblException.class, () -> newVoltageLevel.addArea(controlAreaA));
 
-        String expectedMessage = "Cannot access areas of removed voltage level dummy";
+        String expectedMessage = "Cannot access areas of removed voltage level newVoltageLevel";
         assertEquals(expectedMessage, e1.getMessage());
         assertEquals(expectedMessage, e2.getMessage());
         assertEquals(expectedMessage, e3.getMessage());
-        assertEquals("Cannot add areas to removed voltage level dummy", e4.getMessage());
+        assertEquals("Cannot add areas to removed voltage level newVoltageLevel", e4.getMessage());
     }
 
     @Test
     public void throwAddVoltageLevelOtherNetwork() {
-        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
-        VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
-                .setId("sub1_vl1")
+        Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "code");
+        VoltageLevel newVoltageLevel = subnetwork.newVoltageLevel()
+                .setId("newVoltageLevel")
                 .setNominalV(400.0)
-                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
 
-        Throwable e = assertThrows(PowsyblException.class, () -> biddingZoneA.addVoltageLevel(sn1VL1));
-        assertEquals("VoltageLevel sub1_vl1 cannot be added to Area bza. It does not belong to the same network or subnetwork.", e.getMessage());
-    }
-
-    @Test
-    public void addAreaBoundaryTerminal() {
-        Terminal terminal = network.getLoad("LOAD").getTerminal();
-        biddingZoneA.newAreaBoundary()
-                .setTerminal(terminal)
-                .setAc(true)
-                .add();
-        Map<Object, Boolean> expectedBoundaries = Map.of(terminal, true);
-        assertBoundaries(expectedBoundaries, biddingZoneA);
-    }
-
-    @Test
-    public void addAreaBoundaryDanglingLine() {
-        VoltageLevel vlhv1 = network.getVoltageLevel("VLHV1");
-        DanglingLine danglingLine = vlhv1.newDanglingLine()
-                .setId("danglingLine")
-                .setP0(0.0)
-                .setQ0(0.0)
-                .setR(0.0)
-                .setX(0.0)
-                .setBus("NHV1")
-                .add();
-        biddingZoneA.newAreaBoundary()
-                .setBoundary(danglingLine.getBoundary())
-                .setAc(true)
-                .add();
-        Map<Object, Boolean> expectedBoundaries = Map.of(danglingLine.getBoundary(), true);
-        assertBoundaries(expectedBoundaries, biddingZoneA);
+        Throwable e = assertThrows(PowsyblException.class, () -> controlAreaA.addVoltageLevel(newVoltageLevel));
+        assertEquals("VoltageLevel newVoltageLevel cannot be added to Area ControlArea_A. It does not belong to the same network or subnetwork.", e.getMessage());
     }
 
     @Test
     public void removeAreaBoundaries() {
-        Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
-        Terminal boundary2 = network.getGenerator("GEN").getTerminal();
-        Boundary boundary3 = network.getDanglingLine("danglingLine1").getBoundary();
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
 
-        aicA.removeAreaBoundary(boundary1);
-        Map<Object, Boolean> expectedBoundaries = Map.of(boundary2, true, boundary3, false);
-        assertBoundaries(expectedBoundaries, aicA);
+        controlAreaA.removeAreaBoundary(dlXnode1A.getBoundary());
 
-        aicA.removeAreaBoundary(boundary3);
-        expectedBoundaries = Map.of(boundary2, true);
-        assertBoundaries(expectedBoundaries, aicA);
+        assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
     }
 
     @Test
     public void removeEquipmentRemovesAreaBoundary() {
-        assertEquals(3, aicA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
 
         // Deleting equipment from the network should automatically delete their AreaBoundary-s
-        network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).remove();
-        network.getGenerator("GEN").remove();
-        network.getDanglingLine("danglingLine1").remove();
+        // here we remove only one side of the tie-line, on control area A side
+        tieLine1.remove();
+        dlXnode1A.remove();
 
-        assertEquals(0, aicA.getAreaBoundaryStream().count());
-        assertBoundaries(Map.of(), aicA);
-    }
-
-    void assertBoundaries(Map<Object, Boolean> expectedAreaBoundaries, Area area) {
-        final Function<Object, Pair<String, ThreeSides>> getAreaBoundaryIdAndSide = object -> {
-            if (object instanceof Terminal terminal) {
-                return Pair.of(terminal.getConnectable().getId(), terminal.getSide());
-            } else if (object instanceof Boundary boundary) {
-                return Pair.of(boundary.getDanglingLine().getId(), null);
-            } else if (object instanceof AreaBoundary areaBoundary) {
-                return areaBoundary.getTerminal().isPresent()
-                        ? Pair.of(areaBoundary.getTerminal().get().getConnectable().getId(), areaBoundary.getTerminal().get().getSide())
-                        : Pair.of(areaBoundary.getBoundary().orElseThrow().getDanglingLine().getId(), null);
-            } else {
-                throw new IllegalArgumentException("Unexpected object type: " + object.getClass());
-            }
-        };
-
-        Map<Pair<String, ThreeSides>, Boolean> expectedBoundaryAttributes = expectedAreaBoundaries.entrySet().stream()
-                .collect(Collectors.toMap(entry -> getAreaBoundaryIdAndSide.apply(entry.getKey()), Map.Entry::getValue));
-        Map<Pair<String, ThreeSides>, Boolean> actualAttributesFromIterable = StreamSupport.stream(area.getAreaBoundaries().spliterator(), false)
-                .collect(Collectors.toMap(getAreaBoundaryIdAndSide, AreaBoundary::isAc));
-        Map<Pair<String, ThreeSides>, Boolean> actualAttributesFromStream = area.getAreaBoundaryStream()
-                .collect(Collectors.toMap(getAreaBoundaryIdAndSide, AreaBoundary::isAc));
-        assertEquals(expectedBoundaryAttributes, actualAttributesFromIterable);
-        assertEquals(expectedBoundaryAttributes, actualAttributesFromStream);
+        assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
     }
 
     @Test
@@ -291,53 +286,55 @@ public abstract class AbstractAreaTest {
         Bus bus = sn1VL1.getBusBreakerView().newBus()
                 .setId("sub1_bus")
                 .add();
-        Load load = sn1VL1.newLoad()
-                .setId("sub1_load")
+        DanglingLine danglingLine = sn1VL1.newDanglingLine()
+                .setId("sub1_dl")
                 .setP0(0.0)
                 .setQ0(0.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
                 .setBus(bus.getId())
+                .setPairingKey("XNODE")
                 .add();
-        Terminal terminal = load.getTerminal();
-        AreaBoundaryAdder areaBoundaryAdder = biddingZoneA.newAreaBoundary().setTerminal(terminal).setAc(true);
+        AreaBoundaryAdder areaBoundaryAdder = controlAreaA.newAreaBoundary().setBoundary(danglingLine.getBoundary()).setAc(true);
         Throwable e = assertThrows(PowsyblException.class, areaBoundaryAdder::add);
-        assertEquals("Terminal of connectable sub1_load cannot be added to Area bza boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
+        assertEquals("Boundary of DanglingLinesub1_dl cannot be added to Area ControlArea_A boundaries. It does not belong to the same network or subnetwork.", e.getMessage());
     }
 
     @Test
     public void throwBoundaryAttributeNotSet() {
-        final Terminal boundary1 = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1();
-        AreaBoundaryAdder areaBoundaryAdder1 = biddingZoneA.newAreaBoundary().setAc(true);
+        AreaBoundaryAdder areaBoundaryAdder1 = controlAreaA.newAreaBoundary().setAc(true);
         Throwable e1 = assertThrows(PowsyblException.class, areaBoundaryAdder1::add);
         assertEquals("No AreaBoundary element (terminal or boundary) is set.", e1.getMessage());
-        AreaBoundaryAdder areaBoundaryAdder2 = biddingZoneA.newAreaBoundary().setTerminal(boundary1);
+        AreaBoundaryAdder areaBoundaryAdder2 = controlAreaA.newAreaBoundary().setBoundary(dlXnode1A.getBoundary());
         Throwable e2 = assertThrows(PowsyblException.class, areaBoundaryAdder2::add);
         assertEquals("AreaBoundary AC flag is not set.", e2.getMessage());
     }
 
     @Test
     public void removeArea() {
-        biddingZoneA.remove();
-        assertFalse(Iterables.contains(network.getAreas(), biddingZoneA));
-        assertFalse(network.getAreaStream().toList().contains(biddingZoneA));
+        controlAreaA.remove();
+        assertFalse(Iterables.contains(network.getAreas(), controlAreaA));
+        assertFalse(network.getAreaStream().toList().contains(controlAreaA));
 
-        Throwable e1 = assertThrows(PowsyblException.class, biddingZoneA::getAreaType);
-        assertEquals("Cannot access area type of removed area bza", e1.getMessage());
-        Throwable e2 = assertThrows(PowsyblException.class, biddingZoneA::getAcInterchangeTarget);
-        assertEquals("Cannot access AC interchange target of removed area bza", e2.getMessage());
-        Throwable e3 = assertThrows(PowsyblException.class, biddingZoneA::getAcInterchange);
-        assertEquals("Cannot access AC interchange of removed area bza", e3.getMessage());
-        Throwable e4 = assertThrows(PowsyblException.class, biddingZoneA::getDcInterchange);
-        assertEquals("Cannot access DC interchange of removed area bza", e4.getMessage());
-        Throwable e5 = assertThrows(PowsyblException.class, biddingZoneA::getTotalInterchange);
-        assertEquals("Cannot access total interchange of removed area bza", e5.getMessage());
-        Throwable e6 = assertThrows(PowsyblException.class, biddingZoneA::getVoltageLevels);
-        assertEquals("Cannot access voltage levels of removed area bza", e6.getMessage());
-        Throwable e7 = assertThrows(PowsyblException.class, biddingZoneA::getVoltageLevelStream);
-        assertEquals("Cannot access voltage levels of removed area bza", e7.getMessage());
-        Throwable e8 = assertThrows(PowsyblException.class, biddingZoneA::getAreaBoundaries);
-        assertEquals("Cannot access area boundaries of removed area bza", e8.getMessage());
-        Throwable e9 = assertThrows(PowsyblException.class, biddingZoneA::getAreaBoundaryStream);
-        assertEquals("Cannot access area boundaries of removed area bza", e9.getMessage());
+        Throwable e1 = assertThrows(PowsyblException.class, controlAreaA::getAreaType);
+        assertEquals("Cannot access area type of removed area ControlArea_A", e1.getMessage());
+        Throwable e2 = assertThrows(PowsyblException.class, controlAreaA::getAcInterchangeTarget);
+        assertEquals("Cannot access AC interchange target of removed area ControlArea_A", e2.getMessage());
+        Throwable e3 = assertThrows(PowsyblException.class, controlAreaA::getAcInterchange);
+        assertEquals("Cannot access AC interchange of removed area ControlArea_A", e3.getMessage());
+        Throwable e4 = assertThrows(PowsyblException.class, controlAreaA::getDcInterchange);
+        assertEquals("Cannot access DC interchange of removed area ControlArea_A", e4.getMessage());
+        Throwable e5 = assertThrows(PowsyblException.class, controlAreaA::getTotalInterchange);
+        assertEquals("Cannot access total interchange of removed area ControlArea_A", e5.getMessage());
+        Throwable e6 = assertThrows(PowsyblException.class, controlAreaA::getVoltageLevels);
+        assertEquals("Cannot access voltage levels of removed area ControlArea_A", e6.getMessage());
+        Throwable e7 = assertThrows(PowsyblException.class, controlAreaA::getVoltageLevelStream);
+        assertEquals("Cannot access voltage levels of removed area ControlArea_A", e7.getMessage());
+        Throwable e8 = assertThrows(PowsyblException.class, controlAreaA::getAreaBoundaries);
+        assertEquals("Cannot access area boundaries of removed area ControlArea_A", e8.getMessage());
+        Throwable e9 = assertThrows(PowsyblException.class, controlAreaA::getAreaBoundaryStream);
+        assertEquals("Cannot access area boundaries of removed area ControlArea_A", e9.getMessage());
     }
-
 }
