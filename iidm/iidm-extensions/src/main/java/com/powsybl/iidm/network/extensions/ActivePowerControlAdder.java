@@ -23,4 +23,8 @@ public interface ActivePowerControlAdder<I extends Injection<I>>
     ActivePowerControlAdder<I> withDroop(double droop);
 
     ActivePowerControlAdder<I> withParticipationFactor(double participationFactor);
+
+    ActivePowerControlAdder<I> withMinPOverride(double minPOverride);
+
+    ActivePowerControlAdder<I> withMaxPOverride(double maxPOverride);
 }
