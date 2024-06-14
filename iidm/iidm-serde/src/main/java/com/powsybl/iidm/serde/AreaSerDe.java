@@ -10,6 +10,8 @@ package com.powsybl.iidm.serde;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
+import java.util.OptionalDouble;
+
 /**
  * @author Marine Guibert {@literal <marine.guibert at artelys.com>}
  * @author Valentin Mouradian {@literal <valentin.mouradian at artelys.com>}
@@ -28,7 +30,7 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     @Override
     protected void writeRootElementAttributes(final Area area, final Network parent, final NetworkSerializerContext context) {
         context.getWriter().writeStringAttribute("areaType", context.getAnonymizer().anonymizeString(area.getAreaType()));
-        area.getAcInterchangeTarget().ifPresent(target -> context.getWriter().writeDoubleAttribute("acInterchangeTarget", target));
+        context.getWriter().writeOptionalDoubleAttribute("acInterchangeTarget", area.getAcInterchangeTarget().orElse(null));
     }
 
     @Override
@@ -51,10 +53,10 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     @Override
     protected Area readRootElementAttributes(final AreaAdder adder, final Network parent, final NetworkDeserializerContext context) {
         String areaType = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("areaType"));
-        double acInterchangeTarget = context.getReader().readDoubleAttribute("acInterchangeTarget", Double.NaN);
-        return adder.setAreaType(areaType)
-                    .setAcInterchangeTarget(acInterchangeTarget)
-                    .add();
+        adder.setAreaType(areaType);
+        OptionalDouble acInterchangeTarget = context.getReader().readOptionalDoubleAttribute("acInterchangeTarget");
+        acInterchangeTarget.ifPresent(adder::setAcInterchangeTarget);
+        return adder.add();
     }
 
     @Override
