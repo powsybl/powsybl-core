@@ -39,7 +39,7 @@ Available arguments are:
 
 **\-\-case-file**: This option defines the path of the case file on which the simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path. 
 
-**\-\-dynamic-models-file**: This option defines the path of the mapping file used to associate dynamic models to static equipments of the network. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
+**\-\-dynamic-models-file**: This option defines the path of the mapping file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
 
 ### Optional options
 
@@ -61,7 +61,7 @@ This option defines the path of the [parameters](#parameters) file of the simula
 The available power flow simulators implementations are described [here](../../simulation/dynamic/index.md#implementations).
 
 ## Parameters
-The available parameters are described [here](../../simulation/dynamic/index.md#parameters).
+The available parameters are described [here](../../simulation/dynamic/parameters.md).
 
 ## Results
 The expected results are described in the [time domain documentation](../../simulation/dynamic/index.md#outputs)

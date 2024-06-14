@@ -129,7 +129,7 @@ public interface DynamicSecurityAnalysisProvider extends Versionable, PlatformCo
 
     /**
      *
-     * @return The name of the loadflow used for the security analysis.
+     * @return The name of the dynamic simulation used for the security analysis.
      */
     default Optional<String> getDynamicSimulationProviderName() {
         return Optional.empty();
