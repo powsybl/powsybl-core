@@ -53,12 +53,12 @@ public abstract class AbstractAreaTest {
         assertEquals("bza", biddingZoneA.getId());
         assertEquals("BZ_A", biddingZoneA.getNameOrId());
         assertEquals(biddingZone, biddingZoneA.getAreaType());
-        assertEquals(Optional.empty(), biddingZoneA.getAcNetInterchangeTarget());
+        assertEquals(Optional.empty(), biddingZoneA.getAcInterchangeTarget());
 
         assertEquals("aic_a", aicA.getId());
         assertEquals("Aic_A", aicA.getNameOrId());
         assertEquals(aic, aicA.getAreaType());
-        assertEquals(Optional.of(10.0), aicA.getAcNetInterchangeTarget());
+        assertEquals(Optional.of(10.0), aicA.getAcInterchangeTarget());
 
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
         assertEquals(Set.of(vlhv2), aicA.getVoltageLevels());
@@ -69,7 +69,7 @@ public abstract class AbstractAreaTest {
         final Boundary boundary3 = network.getDanglingLine("danglingLine1").getBoundary();
         final Map<Object, Boolean> expectedBoundaries = Map.of(boundary1, true, boundary2, true, boundary3, false);
         assertBoundaries(expectedBoundaries, aicA);
-        AreaBoundary dcBoundary = aicA.getAreaBoundaryStream().filter(boundary -> !boundary.isAc()).findFirst().orElse(null);
+        AreaBoundary dcBoundary = aicA.getAreaBoundaryStream().filter(boundary -> !boundary.isAc()).findFirst().orElseThrow();
         assertEquals(-5., dcBoundary.getP());
         assertEquals(-3., dcBoundary.getQ());
     }
@@ -77,24 +77,24 @@ public abstract class AbstractAreaTest {
     @Test
     public void areaNetPositionComputation() {
         // Check current Net Interchanges (NaN P values are ignored)
-        assertEquals(0., aicA.getAcNetInterchange());
-        assertEquals(-5., aicA.getDcNetInterchange());
-        assertEquals(-5., aicA.getTotalNetInterchange());
+        assertEquals(0., aicA.getAcInterchange());
+        assertEquals(-5., aicA.getDcInterchange());
+        assertEquals(-5., aicA.getTotalInterchange());
 
         // Update the AreaBoundary active power and check that the net positions values are recomputed accordingly
         network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1).getTerminal1().setP(10);
         network.getGenerator("GEN").getTerminal().setP(10);
         network.getDanglingLine("danglingLine1").setP0(-30);
-        assertEquals(20., aicA.getAcNetInterchange());
-        assertEquals(30., aicA.getDcNetInterchange());
-        assertEquals(50., aicA.getTotalNetInterchange());
+        assertEquals(20., aicA.getAcInterchange());
+        assertEquals(30., aicA.getDcInterchange());
+        assertEquals(50., aicA.getTotalInterchange());
     }
 
     @Test
     public void areaNetPositionComputationWithoutNoBoundaries() {
-        assertEquals(0., regionA.getAcNetInterchange());
-        assertEquals(0., regionA.getDcNetInterchange());
-        assertEquals(0., regionA.getTotalNetInterchange());
+        assertEquals(0., regionA.getAcInterchange());
+        assertEquals(0., regionA.getDcInterchange());
+        assertEquals(0., regionA.getTotalInterchange());
     }
 
     @Test
@@ -322,14 +322,14 @@ public abstract class AbstractAreaTest {
 
         Throwable e1 = assertThrows(PowsyblException.class, biddingZoneA::getAreaType);
         assertEquals("Cannot access area type of removed area bza", e1.getMessage());
-        Throwable e2 = assertThrows(PowsyblException.class, biddingZoneA::getAcNetInterchangeTarget);
-        assertEquals("Cannot access AC net interchange target of removed area bza", e2.getMessage());
-        Throwable e3 = assertThrows(PowsyblException.class, biddingZoneA::getAcNetInterchange);
-        assertEquals("Cannot access AC net interchange of removed area bza", e3.getMessage());
-        Throwable e4 = assertThrows(PowsyblException.class, biddingZoneA::getDcNetInterchange);
-        assertEquals("Cannot access DC net interchange of removed area bza", e4.getMessage());
-        Throwable e5 = assertThrows(PowsyblException.class, biddingZoneA::getTotalNetInterchange);
-        assertEquals("Cannot access total net interchange of removed area bza", e5.getMessage());
+        Throwable e2 = assertThrows(PowsyblException.class, biddingZoneA::getAcInterchangeTarget);
+        assertEquals("Cannot access AC interchange target of removed area bza", e2.getMessage());
+        Throwable e3 = assertThrows(PowsyblException.class, biddingZoneA::getAcInterchange);
+        assertEquals("Cannot access AC interchange of removed area bza", e3.getMessage());
+        Throwable e4 = assertThrows(PowsyblException.class, biddingZoneA::getDcInterchange);
+        assertEquals("Cannot access DC interchange of removed area bza", e4.getMessage());
+        Throwable e5 = assertThrows(PowsyblException.class, biddingZoneA::getTotalInterchange);
+        assertEquals("Cannot access total interchange of removed area bza", e5.getMessage());
         Throwable e6 = assertThrows(PowsyblException.class, biddingZoneA::getVoltageLevels);
         assertEquals("Cannot access voltage levels of removed area bza", e6.getMessage());
         Throwable e7 = assertThrows(PowsyblException.class, biddingZoneA::getVoltageLevelStream);

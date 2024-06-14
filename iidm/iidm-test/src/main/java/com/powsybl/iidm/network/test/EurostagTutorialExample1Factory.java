@@ -910,7 +910,7 @@ public final class EurostagTutorialExample1Factory {
                 .setPairingKey(XNODE_1)
                 .add();
         network.newArea()
-                .setAcNetInterchangeTarget(10.0)
+                .setAcInterchangeTarget(10.0)
                 .setId("aic_a")
                 .setName("Aic_A")
                 .setAreaType("aic")

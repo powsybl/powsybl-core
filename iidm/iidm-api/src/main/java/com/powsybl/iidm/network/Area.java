@@ -12,8 +12,9 @@ import java.util.stream.Stream;
 
 /**
  * An Area is a geographical zone of a given type.
- * <p> It is composed of a collection of voltage levels, and a collection of area boundaries.
- * <p> Areas can represent different granularities depending on their types. For instance: control areas, bidding zones, countries...
+ * <p> An Area is composed of a collection of voltage levels, and a collection of area boundaries.
+ * <p> The area type is used to distinguish between various area concepts of different granularity.
+ * For instance: control areas, bidding zones, countries...
  * <p> To create an Area, see {@link AreaAdder}
  *
  * <p>
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
  *             <th style="border: 1px solid black">Type</th>
  *             <th style="border: 1px solid black">Unit</th>
  *             <th style="border: 1px solid black">Required</th>
- *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Default value</th>
  *             <th style="border: 1px solid black">Description</th>
  *         </tr>
  *     </thead>
@@ -54,15 +55,15 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The type of zone that this Area represents. For instance: "ControlArea", "BiddingZone", "Country"...</td>
+ *             <td style="border: 1px solid black">The type of Area. For instance: "ControlArea", "BiddingZone", "Country"...</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">AcNetInterchangeTarget</td>
+ *             <td style="border: 1px solid black">AcInterchangeTarget</td>
  *             <td style="border: 1px solid black">Double</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The optional target AC Net Interchange of this area in MW, using load sign convention</td>
+ *             <td style="border: 1px solid black">The optional target AC Interchange of this area in MW, using load sign convention (negative is export, positive is import)</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -99,28 +100,28 @@ public interface Area extends Identifiable<Area> {
     }
 
     /**
-     * Get the optional target AC Net Interchange of this area in MW, using load sign convention
-     * @return the AC Net Interchange target
+     * Get the optional target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import)
+     * @return the AC Interchange target (MW)
      */
-    Optional<Double> getAcNetInterchangeTarget();
+    Optional<Double> getAcInterchangeTarget();
 
     /**
-     * Get the current AC Net Interchange of this area in MW, using load sign convention
-     * @return the AC net position (0 if no boundary)
+     * Get the current AC Interchange of this area in MW, in load sign convention (negative is export, positive is import)
+     * @return the AC position (MW, 0 MW if no boundary)
      */
-    Double getAcNetInterchange();
+    double getAcInterchange();
 
     /**
-     * Get the current DC Net Interchange of this area in MW, using load sign convention
-     * @return the DC net position (0 if no boundary)
+     * Get the current DC Interchange of this area in MW, in load sign convention (negative is export, positive is import)
+     * @return the DC position (MW, 0 MW if no boundary)
      */
-    Double getDcNetInterchange();
+    double getDcInterchange();
 
     /**
-     * Get the current total (AC+DC) Net Interchange of this area in MW, using load sign convention
-     * @return the total net position (0 if no boundary)
+     * Get the current total (AC+DC) Interchange of this area in MW, in load sign convention (negative is export, positive is import)
+     * @return the total position (MW, 0 MW if no boundary)
      */
-    Double getTotalNetInterchange();
+    double getTotalInterchange();
 
     void removeVoltageLevel(VoltageLevel voltageLevel);
 

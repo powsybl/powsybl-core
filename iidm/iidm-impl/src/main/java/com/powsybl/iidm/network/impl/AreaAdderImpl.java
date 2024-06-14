@@ -24,7 +24,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
 
     private String areaType;
 
-    private Double acNetInterchangeTarget;
+    private Double acInterchangeTarget;
 
     private final Set<VoltageLevel> voltageLevels;
 
@@ -49,8 +49,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return this;
     }
 
-    public AreaAdder setAcNetInterchangeTarget(Double acNetInterchangeTarget) {
-        this.acNetInterchangeTarget = acNetInterchangeTarget;
+    public AreaAdder setAcInterchangeTarget(Double acInterchangeTarget) {
+        this.acInterchangeTarget = acInterchangeTarget;
         return this;
     }
 
@@ -77,8 +77,8 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
         return areaType;
     }
 
-    protected Double getAcNetInterchangeTarget() {
-        return acNetInterchangeTarget;
+    protected Double getAcInterchangeTarget() {
+        return acInterchangeTarget;
     }
 
     protected Set<VoltageLevel> getVoltageLevels() {
@@ -96,7 +96,7 @@ public class AreaAdderImpl extends AbstractIdentifiableAdder<AreaAdderImpl> impl
     @Override
     public Area add() {
         String id = checkAndGetUniqueId();
-        AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcNetInterchangeTarget());
+        AreaImpl area = new AreaImpl(getNetworkRef(), subnetworkRef, id, getName(), isFictitious(), getAreaType(), getAcInterchangeTarget());
         getTerminalAreaBoundaries().forEach((terminal, ac) -> area.newAreaBoundary().setTerminal(terminal).setAc(ac).add());
         getBoundaryAreaBoundaries().forEach((boundary, ac) -> area.newAreaBoundary().setBoundary(boundary).setAc(ac).add());
         getVoltageLevels().forEach(area::addVoltageLevel);

@@ -24,9 +24,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final Ref<NetworkImpl> networkRef;
     private final Ref<SubnetworkImpl> subnetworkRef;
     private final String areaType;
-    private final Double acNetInterchangeTarget;
+    private final Double acInterchangeTarget;
     private final List<AreaBoundary> areaBoundaries;
-    private final Set<VoltageLevel> voltagelevels;
+    private final Set<VoltageLevel> voltageLevels;
 
     protected boolean removed = false;
 
@@ -47,13 +47,13 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final NetworkListener areaListener;
 
     public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
-                    Double acNetInterchangeTarget) {
+                    Double acInterchangeTarget) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
         this.areaType = Objects.requireNonNull(areaType);
-        this.acNetInterchangeTarget = acNetInterchangeTarget;
-        this.voltagelevels = new LinkedHashSet<>();
+        this.acInterchangeTarget = acInterchangeTarget;
+        this.voltageLevels = new LinkedHashSet<>();
         this.areaBoundaries = new ArrayList<>();
         this.areaListener = new AreaListener();
         getNetwork().addListener(this.areaListener);
@@ -85,40 +85,40 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         throwIfRemoved("voltage levels");
-        return voltagelevels;
+        return voltageLevels;
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
         throwIfRemoved("voltage levels");
-        return voltagelevels.stream();
+        return voltageLevels.stream();
     }
 
     @Override
-    public Optional<Double> getAcNetInterchangeTarget() {
-        throwIfRemoved("AC net interchange target");
-        return Optional.ofNullable(acNetInterchangeTarget);
+    public Optional<Double> getAcInterchangeTarget() {
+        throwIfRemoved("AC interchange target");
+        return Optional.ofNullable(acInterchangeTarget);
     }
 
     @Override
-    public Double getAcNetInterchange() {
-        throwIfRemoved("AC net interchange");
+    public double getAcInterchange() {
+        throwIfRemoved("AC interchange");
         return getInterchange(AreaBoundary::isAc);
     }
 
     @Override
-    public Double getDcNetInterchange() {
-        throwIfRemoved("DC net interchange");
+    public double getDcInterchange() {
+        throwIfRemoved("DC interchange");
         return getInterchange(areaBoundary -> !areaBoundary.isAc());
     }
 
     @Override
-    public Double getTotalNetInterchange() {
-        throwIfRemoved("total net interchange");
+    public double getTotalInterchange() {
+        throwIfRemoved("total interchange");
         return getInterchange(areaBoundary -> true);
     }
 
-    Double getInterchange(Predicate<AreaBoundary> predicate) {
+    double getInterchange(Predicate<AreaBoundary> predicate) {
         return areaBoundaries.stream().filter(predicate).mapToDouble(AreaBoundary::getP).filter(p -> !Double.isNaN(p)).sum();
     }
 
@@ -129,14 +129,14 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
      */
     @Override
     public void addVoltageLevel(VoltageLevel voltageLevel) {
-        if (voltagelevels.add(voltageLevel)) {
+        if (voltageLevels.add(voltageLevel)) {
             voltageLevel.addArea(this);
         }
     }
 
     @Override
     public void removeVoltageLevel(VoltageLevel voltageLevel) {
-        voltagelevels.remove(voltageLevel);
+        voltageLevels.remove(voltageLevel);
         if (Iterables.contains(voltageLevel.getAreas(), this)) {
             voltageLevel.removeArea(this);
         }
@@ -188,7 +188,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         NetworkImpl network = getNetwork();
         network.getListeners().notifyBeforeRemoval(this);
         network.getIndex().remove(this);
-        for (VoltageLevel voltageLevel : new HashSet<>(voltagelevels)) {
+        for (VoltageLevel voltageLevel : new HashSet<>(voltageLevels)) {
             voltageLevel.removeArea(this);
         }
         network.getListeners().notifyAfterRemoval(id);

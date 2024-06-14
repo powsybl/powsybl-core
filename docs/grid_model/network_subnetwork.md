@@ -98,23 +98,31 @@ When defining the model, the user has to specify how the different equipment con
 ## Area
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Area.html)
 
-An Area represents geographical zone defined by the [voltage levels](#voltage-level) that it contains and by its boundaries, that can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
+An Area is a geographical zone of a given type.
 
-Areas can represent various granularities depending on their types. For instance: control areas, bidding zones, countries...
+An Area is composed of a collection of [voltage levels](#voltage-level), and a collection of area boundaries.
+Area boundaries can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
 
-A [voltage level](#voltage-level) can belong to several Areas, as long as they all have different types.
+The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
 
-The powerflow through the area boundaries can be summed and used to perform calculations for area interchange control.   
-The area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting. If the Area has no boundary, the interchange is considered 0 MW.
+A [voltage level](#voltage-level) can belong to several Areas, as long as all areas are of different type.
+
+The area boundaries define how interchange are to be calculated for the area.  
+Area interchange is calculated by summing the power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
+for DC part only (considering only DC boundaries) and in total (AC+DC).  
+Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
+
+For area types that are meant to be used for area interchange control, e.g. in Power Flow simulations, the interchange target of the area can be specified as an input for the simulation.
+Note that this target interchange is for only the AC part of the interchange.
+
+All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
 
 **Characteristics**
 
-| Attribute |Unit |Description                                                         |
-| --------- |-----|----------------------------------------------------------------|
-| $AreaType$ | |To specify the type of Area (eg. ControlArea, BiddingZone ...)     |
-| $AcNetInterchangeTarget$ | MW | Target active power interchange             |
-
-**Available extensions**
+| Attribute             | Unit | Description                                                    |
+|-----------------------|------|----------------------------------------------------------------|
+| $AreaType$            |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
+| $AcInterchangeTarget$ | MW   | Target AC active power interchange                             |
 
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
