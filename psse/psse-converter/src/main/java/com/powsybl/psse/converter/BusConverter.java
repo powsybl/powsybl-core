@@ -47,44 +47,71 @@ class BusConverter extends AbstractConverter {
                 .setAngle(psseBus.getVa());
     }
 
-    // At the moment we only consider new buses created by opening switches in nodeBreaker substations
-    static void updateBuses(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
+    static void updateAndCreateBuses(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
+        psseModel.getBuses().forEach(psseBus -> busNumToPsseBus.put(psseBus.getI(), psseBus));
 
-        psseModel.getBuses().forEach(psseBus -> {
-
-            String busId = nodeBreakerExport.getBusBreakerBusId(psseBus.getI()).orElseGet(() -> AbstractConverter.getBusId(psseBus.getI()));
-            int type = nodeBreakerExport.getBusType(psseBus.getI()).orElseGet(psseBus::getIde);
-
-            updatePsseBus(network, busId, psseBus, type);
-
-            busNumToPsseBus.put(psseBus.getI(), psseBus);
+        contextExport.getBusBreakerExport().getBuses().forEach(busViewBusId -> {
+            int busI = contextExport.getBusBreakerExport().getBusBusI(busViewBusId).orElseThrow();
+            int type = contextExport.getBusBreakerExport().getBusType(busViewBusId).orElseThrow();
+            updateAndCreateBus(network, busViewBusId, busI, type, null, psseModel, busNumToPsseBus);
         });
 
-        // create new psse buses
-        List<PsseBus> addedBuses = new ArrayList<>();
-        nodeBreakerExport.getNewMappedBusesSet().stream().sorted().forEach(newBus -> {
-            int copyBus = nodeBreakerExport.getNewMappedBusCopyBus(newBus).orElseThrow();
-            String busBreakerId = nodeBreakerExport.getNewMappedBusBusBreakerId(newBus).orElse(null);
-            int type = nodeBreakerExport.getNewMappedBusType(newBus).orElseThrow();
-
-            PsseBus psseBus = createNewBus(copyBus, newBus, busNumToPsseBus);
-            updatePsseBus(network, busBreakerId, psseBus, type);
-            addedBuses.add(psseBus);
+        contextExport.getNodeBreakerExport().getBuses().forEach(busViewBusId -> {
+            int busI = contextExport.getNodeBreakerExport().getBusBusI(busViewBusId).orElseThrow();
+            Integer busCopy = contextExport.getNodeBreakerExport().getBusBusCopy(busViewBusId).orElse(null);
+            int type = contextExport.getNodeBreakerExport().getBusType(busViewBusId).orElseThrow();
+            updateAndCreateBus(network, busViewBusId, busI, type, busCopy, psseModel, busNumToPsseBus);
         });
 
-        nodeBreakerExport.getNewNotMappedBusesSet().stream().sorted().forEach(newBus -> {
-            int copyBus = nodeBreakerExport.getNewNotMappedBusCopyBus(newBus).orElseThrow();
-
-            PsseBus psseBus = createNewBus(copyBus, newBus, busNumToPsseBus);
-            updateIsolatedPsseBus(psseBus);
-            addedBuses.add(psseBus);
+        contextExport.getNodeBreakerExport().getIsolatedBusesI().forEach(busI -> {
+            VoltageLevel voltageLevel = contextExport.getNodeBreakerExport().getIsolatedBusIVoltageLevel(busI).orElseThrow();
+            Integer busCopy = contextExport.getNodeBreakerExport().getIsolatedBusIBusCopy(busI).orElse(null);
+            createIsolatedBus(voltageLevel, busI, busCopy, psseModel, busNumToPsseBus);
         });
 
-        psseModel.addBuses(addedBuses.stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
+        psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
     }
 
-    private static PsseBus createNewBus(int copyBus, int newBus, Map<Integer, PsseBus> busNumToPsseBus) {
+    private static void updateAndCreateBus(Network network, String busViewBusId, int busI, int type, Integer busCopy, PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus) {
+        if (busNumToPsseBus.containsKey(busI)) {
+            PsseBus psseBus = busNumToPsseBus.get(busI);
+            updatePsseBus(network, busViewBusId, type, psseBus);
+        } else if (busCopy != null) {
+            PsseBus psseBus = createNewBusFromCopy(busCopy, busI, busNumToPsseBus);
+            updatePsseBus(network, busViewBusId, type, psseBus);
+            psseModel.addBuses(Collections.singletonList(psseBus));
+        } else {
+            Bus bus = Objects.requireNonNull(network.getBusView().getBus(busViewBusId));
+            psseModel.addBuses(Collections.singletonList(createNewBus(bus, busI, type)));
+        }
+    }
+
+    private static void createIsolatedBus(VoltageLevel voltageLevel, int busI, Integer busCopy, PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus) {
+        if (busNumToPsseBus.containsKey(busI)) {
+            PsseBus psseBus = busNumToPsseBus.get(busI);
+            updateIsolatedPsseBus(psseBus);
+        } else if (busCopy != null) {
+            PsseBus psseBus = createNewBusFromCopy(busCopy, busI, busNumToPsseBus);
+            updateIsolatedPsseBus(psseBus);
+            psseModel.addBuses(Collections.singletonList(psseBus));
+        } else {
+            psseModel.addBuses(Collections.singletonList(createNewIsolatedBus(voltageLevel, busI)));
+        }
+    }
+
+    private static void updatePsseBus(Network network, String busViewBusId, int type, PsseBus psseBus) {
+        Bus bus = network.getBusView().getBus(busViewBusId);
+        if (bus == null) {
+            updateIsolatedPsseBus(psseBus);
+        } else {
+            psseBus.setVm(getVm(bus));
+            psseBus.setVa(getVa(bus));
+            psseBus.setIde(type);
+        }
+    }
+
+    private static PsseBus createNewBusFromCopy(int copyBus, int newBus, Map<Integer, PsseBus> busNumToPsseBus) {
         PsseBus psseBusToBeCopied = obtainPsseBus(copyBus, busNumToPsseBus);
         PsseBus psseBus = psseBusToBeCopied.copy();
         psseBus.setI(newBus);
@@ -112,29 +139,33 @@ class BusConverter extends AbstractConverter {
         }
     }
 
-    private static void updatePsseBus(Network network, String busBreakerId, PsseBus psseBus, int type) {
-        Bus bus = network.getBusBreakerView().getBus(busBreakerId);
-        if (bus == null) {
-            updateIsolatedPsseBus(psseBus);
-        } else {
-            psseBus.setVm(getVm(bus));
-            psseBus.setVa(getVa(bus));
-            psseBus.setIde(type);
-        }
-    }
-
     private static void updateIsolatedPsseBus(PsseBus psseBus) {
         psseBus.setVm(0.0);
         psseBus.setVa(0.0);
         psseBus.setIde(4);
     }
 
-    private static double getVm(Bus bus) {
-        return Double.isFinite(bus.getV()) && bus.getV() > 0.0 ? bus.getV() / bus.getVoltageLevel().getNominalV() : 1.0;
+    private static PsseBus createNewBus(Bus bus, int busI, int type) {
+        PsseBus psseBus = new PsseBus();
+        psseBus.setI(busI);
+        psseBus.setName(bus.getNameOrId());
+        psseBus.setBaskv(bus.getVoltageLevel().getNominalV());
+        psseBus.setIde(type);
+        psseBus.setVm(getVm(bus));
+        psseBus.setVa(getVa(bus));
+
+        return psseBus;
     }
 
-    private static double getVa(Bus bus) {
-        return Double.isFinite(bus.getAngle()) ? bus.getAngle() : 0.0;
+    private static PsseBus createNewIsolatedBus(VoltageLevel voltageLevel, int busI) {
+        PsseBus psseBus = new PsseBus();
+        psseBus.setI(busI);
+        psseBus.setName(voltageLevel.getId() + "-" + busI);
+        psseBus.setBaskv(voltageLevel.getNominalV());
+
+        updateIsolatedPsseBus(psseBus);
+
+        return psseBus;
     }
 
     private final PsseBus psseBus;

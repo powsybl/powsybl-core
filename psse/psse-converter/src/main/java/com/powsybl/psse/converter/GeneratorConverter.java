@@ -41,10 +41,9 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     void create() {
-        String busId = getBusId(psseGenerator.getI());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseGenerator.getI()));
         GeneratorAdder adder = voltageLevel.newGenerator()
-                .setId(getGeneratorId(busId, psseGenerator))
+                .setId(getGeneratorId(psseGenerator.getI(), psseGenerator.getId()))
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
@@ -56,6 +55,7 @@ class GeneratorConverter extends AbstractConverter {
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {
+            String busId = getBusId(psseGenerator.getI());
             adder.setConnectableBus(busId);
             adder.setBus(psseGenerator.getStat() == 1 ? busId : null);
         }
@@ -73,8 +73,7 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     void addControl(PsseBus psseBus) {
-        String busId = getBusId(psseGenerator.getI());
-        Generator generator = getNetwork().getGenerator(getGeneratorId(busId, psseGenerator));
+        Generator generator = getNetwork().getGenerator(getGeneratorId(psseGenerator.getI(), psseGenerator.getId()));
 
         // Add control only if generator has been created
         if (generator == null) {
@@ -111,7 +110,7 @@ class GeneratorConverter extends AbstractConverter {
             String equipmentId = getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGenerator.getI(), psseGenerator.getId());
             Optional<NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, psseGenerator.getIreg()));
             if (controlNode.isPresent()) {
-                regulatingTerminal = obtainTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+                regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
             } else {
                 String regulatingBusId = getBusId(psseGenerator.getIreg());
                 Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
@@ -121,27 +120,19 @@ class GeneratorConverter extends AbstractConverter {
             }
         }
         if (regulatingTerminal == null) {
-            String generatorId = getGeneratorId(getBusId(psseGenerator.getI()), psseGenerator.getId());
+            String generatorId = getGeneratorId(psseGenerator.getI(), psseGenerator.getId());
             LOGGER.warn("Generator {}. Regulating terminal is not assigned as the bus is isolated", generatorId);
         }
         return regulatingTerminal;
     }
 
-    private static String getGeneratorId(String busId, PsseGenerator psseGenerator) {
-        return getGeneratorId(busId, psseGenerator.getId());
-    }
-
-    private static String getGeneratorId(String busId, String generatorId) {
-        return busId + "-G" + generatorId;
-    }
-
     // At the moment we do not consider new generators
-    static void updateGenerators(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
+    static void updateGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getGenerators().forEach(psseGen -> {
-            String genId = getGeneratorId(getBusId(psseGen.getI()), psseGen.getId());
+            String genId = getGeneratorId(psseGen.getI(), psseGen.getId());
             Generator gen = network.getGenerator(genId);
-            int bus = obtainBus(nodeBreakerExport, getNodeBreakerEquipmentId(PSSE_GENERATOR, psseGen.getI(), psseGen.getId()), psseGen.getI());
-            int regulatingBus = obtainRegulatingBus(nodeBreakerExport, gen.getRegulatingTerminal(), psseGen.getIreg());
+            int bus = getTerminalBusI(gen.getTerminal(), contextExport);
+            int regulatingBus = getRegulatingTerminalBusI(gen.getRegulatingTerminal(), bus, psseGen.getIreg(), contextExport);
 
             if (gen == null) {
                 psseGen.setStat(0);

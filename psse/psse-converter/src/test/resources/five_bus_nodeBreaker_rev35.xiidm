@@ -16,7 +16,7 @@
                 <iidm:regulatingTerminal id="VL1-Busbar-2"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:generator>
-            <iidm:lccConverterStation id="LccConverter-1-5-1" name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" node="6"/>
+            <iidm:lccConverterStation id="LccConverter-1-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7273804" node="6"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL3" nominalV="45.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>
@@ -99,11 +99,11 @@
                     <iidm:section b="0.005250997689561016" g="0.0"/>
                 </iidm:shuntNonLinearModel>
             </iidm:shunt>
-            <iidm:lccConverterStation id="LccConverter-1-5-5" name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" node="3"/>
+            <iidm:lccConverterStation id="LccConverter-5-EATL P1     " name="EATL P1     " lossFactor="0.0" powerFactor="0.7183361" node="3"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:line id="L-1-2-1 " r="3.6907272" x="11.2683348" g1="0.0" b1="1.3862633900441084E-4" g2="0.0" b2="1.3862633900441084E-4" voltageLevelId1="VL1" node1="3" voltageLevelId2="VL2" node2="3"/>
-    <iidm:hvdcLine id="TwoTerminalDc-1-5-EATL P1     " name="EATL P1     " r="7.365" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="0.0" converterStation1="LccConverter-1-5-1" converterStation2="LccConverter-1-5-5"/>
+    <iidm:hvdcLine id="TwoTerminalDc-EATL P1         " name="EATL P1     " r="7.365" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="0.0" converterStation1="LccConverter-1-EATL P1     " converterStation2="LccConverter-5-EATL P1     "/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1 "/>
     </iidm:extension>

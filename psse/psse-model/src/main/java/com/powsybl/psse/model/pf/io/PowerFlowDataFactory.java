@@ -9,6 +9,8 @@ package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -33,22 +35,48 @@ public final class PowerFlowDataFactory {
     public static PowerFlowData create(String extension, PsseVersion version) {
         if (extension.equalsIgnoreCase("rawx")) {
             switch (version.major()) {
-                case V35:
+                case V35 -> {
                     return new PowerFlowRawxData35();
-                default:
-                    throw new PsseException("Unsupported version " + version);
+                }
+                default -> throw new PsseException("Unsupported version " + version);
             }
         } else {
-            switch (version.major()) {
-                case V35:
-                    return new PowerFlowRawData35();
-                case V33:
-                    return new PowerFlowRawData33();
-                case V32:
-                    return new PowerFlowRawData32();
-                default:
-                    throw new PsseException("Unsupported version " + version);
-            }
+            return switch (version.major()) {
+                case V35 -> new PowerFlowRawData35();
+                case V33 -> new PowerFlowRawData33();
+                case V32 -> new PowerFlowRawData32();
+            };
+        }
+    }
+
+    public static Context createPsseContext() {
+        Context context = new Context();
+        context.setVersion(PsseVersion.fromRevision(35));
+        context.setFileFormat(FileFormat.LEGACY_TEXT);
+        context.setFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION, CaseIdentificationData.FIELD_NAMES_CASE_IDENTIFICATION);
+        context.setFieldNames(PowerFlowRecordGroup.BUS, BusData.FIELD_NAMES_BUS_35);
+        context.setFieldNames(PowerFlowRecordGroup.LOAD, LoadData.FIELD_NAMES_LOAD_35);
+        context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, SubstationData.FIELD_NAMES_SUBSTATION);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, SubstationData.FIELD_NAMES_SUBSTATION_NODE);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, SubstationData.FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES);
+        printContext(context);
+        return context;
+    }
+
+    private static void printContext(Context context) {
+        System.err.printf("Version: %s %n", context.getVersion());
+        System.err.printf("FileFormat: %s %n", context.getFileFormat());
+        System.err.printf("CurrentRecordGroupMaxNumFields %d %n", context.getCurrentRecordGroupMaxNumFields());
+        String[] fieldNames = context.getFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION);
+        if (fieldNames != null && fieldNames.length > 0) {
+            System.err.printf("FieldNames: %s %n", String.join(",", fieldNames));
+        }
+        fieldNames = context.getFieldNames(PowerFlowRecordGroup.BUS);
+        if (fieldNames != null && fieldNames.length > 0) {
+            System.err.printf("FieldNames: %s %n", String.join(",", fieldNames));
         }
     }
 }

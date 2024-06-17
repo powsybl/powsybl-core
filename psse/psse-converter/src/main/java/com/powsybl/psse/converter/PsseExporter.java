@@ -18,15 +18,18 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
-import com.powsybl.psse.model.pf.io.PowerFlowRawData32;
-import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
-import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
-import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
+import com.powsybl.psse.model.pf.PsseSubstation;
+import com.powsybl.psse.model.pf.io.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+
+import static com.powsybl.psse.converter.VoltageLevelConverter.*;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -56,11 +59,17 @@ public class PsseExporter implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource) {
+        PssePowerFlowModel updatePsseModel;
+        Context context;
+        if (network.getExtension(PsseModelExtension.class) == null) {
+            updatePsseModel = createPsseModel(network);
+            context = PowerFlowDataFactory.createPsseContext();
+        } else {
+            PssePowerFlowModel psseModel = network.getExtension(PsseModelExtension.class).getPsseModel();
+            updatePsseModel = createUpdatePsseModel(network, psseModel);
+            context = network.getExtension(PsseConversionContextExtension.class).getContext();
+        }
 
-        PssePowerFlowModel psseModel = network.getExtension(PsseModelExtension.class).getPsseModel();
-        PssePowerFlowModel updatePsseModel = createUpdatePsseModel(network, psseModel);
-
-        Context context = network.getExtension(PsseConversionContextExtension.class).getContext();
         PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
         if (context.getFileFormat() == FileFormat.JSON) {
             if (Objects.requireNonNull(version.major()) == PsseVersion.Major.V35) {
@@ -80,32 +89,31 @@ public class PsseExporter implements Exporter {
 
     private void exportNotJson(Context context, PssePowerFlowModel updatePsseModel, PsseVersion version, DataSource dataSource) {
         switch (version.major()) {
-            case V35:
+            case V35 -> {
                 PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
                 try {
                     rawData35.write(updatePsseModel, context, dataSource);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
-                break;
-            case V33:
+            }
+            case V33 -> {
                 PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
                 try {
                     rawData33.write(updatePsseModel, context, dataSource);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
-                break;
-            case V32:
+            }
+            case V32 -> {
                 PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
                 try {
                     rawData32.write(updatePsseModel, context, dataSource);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
-                break;
-            default:
-                throw new PsseException("Unsupported version " + version);
+            }
+            default -> throw new PsseException("Unsupported version " + version);
         }
     }
 
@@ -120,18 +128,68 @@ public class PsseExporter implements Exporter {
     }
 
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
-        NodeBreakerExport nodeBreakerExport = VoltageLevelConverter.mapSubstations(network, updatedPsseModel);
+        ContextExport contextExport = createContextExport(network, updatedPsseModel);
 
-        // Only after mapping all substations, the substation data can be updated
-        VoltageLevelConverter.updateSubstations(network, updatedPsseModel, nodeBreakerExport);
+        VoltageLevelConverter.createAndUpdateSubstations(updatedPsseModel, contextExport);
 
-        BusConverter.updateBuses(network, updatedPsseModel, nodeBreakerExport);
-        LoadConverter.updateLoads(network, updatedPsseModel, nodeBreakerExport);
-        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel, nodeBreakerExport);
-        GeneratorConverter.updateGenerators(network, updatedPsseModel, nodeBreakerExport);
-        LineConverter.updateLines(network, updatedPsseModel, nodeBreakerExport);
-        TransformerConverter.updateTransformers(network, updatedPsseModel, nodeBreakerExport);
-        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, nodeBreakerExport);
-        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, nodeBreakerExport);
+        BusConverter.updateAndCreateBuses(network, updatedPsseModel, contextExport);
+        LoadConverter.updateAndCreateLoads(network, updatedPsseModel, contextExport);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel, contextExport);
+        GeneratorConverter.updateGenerators(network, updatedPsseModel, contextExport);
+        LineConverter.updateLines(network, updatedPsseModel, contextExport);
+        TransformerConverter.updateTransformers(network, updatedPsseModel, contextExport);
+        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, contextExport);
+    }
+
+    private static PssePowerFlowModel createPsseModel(Network network) {
+        PsseCaseIdentification caseIdentification = createCaseIdentification(network);
+        PssePowerFlowModel psseModel = new PssePowerFlowModel(caseIdentification);
+        ContextExport contextExport = createContextExport(network, psseModel);
+
+        VoltageLevelConverter.createAndUpdateSubstations(psseModel, contextExport);
+
+        BusConverter.updateAndCreateBuses(network, psseModel, contextExport);
+        LoadConverter.updateAndCreateLoads(network, psseModel, contextExport);
+        return psseModel;
+    }
+
+    private static PsseCaseIdentification createCaseIdentification(Network network) {
+        PsseCaseIdentification caseIdentification = new PsseCaseIdentification();
+        caseIdentification.setIc(0);
+        caseIdentification.setSbase(100.0);
+        caseIdentification.setRev(35);
+        caseIdentification.setXfrrat(0.0);
+        caseIdentification.setNxfrat(0.0);
+        caseIdentification.setBasfrq(50.0);
+        String caseDate = network.getCaseDate().format(DateTimeFormatter.RFC_1123_DATE_TIME);
+        String caseName = network.getNameOrId();
+        caseIdentification.setTitle1(String.format("%s %s", caseDate, caseName));
+        caseIdentification.setTitle2("");
+
+        return caseIdentification;
+    }
+
+    private static ContextExport createContextExport(Network network, PssePowerFlowModel psseModel) {
+        int maxPsseBus = psseModel.getBuses().stream().map(PsseBus::getI).max(Comparator.naturalOrder()).orElse(0);
+        int maxPsseSubstationIs = psseModel.getSubstations().stream().map(PsseSubstation::getIs).max(Comparator.naturalOrder()).orElse(0);
+        ContextExport contextExport = new ContextExport(maxPsseBus, maxPsseSubstationIs);
+
+        // First busBreaker voltageLevels
+        List<VoltageLevel> busBreakerVoltageLevels = network.getVoltageLevelStream().filter(vl -> vl.getTopologyKind().equals(TopologyKind.BUS_BREAKER)).toList();
+        busBreakerVoltageLevels.forEach(voltageLevel -> createBusBreakerExport(voltageLevel, contextExport));
+
+        // Always after busBreaker voltageLevels
+        findNodeBreakerVoltageLevelsAndMapPsseSubstation(network, psseModel, contextExport);
+        contextExport.getNodeBreakerExport().getVoltageLevels().forEach(voltageLevel -> {
+            Optional<PsseSubstation> psseSubstation = contextExport.getNodeBreakerExport().getPsseSubstationMappedToVoltageLevel(voltageLevel);
+            if (psseSubstation.isPresent()) {
+                createNodeBreakerExport(voltageLevel, psseSubstation.get(), contextExport);
+            } else {
+                createNodeBreakerExport(voltageLevel, contextExport);
+            }
+        });
+
+        return contextExport;
     }
 }

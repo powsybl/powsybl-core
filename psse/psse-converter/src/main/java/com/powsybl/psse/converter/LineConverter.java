@@ -43,7 +43,7 @@ class LineConverter extends AbstractConverter {
     }
 
     void create() {
-        String id = getLineId();
+        String id = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
 
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
@@ -123,22 +123,13 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    private String getLineId() {
-        return getLineId(psseLine);
-    }
-
-    private static String getLineId(PsseNonTransformerBranch psseLine) {
-        return "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
-    }
-
     // At the moment we do not consider new lines and antenna lines are exported as open
-    static void updateLines(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
+    static void updateLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
-            String lineId = getLineId(psseLine);
+            String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
             Line line = network.getLine(lineId);
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_BRANCH, psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
-            int busI = obtainBus(nodeBreakerExport, equipmentId, psseLine.getI());
-            int busJ = obtainBus(nodeBreakerExport, equipmentId, psseLine.getJ());
+            int busI = getTerminalBusI(line.getTerminal1(), contextExport);
+            int busJ = getTerminalBusI(line.getTerminal2(), contextExport);
 
             if (line == null) {
                 psseLine.setSt(0);

@@ -25,11 +25,13 @@ import static com.powsybl.psse.model.pf.io.PsseIoConstants.*;
  */
 class BusData extends AbstractRecordGroup<PsseBus> {
 
+    static final String[] FIELD_NAMES_BUS_35 = {"ibus", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo"};
+
     BusData() {
         super(PowerFlowRecordGroup.BUS);
         withFieldNames(V32, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA);
         withFieldNames(V33, "i", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
-        withFieldNames(V35, "ibus", STR_NAME, STR_BASKV, STR_IDE, STR_AREA, STR_ZONE, STR_OWNER, STR_VM, STR_VA, "nvhi", "nvlo", "evhi", "evlo");
+        withFieldNames(V35, FIELD_NAMES_BUS_35);
         withQuotedFields(STR_NAME);
         withIO(LEGACY_TEXT, new BusLegacyText(this));
     }

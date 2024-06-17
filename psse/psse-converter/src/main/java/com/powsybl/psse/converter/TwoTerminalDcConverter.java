@@ -10,7 +10,6 @@ package com.powsybl.psse.converter;
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
@@ -40,7 +39,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         String busIdR = getBusId(psseTwoTerminalDc.getRectifier().getIp());
         VoltageLevel voltageLevelR = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseTwoTerminalDc.getRectifier().getIp()));
         LccConverterStationAdder adderR = voltageLevelR.newLccConverterStation()
-            .setId(getLccConverterId(psseTwoTerminalDc, psseTwoTerminalDc.getRectifier()))
+            .setId(getLccConverterId(getNetwork(), psseTwoTerminalDc, psseTwoTerminalDc.getRectifier()))
             .setName(psseTwoTerminalDc.getName())
             .setLossFactor((float) lossFactor)
             .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getRectifier()));
@@ -58,7 +57,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         String busIdI = getBusId(psseTwoTerminalDc.getInverter().getIp());
         VoltageLevel voltageLevelI = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseTwoTerminalDc.getInverter().getIp()));
         LccConverterStationAdder adderI = voltageLevelI.newLccConverterStation()
-            .setId(getLccConverterId(psseTwoTerminalDc, psseTwoTerminalDc.getInverter()))
+            .setId(getLccConverterId(getNetwork(), psseTwoTerminalDc, psseTwoTerminalDc.getInverter()))
             .setName(psseTwoTerminalDc.getName())
             .setLossFactor((float) lossFactor)
             .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getInverter()));
@@ -74,7 +73,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         LccConverterStation cI = adderI.add();
 
         HvdcLineAdder adder = getNetwork().newHvdcLine()
-            .setId(getTwoTerminalDcId(psseTwoTerminalDc))
+            .setId(getTwoTerminalDcId(psseTwoTerminalDc.getName()))
             .setName(psseTwoTerminalDc.getName())
             .setR(psseTwoTerminalDc.getRdc())
             .setNominalV(psseTwoTerminalDc.getVschd())
@@ -87,16 +86,15 @@ class TwoTerminalDcConverter extends AbstractConverter {
     }
 
     private static double getTwoTerminalDcActivePowerSetpoint(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {
-        switch (psseTwoTerminalDc.getMdc()) {
-            case 1:
+        return switch (psseTwoTerminalDc.getMdc()) {
+            case 1 ->
                 // The desired real power demand
-                return Math.abs(psseTwoTerminalDc.getSetvl());
-            case 2:
+                    Math.abs(psseTwoTerminalDc.getSetvl());
+            case 2 ->
                 // It is the current in amps (should divide by 1000 to convert to MW)
-                return psseTwoTerminalDc.getSetvl() * psseTwoTerminalDc.getVschd() / 1000.0;
-            default:
-                return 0.0;
-        }
+                    psseTwoTerminalDc.getSetvl() * psseTwoTerminalDc.getVschd() / 1000.0;
+            default -> 0.0;
+        };
     }
 
     private static double getTwoTerminalDcMaxP(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {
@@ -108,24 +106,13 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
-    private String getLccConverterId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, PsseTwoTerminalDcConverter converter) {
-        return Identifiables.getUniqueId("LccConverter-" + psseTwoTerminalDc.getRectifier().getIp() + "-" + psseTwoTerminalDc.getInverter().getIp() + "-" + converter.getIp(),
-            id -> getNetwork().getLccConverterStation(id) != null);
-    }
-
-    private static String getTwoTerminalDcId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {
-        return "TwoTerminalDc-" + psseTwoTerminalDc.getRectifier().getIp() + "-" + psseTwoTerminalDc.getInverter().getIp() + "-" + psseTwoTerminalDc.getName();
-    }
-
-    static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
+    static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDc -> {
-            String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc);
+            String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc.getName());
             HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
 
-            String equipmentIdRectifier = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getRectifier().getIp(), psseTwoTerminalDc.getName());
-            int busRectifier = obtainBus(nodeBreakerExport, equipmentIdRectifier, psseTwoTerminalDc.getRectifier().getIp());
-            String equipmentIdInverter = getNodeBreakerEquipmentId(PSSE_TWO_TERMINAL_DC_LINE, psseTwoTerminalDc.getInverter().getIp(), psseTwoTerminalDc.getName());
-            int busInverter = obtainBus(nodeBreakerExport, equipmentIdInverter, psseTwoTerminalDc.getInverter().getIp());
+            int busRectifier = getTerminalBusI(rectifierTerminal(hvdcLine), contextExport);
+            int busInverter = getTerminalBusI(inverterTerminal(hvdcLine), contextExport);
 
             if (hvdcLine == null) {
                 psseTwoTerminalDc.setMdc(0);
@@ -135,6 +122,14 @@ class TwoTerminalDcConverter extends AbstractConverter {
             psseTwoTerminalDc.getRectifier().setIp(busRectifier);
             psseTwoTerminalDc.getInverter().setIp(busInverter);
         });
+    }
+
+    private static Terminal rectifierTerminal(HvdcLine hvdcLine) {
+        return hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) ? hvdcLine.getConverterStation1().getTerminal() : hvdcLine.getConverterStation2().getTerminal();
+    }
+
+    private static Terminal inverterTerminal(HvdcLine hvdcLine) {
+        return hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) ? hvdcLine.getConverterStation2().getTerminal() : hvdcLine.getConverterStation1().getTerminal();
     }
 
     private static int obtainControlMode(HvdcLine hvdcLine, int mdc) {

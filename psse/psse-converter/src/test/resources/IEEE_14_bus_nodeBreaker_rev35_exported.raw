@@ -92,10 +92,10 @@
 4,'NL5',1,1,1.0,0.0
 5,'NG1',1,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',1,1,0.0,0.0,0.0,0.0
-1,3,'1 ','Sw-BranchToBus2','2',1,1,0.0,0.0,0.0,0.0
-2,4,'1 ','Sw-BranchToBus5','2',1,1,0.0,0.0,0.0,0.0
-2,5,'1 ','Sw-Gen1','2',1,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,1,1,0.0,0.0,0.0,0.0
+1,3,'1 ','Sw-BranchToBus2',2,1,1,0.0,0.0,0.0,0.0
+2,4,'1 ','Sw-BranchToBus5',2,1,1,0.0,0.0,0.0,0.0
+2,5,'1 ','Sw-Gen1',2,1,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 1,5,'M','1 '
 1,3,'B',2,'1 '
@@ -112,13 +112,13 @@
 7,'NG1',2,1,1.0,0.0
 8,'NLd1',2,1,1.0,0.0
 0 /  END OF SUBSTATION NODE DATA, BEGIN SUBSTATION SWITCHING DEVICE DATA
-1,2,'1 ','Sw-BusBars','2',1,1,0.0,0.0,0.0,0.0
-1,6,'1 ','Sw-BranchToBus1','2',1,1,0.0,0.0,0.0,0.0
-1,7,'1 ','Sw-Gen1','2',1,1,0.0,0.0,0.0,0.0
-1,8,'1 ','Sw-Load1','2',1,1,0.0,0.0,0.0,0.0
-2,3,'1 ','Sw-BranchToBus3','2',1,1,0.0,0.0,0.0,0.0
-2,4,'1 ','Sw-BranchToBus4','2',1,1,0.0,0.0,0.0,0.0
-2,5,'1 ','Sw-BranchToBus5','2',1,1,0.0,0.0,0.0,0.0
+1,2,'1 ','Sw-BusBars',2,1,1,0.0,0.0,0.0,0.0
+1,6,'1 ','Sw-BranchToBus1',2,1,1,0.0,0.0,0.0,0.0
+1,7,'1 ','Sw-Gen1',2,1,1,0.0,0.0,0.0,0.0
+1,8,'1 ','Sw-Load1',2,1,1,0.0,0.0,0.0,0.0
+2,3,'1 ','Sw-BranchToBus3',2,1,1,0.0,0.0,0.0,0.0
+2,4,'1 ','Sw-BranchToBus4',2,1,1,0.0,0.0,0.0,0.0
+2,5,'1 ','Sw-BranchToBus5',2,1,1,0.0,0.0,0.0,0.0
 0 /  END OF SUBSTATION SWITCHING DEVICE DATA, BEGIN SUBSTATION EQUIPMENT TERMINAL DATA
 2,7,'M','1 '
 2,8,'L','1 '

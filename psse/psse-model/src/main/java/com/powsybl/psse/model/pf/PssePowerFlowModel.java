@@ -74,11 +74,21 @@ public class PssePowerFlowModel {
         this.buses.addAll(modelled(buses));
     }
 
+    public void replaceAllBuses(List<PsseBus> buses) {
+        this.buses.clear();
+        this.buses.addAll(modelled(buses));
+    }
+
     public List<PsseBus> getBuses() {
         return Collections.unmodifiableList(buses);
     }
 
     public void addLoads(List<PsseLoad> loads) {
+        this.loads.addAll(modelled(loads));
+    }
+
+    public void replaceAllLoads(List<PsseLoad> loads) {
+        this.loads.clear();
         this.loads.addAll(modelled(loads));
     }
 
