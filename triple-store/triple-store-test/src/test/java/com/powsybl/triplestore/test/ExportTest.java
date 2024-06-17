@@ -109,7 +109,7 @@ class ExportTest {
             checkRepository(exportTripleStore, baseVoltageMasterResourceId);
 
             // export triple store
-            DataSource dataSource = DataSourceUtil.createDataSource(exportFolder, networkId + "_" + implementation);
+            DataSource dataSource = DataSourceUtil.createDirectoryDataSource(exportFolder, networkId + "_" + implementation);
             exportTripleStore.write(dataSource);
 
             // create import triple store
