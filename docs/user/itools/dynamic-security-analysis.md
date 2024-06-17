@@ -1,4 +1,4 @@
-# iTools security-analysis
+# iTools dynamic-security-analysis
 
 The `dynamic-security-analysis` command loads a grid file, apply dynamic models, and run a [dynamic security analysis](../../simulation/dynamic_security/index.md) simulation, to detect security violations on pre- or post-contingencies states. At the end of the simulation the results are printed or exported to a file.
 
@@ -45,40 +45,39 @@ Allowed EXTENSIONS values are []
 
 ### Required arguments
 
-**\-\-case-file**  
-This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
+`--case-file`  
+This option defines the path of the case file on which the security analysis is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
-**\-\-dynamic-models-file**  
+`--dynamic-models-file`  
 This option defines the path of the mapping file used to associate dynamic models to static equipments of the network or add dynamic automation systems. At the moment, only groovy scripts are supported. The [dynamic models DSL](../../simulation/dynamic/index.md#dynamic-models-mapping) depends on the simulator used.
 
 ### Optional arguments
 
-**\-\-contingencies-file**  
+`--contingencies-file`  
 This option defines the path of the contingencies files. If this parameter is not set, the security violations are checked on the base state only. This file is a groovy script that respects the [contingency DSL](../../simulation/security/contingency-dsl.md) syntax.
 
-**\-\-external**  
+`--external`  
 <span style="color: red">TODO:</span> Use this argument to run the security analysis as an external process.
 
-
-**\-\-import-parameters**  
+`--import-parameters`  
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
-**\-\-limit-types**  
+`--limit-types`  
 This option allows to filter certain types of violations. It overrides the default configuration defined in the [limit-violation-default-filter](../configuration/limit-violation-default-filter.md) configuration module. The supported types are the following: `CURRENT`, `LOW_VOLTAGE`, `HIGH_VOLTAGE`, `LOW_SHORT_CIRCUIT_CURRENT`, `HIGH_SHORT_CIRCUIT_CURRENT` and `OTHER`.
 
-**\-\-log-file**  
+`--log-file`  
 <span style="color: red">TODO</span>
 
-**\-\-output-file**  
+`--output-file`  
 This option defines the path of the result file. If this option is not set, the results are printed to the console.
 
-**\-\-output-format**
+`--output-format`
 This option defines the format of the output file. This option is required if the `--output-file` is set. The only supported format is `JSON`.  
 
-**\-\-parameters-file**  
+`--parameters-file`  
 This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters. 
 
-**\-\-with-extensions**
+`--with-extensions`  
 This option defines the list of extensions to complete the simulation results with additional data. This list of available extensions are listed in the usage of the command.
 
 ## Simulators

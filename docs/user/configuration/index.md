@@ -94,6 +94,7 @@ Configuration properties can also be overridden using system's environment varia
 - [open-loadflow-default-parameters](../../simulation/loadflow/configuration.md#specific-parameters)
 - [remote-service](remote-service.md)
 - [security-analysis](../../simulation/security/configuration.md#parameters)
+- [dynamic-security-analysis](../../simulation/dynamic_security/configuration.md#configuration)
 - [simulation-parameters](simulation-parameters.md)
 - [table-formatter](table-formatter.md)
 
