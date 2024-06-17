@@ -9,6 +9,7 @@ package com.powsybl.commons.datasource;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,7 +96,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(workdirPath, ZIP_FILENAME, BASENAME, "");
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(workdirPath.resolve(ZIP_FILENAME), BASENAME, "");
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -177,8 +178,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createArchiveDataSource(
-            file.getParent(),
-            file.getFileName().toString(),
+            file,
             "foo",
             "");
 
@@ -188,8 +188,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
 
         file = testDir.resolve("/missing_file.zip");
         DataSource newDataSource = DataSourceUtil.createArchiveDataSource(
-            file.getParent(),
-            file.getFileName().toString(),
+            file,
             "foo",
             "");
         try (InputStream is = newDataSource.newInputStream("foo.bar")) {

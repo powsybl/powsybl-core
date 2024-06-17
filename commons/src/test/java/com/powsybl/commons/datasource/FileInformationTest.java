@@ -64,4 +64,12 @@ class FileInformationTest {
         assertEquals(archiveFormat, fileInformation.getArchiveFormat());
         assertEquals(sourceFormat, fileInformation.getSourceFormatExtension());
     }
+
+    @Test
+    void testToString() {
+        // Create the file information object
+        FileInformation fileInformation = new FileInformation("foo.bar.tar.gz");
+
+        assertEquals("FileInformation[baseName=foo, sourceFormatExtension=.bar, archiveFormat=TAR, compressionFormat=GZIP]", fileInformation.toString());
+    }
 }

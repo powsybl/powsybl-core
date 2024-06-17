@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class DirectoryDataSourceTest extends AbstractNewDataSourceTest {
+class DirectoryDataSourceTest extends AbstractDataSourceTest {
     protected Set<String> unlistedFiles;
     private final Set<String> existingFiles = Set.of(
         "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar",

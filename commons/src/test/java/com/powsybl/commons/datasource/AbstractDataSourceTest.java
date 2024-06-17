@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+/*
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -7,67 +7,37 @@
  */
 package com.powsybl.commons.datasource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.google.common.io.ByteStreams;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 abstract class AbstractDataSourceTest {
-
     protected FileSystem fileSystem;
-
     protected Path testDir;
-
-    private DataSource dataSource;
-
-    @BeforeEach
-    void setUp() throws Exception {
-        fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        testDir = fileSystem.getPath("/tmp");
-        Files.createDirectories(testDir);
-        dataSource = createDataSource();
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        fileSystem.close();
-    }
-
-    protected String getBaseName() {
-        return "foo";
-    }
+    protected boolean throwExceptionOnConsistency = false;
 
     protected boolean appendTest() {
         return true;
     }
 
-    protected abstract DataSource createDataSource();
-
-    @Test
-    void baseNameTest() {
-        assertEquals(dataSource.getBaseName(), getBaseName());
+    void writeThenReadTest(DataSource dataSource) throws IOException {
+        writeThenReadTest(dataSource, null, "bar");
+        writeThenReadTest(dataSource, "_baz", "bar");
+        writeThenReadTest(dataSource, "_baz", null);
     }
 
-    private void writeThenReadTest(String suffix, String ext) throws IOException {
+    private void writeThenReadTest(DataSource dataSource, String suffix, String ext) throws IOException {
         // check file does not exist
         assertFalse(dataSource.exists(suffix, ext));
 
@@ -91,31 +61,31 @@ abstract class AbstractDataSourceTest {
         assertTrue(dataSource.exists(suffix, ext));
         assertTrue(dataSource.exists("dummy.txt"));
 
-        // check all listed names exist and we can read them
-        for (String name : dataSource.listNames(".*")) {
-            assertTrue(dataSource.exists(name));
-            try (InputStream is = dataSource.newInputStream(name)) {
-                // Ok, some content is available
-            } catch (IOException x) {
-                fail(name);
-            }
-        }
-
-        // check content is ok
+        // check content exists and is ok
         try (InputStream is = dataSource.newInputStream(suffix, ext)) {
             assertEquals("line1" + (appendTest() ? System.lineSeparator() + "line2" : ""),
-                    new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+                new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+        } catch (IOException x) {
+            fail();
         }
         try (InputStream is = dataSource.newInputStream("dummy.txt")) {
             assertEquals("otherline1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+        } catch (IOException x) {
+            fail();
+        }
+        try (InputStream is = dataSource.newInputStream("dummy.txt", true)) {
+            if (throwExceptionOnConsistency) {
+                fail();
+            } else {
+                assertNull(is);
+            }
+        } catch (PowsyblException exception) {
+            if (throwExceptionOnConsistency) {
+                assertEquals("File dummy.txt is inconsistent with the ArchiveDataSource",
+                    exception.getMessage());
+            } else {
+                fail();
+            }
         }
     }
-
-    @Test
-    void writeThenReadTest() throws IOException {
-        writeThenReadTest(null, "bar");
-        writeThenReadTest("_baz", "bar");
-        writeThenReadTest("_baz", null);
-    }
-
 }

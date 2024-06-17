@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
+abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
     protected final Set<String> filesInArchive = Set.of(
         "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
     protected Set<String> unlistedFiles;
@@ -58,7 +58,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         unlistedFiles = filesInArchive.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(testDir, fileName, baseName, sourceFormat);
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(testDir.resolve(fileName), baseName, sourceFormat);
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);
@@ -76,8 +76,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createArchiveDataSource(
-            path.getParent(),
-            path.getFileName().toString(),
+            path,
             "foo",
             ".iidm");
 
@@ -98,8 +97,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createArchiveDataSource(
-            file.getParent(),
-            file.getFileName().toString(),
+            file,
             "foo",
             ".bar");
 
@@ -119,8 +117,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createArchiveDataSource(
-            path.getParent(),
-            path.getFileName().toString(),
+            path,
             "foo",
             ".iidm");
 
@@ -136,8 +133,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
 
         // Create the datasource
         DataSource dataSourceNoExtension = DataSourceUtil.createArchiveDataSource(
-            path.getParent(),
-            path.getFileName().toString(),
+            path,
             "foo",
             "");
 

@@ -136,4 +136,13 @@ public class FileInformation {
     public String getSourceFormatExtension() {
         return sourceFormatExtension;
     }
+
+    public String toString() {
+        return "FileInformation["
+            + "baseName=" + baseName + ", "
+            + "sourceFormatExtension=" + sourceFormatExtension + ", "
+            + "archiveFormat=" + archiveFormat + ", "
+            + "compressionFormat=" + compressionFormat
+            + "]";
+    }
 }

@@ -56,6 +56,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         Files.createDirectories(testDir);
         archiveWithSubfolders = "foo.iidm.tar.gz";
         appendException = "append not supported in tar file data source";
+        throwExceptionOnConsistency = true;
     }
 
     @AfterEach
@@ -111,7 +112,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(workdirPath, TAR_FILENAME, BASENAME, "");
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(workdirPath.resolve(TAR_FILENAME), BASENAME, "");
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -213,8 +214,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         DataSource dataSource = DataSourceUtil.createArchiveDataSource(
-            file.getParent(),
-            file.getFileName().toString(),
+            file,
             "foo", "");
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> {
@@ -226,8 +226,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         file = testDir.resolve("/missing.file.tar.gz");
         DataSource newDataSource = DataSourceUtil.createArchiveDataSource(
-            file.getParent(),
-            file.getFileName().toString(),
+            file,
             "foo", "");
         exception = assertThrows(PowsyblException.class, () -> {
             try (InputStream ignored = newDataSource.newInputStream("foo.bar")) {

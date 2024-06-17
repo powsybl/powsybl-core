@@ -87,6 +87,12 @@ class DataSourceBuilderTest {
         builder.withDirectory(testDir);
         exception = assertThrows(PowsyblException.class, builder::build);
         assertEquals("Datasource baseName cannot be null", exception.getMessage());
+
+        // Source format extension set to null
+        builder.withBaseName("foo");
+        builder.withSourceFormatExtension(null);
+        exception = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Source format cannot be null", exception.getMessage());
     }
 
     @Test
