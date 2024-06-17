@@ -152,20 +152,22 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
      * @param voltageLevel the VoltageLevel to be added to this Area
      */
     @Override
-    public void addVoltageLevel(VoltageLevel voltageLevel) {
+    public Area addVoltageLevel(VoltageLevel voltageLevel) {
         Objects.requireNonNull(voltageLevel);
         if (voltageLevels.add(voltageLevel)) {
             voltageLevel.addArea(this);
         }
+        return this;
     }
 
     @Override
-    public void removeVoltageLevel(VoltageLevel voltageLevel) {
+    public Area removeVoltageLevel(VoltageLevel voltageLevel) {
         Objects.requireNonNull(voltageLevel);
         voltageLevels.remove(voltageLevel);
         if (Iterables.contains(voltageLevel.getAreas(), this)) {
             voltageLevel.removeArea(this);
         }
+        return this;
     }
 
     @Override
@@ -174,15 +176,17 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public void removeAreaBoundary(Terminal terminal) {
+    public Area removeAreaBoundary(Terminal terminal) {
         Objects.requireNonNull(terminal);
         areaBoundaries.removeIf(b -> Objects.equals(b.getTerminal().orElse(null), terminal));
+        return this;
     }
 
     @Override
-    public void removeAreaBoundary(Boundary boundary) {
+    public Area removeAreaBoundary(Boundary boundary) {
         Objects.requireNonNull(boundary);
         areaBoundaries.removeIf(b -> Objects.equals(b.getBoundary().orElse(null), boundary));
+        return this;
     }
 
     @Override

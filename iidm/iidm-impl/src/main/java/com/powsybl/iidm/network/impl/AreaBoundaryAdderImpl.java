@@ -31,22 +31,6 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
         this.area = Objects.requireNonNull(area);
     }
 
-    protected AreaImpl getArea() {
-        return area;
-    }
-
-    protected Boundary getBoundary() {
-        return boundary;
-    }
-
-    protected Terminal getTerminal() {
-        return terminal;
-    }
-
-    protected Boolean isAc() {
-        return ac;
-    }
-
     @Override
     public AreaBoundaryAdder setBoundary(Boundary boundary) {
         this.boundary = boundary;
@@ -68,20 +52,21 @@ public class AreaBoundaryAdderImpl implements AreaBoundaryAdder {
     }
 
     @Override
-    public void add() {
-        if (isAc() == null) {
+    public Area add() {
+        if (ac == null) {
             throw new PowsyblException("AreaBoundary AC flag is not set.");
         }
         // we remove before adding, to forbid duplicates and allow updating ac to true/false
-        if (getBoundary() != null) {
-            getArea().removeAreaBoundary(getBoundary());
-            getArea().addAreaBoundary(new AreaBoundaryImpl(getArea(), getBoundary(), isAc()));
-        } else if (getTerminal() != null) {
-            getArea().removeAreaBoundary(getTerminal());
-            getArea().addAreaBoundary(new AreaBoundaryImpl(getArea(), getTerminal(), isAc()));
+        if (boundary != null) {
+            area.removeAreaBoundary(boundary);
+            area.addAreaBoundary(new AreaBoundaryImpl(area, boundary, ac));
+        } else if (terminal != null) {
+            area.removeAreaBoundary(terminal);
+            area.addAreaBoundary(new AreaBoundaryImpl(area, terminal, ac));
         } else {
             throw new PowsyblException("No AreaBoundary element (terminal or boundary) is set.");
         }
+        return area;
     }
 
 }

@@ -25,11 +25,25 @@ package com.powsybl.iidm.network;
  */
 
 public interface AreaBoundaryAdder {
+
+    /**
+     * Set a DanglingLine's Boundary to be used as the AreaBoundary
+     */
     AreaBoundaryAdder setBoundary(Boundary boundary);
 
+    /**
+     * Set a Terminal to be used as the AreaBoundary
+     */
     AreaBoundaryAdder setTerminal(Terminal terminal);
 
+    /**
+     * Set whether the AreaBoundary is to be considered as AC or DC
+     */
     AreaBoundaryAdder setAc(boolean ac);
 
-    void add();
+    /**
+     * Build the AreaBoundary and add it to the Area.
+     * @return {@link Area}
+     */
+    Area add();
 }

@@ -264,16 +264,19 @@ public abstract class AbstractAreaTest {
         TwoWindingsTransformer ngenNhv1 = network.getTwoWindingsTransformer("NGEN_NHV1");
 
         // change boundary to be at transformer NGEN_NHV1 side 2
-        controlAreaA.removeAreaBoundary(dlXnode1A.getBoundary());
-        controlAreaA.removeAreaBoundary(dlXnode2A.getBoundary());
-        controlAreaB.removeAreaBoundary(dlXnode1B.getBoundary());
-        controlAreaB.removeAreaBoundary(dlXnode2B.getBoundary());
+        controlAreaA
+                .removeAreaBoundary(dlXnode1A.getBoundary())
+                .removeAreaBoundary(dlXnode2A.getBoundary());
+        controlAreaB
+                .removeAreaBoundary(dlXnode1B.getBoundary())
+                .removeAreaBoundary(dlXnode2B.getBoundary());
 
         assertNull(controlAreaA.getAreaBoundary(ngenNhv1.getTerminal2()));
 
         controlAreaA.newAreaBoundary().setTerminal(ngenNhv1.getTerminal2()).setAc(true).add();
-        controlAreaB.newAreaBoundary().setTerminal(dlXnode1A.getTerminal()).setAc(true).add();
-        controlAreaB.newAreaBoundary().setTerminal(dlXnode2A.getTerminal()).setAc(true).add();
+        controlAreaB
+                .newAreaBoundary().setTerminal(dlXnode1A.getTerminal()).setAc(true).add()
+                .newAreaBoundary().setTerminal(dlXnode2A.getTerminal()).setAc(true).add();
 
         AreaBoundary areaBoundary = controlAreaA.getAreaBoundary(ngenNhv1.getTerminal2());
         assertNotNull(areaBoundary);
@@ -292,14 +295,21 @@ public abstract class AbstractAreaTest {
         assertEquals(0.0, controlAreaA.getAcInterchange());
         assertEquals(0.0, controlAreaA.getDcInterchange());
         assertEquals(0.0, controlAreaA.getTotalInterchange());
+
+        // test removing Terminal boundaries
+        controlAreaB
+                .removeAreaBoundary(dlXnode1A.getTerminal())
+                .removeAreaBoundary(dlXnode2A.getTerminal());
+        assertEquals(0, controlAreaB.getAreaBoundaryStream().count());
     }
 
     @Test
     void testAddSameBoundary() {
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         // re-add
-        controlAreaA.newAreaBoundary().setBoundary(dlXnode1A.getBoundary()).setAc(true).add();
-        controlAreaA.newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(true).add();
+        controlAreaA
+                .newAreaBoundary().setBoundary(dlXnode1A.getBoundary()).setAc(true).add()
+                .newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(true).add();
         // no change
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(-602.631, controlAreaA.getAcInterchange(), DELTA);
@@ -307,8 +317,9 @@ public abstract class AbstractAreaTest {
         assertEquals(-602.631, controlAreaA.getTotalInterchange(), DELTA);
 
         // change them to DC
-        controlAreaA.newAreaBoundary().setBoundary(dlXnode1A.getBoundary()).setAc(false).add();
-        controlAreaA.newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
+        controlAreaA
+                .newAreaBoundary().setBoundary(dlXnode1A.getBoundary()).setAc(false).add()
+                .newAreaBoundary().setBoundary(dlXnode2A.getBoundary()).setAc(false).add();
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(0.0, controlAreaA.getAcInterchange());
         assertEquals(-602.631, controlAreaA.getDcInterchange(), DELTA);
@@ -329,6 +340,15 @@ public abstract class AbstractAreaTest {
         assertEquals(-290.0, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(-310.0, controlAreaA.getDcInterchange());
         assertEquals(-600.0, controlAreaA.getTotalInterchange(), DELTA);
+    }
+
+    @Test
+    void testRemoveVoltageLevel() {
+        assertEquals(2, controlAreaA.getVoltageLevelStream().count());
+        controlAreaA
+                .removeVoltageLevel(vlgen)
+                .removeVoltageLevel(vlhv1);
+        assertEquals(0, controlAreaA.getVoltageLevelStream().count());
     }
 
     @Test
@@ -381,9 +401,11 @@ public abstract class AbstractAreaTest {
     public void removeAreaBoundaries() {
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
 
-        controlAreaA.removeAreaBoundary(dlXnode1A.getBoundary());
+        controlAreaA
+                .removeAreaBoundary(dlXnode1A.getBoundary())
+                .removeAreaBoundary(dlXnode2A.getBoundary());
 
-        assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(0, controlAreaA.getAreaBoundaryStream().count());
     }
 
     @Test

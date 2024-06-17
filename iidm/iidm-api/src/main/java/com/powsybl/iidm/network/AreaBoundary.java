@@ -63,16 +63,34 @@ import java.util.Optional;
  */
 public interface AreaBoundary {
 
+    /**
+     * @return the Area this AreaBoundary belongs to
+     */
     Area getArea();
 
+    /**
+     * @return If the boundary is defined by a Terminal, the Terminal of this AreaBoundary
+     */
     Optional<Terminal> getTerminal();
 
+    /**
+     * @return If the boundary is defined by a DanglingLine's Boundary, the DanglingLine's Boundary of this AreaBoundary
+     */
     Optional<Boundary> getBoundary();
 
+    /**
+     * @return true is the boundary was defined as AC
+     */
     boolean isAc();
 
+    /**
+     * @return active power through area boundary
+     */
     double getP();
 
+    /**
+     * @return reactive power through area boundary
+     */
     double getQ();
 
 }

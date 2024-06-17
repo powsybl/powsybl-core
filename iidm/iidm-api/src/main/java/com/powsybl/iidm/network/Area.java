@@ -95,7 +95,14 @@ public interface Area extends Identifiable<Area> {
      * Adds a voltage level to the area.
      * @param voltageLevel voltage level to be added
      */
-    void addVoltageLevel(VoltageLevel voltageLevel);
+    Area addVoltageLevel(VoltageLevel voltageLevel);
+
+    /**
+     * Removes the provided VoltageLevel from the area. The VoltageLevel is not removed from the network,
+     * the VoltageLevel is not part of the Area anymore.
+     * @param voltageLevel the VoltageLevel to be removed from the Area.
+     */
+    Area removeVoltageLevel(VoltageLevel voltageLevel);
 
     /**
      * @return adder to create a new area boundary
@@ -107,14 +114,14 @@ public interface Area extends Identifiable<Area> {
      * The Terminal and it's Connectable is not removed from the network, but is not part of the Area anymore.
      * @param terminal terminal
      */
-    void removeAreaBoundary(Terminal terminal);
+    Area removeAreaBoundary(Terminal terminal);
 
     /**
      * If exists, remove the area boundary associated with the provided DanglingLine's Boundary.
      * The DanglingLine and Boundary is not removed from the network, but is not part of the Area anymore.
      * @param boundary DanglingLine's boundary
      */
-    void removeAreaBoundary(Boundary boundary);
+    Area removeAreaBoundary(Boundary boundary);
 
     /**
      * If found, returns the area boundary associated with the provided DanglingLine's Boundary.
@@ -178,13 +185,6 @@ public interface Area extends Identifiable<Area> {
      * @return the total position (MW, 0 MW if no boundary)
      */
     double getTotalInterchange();
-
-    /**
-     * Removes the provided VoltageLevel from the area. The VoltageLevel is not removed from the network,
-     * the VoltageLevel is not part of the Area anymore.
-     * @param voltageLevel the VoltageLevel to be removed from the Area.
-     */
-    void removeVoltageLevel(VoltageLevel voltageLevel);
 
     void remove();
 

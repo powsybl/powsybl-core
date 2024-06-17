@@ -27,16 +27,38 @@ package com.powsybl.iidm.network;
  */
 public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
+    /**
+     * Set the Area type
+     */
     AreaAdder setAreaType(String areaType);
 
+    /**
+     * Set the target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
+     */
     AreaAdder setAcInterchangeTarget(double acInterchangeTarget);
 
+    /**
+     * add a VoltageLevel to the Area
+     */
     AreaAdder addVoltageLevel(VoltageLevel voltageLevel);
 
+    /**
+     * add a Terminal as an area boundary
+     */
     AreaAdder addAreaBoundary(Terminal terminal, boolean ac);
 
+    /**
+     * add a DanglingLine boundary as an area boundary
+     */
     AreaAdder addAreaBoundary(Boundary boundary, boolean ac);
 
+    /**
+     * Build the Area object.
+     * These are the checks that are performed before creating the object :
+     * <p/
+     *      - areaType is not null
+     * @return {@link Battery}
+     */
     @Override
     Area add();
 }
