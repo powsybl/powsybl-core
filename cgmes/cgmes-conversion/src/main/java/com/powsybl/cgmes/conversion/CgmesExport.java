@@ -202,6 +202,7 @@ public class CgmesExport implements Exporter {
         networkSubsetModel.ifPresent(m -> modelForExport.setDescription(m.getDescription()));
         networkSubsetModel.ifPresent(m -> modelForExport.setVersion(m.getVersion()));
         networkSubsetModel.ifPresent(m -> modelForExport.addDependentOn(m.getDependentOn()));
+        networkSubsetModel.ifPresent(m -> modelForExport.addSupersedes(m.getSupersedes()));
         networkSubsetModel.ifPresent(m -> modelForExport.addProfiles(m.getProfiles()));
         networkSubsetModel.ifPresent(m -> modelForExport.setModelingAuthoritySet(m.getModelingAuthoritySet()));
 
