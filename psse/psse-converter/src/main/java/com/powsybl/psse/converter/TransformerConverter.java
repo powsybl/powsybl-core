@@ -96,7 +96,7 @@ class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         // Ysh_eu = Ysh_pu * sbase / (vn1 *vn1) Convert Ysh per unit to engineering units
         // Ysh_eu_moved = Ysh_eu * (ratedU1 / ratedU2) * (ratedU1 / ratedU2) Apply the structural ratio when moving
-        // Ysh_eu_moved = Ysh_eu * sbase / (vn2 * vn2) as ratedU1 = vn1 and ratedU2 ) vn2
+        // Ysh_eu_moved = Ysh_eu * sbase / (vn2 * vn2) as ratedU1 = vn1 and ratedU2 = vn2
         // As vn2 is used to convert to eu, only the ratio remains to be applied
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittanceBetweenRatioAndTransmissionImpedance(tapChangerAdjustedRatio);
 
@@ -848,7 +848,7 @@ class TransformerConverter extends AbstractConverter {
         int busI = Math.abs(winding.getCont());
         Optional<NodeBreakerImport.NodeBreakerControlNode> controlNode = nodeBreakerImport.getControlNode(getNodeBreakerEquipmentIdBus(equipmentId, busI));
         if (controlNode.isPresent()) {
-            regulatingTerminal = obtainTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
+            regulatingTerminal = findTerminalNode(network, controlNode.get().getVoltageLevelId(), controlNode.get().getNode());
         } else {
             String regulatingBusId = getBusId(busI);
             Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
@@ -862,26 +862,18 @@ class TransformerConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    private static String getTransformerId(int i, int j, String ckt) {
-        return "T-" + i + "-" + j + "-" + ckt;
-    }
-
-    private static String getTransformerId(int i, int j, int k, String ckt) {
-        return "T-" + i + "-" + j + "-" + k + "-" + ckt;
-    }
-
     // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
-    static void updateTransformers(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
+    static void updateTransformers(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getTransformers().forEach(psseTransformer -> {
             if (isTwoWindingsTransformer(psseTransformer)) {
-                updateTwoWindingsTransformer(network, psseTransformer, nodeBreakerExport);
+                updateTwoWindingsTransformer(network, psseTransformer, contextExport);
             } else {
-                updateThreeWindingsTransformer(network, psseTransformer, nodeBreakerExport);
+                updateThreeWindingsTransformer(network, psseTransformer, contextExport);
             }
         });
     }
 
-    private static void updateTwoWindingsTransformer(Network network, PsseTransformer psseTransformer, NodeBreakerExport nodeBreakerExport) {
+    private static void updateTwoWindingsTransformer(Network network, PsseTransformer psseTransformer, ContextExport contextExport) {
         String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
         TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer(transformerId);
         if (tw2t == null) {
@@ -892,19 +884,18 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
             psseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
 
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_TWO_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
-            int busI = obtainBus(nodeBreakerExport, equipmentId, psseTransformer.getI());
-            int busJ = obtainBus(nodeBreakerExport, equipmentId, psseTransformer.getJ());
+            int busI = getTerminalBusI(tw2t.getTerminal1(), contextExport);
+            int busJ = getTerminalBusI(tw2t.getTerminal2(), contextExport);
             psseTransformer.setI(busI);
             psseTransformer.setJ(busJ);
-            int regulatingBus = obtainRegulatingBus(nodeBreakerExport, obtainRegulatingTerminal(tw2t), psseTransformer.getWinding1().getCont());
+            int regulatingBus = getRegulatingTerminalBusI(findRegulatingTerminal(tw2t), contextExport);
             psseTransformer.getWinding1().setCont(regulatingBus);
 
             psseTransformer.setStat(getStatus(tw2t));
         }
     }
 
-    private static Terminal obtainRegulatingTerminal(TwoWindingsTransformer tw2t) {
+    private static Terminal findRegulatingTerminal(TwoWindingsTransformer tw2t) {
         Terminal regulatingTerminal = tw2t.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
         if (regulatingTerminal != null) {
             return regulatingTerminal;
@@ -921,7 +912,7 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer, NodeBreakerExport nodeBreakerExport) {
+    private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer, ContextExport contextExport) {
         String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
         ThreeWindingsTransformer tw3t = network.getThreeWindingsTransformer(transformerId);
         if (tw3t == null) {
@@ -942,17 +933,16 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
             psseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
 
-            String equipmentId = getNodeBreakerEquipmentId(PSSE_THREE_WINDING, psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-            int busI = obtainBus(nodeBreakerExport, equipmentId, psseTransformer.getI());
-            int busJ = obtainBus(nodeBreakerExport, equipmentId, psseTransformer.getJ());
-            int busK = obtainBus(nodeBreakerExport, equipmentId, psseTransformer.getK());
+            int busI = getTerminalBusI(tw3t.getLeg1().getTerminal(), contextExport);
+            int busJ = getTerminalBusI(tw3t.getLeg2().getTerminal(), contextExport);
+            int busK = getTerminalBusI(tw3t.getLeg3().getTerminal(), contextExport);
             psseTransformer.setI(busI);
             psseTransformer.setJ(busJ);
             psseTransformer.setK(busK);
 
-            int regulatingBus1 = obtainRegulatingBus(nodeBreakerExport, obtainRegulatingTerminal(tw3t.getLeg1()), psseTransformer.getWinding1().getCont());
-            int regulatingBus2 = obtainRegulatingBus(nodeBreakerExport, obtainRegulatingTerminal(tw3t.getLeg2()), psseTransformer.getWinding2().getCont());
-            int regulatingBus3 = obtainRegulatingBus(nodeBreakerExport, obtainRegulatingTerminal(tw3t.getLeg3()), psseTransformer.getWinding3().getCont());
+            int regulatingBus1 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg1()), contextExport);
+            int regulatingBus2 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg2()), contextExport);
+            int regulatingBus3 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg3()), contextExport);
             psseTransformer.getWinding1().setCont(regulatingBus1);
             psseTransformer.getWinding2().setCont(regulatingBus2);
             psseTransformer.getWinding3().setCont(regulatingBus3);
@@ -961,7 +951,7 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static Terminal obtainRegulatingTerminal(Leg leg) {
+    private static Terminal findRegulatingTerminal(Leg leg) {
         Terminal regulatingTerminal = leg.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
         if (regulatingTerminal != null) {
             return regulatingTerminal;

@@ -38,11 +38,10 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
             return;
         }
 
-        String busId = getBusId(psseFixedShunt.getI());
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseFixedShunt.getI()));
         ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
-            .setId(getShuntId(busId))
+            .setId(getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId()))
             .setVoltageRegulatorOn(false)
             .setSectionCount(1);
         adder.newLinearModel()
@@ -56,6 +55,7 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         if (node.isPresent()) {
             adder.setNode(node.getAsInt());
         } else {
+            String busId = getBusId(psseFixedShunt.getI());
             adder.setConnectableBus(busId);
             adder.setBus(psseFixedShunt.getStatus() == 1 ? busId : null);
         }
@@ -63,20 +63,12 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    private String getShuntId(String busId) {
-        return getShuntId(busId, psseFixedShunt.getId());
-    }
-
-    private static String getShuntId(String busId, String fixedShuntId) {
-        return busId + "-SH" + fixedShuntId;
-    }
-
     // At the moment we do not consider new fixedShunts
-    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel, NodeBreakerExport nodeBreakerExport) {
+    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getFixedShunts().forEach(psseFixedShunt -> {
-            String fixedShuntId = getShuntId(getBusId(psseFixedShunt.getI()), psseFixedShunt.getId());
+            String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
             ShuntCompensator fixedShunt = network.getShuntCompensator(fixedShuntId);
-            int bus = obtainBus(nodeBreakerExport, getNodeBreakerEquipmentId(PSSE_FIXED_SHUNT, psseFixedShunt.getI(), psseFixedShunt.getId()), psseFixedShunt.getI());
+            int bus = getTerminalBusI(fixedShunt.getTerminal(), contextExport);
 
             if (fixedShunt == null) {
                 psseFixedShunt.setStatus(0);

@@ -120,18 +120,18 @@ public class PsseExporter implements Exporter {
     }
 
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
-        NodeBreakerExport nodeBreakerExport = VoltageLevelConverter.mapSubstations(network, updatedPsseModel);
+        ContextExport contextExport = VoltageLevelConverter.createContextExport(network, updatedPsseModel);
 
         // Only after mapping all substations, the substation data can be updated
-        VoltageLevelConverter.updateSubstations(network, updatedPsseModel, nodeBreakerExport);
+        VoltageLevelConverter.updateSubstations(contextExport);
 
-        BusConverter.updateBuses(network, updatedPsseModel, nodeBreakerExport);
-        LoadConverter.updateLoads(network, updatedPsseModel, nodeBreakerExport);
-        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel, nodeBreakerExport);
-        GeneratorConverter.updateGenerators(network, updatedPsseModel, nodeBreakerExport);
-        LineConverter.updateLines(network, updatedPsseModel, nodeBreakerExport);
-        TransformerConverter.updateTransformers(network, updatedPsseModel, nodeBreakerExport);
-        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, nodeBreakerExport);
-        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, nodeBreakerExport);
+        BusConverter.updateAndCreateBuses(network, updatedPsseModel, contextExport);
+        LoadConverter.updateLoads(network, updatedPsseModel, contextExport);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel, contextExport);
+        GeneratorConverter.updateGenerators(network, updatedPsseModel, contextExport);
+        LineConverter.updateLines(network, updatedPsseModel, contextExport);
+        TransformerConverter.updateTransformers(network, updatedPsseModel, contextExport);
+        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, contextExport);
     }
 }
