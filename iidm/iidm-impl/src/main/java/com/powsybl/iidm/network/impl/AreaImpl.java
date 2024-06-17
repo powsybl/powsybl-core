@@ -119,7 +119,6 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         int variantIndex = n.getVariantIndex();
         double oldValue = this.acInterchangeTarget.set(variantIndex, acInterchangeTarget);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
         notifyUpdate("acInterchangeTarget", variantId, oldValue, acInterchangeTarget);
         return this;
     }

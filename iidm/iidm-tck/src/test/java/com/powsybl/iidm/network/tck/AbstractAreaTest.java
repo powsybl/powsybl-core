@@ -119,8 +119,7 @@ public abstract class AbstractAreaTest {
         Mockito.verify(mockedListener, Mockito.times(1))
                 .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, Double.NaN, 123.4);
 
-        // At this point
-        // no more changes is taking into account
+        // After this point, no more changes are taken into account.
 
         // Simulate exception for onUpdate calls
         Mockito.doThrow(new PowsyblException()).when(mockedListener)
@@ -130,7 +129,7 @@ public abstract class AbstractAreaTest {
         controlAreaA.setAcInterchangeTarget(123.4);
         // Case when no listener is registered
         network.removeListener(mockedListener);
-        controlAreaA.setAcInterchangeTarget(123.4);
+        controlAreaA.setAcInterchangeTarget(456.7);
 
         // Check no notification
         Mockito.verifyNoMoreInteractions(mockedListener);
@@ -182,7 +181,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void testGetAreaBoundary() {
+    public void testGetAreaBoundary() {
         AreaBoundary areaBoundary = controlAreaA.getAreaBoundary(dlXnode1A.getBoundary());
         assertNotNull(areaBoundary);
         assertTrue(areaBoundary.isAc());
@@ -261,7 +260,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void testWithTerminals() {
+    public void testWithTerminals() {
         TwoWindingsTransformer ngenNhv1 = network.getTwoWindingsTransformer("NGEN_NHV1");
 
         // change boundary to be at transformer NGEN_NHV1 side 2
@@ -307,7 +306,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void testAddSameBoundary() {
+    public void testAddSameBoundary() {
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         // re-add
         controlAreaA
@@ -330,7 +329,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void testWithDc() {
+    public void testWithDc() {
         // remove entirely control area B, set one dangling line AC, the other one DC
         controlAreaB.remove();
         regionAB.remove();
@@ -346,7 +345,7 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
-    void testRemoveVoltageLevel() {
+    public void testRemoveVoltageLevel() {
         assertEquals(2, controlAreaA.getVoltageLevelStream().count());
         controlAreaA
                 .removeVoltageLevel(vlgen)

@@ -54,10 +54,11 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
 
     /**
      * Build the Area object.
-     * These are the checks that are performed before creating the object :
-     * <p/
-     *      - areaType is not null
-     * @return {@link Battery}
+     * <p>These are the checks that are performed before creating the object :</p>
+     * <ul>
+     *     <li>areaType is not null;</li>
+     * </ul>
+     * @return {@link Area}
      */
     @Override
     Area add();
