@@ -47,12 +47,17 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
 
     @Override
     public Optional<Country> getCountry1() {
-        return getCountry(TwoSides.ONE);
+        return getCountry(ThreeSides.ONE);
     }
 
     @Override
     public Optional<Country> getCountry2() {
-        return getCountry(TwoSides.TWO);
+        return getCountry(ThreeSides.TWO);
+    }
+
+    @Override
+    public Optional<Country> getCountry3() {
+        return getCountry(ThreeSides.THREE);
     }
 
     @Override
@@ -60,16 +65,17 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
         return getCountry1();
     }
 
-    private Optional<Country> getCountry(TwoSides side) {
+    @Override
+    public Optional<Country> getCountry(ThreeSides side) {
         return switch (identifiable.getType()) {
-            case LINE, TIE_LINE -> getCountryFromTerminal(((Branch<?>) identifiable).getTerminal(side));
-            case HVDC_LINE -> getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side).getTerminal());
+            case LINE, TIE_LINE -> side != ThreeSides.THREE ?
+                    getCountryFromTerminal(((Branch<?>) identifiable).getTerminal(side.toTwoSides())) : Optional.empty();
+            case HVDC_LINE -> side != ThreeSides.THREE ?
+                    getCountryFromTerminal(((HvdcLine) identifiable).getConverterStation(side.toTwoSides()).getTerminal()) : Optional.empty();
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
-                    side != TwoSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
-            case TWO_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? Optional.empty() :
-                ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
-            case THREE_WINDINGS_TRANSFORMER -> side != TwoSides.ONE ? Optional.empty() :
-                ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
+                    side != ThreeSides.ONE ? Optional.empty() : getCountryFromTerminal(((Injection<?>) identifiable).getTerminal());
+            case TWO_WINDINGS_TRANSFORMER -> ((TwoWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
+            case THREE_WINDINGS_TRANSFORMER -> ((ThreeWindingsTransformer) identifiable).getSubstation().map(Substation::getNullableCountry);
             default -> Optional.empty();
         };
     }
@@ -99,7 +105,8 @@ public class DefaultNetworkElementAdapter implements NetworkElement {
         return getNominalVoltage1();
     }
 
-    private Optional<Double> getNominalVoltage(ThreeSides side) {
+    @Override
+    public Optional<Double> getNominalVoltage(ThreeSides side) {
         return switch (identifiable.getType()) {
             case DANGLING_LINE, GENERATOR, LOAD, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR, BUSBAR_SECTION, HVDC_CONVERTER_STATION ->
                     side != ThreeSides.ONE ? Optional.empty() :
