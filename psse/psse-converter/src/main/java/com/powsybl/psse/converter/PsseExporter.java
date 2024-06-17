@@ -18,10 +18,8 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
-import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
-import com.powsybl.psse.model.pf.PsseSubstation;
 import com.powsybl.psse.model.pf.io.*;
 
 import java.io.IOException;
@@ -168,28 +166,5 @@ public class PsseExporter implements Exporter {
         caseIdentification.setTitle2("");
 
         return caseIdentification;
-    }
-
-    private static ContextExport createContextExport(Network network, PssePowerFlowModel psseModel) {
-        int maxPsseBus = psseModel.getBuses().stream().map(PsseBus::getI).max(Comparator.naturalOrder()).orElse(0);
-        int maxPsseSubstationIs = psseModel.getSubstations().stream().map(PsseSubstation::getIs).max(Comparator.naturalOrder()).orElse(0);
-        ContextExport contextExport = new ContextExport(maxPsseBus, maxPsseSubstationIs);
-
-        // First busBreaker voltageLevels
-        List<VoltageLevel> busBreakerVoltageLevels = network.getVoltageLevelStream().filter(vl -> vl.getTopologyKind().equals(TopologyKind.BUS_BREAKER)).toList();
-        busBreakerVoltageLevels.forEach(voltageLevel -> createBusBreakerExport(voltageLevel, contextExport));
-
-        // Always after busBreaker voltageLevels
-        findNodeBreakerVoltageLevelsAndMapPsseSubstation(network, psseModel, contextExport);
-        contextExport.getNodeBreakerExport().getVoltageLevels().forEach(voltageLevel -> {
-            Optional<PsseSubstation> psseSubstation = contextExport.getNodeBreakerExport().getPsseSubstationMappedToVoltageLevel(voltageLevel);
-            if (psseSubstation.isPresent()) {
-                createNodeBreakerExport(voltageLevel, psseSubstation.get(), contextExport);
-            } else {
-                createNodeBreakerExport(voltageLevel, contextExport);
-            }
-        });
-
-        return contextExport;
     }
 }
