@@ -27,8 +27,6 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.google.common.io.Files.getNameWithoutExtension;
-
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
@@ -52,7 +50,8 @@ public class ZipDataSource extends AbstractArchiveDataSource {
 
     public ZipDataSource(Path zipFile) {
         this(zipFile.getParent(), zipFile.getFileName().toString(),
-            getNameWithoutExtension(zipFile.getFileName().toString()), "", null);
+            (new FileInformation(zipFile.getFileName().toString())).getBaseName(),
+            (new FileInformation(zipFile.getFileName().toString())).getSourceFormatExtension(), null);
     }
 
     /**
