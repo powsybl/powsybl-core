@@ -328,7 +328,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Files.createDirectories(outputPath);
         String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.MODEL_UPDATE, Boolean.FALSE);
         new CgmesExport().export(network, exportParams, new FileDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
@@ -365,7 +364,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Files.createDirectories(outputPath);
         String baseName = "miniGridCgmesExportPreservingOriginalClasses";
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.MODEL_UPDATE, Boolean.FALSE);
         new CgmesExport().export(network, exportParams, new FileDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files

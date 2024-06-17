@@ -520,7 +520,6 @@ public class CgmesExport implements Exporter {
     public static final String NAMING_STRATEGY = "iidm.export.cgmes.naming-strategy";
     public static final String PROFILES = "iidm.export.cgmes.profiles";
     public static final String CGM_EXPORT = "iidm.export.cgmes.cgm_export";
-    public static final String MODEL_UPDATE = "iidm.export.cgmes.model_update";
     public static final String MODELING_AUTHORITY_SET = "iidm.export.cgmes.modeling-authority-set";
     public static final String MODEL_DESCRIPTION = "iidm.export.cgmes.model-description";
     public static final String EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1 = "iidm.export.cgmes.export-transformers-with-highest-voltage-at-end1";
