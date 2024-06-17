@@ -186,27 +186,13 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
         double bAdd = 0.0;
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
-        if (!psseReactorBlocks.isEmpty()) {
-            for (ShuntBlock psseReactorBlock : psseReactorBlocks) {
-                for (int j = 0; j < psseReactorBlock.getN(); j++) {
-                    bAdd = bAdd + psseReactorBlock.getB();
-                    shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
-                }
-            }
-        }
+        bAdd = addShuntBlocks(psseReactorBlocks, bAdd, shuntBlocks);
 
         if (psseSwitchedShunt.getAdjm() == 1) {
             bAdd = 0.0;
         }
 
-        if (!psseCapacitorBlocks.isEmpty()) {
-            for (ShuntBlock psseCapacitorBlock : psseCapacitorBlocks) {
-                for (int j = 0; j < psseCapacitorBlock.getN(); j++) {
-                    bAdd = bAdd + psseCapacitorBlock.getB();
-                    shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
-                }
-            }
-        }
+        addShuntBlocks(psseCapacitorBlocks, bAdd, shuntBlocks);
 
         // Add the zero block, shunt disconnected
         shuntBlocks.add(new ShuntBlock(1, 1, 0.0));
@@ -214,6 +200,19 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         shuntBlocks.sort(Comparator.comparing(ShuntBlock::getB));
 
         return shuntBlocks;
+    }
+
+    private static double addShuntBlocks(List<ShuntBlock> psseShuntBlocks, double bAddInitial, List<ShuntBlock> shuntBlocks) {
+        double bAdd = bAddInitial;
+        if (!psseShuntBlocks.isEmpty()) {
+            for (ShuntBlock psseCapacitorBlock : psseShuntBlocks) {
+                for (int j = 0; j < psseCapacitorBlock.getN(); j++) {
+                    bAdd = bAdd + psseCapacitorBlock.getB();
+                    shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
+                }
+            }
+        }
+        return bAdd;
     }
 
 // defined blocks can be reactors (< 0) or / and capacitors ( > 0)
