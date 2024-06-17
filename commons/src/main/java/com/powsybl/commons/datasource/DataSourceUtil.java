@@ -65,7 +65,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create an archive-based DataSource based on the provided base name, source format, archive format and compression
+     * Create an archive-based DataSource based on the provided base name, source format extension, archive format and compression
      * format
      * @param directory Path to the folder where the file is located
      * @param archiveFileName Archive file name
@@ -93,7 +93,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create an archive-based DataSource based on the provided base name, source format, archive format and compression
+     * Create an archive-based DataSource based on the provided base name, source format extension, archive format and compression
      * format
      * @param directory Path to the folder where the file is located
      * @param baseName base name for the files in the data source
@@ -108,7 +108,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create an archive-based DataSource based on the provided base name, source format, archive format and compression
+     * Create an archive-based DataSource based on the provided base name, source format extension, archive format and compression
      * format
      * @param directory Path to the folder where the file is located
      * @param archiveFileName Archive file name
@@ -126,7 +126,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create an archive-based DataSource based on the provided file name, base name and source format
+     * Create an archive-based DataSource based on the provided file name, base name and source format extension
      * @param directory Path to the folder where the file is located
      * @param archiveFileName Archive file name
      * @param baseName base name for the files in the data source
@@ -138,7 +138,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create a directory-based DataSource based on the provided base name, source format and compression format
+     * Create a directory-based DataSource based on the provided base name, source format extension and compression format
      * @param directory Path to the folder where the file is located
      * @param baseName base name for the files in the data source
      * @param sourceFormatExtension Data format extension
@@ -161,7 +161,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create a directory-based DataSource based on the provided base name and source format
+     * Create a directory-based DataSource based on the provided base name and source format extension
      * @param directory Path to the folder where the file is located
      * @param baseName base name for the files in the data source
      * @param sourceFormatExtension Data format extension
@@ -173,7 +173,7 @@ public interface DataSourceUtil {
     }
 
     /**
-     * Create a directory-based DataSource based on the provided base name and source format
+     * Create a directory-based DataSource based on the provided base name and source format extension
      * @param directory Path to the folder where the file is located
      * @param baseName base name for the files in the data source
      * @param sourceFormatExtension Data format extension
