@@ -223,6 +223,7 @@ public abstract class AbstractAreaTest {
 
         assertEquals(areas, network.getAreaStream().toList());
         assertEquals(areaTypes, network.getAreaTypeStream().toList());
+        assertEquals(areaTypes, network.getAreaTypes());
 
         assertEquals(3, Iterables.size(network.getAreas()));
         areas.forEach(area -> assertTrue(Iterables.contains(network.getAreas(), area)));
@@ -281,6 +282,8 @@ public abstract class AbstractAreaTest {
         AreaBoundary areaBoundary = controlAreaA.getAreaBoundary(ngenNhv1.getTerminal2());
         assertNotNull(areaBoundary);
         assertEquals(controlAreaA.getId(), areaBoundary.getArea().getId());
+        assertEquals(-604.891, areaBoundary.getP(), DELTA);
+        assertEquals(-197.480, areaBoundary.getQ(), DELTA);
 
         assertEquals(-604.891, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
