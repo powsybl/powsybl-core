@@ -225,7 +225,7 @@ public interface DataSourceUtil {
      *     source format are not base on it in order to decorrelate the name of the archive from the name of the files
      *     inside</li>
      * </ul>
-     * @param filePath Path to the folder where the file is located
+     * @param path Path to the folder where the file is located
      * @return the created datasource
      */
     static DataSource createDataSource(Path path) {
