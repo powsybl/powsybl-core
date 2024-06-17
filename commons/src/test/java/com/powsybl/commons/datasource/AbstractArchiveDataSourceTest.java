@@ -110,4 +110,44 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         });
         assertEquals(appendException, exception.getMessage());
     }
+
+    @Test
+    void testConsistencyWithDataSource() {
+        // File
+        File file = new File(Objects.requireNonNull(getClass().getClassLoader().getResource(archiveWithSubfolders)).getFile());
+        Path path = file.toPath();
+
+        // Create the datasource
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
+            path.getParent(),
+            path.getFileName().toString(),
+            "foo",
+            ".iidm");
+
+        // Test the consistency
+        if (dataSource instanceof AbstractArchiveDataSource archiveDataSource) {
+            assertFalse(archiveDataSource.isConsistentWithDataSource("bar.test"));
+            assertFalse(archiveDataSource.isConsistentWithDataSource("foo"));
+            assertFalse(archiveDataSource.isConsistentWithDataSource("foo.bar"));
+            assertTrue(archiveDataSource.isConsistentWithDataSource("foo.iidm"));
+        } else {
+            fail();
+        }
+
+        // Create the datasource
+        DataSource dataSourceNoExtension = DataSourceUtil.createArchiveDataSource(
+            path.getParent(),
+            path.getFileName().toString(),
+            "foo",
+            "");
+
+        // Test the consistency
+        if (dataSourceNoExtension instanceof AbstractArchiveDataSource archiveDataSource) {
+            assertFalse(archiveDataSource.isConsistentWithDataSource("bar.test"));
+            assertTrue(archiveDataSource.isConsistentWithDataSource("foo.bar"));
+            assertTrue(archiveDataSource.isConsistentWithDataSource("foo"));
+        } else {
+            fail();
+        }
+    }
 }
