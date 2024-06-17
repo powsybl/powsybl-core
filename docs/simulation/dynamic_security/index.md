@@ -1,4 +1,4 @@
-# Security analysis
+# Dynamic security analysis
 
 ```{toctree}
 :hidden:
