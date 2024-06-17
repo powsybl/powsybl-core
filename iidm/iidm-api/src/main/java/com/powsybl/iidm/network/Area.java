@@ -111,7 +111,7 @@ public interface Area extends Identifiable<Area> {
 
     /**
      * If exists, remove the area boundary associated with the provided terminal.
-     * The Terminal and it's Connectable is not removed from the network, but is not part of the Area anymore.
+     * The Terminal and its Connectable are not removed from the network, but are not part of the Area anymore.
      * @param terminal terminal
      */
     Area removeAreaBoundary(Terminal terminal);
