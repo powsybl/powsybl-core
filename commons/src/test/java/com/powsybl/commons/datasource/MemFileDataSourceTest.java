@@ -92,7 +92,7 @@ class MemFileDataSourceTest {
         for (String name : dataSource.listNames(".*")) {
             assertTrue(dataSource.exists(name));
             try (InputStream is = dataSource.newInputStream(name)) {
-                // Ok, some content is available
+                assertNotNull(is);
             } catch (IOException x) {
                 fail(name);
             }
