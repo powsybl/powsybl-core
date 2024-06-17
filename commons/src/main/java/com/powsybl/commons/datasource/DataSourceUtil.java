@@ -7,12 +7,18 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.PowsyblException;
+
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 /**
+ * This class consists of {@code static} utility methods for creating new data sources. The methods here are limited to
+ * creating data sources of the classes implemented in powsybl-core.
+ *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 public interface DataSourceUtil {
@@ -29,11 +35,11 @@ public interface DataSourceUtil {
         return append ? appendOpenOptions : defaultOpenOptions;
     }
 
-    static String getBaseName(Path file) {
-        return getBaseName(file.getFileName().toString());
+    static String guessBaseName(Path file) {
+        return guessBaseName(file.getFileName().toString());
     }
 
-    static String getBaseName(String fileName) {
+    static String guessBaseName(String fileName) {
         Objects.requireNonNull(fileName);
 
         // Get the file information
@@ -42,7 +48,19 @@ public interface DataSourceUtil {
         return fileInformation.getBaseName();
     }
 
-    static DataSource createDataSource(Path directory, String archiveFileName, String baseName, String sourceFormat, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
+    /**
+     * Create an archive-based DataSource based on the provided base name, source format, archive format and compression
+     * format
+     * @param directory Path to the folder where the file is located
+     * @param archiveFileName Archive file name
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @param archiveFormat Archive format
+     * @param compressionFormat Compression format
+     * @param observer Observer
+     * @return the created datasource
+     */
+    private static DataSource createArchiveDataSource(Path directory, String archiveFileName, String baseName, String sourceFormatExtension, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(baseName);
 
@@ -51,41 +69,126 @@ public interface DataSourceUtil {
             .withDirectory(directory)
             .withArchiveFileName(archiveFileName)
             .withBaseName(baseName)
-            .withSourceFormat(sourceFormat)
+            .withSourceFormatExtension(sourceFormatExtension)
             .withArchiveFormat(archiveFormat)
             .withCompressionFormat(compressionFormat)
             .withObserver(observer)
             .build();
     }
 
-    static DataSource createDataSource(Path directory, String archiveFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
+    /**
+     * Create an archive-based DataSource based on the provided base name, source format, archive format and compression
+     * format
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @param archiveFormat Archive format
+     * @param compressionFormat Compression format
+     * @param observer Observer
+     * @return the created datasource
+     */
+    static DataSource createArchiveDataSource(Path directory, String baseName, String sourceFormatExtension, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
+        return createArchiveDataSource(directory, null, baseName, sourceFormatExtension, archiveFormat, compressionFormat, observer);
+    }
+
+    /**
+     * Create an archive-based DataSource based on the provided base name, source format, archive format and compression
+     * format
+     * @param directory Path to the folder where the file is located
+     * @param archiveFileName Archive file name
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @param observer Observer
+     * @return the created datasource
+     */
+    static DataSource createArchiveDataSource(Path directory, String archiveFileName, String baseName, String sourceFormatExtension, DataSourceObserver observer) {
 
         // Get the file information
         FileInformation fileInformation = new FileInformation(archiveFileName);
 
-        return createDataSource(directory, archiveFileName, baseName, sourceFormat, fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
+        return createArchiveDataSource(directory, archiveFileName, baseName, sourceFormatExtension, fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
     }
 
-    static DataSource createDataSource(Path directory, String archiveFileName, String baseName, String sourceFormat) {
-        return createDataSource(directory, archiveFileName, baseName, sourceFormat, null);
+    /**
+     * Create an archive-based DataSource based on the provided file name, base name and source format
+     * @param directory Path to the folder where the file is located
+     * @param archiveFileName Archive file name
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @return the created datasource
+     */
+    static DataSource createArchiveDataSource(Path directory, String archiveFileName, String baseName, String sourceFormatExtension) {
+        return createArchiveDataSource(directory, archiveFileName, baseName, sourceFormatExtension, null);
     }
 
-    static DataSource createDataSource(Path directory, String baseName, String sourceFormat, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
-        return createDataSource(directory, null, baseName, sourceFormat, archiveFormat, compressionFormat, observer);
+    /**
+     * Create a directory-based DataSource based on the provided base name, source format and compression format
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @param compressionFormat Compression format
+     * @param observer Observer
+     * @return the created datasource
+     */
+    static DataSource createDirectoryDataSource(Path directory, String baseName, String sourceFormatExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
+        Objects.requireNonNull(directory);
+        Objects.requireNonNull(baseName);
+
+        // Create the datasource
+        return new DataSourceBuilder()
+            .withDirectory(directory)
+            .withBaseName(baseName)
+            .withSourceFormatExtension(sourceFormatExtension)
+            .withCompressionFormat(compressionFormat)
+            .withObserver(observer)
+            .build();
     }
 
-    static DataSource createDataSource(Path directory, String baseName, String sourceFormat, CompressionFormat compressionFormat, DataSourceObserver observer) {
-        return createDataSource(directory, null, baseName, sourceFormat, null, compressionFormat, observer);
+    /**
+     * Create a directory-based DataSource based on the provided base name and source format
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @param observer Observer
+     * @return the created datasource
+     */
+    static DataSource createDirectoryDataSource(Path directory, String baseName, String sourceFormatExtension, DataSourceObserver observer) {
+        return createDirectoryDataSource(directory, baseName, sourceFormatExtension, null, observer);
     }
 
-    static DataSource createDataSource(Path directory, String baseName, String sourceFormat, DataSourceObserver observer) {
-        return createDataSource(directory, null, baseName, sourceFormat, null, null, observer);
+    /**
+     * Create a directory-based DataSource based on the provided base name and source format
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @param sourceFormatExtension Data format extension
+     * @return the created datasource
+     */
+    static DataSource createDirectoryDataSource(Path directory, String baseName, String sourceFormatExtension) {
+        return createDirectoryDataSource(directory, baseName, sourceFormatExtension, null, null);
     }
 
-    static DataSource createDataSource(Path directory, String baseName, String sourceFormat) {
-        return createDataSource(directory, null, baseName, sourceFormat, null, null, null);
+    /**
+     * Create a directory-based DataSource based on the base name
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @return the created datasource
+     */
+    static DataSource createDirectoryDataSource(Path directory, String baseName) {
+        return createDirectoryDataSource(directory, baseName, "", null, null);
     }
 
+    /**
+     * Create a DataSource based on a filename
+     * <ul>
+     *     <li>Case 1: the file is not an archive so the datasource base name and source format is based on its name</li>
+     *     <li>Case 2: the file is an archive, so the datasource base name and source format are not base on it in order
+     *     to decorrelate the name of the archive from the name of the files inside</li>
+     * </ul>
+     * @param directory Path to the folder where the file is located
+     * @param fileName Name of the file
+     * @param observer Observer
+     * @return the created datasource
+     */
     static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {
 
         // Get the file information
@@ -93,11 +196,46 @@ public interface DataSourceUtil {
 
         // Datasource creation
         return fileInformation.getArchiveFormat() == null ?
-            createDataSource(directory, null, fileInformation.getBaseName(), fileInformation.getSourceFormat(), fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer) :
-            createDataSource(directory, fileName, "", "", fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
+            createDirectoryDataSource(directory, fileInformation.getBaseName(), fileInformation.getSourceFormatExtension(), fileInformation.getCompressionFormat(), observer) :
+            createArchiveDataSource(directory, fileName, "", "", fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
     }
 
+    /**
+     * Create a DataSource based on a filename
+     * <ul>
+     *     <li>Case 1: the file is not an archive so the datasource base name and source format is based on its name</li>
+     *     <li>Case 2: the file is an archive, so the datasource base name and source format are not base on it in order
+     *     to decorrelate the name of the archive from the name of the files inside</li>
+     * </ul>
+     * @param directory Path to the folder where the file is located
+     * @param fileName Name of the file
+     * @return the created datasource
+     */
     static DataSource createDataSource(Path directory, String fileName) {
-        return createDataSource(directory, fileName, (DataSourceObserver) null);
+        return createDataSource(directory, fileName, null);
+    }
+
+    /**
+     * Create a DataSource based on a path
+     * <ul>
+     *     <li>Case A: the path corresponds to a directory so the base name and source format extensions are empty</li>
+     *     <li>Case B-1: the path corresponds to a file and the file is not an archive so the datasource base name and
+     *     source format is based on its name</li>
+     *     <li>Case B-2: the path corresponds to a file and the file is an archive, so the datasource base name and
+     *     source format are not base on it in order to decorrelate the name of the archive from the name of the files
+     *     inside</li>
+     * </ul>
+     * @param filePath Path to the folder where the file is located
+     * @return the created datasource
+     */
+    static DataSource createDataSource(Path path) {
+        if (!Files.exists(path)) {
+            throw new PowsyblException(String.format("Path %s should exist to create a data source", path));
+        } else if (Files.isDirectory(path)) {
+            return createDirectoryDataSource(path, "");
+        } else {
+            return createDataSource(path.getParent(), path.getFileName().toString(), null);
+        }
+
     }
 }

@@ -24,7 +24,7 @@ class DataSourceBuilder {
     private String archiveFileName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
-    private String sourceFormat = "";
+    private String sourceFormatExtension = "";
     private DataSourceObserver observer;
 
     DataSourceBuilder withDirectory(Path directory) {
@@ -52,8 +52,8 @@ class DataSourceBuilder {
         return this;
     }
 
-    DataSourceBuilder withSourceFormat(String sourceFormat) {
-        this.sourceFormat = sourceFormat;
+    DataSourceBuilder withSourceFormatExtension(String sourceFormatExtension) {
+        this.sourceFormatExtension = sourceFormatExtension;
         return this;
     }
 
@@ -71,19 +71,19 @@ class DataSourceBuilder {
             return buildZip();
         } else if (archiveFormat == ArchiveFormat.TAR) {
             return archiveFileName == null ?
-                new TarDataSource(directory, baseName, compressionFormat, sourceFormat, observer) :
-                new TarDataSource(directory, archiveFileName, baseName, compressionFormat, sourceFormat, observer);
+                new TarDataSource(directory, baseName, compressionFormat, sourceFormatExtension, observer) :
+                new TarDataSource(directory, archiveFileName, baseName, compressionFormat, sourceFormatExtension, observer);
         } else if (compressionFormat == null) {
-            return new DirectoryDataSource(directory, baseName, sourceFormat, observer);
+            return new DirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
         } else {
             return switch (compressionFormat) {
-                case BZIP2 -> new Bzip2DataSource(directory, baseName, sourceFormat, observer);
-                case GZIP -> new GzDataSource(directory, baseName, sourceFormat, observer);
-                case XZ -> new XZDataSource(directory, baseName, sourceFormat, observer);
-                case ZSTD -> new ZstdDataSource(directory, baseName, sourceFormat, observer);
+                case BZIP2 -> new Bzip2DataSource(directory, baseName, sourceFormatExtension, observer);
+                case GZIP -> new GzDataSource(directory, baseName, sourceFormatExtension, observer);
+                case XZ -> new XZDataSource(directory, baseName, sourceFormatExtension, observer);
+                case ZSTD -> new ZstdDataSource(directory, baseName, sourceFormatExtension, observer);
                 default -> {
                     LOGGER.warn("Unsupported compression format {}", compressionFormat);
-                    yield new DirectoryDataSource(directory, baseName, sourceFormat, observer);
+                    yield new DirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
                 }
             };
         }
@@ -99,7 +99,7 @@ class DataSourceBuilder {
         if (baseName == null) {
             throw new PowsyblException("Datasource baseName cannot be null");
         }
-        if (sourceFormat == null) {
+        if (sourceFormatExtension == null) {
             throw new PowsyblException("Source format cannot be null");
         }
     }
@@ -109,7 +109,7 @@ class DataSourceBuilder {
             throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
         }
         return archiveFileName == null ?
-            new ZipDataSource(directory, baseName, sourceFormat, observer) :
-            new ZipDataSource(directory, archiveFileName, baseName, sourceFormat, observer);
+            new ZipDataSource(directory, baseName, sourceFormatExtension, observer) :
+            new ZipDataSource(directory, archiveFileName, baseName, sourceFormatExtension, observer);
     }
 }

@@ -561,7 +561,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             // It is enough to check that the MAS has been set correctly in the EQ instance file
             exportParams.put(CgmesExport.PROFILES, "EQ");
-            new CgmesExport(platformConfig).export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, network.getNameOrId(), ""));
+            new CgmesExport(platformConfig).export(network, exportParams, DataSourceUtil.createDirectoryDataSource(tmpDir, network.getNameOrId()));
 
             String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
             assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
@@ -625,7 +625,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
             // network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, baseName, ""));
+            new CgmesExport().export(network, exportParams, DataSourceUtil.createDirectoryDataSource(tmpDir, baseName));
             String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
 
             // Check that RC are exported properly
@@ -644,7 +644,7 @@ class CgmesExportTest {
             generatorNoRcc.setTargetV(Double.NaN);
 
             //network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, baseName, ""));
+            new CgmesExport().export(network, exportParams, DataSourceUtil.createDirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
@@ -665,7 +665,7 @@ class CgmesExportTest {
             mmrlAdder.setMaxQ(mmrl.getMinQ());
             mmrlAdder.add();
 
-            new CgmesExport().export(network, exportParams, DataSourceUtil.createDataSource(tmpDir, baseName, ""));
+            new CgmesExport().export(network, exportParams, DataSourceUtil.createDirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
             assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
             assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));

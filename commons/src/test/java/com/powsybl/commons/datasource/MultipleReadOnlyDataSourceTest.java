@@ -47,8 +47,8 @@ class MultipleReadOnlyDataSourceTest {
 
     @Test
     void test() throws IOException {
-        ReadOnlyDataSource dataSource = new MultipleReadOnlyDataSource(DataSourceUtil.createDataSource(testDir, "a", ""),
-                                                                       DataSourceUtil.createDataSource(testDir, "b", ""));
+        ReadOnlyDataSource dataSource = new MultipleReadOnlyDataSource(DataSourceUtil.createDirectoryDataSource(testDir, "a"),
+                                                                       DataSourceUtil.createDirectoryDataSource(testDir, "b"));
         assertEquals("a", dataSource.getBaseName());
         assertTrue(dataSource.exists(null, "txt"));
         assertFalse(dataSource.exists(null, "json"));

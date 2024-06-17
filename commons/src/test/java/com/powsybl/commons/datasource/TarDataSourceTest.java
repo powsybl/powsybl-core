@@ -111,7 +111,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, TAR_FILENAME, BASENAME, "");
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(workdirPath, TAR_FILENAME, BASENAME, "");
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -212,7 +212,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         Files.createFile(file);
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createDataSource(
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
             file.getParent(),
             file.getFileName().toString(),
             "foo", "");
@@ -225,7 +225,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         assertEquals("File foo.bar does not seem to exist in archive fake.tar", exception.getMessage());
 
         file = testDir.resolve("/missing.file.tar.gz");
-        DataSource newDataSource = DataSourceUtil.createDataSource(
+        DataSource newDataSource = DataSourceUtil.createArchiveDataSource(
             file.getParent(),
             file.getFileName().toString(),
             "foo", "");

@@ -142,7 +142,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
         Properties properties = new Properties();
         properties.put("matpower.import.ignore-base-voltage", false);
-        Network network = new MatpowerImporter().importData(DataSourceUtil.createDataSource(tmpDir, caseId, ""), NetworkFactory.findDefault(), properties);
+        Network network = new MatpowerImporter().importData(DataSourceUtil.createDirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
 
         exportToMatAndCompareTo(network, "/ieee30-considering-base-voltage.json");
     }

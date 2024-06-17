@@ -47,7 +47,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
     @Test
     void copyTest() {
         new IeeeCdfImporter().copy(new ResourceDataSource("ieee14cdf", new ResourceSet("/", "ieee14cdf.txt")),
-            DataSourceUtil.createDataSource(fileSystem.getPath("/work"), "copy", ""));
+            DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.txt")));
     }
 

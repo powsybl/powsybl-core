@@ -81,7 +81,7 @@ class ImportExportPerformanceTest {
         CgmesExport e = new CgmesExport();
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
-        DataSource exportDataSource = DataSourceUtil.createDataSource(exportFolder, "", "");
+        DataSource exportDataSource = DataSourceUtil.createDirectoryDataSource(exportFolder, "");
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.CIM_VERSION, "16");
         e.export(n, exportParameters, exportDataSource);

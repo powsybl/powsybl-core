@@ -32,10 +32,10 @@ class DataSourceUtilTest {
     }
 
     @Test
-    void testGetBaseName() {
-        assertEquals("dummy", DataSourceUtil.getBaseName("dummy.xml.gz"));
-        assertEquals("dummy", DataSourceUtil.getBaseName("dummy.gz"));
-        assertEquals("dummy", DataSourceUtil.getBaseName("dummy"));
+    void testGuessBaseName() {
+        assertEquals("dummy", DataSourceUtil.guessBaseName("dummy.xml.gz"));
+        assertEquals("dummy", DataSourceUtil.guessBaseName("dummy.gz"));
+        assertEquals("dummy", DataSourceUtil.guessBaseName("dummy"));
     }
 
     @Test
@@ -45,7 +45,7 @@ class DataSourceUtilTest {
         DataSourceObserver dataSourceObserver = new DefaultDataSourceObserver();
 
         // Create a datasource
-        DataSource dataSource = DataSourceUtil.createDataSource(
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
             fileSystem.getPath("/tmp"),
             "foo",
             ".bar",
@@ -59,7 +59,7 @@ class DataSourceUtilTest {
         // Check the datasource values
         assertEquals(fileSystem.getPath("/tmp"), ((AbstractDataSource) dataSource).getDirectory());
         assertEquals("foo", dataSource.getBaseName());
-        assertEquals(".bar", ((AbstractDataSource) dataSource).getSourceFormat());
+        assertEquals(".bar", ((AbstractDataSource) dataSource).getSourceFormatExtension());
         assertEquals(ArchiveFormat.ZIP, ((AbstractDataSource) dataSource).getArchiveFormat());
         assertEquals(CompressionFormat.ZIP, ((AbstractDataSource) dataSource).getCompressionFormat());
         assertEquals(dataSourceObserver, ((AbstractDataSource) dataSource).getObserver());

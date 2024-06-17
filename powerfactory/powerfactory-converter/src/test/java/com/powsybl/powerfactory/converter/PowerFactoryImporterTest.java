@@ -56,11 +56,11 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(studyCase.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
-        assertTrue(importer.exists(DataSourceUtil.createDataSource(fileSystem.getPath("/work"), "ieee14", "")));
-        assertFalse(importer.exists(DataSourceUtil.createDataSource(fileSystem.getPath("/work"), "error", "")));
+        assertTrue(importer.exists(DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "ieee14")));
+        assertFalse(importer.exists(DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "error")));
 
-        importer.copy(DataSourceUtil.createDataSource(fileSystem.getPath("/work"), "ieee14", ""),
-                DataSourceUtil.createDataSource(fileSystem.getPath("/work"), "ieee14-copy", ""));
+        importer.copy(DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "ieee14"),
+                DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 

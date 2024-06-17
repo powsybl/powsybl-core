@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +26,7 @@ public class FileInformation {
     private String baseName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
-    private String sourceFormat;
+    private String sourceFormatExtension;
 
     FileInformation(String fileName) {
         Objects.requireNonNull(fileName);
@@ -38,6 +39,11 @@ public class FileInformation {
     }
 
     private void computeInformation(String fileName, boolean dataSourceInitialization) {
+        // Check if filename is empty or only a dot
+        if (fileName.isEmpty() || fileName.equals(".")) {
+            throw new PowsyblException("File name cannot be empty nor just a dot");
+        }
+
         // Last dot index
         int currentDotIndex = fileName.lastIndexOf('.');
 
@@ -63,15 +69,49 @@ public class FileInformation {
             archiveFormat = ArchiveFormat.ZIP;
             fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension;
         } else {
-            archiveFormat = !fileNameWithoutCompressionExtension.substring(currentDotIndex + 1).isEmpty() && "tar".equals(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1)) ? ArchiveFormat.TAR : null;
+            archiveFormat = "tar".equals(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1)) ? ArchiveFormat.TAR : null;
             fileNameWithoutCompressionNorArchive = archiveFormat == null ? fileNameWithoutCompressionExtension : fileNameWithoutCompressionExtension.substring(0, currentDotIndex);
         }
 
         // Last dot index
         currentDotIndex = fileNameWithoutCompressionNorArchive.lastIndexOf('.');
 
-        // Datasource format
-        sourceFormat = currentDotIndex < 0 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
+        /* Datasource format
+         * Four cases are possible:
+         *  - case 1 ("dummy"): currentDotIndex < 0 -> no source format is given
+         *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no source format is given
+         *  - case 3 ("dummy.foo"): ".foo" is the source format
+         *  - case 4 ("dummy.iidm.xml"): ".iidm.xml" is the source format
+         */
+        sourceFormatExtension = findSourceFormatExtension(fileNameWithoutCompressionNorArchive, currentDotIndex);
+        logSourceFormat(fileName, sourceFormatExtension, dataSourceInitialization);
+
+        // Base name
+        baseName = sourceFormatExtension.isEmpty() ?
+            fileNameWithoutCompressionNorArchive :
+            fileNameWithoutCompressionNorArchive.substring(0, fileNameWithoutCompressionNorArchive.lastIndexOf(sourceFormatExtension));
+        if (baseName.isEmpty()) {
+            LOGGER.warn("Base name is empty in file {}", fileName);
+        }
+    }
+
+    /**
+     * Get the source format extension from the file name. If the last extension is ".xml", it checks if there is a
+     * previous ".iidm" extension
+     */
+    private String findSourceFormatExtension(String fileNameWithoutCompressionNorArchive, int currentDotIndex) {
+        String extension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
+        if (".xml".equals(extension)
+            && fileNameWithoutCompressionNorArchive.length() > 9
+            && ".iidm".equals(fileNameWithoutCompressionNorArchive.substring(
+                fileNameWithoutCompressionNorArchive.length() - 9,
+                fileNameWithoutCompressionNorArchive.length() - 4))) {
+            extension = ".iidm.xml";
+        }
+        return extension;
+    }
+
+    private void logSourceFormat(String fileName, String sourceFormat, boolean dataSourceInitialization) {
         if (dataSourceInitialization) {
             if (sourceFormat.isEmpty()) {
                 LOGGER.warn("Source format is empty in file {}", fileName);
@@ -79,9 +119,6 @@ public class FileInformation {
                 LOGGER.warn("Source format {} is not a usual one!", sourceFormat);
             }
         }
-
-        // Base name
-        baseName = sourceFormat.isEmpty() ? fileNameWithoutCompressionNorArchive : fileNameWithoutCompressionNorArchive.substring(0, currentDotIndex);
     }
 
     public String getBaseName() {
@@ -96,7 +133,7 @@ public class FileInformation {
         return archiveFormat;
     }
 
-    public String getSourceFormat() {
-        return sourceFormat;
+    public String getSourceFormatExtension() {
+        return sourceFormatExtension;
     }
 }

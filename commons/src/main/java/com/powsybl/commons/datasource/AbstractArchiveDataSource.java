@@ -29,6 +29,6 @@ public abstract class AbstractArchiveDataSource extends AbstractDataSource {
     public boolean isConsistentWithDataSource(String fileName) {
         FileInformation fileInformation = new FileInformation(fileName, false);
         return fileName.startsWith(baseName) &&
-            (sourceFormat.isEmpty() || fileInformation.getSourceFormat().equals(sourceFormat));
+            (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension));
     }
 }

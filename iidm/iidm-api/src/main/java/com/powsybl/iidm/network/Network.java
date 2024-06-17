@@ -203,7 +203,7 @@ public interface Network extends Container<Network> {
      * @return                   The loaded network
      */
     static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.guessBaseName(filename));
         dataSource.putData(filename, data);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
@@ -1482,7 +1482,7 @@ public interface Network extends Container<Network> {
      * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, ReportNode reportNode) {
-        write(loader, format, parameters, DataSourceUtil.createDataSource(Paths.get(directory), baseName, ""), reportNode);
+        write(loader, format, parameters, DataSourceUtil.createDirectoryDataSource(Paths.get(directory), baseName), reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {

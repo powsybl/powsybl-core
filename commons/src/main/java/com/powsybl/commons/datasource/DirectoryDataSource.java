@@ -58,7 +58,7 @@ public class DirectoryDataSource extends AbstractDataSource {
                 // Source format and compression format are equals
                 .filter(name -> {
                     FileInformation fileInformation = new FileInformation(name, false);
-                    return (sourceFormat.isEmpty() || fileInformation.getSourceFormat().equals(sourceFormat))
+                    return (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension))
                         && (compressionFormat == null && fileInformation.getCompressionFormat() == null
                         || fileInformation.getCompressionFormat() != null && fileInformation.getCompressionFormat().equals(compressionFormat));
                 })
@@ -150,7 +150,7 @@ public class DirectoryDataSource extends AbstractDataSource {
     public boolean isConsistentWithDataSource(String fileName) {
         FileInformation fileInformation = new FileInformation(fileName, false);
         return fileName.startsWith(baseName) &&
-            (sourceFormat.isEmpty() || fileInformation.getSourceFormat().equals(sourceFormat)) &&
+            (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension)) &&
             (compressionFormat == null || fileInformation.getCompressionFormat().equals(compressionFormat));
     }
 }

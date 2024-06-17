@@ -92,7 +92,7 @@ public final class Importers {
      * @return           the model
      */
     public static Network importData(String format, String directory, String baseName, Properties parameters) {
-        return importData(format, DataSourceUtil.createDataSource(Paths.get(directory), baseName, ""), parameters);
+        return importData(format, DataSourceUtil.createDirectoryDataSource(Paths.get(directory), baseName), parameters);
     }
 
     private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, NetworkFactory networkFactory, ReportNode reportNode) {
@@ -110,7 +110,7 @@ public final class Importers {
 
     private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
         Objects.requireNonNull(importer);
-        String caseBaseName = DataSourceUtil.getBaseName(file);
+        String caseBaseName = DataSourceUtil.guessBaseName(file);
         ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
         if (importer.exists(ds)) {
             dataSources.add(ds);

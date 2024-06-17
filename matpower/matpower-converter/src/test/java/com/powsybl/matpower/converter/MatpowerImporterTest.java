@@ -59,8 +59,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create9();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        new MatpowerImporter().copy(DataSourceUtil.createDataSource(tmpDir, model.getCaseName(), ""),
-            DataSourceUtil.createDataSource(tmpDir, "copy", ""));
+        new MatpowerImporter().copy(DataSourceUtil.createDirectoryDataSource(tmpDir, model.getCaseName()),
+            DataSourceUtil.createDirectoryDataSource(tmpDir, "copy"));
         assertTrue(Files.exists(tmpDir.resolve("copy.mat")));
     }
 
@@ -150,7 +150,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
 
     @Test
     void testNonexistentCase() {
-        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(DataSourceUtil.createDataSource(tmpDir, "unknown", ""), NetworkFactory.findDefault(), null)));
+        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(DataSourceUtil.createDirectoryDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
     }
 
     private void testCase(MatpowerModel model) throws IOException {
@@ -162,7 +162,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile, true);
 
-        Network network = new MatpowerImporter().importData(DataSourceUtil.createDataSource(tmpDir, caseId, ""), NetworkFactory.findDefault(), properties);
+        Network network = new MatpowerImporter().importData(DataSourceUtil.createDirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
         testNetwork(network, caseId);
     }
 
@@ -188,7 +188,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile, true);
 
-        Network network = new MatpowerImporter().importData(DataSourceUtil.createDataSource(tmpDir, caseId, ""), NetworkFactory.findDefault(), null);
+        Network network = new MatpowerImporter().importData(DataSourceUtil.createDirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
         testSolved(network);
     }
 

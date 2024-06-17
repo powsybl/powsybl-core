@@ -71,7 +71,7 @@ public class TarDataSource extends AbstractArchiveDataSource {
                     && (baseName.isEmpty() || entry.getName().startsWith(baseName))) {
                     FileInformation fileInformation = new FileInformation(entry.getName(), false);
                     // Check that files have the same source format and respect the regex
-                    if ((sourceFormat.isEmpty() || fileInformation.getSourceFormat().equals(sourceFormat))
+                    if ((sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension))
                         && p.matcher(entry.getName()).matches()) {
                         names.add(entry.getName());
                     }

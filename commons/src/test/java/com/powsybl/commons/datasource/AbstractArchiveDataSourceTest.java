@@ -58,7 +58,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         unlistedFiles = filesInArchive.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createDataSource(testDir, fileName, baseName, sourceFormat);
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(testDir, fileName, baseName, sourceFormat);
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);
@@ -75,7 +75,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         Path path = file.toPath();
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createDataSource(
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
             path.getParent(),
             path.getFileName().toString(),
             "foo",
@@ -97,7 +97,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractNewDataSourceTest {
         Files.createFile(file);
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createDataSource(
+        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
             file.getParent(),
             file.getFileName().toString(),
             "foo",
