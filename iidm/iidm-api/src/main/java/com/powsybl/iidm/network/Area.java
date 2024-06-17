@@ -118,7 +118,7 @@ public interface Area extends Identifiable<Area> {
 
     /**
      * If exists, remove the area boundary associated with the provided DanglingLine's Boundary.
-     * The DanglingLine and Boundary is not removed from the network, but is not part of the Area anymore.
+     * The DanglingLine and Boundary are not removed from the network, but are not part of the Area anymore.
      * @param boundary DanglingLine's boundary
      */
     Area removeAreaBoundary(Boundary boundary);
