@@ -1,7 +1,9 @@
 # Configuration
 
+(security-generic-parameters)=
 ## Parameters
 
+(violations-increase-thresholds)=
 ### Violations increase thresholds
 The user can provide parameters to define which violations must be raised after a contingency, if the violation was already present in the pre-contingency state (`IncreasedViolationsParameters`).
 
@@ -20,6 +22,7 @@ Same as before but for high-voltage violations.
 **high-voltage-absolute-threshold**  
 Same as before but for high-voltage violations.
 
+(violation-filtering)=
 ### Violations filtering
 The violations listed in the results can be filtered to consider only certain type of violations, to consider only few voltage levels or to limit the geographical area by filtering equipments by countries. Check out the documentation of the [limit-violation-default-filter](../../user/configuration/limit-violation-default-filter.md) configuration module.
 

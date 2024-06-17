@@ -1,7 +1,7 @@
 # Configuration
 
 ## Implementation
-If you have several implementation in your classpath, you need to choose which implementation to use in your configuration file:
+If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file:
 ```yaml
 load-flow:
   default-impl-name: "<IMPLEMENTATION_NAME>"
@@ -13,6 +13,7 @@ Each implementation is identified by its name, that should be unique in the clas
 
 ## Parameters
 
+(loadflow-generic-parameters)=
 ### Generic parameters
 
 You may configure some generic parameters for all load flow implementations:
