@@ -4,14 +4,14 @@ There are two main use-cases supported:
  * Export IGM (Individual Grid Model) instance files. There is a single network and a unique CGMES modelling authority. 
  * Export CGM (Common Grid Model) instance files. A network composed of multiple subnetworks, where each subnetwork is an IGM. 
 
-To select one of the use-cases, use the parameter **iidm.export.cgmes.cgm_export**.  
-
 In both cases, the metadata model information in the exported files is built from metadata information read from the input files and stored in IIDM or received through parameters. 
 Information received through parameters takes precedence over information available from original metadata models.
 
-Please note that when exporting equipment, PowSyBl always use the CGMES node/breaker level of detail, without considering the topology level of the PowSyBl network.
+For a quick CGM export, the user may rely on the parameter **iidm.export.cgmes.cgm_export** to write in a single export multiple updated SSH files (one for each IGM) and a single SV for the whole common grid model. Specifics about this option are explained in the section [below](#cgm-common-grid-model-quick-export).
+If you need complete control over the exported files in a CGM scenario, you may prefer to iterate through the subnetworks and make multiple calls to the export function. This is described in detail in the section [below](#cgm-common-grid-model-manual-export).    
 
-## IGM (Individual Grid Model) export
+Please note that when exporting equipment, PowSyBl always use the CGMES node/breaker level of detail, without considering the topology
+level of the PowSyBl network.
 
 The user can specify the profiles to be exported using the parameter **iidm.export.cgmes.profiles**. The list of currently supported export instance files are: EQ, SSH, SV, TP. 
 
@@ -25,7 +25,7 @@ If the dependencies have to be updated automatically (see parameter **iidm.expor
 
 The output filenames will follow the pattern `<baseName>_<profile>.xml`. The basename is determined from the parameters, or the basename of the export data source or the main network name. 
 
-## CGM (Common Grid Model) export
+## CGM (Common Grid Model) quick export
 
 When exporting a CGM, we need an IIDM network (CGM) that contains multiple subnetworks (one for each IGM). 
 Only the CGMES instance files corresponding to SSH and SV profiles are exported:
@@ -37,13 +37,115 @@ If no version is provided as a parameter for the exported files, the output vers
 
 If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
 * Updated SSH for IGMs supersede the original ones.
-* Updated SV for the CGM depends on the updated SSH from IGMs and on the origina TP from IGMs.
+* Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP from IGMs.
 
 The filenames of the exported instance files will follow the pattern:
 * For the CGM SV: `<basename>_SV.xml`.
 * For the IGM SSHs: `<basename>_<IGM name>_SSH.xml`. The IGM name is built from the country code of the first substation or the IIDM name if no country is present.
 
 The basename is determined from the parameters, or the basename of the export data source or the main network name.
+
+As an example, you can export one of the test configurations that has been provided by ENTSO-E. It is available in the cgmes-conformity module of the powsybl-core repository. If you run the following code:
+
+```java
+Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+
+Properties exportParams = new Properties();
+exportParams.put(CgmesExport.PROFILES, List.of("SV", "SSH"));
+exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
+exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+exportParams.put(CgmesExport.CGM_EXPORT, true);
+exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, true);
+exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "MAS1");
+
+cgmNetwork.write("CGMES", exportParams, new FileDataSource(Path.of("/exampleFolder"), "exampleBase"));
+```
+
+You will obtain the following files in your `exampleFolder`:
+
+```
+exampleBase_BE_SSH.xml
+exampleBase_NL_SSH.xml
+exampleBase_SV.xml
+```
+
+where the updated SSH files will supersede the original ones, and the SV will contain the correct dependencies of new SSH and original TPs.
+
+## CGM (Common Grid Model) manual export
+
+If you want to intervene in how the updated IGM SSH files or the CGM SV are exported, you can make multiple calls to the CGMES export function.
+
+You can use following code for reference:
+
+```java
+Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+
+// We decide which version we want to export
+int exportedVersion = 18;
+
+// Common export parameters
+Properties exportParams = new Properties();
+exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
+exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+// We do not want a quick CGM export
+exportParams.put(CgmesExport.CGM_EXPORT, false);
+exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, false);
+
+// For each subnetwork, prepare the metadata for SSH and export it
+for (Network n : cgmNetwork.getSubnetworks()) {
+    String country = n.getSubstations().iterator().next().getCountry().orElseThrow().toString();
+    CgmesMetadataModel sshModel = n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+        sshModel.clearDependencies()
+                .addDependentOn("myDependency")
+                .addSupersedes("mySupersede")
+                .setVersion(exportedVersion)
+                .setModelingAuthoritySet("myModellingAuthority");
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH"));
+    n.write("CGMES", exportParams, new FileDataSource(Path.of("/manualFolder"), "manualBase_" + country));
+}
+
+// In the main network, CREATE the metadata for SV and export it
+cgmNetwork.newExtension(CgmesMetadataModelsAdder.class)
+    .newModel()
+        .setSubset(CgmesSubset.STATE_VARIABLES)
+        .addProfile("http://entsoe.eu/CIM/StateVariables/4/1")
+        .setId("mySvId")
+        .setVersion(exportedVersion)
+        .setModelingAuthoritySet("myModellinAuthority")
+        .addDependentOn("mySvDependency1")
+        .addDependentOn("mySvDependency2")
+    .add()
+    .add();
+exportParams.put(CgmesExport.PROFILES, List.of("SV"));
+cgmNetwork.write("CGMES", exportParams, new FileDataSource(Path.of("/manualFolder"), "manualBase"));
+```
+
+The file `manualBase_BE_SSH.xml` inside `/manualFolder` will have the following contents for the metadata:
+
+```xml
+...
+<md:Model.description>CGMES Conformity Assessment ...</md:Model.description>
+<md:Model.version>18</md:Model.version>
+<md:Model.DependentOn rdf:resource="myDependency"/>
+<md:Model.Supersedes rdf:resource="mySupersede"/>
+<md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+<md:Model.modelingAuthoritySet>myModellingAuthority</md:Model.modelingAuthoritySet>
+...
+```
+
+And the file `manualBase_SV.xml` will contain:
+
+```xml
+...
+<md:Model.version>18</md:Model.version>
+<md:Model.DependentOn rdf:resource="mySvDependency1"/>
+<md:Model.DependentOn rdf:resource="mySvDependency2"/>
+<md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
+<md:Model.modelingAuthoritySet>myModellinAuthority</md:Model.modelingAuthoritySet>
+...
+```
+
+Remember that, in addition to setting the info for metadata models in the IIDM extensions, you could also rely on parameters passed to the export methods.
 
 ## Conversion from PowSyBl grid model to CGMES
 
