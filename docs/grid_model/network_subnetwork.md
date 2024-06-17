@@ -18,10 +18,12 @@ To identify non-physical network components, one can use the fictitious property
 
 A network can contain several subnetworks.
 
+(validation-level)=
 ## Validation level
 
 The validation level can be set to `EQUIPMENT` or `STEADY_STATE_HYPOTHESIS`. A network at equipment level is a network with missing steady-state hypotheses. This occurs just after SCADA systems, before any state estimation. Once all steady-state hypotheses are filled, meaning that a load flow engine has all the data needed to perform a computation, the validation level switches to `STEADY_STATE_HYPOTHESIS`. For some processes, a minimal validation level of the network is required.
 
+(network)=
 ## Network
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Network.html)
 
@@ -39,6 +41,7 @@ The `SourceFormat` attribute is a required attribute that indicates the origin o
 
 **Available extensions**
 
+(substation)=
 ## Substation
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Substation.html)
 
@@ -46,18 +49,19 @@ A substation represents a specific geographical location with equipment grouped 
 
 **Characteristics**
 
-| Attribute | Description |
-| --------- | ----------- |
-| $Country$ | To specify in which country the substation is located |
-| $GeographicalTags$ | They make it possible to accurately locate the substation |
-| $TSO$ | To track to which [TSO](../../glossary.md#tso) the substation belongs |
+| Attribute | Description                                                         |
+| --------- |---------------------------------------------------------------------|
+| $Country$ | To specify in which country the substation is located               |
+| $GeographicalTags$ | They make it possible to accurately locate the substation  |
+| $TSO$ | To track to which Transmission System Operator the substation belongs |
 
 All three attributes are optional.
 
 **Available extensions**
 - [ENTSO-E Area](extensions.md#entso-e-area)
 
-## Voltage Level
+(voltage-level)=
+## Voltage level
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.html)
 
 A voltage level contains equipment with the same nominal voltage. Two voltage levels may be connected through lines (when they belong to different substations) or through transformers (they must be located within the same substation).
@@ -95,6 +99,7 @@ When defining the model, the user has to specify how the different equipment con
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Slack Terminal](extensions.md#slack-terminal)
 
+(generator)=
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
 
@@ -136,6 +141,7 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
 
+(load)=
 ## Load
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Load.html)
 
@@ -189,6 +195,7 @@ In the grid model, loads comprise the following metadata:
 - [Load Detail](extensions.md#load-detail)
 - [Measurements](extensions.md#measurements)
 
+(battery)=
 ## Battery
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
 
@@ -212,6 +219,7 @@ A battery on the electric grid is an energy storage device that is either capabl
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
+(dangling-line)=
 ## Dangling line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
 
@@ -256,18 +264,23 @@ Optional:
 
 In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined besides the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line, for both UCTE or CIM-CGMES formats.
 
-// TODO, add boundary
+A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
+with a single terminal located on network side, but sometimes we need state variables such as active or reactive powers on
+the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
+are automatically computed using information from the terminal of the dangling line.  
+
 
 **Available extensions**
 
-- [CGMES Dangling Line Boundary Node](extensions.md#cgmes-dangling-line-boundary-node)
+- [CGMES Dangling Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-dangling-line-boundary-node)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-## Shunt Compensator
+(shunt-compensator)=
+## Shunt compensator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ShuntCompensator.html)
 
 A shunt compensator represents a shunt capacitor or reactor or a set of switchable banks of shunt capacitors or reactors in the network. A section of a shunt compensator
@@ -341,7 +354,8 @@ $B$ and $G$ attributes can be equal zero, but the disconnected status of the non
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-## Static VAR Compensator
+(static-var-compensator)=
+## Static VAR compensator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/StaticVarCompensator.html)
 
 It may be controlled to hold a voltage or reactive setpoint somewhere in the network (not necessarily directly where it is connected).
@@ -389,6 +403,7 @@ In IIDM the static VAR compensator also comprises some metadata:
 - [Measurements](extensions.md#measurements)
 - [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control)
 
+(line)=
 ## Line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Line.html)
 
@@ -444,13 +459,14 @@ $$
 
 - [Connectable position](extensions.md#connectable-position)
 - [Branch Observability](extensions.md#branch-observability)
-- [Branch Status](extensions.md#branch-status)
-- [CGMES Line Boundary Node](extensions.md#cgmes-line-boundary-node)
+- [Operating Status](extensions.md#operating-status)
+- [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
 
-## Tie Line
+(tie-line)=
+## Tie line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
 
 A tie line is an AC line sharing power between two neighbouring regional grids.
@@ -474,6 +490,7 @@ A tie line is not a connectable. It is just a container of two underlying dangli
 
 ## Transformers
 
+(two-windings-transformer)=
 ### Two windings transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
 
@@ -534,7 +551,7 @@ $$
 **Available extensions**
 
 - [Branch Observability](extensions.md#branch-observability)
-- [Branch Status](extensions.md#branch-status)
+- [Operating Status](extensions.md#operating-status)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -542,6 +559,7 @@ $$
 - [Two-windings Transformer Phase Angle Clock](extensions.md#two-windings-transformer-phase-angle-clock)
 - [Two-windings Transformer To Be Estimated](extensions.md#two-windings-transformer-to-be-estimated)
 
+(three-windings-transformer)=
 ### Three windings transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
 
@@ -569,7 +587,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 **Available extensions**
 
-- [Branch Status](extensions.md#branch-status)
+- [Operating Status](extensions.md#operating-status)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -594,7 +612,8 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 - A leg can have [loading limits](./additional.md#loading-limits).
 
-## HVDC Line
+(hvdc-line)=
+## HVDC line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/HvdcLine.html)
 
 An HVDC line is connected to the DC side of two HVDC converter stations, either an [LCC station](#lcc-converter-station) or a [VSC station](#vsc-converter-station).
@@ -623,7 +642,8 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 - [HVDC Angle Droop Active Power Control](extensions.md#hvdc-angle-droop-active-power-control)
 - [HVDC Operator Active Power Range](extensions.md#hvdc-operator-active-power-range)
 
-## HVDC Converter Station
+(hvdc-converter-station)=
+## HVDC converter station
 
 An HVDC converter station converts electric power from high voltage alternating current (AC) to high-voltage direct current (HVDC), or vice versa.
 Electronic converters for HVDC are divided into two main categories: line-commutated converters (LCC) and voltage-sourced converters (VSC).
@@ -652,7 +672,8 @@ The positive loss factor `LossFactor` is used to model the losses during the con
 
   Note that at the terminal on the AC side, $Q$ is always positive: the converter station always consumes reactive power.
 
-### LCC Converter Station
+(lcc-converter-station)=
+### LCC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
 
 An LCC converter station is made with electronic switches that can only be turned on (thyristors). Below are some characteristics:
@@ -673,7 +694,8 @@ An LCC converter station is made with electronic switches that can only be turne
 
 - [Connectable position](extensions.md#connectable-position)
 
-### VSC Converter Station
+(vsc-converter-station)=
+### VSC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
 
 A VSC converter station is made with switching devices that can be turned both on and off (transistors). Below are some characteristics:
@@ -704,7 +726,8 @@ A VSC converter station is made with switching devices that can be turned both o
 
 - [Connectable position](extensions.md#connectable-position)
 
-## Busbar Section
+(busbar-section)=
+## Busbar section
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BusbarSection.html)<br>
 A busbar section is a non impedant element used in a node/breaker substation topology to connect equipment.
@@ -721,7 +744,8 @@ A busbar section is a non impedant element used in a node/breaker substation top
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-## Breaker/Switch
+(switch)=
+## Breaker/switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Switch.html)<br>
 
@@ -733,7 +757,8 @@ A busbar section is a non impedant element used in a node/breaker substation top
 
 - [Discrete Measurements](extensions.md#discrete-measurements)
 
-## Internal Connection
+(internal-connection)=
+## Internal connection
 
 **Internal connection**  
 An internal connection is a non-impedant connection between two components in a voltage level.

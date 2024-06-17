@@ -1,8 +1,11 @@
 # Outputs
-The results of the short-circuit analysis are stored in `com.powsybl.shortcircuit.ShortCircuitAnalysisResult`. This class gathers the results for every fault, they are accessible either by the ID of the fault or the ID of the element on which the fault is simulated.
+The results of the short-circuit analysis are stored in `com.powsybl.shortcircuit.ShortCircuitAnalysisResult`.
+This class gathers the results for every fault, they are accessible either by the ID of the fault or the ID of the 
+element on which the fault is simulated.
 For each fault, an object `com.powsybl.shortcircuit.FaultResult` is returned.
 
-Depending on `with-fortescue-result`, the returned result should either be an instance of `com.powsybl.shortcircuit.MagnitudeFaultResult` or `com.powsybl.shortcircuit.FortescueFaultResult`.
+Depending on `with-fortescue-result`, the returned result should either be an instance of 
+`com.powsybl.shortcircuit.MagnitudeFaultResult` or `com.powsybl.shortcircuit.FortescueFaultResult`.
 
 Both classes contain the following attributes:
 
@@ -39,7 +42,7 @@ In `FortescueFaultResult`, they are:
 
 This status can be:
 - `SUCCESS`: the computation went as planned and the results are full considering the parameters.
-- `NO_SHORT_CIRCUIT_DATA`: this status should be returned if no short-circuit data are available in the network, i.e. the sub-transient or transient reactance of generators and the minimum and maximum admissible short-circuit currents.
+- `NO_SHORT_CIRCUIT_DATA`: this status should be returned if no short-circuit data are available in the network, i.e., the sub-transient or transient reactance of generators and the minimum and maximum admissible short-circuit currents.
 - `SOLVER_FAILURE`: the computation failed because of an error linked to the solver.
 - `FAILURE`: the computation failed for any other reason.
 
@@ -50,10 +53,11 @@ Depending on the value of `with-fortescue-result`, it should be an instance of `
 
 The attributes of `MagnitudeFeederResults` are:
 
-| Attribute     | Type   | Unit | Required | Default value | Description                                                                                                |
-|---------------|--------|------|----------|---------------|------------------------------------------------------------------------------------------------------------|
-| connectableId | String | -    | yes      | -             | ID of the feeder                                                                                           |
-| current       | double | A    | yes      | -             | Three-phased current magnitude of the feeder participating to the short-circuit current at the fault point | 
+| Attribute     | Type       | Unit | Required | Default value | Description                                                                                                |
+|---------------|------------|------|----------|---------------|------------------------------------------------------------------------------------------------------------|
+| connectableId | String     | -    | yes      | -             | ID of the feeder                                                                                           |
+| current       | double     | A    | yes      | -             | Three-phased current magnitude of the feeder participating to the short-circuit current at the fault point | 
+| side          | ThreeSides | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                  | 
 
 
 The attributes of `FortescueFeederResuts` are:
@@ -62,7 +66,9 @@ The attributes of `FortescueFeederResuts` are:
 |---------------|------------------|------|----------|---------------|-------------------------------------------------------------------------------------------------------------------------------|
 | connectableId | String           | -    | yes      | -             | ID of the feeder                                                                                                              |
 | current       | `FortescueValue` | A    | yes      | -             | Current magnitudes and angles on the three phases of the feeder participating to the short-circuit current at the fault point |
+| side          | ThreeSides       | -    | no       | -             | If the feeder is a branch or a three-winding transformer, the side on which the result is                                     | 
 
+Note: For results on branches, the side can be retrieved as a `TwoSides` object by using the method `getSideAsTwoSides`.  
 
 **LimitViolations**
 
