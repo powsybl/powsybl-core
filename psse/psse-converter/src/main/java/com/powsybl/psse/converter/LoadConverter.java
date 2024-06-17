@@ -140,6 +140,18 @@ class LoadConverter extends AbstractConverter {
         psseLoad.setZone(1);
         psseLoad.setPl(load.getP0());
         psseLoad.setQl(load.getQ0());
+        psseLoad.setIp(0.0);
+        psseLoad.setIq(0.0);
+        psseLoad.setYp(0.0);
+        psseLoad.setYq(0.0);
+        psseLoad.setOwner(1);
+        psseLoad.setScale(1);
+        psseLoad.setIntrpt(0);
+        psseLoad.setDgenp(0.0);
+        psseLoad.setDgenq(0.0);
+        psseLoad.setDgenm(0);
+        String type = "";
+        psseLoad.setLoadtype(type.substring(0, Math.min(12, type.length())));
 
         return psseLoad;
     }
