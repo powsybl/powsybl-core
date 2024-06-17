@@ -13,7 +13,7 @@ maxdepth: 1
 
 loadflow/index.md
 security/index.md
-sensitivity/sensitivity.md
+sensitivity/index.md
 shortcircuit/index.md
 dynamic/index.md
 ```
