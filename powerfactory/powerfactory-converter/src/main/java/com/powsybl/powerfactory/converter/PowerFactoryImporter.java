@@ -52,6 +52,11 @@ public class PowerFactoryImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return PowerFactoryDataLoader.find(StudyCase.class).stream().map(PowerFactoryDataLoader::getExtension).toList();
+    }
+
+    @Override
     public List<Parameter> getParameters() {
         return Collections.emptyList();
     }
