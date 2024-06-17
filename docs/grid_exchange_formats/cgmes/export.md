@@ -9,6 +9,9 @@ To select one of the use-cases, use the parameter **iidm.export.cgmes.cgm_export
 In both cases, the metadata model information in the exported files is built from metadata information read from the input files and stored in IIDM or received through parameters. 
 Information received through parameters takes precedence over information available from original metadata models.
 
+Please note that when exporting equipment, PowSyBl always use the CGMES node/breaker level of detail, without considering the topology
+level of the PowSyBl network.
+
 ## IGM (Individual Grid Model) export
 
 The user can specify the profiles to be exported using the parameter **iidm.export.cgmes.profiles**. The list of currently supported export instance files are: EQ, SSH, SV, TP. 
@@ -22,9 +25,6 @@ If the dependencies have to be updated automatically (see parameter **iidm.expor
 * SV depends on TP_BD (if present). TP_BD is the profile for the boundary topology. Only for CGMES 2.4.
 
 The output filenames will follow the pattern `<baseName>_<profile>.xml`. The basename is determined from the parameters, or the basename of the export data source or the main network name. 
-
-Please note that when exporting equipment, PowSyBl always use the CGMES node/breaker level of detail, without considering the topology
-level of the PowSyBl network.
 
 ## CGM (Common Grid Model) export
 
@@ -148,6 +148,8 @@ PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as CGMES `C
 ## Options
 
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
+
+Note that if you are exporting a network that does not come from CGMES, you can use the [`iidm.import.cgmes.boundary-location`](#options) property to define the location of the boundary files to use as reference.
 
 **iidm.export.cgmes.base-name**  
 Optional property that defines the base name of the exported files. Exported CGMES files' names will look like this:
