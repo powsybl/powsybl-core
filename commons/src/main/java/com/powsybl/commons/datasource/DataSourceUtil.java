@@ -103,7 +103,7 @@ public interface DataSourceUtil {
      * @param observer Observer
      * @return the created datasource
      */
-    static DataSource createArchiveDataSource(Path archivePath, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, String baseName, String sourceFormatExtension, DataSourceObserver observer) {
+    static DataSource createFilteredArchiveDataSource(Path archivePath, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, String baseName, String sourceFormatExtension, DataSourceObserver observer) {
         return createArchiveDataSource(archivePath.getParent(), archivePath.getFileName().toString(), baseName, sourceFormatExtension, archiveFormat, compressionFormat, observer);
     }
 
@@ -117,7 +117,7 @@ public interface DataSourceUtil {
      * @param compressionFormat Compression format
      * @return the created datasource
      */
-    static DataSource createArchiveDataSource(Path archivePath, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, String baseName, String sourceFormatExtension) {
+    static DataSource createFilteredArchiveDataSource(Path archivePath, ArchiveFormat archiveFormat, CompressionFormat compressionFormat, String baseName, String sourceFormatExtension) {
         return createArchiveDataSource(archivePath.getParent(), archivePath.getFileName().toString(), baseName, sourceFormatExtension, archiveFormat, compressionFormat, null);
     }
 
@@ -130,12 +130,12 @@ public interface DataSourceUtil {
      * @param observer Observer
      * @return the created datasource
      */
-    static DataSource createArchiveDataSource(Path archivePath, String baseName, String sourceFormatExtension, DataSourceObserver observer) {
+    static DataSource createFilteredArchiveDataSource(Path archivePath, String baseName, String sourceFormatExtension, DataSourceObserver observer) {
 
         // Get the file information
         FileInformation fileInformation = new FileInformation(archivePath.getFileName().toString());
 
-        return createArchiveDataSource(archivePath, fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), baseName, sourceFormatExtension, observer);
+        return createFilteredArchiveDataSource(archivePath, fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), baseName, sourceFormatExtension, observer);
     }
 
     /**
@@ -145,8 +145,8 @@ public interface DataSourceUtil {
      * @param sourceFormatExtension Data format extension
      * @return the created datasource
      */
-    static DataSource createArchiveDataSource(Path archivePath, String baseName, String sourceFormatExtension) {
-        return createArchiveDataSource(archivePath, baseName, sourceFormatExtension, null);
+    static DataSource createFilteredArchiveDataSource(Path archivePath, String baseName, String sourceFormatExtension) {
+        return createFilteredArchiveDataSource(archivePath, baseName, sourceFormatExtension, null);
     }
 
     /**
@@ -156,12 +156,8 @@ public interface DataSourceUtil {
      * @param observer Observer
      * @return the created datasource
      */
-    static DataSource createArchiveDataSource(Path archivePath, String sourceFormatExtension, DataSourceObserver observer) {
-
-        // Get the file information
-        FileInformation fileInformation = new FileInformation(archivePath.getFileName().toString());
-
-        return createArchiveDataSource(archivePath, fileInformation.getBaseName(), sourceFormatExtension, observer);
+    static DataSource createExtensionFilteredArchiveDataSource(Path archivePath, String sourceFormatExtension, DataSourceObserver observer) {
+        return createFilteredArchiveDataSource(archivePath, "", sourceFormatExtension, observer);
     }
 
     /**
@@ -170,12 +166,29 @@ public interface DataSourceUtil {
      * @param sourceFormatExtension Data format extension
      * @return the created datasource
      */
-    static DataSource createArchiveDataSource(Path archivePath, String sourceFormatExtension) {
+    static DataSource createExtensionFilteredArchiveDataSource(Path archivePath, String sourceFormatExtension) {
+        return createFilteredArchiveDataSource(archivePath, "", sourceFormatExtension, null);
+    }
 
-        // Get the file information
-        FileInformation fileInformation = new FileInformation(archivePath.getFileName().toString());
+    /**
+     * Create an archive-based DataSource based on the provided file name, base name and source format extension
+     * @param archivePath Path to the archive file
+     * @param baseName Base name
+     * @param observer Observer
+     * @return the created datasource
+     */
+    static DataSource createBaseNameFilteredArchiveDataSource(Path archivePath, String baseName, DataSourceObserver observer) {
+        return createFilteredArchiveDataSource(archivePath, baseName, "", observer);
+    }
 
-        return createArchiveDataSource(archivePath, fileInformation.getBaseName(), sourceFormatExtension, null);
+    /**
+     * Create an archive-based DataSource based on the provided file name, base name and source format extension
+     * @param archivePath Path to the archive file
+     * @param baseName Base name
+     * @return the created datasource
+     */
+    static DataSource createBaseNameFilteredArchiveDataSource(Path archivePath, String baseName) {
+        return createFilteredArchiveDataSource(archivePath, baseName, "", null);
     }
 
     /**
@@ -185,11 +198,7 @@ public interface DataSourceUtil {
      * @return the created datasource
      */
     static DataSource createArchiveDataSource(Path archivePath, DataSourceObserver observer) {
-
-        // Get the file information
-        FileInformation fileInformation = new FileInformation(archivePath.getFileName().toString());
-
-        return createArchiveDataSource(archivePath, fileInformation.getBaseName(), fileInformation.getSourceFormatExtension(), observer);
+        return createFilteredArchiveDataSource(archivePath, "", "", observer);
     }
 
     /**
@@ -198,11 +207,7 @@ public interface DataSourceUtil {
      * @return the created datasource
      */
     static DataSource createArchiveDataSource(Path archivePath) {
-
-        // Get the file information
-        FileInformation fileInformation = new FileInformation(archivePath.getFileName().toString());
-
-        return createArchiveDataSource(archivePath, fileInformation.getBaseName(), fileInformation.getSourceFormatExtension(), null);
+        return createFilteredArchiveDataSource(archivePath, "", "", null);
     }
 
     /**
@@ -303,7 +308,7 @@ public interface DataSourceUtil {
         // Datasource creation
         return fileInformation.getArchiveFormat() == null ?
             createDirectoryDataSource(directory, fileInformation.getBaseName(), fileInformation.getSourceFormatExtension(), fileInformation.getCompressionFormat(), observer) :
-            createArchiveDataSource(directory, fileName, fileInformation.getBaseName(), fileInformation.getSourceFormatExtension(), fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
+            createArchiveDataSource(directory, fileName, "", "", fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
     }
 
     /**

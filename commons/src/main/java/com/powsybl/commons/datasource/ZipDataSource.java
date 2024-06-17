@@ -49,9 +49,7 @@ public class ZipDataSource extends AbstractArchiveDataSource {
     }
 
     public ZipDataSource(Path zipFile) {
-        this(zipFile.getParent(), zipFile.getFileName().toString(),
-            (new FileInformation(zipFile.getFileName().toString())).getBaseName(),
-            (new FileInformation(zipFile.getFileName().toString())).getSourceFormatExtension(), null);
+        this(zipFile.getParent(), zipFile.getFileName().toString(), "", "", null);
     }
 
     /**

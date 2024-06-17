@@ -56,12 +56,7 @@ public class DirectoryDataSource extends AbstractDataSource {
                 // Name starts with the base name
                 .filter(name -> name.startsWith(baseName))
                 // Source format and compression format are equals
-                .filter(name -> {
-                    FileInformation fileInformation = new FileInformation(name, false);
-                    return (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension))
-                        && (compressionFormat == null && fileInformation.getCompressionFormat() == null
-                        || fileInformation.getCompressionFormat() != null && fileInformation.getCompressionFormat().equals(compressionFormat));
-                })
+                .filter(this::isConsistentWithDataSource)
                 // Name matches the regex
                 .filter(s -> p.matcher(s).matches())
                 // Delete the compression extension
@@ -148,9 +143,12 @@ public class DirectoryDataSource extends AbstractDataSource {
 
     @Override
     public boolean isConsistentWithDataSource(String fileName) {
+        if (!fileName.startsWith(baseName)) {
+            return false;
+        }
         FileInformation fileInformation = new FileInformation(fileName, false);
-        return fileName.startsWith(baseName) &&
-            (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension)) &&
-            (compressionFormat == null || fileInformation.getCompressionFormat().equals(compressionFormat));
+        return (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension))
+            && (compressionFormat == null && fileInformation.getCompressionFormat() == null
+            || fileInformation.getCompressionFormat() != null && fileInformation.getCompressionFormat().equals(compressionFormat));
     }
 }

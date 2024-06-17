@@ -39,15 +39,15 @@ class DataSourceUtilTest {
         assertEquals("dummy", DataSourceUtil.guessBaseName("dummy"));
     }
 
-    private void checkArchiveDataSource(DataSource dataSource, DataSourceObserver dataSourceObserver) {
+    private void checkArchiveDataSource(DataSource dataSource, String baseName, String sourceFormatExtension, DataSourceObserver dataSourceObserver) {
 
         // The data source should be an instance of AbstractDataSource
         assertInstanceOf(AbstractDataSource.class, dataSource);
 
         // Check the datasource values
         assertEquals(fileSystem.getPath("/tmp"), ((AbstractDataSource) dataSource).getDirectory());
-        assertEquals("foo", dataSource.getBaseName());
-        assertEquals(".bar", ((AbstractDataSource) dataSource).getSourceFormatExtension());
+        assertEquals(baseName, dataSource.getBaseName());
+        assertEquals(sourceFormatExtension, ((AbstractDataSource) dataSource).getSourceFormatExtension());
         assertEquals(ArchiveFormat.ZIP, ((AbstractDataSource) dataSource).getArchiveFormat());
         assertEquals(CompressionFormat.ZIP, ((AbstractDataSource) dataSource).getCompressionFormat());
         if (dataSourceObserver == null) {
@@ -67,7 +67,7 @@ class DataSourceUtilTest {
             fileSystem.getPath("/tmp/foo.bar.zip"));
 
         // Checks
-        checkArchiveDataSource(dataSource, null);
+        checkArchiveDataSource(dataSource, "", "", null);
 
         // Create a datasource
         dataSource = DataSourceUtil.createArchiveDataSource(
@@ -75,27 +75,44 @@ class DataSourceUtilTest {
             dataSourceObserver);
 
         // Checks
-        checkArchiveDataSource(dataSource, dataSourceObserver);
+        checkArchiveDataSource(dataSource, "", "", dataSourceObserver);
 
         // Create a datasource
-        dataSource = DataSourceUtil.createArchiveDataSource(
+        dataSource = DataSourceUtil.createExtensionFilteredArchiveDataSource(
             fileSystem.getPath("/tmp/foo.bar.zip"),
             ".bar");
 
         // Checks
-        checkArchiveDataSource(dataSource, null);
+        checkArchiveDataSource(dataSource, "", ".bar", null);
 
         // Create a datasource
-        dataSource = DataSourceUtil.createArchiveDataSource(
+        dataSource = DataSourceUtil.createExtensionFilteredArchiveDataSource(
             fileSystem.getPath("/tmp/foo.bar.zip"),
             ".bar",
             dataSourceObserver);
 
         // Checks
-        checkArchiveDataSource(dataSource, dataSourceObserver);
+        checkArchiveDataSource(dataSource, "", ".bar", dataSourceObserver);
 
         // Create a datasource
-        dataSource = DataSourceUtil.createArchiveDataSource(
+        dataSource = DataSourceUtil.createBaseNameFilteredArchiveDataSource(
+            fileSystem.getPath("/tmp/foo.bar.zip"),
+            "foo");
+
+        // Checks
+        checkArchiveDataSource(dataSource, "foo", "", null);
+
+        // Create a datasource
+        dataSource = DataSourceUtil.createBaseNameFilteredArchiveDataSource(
+            fileSystem.getPath("/tmp/foo.bar.zip"),
+            "foo",
+            dataSourceObserver);
+
+        // Checks
+        checkArchiveDataSource(dataSource, "foo", "", dataSourceObserver);
+
+        // Create a datasource
+        dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             fileSystem.getPath("/tmp/foo.bar.zip"),
             ArchiveFormat.ZIP,
             CompressionFormat.ZIP,
@@ -104,10 +121,10 @@ class DataSourceUtilTest {
             dataSourceObserver);
 
         // Checks
-        checkArchiveDataSource(dataSource, dataSourceObserver);
+        checkArchiveDataSource(dataSource, "foo", ".bar", dataSourceObserver);
 
         // Create a datasource
-        dataSource = DataSourceUtil.createArchiveDataSource(
+        dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             fileSystem.getPath("/tmp/foo.bar.zip"),
             ArchiveFormat.ZIP,
             CompressionFormat.ZIP,
@@ -115,7 +132,7 @@ class DataSourceUtilTest {
             ".bar");
 
         // Checks
-        checkArchiveDataSource(dataSource, null);
+        checkArchiveDataSource(dataSource, "foo", ".bar", null);
     }
 
     private void checkDirectoryDataSource(DataSource dataSource, String baseName, String sourceFormatExtension,
@@ -225,13 +242,13 @@ class DataSourceUtilTest {
         DataSource dataSource = DataSourceUtil.createDataSource(filePath);
 
         // Checks
-        checkArchiveDataSource(dataSource, null);
+        checkArchiveDataSource(dataSource, "", "", null);
 
         // Create a datasource
         dataSource = DataSourceUtil.createDataSource(filePath, dataSourceObserver);
 
         // Checks
-        checkArchiveDataSource(dataSource, dataSourceObserver);
+        checkArchiveDataSource(dataSource, "", "", dataSourceObserver);
 
         // Create a datasource
         dataSource = DataSourceUtil.createDataSource(fileSystem.getPath("/tmp/"), dataSourceObserver);

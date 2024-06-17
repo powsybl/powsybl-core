@@ -58,7 +58,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
         unlistedFiles = filesInArchive.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(testDir.resolve(fileName), baseName, sourceFormat);
+        DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(testDir.resolve(fileName), baseName, sourceFormat);
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);
@@ -75,7 +75,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
         Path path = file.toPath();
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
+        DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             path,
             "foo",
             ".iidm");
@@ -96,7 +96,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
         Files.createFile(file);
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
+        DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             file,
             "foo",
             ".bar");
@@ -116,7 +116,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
         Path path = file.toPath();
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
+        DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             path,
             "foo",
             ".iidm");
@@ -132,7 +132,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
         }
 
         // Create the datasource
-        DataSource dataSourceNoExtension = DataSourceUtil.createArchiveDataSource(
+        DataSource dataSourceNoExtension = DataSourceUtil.createFilteredArchiveDataSource(
             path,
             "foo",
             "");

@@ -112,7 +112,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(workdirPath.resolve(TAR_FILENAME), BASENAME, "");
+        DataSource dataSource = DataSourceUtil.createBaseNameFilteredArchiveDataSource(workdirPath.resolve(TAR_FILENAME), BASENAME);
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -201,7 +201,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         createArchiveAndFiles(fileName);
 
         // Create the datasource
-        DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
+        DataSource dataSource = DataSourceUtil.createBaseNameFilteredArchiveDataSource(fileSystem.getPath(fileName), baseName);
 
         writeThenReadTest(dataSource);
     }
@@ -213,9 +213,9 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         Files.createFile(file);
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createArchiveDataSource(
+        DataSource dataSource = DataSourceUtil.createBaseNameFilteredArchiveDataSource(
             file,
-            "foo", "");
+            "foo");
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> {
             try (InputStream ignored = dataSource.newInputStream("foo.bar")) {
@@ -225,9 +225,9 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
         assertEquals("File foo.bar does not seem to exist in archive fake.tar", exception.getMessage());
 
         file = testDir.resolve("/missing.file.tar.gz");
-        DataSource newDataSource = DataSourceUtil.createArchiveDataSource(
+        DataSource newDataSource = DataSourceUtil.createBaseNameFilteredArchiveDataSource(
             file,
-            "foo", "");
+            "foo");
         exception = assertThrows(PowsyblException.class, () -> {
             try (InputStream ignored = newDataSource.newInputStream("foo.bar")) {
                 fail();
