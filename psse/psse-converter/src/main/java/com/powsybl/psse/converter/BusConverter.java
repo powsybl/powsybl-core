@@ -151,8 +151,15 @@ class BusConverter extends AbstractConverter {
         psseBus.setName(bus.getNameOrId());
         psseBus.setBaskv(bus.getVoltageLevel().getNominalV());
         psseBus.setIde(type);
+        psseBus.setArea(1);
+        psseBus.setZone(1);
+        psseBus.setOwner(1);
         psseBus.setVm(getVm(bus));
         psseBus.setVa(getVa(bus));
+        psseBus.setNvhi(getHighVm(bus));
+        psseBus.setNvlo(getLowVm(bus));
+        psseBus.setEvhi(getHighVm(bus));
+        psseBus.setEvlo(getLowVm(bus));
 
         return psseBus;
     }

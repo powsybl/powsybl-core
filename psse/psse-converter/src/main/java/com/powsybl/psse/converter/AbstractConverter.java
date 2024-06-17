@@ -364,6 +364,14 @@ public abstract class AbstractConverter {
         return shuntAdmittance * vnom * vnom;
     }
 
+    static double getHighVm(Bus bus) {
+        return bus != null && Double.isFinite(bus.getVoltageLevel().getHighVoltageLimit()) && bus.getVoltageLevel().getHighVoltageLimit() > 0.0 ? bus.getVoltageLevel().getHighVoltageLimit() / bus.getVoltageLevel().getNominalV() : 1.1;
+    }
+
+    static double getLowVm(Bus bus) {
+        return bus != null && Double.isFinite(bus.getVoltageLevel().getLowVoltageLimit()) && bus.getVoltageLevel().getLowVoltageLimit() > 0.0 ? bus.getVoltageLevel().getLowVoltageLimit() / bus.getVoltageLevel().getNominalV() : 0.9;
+    }
+
     static double getVm(Bus bus) {
         return bus != null && Double.isFinite(bus.getV()) && bus.getV() > 0.0 ? bus.getV() / bus.getVoltageLevel().getNominalV() : 1.0;
     }
