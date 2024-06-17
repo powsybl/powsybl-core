@@ -91,6 +91,9 @@ exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
 exportParams.put(CgmesExport.CGM_EXPORT, false);
 exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, false);
 
+Path outputPath = Path.of("/manualExampleFolder");
+String basename = "manualExampleBasename";
+
 // For each subnetwork, prepare the metadata for SSH and export it
 for (Network n : cgmNetwork.getSubnetworks()) {
     String country = n.getSubstations().iterator().next().getCountry().orElseThrow().toString();
@@ -101,7 +104,7 @@ for (Network n : cgmNetwork.getSubnetworks()) {
                 .setVersion(exportedVersion)
                 .setModelingAuthoritySet("myModellingAuthority");
         exportParams.put(CgmesExport.PROFILES, List.of("SSH"));
-    n.write("CGMES", exportParams, new FileDataSource(Path.of("/manualFolder"), "manualBase_" + country));
+    n.write("CGMES", exportParams, new FileDataSource(outputPath, basename + "_" + country));
 }
 
 // In the main network, CREATE the metadata for SV and export it
@@ -117,10 +120,10 @@ cgmNetwork.newExtension(CgmesMetadataModelsAdder.class)
     .add()
     .add();
 exportParams.put(CgmesExport.PROFILES, List.of("SV"));
-cgmNetwork.write("CGMES", exportParams, new FileDataSource(Path.of("/manualFolder"), "manualBase"));
+cgmNetwork.write("CGMES", exportParams, new FileDataSource(outputPath, basename));
 ```
 
-The file `manualBase_BE_SSH.xml` inside `/manualFolder` will have the following contents for the metadata:
+The file `manualExampleBasename_BE_SSH.xml` inside `/manualExampleFolder` will have the following contents for the metadata:
 
 ```xml
 ...
@@ -133,7 +136,7 @@ The file `manualBase_BE_SSH.xml` inside `/manualFolder` will have the following 
 ...
 ```
 
-And the file `manualBase_SV.xml` will contain:
+And the file `manualExampleBasename_SV.xml` will contain:
 
 ```xml
 ...

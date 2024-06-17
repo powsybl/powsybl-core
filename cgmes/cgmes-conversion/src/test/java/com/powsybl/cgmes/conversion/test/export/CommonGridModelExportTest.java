@@ -11,8 +11,11 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -26,6 +29,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -441,6 +445,77 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // We have to read it from inside the SV file ...
         int svVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
         assertEquals(expectedOutputVersion, svVersionInOutput);
+    }
+
+    @Test
+    void testFaraoUseCaseManualExport() throws IOException {
+        Network cgmNetwork = bareNetwork2Subnetworks();
+        addModelsForSubnetworks(cgmNetwork, 2);
+
+        // We set the version manually
+        int exportedVersion = 18;
+
+        // Common export parameters
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
+        exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+        // We do not want a quick CGM export
+        exportParams.put(CgmesExport.CGM_EXPORT, false);
+        exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, false);
+
+        // For each subnetwork, prepare the metadata for SSH and export it
+        Path tmpFolder = tmpDir.resolve("tmp-manual");
+        String basename = "manualBase";
+        Files.createDirectories(tmpFolder);
+        for (Network n : cgmNetwork.getSubnetworks()) {
+            String country = n.getSubstations().iterator().next().getCountry().orElseThrow().toString();
+            CgmesMetadataModel sshModel = n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+            sshModel.clearDependencies()
+                    .addDependentOn("myDependency")
+                    .addSupersedes("mySupersede")
+                    .setVersion(exportedVersion)
+                    .setModelingAuthoritySet("myModellingAuthority");
+            exportParams.put(CgmesExport.PROFILES, List.of("SSH"));
+            n.write("CGMES", exportParams, new FileDataSource(tmpFolder, basename + "_" + country));
+        }
+
+        // In the main network, CREATE the metadata for SV and export it
+        cgmNetwork.newExtension(CgmesMetadataModelsAdder.class)
+                .newModel()
+                    .setSubset(CgmesSubset.STATE_VARIABLES)
+                    .addProfile("http://entsoe.eu/CIM/StateVariables/4/1")
+                    .setId("mySvId")
+                    .setVersion(exportedVersion)
+                    .setModelingAuthoritySet("myModellinAuthority")
+                    .addDependentOn("mySvDependency1")
+                    .addDependentOn("mySvDependency2")
+                .add()
+                .add();
+        exportParams.put(CgmesExport.PROFILES, List.of("SV"));
+        DataSource dataSource = new FileDataSource(tmpFolder, basename);
+        cgmNetwork.write("CGMES", exportParams, dataSource);
+
+        int expectedOutputVersion = exportedVersion;
+        for (Map.Entry<Country, String> entry : TSO_BY_COUNTRY.entrySet()) {
+            Country country = entry.getKey();
+            // For this unit test we do not need the TSO from the entry value
+            String filenameFromCgmesExport = basename + "_" + country.toString() + "_SSH.xml";
+
+            // To know the exported version we should read what has been written in the output files
+            int sshVersionInOutput = readVersion(dataSource, filenameFromCgmesExport).orElseThrow();
+            assertEquals(expectedOutputVersion, sshVersionInOutput);
+
+            String outputSshXml = Files.readString(tmpFolder.resolve(filenameFromCgmesExport));
+            assertEquals(Set.of("myDependency"), getOccurrences(outputSshXml, REGEX_DEPENDENT_ON));
+            assertEquals(Set.of("mySupersede"), getOccurrences(outputSshXml, REGEX_SUPERSEDES));
+        }
+        String filenameFromCgmesExport = basename + "_SV.xml";
+        // We read it from inside the SV file ...
+        int svVersionInOutput = readVersion(dataSource, filenameFromCgmesExport).orElseThrow();
+        assertEquals(expectedOutputVersion, svVersionInOutput);
+        // Check the dependencies
+        String outputSvXml = Files.readString(tmpFolder.resolve(filenameFromCgmesExport));
+        assertEquals(Set.of("mySvDependency1", "mySvDependency2"), getOccurrences(outputSvXml, REGEX_DEPENDENT_ON));
     }
 
     private static final Map<Country, String> TSO_BY_COUNTRY = Map.of(
