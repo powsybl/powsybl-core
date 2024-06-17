@@ -112,15 +112,15 @@ class BusConverter extends AbstractConverter {
     }
 
     private static PsseBus createNewBusFromCopy(int copyBus, int newBus, Map<Integer, PsseBus> busNumToPsseBus) {
-        PsseBus psseBusToBeCopied = obtainPsseBus(copyBus, busNumToPsseBus);
+        PsseBus psseBusToBeCopied = findPsseBus(copyBus, busNumToPsseBus);
         PsseBus psseBus = psseBusToBeCopied.copy();
         psseBus.setI(newBus);
-        psseBus.setName(obtainNewBusName(psseBus.getName().trim(), "-" + newBus));
+        psseBus.setName(findNewBusName(psseBus.getName().trim(), "-" + newBus));
         return psseBus;
     }
 
     // new bus name is obtained by adding "-" + newBus, but MAX_BUS_LENGTH must be ensured
-    private static String obtainNewBusName(String baseName, String tag) {
+    private static String findNewBusName(String baseName, String tag) {
         int newLength = baseName.length() + tag.length();
         if (newLength < MAX_BUS_LENGTH) {
             return StringUtils.rightPad(baseName + tag, MAX_BUS_LENGTH, " ");
@@ -131,7 +131,7 @@ class BusConverter extends AbstractConverter {
         }
     }
 
-    private static PsseBus obtainPsseBus(int bus, Map<Integer, PsseBus> busNumToPsseBus) {
+    private static PsseBus findPsseBus(int bus, Map<Integer, PsseBus> busNumToPsseBus) {
         if (busNumToPsseBus.containsKey(bus)) {
             return busNumToPsseBus.get(bus);
         } else {

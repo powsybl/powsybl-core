@@ -888,14 +888,14 @@ class TransformerConverter extends AbstractConverter {
             int busJ = getTerminalBusI(tw2t.getTerminal2(), contextExport);
             psseTransformer.setI(busI);
             psseTransformer.setJ(busJ);
-            int regulatingBus = getRegulatingTerminalBusI(obtainRegulatingTerminal(tw2t), contextExport);
+            int regulatingBus = getRegulatingTerminalBusI(findRegulatingTerminal(tw2t), contextExport);
             psseTransformer.getWinding1().setCont(regulatingBus);
 
             psseTransformer.setStat(getStatus(tw2t));
         }
     }
 
-    private static Terminal obtainRegulatingTerminal(TwoWindingsTransformer tw2t) {
+    private static Terminal findRegulatingTerminal(TwoWindingsTransformer tw2t) {
         Terminal regulatingTerminal = tw2t.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
         if (regulatingTerminal != null) {
             return regulatingTerminal;
@@ -940,9 +940,9 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.setJ(busJ);
             psseTransformer.setK(busK);
 
-            int regulatingBus1 = getRegulatingTerminalBusI(obtainRegulatingTerminal(tw3t.getLeg1()), contextExport);
-            int regulatingBus2 = getRegulatingTerminalBusI(obtainRegulatingTerminal(tw3t.getLeg2()), contextExport);
-            int regulatingBus3 = getRegulatingTerminalBusI(obtainRegulatingTerminal(tw3t.getLeg3()), contextExport);
+            int regulatingBus1 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg1()), contextExport);
+            int regulatingBus2 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg2()), contextExport);
+            int regulatingBus3 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg3()), contextExport);
             psseTransformer.getWinding1().setCont(regulatingBus1);
             psseTransformer.getWinding2().setCont(regulatingBus2);
             psseTransformer.getWinding3().setCont(regulatingBus3);
@@ -951,7 +951,7 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static Terminal obtainRegulatingTerminal(Leg leg) {
+    private static Terminal findRegulatingTerminal(Leg leg) {
         Terminal regulatingTerminal = leg.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
         if (regulatingTerminal != null) {
             return regulatingTerminal;

@@ -27,6 +27,9 @@ import com.powsybl.iidm.network.util.ContainersMapping;
  */
 public abstract class AbstractConverter {
 
+    private static final String FIXED_SHUNT_TAG = "-SH";
+    private static final String SWITCHED_SHUNT_TAG = "-SwSH";
+
     enum PsseEquipmentType {
         PSSE_LOAD("L"),
         PSSE_FIXED_SHUNT("F"),
@@ -82,7 +85,7 @@ public abstract class AbstractConverter {
     }
 
     static String getFixedShuntId(int busI, String fixedShuntId) {
-        return getBusId(busI) + "-SH" + fixedShuntId;
+        return getBusId(busI) + FIXED_SHUNT_TAG + fixedShuntId;
     }
 
     static String getGeneratorId(int busI, String generatorId) {
@@ -98,7 +101,7 @@ public abstract class AbstractConverter {
     }
 
     static String getSwitchedShuntId(int busI, String id) {
-        return getBusId(busI) + "-SwSH" + id;
+        return getBusId(busI) + SWITCHED_SHUNT_TAG + id;
     }
 
     static String getTransformerId(int busI, int busJ, String ckt) {
@@ -138,8 +141,8 @@ public abstract class AbstractConverter {
             case LOAD -> extractCkt(identifiableId, "-L");
             case GENERATOR -> extractCkt(identifiableId, "-G");
             case SHUNT_COMPENSATOR -> {
-                Optional<String> ckt = extractCkt(identifiableId, "-SH");
-                yield ckt.isPresent() ? ckt : extractCkt(identifiableId, "-SwSH");
+                Optional<String> ckt = extractCkt(identifiableId, FIXED_SHUNT_TAG);
+                yield ckt.isPresent() ? ckt : extractCkt(identifiableId, SWITCHED_SHUNT_TAG);
             }
             case HVDC_LINE -> Optional.of(extractTwoTerminalDcName(identifiableId));
             default -> throw new PsseException("unexpected identifiableType: " + identifiableType.name());
@@ -176,9 +179,9 @@ public abstract class AbstractConverter {
     }
 
     private static boolean isFixedShunt(ShuntCompensator shunt) {
-        if (shunt.getId().contains("-SH")) {
+        if (shunt.getId().contains(FIXED_SHUNT_TAG)) {
             return true;
-        } else if (shunt.getId().contains("-SwSH")) {
+        } else if (shunt.getId().contains(SWITCHED_SHUNT_TAG)) {
             return false;
         } else {
             return shunt.getMaximumSectionCount() == 1
