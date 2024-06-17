@@ -23,8 +23,8 @@ import java.util.stream.Stream;
 final class ContextExport {
     private int maxPsseBus;
     private int maxPsseSubstation;
-    private final BusBreakerExport1 busBreakerExport;
-    private final NodeBreakerExport1 nodeBreakerExport;
+    private final BusBreakerExport busBreakerExport;
+    private final NodeBreakerExport nodeBreakerExport;
     private final Map<String, List<EqR>> equipmentTerminalData;
     private final Map<String, String> equipmentCkt;
     private final Map<String, List<String>> equipmentAllCkt;
@@ -32,8 +32,8 @@ final class ContextExport {
     ContextExport(int maxPsseBus, int maxPsseSubstation) {
         this.maxPsseBus = maxPsseBus;
         this.maxPsseSubstation = maxPsseSubstation;
-        this.busBreakerExport = new BusBreakerExport1();
-        this.nodeBreakerExport = new NodeBreakerExport1();
+        this.busBreakerExport = new BusBreakerExport();
+        this.nodeBreakerExport = new NodeBreakerExport();
         this.equipmentTerminalData = new HashMap<>();
         this.equipmentCkt = new HashMap<>();
         this.equipmentAllCkt = new HashMap<>();
@@ -47,11 +47,11 @@ final class ContextExport {
         return ++maxPsseSubstation;
     }
 
-    BusBreakerExport1 getBusBreakerExport() {
+    BusBreakerExport getBusBreakerExport() {
         return this.busBreakerExport;
     }
 
-    NodeBreakerExport1 getNodeBreakerExport() {
+    NodeBreakerExport getNodeBreakerExport() {
         return this.nodeBreakerExport;
     }
 
@@ -157,11 +157,11 @@ final class ContextExport {
         }
     }
 
-    static class BusBreakerExport1 {
+    static class BusBreakerExport {
         private final Map<String, BusR> buses;
         private final Set<Integer> usedPsseBusI;
 
-        BusBreakerExport1() {
+        BusBreakerExport() {
             this.buses = new HashMap<>();
             this.usedPsseBusI = new HashSet<>();
         }
@@ -191,7 +191,7 @@ final class ContextExport {
         }
     }
 
-    static class NodeBreakerExport1 {
+    static class NodeBreakerExport {
         private final Map<VoltageLevel, PsseSubstation> voltageLevels;
         private final Map<String, NodeR> nodes;
         private final Map<String, BusR> buses;
@@ -199,7 +199,7 @@ final class ContextExport {
         private final Set<Integer> usedPsseBusI;
         private final Map<String, SelectedNodeR> selectedNodes;
 
-        NodeBreakerExport1() {
+        NodeBreakerExport() {
             this.voltageLevels = new HashMap<>();
             this.nodes = new HashMap<>();
             this.buses = new HashMap<>();
