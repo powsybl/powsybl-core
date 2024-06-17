@@ -178,8 +178,10 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
             psseReactorBlocks.sort(Comparator.comparing(ShuntBlock::getB).reversed());
             psseCapacitorBlocks.sort(Comparator.comparing(ShuntBlock::getB));
 
-            LOGGER.warn("Switched combination not exactly supported ({})",
-                getSwitchedShuntId(psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version)));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Switched combination not exactly supported ({})",
+                        getSwitchedShuntId(psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version)));
+            }
         }
 
         double bAdd = 0.0;
