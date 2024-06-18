@@ -117,7 +117,7 @@ Note that this target interchange is for only the AC part of the interchange.
 
 All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
 
-**Characteristics**
+**Characteristics of an Area**
 
 | Attribute             | Unit | Description                                                    |
 |-----------------------|------|----------------------------------------------------------------|
@@ -128,15 +128,21 @@ All area interchange values use the load sign convention: positive values indica
 
 **Characteristics of an AreaBoundary**
 
-An area boundary is a boundary of an area, modelled by an `AreaBoundary` instance.
-It is composed of a terminal or a DanglingLine Boundary, associated with a boolean telling if it is an AC or DC boundary.
+An area boundary is modelled by an `AreaBoundary` instance.
+It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
+is to be considered as AC or DC.
 
-| Attribute  | Unit | Description                                                                   |
-|------------|------|-------------------------------------------------------------------------------|
-| $Area$     |      | The area of this boundary                                                     |
-| $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)     |
-| $Boundary$ |      | Boundary from a DanglingLine (mutually exclusive with the Terminal attribute) |
-| $Ac$       |      | True if this corresponds to an AC AreaBoundary, false otherwise               |
+The `Ac` flag is informative and is present to support the use case where boundaries are defined on AC components even though
+the boundary is related to an HVDC link. An example for this is a DanglingLine (which is an AC equipment) that may actually represent
+an HVDC interconnection that is not explicitly described in the network model. This information is used when computing area interchanges,
+which are then separated for AC and DC parts.
+
+| Attribute  | Unit | Description                                                                 |
+|------------|------|-----------------------------------------------------------------------------|
+| $Area$     |      | The area of this boundary                                                   |
+| $Boundary$ |      | Boundary of a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
+| $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
 
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
