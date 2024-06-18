@@ -951,7 +951,7 @@ public class UcteImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.exists(null, ext, true)) {
                 return ext;
             }
         }
