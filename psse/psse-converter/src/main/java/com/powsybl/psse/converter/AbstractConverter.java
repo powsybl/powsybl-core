@@ -311,6 +311,18 @@ public abstract class AbstractConverter {
         }
     }
 
+    static int getRegulatingTerminalNode(Terminal regulatingTerminal, ContextExport contextExport) {
+        if (regulatingTerminal == null) {
+            return 0;
+        } else {
+            if (regulatingTerminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+                return contextExport.getNodeBreakerExport().getSelectedNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode()).orElseThrow();
+            } else {
+                return 0;
+            }
+        }
+    }
+
     static int getRegulatingTerminalBusI(Terminal regulatingTerminal, int busI, int previousRegulatingBusI, ContextExport contextExport) {
         int regulatingBusI = getRegulatingTerminalBusI(regulatingTerminal, contextExport);
         return busI == regulatingBusI && previousRegulatingBusI == 0 ? previousRegulatingBusI : regulatingBusI;

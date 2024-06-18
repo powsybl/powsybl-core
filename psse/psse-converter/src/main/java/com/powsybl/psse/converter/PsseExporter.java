@@ -36,6 +36,8 @@ import static com.powsybl.psse.converter.VoltageLevelConverter.*;
 @AutoService(Exporter.class)
 public class PsseExporter implements Exporter {
 
+    private static final double BASE_MVA = 100;
+
     private static final String FORMAT = "PSS/E";
 
     @Override
@@ -133,7 +135,7 @@ public class PsseExporter implements Exporter {
         BusConverter.updateAndCreateBuses(network, updatedPsseModel, contextExport);
         LoadConverter.updateAndCreateLoads(network, updatedPsseModel, contextExport);
         FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, updatedPsseModel, contextExport);
-        GeneratorConverter.updateGenerators(network, updatedPsseModel, contextExport);
+        GeneratorConverter.updateAndCreateGenerators(network, updatedPsseModel, contextExport, updatedPsseModel.getCaseIdentification().getSbase());
         LineConverter.updateLines(network, updatedPsseModel, contextExport);
         TransformerConverter.updateTransformers(network, updatedPsseModel, contextExport);
         TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
@@ -141,7 +143,8 @@ public class PsseExporter implements Exporter {
     }
 
     private static PssePowerFlowModel createPsseModel(Network network) {
-        PsseCaseIdentification caseIdentification = createCaseIdentification(network);
+        double sBase = BASE_MVA;
+        PsseCaseIdentification caseIdentification = createCaseIdentification(network, sBase);
         PssePowerFlowModel psseModel = new PssePowerFlowModel(caseIdentification);
         ContextExport contextExport = createContextExport(network, psseModel);
 
@@ -150,13 +153,14 @@ public class PsseExporter implements Exporter {
         BusConverter.updateAndCreateBuses(network, psseModel, contextExport);
         LoadConverter.updateAndCreateLoads(network, psseModel, contextExport);
         FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, psseModel, contextExport);
+        GeneratorConverter.updateAndCreateGenerators(network, psseModel, contextExport, sBase);
         return psseModel;
     }
 
-    private static PsseCaseIdentification createCaseIdentification(Network network) {
+    private static PsseCaseIdentification createCaseIdentification(Network network, double sBase) {
         PsseCaseIdentification caseIdentification = new PsseCaseIdentification();
         caseIdentification.setIc(0);
-        caseIdentification.setSbase(100.0);
+        caseIdentification.setSbase(sBase);
         caseIdentification.setRev(35);
         caseIdentification.setXfrrat(0.0);
         caseIdentification.setNxfrat(0.0);

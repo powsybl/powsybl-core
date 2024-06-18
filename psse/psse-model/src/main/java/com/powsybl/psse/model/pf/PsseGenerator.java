@@ -276,6 +276,10 @@ public class PsseGenerator extends PsseVersioned {
         return ownership;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public PsseGenerator copy() {
         PsseGenerator copy = new PsseGenerator();
         copy.i = this.i;

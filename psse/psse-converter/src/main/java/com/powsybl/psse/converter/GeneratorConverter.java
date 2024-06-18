@@ -7,19 +7,13 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.*;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.psse.model.pf.PsseOwnership;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.NodeBreakerImport.NodeBreakerControlNode;
 import com.powsybl.psse.model.pf.PsseBus;
@@ -126,26 +120,32 @@ class GeneratorConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    // At the moment we do not consider new generators
-    static void updateGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        psseModel.getGenerators().forEach(psseGen -> {
-            String genId = getGeneratorId(psseGen.getI(), psseGen.getId());
-            Generator gen = network.getGenerator(genId);
-            int bus = getTerminalBusI(gen.getTerminal(), contextExport);
-            int regulatingBus = getRegulatingTerminalBusI(gen.getRegulatingTerminal(), bus, psseGen.getIreg(), contextExport);
+    static void updateAndCreateGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, double sBase) {
+        Map<String, PsseGenerator> generatorsToPsseGenerator = new HashMap<>();
+        psseModel.getGenerators().forEach(psseGenerator -> generatorsToPsseGenerator.put(getGeneratorId(psseGenerator.getI(), psseGenerator.getId()), psseGenerator));
 
-            if (gen == null) {
-                psseGen.setStat(0);
+        network.getGenerators().forEach(generator -> {
+            if (generatorsToPsseGenerator.containsKey(generator.getId())) {
+                updateGenerator(generator, generatorsToPsseGenerator.get(generator.getId()), contextExport);
             } else {
-                psseGen.setStat(getStatus(gen));
-                psseGen.setPg(getP(gen));
-                psseGen.setQg(getQ(gen));
+                psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, sBase)));
             }
-            psseGen.setI(bus);
-            if (regulatingBusMustBeChanged(bus, regulatingBus, psseGen.getIreg())) {
-                psseGen.setIreg(regulatingBus);
-            }
+            psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
         });
+    }
+
+    static void updateGenerator(Generator generator, PsseGenerator psseGenerator, ContextExport contextExport) {
+        int bus = getTerminalBusI(generator.getTerminal(), contextExport);
+        int regulatingBus = getRegulatingTerminalBusI(generator.getRegulatingTerminal(), bus, psseGenerator.getIreg(), contextExport);
+
+        psseGenerator.setI(bus);
+        psseGenerator.setStat(getStatus(generator));
+        psseGenerator.setPg(getP(generator));
+        psseGenerator.setQg(getQ(generator));
+
+        if (regulatingBusMustBeChanged(bus, regulatingBus, psseGenerator.getIreg())) {
+            psseGenerator.setIreg(regulatingBus);
+        }
     }
 
     // zero can be used for local regulation
@@ -175,6 +175,75 @@ class GeneratorConverter extends AbstractConverter {
         } else {
             return -gen.getTerminal().getQ();
         }
+    }
+
+    private static double getVoltageTarget(Generator gen) {
+        if (Double.isNaN(gen.getTargetV())) {
+            return 1.0;
+        } else {
+            double vNominal = gen.getRegulatingTerminal() != null ? gen.getRegulatingTerminal().getVoltageLevel().getNominalV() : gen.getTerminal().getVoltageLevel().getNominalV();
+            return gen.getTargetV() / vNominal;
+        }
+    }
+
+    private static double getMaxP(Generator generator) {
+        return Double.isNaN(generator.getMaxP()) ? 9999.0 : generator.getMaxP();
+    }
+
+    private static double getMinP(Generator generator) {
+        return Double.isNaN(generator.getMinP()) ? -9999.0 : generator.getMinP();
+    }
+
+    private static double getMaxQ(Generator generator) {
+        return generator.getReactiveLimits() != null ? generator.getReactiveLimits().getMaxQ(generator.getTargetP()) : 9999.0;
+    }
+
+    private static double getMinQ(Generator generator) {
+        return generator.getReactiveLimits() != null ? generator.getReactiveLimits().getMinQ(generator.getTargetP()) : -9999.0;
+    }
+
+    static PsseGenerator createGenerator(Generator generator, ContextExport contextExport, double sBase) {
+        PsseGenerator psseGenerator = new PsseGenerator();
+
+        int busI = getTerminalBusI(generator.getTerminal(), contextExport);
+        int regulatingBus = getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport);
+
+        psseGenerator.setI(busI);
+        psseGenerator.setId(contextExport.getEquipmentCkt(generator.getId(), IdentifiableType.GENERATOR, busI));
+        psseGenerator.setPg(getP(generator));
+        psseGenerator.setQg(getQ(generator));
+        psseGenerator.setQt(getMaxQ(generator));
+        psseGenerator.setQb(getMinQ(generator));
+        psseGenerator.setVs(getVoltageTarget(generator));
+        if (regulatingBusMustBeChanged(busI, regulatingBus, psseGenerator.getIreg())) {
+            psseGenerator.setIreg(regulatingBus);
+        }
+        psseGenerator.setNreg(getRegulatingTerminalNode(generator.getRegulatingTerminal(), contextExport));
+        psseGenerator.setMbase(sBase);
+        psseGenerator.setZr(0.0);
+        psseGenerator.setZx(1.0);
+        psseGenerator.setRt(0.0);
+        psseGenerator.setXt(0.0);
+        psseGenerator.setGtap(1.0);
+        psseGenerator.setStat(getStatus(generator));
+        psseGenerator.setRmpct(100.0);
+        psseGenerator.setPt(getMaxP(generator));
+        psseGenerator.setPb(getMinP(generator));
+        psseGenerator.setBaslod(0);
+        PsseOwnership psseOwnership = new PsseOwnership();
+        psseOwnership.setO1(1);
+        psseOwnership.setF1(1.0);
+        psseOwnership.setO2(0);
+        psseOwnership.setF2(1.0);
+        psseOwnership.setO3(0);
+        psseOwnership.setF3(1.0);
+        psseOwnership.setO4(0);
+        psseOwnership.setF4(1.0);
+        psseGenerator.setOwnership(psseOwnership);
+        psseGenerator.setWmod(0);
+        psseGenerator.setWpf(1.0);
+
+        return psseGenerator;
     }
 
     private final PsseGenerator psseGenerator;

@@ -65,6 +65,7 @@ public final class PowerFlowDataFactory {
         context.setFieldNames(PowerFlowRecordGroup.BUS, BusData.FIELD_NAMES_BUS_35);
         context.setFieldNames(PowerFlowRecordGroup.LOAD, LoadData.FIELD_NAMES_LOAD_35);
         context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, FixedBusShuntData.FIELD_NAMES_35);
+        context.setFieldNames(PowerFlowRecordGroup.GENERATOR, GeneratorData.FIELD_NAMES_35);
         printContext(context);
         return context;
     }

@@ -113,6 +113,11 @@ public class PssePowerFlowModel {
         this.generators.addAll(modelled(generators));
     }
 
+    public void replaceAllGenerators(List<PsseGenerator> generators) {
+        this.generators.clear();
+        this.generators.addAll(modelled(generators));
+    }
+
     public List<PsseGenerator> getGenerators() {
         return Collections.unmodifiableList(generators);
     }
