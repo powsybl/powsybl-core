@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
 import static java.lang.Integer.MAX_VALUE;
 
 /**
@@ -31,7 +30,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
 
-        private static final Logger LOGGER = LoggerFactory.getLogger(ValidationUtil.class);
+        private final Logger logger = LoggerFactory.getLogger(TemporaryLimitAdderImpl.class);
 
         private String name;
 
@@ -82,7 +81,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                 throw new ValidationException(validable, "temporary limit value must be >= 0");
             }
             if (value == 0) {
-                LOGGER.info("temporary limit value is set to 0");
+                logger.info("{}temporary limit value is set to 0", validable.getMessageHeader());
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(validable, "acceptable duration is not set");
