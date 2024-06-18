@@ -54,14 +54,17 @@ public final class PowerFlowDataFactory {
         context.setVersion(PsseVersion.fromRevision(35));
         context.setFileFormat(FileFormat.LEGACY_TEXT);
         context.setFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION, CaseIdentificationData.FIELD_NAMES_CASE_IDENTIFICATION);
-        context.setFieldNames(PowerFlowRecordGroup.BUS, BusData.FIELD_NAMES_BUS_35);
-        context.setFieldNames(PowerFlowRecordGroup.LOAD, LoadData.FIELD_NAMES_LOAD_35);
+
         context.setFieldNames(PowerFlowRecordGroup.SUBSTATION, SubstationData.FIELD_NAMES_SUBSTATION);
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_NODE, SubstationData.FIELD_NAMES_SUBSTATION_NODE);
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_SWITCHING_DEVICE, SubstationData.FIELD_NAMES_SUBSTATION_SWITCHING_DEVICES);
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_ONE_BUS, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_ONE_BUS);
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_TWO_BUSES, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_TWO_BUSES);
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_SUBSTATION_EQUIPMENT_TERMINAL_THREE_BUSES, SubstationData.FIELD_NAMES_SUBSTATION_EQUIPMENT_TERMINALS_THREE_BUSES);
+
+        context.setFieldNames(PowerFlowRecordGroup.BUS, BusData.FIELD_NAMES_BUS_35);
+        context.setFieldNames(PowerFlowRecordGroup.LOAD, LoadData.FIELD_NAMES_LOAD_35);
+        context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, FixedBusShuntData.FIELD_NAMES_35);
         printContext(context);
         return context;
     }
