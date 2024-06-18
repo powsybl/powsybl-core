@@ -7,8 +7,7 @@
  */
 package com.powsybl.psse.converter;
 
-import java.util.Objects;
-import java.util.OptionalInt;
+import java.util.*;
 
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -63,34 +62,55 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    // At the moment we do not consider new fixedShunts
-    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        psseModel.getFixedShunts().forEach(psseFixedShunt -> {
-            String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
-            ShuntCompensator fixedShunt = network.getShuntCompensator(fixedShuntId);
-            int bus = getTerminalBusI(fixedShunt.getTerminal(), contextExport);
+    static void updateAndCreateFixedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        Map<String, PsseFixedShunt> generatorsToPsseFixedShunt = new HashMap<>();
+        psseModel.getFixedShunts().forEach(psseFixedShunt -> generatorsToPsseFixedShunt.put(getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId()), psseFixedShunt));
 
-            if (fixedShunt == null) {
-                psseFixedShunt.setStatus(0);
-            } else {
-                psseFixedShunt.setStatus(getStatus(fixedShunt));
-                psseFixedShunt.setBl(getQ(fixedShunt));
+        network.getShuntCompensators().forEach(shuntCompensator -> {
+            if (isFixedShunt(shuntCompensator)) {
+                if (generatorsToPsseFixedShunt.containsKey(shuntCompensator.getId())) {
+                    updateFixedShunt(shuntCompensator, generatorsToPsseFixedShunt.get(shuntCompensator.getId()), contextExport);
+                } else {
+                    psseModel.addFixedShunts(Collections.singletonList(createFixedShunt(shuntCompensator, contextExport)));
+                }
+                psseModel.replaceAllFixedShunts(psseModel.getFixedShunts().stream().sorted(Comparator.comparingInt(PsseFixedShunt::getI).thenComparing(PsseFixedShunt::getId)).toList());
             }
-            psseFixedShunt.setI(bus);
         });
     }
 
-    private static int getStatus(ShuntCompensator fixedShunt) {
-        if (fixedShunt.getTerminal().isConnected() && fixedShunt.getTerminal().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
+    static void updateFixedShunt(ShuntCompensator shuntCompensator, PsseFixedShunt psseFixedShunt, ContextExport contextExport) {
+        int bus = getTerminalBusI(shuntCompensator.getTerminal(), contextExport);
+        psseFixedShunt.setStatus(getStatus(shuntCompensator));
+        psseFixedShunt.setGl(getP(shuntCompensator));
+        psseFixedShunt.setBl(getQ(shuntCompensator));
+        psseFixedShunt.setI(bus);
     }
 
-    private static double getQ(ShuntCompensator fixedShunt) {
-        return shuntAdmittanceToPower(fixedShunt.getB(fixedShunt.getSectionCount()),
-            fixedShunt.getTerminal().getVoltageLevel().getNominalV());
+    private static int getStatus(ShuntCompensator shuntCompensator) {
+        return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
+    }
+
+    private static double getP(ShuntCompensator shuntCompensator) {
+        return shuntAdmittanceToPower(shuntCompensator.getG(shuntCompensator.getSectionCount()),
+                shuntCompensator.getTerminal().getVoltageLevel().getNominalV());
+    }
+
+    private static double getQ(ShuntCompensator shuntCompensator) {
+        return shuntAdmittanceToPower(shuntCompensator.getB(shuntCompensator.getSectionCount()),
+            shuntCompensator.getTerminal().getVoltageLevel().getNominalV());
+    }
+
+    static PsseFixedShunt createFixedShunt(ShuntCompensator shuntCompensator, ContextExport contextExport) {
+        PsseFixedShunt psseFixedShunt = new PsseFixedShunt();
+
+        int busI = getTerminalBusI(shuntCompensator.getTerminal(), contextExport);
+        psseFixedShunt.setI(busI);
+        psseFixedShunt.setId(contextExport.getEquipmentCkt(shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR, busI));
+        psseFixedShunt.setStatus(getStatus(shuntCompensator));
+        psseFixedShunt.setGl(getP(shuntCompensator));
+        psseFixedShunt.setBl(getQ(shuntCompensator));
+
+        return psseFixedShunt;
     }
 
     private final PsseFixedShunt psseFixedShunt;

@@ -100,6 +100,11 @@ public class PssePowerFlowModel {
         this.fixedShunts.addAll(fixedShunts);
     }
 
+    public void replaceAllFixedShunts(List<PsseFixedShunt> fixedShunts) {
+        this.fixedShunts.clear();
+        this.fixedShunts.addAll(fixedShunts);
+    }
+
     public List<PsseFixedShunt> getFixedShunts() {
         return Collections.unmodifiableList(fixedShunts);
     }

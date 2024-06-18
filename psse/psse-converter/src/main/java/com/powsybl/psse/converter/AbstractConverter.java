@@ -178,7 +178,7 @@ public abstract class AbstractConverter {
         };
     }
 
-    private static boolean isFixedShunt(ShuntCompensator shunt) {
+    static boolean isFixedShunt(ShuntCompensator shunt) {
         if (shunt.getId().contains(FIXED_SHUNT_TAG)) {
             return true;
         } else if (shunt.getId().contains(SWITCHED_SHUNT_TAG)) {
