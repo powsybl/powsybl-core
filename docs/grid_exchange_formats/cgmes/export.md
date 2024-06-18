@@ -33,7 +33,7 @@ an updated SSH file for every subnetwork (for every IGM) and a single SV file fo
 
 When exporting, it is verified that the main network and all subnetworks have the same scenario time (network case date). If they are different, an error is logged.
 
-If a version number is provided as a parameter, it is used for the exported files. If not, the versions of input CGM SV and IGM SSHs are obtained from its metadata, and its max value calculated. Then the output version is set to 1 + this max value.
+If a version number is given as a parameter, it is used for the exported files. If not, the versions of the input CGM SV and IGM SSHs are obtained from their metadata, and their maximum value calculated. The output version is then set to 1 + this maximum value.
 
 If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
 * Updated SSH for IGMs supersede the original ones.
