@@ -8,6 +8,7 @@
 package com.powsybl.iidm.serde;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
@@ -36,7 +37,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
-        context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
+                context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -64,7 +66,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
-        boolean isCondenser = context.getReader().readBooleanAttribute("isCondenser", false);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
+                adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setEnergySource(energySource)
                 .setMinP(minP)
@@ -73,8 +76,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
-                .setVoltageRegulatorOn(voltageRegulatorOn)
-                .setCondenser(isCondenser);
+                .setVoltageRegulatorOn(voltageRegulatorOn);
         Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;
