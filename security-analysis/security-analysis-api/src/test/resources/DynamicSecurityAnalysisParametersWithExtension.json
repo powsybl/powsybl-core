@@ -1,0 +1,21 @@
+{
+  "version" : "1.0",
+  "increased-violations-parameters" : {
+    "flow-proportional-threshold" : 0.1,
+    "low-voltage-proportional-threshold" : 0.0,
+    "low-voltage-absolute-threshold" : 0.0,
+    "high-voltage-proportional-threshold" : 0.0,
+    "high-voltage-absolute-threshold" : 0.0
+  },
+  "dynamic-simulation-parameters" : {
+    "version" : "1.0",
+    "startTime" : 0,
+    "stopTime" : 1
+  },
+  "dynamic-contingencies-parameters" : {
+    "contingencies-start-time" : 0
+  },
+  "extensions" : {
+    "dummy-extension" : { }
+  }
+}

@@ -66,6 +66,7 @@
         <module>distribution-core</module>
         <module>dsl</module>
         <module>dynamic-simulation</module>
+        <module>dynamic-security-analysis</module>
         <module>entsoe-util</module>
         <module>ieee-cdf</module>
         <module>iidm</module>
@@ -357,6 +358,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-dynamic-security-analysis</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+           <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-dynamic-simulation</artifactId>
                 <version>${project.version}</version>
