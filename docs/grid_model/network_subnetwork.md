@@ -126,6 +126,18 @@ All area interchange values use the load sign convention: positive values indica
 | $VoltageLevels$       |      | List of voltage levels of the area                             |
 | $AreaBoundaries$      |      | List of area boundaries of the area                            |
 
+**Characteristics of an AreaBoundary**
+
+An area boundary is a boundary of an area, modelled by an `AreaBoundary` instance.
+It is composed of a terminal or a DanglingLine Boundary, associated with a boolean telling if it is an AC or DC boundary.
+
+| Attribute  | Unit | Description                                                                   |
+|------------|------|-------------------------------------------------------------------------------|
+| $Area$     |      | The area of this boundary                                                     |
+| $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)     |
+| $Boundary$ |      | Boundary from a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Ac$       |      | True if this corresponds to an AC AreaBoundary, false otherwise               |
+
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
 
