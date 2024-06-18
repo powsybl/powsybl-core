@@ -414,7 +414,6 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // Export with the same parameters of the FARAO use case
         Properties exportParams = new Properties();
-        exportParams.put(CgmesExport.PROFILES, List.of("SV", "SSH"));
         exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
         exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
         exportParams.put(CgmesExport.CGM_EXPORT, true);

@@ -35,6 +35,8 @@ When exporting, it is verified that the main network and all subnetworks have th
 
 If a version number is given as a parameter, it is used for the exported files. If not, the versions of the input CGM SV and IGM SSHs are obtained from their metadata, and their maximum value calculated. The output version is then set to 1 + this maximum value.
 
+The quick CGM export will always write updated SSH files for IGMs and a single SV for the CGM. The parameter for selecting which profiles to export is ignored in this kind of export.
+
 If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
 * Updated SSH for IGMs supersede the original ones.
 * Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP from IGMs.
@@ -51,7 +53,6 @@ As an example, you can export one of the test configurations that has been provi
 Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
 
 Properties exportParams = new Properties();
-exportParams.put(CgmesExport.PROFILES, List.of("SV", "SSH"));
 exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
 exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
 exportParams.put(CgmesExport.CGM_EXPORT, true);
