@@ -36,6 +36,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
+        context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false);
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -63,6 +64,7 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
+        boolean isCondenser = context.getReader().readBooleanAttribute("isCondenser", false);
         readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setEnergySource(energySource)
                 .setMinP(minP)
@@ -71,7 +73,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
-                .setVoltageRegulatorOn(voltageRegulatorOn);
+                .setVoltageRegulatorOn(voltageRegulatorOn)
+                .setCondenser(isCondenser);
         Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;

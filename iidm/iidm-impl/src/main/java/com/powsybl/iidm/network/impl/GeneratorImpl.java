@@ -7,8 +7,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -38,12 +38,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
+    private final boolean isCondenser;
+
     GeneratorImpl(Ref<NetworkImpl> network,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV,
-                  double ratedS) {
+                  double ratedS, boolean isCondenser) {
         super(network, id, name, fictitious);
         this.network = network;
         this.energySource = energySource;
@@ -62,6 +64,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
             this.targetQ.add(targetQ);
             this.targetV.add(targetV);
         }
+        this.isCondenser = isCondenser;
     }
 
     @Override
@@ -212,6 +215,11 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.ratedS = ratedS;
         notifyUpdate("ratedS", oldValue, ratedS);
         return this;
+    }
+
+    @Override
+    public boolean isCondenser() {
+        return isCondenser;
     }
 
     @Override

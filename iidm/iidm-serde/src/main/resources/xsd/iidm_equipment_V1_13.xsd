@@ -254,6 +254,7 @@
                 <xs:attribute name="targetP" use="optional" type="xs:double"/>
                 <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
+                <xs:attribute name="isCondenser" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
