@@ -33,7 +33,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private double ratedS = Double.NaN;
 
-    private Boolean isCondenser = false;
+    private boolean isCondenser = false;
 
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
