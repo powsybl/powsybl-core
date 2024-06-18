@@ -887,6 +887,13 @@ public final class EurostagTutorialExample1Factory {
 
     public static Network createWithTieLinesAndAreas(NetworkFactory networkFactory) {
         Network network = createWithTieLines(networkFactory);
+
+        // createWithTieLines sets non-zero G for dangling lines, while the load flow solution included is for zero G.
+        // Here we set all DanglingLine's G to zero. Doing this the DanglingLine's P and Q at boundary side (calculated by iIDM)
+        // are consistent with included load flow results. In particular, flows of the 2 DanglingLines of a tie-line are consistent
+        // (verifying dl1.getBoundary().getP() ~= -1.0 * dl2.getBoundary().getP())
+        network.getDanglingLineStream().forEach(dl -> dl.setG(0.0));
+
         network.newArea()
                 .setId("ControlArea_A")
                 .setName("Control Area A")
