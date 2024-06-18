@@ -105,14 +105,14 @@ Area boundaries can be terminals of equipments or `Boundary` objects from [dangl
 
 The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
 
-A [voltage level](#voltage-level) can belong to several Areas, as long as all areas are of different type.
+A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of different type.
 
 The area boundaries define how interchange are to be calculated for the area.  
-Area interchange is calculated by summing the power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
+Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
 for DC part only (considering only DC boundaries) and in total (AC+DC).  
 Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
 
-For area types that are meant to be used for area interchange control, e.g. in Power Flow simulations, the interchange target of the area can be specified as an input for the simulation.
+For area types that are meant to be used for area interchange control, e.g. in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
 Note that this target interchange is for only the AC part of the interchange.
 
 All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
