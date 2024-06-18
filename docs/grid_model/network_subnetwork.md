@@ -123,6 +123,8 @@ All area interchange values use the load sign convention: positive values indica
 |-----------------------|------|----------------------------------------------------------------|
 | $AreaType$            |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
 | $AcInterchangeTarget$ | MW   | Target AC active power interchange                             |
+| $VoltageLevels$       |      | List of voltage levels of the area                             |
+| $AreaBoundaries$      |      | List of area boundaries of the area                            |
 
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
