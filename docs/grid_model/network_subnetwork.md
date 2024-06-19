@@ -133,7 +133,7 @@ All area interchange values use the load sign convention: positive values indica
 
 **Characteristics of an AreaBoundary**
 
-An area boundary is modelled by an `AreaBoundary` instance.
+An area boundary is modeled by an `AreaBoundary` instance.
 It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
 is to be considered as AC or DC.
 
