@@ -68,21 +68,6 @@ public final class PowerFlowDataFactory {
         context.setFieldNames(PowerFlowRecordGroup.GENERATOR, GeneratorData.FIELD_NAMES_35);
         context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, NonTransformerBranchData.FIELD_NAMES_35);
 
-        printContext(context);
         return context;
-    }
-
-    private static void printContext(Context context) {
-        System.err.printf("Version: %s %n", context.getVersion());
-        System.err.printf("FileFormat: %s %n", context.getFileFormat());
-        System.err.printf("CurrentRecordGroupMaxNumFields %d %n", context.getCurrentRecordGroupMaxNumFields());
-        String[] fieldNames = context.getFieldNames(PowerFlowRecordGroup.CASE_IDENTIFICATION);
-        if (fieldNames != null && fieldNames.length > 0) {
-            System.err.printf("FieldNames: %s %n", String.join(",", fieldNames));
-        }
-        fieldNames = context.getFieldNames(PowerFlowRecordGroup.BUS);
-        if (fieldNames != null && fieldNames.length > 0) {
-            System.err.printf("FieldNames: %s %n", String.join(",", fieldNames));
-        }
     }
 }
