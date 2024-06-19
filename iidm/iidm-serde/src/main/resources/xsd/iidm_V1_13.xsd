@@ -35,6 +35,7 @@
                 <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
             </xs:choice>
             <xs:element name="voltageAngleLimit" minOccurs="0" maxOccurs="unbounded" type="iidm:VoltageAngleLimit"/>
+            <xs:element name="area" type="iidm:Area" minOccurs="0" maxOccurs="unbounded"/>
             <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
@@ -699,6 +700,29 @@
     <xs:complexType name="Ground">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="VoltageLevelRef">
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+    </xs:complexType>
+    <xs:complexType name="AreaBoundary">
+        <xs:attribute name="type" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="side" type="iidm:Side"/>
+        <xs:attribute name="ac" use="required" type="xs:boolean"/>
+    </xs:complexType>
+    <xs:complexType name="Area">
+        <xs:complexContent>
+            <xs:extension base="iidm:Identifiable">
+                <xs:sequence>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element name="voltageLevelRef" type="iidm:VoltageLevelRef"/>
+                        <xs:element name="areaBoundary" type="iidm:AreaBoundary"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="areaType" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="acInterchangeTarget" use="optional" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
