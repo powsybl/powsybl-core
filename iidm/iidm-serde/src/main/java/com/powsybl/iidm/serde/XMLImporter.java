@@ -22,8 +22,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -56,11 +54,6 @@ public class XMLImporter extends AbstractTreeDataImporter {
     @Override
     public String getFormat() {
         return "XIIDM";
-    }
-
-    @Override
-    public List<String> getSupportedExtensions() {
-        return Arrays.asList(EXTENSIONS);
     }
 
     @Override

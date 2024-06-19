@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Importer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -38,11 +37,6 @@ public class BinaryImporter extends AbstractTreeDataImporter {
     @Override
     public String getFormat() {
         return "BIIDM";
-    }
-
-    @Override
-    public List<String> getSupportedExtensions() {
-        return Arrays.asList(EXTENSIONS);
     }
 
     @Override
