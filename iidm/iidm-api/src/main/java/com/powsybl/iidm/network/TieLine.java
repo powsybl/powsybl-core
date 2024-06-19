@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.function.Predicate;
+
 /**
  * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link DanglingLine}
  * <p>
@@ -128,6 +130,18 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
      */
     void remove(boolean updateDanglingLines);
+
+    boolean connect();
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
+
+    boolean disconnect();
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 
     Network getNetwork();
 }

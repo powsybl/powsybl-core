@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.function.Predicate;
+
 /**
  * A HVDC line connected to two HVDC converters on DC side.
  * It has to be connected to the same <code>{@link HvdcConverterStation}</code> subclass.
@@ -203,6 +205,18 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Remove the HVDC line
      */
     void remove();
+
+    boolean connect();
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
+
+    boolean disconnect();
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 
     @Override
     default IdentifiableType getType() {

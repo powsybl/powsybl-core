@@ -583,30 +583,30 @@ public final class ModificationReports {
             .add();
     }
 
-    public static void connectableConnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean connectionSuccessful, ThreeSides side) {
+    public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
         String defaultMessage = connectionSuccessful ?
-            "Connectable ${connectable} has been connected" :
-            "Connectable ${connectable} has NOT been connected";
+            "Identifiable ${identifiable} has been connected" :
+            "Identifiable ${identifiable} has NOT been connected";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("connectable", connectable.getId())
+            .withUntypedValue("identifiable", identifiable.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }
 
-    public static void connectableDisconnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
+    public static void connectableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
-            "Connectable ${connectable} has been disconnected" :
-            "Connectable ${connectable} has NOT been disconnected";
+            "Identifiable ${identifiable} has been disconnected" :
+            "Identifiable ${identifiable} has NOT been disconnected";
         defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
         key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("connectable", connectable.getId())
+            .withUntypedValue("identifiable", identifiable.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }

@@ -8,10 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,17 +32,27 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         this.side = side;
     }
 
-    public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
+    public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Get the connectable
-        Connectable<?> connectable = network.getConnectable(connectableId);
+        Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
         // Disconnect the connectable
-        boolean hasBeenDisconnected;
+        boolean hasBeenDisconnected = false;
         try {
-            hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
+            if (identifiable == null) {
+                logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+            } else if (identifiable instanceof Connectable<?> connectable) {
+                hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
+            } else if (identifiable instanceof TieLine tieLine) {
+                hasBeenDisconnected = tieLine.disconnect(openableSwitches, side);
+            } else if (identifiable instanceof HvdcLine hvdcLine) {
+                hasBeenDisconnected = hvdcLine.disconnect(openableSwitches, side);
+            } else {
+                logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", connectableId));
+            }
         } finally {
             network.getReportNodeContext().popReportNode();
         }
@@ -55,6 +62,6 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         } else {
             LOG.info("Connectable {} has NOT been disconnected ({} disconnection) {}.", connectableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
         }
-        connectableDisconnectionReport(reportNode, connectable, hasBeenDisconnected, isPlanned, side);
+        connectableDisconnectionReport(reportNode, identifiable, hasBeenDisconnected, isPlanned, side);
     }
 }

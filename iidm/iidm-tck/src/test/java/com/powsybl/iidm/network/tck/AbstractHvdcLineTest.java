@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -215,5 +216,36 @@ public abstract class AbstractHvdcLineTest {
                     .setConverterStationId1(converterStationId1)
                     .setConverterStationId2(converterStationId2)
                 .add();
+    }
+
+    @Test
+    void testConnectDisconnect() {
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+
+        // Check that the tie line is connected
+        assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
+
+        // Connection fails since it's already connected
+        assertFalse(hvdcLine.connect());
+
+        // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
+        assertFalse(hvdcLine.disconnect(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+
+        // Disconnection
+        assertTrue(hvdcLine.disconnect());
+        assertFalse(hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertFalse(hvdcLine.getConverterStation2().getTerminal().isConnected());
+
+        // Disconnection fails since it's already disconnected
+        assertFalse(hvdcLine.disconnect());
+
+        // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
+        assertFalse(hvdcLine.connect(SwitchPredicates.IS_NONFICTIONAL.negate()));
+
+        // Connection
+        assertTrue(hvdcLine.connect());
+        assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
     }
 }

@@ -8,13 +8,18 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import com.powsybl.iidm.network.util.TieLineUtil;
 
-import java.util.Collection;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Predicate;
+
+import static com.powsybl.iidm.network.TopologyKind.BUS_BREAKER;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -160,6 +165,144 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
         network.getListeners().notifyAfterRemoval(id);
         removed = true;
+    }
+
+    @Override
+    public boolean connect() {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return connect(isTypeSwitchToOperate, null);
+    }
+
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        // ReportNode
+        ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
+
+        // Booleans
+        boolean isAlreadyConnected = true;
+        boolean isNowConnected = true;
+
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+
+        // We try to connect each terminal
+        for (TerminalExt terminal : getTerminals(side)) {
+            // Check if the terminal is already connected
+            if (terminal.isConnected()) {
+                reportNode.newReportNode()
+                    .withMessageTemplate("alreadyConnectedTerminal", "A terminal of tie line ${tieline} is already connected.")
+                    .withUntypedValue("tieline", this.getId())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .add();
+                continue;
+            } else {
+                isAlreadyConnected = false;
+            }
+
+            // If it's a node-breaker terminal, the switches to connect are added to a set
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel) {
+                isNowConnected = nodeBreakerVoltageLevel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+            }
+            // If it's a bus-breaker terminal, there is nothing to do
+
+            // Exit if the terminal cannot be connected
+            if (!isNowConnected) {
+                return false;
+            }
+        }
+
+        // Exit if the connectable is already fully connected
+        if (isAlreadyConnected) {
+            return false;
+        }
+
+        // Connect all bus-breaker terminals
+        for (TerminalExt terminal : getTerminals(side)) {
+            if (!terminal.isConnected()
+                && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
+                // At this point, isNowConnected should always stay true but let's be careful
+                isNowConnected = isNowConnected && terminal.connect(isTypeSwitchToOperate);
+            }
+        }
+
+        // Disconnect all switches on node-breaker terminals
+        switchForDisconnection.forEach(sw -> sw.setOpen(false));
+        return isNowConnected;
+    }
+
+    @Override
+    public boolean disconnect() {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return disconnect(isSwitchOpenable, null);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        // ReportNode
+        ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
+
+        // Booleans
+        boolean isAlreadyDisconnected = true;
+        boolean isNowDisconnected = true;
+
+        // Initialisation of a list to open in case some terminals are in node-breaker view
+        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+
+        // We try to disconnect each terminal
+        for (TerminalExt terminal : getTerminals(side)) {
+            // Check if the terminal is already disconnected
+            if (!terminal.isConnected()) {
+                reportNode.newReportNode()
+                    .withMessageTemplate("alreadyDisconnectedTerminal", "A terminal of tie line ${tieline} is already disconnected.")
+                    .withUntypedValue("tieline", this.getId())
+                    .withSeverity(TypedValue.WARN_SEVERITY)
+                    .add();
+                continue;
+            }
+            // The terminal is connected
+            isAlreadyDisconnected = false;
+
+            // If it's a node-breaker terminal, the switches to disconnect are added to a set
+            if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel
+                && !nodeBreakerVoltageLevel.getDisconnectingSwitches(terminal, isSwitchOpenable, switchForDisconnection)) {
+                // Exit if the terminal cannot be disconnected
+                return false;
+            }
+            // If it's a bus-breaker terminal, there is nothing to do
+        }
+
+        // Exit if the connectable is already fully disconnected
+        if (isAlreadyDisconnected) {
+            return false;
+        }
+
+        // Disconnect all bus-breaker terminals
+        for (TerminalExt terminal : getTerminals(side)) {
+            if (terminal.isConnected()
+                && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
+                // At this point, isNowDisconnected should always stay true but let's be careful
+                isNowDisconnected = isNowDisconnected && terminal.disconnect(isSwitchOpenable);
+            }
+        }
+        // Disconnect all switches on node-breaker terminals
+        switchForDisconnection.forEach(sw -> sw.setOpen(true));
+        return isNowDisconnected;
+    }
+
+    public List<TerminalExt> getTerminals(ThreeSides side) {
+        return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
+            case ONE -> List.of(getTerminal1());
+            case TWO -> List.of(getTerminal2());
+            default -> List.of(getTerminal1(), getTerminal2());
+        };
     }
 
     @Override

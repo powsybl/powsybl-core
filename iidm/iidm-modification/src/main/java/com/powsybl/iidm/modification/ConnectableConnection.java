@@ -10,10 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,24 +55,34 @@ public class ConnectableConnection extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // Get the connectable
-        Connectable<?> connectable = network.getConnectable(connectableId);
+        Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Disconnect the connectable
-        boolean hasBeenConnected;
+        boolean hasBeenConnected = false;
         try {
-            hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
+            if (identifiable == null) {
+                logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+            } else if (identifiable instanceof Connectable<?> connectable) {
+                hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
+            } else if (identifiable instanceof TieLine tieLine) {
+                hasBeenConnected = tieLine.connect(isTypeSwitchToOperate, side);
+            } else if (identifiable instanceof HvdcLine hvdcLine) {
+                hasBeenConnected = hvdcLine.connect(isTypeSwitchToOperate, side);
+            } else {
+                logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", connectableId));
+            }
         } finally {
             network.getReportNodeContext().popReportNode();
         }
 
         if (hasBeenConnected) {
-            LOG.info("Connectable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Identifiable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Identifiable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         }
-        connectableConnectionReport(reportNode, connectable, hasBeenConnected, side);
+        connectableConnectionReport(reportNode, identifiable, hasBeenConnected, side);
     }
 }
