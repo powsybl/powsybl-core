@@ -1,0 +1,2 @@
+dynamic-security-analysis:
+  default-impl-name: "DynamicSecurityAnalysisToolProviderMock"
