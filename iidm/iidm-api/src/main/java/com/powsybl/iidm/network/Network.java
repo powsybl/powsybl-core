@@ -619,6 +619,48 @@ public interface Network extends Container<Network> {
     int getCountryCount();
 
     /**
+     * Get all areaTypes.
+     */
+    Iterable<String> getAreaTypes();
+
+    /**
+     * Get all areaTypes.
+     */
+    Stream<String> getAreaTypeStream();
+
+    /**
+     * Get the areaType count.
+     */
+    int getAreaTypeCount();
+
+    /**
+     * Get a builder to create a new area.
+     * @return a builder to create a new area
+     */
+    AreaAdder newArea();
+
+    /**
+     * @return all existing areas, which may include several areas for each area type
+     */
+    Iterable<Area> getAreas();
+
+    /**
+     * @return all existing areas, which may include several areas for each area type
+     */
+    Stream<Area> getAreaStream();
+
+    /**
+     * Get an area.
+     * @param id the id or an alias of the area
+     */
+    Area getArea(String id);
+
+    /**
+     * Get the area count.
+     */
+    int getAreaCount();
+
+    /**
      * Get a builder to create a new substation.
      * @return a builder to create a new substation
      */
