@@ -49,7 +49,7 @@ public interface GeneratorAdder extends InjectionAdder<Generator, GeneratorAdder
     GeneratorAdder setRatedS(double ratedS);
 
     /**
-     * Set whether the generator can work as a synchronous condenser, that is, whether it may control voltage even if its targetP is equal to zero.
+     * Set whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
     GeneratorAdder setCondenser(boolean isCondenser);
 

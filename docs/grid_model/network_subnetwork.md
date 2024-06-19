@@ -109,19 +109,19 @@ A generator is an equipment that injects or consumes active power, and injects o
 
 **Characteristics**
 
-| Attribute            | Unit | Description                                                                                                                            |
-|----------------------|------|----------------------------------------------------------------------------------------------------------------------------------------|
-| $MinP$               | MW   | Minimum generator active power output                                                                                                  |
-| $MaxP$               | MW   | Maximum generator active power output                                                                                                  |
-| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)                                                                                    |
-| $RatedS$             | MVA  | The rated nominal power                                                                                                                |
-| $TargetP$            | MW   | The active power target                                                                                                                |
-| $TargetQ$            | MVAr | The reactive power target at local terminal                                                                                            |
-| $TargetV$            | kV   | The voltage target at regulating terminal                                                                                              |
-| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated                                                                            |
-| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                                                                                                |
-| $EnergySource$       |      | The energy source harnessed to turn the generator                                                                                      |
-| $IsCondenser$        |      | True if the generator may behave as a synchronous condenser, that is, if it may control voltage even if its $TargetP$ is equal to zero |
+| Attribute            | Unit | Description                                                 |
+|----------------------|------|-------------------------------------------------------------|
+| $MinP$               | MW   | Minimum generator active power output                       |
+| $MaxP$               | MW   | Maximum generator active power output                       |
+| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)         |
+| $RatedS$             | MVA  | The rated nominal power                                     |
+| $TargetP$            | MW   | The active power target                                     |
+| $TargetQ$            | MVAr | The reactive power target at local terminal                 |
+| $TargetV$            | kV   | The voltage target at regulating terminal                   |
+| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated |
+| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                     |
+| $EnergySource$       |      | The energy source harnessed to turn the generator           |
+| $IsCondenser$        |      | True if the generator may behave as a condenser             |
 
 **Specifications**
 
@@ -130,6 +130,9 @@ The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power o
 The `VoltageRegulatorOn` attribute is required. It voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 
 Target values for generators (`TargetP` and `TargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The following diagram shows the sign convention of these quantities with an example.
+
+The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
+
 
 **Available extensions**
 

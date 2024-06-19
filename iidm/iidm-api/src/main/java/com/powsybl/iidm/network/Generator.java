@@ -243,7 +243,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     Generator setRatedS(double ratedS);
 
     /**
-     * Get whether the generator can work as a synchronous condenser, that is, whether it may control voltage even if its targetP is equal to zero.
+     * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
      */
     boolean isCondenser();
 
