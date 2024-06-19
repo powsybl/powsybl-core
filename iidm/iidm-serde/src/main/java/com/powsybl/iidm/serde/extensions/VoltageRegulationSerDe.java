@@ -47,6 +47,7 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
                         .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.1"))
                         .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.1"))
                         .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/voltage_regulation/1_0")

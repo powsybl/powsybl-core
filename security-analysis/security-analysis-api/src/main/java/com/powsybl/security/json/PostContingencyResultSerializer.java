@@ -17,9 +17,9 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class PostContingencyResultSerializer extends StdSerializer<PostContingencyResult> {
+public class PostContingencyResultSerializer extends StdSerializer<PostContingencyResult> {
 
-    PostContingencyResultSerializer() {
+    public PostContingencyResultSerializer() {
         super(PostContingencyResult.class);
     }
 
