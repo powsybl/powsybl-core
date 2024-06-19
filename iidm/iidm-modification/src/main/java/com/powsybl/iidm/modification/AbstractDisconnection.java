@@ -40,11 +40,17 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
         // Disconnect the connectable
+        if (identifiable == null) {
+            logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+        } else {
+            disconnectIdentifiable(identifiable, network, isPlanned, throwException, reportNode);
+        }
+    }
+
+    private void disconnectIdentifiable(Identifiable<?> identifiable, Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
         boolean hasBeenDisconnected = false;
         try {
-            if (identifiable == null) {
-                logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
-            } else if (identifiable instanceof Connectable<?> connectable) {
+            if (identifiable instanceof Connectable<?> connectable) {
                 hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
             } else if (identifiable instanceof TieLine tieLine) {
                 hasBeenDisconnected = tieLine.disconnect(openableSwitches, side);

@@ -585,8 +585,8 @@ public final class ModificationReports {
 
     public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
         String defaultMessage = connectionSuccessful ?
-            "Identifiable ${identifiable} has been connected" :
-            "Identifiable ${identifiable} has NOT been connected";
+            "Connectable ${identifiable} has been connected" :
+            "Connectable ${identifiable} has NOT been connected";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
         reportNode.newReportNode()
@@ -598,8 +598,8 @@ public final class ModificationReports {
 
     public static void connectableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
-            "Identifiable ${identifiable} has been disconnected" :
-            "Identifiable ${identifiable} has NOT been disconnected";
+            "Connectable ${identifiable} has been disconnected" :
+            "Connectable ${identifiable} has NOT been disconnected";
         defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";

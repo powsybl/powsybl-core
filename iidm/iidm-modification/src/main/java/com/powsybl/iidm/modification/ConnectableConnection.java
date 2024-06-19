@@ -61,11 +61,17 @@ public class ConnectableConnection extends AbstractNetworkModification {
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Disconnect the connectable
+        if (identifiable == null) {
+            logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+        } else {
+            connectIdentifiable(identifiable, network, throwException, reportNode);
+        }
+    }
+
+    private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, ReportNode reportNode) {
         boolean hasBeenConnected = false;
         try {
-            if (identifiable == null) {
-                logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
-            } else if (identifiable instanceof Connectable<?> connectable) {
+            if (identifiable instanceof Connectable<?> connectable) {
                 hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
             } else if (identifiable instanceof TieLine tieLine) {
                 hasBeenConnected = tieLine.connect(isTypeSwitchToOperate, side);
@@ -79,9 +85,9 @@ public class ConnectableConnection extends AbstractNetworkModification {
         }
 
         if (hasBeenConnected) {
-            LOG.info("Identifiable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Connectable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Identifiable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         }
         connectableConnectionReport(reportNode, identifiable, hasBeenConnected, side);
     }
