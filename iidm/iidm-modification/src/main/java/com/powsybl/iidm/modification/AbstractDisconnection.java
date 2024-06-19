@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
@@ -35,12 +36,16 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         this.side = side;
     }
 
-    public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
+    public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            logOrThrow(throwException, "Connectable '" + connectableId + "' not found");
+            return;
+        }
 
         // Disconnect the connectable
         boolean hasBeenDisconnected;
