@@ -148,7 +148,7 @@ public class CgmesImport implements Importer {
 
     @Override
     public List<String> getSupportedExtensions() {
-        return List.of(".xml");
+        return List.of("xml");
     }
 
     @Override
