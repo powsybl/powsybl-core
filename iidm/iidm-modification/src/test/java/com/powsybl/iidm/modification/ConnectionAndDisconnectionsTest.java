@@ -21,8 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -444,13 +443,15 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setBus("bus3A")
             .setPairingKey("XNODE1")
             .add();
-        network.newTieLine()
+        TieLine tieLine = network.newTieLine()
             .setId("NHV1_NHV2_1")
             .setDanglingLine1(nhv1xnode1.getId())
             .setDanglingLine2(xnode1nhv2.getId())
             .add();
 
         // Disconnection
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
             .withConnectableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
@@ -459,8 +460,15 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         ComputationManager computationManager = LocalComputationManager.getDefault();
         PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
         assertEquals("Connectable 'NHV1_NHV2_1' not found", disconnectionException.getMessage());
+        disconnection.apply(network);
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
 
         // Connection
+        tieLine.getDanglingLine1().disconnect();
+        tieLine.getDanglingLine2().disconnect();
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
         ConnectableConnection connection = new ConnectableConnectionBuilder()
             .withConnectableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
@@ -468,5 +476,8 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
         assertEquals("Connectable 'NHV1_NHV2_1' not found", connectionException.getMessage());
+        connection.apply(network);
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 }
