@@ -24,11 +24,17 @@ public class OverloadImpl implements Overload {
     private final String previousLimitName;
 
     private final double previousLimit;
+    private final double limitReductionCoefficient;
 
     public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit) {
+        this(temporaryLimit, previousLimitName, previousLimit, 1);
+    }
+
+    public OverloadImpl(LoadingLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit, double limitReductionCoefficient) {
         this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
         this.previousLimitName = previousLimitName;
         this.previousLimit = previousLimit;
+        this.limitReductionCoefficient = limitReductionCoefficient;
     }
 
     @Override
@@ -44,5 +50,10 @@ public class OverloadImpl implements Overload {
     @Override
     public double getPreviousLimit() {
         return previousLimit;
+    }
+
+    @Override
+    public double getLimitReductionCoefficient() {
+        return limitReductionCoefficient;
     }
 }
