@@ -120,7 +120,7 @@ class GeneratorConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    static void updateAndCreateGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, double sBase) {
+    static void updateAndCreateGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         Map<String, PsseGenerator> generatorsToPsseGenerator = new HashMap<>();
         psseModel.getGenerators().forEach(psseGenerator -> generatorsToPsseGenerator.put(getGeneratorId(psseGenerator.getI(), psseGenerator.getId()), psseGenerator));
 
@@ -128,7 +128,7 @@ class GeneratorConverter extends AbstractConverter {
             if (generatorsToPsseGenerator.containsKey(generator.getId())) {
                 updateGenerator(generator, generatorsToPsseGenerator.get(generator.getId()), contextExport);
             } else {
-                psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, sBase)));
+                psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, perUnitContext)));
             }
             psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
         });
@@ -202,7 +202,7 @@ class GeneratorConverter extends AbstractConverter {
         return generator.getReactiveLimits() != null ? generator.getReactiveLimits().getMinQ(generator.getTargetP()) : -9999.0;
     }
 
-    static PsseGenerator createGenerator(Generator generator, ContextExport contextExport, double sBase) {
+    static PsseGenerator createGenerator(Generator generator, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         PsseGenerator psseGenerator = new PsseGenerator();
 
         int busI = getTerminalBusI(generator.getTerminal(), contextExport);
@@ -219,7 +219,7 @@ class GeneratorConverter extends AbstractConverter {
             psseGenerator.setIreg(regulatingBus);
         }
         psseGenerator.setNreg(getRegulatingTerminalNode(generator.getRegulatingTerminal(), contextExport));
-        psseGenerator.setMbase(sBase);
+        psseGenerator.setMbase(perUnitContext.sBase());
         psseGenerator.setZr(0.0);
         psseGenerator.setZx(1.0);
         psseGenerator.setRt(0.0);

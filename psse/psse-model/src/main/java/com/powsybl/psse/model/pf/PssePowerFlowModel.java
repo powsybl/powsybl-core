@@ -126,6 +126,11 @@ public class PssePowerFlowModel {
         this.nonTransformerBranches.addAll(modelled(nonTransformerBranches));
     }
 
+    public void replaceAllNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
+        this.nonTransformerBranches.clear();
+        this.nonTransformerBranches.addAll(modelled(nonTransformerBranches));
+    }
+
     public List<PsseNonTransformerBranch> getNonTransformerBranches() {
         return Collections.unmodifiableList(nonTransformerBranches);
     }

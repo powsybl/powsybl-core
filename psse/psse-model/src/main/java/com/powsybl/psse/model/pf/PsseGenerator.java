@@ -300,7 +300,7 @@ public class PsseGenerator extends PsseVersioned {
         copy.rmpct = this.rmpct;
         copy.pt = this.pt;
         copy.pb = this.pb;
-        copy.ownership = this.ownership;
+        copy.ownership = this.ownership.copy();
         copy.wmod = this.wmod;
         copy.wpf = this.wpf;
         copy.nreg = this.nreg;

@@ -368,6 +368,18 @@ public abstract class AbstractConverter {
         return admittance * sbase / (vnom * vnom);
     }
 
+    static double impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
+        return impedance * sbase / (vnom1 * vnom2);
+    }
+
+    static double admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmission, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return (shuntAdmittance + (1 - vnom2 / vnom1) * admittanceTransmission) * vnom1 * vnom1 / sbase;
+    }
+
+    static double admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmission, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return (shuntAdmittance + (1 - vnom1 / vnom2) * admittanceTransmission) * vnom2 * vnom2 / sbase;
+    }
+
     static double powerToShuntAdmittance(double power, double vnom) {
         return power / (vnom * vnom);
     }

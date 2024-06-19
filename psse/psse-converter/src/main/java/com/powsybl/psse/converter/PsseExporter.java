@@ -128,6 +128,7 @@ public class PsseExporter implements Exporter {
     }
 
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
+        PerUnitContext perUnitContext = new PerUnitContext(updatedPsseModel.getCaseIdentification().getSbase());
         ContextExport contextExport = createContextExport(network, updatedPsseModel);
 
         VoltageLevelConverter.createAndUpdateSubstations(updatedPsseModel, contextExport);
@@ -135,16 +136,16 @@ public class PsseExporter implements Exporter {
         BusConverter.updateAndCreateBuses(network, updatedPsseModel, contextExport);
         LoadConverter.updateAndCreateLoads(network, updatedPsseModel, contextExport);
         FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, updatedPsseModel, contextExport);
-        GeneratorConverter.updateAndCreateGenerators(network, updatedPsseModel, contextExport, updatedPsseModel.getCaseIdentification().getSbase());
-        LineConverter.updateLines(network, updatedPsseModel, contextExport);
+        GeneratorConverter.updateAndCreateGenerators(network, updatedPsseModel, contextExport, perUnitContext);
+        LineConverter.updateAndCreateLines(network, updatedPsseModel, contextExport, perUnitContext);
         TransformerConverter.updateTransformers(network, updatedPsseModel, contextExport);
         TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
         SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, contextExport);
     }
 
     private static PssePowerFlowModel createPsseModel(Network network) {
-        double sBase = BASE_MVA;
-        PsseCaseIdentification caseIdentification = createCaseIdentification(network, sBase);
+        PerUnitContext perUnitContext = new PerUnitContext(BASE_MVA);
+        PsseCaseIdentification caseIdentification = createCaseIdentification(network, perUnitContext);
         PssePowerFlowModel psseModel = new PssePowerFlowModel(caseIdentification);
         ContextExport contextExport = createContextExport(network, psseModel);
 
@@ -153,14 +154,15 @@ public class PsseExporter implements Exporter {
         BusConverter.updateAndCreateBuses(network, psseModel, contextExport);
         LoadConverter.updateAndCreateLoads(network, psseModel, contextExport);
         FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, psseModel, contextExport);
-        GeneratorConverter.updateAndCreateGenerators(network, psseModel, contextExport, sBase);
+        GeneratorConverter.updateAndCreateGenerators(network, psseModel, contextExport, perUnitContext);
+        LineConverter.updateAndCreateLines(network, psseModel, contextExport, perUnitContext);
         return psseModel;
     }
 
-    private static PsseCaseIdentification createCaseIdentification(Network network, double sBase) {
+    private static PsseCaseIdentification createCaseIdentification(Network network, PerUnitContext perUnitContext) {
         PsseCaseIdentification caseIdentification = new PsseCaseIdentification();
         caseIdentification.setIc(0);
-        caseIdentification.setSbase(sBase);
+        caseIdentification.setSbase(perUnitContext.sBase);
         caseIdentification.setRev(35);
         caseIdentification.setXfrrat(0.0);
         caseIdentification.setNxfrat(0.0);
@@ -171,5 +173,8 @@ public class PsseExporter implements Exporter {
         caseIdentification.setTitle2("");
 
         return caseIdentification;
+    }
+
+    record PerUnitContext(double sBase) {
     }
 }

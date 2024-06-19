@@ -379,7 +379,7 @@ public class PsseTransformer extends PsseVersioned {
         copy.nmetr = this.nmetr;
         copy.name = this.name;
         copy.stat = this.stat;
-        copy.ownership = this.ownership;
+        copy.ownership = this.ownership.copy();
         copy.vecgrp = this.vecgrp;
         copy.zcod = this.zcod;
         copy.impedances = this.impedances.copy();
