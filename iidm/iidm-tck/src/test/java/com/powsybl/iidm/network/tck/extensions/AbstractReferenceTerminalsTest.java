@@ -197,6 +197,45 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
+    public void testWithSubnetwork() {
+        var otherNetwork = EurostagTutorialExample1Factory.create();
+        Network merged = Network.merge(network, otherNetwork);
+        Network subnetwork = merged.getSubnetwork("fourSubstations");
+        gh1 = merged.getGenerator("GH1");
+        gh2 = merged.getGenerator("GH2");
+
+        // gh1 is in subnetwork and can be added to subnetwork extension
+        subnetwork.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Set.of(gh1.getTerminal()))
+                .add();
+        ReferenceTerminals extSubnetwork = subnetwork.getExtension(ReferenceTerminals.class);
+        assertEquals(1, extSubnetwork.getReferenceTerminals().size());
+        assertTrue(extSubnetwork.getReferenceTerminals().contains(gh1.getTerminal()));
+
+        // gh2 is in subnetwork and can be added to root network extension separately
+        merged.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Set.of(gh2.getTerminal()))
+                .add();
+        ReferenceTerminals extMergedNetwork = merged.getExtension(ReferenceTerminals.class);
+        assertEquals(1, extMergedNetwork.getReferenceTerminals().size());
+        assertTrue(extMergedNetwork.getReferenceTerminals().contains(gh2.getTerminal()));
+
+        // we can get both via this easier method
+        assertTrue(ReferenceTerminals.getTerminals(merged).containsAll(Set.of(gh1.getTerminal(), gh2.getTerminal())));
+
+        // we can reset everything via this method
+        ReferenceTerminals.reset(merged);
+        assertTrue(ReferenceTerminals.getTerminals(merged).isEmpty());
+
+        // we can add easily to merged/root network via this method
+        ReferenceTerminals.addTerminal(gh1.getTerminal());
+        extMergedNetwork = merged.getExtension(ReferenceTerminals.class);
+        extSubnetwork = subnetwork.getExtension(ReferenceTerminals.class);
+        assertEquals(1, extMergedNetwork.getReferenceTerminals().size());
+        assertEquals(0, extSubnetwork.getReferenceTerminals().size()); // not added to subnetwork
+    }
+
+    @Test
     public void testRemoveEquipment() {
         network.newExtension(ReferenceTerminalsAdder.class)
                 .withTerminals(Set.of(gh1.getTerminal(), gh2.getTerminal()))

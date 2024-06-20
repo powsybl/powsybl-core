@@ -57,7 +57,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     @Override
     public void setReferenceTerminals(Set<Terminal> terminals) {
         Objects.requireNonNull(terminals);
-        terminals.forEach(t -> checkTerminalInParentNetwork(t, getExtendable()));
+        terminals.forEach(t -> checkTerminalInNetwork(t, getExtendable()));
         terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>(terminals));
     }
 
@@ -70,7 +70,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     @Override
     public ReferenceTerminals addReferenceTerminal(Terminal terminal) {
         Objects.requireNonNull(terminal);
-        checkTerminalInParentNetwork(terminal, getExtendable());
+        checkTerminalInNetwork(terminal, getExtendable());
         terminalsPerVariant.get(getVariantIndex()).add(terminal);
         return this;
     }
@@ -104,10 +104,20 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         }
     }
 
-    private static void checkTerminalInParentNetwork(Terminal terminal, Network network) {
-        if (!terminal.getVoltageLevel().getParentNetwork().equals(network)) {
-            throw new PowsyblException("Terminal given is not in the right Network ("
-                    + terminal.getVoltageLevel().getParentNetwork().getId() + " instead of " + network.getId() + ")");
+    private static void checkTerminalInNetwork(Terminal terminal, Network network) {
+        final boolean extendableIsRootNetwork = network.getNetwork().equals(network);
+        if (extendableIsRootNetwork) {
+            // it is all fine as long as the terminal belongs to the merged network
+            if (!terminal.getVoltageLevel().getNetwork().equals(network)) {
+                throw new PowsyblException("Terminal given is not in the right Network ("
+                        + terminal.getVoltageLevel().getNetwork().getId() + " instead of " + network.getId() + ")");
+            }
+        } else {
+            // subnetwork: the terminal must be in the subnetwork
+            if (!terminal.getVoltageLevel().getParentNetwork().equals(network)) {
+                throw new PowsyblException("Terminal given is not in the right Network ("
+                        + terminal.getVoltageLevel().getParentNetwork().getId() + " instead of " + network.getId() + ")");
+            }
         }
     }
 }

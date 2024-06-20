@@ -7,11 +7,12 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ public interface ReferenceTerminals extends Extension<Network> {
     ReferenceTerminals addReferenceTerminal(Terminal terminal);
 
     /**
-     * Deletes all defined reference terminals in the network for the current variant
+     * Deletes all defined reference terminals in the network and all its subnetworks for the current variant
      * @param network network whose reference terminals should be deleted
      */
     static void reset(Network network) {
@@ -51,10 +52,13 @@ public interface ReferenceTerminals extends Extension<Network> {
                     .add();
         }
         ext.reset();
+        // reset also all subnetwork
+        network.getSubnetworks().forEach(ReferenceTerminals::reset);
     }
 
     /**
-     * Defines/add a terminal as reference in the network for the current variant
+     * Defines/add a terminal as reference in the network for the current variant.
+     * In case of a merged network with subnetwork, the extension is placed on the root/merged network.
      * @param terminal terminal to be added as reference terminal
      */
     static void addTerminal(Terminal terminal) {
@@ -70,15 +74,25 @@ public interface ReferenceTerminals extends Extension<Network> {
     }
 
     /**
-     * Gets the reference terminals in the network for the current variant
+     * Gets the reference terminals in the network for the current variant.
+     * In case of a merged network with subnetworks, reference terminals from the merged network
+     * and reference terminals from subnetworks are returned altogether.
      * @param network network to get reference terminals from
      */
     static Set<Terminal> getTerminals(Network network) {
         Objects.requireNonNull(network);
+        Set<Terminal> terminals = new HashSet<>();
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
-        if (ext == null) {
-            return Collections.emptySet();
+        if (ext != null) {
+            terminals.addAll(ext.getReferenceTerminals());
         }
-        return ext.getReferenceTerminals();
+        // also from subnetworks
+        network.getSubnetworks().forEach(subNetwork -> {
+            ReferenceTerminals subNetworkExt = subNetwork.getExtension(ReferenceTerminals.class);
+            if (subNetworkExt != null) {
+                terminals.addAll(subNetworkExt.getReferenceTerminals());
+            }
+        });
+        return ImmutableSet.copyOf(terminals);
     }
 }
