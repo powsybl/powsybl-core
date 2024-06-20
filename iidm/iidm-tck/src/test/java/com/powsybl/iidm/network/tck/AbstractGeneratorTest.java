@@ -70,19 +70,20 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isVoltageRegulatorOn());
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isCondenser());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
 
     @Test
     public void undefinedVoltageRegulatorOn() {
-        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
+        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
                 .setId("GEN")
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setNode(1)
-                .add());
+                .setNode(1);
+        ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
         assertEquals("Generator 'GEN': voltage regulator status is not set", e.getMessage());
     }
 
@@ -191,6 +192,7 @@ public abstract class AbstractGeneratorTest {
                 .setTargetQ(20.0)
                 .setNode(1)
                 .setTargetV(31.0)
+                .setCondenser(true)
                 .add();
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
@@ -203,6 +205,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(20.0, generator.getTargetQ(), 0.0);
         assertEquals(31.0, generator.getTargetV(), 0.0);
+        assertTrue(generator.isCondenser());
     }
 
     @Test
