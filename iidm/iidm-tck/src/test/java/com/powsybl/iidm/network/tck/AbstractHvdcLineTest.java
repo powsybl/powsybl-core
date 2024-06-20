@@ -248,4 +248,19 @@ public abstract class AbstractHvdcLineTest {
         assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
         assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
     }
+
+    @Test
+    void testGetTerminals() {
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+
+        // Existing terminals
+        Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
+        Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
+
+        // Checks
+        assertEquals(List.of(terminal1), hvdcLine.getTerminals(ThreeSides.ONE));
+        assertEquals(List.of(terminal2), hvdcLine.getTerminals(ThreeSides.TWO));
+        assertEquals(List.of(terminal1, terminal2), hvdcLine.getTerminals(null));
+        assertEquals(List.of(terminal1, terminal2), hvdcLine.getTerminals(ThreeSides.THREE));
+    }
 }

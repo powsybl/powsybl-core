@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -142,6 +143,8 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
+
+    List<Terminal> getTerminals(ThreeSides side);
 
     Network getNetwork();
 }

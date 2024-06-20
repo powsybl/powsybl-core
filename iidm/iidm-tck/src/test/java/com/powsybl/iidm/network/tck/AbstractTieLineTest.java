@@ -467,6 +467,22 @@ public abstract class AbstractTieLineTest {
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 
+    @Test
+    void testGetTerminals() {
+        Network networkWithTieLine = createNetworkWithTieLine();
+        TieLine tieLine = networkWithTieLine.getTieLine("TL");
+
+        // Existing terminals
+        Terminal terminal1 = tieLine.getDanglingLine1().getTerminal();
+        Terminal terminal2 = tieLine.getDanglingLine2().getTerminal();
+
+        // Checks
+        assertEquals(List.of(terminal1), tieLine.getTerminals(ThreeSides.ONE));
+        assertEquals(List.of(terminal2), tieLine.getTerminals(ThreeSides.TWO));
+        assertEquals(List.of(terminal1, terminal2), tieLine.getTerminals(null));
+        assertEquals(List.of(terminal1, terminal2), tieLine.getTerminals(ThreeSides.THREE));
+    }
+
     private Network createNetworkWithTieLine() {
         // Initialize the network
         Network networkWithTieLine = FourSubstationsNodeBreakerFactory.create();

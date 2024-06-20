@@ -264,7 +264,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         Set<SwitchImpl> switchForDisconnection = new HashSet<>();
 
         // We try to connect each terminal
-        for (TerminalExt terminal : getTerminals(side)) {
+        for (Terminal terminal : getTerminals(side)) {
             // Check if the terminal is already connected
             if (terminal.isConnected()) {
                 reportNode.newReportNode()
@@ -295,7 +295,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         }
 
         // Connect all bus-breaker terminals
-        for (TerminalExt terminal : getTerminals(side)) {
+        for (Terminal terminal : getTerminals(side)) {
             if (!terminal.isConnected()
                 && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
                 // At this point, isNowConnected should always stay true but let's be careful
@@ -331,7 +331,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         Set<SwitchImpl> switchForDisconnection = new HashSet<>();
 
         // We try to disconnect each terminal
-        for (TerminalExt terminal : getTerminals(side)) {
+        for (Terminal terminal : getTerminals(side)) {
             // Check if the terminal is already disconnected
             if (!terminal.isConnected()) {
                 reportNode.newReportNode()
@@ -359,7 +359,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         }
 
         // Disconnect all bus-breaker terminals
-        for (TerminalExt terminal : getTerminals(side)) {
+        for (Terminal terminal : getTerminals(side)) {
             if (terminal.isConnected()
                 && terminal.getVoltageLevel().getTopologyKind() == BUS_BREAKER) {
                 // At this point, isNowDisconnected should always stay true but let's be careful
@@ -371,7 +371,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         return isNowDisconnected;
     }
 
-    public List<TerminalExt> getTerminals(ThreeSides side) {
+    @Override
+    public List<Terminal> getTerminals(ThreeSides side) {
         return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
             case ONE -> List.of(getConverterStation1().getTerminal());
             case TWO -> List.of(getConverterStation2().getTerminal());
