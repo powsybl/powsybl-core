@@ -35,27 +35,11 @@ public interface DataSourceUtil {
         return append ? appendOpenOptions : defaultOpenOptions;
     }
 
-    /**
-     * @deprecated Use {@link #guessBaseName(Path)} instead
-     */
-    @Deprecated(since = "6.4.0")
     static String getBaseName(Path file) {
-        return guessBaseName(file);
+        return getBaseName(file.getFileName().toString());
     }
 
-    /**
-     * @deprecated Use {@link #guessBaseName(String)} instead
-     */
-    @Deprecated(since = "6.4.0")
     static String getBaseName(String fileName) {
-        return guessBaseName(fileName);
-    }
-
-    static String guessBaseName(Path file) {
-        return guessBaseName(file.getFileName().toString());
-    }
-
-    static String guessBaseName(String fileName) {
         Objects.requireNonNull(fileName);
 
         // Get the file information
