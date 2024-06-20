@@ -22,7 +22,6 @@ class FileInformationTest {
     void tests() {
         unitTest("dummy", "dummy", null, null, "");
         unitTest("dummy.iidm", "dummy", null, null, ".iidm");
-        unitTest("dummy.iidm.xml", "dummy", null, null, ".iidm.xml");
         unitTest("dummy.tar.gz", "dummy", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
         unitTest("dummy.xml.xz", "dummy", CompressionFormat.XZ, null, ".xml");
 

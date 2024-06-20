@@ -34,7 +34,7 @@ import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 public class XMLImporter extends AbstractTreeDataImporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
-    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml", "iidm.xml"};
+    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml"};
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 

@@ -11,7 +11,6 @@ import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -20,9 +19,6 @@ import java.util.Objects;
 public class FileInformation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FileInformation.class);
-    private final List<String> usualSourceFormats = List.of(
-        ".iidm", ".xiidm", ".jiidm", ".biidm", ".xml", ".txt", ".uct", ".raw", ".dgs", ".json"
-    );
     private String baseName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
@@ -81,9 +77,8 @@ public class FileInformation {
          *  - case 1 ("dummy"): currentDotIndex < 0 -> no source format is given
          *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no source format is given
          *  - case 3 ("dummy.foo"): ".foo" is the source format
-         *  - case 4 ("dummy.iidm.xml"): ".iidm.xml" is the source format
          */
-        sourceFormatExtension = findSourceFormatExtension(fileNameWithoutCompressionNorArchive, currentDotIndex);
+        sourceFormatExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
         logSourceFormat(fileName, sourceFormatExtension, dataSourceInitialization);
 
         // Base name
@@ -95,29 +90,9 @@ public class FileInformation {
         }
     }
 
-    /**
-     * Get the source format extension from the file name. If the last extension is ".xml", it checks if there is a
-     * previous ".iidm" extension
-     */
-    private String findSourceFormatExtension(String fileNameWithoutCompressionNorArchive, int currentDotIndex) {
-        String extension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
-        if (".xml".equals(extension)
-            && fileNameWithoutCompressionNorArchive.length() > 9
-            && ".iidm".equals(fileNameWithoutCompressionNorArchive.substring(
-                fileNameWithoutCompressionNorArchive.length() - 9,
-                fileNameWithoutCompressionNorArchive.length() - 4))) {
-            extension = ".iidm.xml";
-        }
-        return extension;
-    }
-
     private void logSourceFormat(String fileName, String sourceFormat, boolean dataSourceInitialization) {
-        if (dataSourceInitialization) {
-            if (sourceFormat.isEmpty()) {
-                LOGGER.warn("Source format is empty in file {}", fileName);
-            } else if (!usualSourceFormats.contains(sourceFormat)) {
-                LOGGER.warn("Source format {} is not a usual one!", sourceFormat);
-            }
+        if (dataSourceInitialization && sourceFormat.isEmpty()) {
+            LOGGER.warn("Source format is empty in file {}", fileName);
         }
     }
 
