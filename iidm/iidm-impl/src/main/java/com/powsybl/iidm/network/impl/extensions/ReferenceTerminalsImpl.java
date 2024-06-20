@@ -22,7 +22,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
 
     private final class ReferenceTerminalsListener extends DefaultNetworkListener {
         @Override
-        public void beforeRemoval(Identifiable identifiable) {
+        public void beforeRemoval(Identifiable<?> identifiable) {
             if (identifiable instanceof Connectable<?> connectable) {
                 // if connectable removed from network, remove its terminals from this extension
                 terminalsPerVariant.forEach(referenceTerminals -> connectable.getTerminals().forEach(referenceTerminals::remove));
@@ -39,12 +39,14 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));
         setReferenceTerminals(terminals);
         this.referenceTerminalsListener = new ReferenceTerminalsListener();
-        network.addListener(this.referenceTerminalsListener);
+        // listeners are not (yet) supported on subnetworks
+        network.getNetwork().addListener(this.referenceTerminalsListener);
     }
 
     @Override
     protected void cleanup() {
-        getExtendable().removeListener(this.referenceTerminalsListener);
+        // listeners are not (yet) supported on subnetworks
+        getExtendable().getNetwork().removeListener(this.referenceTerminalsListener);
     }
 
     @Override
@@ -55,7 +57,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     @Override
     public void setReferenceTerminals(Set<Terminal> terminals) {
         Objects.requireNonNull(terminals);
-        terminals.forEach(t -> checkTerminalInNetwork(t, getExtendable()));
+        terminals.forEach(t -> checkTerminalInParentNetwork(t, getExtendable()));
         terminalsPerVariant.set(getVariantIndex(), new LinkedHashSet<>(terminals));
     }
 
@@ -68,7 +70,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     @Override
     public ReferenceTerminals addReferenceTerminal(Terminal terminal) {
         Objects.requireNonNull(terminal);
-        checkTerminalInNetwork(terminal, getExtendable());
+        checkTerminalInParentNetwork(terminal, getExtendable());
         terminalsPerVariant.get(getVariantIndex()).add(terminal);
         return this;
     }
@@ -102,10 +104,10 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
         }
     }
 
-    private static void checkTerminalInNetwork(Terminal terminal, Network network) {
-        if (!terminal.getVoltageLevel().getNetwork().equals(network)) {
+    private static void checkTerminalInParentNetwork(Terminal terminal, Network network) {
+        if (!terminal.getVoltageLevel().getParentNetwork().equals(network)) {
             throw new PowsyblException("Terminal given is not in the right Network ("
-                    + terminal.getVoltageLevel().getNetwork().getId() + " instead of " + network.getId() + ")");
+                    + terminal.getVoltageLevel().getParentNetwork().getId() + " instead of " + network.getId() + ")");
         }
     }
 }
