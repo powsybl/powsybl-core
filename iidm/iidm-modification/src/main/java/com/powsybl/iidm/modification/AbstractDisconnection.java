@@ -35,12 +35,16 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         this.side = side;
     }
 
-    public void applyModification(Network network, boolean isPlanned, ReportNode reportNode) {
+    public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            logOrThrow(throwException, "Connectable '" + connectableId + "' not found");
+            return;
+        }
 
         // Disconnect the connectable
         boolean hasBeenDisconnected;
