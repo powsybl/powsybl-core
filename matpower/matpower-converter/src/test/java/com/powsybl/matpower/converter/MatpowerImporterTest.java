@@ -7,6 +7,7 @@
  */
 package com.powsybl.matpower.converter;
 
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -151,7 +152,10 @@ class MatpowerImporterTest extends AbstractSerDeTest {
 
     @Test
     void testNonexistentCase() {
-        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
+        Importer importer = new MatpowerImporter();
+        DataSource dataSource = new DirectoryDataSource(tmpDir, "unknown");
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        assertThrows(UncheckedIOException.class, () -> importer.importData(dataSource, networkFactory, null));
     }
 
     private void testCase(MatpowerModel model) throws IOException {
@@ -178,10 +182,6 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         try (InputStream is = Files.newInputStream(file)) {
             assertXmlEquals(getClass().getResourceAsStream("/" + fileName), is);
         }
-    }
-
-    private void testNetwork(Network network) throws IOException {
-        testNetwork(network, network.getId());
     }
 
     private void testCaseSolved(MatpowerModel model) throws IOException {
