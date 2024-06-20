@@ -198,9 +198,9 @@ public abstract class AbstractReferenceTerminalsTest {
 
     @Test
     public void testWithSubnetwork() {
-        var otherNetwork = EurostagTutorialExample1Factory.create();
-        Network merged = Network.merge(network, otherNetwork);
+        Network merged = Network.merge(network, EurostagTutorialExample1Factory.create());
         Network subnetwork = merged.getSubnetwork("fourSubstations");
+        Network sim1subnetwork = merged.getSubnetwork("sim1");
         gh1 = merged.getGenerator("GH1");
         gh2 = merged.getGenerator("GH2");
 
@@ -212,7 +212,7 @@ public abstract class AbstractReferenceTerminalsTest {
         assertEquals(1, extSubnetwork.getReferenceTerminals().size());
         assertTrue(extSubnetwork.getReferenceTerminals().contains(gh1.getTerminal()));
 
-        // gh2 is in subnetwork and can be added to root network extension separately
+        // gh2 is in subnetwork and can be added to root network extension
         merged.newExtension(ReferenceTerminalsAdder.class)
                 .withTerminals(Set.of(gh2.getTerminal()))
                 .add();
@@ -233,6 +233,14 @@ public abstract class AbstractReferenceTerminalsTest {
         extSubnetwork = subnetwork.getExtension(ReferenceTerminals.class);
         assertEquals(1, extMergedNetwork.getReferenceTerminals().size());
         assertEquals(0, extSubnetwork.getReferenceTerminals().size()); // not added to subnetwork
+
+        // we can't add gh1 to sim1
+        sim1subnetwork.newExtension(ReferenceTerminalsAdder.class)
+                .withTerminals(Set.of())
+                .add();
+        ReferenceTerminals extSim1 = sim1subnetwork.getExtension(ReferenceTerminals.class);
+        PowsyblException ex = assertThrows(PowsyblException.class, () -> extSim1.addReferenceTerminal(gh1.getTerminal()));
+        assertEquals("Terminal given is not in the right Network (fourSubstations instead of sim1)", ex.getMessage());
     }
 
     @Test
