@@ -10,6 +10,7 @@ package com.powsybl.iidm.geodata.odre;
 import com.powsybl.iidm.geodata.elements.LineGeoData;
 import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
+import org.apache.commons.io.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,12 +46,16 @@ public class OdreGeoDataCsvLoader {
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
         Map<String, BufferedReader> mapValidation = FileValidator.validateLines(List.of(substationPath,
                 aerialLinesFilePath, undergroundLinesFilePath));
-        if (mapValidation.size() == 3) {
-            return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
-                    mapValidation.get(FileValidator.UNDERGROUND_LINES),
-                    GeographicDataParser.parseSubstations(mapValidation.get(FileValidator.SUBSTATIONS))).values());
-        } else {
-            return Collections.emptyList();
+        List<LineGeoData> result = Collections.emptyList();
+        try {
+            if (mapValidation.size() == 3) {
+                result = new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
+                        mapValidation.get(FileValidator.UNDERGROUND_LINES),
+                        GeographicDataParser.parseSubstations(mapValidation.get(FileValidator.SUBSTATIONS))).values());
+            }
+        } finally {
+            mapValidation.values().forEach(IOUtils::closeQuietly);
         }
+        return result;
     }
 }

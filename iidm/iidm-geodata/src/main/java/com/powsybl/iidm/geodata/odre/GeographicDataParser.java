@@ -15,6 +15,8 @@ import com.powsybl.iidm.geodata.utils.DistanceCalculator;
 import com.powsybl.iidm.geodata.utils.GeoShapeDeserializer;
 import com.powsybl.iidm.geodata.utils.LineGraph;
 import com.powsybl.iidm.network.extensions.Coordinate;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
@@ -23,13 +25,11 @@ import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvMapReader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.min;
@@ -52,11 +52,9 @@ public final class GeographicDataParser {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         int substationCount = 0;
-
-        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, FileValidator.CSV_PREFERENCE)) {
-            final String[] headers = mapReader.getHeader(true);
-            Map<String, String> row;
-            while ((row = mapReader.read(headers)) != null) {
+        try {
+            Iterable<CSVRecord> records = CSVParser.parse(bufferedReader, FileValidator.CSV_FORMAT);
+            for (CSVRecord row : records) {
                 String id = row.get(FileValidator.SUBSTATION_ID);
                 double lon = Double.parseDouble(row.get(FileValidator.SUBSTATION_LONGITUDE));
                 double lat = Double.parseDouble(row.get(FileValidator.SUBSTATION_LATITUDE));
@@ -70,6 +68,7 @@ public final class GeographicDataParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
         LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
         return substations;
     }
@@ -160,12 +159,10 @@ public final class GeographicDataParser {
     }
 
     private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br) {
-
-        try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE)) {
-            final String[] headers = mapReader.getHeader(true);
-            Map<String, String> row;
-            while ((row = mapReader.read(headers)) != null) {
-                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
+        try {
+            Iterable<CSVRecord> records = CSVParser.parse(br, FileValidator.CSV_FORMAT);
+            for (CSVRecord row : records) {
+                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
                 GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;
