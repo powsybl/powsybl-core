@@ -246,6 +246,28 @@ public abstract class AbstractReferenceTerminalsTest {
     }
 
     @Test
+    public void testListenersTransferOnMergeAndDetach() {
+        Network network1 = FourSubstationsNodeBreakerFactory.create();
+        Network network2 = EurostagTutorialExample1Factory.create();
+        ReferenceTerminals.addTerminal(network1.getGenerator("GH1").getTerminal());
+        ReferenceTerminals.addTerminal(network1.getGenerator("GH2").getTerminal());
+
+        Network merged = Network.merge(network1, network2);
+        network1 = merged.getSubnetwork("fourSubstations");
+
+        // check listener is now effective on merged network
+        assertEquals(2, ReferenceTerminals.getTerminals(network1).size());
+        merged.getGenerator("GH1").remove();
+        assertEquals(1, ReferenceTerminals.getTerminals(network1).size());
+
+        Network network1detached = network1.detach();
+        // check listener is now effective on detached network
+        assertEquals(1, ReferenceTerminals.getTerminals(network1detached).size());
+        network1detached.getGenerator("GH2").remove();
+        assertEquals(0, ReferenceTerminals.getTerminals(network1detached).size());
+    }
+
+    @Test
     public void testRemoveEquipment() {
         network.newExtension(ReferenceTerminalsAdder.class)
                 .withTerminals(Set.of(gh1.getTerminal(), gh2.getTerminal()))

@@ -39,13 +39,20 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
                 Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));
         setReferenceTerminals(terminals);
         this.referenceTerminalsListener = new ReferenceTerminalsListener();
-        // listeners are not (yet) supported on subnetworks
-        network.getNetwork().addListener(this.referenceTerminalsListener);
+    }
+
+    @Override
+    public void setExtendable(Network extendable) {
+        super.setExtendable(extendable);
+        if (extendable != null) {
+            // Add the listener, this will be done both extension creation, but also on extension transfer when merging and detaching.
+            extendable.getNetwork().addListener(this.referenceTerminalsListener);
+        }
     }
 
     @Override
     protected void cleanup() {
-        // listeners are not (yet) supported on subnetworks
+        // when extension removed from extendable, remove the listener. This will happen when merging and detaching.
         getExtendable().getNetwork().removeListener(this.referenceTerminalsListener);
     }
 
