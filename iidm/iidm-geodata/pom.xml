@@ -37,10 +37,6 @@
         </plugins>
     </build>
 
-    <properties>
-        <supercsv.version>2.4.0</supercsv.version>
-    </properties>
-
     <dependencies>
         <!-- compile dependencies  -->
         <dependency>
@@ -61,9 +57,9 @@
             <artifactId>commons-io</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.sf.supercsv</groupId>
-            <artifactId>super-csv</artifactId>
-            <version>${supercsv.version}</version>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
         </dependency>
 
         <!-- test dependencies -->

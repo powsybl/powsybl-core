@@ -15,6 +15,8 @@ import com.powsybl.iidm.geodata.utils.DistanceCalculator;
 import com.powsybl.iidm.geodata.utils.GeoShapeDeserializer;
 import com.powsybl.iidm.geodata.utils.LineGraph;
 import com.powsybl.iidm.network.extensions.Coordinate;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
@@ -23,13 +25,11 @@ import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvMapReader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.Collections.min;
@@ -47,16 +47,14 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
-    public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader, OdreConfig odreConfig) {
+    public static Map<String, SubstationGeoData> parseSubstations(Reader reader, OdreConfig odreConfig) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         int substationCount = 0;
-
-        try (CsvMapReader mapReader = new CsvMapReader(bufferedReader, FileValidator.CSV_PREFERENCE)) {
-            final String[] headers = mapReader.getHeader(true);
-            Map<String, String> row;
-            while ((row = mapReader.read(headers)) != null) {
+        try {
+            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
+            for (CSVRecord row : records) {
                 String id = row.get(odreConfig.substationIdColumn());
                 double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
                 double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
@@ -70,6 +68,7 @@ public final class GeographicDataParser {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+
         LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
         return substations;
     }
@@ -97,15 +96,15 @@ public final class GeographicDataParser {
         }
     }
 
-    public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr,
+    public static Map<String, LineGeoData> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader,
                                                       Map<String, SubstationGeoData> stringSubstationGeoDataMap, OdreConfig odreConfig) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr, odreConfig);
-        parseLine(graphByLine, undergroundLinesBr, odreConfig);
+        parseLine(graphByLine, aerialLinesReader, odreConfig);
+        parseLine(graphByLine, undergroundLinesReader, odreConfig);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -159,19 +158,18 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br, OdreConfig odreConfig) {
-
-        try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE)) {
-            final String[] headers = mapReader.getHeader(true);
-            Map<String, String> row;
-            while ((row = mapReader.read(headers)) != null) {
-                Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, Reader reader, OdreConfig odreConfig) {
+        try {
+            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
+            Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
+            for (CSVRecord row : records) {
                 List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
                         row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
                         row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
                         row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
                 GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
+
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;
                 }
