@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
+class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     private static final String WORK_DIR = "/work/";
     private static final String MAIN_EXT = "xml";
     private static final String BASENAME = "network";
@@ -64,7 +64,7 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
     @Test
     void fakeZipTest() throws IOException {
         Files.createFile(testDir.resolve("fake.zip"));
-        assertFalse(new ZipDataSource(testDir, "fake", "", (DataSourceObserver) null).exists("e"));
+        assertFalse(new ZipArchiveDataSource(testDir, "fake", "", (DataSourceObserver) null).exists("e"));
     }
 
     @Test
@@ -110,13 +110,13 @@ class ZipDataSourceTest extends AbstractArchiveDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipDataSource.class,
+            Arguments.of("foo", ".iidm", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo.iidm", "foo_bar.iidm", "foo.v3.iidm"),
                 Set.of("foo_bar.iidm")),
-            Arguments.of("foo", "", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipDataSource.class,
+            Arguments.of("foo", "", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo.txt", "foo.iidm", "foo.xiidm", "foo", "foo_bar.iidm", "foo.v3.iidm", "foo.v3", "foo_bar"),
                 Set.of("foo_bar.iidm", "foo_bar")),
-            Arguments.of("foo", ".v3", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipDataSource.class,
+            Arguments.of("foo", ".v3", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo.v3"),
                 Set.of())
         );

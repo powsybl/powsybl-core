@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class Bzip2DataSourceTest extends DirectoryDataSourceTest {
+public class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected boolean appendTest() {
@@ -32,13 +32,13 @@ public class Bzip2DataSourceTest extends DirectoryDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", null, CompressionFormat.BZIP2, Bzip2DataSource.class,
+            Arguments.of("foo", ".iidm", null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 Set.of("foo.iidm", "foo_bar.iidm", "foo.v3.iidm"),
                 Set.of("foo_bar.iidm")),
-            Arguments.of("foo", "", null, CompressionFormat.BZIP2, Bzip2DataSource.class,
+            Arguments.of("foo", "", null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 Set.of("foo.txt", "foo.iidm", "foo.xiidm", "foo", "foo_bar.iidm", "foo.v3.iidm", "foo.v3", "foo_bar"),
                 Set.of("foo_bar.iidm", "foo_bar")),
-            Arguments.of("foo", ".v3", null, CompressionFormat.BZIP2, Bzip2DataSource.class,
+            Arguments.of("foo", ".v3", null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 Set.of("foo.v3"),
                 Set.of())
         );

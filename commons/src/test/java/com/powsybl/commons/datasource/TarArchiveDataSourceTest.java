@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class TarDataSourceTest extends AbstractArchiveDataSourceTest {
+class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     private static final String WORK_DIR = "/work/";
     private static final String MAIN_EXT = "xml";
     private static final String BASENAME = "network";
@@ -72,7 +72,7 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
     @Test
     void fakeTarTest() throws IOException {
         Files.createFile(testDir.resolve("fake.tar"));
-        assertFalse(new TarDataSource(testDir, "fake", null, "", null).exists("e"));
+        assertFalse(new TarArchiveDataSource(testDir, "fake", null, "", null).exists("e"));
     }
 
     @Test
@@ -127,13 +127,13 @@ class TarDataSourceTest extends AbstractArchiveDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", ArchiveFormat.TAR, CompressionFormat.GZIP, TarDataSource.class,
+            Arguments.of("foo", ".iidm", ArchiveFormat.TAR, CompressionFormat.GZIP, TarArchiveDataSource.class,
                 Set.of("foo.iidm", "foo_bar.iidm", "foo.v3.iidm"),
                 Set.of("foo_bar.iidm")),
-            Arguments.of("foo", "", ArchiveFormat.TAR, CompressionFormat.BZIP2, TarDataSource.class,
+            Arguments.of("foo", "", ArchiveFormat.TAR, CompressionFormat.BZIP2, TarArchiveDataSource.class,
                 Set.of("foo.txt", "foo.iidm", "foo.xiidm", "foo", "foo_bar.iidm", "foo.v3.iidm", "foo.v3", "foo_bar"),
                 Set.of("foo_bar.iidm", "foo_bar")),
-            Arguments.of("foo", ".v3", ArchiveFormat.TAR, CompressionFormat.ZSTD, TarDataSource.class,
+            Arguments.of("foo", ".v3", ArchiveFormat.TAR, CompressionFormat.ZSTD, TarArchiveDataSource.class,
                 Set.of("foo.v3"),
                 Set.of())
         );

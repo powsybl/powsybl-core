@@ -17,11 +17,11 @@ import java.util.zip.GZIPOutputStream;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class GzDataSource extends DirectoryDataSource {
+public class GzDirectoryDataSource extends DirectoryDataSource {
 
-    public GzDataSource(Path directory, String baseName,
-                        String sourceFormat,
-                        DataSourceObserver observer) {
+    public GzDirectoryDataSource(Path directory, String baseName,
+                                 String sourceFormat,
+                                 DataSourceObserver observer) {
         super(directory, baseName, CompressionFormat.GZIP, sourceFormat, observer);
     }
 

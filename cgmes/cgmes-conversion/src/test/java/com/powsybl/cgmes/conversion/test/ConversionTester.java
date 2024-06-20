@@ -24,7 +24,7 @@ import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ZipDataSource;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.XMLExporter;
@@ -200,7 +200,7 @@ public class ConversionTester {
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
         String baseName = originalDs.getBaseName();
-        DataSource ds = new ZipDataSource(path, baseName, "");
+        DataSource ds = new ZipArchiveDataSource(path, baseName, "");
 
         // Copy the original files to the temporary destination, ensuring a normalized name
         for (String name : new CgmesOnDataSource(originalDs).names()) {

@@ -71,16 +71,16 @@ class DataSourceBuilder {
             return buildZip();
         } else if (archiveFormat == ArchiveFormat.TAR) {
             return archiveFileName == null ?
-                new TarDataSource(directory, baseName, compressionFormat, sourceFormatExtension, observer) :
-                new TarDataSource(directory, archiveFileName, baseName, compressionFormat, sourceFormatExtension, observer);
+                new TarArchiveDataSource(directory, baseName, compressionFormat, sourceFormatExtension, observer) :
+                new TarArchiveDataSource(directory, archiveFileName, baseName, compressionFormat, sourceFormatExtension, observer);
         } else if (compressionFormat == null) {
             return new DirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
         } else {
             return switch (compressionFormat) {
-                case BZIP2 -> new Bzip2DataSource(directory, baseName, sourceFormatExtension, observer);
-                case GZIP -> new GzDataSource(directory, baseName, sourceFormatExtension, observer);
-                case XZ -> new XZDataSource(directory, baseName, sourceFormatExtension, observer);
-                case ZSTD -> new ZstdDataSource(directory, baseName, sourceFormatExtension, observer);
+                case BZIP2 -> new Bzip2DirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
+                case GZIP -> new GzDirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
+                case XZ -> new XZDirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
+                case ZSTD -> new ZstdDirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
                 default -> {
                     LOGGER.warn("Unsupported compression format {}", compressionFormat);
                     yield new DirectoryDataSource(directory, baseName, sourceFormatExtension, observer);
@@ -109,7 +109,7 @@ class DataSourceBuilder {
             throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
         }
         return archiveFileName == null ?
-            new ZipDataSource(directory, baseName, sourceFormatExtension, observer) :
-            new ZipDataSource(directory, archiveFileName, baseName, sourceFormatExtension, observer);
+            new ZipArchiveDataSource(directory, baseName, sourceFormatExtension, observer) :
+            new ZipArchiveDataSource(directory, archiveFileName, baseName, sourceFormatExtension, observer);
     }
 }

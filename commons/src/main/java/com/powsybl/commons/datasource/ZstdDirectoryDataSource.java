@@ -16,11 +16,11 @@ import java.nio.file.Path;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class ZstdDataSource extends DirectoryDataSource {
+public class ZstdDirectoryDataSource extends DirectoryDataSource {
 
-    public ZstdDataSource(Path directory, String baseName,
-                        String sourceFormat,
-                        DataSourceObserver observer) {
+    public ZstdDirectoryDataSource(Path directory, String baseName,
+                                   String sourceFormat,
+                                   DataSourceObserver observer) {
         super(directory, baseName, CompressionFormat.ZSTD, sourceFormat, observer);
     }
 

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-abstract class AbstractDataSourceTest {
+abstract class AbstractFileSystemDataSourceTest {
     protected FileSystem fileSystem;
     protected Path testDir;
     protected boolean throwExceptionOnConsistency = false;

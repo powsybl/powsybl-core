@@ -35,13 +35,13 @@ import java.util.regex.Pattern;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class TarDataSource extends AbstractArchiveDataSource {
+public class TarArchiveDataSource extends AbstractArchiveDataSource {
 
-    public TarDataSource(Path directory, String tarFileName, String baseName, CompressionFormat compressionFormat, String sourceFormat, DataSourceObserver observer) {
+    public TarArchiveDataSource(Path directory, String tarFileName, String baseName, CompressionFormat compressionFormat, String sourceFormat, DataSourceObserver observer) {
         super(directory, tarFileName, baseName, compressionFormat, ArchiveFormat.TAR, sourceFormat, observer);
     }
 
-    public TarDataSource(Path directory, String baseName, CompressionFormat compressionFormat, String sourceFormat, DataSourceObserver observer) {
+    public TarArchiveDataSource(Path directory, String baseName, CompressionFormat compressionFormat, String sourceFormat, DataSourceObserver observer) {
         super(directory,
             baseName + sourceFormat + ".tar" + (compressionFormat == null ? "" : "." + compressionFormat.getExtension()),
             baseName, compressionFormat, ArchiveFormat.TAR, sourceFormat, observer);

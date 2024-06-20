@@ -48,16 +48,16 @@ class DataSourceBuilderTest {
 
         // Directory datasource
         assertInstanceOf(DirectoryDataSource.class, builder.build());
-        assertInstanceOf(GzDataSource.class, builder.withCompressionFormat(CompressionFormat.GZIP).build());
-        assertInstanceOf(ZstdDataSource.class, builder.withCompressionFormat(CompressionFormat.ZSTD).build());
-        assertInstanceOf(XZDataSource.class, builder.withCompressionFormat(CompressionFormat.XZ).build());
-        assertInstanceOf(Bzip2DataSource.class, builder.withCompressionFormat(CompressionFormat.BZIP2).build());
+        assertInstanceOf(GzDirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.GZIP).build());
+        assertInstanceOf(ZstdDirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.ZSTD).build());
+        assertInstanceOf(XZDirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.XZ).build());
+        assertInstanceOf(Bzip2DirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.BZIP2).build());
 
         // Archive datasources
-        assertInstanceOf(TarDataSource.class, builder.withArchiveFormat(ArchiveFormat.TAR).build());
-        assertInstanceOf(ZipDataSource.class, builder.withArchiveFormat(ArchiveFormat.ZIP).withCompressionFormat(null).build());
-        assertInstanceOf(ZipDataSource.class, builder.withCompressionFormat(CompressionFormat.ZIP).build());
-        assertInstanceOf(ZipDataSource.class, builder.withArchiveFormat(null).build());
+        assertInstanceOf(TarArchiveDataSource.class, builder.withArchiveFormat(ArchiveFormat.TAR).build());
+        assertInstanceOf(ZipArchiveDataSource.class, builder.withArchiveFormat(ArchiveFormat.ZIP).withCompressionFormat(null).build());
+        assertInstanceOf(ZipArchiveDataSource.class, builder.withCompressionFormat(CompressionFormat.ZIP).build());
+        assertInstanceOf(ZipArchiveDataSource.class, builder.withArchiveFormat(null).build());
     }
 
     @Test

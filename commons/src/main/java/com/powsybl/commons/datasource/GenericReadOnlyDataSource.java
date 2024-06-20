@@ -24,14 +24,14 @@ public class GenericReadOnlyDataSource extends AbstractReadOnlyDataSource {
     public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
         dataSources = new DataSource[] {
             new DirectoryDataSource(directory, baseName, "", observer),
-            new ZstdDataSource(directory, baseName, "", observer),
-            new ZipDataSource(directory, baseName, "", observer),
-            new ZipDataSource(directory, baseName + ".zip", baseName, "", observer),
-            new TarDataSource(directory, baseName, CompressionFormat.GZIP, "", observer),
-            new TarDataSource(directory, baseName + ".tar.gz", baseName, CompressionFormat.GZIP, "", observer),
-            new XZDataSource(directory, baseName, "", observer),
-            new GzDataSource(directory, baseName, "", observer),
-            new Bzip2DataSource(directory, baseName, "", observer)
+            new ZstdDirectoryDataSource(directory, baseName, "", observer),
+            new ZipArchiveDataSource(directory, baseName, "", observer),
+            new ZipArchiveDataSource(directory, baseName + ".zip", baseName, "", observer),
+            new TarArchiveDataSource(directory, baseName, CompressionFormat.GZIP, "", observer),
+            new TarArchiveDataSource(directory, baseName + ".tar.gz", baseName, CompressionFormat.GZIP, "", observer),
+            new XZDirectoryDataSource(directory, baseName, "", observer),
+            new GzDirectoryDataSource(directory, baseName, "", observer),
+            new Bzip2DirectoryDataSource(directory, baseName, "", observer)
         };
     }
 

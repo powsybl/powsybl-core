@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
+abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourceTest {
     protected final Set<String> filesInArchive = Set.of(
         "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
     protected Set<String> unlistedFiles;

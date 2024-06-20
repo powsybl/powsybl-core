@@ -15,30 +15,25 @@ import java.util.stream.Stream;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-class XZDataSourceTest extends DirectoryDataSourceTest {
-
-    @Override
-    protected boolean appendTest() {
-        return false; // FIXME append does not work with xz compression
-    }
+public class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", null, CompressionFormat.XZ),
-            Arguments.of("foo", "", null, CompressionFormat.XZ),
-            Arguments.of("foo", ".v3", null, CompressionFormat.XZ)
+            Arguments.of("foo", ".iidm", null, CompressionFormat.GZIP),
+            Arguments.of("foo", "", null, CompressionFormat.GZIP),
+            Arguments.of("foo", ".v3", null, CompressionFormat.GZIP)
         );
     }
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", null, CompressionFormat.XZ, XZDataSource.class,
+            Arguments.of("foo", ".iidm", null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 Set.of("foo.iidm", "foo_bar.iidm", "foo.v3.iidm"),
                 Set.of("foo_bar.iidm")),
-            Arguments.of("foo", "", null, CompressionFormat.XZ, XZDataSource.class,
+            Arguments.of("foo", "", null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 Set.of("foo.txt", "foo.iidm", "foo.xiidm", "foo", "foo_bar.iidm", "foo.v3.iidm", "foo.v3", "foo_bar"),
                 Set.of("foo_bar.iidm", "foo_bar")),
-            Arguments.of("foo", ".v3", null, CompressionFormat.XZ, XZDataSource.class,
+            Arguments.of("foo", ".v3", null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 Set.of("foo.v3"),
                 Set.of())
         );

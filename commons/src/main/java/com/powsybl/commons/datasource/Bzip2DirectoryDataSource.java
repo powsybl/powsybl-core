@@ -7,8 +7,8 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -16,21 +16,20 @@ import java.nio.file.Path;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class XZDataSource extends DirectoryDataSource {
-
-    public XZDataSource(Path directory, String baseName,
-                        String sourceFormat,
-                        DataSourceObserver observer) {
-        super(directory, baseName, CompressionFormat.XZ, sourceFormat, observer);
+public class Bzip2DirectoryDataSource extends DirectoryDataSource {
+    public Bzip2DirectoryDataSource(Path directory, String baseName,
+                                    String sourceFormat,
+                                    DataSourceObserver observer) {
+        super(directory, baseName, CompressionFormat.BZIP2, sourceFormat, observer);
     }
 
     @Override
     protected InputStream getCompressedInputStream(InputStream is) throws IOException {
-        return new XZCompressorInputStream(new BufferedInputStream(is));
+        return new BZip2CompressorInputStream(new BufferedInputStream(is));
     }
 
     @Override
     protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
-        return new XZCompressorOutputStream(new BufferedOutputStream(os));
+        return new BZip2CompressorOutputStream(new BufferedOutputStream(os));
     }
 }

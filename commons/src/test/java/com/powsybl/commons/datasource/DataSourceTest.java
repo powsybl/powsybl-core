@@ -47,8 +47,8 @@ class DataSourceTest {
     private static Stream<Arguments> provideArgumentsForTestClass() {
         return Stream.of(
             Arguments.of("foo.xml", DirectoryDataSource.class),
-            Arguments.of("foo.xml.gz", GzDataSource.class),
-            Arguments.of("foo.iidm.bz2", Bzip2DataSource.class)
+            Arguments.of("foo.xml.gz", GzDirectoryDataSource.class),
+            Arguments.of("foo.iidm.bz2", Bzip2DirectoryDataSource.class)
         );
     }
 

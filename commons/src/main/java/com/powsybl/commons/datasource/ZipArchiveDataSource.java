@@ -30,25 +30,25 @@ import java.util.zip.ZipOutputStream;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class ZipDataSource extends AbstractArchiveDataSource {
+public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
-    public ZipDataSource(Path directory, String zipFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
         super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
     }
 
-    public ZipDataSource(Path directory, String baseName, String sourceFormat, DataSourceObserver observer) {
+    public ZipArchiveDataSource(Path directory, String baseName, String sourceFormat, DataSourceObserver observer) {
         super(directory, baseName + sourceFormat + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
     }
 
-    public ZipDataSource(Path directory, String zipFileName, String baseName, String sourceFormat) {
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String sourceFormat) {
         super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, null);
     }
 
-    public ZipDataSource(Path directory, String baseName, String sourceFormat) {
+    public ZipArchiveDataSource(Path directory, String baseName, String sourceFormat) {
         super(directory, baseName + sourceFormat + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, null);
     }
 
-    public ZipDataSource(Path zipFile) {
+    public ZipArchiveDataSource(Path zipFile) {
         this(zipFile.getParent(), zipFile.getFileName().toString(), "", "", null);
     }
 
