@@ -7,12 +7,11 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.google.common.collect.ImmutableSet;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
@@ -75,24 +74,17 @@ public interface ReferenceTerminals extends Extension<Network> {
 
     /**
      * Gets the reference terminals in the network for the current variant.
-     * In case of a merged network with subnetworks, reference terminals from the merged network
-     * and reference terminals from subnetworks are returned altogether.
+     * <p> Note: This method returns only the terminal from the extension attached to the provided network.
+     * In case of a merged network with subnetworks, be careful whether you want the extension
+     * of the merged network or of a subnetwork.
      * @param network network to get reference terminals from
      */
     static Set<Terminal> getTerminals(Network network) {
         Objects.requireNonNull(network);
-        Set<Terminal> terminals = new HashSet<>();
         ReferenceTerminals ext = network.getExtension(ReferenceTerminals.class);
-        if (ext != null) {
-            terminals.addAll(ext.getReferenceTerminals());
+        if (ext == null) {
+            return Collections.emptySet();
         }
-        // also from subnetworks
-        network.getSubnetworks().forEach(subNetwork -> {
-            ReferenceTerminals subNetworkExt = subNetwork.getExtension(ReferenceTerminals.class);
-            if (subNetworkExt != null) {
-                terminals.addAll(subNetworkExt.getReferenceTerminals());
-            }
-        });
-        return ImmutableSet.copyOf(terminals);
+        return ext.getReferenceTerminals();
     }
 }

@@ -222,9 +222,6 @@ public abstract class AbstractReferenceTerminalsTest {
         assertEquals(1, extMergedNetwork.getReferenceTerminals().size());
         assertTrue(extMergedNetwork.getReferenceTerminals().contains(gh2Terminal));
 
-        // we can get both via this easier method
-        assertTrue(ReferenceTerminals.getTerminals(merged).containsAll(Set.of(gh1Terminal, gh2Terminal)));
-
         // we can reset everything via this method
         ReferenceTerminals.reset(merged);
         assertTrue(ReferenceTerminals.getTerminals(merged).isEmpty());
@@ -235,6 +232,9 @@ public abstract class AbstractReferenceTerminalsTest {
         extSubnetwork = subnetwork.getExtension(ReferenceTerminals.class);
         assertEquals(1, extMergedNetwork.getReferenceTerminals().size());
         assertEquals(0, extSubnetwork.getReferenceTerminals().size()); // not added to subnetwork
+        // same as above, but using the more user-friendly static methods from ReferenceTerminals.
+        assertEquals(1, ReferenceTerminals.getTerminals(merged).size());
+        assertEquals(0, ReferenceTerminals.getTerminals(subnetwork).size());
 
         // we can't add gh1 to sim1
         sim1subnetwork.newExtension(ReferenceTerminalsAdder.class)
