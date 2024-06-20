@@ -100,8 +100,8 @@ public final class FileValidator {
         return false;
     }
 
-    public static Map<String, BufferedReader> validateLines(List<Path> paths) {
-        Map<String, BufferedReader> mapResult = new HashMap<>();
+    public static Map<String, Reader> validateLines(List<Path> paths) {
+        Map<String, Reader> mapResult = new HashMap<>();
         paths.forEach(path -> {
             try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8))) {
                 Iterator<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT_FOR_HEADER).iterator();
@@ -153,7 +153,7 @@ public final class FileValidator {
         return equipmentType;
     }
 
-    private static void getIfSubstationsOrLogError(Map<String, BufferedReader> mapResult, Path path, List<String> headers, String typeOuvrage) throws IOException {
+    private static void getIfSubstationsOrLogError(Map<String, Reader> mapResult, Path path, List<String> headers, String typeOuvrage) throws IOException {
         if (new HashSet<>(headers).containsAll(SUBSTATIONS_EXPECTED_HEADERS)) {
             mapResult.putIfAbsent(SUBSTATIONS, new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
         } else if (isAerialOrUnderground(headers)) {
@@ -173,7 +173,7 @@ public final class FileValidator {
                 new HashSet<>(headers).containsAll(UNDERGROUND_LINES_EXPECTED_HEADERS);
     }
 
-    private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, BufferedReader> mapResult, String fileType, Path path) throws IOException {
+    private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, Reader> mapResult, String fileType, Path path) throws IOException {
         if (new HashSet<>(headers).containsAll(expectedHeaders)) {
             mapResult.putIfAbsent(fileType, new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
         } else {

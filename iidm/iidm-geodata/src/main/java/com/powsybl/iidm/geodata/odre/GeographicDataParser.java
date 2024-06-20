@@ -26,8 +26,8 @@ import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.stream.Stream;
@@ -47,13 +47,13 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
-    public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader) {
+    public static Map<String, SubstationGeoData> parseSubstations(Reader reader) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         int substationCount = 0;
         try {
-            Iterable<CSVRecord> records = CSVParser.parse(bufferedReader, FileValidator.CSV_FORMAT);
+            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
             for (CSVRecord row : records) {
                 String id = row.get(FileValidator.SUBSTATION_ID);
                 double lon = Double.parseDouble(row.get(FileValidator.SUBSTATION_LONGITUDE));
@@ -96,15 +96,15 @@ public final class GeographicDataParser {
         }
     }
 
-    public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr,
+    public static Map<String, LineGeoData> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader,
                                                       Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr);
-        parseLine(graphByLine, undergroundLinesBr);
+        parseLine(graphByLine, aerialLinesReader);
+        parseLine(graphByLine, undergroundLinesReader);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -158,9 +158,9 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br) {
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, Reader reader) {
         try {
-            Iterable<CSVRecord> records = CSVParser.parse(br, FileValidator.CSV_FORMAT);
+            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
             for (CSVRecord row : records) {
                 List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
                 GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));

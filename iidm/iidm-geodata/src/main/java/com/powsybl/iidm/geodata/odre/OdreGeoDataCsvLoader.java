@@ -12,10 +12,7 @@ import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -32,9 +29,9 @@ public class OdreGeoDataCsvLoader {
     }
 
     public static List<SubstationGeoData> getSubstationsGeoData(Path path) {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
+        try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
             if (FileValidator.validateSubstations(path)) {
-                return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader).values());
+                return new ArrayList<>(GeographicDataParser.parseSubstations(reader).values());
             } else {
                 return Collections.emptyList();
             }
@@ -44,7 +41,7 @@ public class OdreGeoDataCsvLoader {
     }
 
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath, Path substationPath) {
-        Map<String, BufferedReader> mapValidation = FileValidator.validateLines(List.of(substationPath,
+        Map<String, Reader> mapValidation = FileValidator.validateLines(List.of(substationPath,
                 aerialLinesFilePath, undergroundLinesFilePath));
         List<LineGeoData> result = Collections.emptyList();
         try {
