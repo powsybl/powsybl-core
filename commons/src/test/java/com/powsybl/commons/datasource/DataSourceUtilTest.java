@@ -33,27 +33,27 @@ class DataSourceUtilTest {
     }
 
     @Test
-    void testGuessBaseName() {
-        assertEquals("dummy", DataSourceUtil.guessBaseName("dummy.xml.gz"));
-        assertEquals("dummy", DataSourceUtil.guessBaseName("dummy.gz"));
-        assertEquals("dummy", DataSourceUtil.guessBaseName("dummy"));
+    void testGetBaseName() {
+        assertEquals("dummy", DataSourceUtil.getBaseName("dummy.xml.gz"));
+        assertEquals("dummy", DataSourceUtil.getBaseName("dummy.gz"));
+        assertEquals("dummy", DataSourceUtil.getBaseName("dummy"));
     }
 
     private void checkArchiveDataSource(DataSource dataSource, String baseName, String sourceFormatExtension, DataSourceObserver dataSourceObserver) {
 
-        // The data source should be an instance of AbstractDataSource
-        assertInstanceOf(AbstractDataSource.class, dataSource);
+        // The data source should be an instance of AbstractFileSystemDataSource
+        assertInstanceOf(AbstractFileSystemDataSource.class, dataSource);
 
         // Check the datasource values
-        assertEquals(fileSystem.getPath("/tmp"), ((AbstractDataSource) dataSource).getDirectory());
+        assertEquals(fileSystem.getPath("/tmp"), ((AbstractFileSystemDataSource) dataSource).getDirectory());
         assertEquals(baseName, dataSource.getBaseName());
-        assertEquals(sourceFormatExtension, ((AbstractDataSource) dataSource).getSourceFormatExtension());
-        assertEquals(ArchiveFormat.ZIP, ((AbstractDataSource) dataSource).getArchiveFormat());
-        assertEquals(CompressionFormat.ZIP, ((AbstractDataSource) dataSource).getCompressionFormat());
+        assertEquals(sourceFormatExtension, ((AbstractFileSystemDataSource) dataSource).getSourceFormatExtension());
+        assertEquals(ArchiveFormat.ZIP, ((AbstractFileSystemDataSource) dataSource).getArchiveFormat());
+        assertEquals(CompressionFormat.ZIP, ((AbstractFileSystemDataSource) dataSource).getCompressionFormat());
         if (dataSourceObserver == null) {
-            assertNull(((AbstractDataSource) dataSource).getObserver());
+            assertNull(((AbstractFileSystemDataSource) dataSource).getObserver());
         } else {
-            assertEquals(dataSourceObserver, ((AbstractDataSource) dataSource).getObserver());
+            assertEquals(dataSourceObserver, ((AbstractFileSystemDataSource) dataSource).getObserver());
         }
     }
 
@@ -139,23 +139,23 @@ class DataSourceUtilTest {
                                           CompressionFormat compressionFormat,
                                           DataSourceObserver dataSourceObserver) {
 
-        // The data source should be an instance of AbstractDataSource
-        assertInstanceOf(AbstractDataSource.class, dataSource);
+        // The data source should be an instance of AbstractFileSystemDataSource
+        assertInstanceOf(AbstractFileSystemDataSource.class, dataSource);
 
         // Check the datasource values
-        assertEquals(fileSystem.getPath("/tmp"), ((AbstractDataSource) dataSource).getDirectory());
+        assertEquals(fileSystem.getPath("/tmp"), ((AbstractFileSystemDataSource) dataSource).getDirectory());
         assertEquals(baseName, dataSource.getBaseName());
-        assertEquals(sourceFormatExtension, ((AbstractDataSource) dataSource).getSourceFormatExtension());
+        assertEquals(sourceFormatExtension, ((AbstractFileSystemDataSource) dataSource).getSourceFormatExtension());
         if (compressionFormat == null) {
-            assertNull(((AbstractDataSource) dataSource).getArchiveFormat());
+            assertNull(((AbstractFileSystemDataSource) dataSource).getArchiveFormat());
         } else {
-            assertEquals(compressionFormat, ((AbstractDataSource) dataSource).getCompressionFormat());
+            assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSource).getCompressionFormat());
         }
-        assertEquals(compressionFormat, ((AbstractDataSource) dataSource).getCompressionFormat());
+        assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSource).getCompressionFormat());
         if (dataSourceObserver == null) {
-            assertNull(((AbstractDataSource) dataSource).getObserver());
+            assertNull(((AbstractFileSystemDataSource) dataSource).getObserver());
         } else {
-            assertEquals(dataSourceObserver, ((AbstractDataSource) dataSource).getObserver());
+            assertEquals(dataSourceObserver, ((AbstractFileSystemDataSource) dataSource).getObserver());
         }
     }
 

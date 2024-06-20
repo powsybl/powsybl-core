@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-abstract class AbstractDataSource extends AbstractReadOnlyDataSource implements DataSource {
+abstract class AbstractFileSystemDataSource extends AbstractReadOnlyDataSource implements DataSource {
     final Path directory;
     final String baseName;
     final CompressionFormat compressionFormat;
@@ -29,10 +29,10 @@ abstract class AbstractDataSource extends AbstractReadOnlyDataSource implements 
      * @param sourceFormatExtension Extension corresponding to the data source (.iidm, .cgmes, .xml, etc.)
      * @param observer Data source observer
      */
-    AbstractDataSource(Path directory, String baseName,
-                       CompressionFormat compressionFormat, ArchiveFormat archiveFormat,
-                       String sourceFormatExtension,
-                       DataSourceObserver observer) {
+    AbstractFileSystemDataSource(Path directory, String baseName,
+                                 CompressionFormat compressionFormat, ArchiveFormat archiveFormat,
+                                 String sourceFormatExtension,
+                                 DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
         this.compressionFormat = compressionFormat;

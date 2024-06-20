@@ -46,7 +46,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractDataSourceTest {
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
     void testClassAndListing(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
-                             CompressionFormat compressionFormat, Class<? extends AbstractDataSource> dataSourceClass,
+                             CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
         String fileName = getFileName(baseName, sourceFormat, archiveFormat, compressionFormat);

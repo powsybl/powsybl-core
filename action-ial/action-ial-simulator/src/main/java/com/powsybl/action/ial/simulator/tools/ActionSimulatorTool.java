@@ -248,7 +248,7 @@ public class ActionSimulatorTool implements Tool {
         //Create observers
         List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
         if (!isSubTask) {
-            optionalCaseExporter(line, context.getFileSystem(), DataSourceUtil.guessBaseName(caseFile))
+            optionalCaseExporter(line, context.getFileSystem(), DataSourceUtil.getBaseName(caseFile))
                     .ifPresent(observers::add);
         }
         observers.add(createLogPrinter(context, verbose));

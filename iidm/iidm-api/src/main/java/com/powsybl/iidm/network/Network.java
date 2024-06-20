@@ -203,7 +203,7 @@ public interface Network extends Container<Network> {
      * @return                   The loaded network
      */
     static Network read(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.guessBaseName(filename));
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
         dataSource.putData(filename, data);
         Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {

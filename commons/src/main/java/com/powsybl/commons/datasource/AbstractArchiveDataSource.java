@@ -12,7 +12,7 @@ import java.nio.file.Path;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractArchiveDataSource extends AbstractDataSource {
+public abstract class AbstractArchiveDataSource extends AbstractFileSystemDataSource {
 
     private final String archiveFileName;
 

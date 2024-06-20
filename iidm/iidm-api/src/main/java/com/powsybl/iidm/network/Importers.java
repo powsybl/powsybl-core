@@ -110,7 +110,7 @@ public final class Importers {
 
     private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
         Objects.requireNonNull(importer);
-        String caseBaseName = DataSourceUtil.guessBaseName(file);
+        String caseBaseName = DataSourceUtil.getBaseName(file);
         ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
         if (importer.exists(ds)) {
             dataSources.add(ds);

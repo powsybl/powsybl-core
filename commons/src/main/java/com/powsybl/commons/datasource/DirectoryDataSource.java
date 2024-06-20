@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class DirectoryDataSource extends AbstractDataSource {
+public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
     public DirectoryDataSource(Path directory, String baseName) {
         super(directory, baseName, null, null, "", null);
