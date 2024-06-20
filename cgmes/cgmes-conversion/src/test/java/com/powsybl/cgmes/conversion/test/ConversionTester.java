@@ -17,8 +17,14 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.*;
-import com.powsybl.commons.datasource.*;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ZipDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.XMLExporter;
@@ -162,17 +168,17 @@ public class ConversionTester {
         XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
-            xmlExporter.export(expected, null, DataSourceUtil.createDirectoryDataSource(path, "expected"));
+            xmlExporter.export(expected, null, new DirectoryDataSource(path, "expected"));
         }
         if (actual != null) {
-            xmlExporter.export(actual, null, DataSourceUtil.createDirectoryDataSource(path, "actual"));
+            xmlExporter.export(actual, null, new DirectoryDataSource(path, "actual"));
         }
     }
 
     private static void exportCgmes(String name, String impl, Network network) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl + "-");
-        new CgmesExport().export(network, null, DataSourceUtil.createDirectoryDataSource(path, "foo"));
+        new CgmesExport().export(network, null, new DirectoryDataSource(path, "foo"));
     }
 
     private static String subsetFromName(String name) {

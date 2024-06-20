@@ -10,7 +10,7 @@ package com.powsybl.triplestore.test;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.triplestore.api.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -109,7 +109,7 @@ class ExportTest {
             checkRepository(exportTripleStore, baseVoltageMasterResourceId);
 
             // export triple store
-            DataSource dataSource = DataSourceUtil.createDirectoryDataSource(exportFolder, networkId + "_" + implementation);
+            DataSource dataSource = new DirectoryDataSource(exportFolder, networkId + "_" + implementation);
             exportTripleStore.write(dataSource);
 
             // create import triple store

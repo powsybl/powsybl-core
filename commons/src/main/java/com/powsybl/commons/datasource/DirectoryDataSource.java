@@ -23,6 +23,10 @@ import java.util.stream.Stream;
  */
 public class DirectoryDataSource extends AbstractDataSource {
 
+    public DirectoryDataSource(Path directory, String baseName) {
+        super(directory, baseName, null, null, "", null);
+    }
+
     public DirectoryDataSource(Path directory, String baseName,
                                String sourceFormat,
                                DataSourceObserver observer) {

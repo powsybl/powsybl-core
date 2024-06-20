@@ -7,7 +7,7 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -56,11 +56,11 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(studyCase.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
-        assertTrue(importer.exists(DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "ieee14")));
-        assertFalse(importer.exists(DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "error")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14")));
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "error")));
 
-        importer.copy(DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "ieee14"),
-                DataSourceUtil.createDirectoryDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14"),
+                new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 

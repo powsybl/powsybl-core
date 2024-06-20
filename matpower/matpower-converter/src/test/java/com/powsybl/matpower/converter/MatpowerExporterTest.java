@@ -16,6 +16,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
@@ -142,7 +143,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
         Properties properties = new Properties();
         properties.put("matpower.import.ignore-base-voltage", false);
-        Network network = new MatpowerImporter().importData(DataSourceUtil.createDirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
 
         exportToMatAndCompareTo(network, "/ieee30-considering-base-voltage.json");
     }

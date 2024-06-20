@@ -15,25 +15,11 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.TestUtil;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
-
-import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.time.ZonedDateTime;
-
 import com.powsybl.psse.converter.extensions.PsseModelExtension;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
@@ -41,16 +27,18 @@ import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.junit.jupiter.api.Test;
 
-import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
-import static com.powsybl.psse.model.PsseVersion.fromRevision;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZonedDateTime;
 import java.util.Properties;
+
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
+import static com.powsybl.psse.model.PsseVersion.fromRevision;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -74,7 +62,7 @@ class PsseExporterTest extends AbstractSerDeTest {
         Path file = fileSystem.getPath(pathName + fileName);
 
         Properties properties = null;
-        DataSource dataSource = DataSourceUtil.createDirectoryDataSource(path, baseName);
+        DataSource dataSource = new DirectoryDataSource(path, baseName);
         new PsseExporter().export(network, properties, dataSource);
 
         try (InputStream is = Files.newInputStream(file)) {
