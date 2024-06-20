@@ -51,7 +51,7 @@ public interface ReferenceTerminals extends Extension<Network> {
                     .add();
         }
         ext.reset();
-        // reset also all subnetwork
+        // reset also all subnetworks
         network.getSubnetworks().forEach(ReferenceTerminals::reset);
     }
 
