@@ -47,7 +47,7 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
-    public static Map<String, SubstationGeoData> parseSubstations(Reader reader) {
+    public static Map<String, SubstationGeoData> parseSubstations(Reader reader, OdreConfig odreConfig) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -55,9 +55,9 @@ public final class GeographicDataParser {
         try {
             Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
             for (CSVRecord row : records) {
-                String id = row.get(FileValidator.SUBSTATION_ID);
-                double lon = Double.parseDouble(row.get(FileValidator.SUBSTATION_LONGITUDE));
-                double lat = Double.parseDouble(row.get(FileValidator.SUBSTATION_LATITUDE));
+                String id = row.get(odreConfig.substationIdColumn());
+                double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
+                double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
                     SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
@@ -97,14 +97,14 @@ public final class GeographicDataParser {
     }
 
     public static Map<String, LineGeoData> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader,
-                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
+                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap, OdreConfig odreConfig) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesReader);
-        parseLine(graphByLine, undergroundLinesReader);
+        parseLine(graphByLine, aerialLinesReader, odreConfig);
+        parseLine(graphByLine, undergroundLinesReader, odreConfig);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -158,12 +158,18 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, Reader reader) {
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, Reader reader, OdreConfig odreConfig) {
         try {
             Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
+            Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
             for (CSVRecord row : records) {
-                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
-                GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));
+                List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
+                GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
+
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;
                 }

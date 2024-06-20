@@ -28,6 +28,6 @@ public class PlannedDisconnection extends AbstractDisconnection {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
-        applyModification(network, true, reportNode);
+        applyModification(network, true, throwException, reportNode);
     }
 }
