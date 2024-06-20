@@ -22,13 +22,13 @@ public class OdreGeoDataAdder {
     protected OdreGeoDataAdder() {
     }
 
-    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path) {
-        fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path));
+    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, OdreConfig odreConfig) {
+        fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path, odreConfig));
     }
 
     public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath,
-                                                        Path undergroundLinesFilePath, Path substationPath) {
+                                                        Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
         fillNetworkLinesGeoData(network,
-                OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substationPath));
+                OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substationPath, odreConfig));
     }
 }

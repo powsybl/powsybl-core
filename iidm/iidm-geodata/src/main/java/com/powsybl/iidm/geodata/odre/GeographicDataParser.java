@@ -47,7 +47,7 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
-    public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader) {
+    public static Map<String, SubstationGeoData> parseSubstations(BufferedReader bufferedReader, OdreConfig odreConfig) {
         Map<String, SubstationGeoData> substations = new HashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
@@ -57,9 +57,9 @@ public final class GeographicDataParser {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                String id = row.get(FileValidator.SUBSTATION_ID);
-                double lon = Double.parseDouble(row.get(FileValidator.SUBSTATION_LONGITUDE));
-                double lat = Double.parseDouble(row.get(FileValidator.SUBSTATION_LATITUDE));
+                String id = row.get(odreConfig.substationIdColumn());
+                double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
+                double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
                 SubstationGeoData substation = substations.get(id);
                 if (substation == null) {
                     SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
@@ -98,14 +98,14 @@ public final class GeographicDataParser {
     }
 
     public static Map<String, LineGeoData> parseLines(BufferedReader aerialLinesBr, BufferedReader undergroundLinesBr,
-                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
+                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap, OdreConfig odreConfig) {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
         Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesBr);
-        parseLine(graphByLine, undergroundLinesBr);
+        parseLine(graphByLine, aerialLinesBr, odreConfig);
+        parseLine(graphByLine, undergroundLinesBr, odreConfig);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -159,14 +159,19 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br) {
+    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, BufferedReader br, OdreConfig odreConfig) {
 
         try (CsvMapReader mapReader = new CsvMapReader(br, FileValidator.CSV_PREFERENCE)) {
             final String[] headers = mapReader.getHeader(true);
             Map<String, String> row;
             while ((row = mapReader.read(headers)) != null) {
-                List<String> ids = Stream.of(row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_1)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_2)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_3)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_4)), row.get(FileValidator.IDS_COLUMNS_NAME.get(FileValidator.LINE_ID_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
-                GeoShape geoShape = GeoShapeDeserializer.read(row.get(FileValidator.GEO_SHAPE));
+                Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
+                List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).collect(Collectors.toList());
+                GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
                     continue;
                 }
