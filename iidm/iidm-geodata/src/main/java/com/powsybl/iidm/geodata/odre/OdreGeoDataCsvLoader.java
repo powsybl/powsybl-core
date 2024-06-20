@@ -10,11 +10,9 @@ package com.powsybl.iidm.geodata.odre;
 import com.powsybl.iidm.geodata.elements.LineGeoData;
 import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
+import org.apache.commons.io.IOUtils;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -31,9 +29,9 @@ public class OdreGeoDataCsvLoader {
     }
 
     public static List<SubstationGeoData> getSubstationsGeoData(Path path, OdreConfig odreConfig) {
-        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
+        try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
             if (FileValidator.validateSubstations(path, odreConfig)) {
-                return new ArrayList<>(GeographicDataParser.parseSubstations(bufferedReader, odreConfig).values());
+                return new ArrayList<>(GeographicDataParser.parseSubstations(reader, odreConfig).values());
             } else {
                 return Collections.emptyList();
             }
@@ -44,14 +42,18 @@ public class OdreGeoDataCsvLoader {
 
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
                                                     Path substationPath, OdreConfig odreConfig) {
-        Map<String, BufferedReader> mapValidation = FileValidator.validateLines(List.of(substationPath,
+        Map<String, Reader> mapValidation = FileValidator.validateLines(List.of(substationPath,
                 aerialLinesFilePath, undergroundLinesFilePath), odreConfig);
-        if (mapValidation.size() == 3) {
-            return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
-                    mapValidation.get(FileValidator.UNDERGROUND_LINES),
-                    GeographicDataParser.parseSubstations(mapValidation.get(FileValidator.SUBSTATIONS), odreConfig), odreConfig).values());
-        } else {
-            return Collections.emptyList();
+        List<LineGeoData> result = Collections.emptyList();
+        try {
+            if (mapValidation.size() == 3) {
+                result = new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
+                        mapValidation.get(FileValidator.UNDERGROUND_LINES),
+                        GeographicDataParser.parseSubstations(mapValidation.get(FileValidator.SUBSTATIONS), odreConfig), odreConfig).values());
+            }
+        } finally {
+            mapValidation.values().forEach(IOUtils::closeQuietly);
         }
+        return result;
     }
 }
