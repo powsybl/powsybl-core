@@ -76,7 +76,7 @@ public interface ReferenceTerminals extends Extension<Network> {
      * Gets the reference terminals in the network for the current variant.
      * <p> Note: This method returns only the terminal from the extension attached to the provided network.
      * In case of a merged network with subnetworks, be careful whether you want the extension
-     * of the merged network or of a subnetwork.
+     * of the merged network or of a subnetwork.</p>
      * @param network network to get reference terminals from
      */
     static Set<Terminal> getTerminals(Network network) {
