@@ -25,13 +25,16 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
     String NAME = "slackTerminal";
 
     /**
-     * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is empty,
-     * meaning that for each variant the terminal is null, this method automatically remove the extension.
+     * Set the terminal of all SlackTerminal extensions from the given network and all its subnetworks to null.
+     * If the extension is empty, meaning that for each variant the terminal is null, this method automatically
+     * remove the extension.
      *
      * @param network A network to cleanup
      */
     static void reset(Network network) {
         network.getVoltageLevels().forEach(vl -> reset(vl, null));
+        // reset also all subnetworks
+        network.getSubnetworks().forEach(sn -> sn.getVoltageLevels().forEach(vl -> reset(vl, null)));
     }
 
     /**
