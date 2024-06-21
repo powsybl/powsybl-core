@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
-import com.google.common.collect.Lists;
 import com.powsybl.iidm.geodata.elements.GeoShape;
 import com.powsybl.iidm.geodata.elements.LineGeoData;
 import com.powsybl.iidm.geodata.elements.SubstationGeoData;
@@ -20,8 +19,9 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
-import org.jgrapht.Graphs;
-import org.jgrapht.alg.connectivity.ConnectivityInspector;
+import org.jgrapht.event.ConnectedComponentTraversalEvent;
+import org.jgrapht.event.TraversalListenerAdapter;
+import org.jgrapht.event.VertexTraversalEvent;
 import org.jgrapht.traverse.BreadthFirstIterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +101,7 @@ public final class GeographicDataParser {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Map<String, Graph<Coordinate, Object>> graphByLine = new HashMap<>();
+        Map<String, LineGraph<Coordinate, Object>> graphByLine = new HashMap<>();
 
         parseLine(graphByLine, aerialLinesReader, odreConfig);
         parseLine(graphByLine, undergroundLinesReader, odreConfig);
@@ -114,15 +114,15 @@ public final class GeographicDataParser {
         int oneConnectedSetDiscarded = 0;
         int twoOrMoreConnectedSetsDiscarded = 0;
 
-        for (Map.Entry<String, Graph<Coordinate, Object>> e : graphByLine.entrySet()) {
+        for (Map.Entry<String, LineGraph<Coordinate, Object>> e : graphByLine.entrySet()) {
             String lineId = e.getKey();
             Graph<Coordinate, Object> graph = e.getValue();
-            List<Set<Coordinate>> connectedSets = new ConnectivityInspector<>(graph).connectedSets();
+            List<ConnectedSet> connectedSets = getConnectedSets(graph);
             if (connectedSets.size() == 1) {
                 linesWithOneConnectedSet++;
-                List<Coordinate> ends = getEnds(connectedSets.get(0), graph);
-                if (ends.size() == 2) {
-                    List<Coordinate> coordinates = Lists.newArrayList(new BreadthFirstIterator<>(graph, ends.get(0)));
+                ConnectedSet connectedSet = connectedSets.get(0);
+                if (connectedSet.ends().size() == 2) {
+                    List<Coordinate> coordinates = connectedSet.list();
                     Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
                     LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
                     lines.put(lineId, line);
@@ -131,8 +131,7 @@ public final class GeographicDataParser {
                 }
             } else {
                 linesWithTwoOrMoreConnectedSets++;
-                List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets,
-                        graph);
+                List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets, graph);
 
                 if (coordinatesComponents.size() != connectedSets.size()) {
                     twoOrMoreConnectedSetsDiscarded++;
@@ -158,7 +157,24 @@ public final class GeographicDataParser {
         return lines;
     }
 
-    private static void parseLine(Map<String, Graph<Coordinate, Object>> graphByLine, Reader reader, OdreConfig odreConfig) {
+    private static List<ConnectedSet> getConnectedSets(Graph<Coordinate, Object> graph) {
+        List<ConnectedSet> connectedSets = new ArrayList<>();
+        Set<Coordinate> vertexSet = graph.vertexSet();
+
+        Optional<Coordinate> endCoord = vertexSet.stream().filter(v -> graph.degreeOf(v) == 1).findFirst();
+        if (endCoord.isPresent()) {
+            var bfi = new BreadthFirstIterator<Coordinate, Object>(graph, () -> Stream.concat(Stream.of(endCoord.get()), vertexSet.stream()).iterator());
+            bfi.addTraversalListener(new GeoTraversalListener(graph, connectedSets));
+            while (bfi.hasNext()) {
+                bfi.next();
+            }
+        } else {
+            connectedSets = List.of(new ConnectedSet(vertexSet.stream().toList(), List.of()));
+        }
+        return connectedSets;
+    }
+
+    private static void parseLine(Map<String, LineGraph<Coordinate, Object>> graphByLine, Reader reader, OdreConfig odreConfig) {
         try {
             Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
             Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
@@ -175,26 +191,13 @@ public final class GeographicDataParser {
                 }
 
                 for (String lineId : ids) {
-                    putLineGraph(lineId, graphByLine).addVerticesAndEdges(geoShape.coordinates());
+                    graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class))
+                            .addVerticesAndEdges(geoShape.coordinates());
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private static LineGraph<Coordinate, Object> putLineGraph(String lineId, Map<String, Graph<Coordinate, Object>> graphByLine) {
-        return (LineGraph<Coordinate, Object>) graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class));
-    }
-
-    private static List<Coordinate> getEnds(Set<Coordinate> connectedSet, Graph<Coordinate, Object> graph) {
-        List<Coordinate> ends = new ArrayList<>();
-        for (Coordinate coordinate : connectedSet) {
-            if (Graphs.neighborListOf(graph, coordinate).size() == 1) {
-                ends.add(coordinate);
-            }
-        }
-        return ends;
     }
 
     private static double getBranchLength(List<Coordinate> coordinatesComponent) {
@@ -266,18 +269,52 @@ public final class GeographicDataParser {
         return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
     }
 
-    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<Set<Coordinate>> connectedSets,
+    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets,
                                                                                    Graph<Coordinate, Object> graph) {
         List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
-        for (Set<Coordinate> connectedSet : connectedSets) {
-            List<Coordinate> endsComponent = getEnds(connectedSet, graph);
+        for (ConnectedSet connectedSet : connectedSets) {
+            List<Coordinate> endsComponent = connectedSet.ends();
             if (endsComponent.size() == 2) {
-                List<Coordinate> coordinatesComponent = Lists.newArrayList(new BreadthFirstIterator<>(graph, endsComponent.get(0)));
-                coordinatesComponents.add(coordinatesComponent);
+                coordinatesComponents.add(connectedSet.list());
             } else {
                 break;
             }
         }
         return coordinatesComponents;
+    }
+
+    private record ConnectedSet(List<Coordinate> list, List<Coordinate> ends) {
+    }
+
+    private static class GeoTraversalListener extends TraversalListenerAdapter<Coordinate, Object> {
+        private final List<ConnectedSet> connectedSets;
+        private final Graph<Coordinate, Object> graph;
+        private List<Coordinate> currentConnectedSet;
+        private List<Coordinate> currentConnectedSetEnds;
+
+        public GeoTraversalListener(Graph<Coordinate, Object> graph, List<ConnectedSet> connectedSets) {
+            this.graph = graph;
+            this.connectedSets = connectedSets;
+        }
+
+        @Override
+        public void connectedComponentFinished(ConnectedComponentTraversalEvent e) {
+            connectedSets.add(new ConnectedSet(currentConnectedSet, currentConnectedSetEnds));
+        }
+
+        @Override
+        public void connectedComponentStarted(ConnectedComponentTraversalEvent e) {
+            currentConnectedSet = new ArrayList<>();
+            currentConnectedSetEnds = new ArrayList<>();
+        }
+
+        @Override
+        public void vertexTraversed(VertexTraversalEvent<Coordinate> e) {
+            Coordinate v = e.getVertex();
+            currentConnectedSet.add(v);
+            if (graph.degreeOf(v) == 1) {
+                currentConnectedSetEnds.add(v);
+            }
+        }
     }
 }
