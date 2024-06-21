@@ -183,7 +183,7 @@ public final class GeographicDataParser {
                         row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
                         row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
                         row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).toList();
+                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).filter(s -> !s.isEmpty()).distinct().toList();
                 GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
 
                 if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
