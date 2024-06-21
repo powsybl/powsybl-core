@@ -92,7 +92,7 @@ public final class GeographicDataParser {
         } else {
             boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
             String substation = geo1 != null ? substation1 : substation2;
-            return Pair.of(isStart ? substation : "", isStart ? "" : substation);
+            return isStart ? Pair.of(substation, "") : Pair.of("", substation);
         }
     }
 
@@ -201,36 +201,26 @@ public final class GeographicDataParser {
     }
 
     private static double getBranchLength(List<Coordinate> coordinatesComponent) {
-        return DistanceCalculator.distance(coordinatesComponent.get(0).getLatitude(), coordinatesComponent.get(0).getLongitude(),
-                coordinatesComponent.get(coordinatesComponent.size() - 1).getLatitude(), coordinatesComponent.get(coordinatesComponent.size() - 1).getLongitude());
+        return distanceCoordinate(coordinatesComponent.get(0), coordinatesComponent.get(coordinatesComponent.size() - 1));
     }
 
     private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
-        coordinatesComponents.sort((comp1, comp2) -> (int) (getBranchLength(comp2) - getBranchLength(comp1)));
-        return aggregateCoordinates(coordinatesComponents.get(0), coordinatesComponents.get(1));
-    }
-
-    private static List<Coordinate> aggregateCoordinates(List<Coordinate> coordinatesComponent1, List<Coordinate> coordinatesComponent2) {
         List<Coordinate> aggregatedCoordinates;
+
+        List<Coordinate> coordinatesComponent1 = coordinatesComponents.get(0);
+        List<Coordinate> coordinatesComponent2 = coordinatesComponents.get(1);
 
         double l1 = getBranchLength(coordinatesComponent1);
         double l2 = getBranchLength(coordinatesComponent2);
 
         if (100 * l2 / l1 < THRESHOLD) {
-            return coordinatesComponent1;
+            return l1 > l2 ? coordinatesComponent1 : coordinatesComponent2;
         }
 
-        double d1 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLatitude(), coordinatesComponent1.get(0).getLongitude(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLatitude(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLongitude());
-
-        double d2 = DistanceCalculator.distance(coordinatesComponent1.get(0).getLatitude(), coordinatesComponent1.get(0).getLongitude(),
-                coordinatesComponent2.get(0).getLatitude(), coordinatesComponent2.get(0).getLongitude());
-
-        double d3 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLatitude(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLongitude(),
-                coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLatitude(), coordinatesComponent2.get(coordinatesComponent2.size() - 1).getLongitude());
-
-        double d4 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLatitude(), coordinatesComponent1.get(coordinatesComponent1.size() - 1).getLongitude(),
-                coordinatesComponent2.get(0).getLatitude(), coordinatesComponent2.get(0).getLongitude());
+        double d1 = distanceCoordinate(coordinatesComponent1.get(0), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
+        double d2 = distanceCoordinate(coordinatesComponent1.get(0), coordinatesComponent2.get(0));
+        double d3 = distanceCoordinate(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
+        double d4 = distanceCoordinate(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(0));
 
         List<Double> distances = Arrays.asList(d1, d2, d3, d4);
         double min = min(distances);
