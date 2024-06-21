@@ -7,7 +7,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.List;
 import java.util.function.Predicate;
 
 /**
@@ -211,15 +210,13 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
 
     boolean connect(Predicate<Switch> isTypeSwitchToOperate);
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
     boolean disconnect();
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
-    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
-
-    List<Terminal> getTerminals(ThreeSides side);
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     @Override
     default IdentifiableType getType() {

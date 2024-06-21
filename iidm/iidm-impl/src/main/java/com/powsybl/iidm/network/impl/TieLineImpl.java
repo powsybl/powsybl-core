@@ -178,7 +178,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -245,7 +245,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -297,12 +297,10 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
         return isNowDisconnected;
     }
 
-    @Override
-    public List<Terminal> getTerminals(ThreeSides side) {
+    private List<Terminal> getTerminals(TwoSides side) {
         return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
             case ONE -> List.of(getTerminal1());
             case TWO -> List.of(getTerminal2());
-            default -> List.of(getTerminal1(), getTerminal2());
         };
     }
 

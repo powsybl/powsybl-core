@@ -7,10 +7,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
-import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -252,7 +252,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -319,7 +319,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         // ReportNode
         ReportNode reportNode = this.getNetwork().getReportNodeContext().getReportNode();
 
@@ -371,12 +371,10 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         return isNowDisconnected;
     }
 
-    @Override
-    public List<Terminal> getTerminals(ThreeSides side) {
+    private List<Terminal> getTerminals(TwoSides side) {
         return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
             case ONE -> List.of(getConverterStation1().getTerminal());
             case TWO -> List.of(getConverterStation2().getTerminal());
-            default -> List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal());
         };
     }
 
