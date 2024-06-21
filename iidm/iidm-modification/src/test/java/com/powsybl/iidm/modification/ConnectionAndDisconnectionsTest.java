@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
