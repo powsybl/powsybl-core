@@ -24,11 +24,11 @@ class LineGeoDataTest {
     void test() {
         LineGeoData lineGeoData = new LineGeoData("l", "FR", "FR", "ALAMO", "CORAL", Collections.<Coordinate>emptyList());
 
-        assertEquals("l", lineGeoData.getId());
-        assertEquals("FR", lineGeoData.getCountry1());
-        assertEquals("FR", lineGeoData.getCountry2());
-        assertEquals("ALAMO", lineGeoData.getSubstationStart());
-        assertEquals("CORAL", lineGeoData.getSubstationEnd());
-        assertTrue(lineGeoData.getCoordinates().isEmpty());
+        assertEquals("l", lineGeoData.id());
+        assertEquals("FR", lineGeoData.country1());
+        assertEquals("FR", lineGeoData.country2());
+        assertEquals("ALAMO", lineGeoData.substationStart());
+        assertEquals("CORAL", lineGeoData.substationEnd());
+        assertTrue(lineGeoData.coordinates().isEmpty());
     }
 }

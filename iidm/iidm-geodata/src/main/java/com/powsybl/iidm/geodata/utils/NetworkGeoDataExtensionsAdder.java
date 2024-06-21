@@ -38,10 +38,10 @@ public final class NetworkGeoDataExtensionsAdder {
 
     public static void fillNetworkLinesGeoData(Network network, List<LineGeoData> linesGeoData) {
         linesGeoData.forEach(geoData -> {
-            Line foundLine = network.getLine(geoData.getId());
+            Line foundLine = network.getLine(geoData.id());
             if (foundLine != null) {
                 foundLine.newExtension(LinePositionAdder.class)
-                        .withCoordinates(geoData.getCoordinates())
+                        .withCoordinates(geoData.coordinates())
                         .add();
             }
         });

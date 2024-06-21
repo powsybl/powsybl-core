@@ -35,14 +35,14 @@ class OdreGeoDataCsvLoaderTest {
 
         assertEquals(2, linesGeodata.size());
         LineGeoData line1Position = linesGeodata.get(0);
-        assertEquals("POST1L71POST3", line1Position.getId());
-        assertEquals("POST1", line1Position.getSubstationEnd());
-        assertEquals("", line1Position.getSubstationStart());
+        assertEquals("POST1L71POST3", line1Position.id());
+        assertEquals("POST1", line1Position.substationEnd());
+        assertEquals("", line1Position.substationStart());
 
         LineGeoData line2Position = linesGeodata.get(1);
-        assertEquals("POST1L71POST2", line2Position.getId());
-        assertEquals("POST1", line2Position.getSubstationEnd());
-        assertEquals("POST2", line2Position.getSubstationStart());
+        assertEquals("POST1L71POST2", line2Position.id());
+        assertEquals("POST1", line2Position.substationEnd());
+        assertEquals("POST2", line2Position.substationStart());
     }
 
 }
