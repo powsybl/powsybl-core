@@ -20,9 +20,7 @@ public class LineGraph<V, E> extends SimpleGraph<V, E> {
     public void addVerticesAndEdges(Iterable<V> vertices) {
         V previousVertex = null;
         for (V vertex : vertices) {
-            if (!containsVertex(vertex)) {
-                addVertex(vertex);
-            }
+            addVertex(vertex);
             if (previousVertex != null) {
                 addEdge(previousVertex, vertex);
             }
