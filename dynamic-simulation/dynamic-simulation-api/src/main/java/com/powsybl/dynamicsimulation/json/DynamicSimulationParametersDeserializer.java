@@ -35,7 +35,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
 
     @Override
     public DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
-        DynamicSimulationParameters parameters) throws IOException {
+                                                   DynamicSimulationParameters parameters) throws IOException {
 
         List<Extension<DynamicSimulationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {

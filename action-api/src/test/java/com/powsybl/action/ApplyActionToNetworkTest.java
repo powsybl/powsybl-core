@@ -9,7 +9,12 @@
 package com.powsybl.action;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
@@ -56,6 +61,28 @@ class ApplyActionToNetworkTest {
         action2.toModification().apply(network);
         assertTrue(branch.getTerminal(TwoSides.TWO).isConnected());
         assertFalse(branch.getTerminal(TwoSides.ONE).isConnected());
+    }
+
+    /**
+     * This action fails on tie-lines since they are not a connectable
+     */
+    @Test
+    void terminalConnectionActionOnTieLineException() {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+
+        // Disconnection
+        TerminalsConnectionAction disconnectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", true);
+        NetworkModification disconnection = disconnectionAction.toModification();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
+        ComputationManager computationManager = LocalComputationManager.getDefault();
+        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertEquals("Connectable 'NHV1_NHV2_1' not found", disconnectionException.getMessage());
+
+        // Connection
+        TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
+        NetworkModification connection = connectionAction.toModification();
+        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertEquals("Connectable 'NHV1_NHV2_1' not found", connectionException.getMessage());
     }
 
     @Test
