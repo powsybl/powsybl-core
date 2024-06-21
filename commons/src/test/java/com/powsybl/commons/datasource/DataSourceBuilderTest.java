@@ -43,7 +43,7 @@ class DataSourceBuilderTest {
         DataSourceBuilder builder = new DataSourceBuilder()
             .withDirectory(testDir)
             .withBaseName("foo")
-            .withSourceFormatExtension(".baz")
+            .withMainExtension(".baz")
             .withObserver(observer);
 
         // Directory datasource
@@ -69,7 +69,7 @@ class DataSourceBuilderTest {
         DataSourceBuilder builder = new DataSourceBuilder()
             .withCompressionFormat(CompressionFormat.ZIP)
             .withArchiveFileName("bar.zip")
-            .withSourceFormatExtension(".baz")
+            .withMainExtension(".baz")
             .withArchiveFormat(ArchiveFormat.ZIP)
             .withObserver(observer);
 
@@ -90,9 +90,9 @@ class DataSourceBuilderTest {
 
         // Source format extension set to null
         builder.withBaseName("foo");
-        builder.withSourceFormatExtension(null);
+        builder.withMainExtension(null);
         exception = assertThrows(PowsyblException.class, builder::build);
-        assertEquals("Source format cannot be null", exception.getMessage());
+        assertEquals("Main extension cannot be null", exception.getMessage());
     }
 
     @Test
@@ -101,7 +101,7 @@ class DataSourceBuilderTest {
             .withDirectory(testDir)
             .withBaseName("foo")
             .withArchiveFileName("bar.zip")
-            .withSourceFormatExtension(".baz");
+            .withMainExtension(".baz");
 
         // Wrong archive format
         builder.withCompressionFormat(CompressionFormat.ZIP).withArchiveFormat(ArchiveFormat.TAR);

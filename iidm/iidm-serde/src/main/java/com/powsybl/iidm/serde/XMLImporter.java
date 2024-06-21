@@ -63,8 +63,8 @@ public class XMLImporter extends AbstractTreeDataImporter {
 
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try {
-            if (ext != null) {
-                try (InputStream is = dataSource.newInputStream(null, ext, true)) {
+            if (ext != null && dataSource.existsStrict(null, ext)) {
+                try (InputStream is = dataSource.newInputStream(null, ext)) {
                     // check the first root element is network and namespace is IIDM
                     XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
                     try {

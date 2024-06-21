@@ -8,7 +8,6 @@
 package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -64,27 +63,29 @@ public class ReadOnlyMemDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
+    public boolean exists(String suffix, String ext) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return existsStrict(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    public boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
         return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && data.containsKey(fileName);
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
+    public InputStream newInputStream(String suffix, String ext) throws IOException {
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public InputStream newInputStream(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
-        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(fileName)) {
-            throw new PowsyblException(String.format("File %s is inconsistent with the ReadOnlyMemDataSource", fileName));
-        }
         byte[] ba = data.get(fileName);
         if (ba == null) {
             throw new IOException(fileName + " does not exist");

@@ -8,28 +8,29 @@
 package com.powsybl.commons.datasource;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public abstract class AbstractReadOnlyDataSource implements ReadOnlyDataSource {
 
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(suffix, ext, false);
+    @Override
+    public boolean exists(String fileName) throws IOException {
+        return checkFileExistence(fileName, false);
     }
 
-    public boolean exists(String fileName)throws IOException {
-        return exists(fileName, false);
+    @Override
+    public boolean existsStrict(String fileName) throws IOException {
+        return checkFileExistence(fileName, true);
     }
 
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(suffix, ext, false);
-    }
-
-    public InputStream newInputStream(String fileName) throws IOException {
-        return newInputStream(fileName, false);
-    }
+    /**
+     * Check if a file exists in the archive.
+     * @param fileName Name of the file
+     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
+     * @return true if the file exists, else false
+     */
+    protected abstract boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) throws IOException;
 
     public boolean isConsistentWithDataSource(String fileName) {
         return fileName.startsWith(getBaseName());

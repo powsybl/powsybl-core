@@ -72,7 +72,7 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
                     FileInformation fileInformation = new FileInformation(zipEntry.getName(), false);
                     // Check that files have the same source format and respect the regex
                     if ((baseName.isEmpty() || zipEntry.getName().startsWith(baseName))
-                        && (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension))
+                        && (mainExtension.isEmpty() || fileInformation.getMainExtension().equals(mainExtension))
                         && p.matcher(zipEntry.getName()).matches()) {
                         names.add(zipEntry.getName());
                     }
@@ -93,27 +93,8 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
         return false;
     }
 
-    /**
-     * Check if a file exists in the archive. The file name will be constructed as:
-     * <p>{@code <basename><suffix>.<ext>}</p>
-     * @param suffix Suffix to add to the basename of the datasource
-     * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
-     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
-     * @return true if the file exists, else false
-     */
     @Override
-    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
-    }
-
-    /**
-     * Check if a file exists in the archive.
-     * @param fileName Name of the file
-     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
-     * @return true if the file exists, else false
-     */
-    @Override
-    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
+    public boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getArchiveFilePath();
         return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && entryExists(zipFilePath, fileName);
@@ -136,15 +117,15 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+    public InputStream newInputStream(String suffix, String ext) throws IOException {
         return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public InputStream newInputStream(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getArchiveFilePath();
-        if ((!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName)) && entryExists(zipFilePath, fileName)) {
+        if (entryExists(zipFilePath, fileName)) {
             InputStream is = new ZipEntryInputStream(ZipFile.builder().setSeekableByteChannel(Files.newByteChannel(zipFilePath)).get(), fileName);
             return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
         }

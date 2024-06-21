@@ -83,7 +83,7 @@ public class PsseImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext, true)) {
+            if (dataSource.existsStrict(null, ext)) {
                 return ext;
             }
         }

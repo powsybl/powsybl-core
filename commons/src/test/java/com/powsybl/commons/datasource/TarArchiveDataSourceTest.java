@@ -56,7 +56,6 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         Files.createDirectories(testDir);
         archiveWithSubfolders = "foo.iidm.tar.gz";
         appendException = "append not supported in tar file data source";
-        throwExceptionOnConsistency = true;
     }
 
     @AfterEach
@@ -161,7 +160,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         // File information
         FileInformation fileInformation = new FileInformation(fileName);
 
-        // Create the Zip archive and add the files
+        // Create the Tar archive and add the files
         try (OutputStream fOut = Files.newOutputStream(fileSystem.getPath(fileName));
              BufferedOutputStream buffOut = new BufferedOutputStream(fOut);
              OutputStream gzOut = getCompressedOutputStream(buffOut, fileInformation.getCompressionFormat());

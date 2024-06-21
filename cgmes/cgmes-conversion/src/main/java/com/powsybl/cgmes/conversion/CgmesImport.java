@@ -182,27 +182,32 @@ public class CgmesImport implements Importer {
         }
 
         @Override
-        public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-            return ds.exists(suffix, ext, checkConsistencyWithDataSource) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        public boolean exists(String suffix, String ext) throws IOException {
+            return ds.exists(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
         }
 
         @Override
-        public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
-            return ds.exists(fileName, checkConsistencyWithDataSource) && filter.test(fileName);
+        public boolean existsStrict(String suffix, String ext) throws IOException {
+            return ds.existsStrict(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
         }
 
         @Override
-        public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+        protected boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+            return (checkConsistencyWithDataSource ? ds.existsStrict(fileName) : ds.exists(fileName)) && filter.test(fileName);
+        }
+
+        @Override
+        public InputStream newInputStream(String suffix, String ext) throws IOException {
             if (filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext))) {
-                return ds.newInputStream(suffix, ext, checkConsistencyWithDataSource);
+                return ds.newInputStream(suffix, ext);
             }
             throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
         }
 
         @Override
-        public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+        public InputStream newInputStream(String fileName) throws IOException {
             if (filter.test(fileName)) {
-                return ds.newInputStream(fileName, checkConsistencyWithDataSource);
+                return ds.newInputStream(fileName);
             }
             throw new IOException(fileName + " not found");
         }

@@ -7,8 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.powsybl.commons.PowsyblException;
-
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -41,28 +40,29 @@ public class ResourceDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
+    public boolean exists(String suffix, String ext) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return existsStrict(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    public boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) {
         Objects.requireNonNull(fileName);
         return (!checkConsistencyWithDataSource || isConsistentWithDataSource(fileName))
             && resourceSets.stream().anyMatch(resourceSet -> resourceSet.getFileNames().contains(fileName));
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
+    public InputStream newInputStream(String suffix, String ext) {
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) {
-        Objects.requireNonNull(fileName);
-        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(fileName)) {
-            throw new PowsyblException(String.format("File %s is inconsistent with the ResourceDataSource", fileName));
-        }
+    public InputStream newInputStream(String fileName) {
         return resourceSets.stream().filter(resourceSet -> resourceSet.exists(fileName))
                 .map(resourceSet -> resourceSet.newInputStream(fileName))
                 .findFirst()

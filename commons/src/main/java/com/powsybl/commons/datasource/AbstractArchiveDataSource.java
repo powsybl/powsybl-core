@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -29,6 +30,30 @@ public abstract class AbstractArchiveDataSource extends AbstractFileSystemDataSo
     public boolean isConsistentWithDataSource(String fileName) {
         FileInformation fileInformation = new FileInformation(fileName, false);
         return fileName.startsWith(baseName) &&
-            (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension));
+            (mainExtension.isEmpty() || fileInformation.getMainExtension().equals(mainExtension));
+    }
+
+    /**
+     * Check if a file exists in the archive. The file name will be constructed as:
+     * {@code <basename><suffix>.<ext>}</p>
+     * @param suffix Suffix to add to the basename of the datasource
+     * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
+     * @return true if the file exists, else false
+     */
+    @Override
+    public boolean exists(String suffix, String ext) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    /**
+     * Check if a file exists in the archive. The file name will be constructed as:
+     * {@code <basename><suffix>.<ext>}</p>
+     * @param suffix Suffix to add to the basename of the datasource
+     * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
+     * @return true if the file exists, else false
+     */
+    @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return existsStrict(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 }

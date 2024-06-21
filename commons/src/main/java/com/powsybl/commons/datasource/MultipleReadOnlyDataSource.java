@@ -41,10 +41,10 @@ public class MultipleReadOnlyDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+    public boolean exists(String suffix, String ext) throws IOException {
         return dataSources.stream().anyMatch(dataSource -> {
             try {
-                return dataSource.exists(suffix, ext, checkConsistencyWithDataSource);
+                return dataSource.exists(suffix, ext);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -52,10 +52,10 @@ public class MultipleReadOnlyDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public boolean existsStrict(String suffix, String ext) throws IOException {
         return dataSources.stream().anyMatch(dataSource -> {
             try {
-                return dataSource.exists(fileName, checkConsistencyWithDataSource);
+                return dataSource.existsStrict(suffix, ext);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -63,20 +63,33 @@ public class MultipleReadOnlyDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+    protected boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+        return dataSources.stream().anyMatch(dataSource -> {
+            try {
+                return checkConsistencyWithDataSource ?
+                    dataSource.existsStrict(fileName) :
+                    dataSource.exists(fileName);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    @Override
+    public InputStream newInputStream(String suffix, String ext) throws IOException {
         for (var dataSource : dataSources) {
-            if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
-                return dataSource.newInputStream(suffix, ext, checkConsistencyWithDataSource);
+            if (dataSource.exists(suffix, ext)) {
+                return dataSource.newInputStream(suffix, ext);
             }
         }
         return null;
     }
 
     @Override
-    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public InputStream newInputStream(String fileName) throws IOException {
         for (var dataSource : dataSources) {
-            if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
-                return dataSource.newInputStream(fileName, checkConsistencyWithDataSource);
+            if (dataSource.exists(fileName)) {
+                return dataSource.newInputStream(fileName);
             }
         }
         return null;

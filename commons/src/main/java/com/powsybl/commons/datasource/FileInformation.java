@@ -22,7 +22,7 @@ public class FileInformation {
     private String baseName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
-    private String sourceFormatExtension;
+    private String mainExtension;
 
     FileInformation(String fileName) {
         Objects.requireNonNull(fileName);
@@ -72,19 +72,19 @@ public class FileInformation {
         // Last dot index
         currentDotIndex = fileNameWithoutCompressionNorArchive.lastIndexOf('.');
 
-        /* Datasource format
+        /* Main datasource extension
          * Four cases are possible:
          *  - case 1 ("dummy"): currentDotIndex < 0 -> no source format is given
          *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no source format is given
          *  - case 3 ("dummy.foo"): ".foo" is the source format
          */
-        sourceFormatExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
-        logSourceFormat(fileName, sourceFormatExtension, dataSourceInitialization);
+        mainExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
+        logSourceFormat(fileName, mainExtension, dataSourceInitialization);
 
         // Base name
-        baseName = sourceFormatExtension.isEmpty() ?
+        baseName = mainExtension.isEmpty() ?
             fileNameWithoutCompressionNorArchive :
-            fileNameWithoutCompressionNorArchive.substring(0, fileNameWithoutCompressionNorArchive.lastIndexOf(sourceFormatExtension));
+            fileNameWithoutCompressionNorArchive.substring(0, fileNameWithoutCompressionNorArchive.lastIndexOf(mainExtension));
         if (baseName.isEmpty()) {
             LOGGER.warn("Base name is empty in file {}", fileName);
         }
@@ -108,14 +108,14 @@ public class FileInformation {
         return archiveFormat;
     }
 
-    public String getSourceFormatExtension() {
-        return sourceFormatExtension;
+    public String getMainExtension() {
+        return mainExtension;
     }
 
     public String toString() {
         return "FileInformation["
             + "baseName=" + baseName + ", "
-            + "sourceFormatExtension=" + sourceFormatExtension + ", "
+            + "mainExtension=" + mainExtension + ", "
             + "archiveFormat=" + archiveFormat + ", "
             + "compressionFormat=" + compressionFormat
             + "]";

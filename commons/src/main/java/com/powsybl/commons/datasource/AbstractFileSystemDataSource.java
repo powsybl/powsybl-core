@@ -18,7 +18,7 @@ abstract class AbstractFileSystemDataSource extends AbstractReadOnlyDataSource i
     final String baseName;
     final CompressionFormat compressionFormat;
     final ArchiveFormat archiveFormat;
-    final String sourceFormatExtension;
+    final String mainExtension;
     final DataSourceObserver observer;
 
     /**
@@ -26,18 +26,18 @@ abstract class AbstractFileSystemDataSource extends AbstractReadOnlyDataSource i
      * @param directory Directory in which is located the data
      * @param baseName Base of the filenames that will be used
      * @param compressionFormat Compression format of the data
-     * @param sourceFormatExtension Extension corresponding to the data source (.iidm, .cgmes, .xml, etc.)
+     * @param mainExtension Extension corresponding to the data source (.iidm, .cgmes, .xml, etc.)
      * @param observer Data source observer
      */
     AbstractFileSystemDataSource(Path directory, String baseName,
                                  CompressionFormat compressionFormat, ArchiveFormat archiveFormat,
-                                 String sourceFormatExtension,
+                                 String mainExtension,
                                  DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
         this.compressionFormat = compressionFormat;
         this.archiveFormat = archiveFormat;
-        this.sourceFormatExtension = Objects.requireNonNull(sourceFormatExtension);
+        this.mainExtension = Objects.requireNonNull(mainExtension);
         this.observer = observer;
     }
 
@@ -62,8 +62,8 @@ abstract class AbstractFileSystemDataSource extends AbstractReadOnlyDataSource i
         return archiveFormat;
     }
 
-    public String getSourceFormatExtension() {
-        return sourceFormatExtension;
+    public String getMainExtension() {
+        return mainExtension;
     }
 
     public DataSourceObserver getObserver() {

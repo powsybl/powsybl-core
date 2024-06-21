@@ -97,7 +97,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : getExtensions()) {
-            if (dataSource.exists(null, ext, true)) {
+            if (dataSource.existsStrict(null, ext)) {
                 return ext;
             }
         }

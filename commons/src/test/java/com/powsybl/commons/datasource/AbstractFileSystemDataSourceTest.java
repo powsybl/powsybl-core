@@ -8,7 +8,6 @@
 package com.powsybl.commons.datasource;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 abstract class AbstractFileSystemDataSourceTest {
     protected FileSystem fileSystem;
     protected Path testDir;
-    protected boolean throwExceptionOnConsistency = false;
 
     protected boolean appendTest() {
         return true;
@@ -72,20 +70,6 @@ abstract class AbstractFileSystemDataSourceTest {
             assertEquals("otherline1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         } catch (IOException x) {
             fail();
-        }
-        try (InputStream is = dataSource.newInputStream("dummy.txt", true)) {
-            if (throwExceptionOnConsistency) {
-                fail();
-            } else {
-                assertNull(is);
-            }
-        } catch (PowsyblException exception) {
-            if (throwExceptionOnConsistency) {
-                assertEquals("File dummy.txt is inconsistent with the ArchiveDataSource",
-                    exception.getMessage());
-            } else {
-                fail();
-            }
         }
     }
 }

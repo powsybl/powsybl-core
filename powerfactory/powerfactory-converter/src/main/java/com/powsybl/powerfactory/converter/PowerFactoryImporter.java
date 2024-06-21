@@ -76,13 +76,21 @@ public class PowerFactoryImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        return findProjectLoader(dataSource).filter(studyCaseLoader -> {
-            try (InputStream is = dataSource.newInputStream(null, studyCaseLoader.getExtension(), true)) {
-                return studyCaseLoader.test(is);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        }).isPresent();
+        return findProjectLoader(dataSource)
+            .filter(studyCaseLoader -> {
+                try {
+                    return dataSource.existsStrict(null, studyCaseLoader.getExtension());
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            })
+            .filter(studyCaseLoader -> {
+                try (InputStream is = dataSource.newInputStream(null, studyCaseLoader.getExtension())) {
+                    return studyCaseLoader.test(is);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            }).isPresent();
     }
 
     @Override

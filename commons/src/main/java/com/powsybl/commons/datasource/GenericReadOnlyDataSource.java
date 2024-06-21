@@ -52,9 +52,9 @@ public class GenericReadOnlyDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+    public boolean exists(String suffix, String ext) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
+            if (dataSource.exists(suffix, ext)) {
                 return true;
             }
         }
@@ -62,9 +62,9 @@ public class GenericReadOnlyDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public boolean existsStrict(String suffix, String ext) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
+            if (dataSource.existsStrict(suffix, ext)) {
                 return true;
             }
         }
@@ -72,20 +72,30 @@ public class GenericReadOnlyDataSource extends AbstractReadOnlyDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
+    protected boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(suffix, ext, checkConsistencyWithDataSource)) {
-                return dataSource.newInputStream(suffix, ext, checkConsistencyWithDataSource);
+            if (checkConsistencyWithDataSource ? dataSource.existsStrict(fileName) : dataSource.exists(fileName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public InputStream newInputStream(String suffix, String ext) throws IOException {
+        for (ReadOnlyDataSource dataSource : dataSources) {
+            if (dataSource.exists(suffix, ext)) {
+                return dataSource.newInputStream(suffix, ext);
             }
         }
         throw new IOException(DataSourceUtil.getFileName(getBaseName(), suffix, ext) + " not found");
     }
 
     @Override
-    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public InputStream newInputStream(String fileName) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.exists(fileName, checkConsistencyWithDataSource)) {
-                return dataSource.newInputStream(fileName, checkConsistencyWithDataSource);
+            if (dataSource.exists(fileName)) {
+                return dataSource.newInputStream(fileName);
             }
         }
         throw new IOException(fileName + " not found");

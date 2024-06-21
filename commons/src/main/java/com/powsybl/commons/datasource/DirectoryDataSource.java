@@ -28,16 +28,16 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
     }
 
     public DirectoryDataSource(Path directory, String baseName,
-                               String sourceFormat,
+                               String mainExtension,
                                DataSourceObserver observer) {
-        super(directory, baseName, null, null, sourceFormat, observer);
+        super(directory, baseName, null, null, mainExtension, observer);
     }
 
     DirectoryDataSource(Path directory, String baseName,
                                CompressionFormat compressionFormat,
-                               String sourceFormat,
+                               String mainExtension,
                                DataSourceObserver observer) {
-        super(directory, baseName, compressionFormat, null, sourceFormat, observer);
+        super(directory, baseName, compressionFormat, null, mainExtension, observer);
     }
 
     /**
@@ -81,24 +81,28 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
      * with the compression extension being optional and depending on how the datasource is configured.
      * @param suffix Suffix to add to the basename of the datasource
      * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
-     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
+    public boolean exists(String suffix, String ext) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     /**
      * Check if a file exists in the datasource. The file name will be constructed as:
-     * <p>{@code <directory>/<fileName>.<compression_ext>}</p>
+     * <p>{@code <directory>/<basename><suffix>.<ext>.<compression_ext>}</p>
      * with the compression extension being optional and depending on how the datasource is configured.
-     * @param fileName Name of the file (with or without the compression extension)
-     * @param checkConsistencyWithDataSource Should the filename be checked for consistency with the DataSource
+     * @param suffix Suffix to add to the basename of the datasource
+     * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
      * @return true if the file exists, else false
      */
     @Override
-    public boolean exists(String fileName, boolean checkConsistencyWithDataSource) {
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return existsStrict(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    protected boolean checkFileExistence(String fileName, boolean checkConsistencyWithDataSource) {
         Path path = getPath(fileName);
         return (!checkConsistencyWithDataSource || isConsistentWithDataSource(path.getFileName().toString()))
             && Files.isRegularFile(path);
@@ -117,16 +121,13 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext, boolean checkConsistencyWithDataSource) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext), checkConsistencyWithDataSource);
+    public InputStream newInputStream(String suffix, String ext) throws IOException {
+        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
-    public InputStream newInputStream(String fileName, boolean checkConsistencyWithDataSource) throws IOException {
+    public InputStream newInputStream(String fileName) throws IOException {
         Path path = getPath(fileName);
-        if (checkConsistencyWithDataSource && !isConsistentWithDataSource(path.getFileName().toString())) {
-            return null;
-        }
         InputStream is = getCompressedInputStream(Files.newInputStream(path));
         return observer != null ? new ObservableInputStream(is, path.toString(), observer) : is;
     }
@@ -151,7 +152,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
             return false;
         }
         FileInformation fileInformation = new FileInformation(fileName, false);
-        return (sourceFormatExtension.isEmpty() || fileInformation.getSourceFormatExtension().equals(sourceFormatExtension))
+        return (mainExtension.isEmpty() || fileInformation.getMainExtension().equals(mainExtension))
             && (compressionFormat == null && fileInformation.getCompressionFormat() == null
             || fileInformation.getCompressionFormat() != null && fileInformation.getCompressionFormat().equals(compressionFormat));
     }
