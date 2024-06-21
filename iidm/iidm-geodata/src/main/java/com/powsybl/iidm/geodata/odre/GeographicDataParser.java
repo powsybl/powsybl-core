@@ -101,10 +101,10 @@ public final class GeographicDataParser {
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Map<String, LineGraph<Coordinate, Object>> graphByLine = new HashMap<>();
+        Map<String, List<List<Coordinate>>> coordinatesListsByLine = new HashMap<>();
 
-        parseLine(graphByLine, aerialLinesReader, odreConfig);
-        parseLine(graphByLine, undergroundLinesReader, odreConfig);
+        parseLine(coordinatesListsByLine, aerialLinesReader, odreConfig);
+        parseLine(coordinatesListsByLine, undergroundLinesReader, odreConfig);
 
         Map<String, LineGeoData> lines = new HashMap<>();
 
@@ -114,34 +114,44 @@ public final class GeographicDataParser {
         int oneConnectedSetDiscarded = 0;
         int twoOrMoreConnectedSetsDiscarded = 0;
 
-        for (Map.Entry<String, LineGraph<Coordinate, Object>> e : graphByLine.entrySet()) {
+        for (Map.Entry<String, List<List<Coordinate>>> e : coordinatesListsByLine.entrySet()) {
             String lineId = e.getKey();
-            Graph<Coordinate, Object> graph = e.getValue();
-            List<ConnectedSet> connectedSets = getConnectedSets(graph);
-            if (connectedSets.size() == 1) {
-                linesWithOneConnectedSet++;
-                ConnectedSet connectedSet = connectedSets.get(0);
-                if (connectedSet.ends().size() == 2) {
-                    List<Coordinate> coordinates = connectedSet.list();
-                    Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
-                    LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
-                    lines.put(lineId, line);
-                } else {
-                    oneConnectedSetDiscarded++;
-                }
-            } else {
-                linesWithTwoOrMoreConnectedSets++;
-                List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets, graph);
 
-                if (coordinatesComponents.size() != connectedSets.size()) {
-                    twoOrMoreConnectedSetsDiscarded++;
-                    continue;
-                }
-
-                List<Coordinate> aggregatedCoordinates = aggregateCoordinates(coordinatesComponents);
-                Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
-                LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
+            List<List<Coordinate>> coordinatesLists = e.getValue();
+            if (coordinatesLists.size() == 1) {
+                List<Coordinate> coordinates = coordinatesLists.get(0);
+                Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
+                LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
                 lines.put(lineId, line);
+            } else {
+                LineGraph<Coordinate, Object> graph = new LineGraph<>(Object.class);
+                coordinatesLists.forEach(graph::addVerticesAndEdges);
+                List<ConnectedSet> connectedSets = getConnectedSets(graph);
+                if (connectedSets.size() == 1) {
+                    linesWithOneConnectedSet++;
+                    ConnectedSet connectedSet = connectedSets.get(0);
+                    if (connectedSet.ends().size() == 2) {
+                        List<Coordinate> coordinates = connectedSet.list();
+                        Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
+                        LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
+                        lines.put(lineId, line);
+                    } else {
+                        oneConnectedSetDiscarded++;
+                    }
+                } else {
+                    linesWithTwoOrMoreConnectedSets++;
+                    List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets, graph);
+
+                    if (coordinatesComponents.size() != connectedSets.size()) {
+                        twoOrMoreConnectedSetsDiscarded++;
+                        continue;
+                    }
+
+                    List<Coordinate> aggregatedCoordinates = aggregateCoordinates(coordinatesComponents);
+                    Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
+                    LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
+                    lines.put(lineId, line);
+                }
             }
         }
 
@@ -149,9 +159,9 @@ public final class GeographicDataParser {
         LOGGER.info("{} lines have one Connected set, {} of them were discarded", linesWithOneConnectedSet, oneConnectedSetDiscarded);
         LOGGER.info("{} lines have two or more Connected sets, {} of them were discarded", linesWithTwoOrMoreConnectedSets, twoOrMoreConnectedSetsDiscarded);
 
-        if (graphByLine.size() != lines.size()) {
+        if (coordinatesListsByLine.size() != lines.size()) {
             LOGGER.warn("Total discarded lines : {}/{} ",
-                    graphByLine.size() - lines.size(), graphByLine.size());
+                    coordinatesListsByLine.size() - lines.size(), coordinatesListsByLine.size());
         }
 
         return lines;
@@ -174,7 +184,7 @@ public final class GeographicDataParser {
         return connectedSets;
     }
 
-    private static void parseLine(Map<String, LineGraph<Coordinate, Object>> graphByLine, Reader reader, OdreConfig odreConfig) {
+    private static void parseLine(Map<String, List<List<Coordinate>>> coordinateListsByLine, Reader reader, OdreConfig odreConfig) {
         try {
             Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
             Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
@@ -191,8 +201,8 @@ public final class GeographicDataParser {
                 }
 
                 for (String lineId : ids) {
-                    graphByLine.computeIfAbsent(lineId, key -> new LineGraph<>(Object.class))
-                            .addVerticesAndEdges(geoShape.coordinates());
+                    coordinateListsByLine.computeIfAbsent(lineId, key -> new ArrayList<>())
+                            .add(geoShape.coordinates());
                 }
             }
         } catch (IOException e) {
