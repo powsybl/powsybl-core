@@ -7,12 +7,12 @@
  */
 package com.powsybl.iidm.geodata.utils;
 
-import org.jgrapht.graph.Pseudograph;
+import org.jgrapht.graph.SimpleGraph;
 
 /**
  * @author Hugo Marcellin {@literal <hugo.marcelin at rte-france.com>}
  */
-public class LineGraph<V, E> extends Pseudograph<V, E> {
+public class LineGraph<V, E> extends SimpleGraph<V, E> {
     public LineGraph(Class<? extends E> edgeClass) {
         super(edgeClass);
     }
