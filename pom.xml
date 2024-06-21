@@ -102,6 +102,7 @@
         <commonscli.version>1.8.0</commonscli.version>
         <commonscompress.version>1.26.2</commonscompress.version>
         <commons-configuration2.version>2.10.1</commons-configuration2.version>
+        <commons-csv.version>1.11.0</commons-csv.version>
         <commonsio.version>2.16.1</commonsio.version>
         <commonslang3.version>3.14.0</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>

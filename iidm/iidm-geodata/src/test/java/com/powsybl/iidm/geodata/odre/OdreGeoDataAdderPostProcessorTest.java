@@ -64,7 +64,7 @@ class OdreGeoDataAdderPostProcessorTest {
                     Path path = platformConfig.getConfigDir().map(p -> p.resolve(fileName)).orElse(null);
                     assertNotNull(path);
                     try {
-                        Files.copy(getClass().getResourceAsStream("/eurostag-test/" + fileName), path);
+                        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/" + fileName), path);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
@@ -111,20 +111,20 @@ class OdreGeoDataAdderPostProcessorTest {
         assertNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
 
         Path path = platformConfig.getConfigDir().map(p -> p.resolve("substations.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/substations.csv"), path);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/substations.csv"), path);
         processor.process(network, computationManager);
 
         assertNotNull(network.getSubstation("P2").getExtension(SubstationPosition.class));
         assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
 
         Path aerialLinePath = platformConfig.getConfigDir().map(p -> p.resolve("aerial-lines.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/aerial-lines.csv"), aerialLinePath);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/aerial-lines.csv"), aerialLinePath);
         processor.process(network, computationManager);
 
         assertNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
 
         Path undergroundLinePath = platformConfig.getConfigDir().map(p -> p.resolve("underground-lines.csv")).orElse(null);
-        Files.copy(getClass().getResourceAsStream("/eurostag-test/underground-lines.csv"), undergroundLinePath);
+        Files.copy(getClass().getResourceAsStream("/eurostag-test/default-headers/underground-lines.csv"), undergroundLinePath);
         processor.process(network, computationManager);
 
         assertNotNull(network.getLine("NHV1_NHV2_1").getExtension(LinePosition.class));
