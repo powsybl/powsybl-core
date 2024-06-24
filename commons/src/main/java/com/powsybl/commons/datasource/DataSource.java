@@ -33,6 +33,6 @@ public interface DataSource extends ReadOnlyDataSource {
     }
 
     static DataSource fromPath(Path directory, String fileName) {
-        return DataSourceUtil.createDataSource(directory, fileName);
+        return fromPath(directory.resolve(fileName));
     }
 }

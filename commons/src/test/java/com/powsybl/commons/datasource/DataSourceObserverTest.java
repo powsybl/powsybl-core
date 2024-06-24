@@ -59,7 +59,7 @@ class DataSourceObserverTest {
             }
         };
 
-        DataSource dataSource = DataSourceUtil.createDirectoryDataSource(testDir, "test", ".txt", observer);
+        DataSource dataSource = new DirectoryDataSource(testDir, "test", ".txt", observer);
 
         try (OutputStream os = dataSource.newOutputStream(null, "txt", false)) {
         }

@@ -277,7 +277,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(matpowerModel, matFile, true);
 
-        var network = new MatpowerImporter().importData(DataSourceUtil.createDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+        var network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
 
         exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
     }

@@ -55,11 +55,14 @@ class DataSourceTest {
     @ParameterizedTest
     @MethodSource("provideArgumentsForTestClass")
     void testClass(String fileName, Class<? extends DataSource> dataSourceClass) throws IOException {
+        // File path
+        Path filePath = directory.resolve(fileName);
+
         // Create the fake file
-        Files.createFile(fileSystem.getPath(directory + fileName));
+        Files.createFile(filePath);
 
         // Create the datasource based on the file
-        DataSource dataSource = createDataSource(directory, fileName);
+        DataSource dataSource = createDataSource(filePath);
 
         // Assert the class of the datasource
         assertInstanceOf(dataSourceClass, dataSource);

@@ -222,7 +222,7 @@ class DataSourceUtilTest {
     }
 
     @Test
-    void testCreateDataSource() throws IOException {
+    void testCreateDataSource() {
         // File
         Path filePath = fileSystem.getPath("/tmp/foo.bar.zip");
 
@@ -246,6 +246,5 @@ class DataSourceUtilTest {
 
         // Checks
         checkDirectoryDataSource(dataSource, "tmp", "", null, dataSourceObserver);
-
     }
 }

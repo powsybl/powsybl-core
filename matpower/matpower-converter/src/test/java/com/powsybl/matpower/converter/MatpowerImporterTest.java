@@ -8,7 +8,6 @@
 package com.powsybl.matpower.converter;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
@@ -71,8 +70,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create118();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        assertTrue(new MatpowerImporter().exists(DataSourceUtil.createDataSource(tmpDir, model.getCaseName())));
-        assertFalse(new MatpowerImporter().exists(DataSourceUtil.createDataSource(tmpDir, "doesnotexist")));
+        assertTrue(new MatpowerImporter().exists(new DirectoryDataSource(tmpDir, model.getCaseName())));
+        assertFalse(new MatpowerImporter().exists(new DirectoryDataSource(tmpDir, "doesnotexist")));
     }
 
     @Test

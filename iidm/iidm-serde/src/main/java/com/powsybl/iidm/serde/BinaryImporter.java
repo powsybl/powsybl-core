@@ -46,7 +46,7 @@ public class BinaryImporter extends AbstractTreeDataImporter {
 
     @Override
     protected boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        if (ext != null && dataSource.existsStrict(null, ext)) {
+        if (ext != null) {
             try (InputStream dis = dataSource.newInputStream(null, ext)) {
                 return Arrays.equals(dis.readNBytes(NetworkSerDe.BIIDM_MAGIC_NUMBER.length), NetworkSerDe.BIIDM_MAGIC_NUMBER);
             }

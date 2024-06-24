@@ -75,7 +75,7 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
                 if (!zipEntry.isDirectory()) {
                     FileInformation fileInformation = new FileInformation(zipEntry.getName(), false);
                     // Check that files have the same source format and respect the regex
-                    if ((baseName.isEmpty() || zipEntry.getName().startsWith(baseName))
+                    if (zipEntry.getName().startsWith(baseName)
                         && (mainExtension.isEmpty() || fileInformation.getMainExtension().equals(mainExtension))
                         && p.matcher(zipEntry.getName()).matches()) {
                         names.add(zipEntry.getName());

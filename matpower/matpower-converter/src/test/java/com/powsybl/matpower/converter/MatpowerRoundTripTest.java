@@ -10,6 +10,7 @@ package com.powsybl.matpower.converter;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.matpower.model.MatpowerModel;
@@ -64,8 +65,8 @@ class MatpowerRoundTripTest {
         Network network = EurostagTutorialExample1Factory.create();
         Properties parameters = new Properties();
         parameters.setProperty("matpower.import.ignore-base-voltage", "false");
-        new MatpowerExporter().export(network, parameters, DataSourceUtil.createDataSource(dir, "test.mat"));
-        Network network2 = new MatpowerImporter().importData(DataSourceUtil.createDataSource(dir, "test.mat"), NetworkFactory.findDefault(), parameters);
+        new MatpowerExporter().export(network, parameters, new DirectoryDataSource(dir, "test"));
+        Network network2 = new MatpowerImporter().importData(new DirectoryDataSource(dir, "test"), NetworkFactory.findDefault(), parameters);
         assertEquals(calculateRatio(network, "NGEN_NHV1"), calculateRatio(network2, "TWT-1-2"), 1e-16);
         assertEquals(calculateRatio(network, "NHV2_NLOAD"), calculateRatio(network2, "TWT-3-4"), 1e-16);
     }
@@ -74,13 +75,13 @@ class MatpowerRoundTripTest {
     void testRoundTripDcLines() throws IOException {
         MatpowerModel matpowerModel = MatpowerModelFactory.create9Dcline();
         String caseId = matpowerModel.getCaseName();
-        String inputCaseMatFilename = caseId + ".mat";
-        MatpowerWriter.write(matpowerModel, dir.resolve(inputCaseMatFilename), true);
+        Path matFile = dir.resolve(caseId + ".mat");
+        MatpowerWriter.write(matpowerModel, matFile, true);
 
-        var network = new MatpowerImporter().importData(DataSourceUtil.createDataSource(dir, inputCaseMatFilename), NetworkFactory.findDefault(), null);
+        var network = new MatpowerImporter().importData(new DirectoryDataSource(dir, caseId), NetworkFactory.findDefault(), null);
 
-        new MatpowerExporter().export(network, null, DataSourceUtil.createDataSource(dir, "test.mat"));
-        Network network1 = new MatpowerImporter().importData(DataSourceUtil.createDataSource(dir, "test.mat"), NetworkFactory.findDefault(), null);
+        new MatpowerExporter().export(network, null, new DirectoryDataSource(dir, "test"));
+        Network network1 = new MatpowerImporter().importData(new DirectoryDataSource(dir, "test"), NetworkFactory.findDefault(), null);
 
         assertEquals(network.getHvdcLineCount(), network1.getHvdcLineCount());
         assertTrue(network.getHvdcLineStream().allMatch(hvdcLine -> existHvdcLineInTheOtherNetworkAndIsEqual(network1, hvdcLine)));

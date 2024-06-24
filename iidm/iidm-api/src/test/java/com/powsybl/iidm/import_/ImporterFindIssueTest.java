@@ -93,7 +93,7 @@ class ImporterFindIssueTest {
             Files.createFile(fooFile);
             Files.createFile(barFile);
 
-            var dataSource = DataSourceUtil.createDataSource(barFile.getParent(), barFile.getFileName().toString());
+            var dataSource = DataSourceUtil.createDataSource(barFile);
             ComputationManager computationManager = Mockito.mock(ComputationManager.class);
             var importer = Importer.find(dataSource, new ImportersLoaderList(new FooImporter(), new BarImporter()), computationManager, new ImportConfig());
             assertNotNull(importer);

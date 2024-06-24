@@ -59,7 +59,7 @@ class TripleStoreWriteTest {
                 if (subset == CgmesSubset.UNKNOWN) {
                     continue;
                 }
-                DataSource ds1 = DataSourceUtil.createDataSource(fileSystem.getPath("/"), "cgmes.zip");
+                DataSource ds1 = DataSourceUtil.createDataSource(fileSystem.getPath("/cgmes.zip"));
                 model.write(ds1, subset);
 
                 // Assert that there is only one file in the archive
