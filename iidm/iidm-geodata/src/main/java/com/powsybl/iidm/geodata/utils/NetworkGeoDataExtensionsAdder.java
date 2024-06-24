@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.extensions.LinePositionAdder;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public final class NetworkGeoDataExtensionsAdder {
     private NetworkGeoDataExtensionsAdder() {
     }
 
-    public static void fillNetworkSubstationsGeoData(Network network, List<SubstationGeoData> substationsGeoData) {
+    public static void fillNetworkSubstationsGeoData(Network network, Collection<SubstationGeoData> substationsGeoData) {
         substationsGeoData.forEach(geoData -> {
             Substation foundStation = network.getSubstation(geoData.getId());
             if (foundStation != null) {
@@ -36,7 +37,7 @@ public final class NetworkGeoDataExtensionsAdder {
         });
     }
 
-    public static void fillNetworkLinesGeoData(Network network, List<LineGeoData> linesGeoData) {
+    public static void fillNetworkLinesGeoData(Network network, Collection<LineGeoData> linesGeoData) {
         linesGeoData.forEach(geoData -> {
             Line foundLine = network.getLine(geoData.id());
             if (foundLine != null) {

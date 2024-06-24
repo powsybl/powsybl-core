@@ -31,7 +31,8 @@ class OdreGeoDataCsvLoaderTest {
         Path linesPath = Paths.get(getClass()
                 .getClassLoader().getResource("valid-line-name/aerial-lines.csv").toURI());
 
-        List<LineGeoData> linesGeodata = OdreGeoDataCsvLoader.getLinesGeoData(linesPath, undergroundLinesPath, substationsPath, AbstractOdreTest.ODRE_CONFIG1);
+        List<LineGeoData> linesGeodata = OdreGeoDataCsvLoader.getLinesGeoData(linesPath, undergroundLinesPath, substationsPath, AbstractOdreTest.ODRE_CONFIG1)
+                .stream().toList();
 
         assertEquals(2, linesGeodata.size());
         LineGeoData line1Position = linesGeodata.get(0);

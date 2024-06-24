@@ -11,10 +11,10 @@ import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
 import com.powsybl.iidm.network.Network;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Map;
 
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillNetworkLinesGeoData;
@@ -36,7 +36,7 @@ public class OdreGeoDataAdder {
                                                    Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
         try (Reader substationReader = InputUtils.toReader(substationPath)) {
             Map<String, SubstationGeoData> substations = GeographicDataParser.parseSubstations(substationReader, odreConfig);
-            fillNetworkSubstationsGeoData(network, new ArrayList<>(substations.values()));
+            fillNetworkSubstationsGeoData(network, substations.values());
             fillNetworkLinesGeoData(network,
                     OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substations, odreConfig));
         } catch (IOException e) {
