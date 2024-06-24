@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.iidm.geodata.elements.GeoShape;
 import com.powsybl.iidm.geodata.elements.LineGeoData;
 import com.powsybl.iidm.geodata.elements.SubstationGeoData;
@@ -53,17 +54,19 @@ public final class GeographicDataParser {
         stopWatch.start();
         int substationCount = 0;
         try {
-            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
-            for (CSVRecord row : records) {
-                String id = row.get(odreConfig.substationIdColumn());
-                double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
-                double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
-                SubstationGeoData substation = substations.get(id);
-                if (substation == null) {
-                    SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
-                    substations.put(id, substationGeoData);
+            CSVParser records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
+            if (FileValidator.validateSubstationsHeaders(records, odreConfig)) {
+                for (CSVRecord row : records) {
+                    String id = row.get(odreConfig.substationIdColumn());
+                    double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
+                    double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
+                    SubstationGeoData substation = substations.get(id);
+                    if (substation == null) {
+                        SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
+                        substations.put(id, substationGeoData);
+                    }
+                    substationCount++;
                 }
-                substationCount++;
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -98,14 +101,40 @@ public final class GeographicDataParser {
 
     public static Map<String, LineGeoData> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader,
                                                       Map<String, SubstationGeoData> stringSubstationGeoDataMap, OdreConfig odreConfig) {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        try {
+            StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
 
-        Map<String, List<List<Coordinate>>> coordinatesListsByLine = new HashMap<>();
+            Map<String, List<List<Coordinate>>> coordinatesListsByLine = new HashMap<>();
 
-        parseLine(coordinatesListsByLine, aerialLinesReader, odreConfig);
-        parseLine(coordinatesListsByLine, undergroundLinesReader, odreConfig);
+            CSVParser aerialLinesRecords = CSVParser.parse(aerialLinesReader, FileValidator.CSV_FORMAT);
+            CSVParser undergroundLinesRecords = CSVParser.parse(undergroundLinesReader, FileValidator.CSV_FORMAT);
 
+            if (!FileValidator.validateAerialLinesHeaders(aerialLinesRecords, odreConfig)
+                    || !FileValidator.validateUndergroundHeaders(undergroundLinesRecords, odreConfig)) {
+                return Collections.emptyMap();
+            }
+
+            parseLine(coordinatesListsByLine, aerialLinesRecords, odreConfig);
+            parseLine(coordinatesListsByLine, undergroundLinesRecords, odreConfig);
+
+            Map<String, LineGeoData> lines = fixLines(coordinatesListsByLine, stringSubstationGeoDataMap);
+
+            LOGGER.info("{} lines read in {} ms", lines.size(), stopWatch.getTime());
+
+            if (coordinatesListsByLine.size() != lines.size()) {
+                LOGGER.warn("Total discarded lines : {}/{} ",
+                        coordinatesListsByLine.size() - lines.size(), coordinatesListsByLine.size());
+            }
+
+            return lines;
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Map<String, LineGeoData> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine, Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
         Map<String, LineGeoData> lines = new HashMap<>();
 
         int linesWithOneConnectedSet = 0;
@@ -154,16 +183,8 @@ public final class GeographicDataParser {
                 }
             }
         }
-
-        LOGGER.info("{} lines read in {} ms", lines.size(), stopWatch.getTime());
         LOGGER.info("{} lines have one Connected set, {} of them were discarded", linesWithOneConnectedSet, oneConnectedSetDiscarded);
         LOGGER.info("{} lines have two or more Connected sets, {} of them were discarded", linesWithTwoOrMoreConnectedSets, twoOrMoreConnectedSetsDiscarded);
-
-        if (coordinatesListsByLine.size() != lines.size()) {
-            LOGGER.warn("Total discarded lines : {}/{} ",
-                    coordinatesListsByLine.size() - lines.size(), coordinatesListsByLine.size());
-        }
-
         return lines;
     }
 
@@ -184,29 +205,24 @@ public final class GeographicDataParser {
         return connectedSets;
     }
 
-    private static void parseLine(Map<String, List<List<Coordinate>>> coordinateListsByLine, Reader reader, OdreConfig odreConfig) {
-        try {
-            Iterable<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
-            Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
-            for (CSVRecord row : records) {
-                List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
-                        row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).filter(s -> !s.isEmpty()).distinct().toList();
-                GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
+    private static void parseLine(Map<String, List<List<Coordinate>>> coordinateListsByLine, CSVParser csvParser, OdreConfig odreConfig) throws JsonProcessingException {
+        Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
+        for (CSVRecord row : csvParser) {
+            List<String> ids = Stream.of(row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_1)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_2)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_3)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_4)),
+                    row.get(idsColumnNames.get(OdreConfig.LINE_ID_KEY_5))).filter(Objects::nonNull).filter(s -> !s.isEmpty()).distinct().toList();
+            GeoShape geoShape = GeoShapeDeserializer.read(row.get(odreConfig.geoShapeColumn()));
 
-                if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
-                    continue;
-                }
-
-                for (String lineId : ids) {
-                    coordinateListsByLine.computeIfAbsent(lineId, key -> new ArrayList<>())
-                            .add(geoShape.coordinates());
-                }
+            if (ids.isEmpty() || geoShape.coordinates().isEmpty()) {
+                continue;
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+
+            for (String lineId : ids) {
+                coordinateListsByLine.computeIfAbsent(lineId, key -> new ArrayList<>())
+                        .add(geoShape.coordinates());
+            }
         }
     }
 

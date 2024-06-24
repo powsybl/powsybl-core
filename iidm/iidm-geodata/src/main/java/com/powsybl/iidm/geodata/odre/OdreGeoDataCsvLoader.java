@@ -30,11 +30,7 @@ public class OdreGeoDataCsvLoader {
 
     public static List<SubstationGeoData> getSubstationsGeoData(Path path, OdreConfig odreConfig) {
         try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
-            if (FileValidator.validateSubstations(path, odreConfig)) {
-                return new ArrayList<>(GeographicDataParser.parseSubstations(reader, odreConfig).values());
-            } else {
-                return Collections.emptyList();
-            }
+            return new ArrayList<>(GeographicDataParser.parseSubstations(reader, odreConfig).values());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -51,16 +47,15 @@ public class OdreGeoDataCsvLoader {
 
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
                                                     Map<String, SubstationGeoData> substations, OdreConfig odreConfig) {
-        Map<String, Reader> mapValidation = FileValidator.validateLines(List.of(aerialLinesFilePath, undergroundLinesFilePath), odreConfig);
-        try {
-            if (mapValidation.size() == 2) {
-                return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
-                        mapValidation.get(FileValidator.UNDERGROUND_LINES),
-                        substations, odreConfig).values());
-            }
-        } finally {
-            mapValidation.values().forEach(IOUtils::closeQuietly);
+
+        try (Reader aerialReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(aerialLinesFilePath))));
+             Reader undergroundReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(undergroundLinesFilePath))))) {
+
+            Map<String, LineGeoData> lineGeoDataMap = GeographicDataParser.parseLines(aerialReader, undergroundReader, substations, odreConfig);
+            return new ArrayList<>(lineGeoDataMap.values());
+
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        return Collections.emptyList();
     }
 }

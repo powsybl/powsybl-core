@@ -32,91 +32,48 @@ public final class FileValidator {
     private FileValidator() {
     }
 
-    private static final String HEADERS_OF_FILE_HAS_CHANGED = "Invalid file, Headers of file {} has changed, header(s) not found: {}";
+    private static final String HEADERS_OF_FILE_HAS_CHANGED = "Invalid {} file, header(s) not found: {}";
     private static final Logger LOGGER = LoggerFactory.getLogger(FileValidator.class);
     static final String COUNTRY_FR = "FR";
 
-    private static CSVFormat.Builder createCsvFormatBuilder() {
-        return CSVFormat.DEFAULT.builder()
-                .setQuote('"')
-                .setDelimiter(";")
-                .setRecordSeparator(System.lineSeparator());
-    }
-
-    static final CSVFormat CSV_FORMAT = createCsvFormatBuilder()
+    static final CSVFormat CSV_FORMAT = CSVFormat.DEFAULT.builder()
+            .setQuote('"')
+            .setDelimiter(";")
+            .setRecordSeparator(System.lineSeparator())
             .setHeader()
             .setSkipHeaderRecord(true)
             .build();
-    static final CSVFormat CSV_FORMAT_FOR_HEADER = createCsvFormatBuilder().build();
+
     public static final String SUBSTATIONS = "substations";
     public static final String AERIAL_LINES = "aerial-lines";
     public static final String UNDERGROUND_LINES = "underground-lines";
 
-    public static boolean validateSubstations(Path path, OdreConfig odreConfig) {
-        try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8))) {
-            Iterator<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT_FOR_HEADER).iterator();
-
-            List<String> headers;
-            if (records.hasNext()) {
-                CSVRecord headersRecord = records.next();
-                headers = headersRecord.toList();
-            } else {
-                LOGGER.error("The file {} is empty", path.getFileName());
-                return false;
-            }
-
-            if (new HashSet<>(headers).containsAll(odreConfig.substationsExpectedHeaders())) {
-                return true;
-            } else {
-                List<String> notFoundHeaders = odreConfig.substationsExpectedHeaders().stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-                logHeaderError(path, notFoundHeaders);
-            }
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-            return false;
-        }
-        return false;
+    public static boolean validateSubstationsHeaders(CSVParser records, OdreConfig odreConfig) {
+        return validateHeaders(records, odreConfig.substationsExpectedHeaders(), FileValidator.SUBSTATIONS);
     }
 
-    public static Map<String, Reader> validateLines(List<Path> paths, OdreConfig odreConfig) {
-        Map<String, Reader> mapResult = new HashMap<>();
-        paths.forEach(path -> {
-            try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8))) {
-                Iterator<CSVRecord> records = CSVParser.parse(reader, FileValidator.CSV_FORMAT_FOR_HEADER).iterator();
+    public static boolean validateAerialLinesHeaders(CSVParser records, OdreConfig odreConfig) {
+        return validateHeaders(records, odreConfig.aerialLinesExpectedHeaders(), FileValidator.AERIAL_LINES);
+    }
 
-                final List<String> headers;
-                if (records.hasNext()) {
-                    CSVRecord headersRecord = records.next();
-                    headers = headersRecord.toList();
-                } else {
-                    headers = null;
-                    LOGGER.error("The file {} is empty", path.getFileName());
-                }
+    public static boolean validateUndergroundHeaders(CSVParser records, OdreConfig odreConfig) {
+        return validateHeaders(records, odreConfig.undergroundLinesExpectedHeaders(), FileValidator.UNDERGROUND_LINES);
+    }
 
-                String equipmentType = null;
-                if (headers != null && records.hasNext()) {
-                    CSVRecord firstRow = records.next();
-                    equipmentType = readEquipmentType(firstRow, headers, odreConfig);
-                } else {
-                    LOGGER.error("The file {} has no data", path.getFileName());
-                }
+    private static boolean validateHeaders(CSVParser csvParser, List<String> expectedHeaders, String fileType) {
+        Map<String, Integer> headerMap = csvParser.getHeaderMap();
+        if (headerMap.isEmpty()) {
+            LOGGER.error("The substations file is empty");
+            return false;
+        }
 
-                String type = equipmentType != null ? equipmentType : odreConfig.nullEquipmentType();
-                if (type.equals(odreConfig.nullEquipmentType())) {
-                    getIfSubstationsOrLogError(mapResult, path, headers, equipmentType, odreConfig);
-                } else if (type.equals(odreConfig.aerialEquipmentType())) {
-                    getResultOrLogError(headers, odreConfig.aerialLinesExpectedHeaders(), mapResult, AERIAL_LINES, path);
-                } else if (type.equals(odreConfig.undergroundEquipmentType())) {
-                    getResultOrLogError(headers, odreConfig.undergroundLinesExpectedHeaders(), mapResult, UNDERGROUND_LINES, path);
-                } else {
-                    LOGGER.error("The file {} has no known equipment type : {}", path.getFileName(), equipmentType);
-                }
-            } catch (IOException e) {
-                mapResult.values().forEach(IOUtils::closeQuietly);
-                throw new UncheckedIOException(e);
-            }
-        });
-        return mapResult;
+        if (expectedHeaders.stream().allMatch(headerMap::containsKey)) {
+            return true;
+        } else {
+            List<String> notFoundHeaders = expectedHeaders.stream().filter(h -> !headerMap.containsKey(h)).toList();
+            LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, fileType, notFoundHeaders);
+            return false;
+        }
     }
 
     private static String readEquipmentType(CSVRecord firstRow, List<String> headers, OdreConfig odreConfig) {
@@ -126,39 +83,6 @@ public final class FileValidator {
             equipmentType = firstRow.get(index);
         }
         return equipmentType;
-    }
-
-    private static void getIfSubstationsOrLogError(Map<String, Reader> mapResult, Path path, List<String> headers, String typeOuvrage, OdreConfig odreConfig) throws IOException {
-        if (new HashSet<>(headers).containsAll(odreConfig.substationsExpectedHeaders())) {
-            mapResult.putIfAbsent(SUBSTATIONS, new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
-        } else if (isAerialOrUnderground(headers, odreConfig)) {
-            LOGGER.error("The file {} has no equipment type : {}", path.getFileName(), typeOuvrage);
-        } else {
-            List<String> notFoundHeaders = odreConfig.substationsExpectedHeaders().stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            logHeaderError(path, notFoundHeaders);
-        }
-    }
-
-    private static Predicate<String> isChangedHeaders(List<String> headers) {
-        return h -> !headers.contains(h);
-    }
-
-    private static boolean isAerialOrUnderground(List<String> headers, OdreConfig odreConfig) {
-        return new HashSet<>(headers).containsAll(odreConfig.aerialLinesExpectedHeaders()) ||
-                new HashSet<>(headers).containsAll(odreConfig.undergroundLinesExpectedHeaders());
-    }
-
-    private static void getResultOrLogError(List<String> headers, List<String> expectedHeaders, Map<String, Reader> mapResult, String fileType, Path path) throws IOException {
-        if (new HashSet<>(headers).containsAll(expectedHeaders)) {
-            mapResult.putIfAbsent(fileType, new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path)), StandardCharsets.UTF_8)));
-        } else {
-            List<String> notFoundHeaders = expectedHeaders.stream().filter(isChangedHeaders(headers)).collect(Collectors.toList());
-            logHeaderError(path, notFoundHeaders);
-        }
-    }
-
-    private static void logHeaderError(Path path, List<String> notFoundHeaders) {
-        LOGGER.error(HEADERS_OF_FILE_HAS_CHANGED, path.getFileName(), notFoundHeaders);
     }
 }
 

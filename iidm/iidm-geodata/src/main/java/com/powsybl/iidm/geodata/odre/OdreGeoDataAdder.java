@@ -41,15 +41,13 @@ public class OdreGeoDataAdder {
 
     public static void fillNetworkGeoDataFromFiles(Network network, Path aerialLinesFilePath,
                                                    Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
-        if (FileValidator.validateSubstations(substationPath, odreConfig)) {
-            try (Reader substationReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))))) {
-                Map<String, SubstationGeoData> substations = GeographicDataParser.parseSubstations(substationReader, odreConfig);
-                fillNetworkSubstationsGeoData(network, new ArrayList<>(substations.values()));
-                fillNetworkLinesGeoData(network,
-                        OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substations, odreConfig));
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+        try (Reader substationReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))))) {
+            Map<String, SubstationGeoData> substations = GeographicDataParser.parseSubstations(substationReader, odreConfig);
+            fillNetworkSubstationsGeoData(network, new ArrayList<>(substations.values()));
+            fillNetworkLinesGeoData(network,
+                    OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substations, odreConfig));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }
