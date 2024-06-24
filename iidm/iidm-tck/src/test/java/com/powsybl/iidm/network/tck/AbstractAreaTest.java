@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -421,6 +422,41 @@ public abstract class AbstractAreaTest {
         dlXnode1A.remove();
 
         assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+    }
+
+    @Test
+    public void removeEquipmentRemovesAreaBoundaryMergeAndDetach() {
+        // do a merge
+        Network fourBus = FourSubstationsNodeBreakerFactory.create();
+        Network merged = Network.merge(network, fourBus);
+        network = merged.getSubnetwork("sim1");
+        controlAreaA = network.getArea("ControlArea_A");
+        controlAreaB = network.getArea("ControlArea_B");
+        dlXnode1A = network.getDanglingLine("NHV1_XNODE1");
+        tieLine1 = network.getTieLine("NHV1_NHV2_1");
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+
+        // Verify the cleanup listener is now effective on the merged network
+        tieLine1.remove();
+        dlXnode1A.remove();
+
+        assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+
+        // now detach
+        network = network.detach();
+        controlAreaA = network.getArea("ControlArea_A");
+        controlAreaB = network.getArea("ControlArea_B");
+        dlXnode2A = network.getDanglingLine("NVH1_XNODE2");
+        tieLine2 = network.getTieLine("NHV1_NHV2_2");
+
+        // Verify the cleanup listener is now effective on the detached network
+        tieLine2.remove();
+        dlXnode2A.remove();
+
+        assertEquals(0, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
     }
 
