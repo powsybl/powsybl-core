@@ -29,8 +29,8 @@ public class OdreGeoDataCsvLoader {
     }
 
     public static List<SubstationGeoData> getSubstationsGeoData(Path path, OdreConfig odreConfig) {
-        try (Reader reader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(path))))) {
             return new ArrayList<>(GeographicDataParser.parseSubstations(reader, odreConfig).values());
+        try (Reader reader = InputUtils.toReader(path)) {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -38,7 +38,7 @@ public class OdreGeoDataCsvLoader {
 
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
                                                     Path substationPath, OdreConfig odreConfig) {
-        try (Reader substationReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))))) {
+        try (Reader substationReader = InputUtils.toReader(substationPath)) {
             return getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, GeographicDataParser.parseSubstations(substationReader, odreConfig), odreConfig);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -48,8 +48,8 @@ public class OdreGeoDataCsvLoader {
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
                                                     Map<String, SubstationGeoData> substations, OdreConfig odreConfig) {
 
-        try (Reader aerialReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(aerialLinesFilePath))));
-             Reader undergroundReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(undergroundLinesFilePath))))) {
+        try (Reader aerialReader = InputUtils.toReader(aerialLinesFilePath);
+             Reader undergroundReader = InputUtils.toReader(undergroundLinesFilePath)) {
 
             Map<String, LineGeoData> lineGeoDataMap = GeographicDataParser.parseLines(aerialReader, undergroundReader, substations, odreConfig);
             return new ArrayList<>(lineGeoDataMap.values());

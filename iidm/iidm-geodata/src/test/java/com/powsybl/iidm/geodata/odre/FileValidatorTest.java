@@ -56,7 +56,7 @@ class FileValidatorTest extends AbstractOdreTest {
     }
 
     private static CSVParser getCsvParser(Path substationsFile) throws IOException {
-        return CSVParser.parse(new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationsFile)))), FileValidator.CSV_FORMAT);
+        return CSVParser.parse(InputUtils.toReader(substationsFile), FileValidator.CSV_FORMAT);
     }
 
 }

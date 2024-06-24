@@ -41,7 +41,7 @@ public class OdreGeoDataAdder {
 
     public static void fillNetworkGeoDataFromFiles(Network network, Path aerialLinesFilePath,
                                                    Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
-        try (Reader substationReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))))) {
+        try (Reader substationReader = InputUtils.toReader(substationPath)) {
             Map<String, SubstationGeoData> substations = GeographicDataParser.parseSubstations(substationReader, odreConfig);
             fillNetworkSubstationsGeoData(network, new ArrayList<>(substations.values()));
             fillNetworkLinesGeoData(network,
