@@ -229,22 +229,20 @@ class DataSourceUtilTest {
         // Observer
         DataSourceObserver dataSourceObserver = new DefaultDataSourceObserver();
 
-        // Create a datasource
+        // Create a datasource on a file
         DataSource dataSource = DataSourceUtil.createDataSource(filePath);
-
-        // Checks
         checkArchiveDataSource(dataSource, "", "", null);
 
-        // Create a datasource
+        // Create a datasource on a file
         dataSource = DataSourceUtil.createDataSource(filePath, dataSourceObserver);
-
-        // Checks
         checkArchiveDataSource(dataSource, "", "", dataSourceObserver);
 
-        // Create a datasource
+        // Create a datasource on an existing directory
         dataSource = DataSourceUtil.createDataSource(fileSystem.getPath("/tmp/"), dataSourceObserver);
-
-        // Checks
         checkDirectoryDataSource(dataSource, "tmp", "", null, dataSourceObserver);
+
+        // Create a datasource on a non-existing directory - considered as a file
+        dataSource = DataSourceUtil.createDataSource(fileSystem.getPath("/tmp/foo"), dataSourceObserver);
+        checkDirectoryDataSource(dataSource, "foo", "", null, dataSourceObserver);
     }
 }
