@@ -7,9 +7,15 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
+import com.powsybl.iidm.geodata.elements.SubstationGeoData;
+import com.powsybl.iidm.geodata.utils.InputUtils;
 import com.powsybl.iidm.network.Network;
 
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Map;
 
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillNetworkLinesGeoData;
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillNetworkSubstationsGeoData;
@@ -26,9 +32,24 @@ public class OdreGeoDataAdder {
         fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path, odreConfig));
     }
 
+    @Deprecated
     public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath,
                                                         Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
         fillNetworkLinesGeoData(network,
                 OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substationPath, odreConfig));
+    }
+
+    public static void fillNetworkGeoDataFromFiles(Network network, Path aerialLinesFilePath,
+                                                   Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
+        if (FileValidator.validateSubstations(substationPath, odreConfig)) {
+            try (Reader substationReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))))) {
+                Map<String, SubstationGeoData> substations = GeographicDataParser.parseSubstations(substationReader, odreConfig);
+                fillNetworkSubstationsGeoData(network, new ArrayList<>(substations.values()));
+                fillNetworkLinesGeoData(network,
+                        OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substations, odreConfig));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
     }
 }

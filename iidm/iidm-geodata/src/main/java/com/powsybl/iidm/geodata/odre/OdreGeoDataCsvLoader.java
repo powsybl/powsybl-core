@@ -42,18 +42,25 @@ public class OdreGeoDataCsvLoader {
 
     public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
                                                     Path substationPath, OdreConfig odreConfig) {
-        Map<String, Reader> mapValidation = FileValidator.validateLines(List.of(substationPath,
-                aerialLinesFilePath, undergroundLinesFilePath), odreConfig);
-        List<LineGeoData> result = Collections.emptyList();
+        try (Reader substationReader = new BufferedReader(new InputStreamReader(InputUtils.toBomInputStream(Files.newInputStream(substationPath))))) {
+            return getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, GeographicDataParser.parseSubstations(substationReader, odreConfig), odreConfig);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static List<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
+                                                    Map<String, SubstationGeoData> substations, OdreConfig odreConfig) {
+        Map<String, Reader> mapValidation = FileValidator.validateLines(List.of(aerialLinesFilePath, undergroundLinesFilePath), odreConfig);
         try {
-            if (mapValidation.size() == 3) {
-                result = new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
+            if (mapValidation.size() == 2) {
+                return new ArrayList<>(GeographicDataParser.parseLines(mapValidation.get(FileValidator.AERIAL_LINES),
                         mapValidation.get(FileValidator.UNDERGROUND_LINES),
-                        GeographicDataParser.parseSubstations(mapValidation.get(FileValidator.SUBSTATIONS), odreConfig), odreConfig).values());
+                        substations, odreConfig).values());
             }
         } finally {
             mapValidation.values().forEach(IOUtils::closeQuietly);
         }
-        return result;
+        return Collections.emptyList();
     }
 }
