@@ -27,9 +27,10 @@ public class TerminalsConnectionAction extends AbstractAction {
 
     /**
      * @param id the id of the action.
-     * @param elementId the id of the element which terminals are operated.
-     *                  The element can be any connectable, including a tie line by referring the terminal of
-     *                  an underlying dangling line.
+     * @param elementId the id of the connectable which terminals are operated.
+     *                  As a tie line (respectively an hvdc line) is not a connectable, opening or closing a tie line
+     *                  (respectively an hvdc line) on both sides is done through two {@link TerminalsConnectionAction},
+     *                  each one referring to one of the underlying dangling lines (respectively converter stations).
      * @param side the side of the element to operate in the action.
      * @param open the status for the terminal to operate. {@code true} means terminal opening.
      */
@@ -42,9 +43,10 @@ public class TerminalsConnectionAction extends AbstractAction {
 
     /**
      * @param id the id of the action.
-     * @param elementId the id of the element which terminals are operated.
-     *                  The element can be any connectable, including a tie line by referring the terminal of
-     *                  an underlying dangling line.
+     * @param elementId the id of the connectable which terminals are operated.
+     *                  As a tie line (respectively an hvdc line) is not a connectable, opening or closing a tie line
+     *                  (respectively an hvdc line) on both sides is done through two {@link TerminalsConnectionAction},
+     *                  each one referring to one of the underlying dangling lines (respectively converter stations).
      * @param open the status for all the terminals of the element to operate. {@code true} means all terminals opening.
      */
     public TerminalsConnectionAction(String id, String elementId, boolean open) {
