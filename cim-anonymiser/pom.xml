@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.4.0-RC2</version>
     </parent>
 
     <artifactId>powsybl-cim-anonymiser</artifactId>

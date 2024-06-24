@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.4.0-SNAPSHOT</version>
+        <version>6.4.0-RC2</version>
     </parent>
 
     <artifactId>powsybl-scripting</artifactId>
