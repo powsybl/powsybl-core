@@ -29,12 +29,19 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
 
     private final String baseName;
 
+    private final String mainExtension;
+
     public ReadOnlyMemDataSource() {
-        this("");
+        this("", "");
     }
 
     public ReadOnlyMemDataSource(String baseName) {
+        this(baseName, "");
+    }
+
+    public ReadOnlyMemDataSource(String baseName, String mainExtension) {
         this.baseName = Objects.requireNonNull(baseName);
+        this.mainExtension = Objects.requireNonNull(mainExtension);
     }
 
     public byte[] getData(String suffix, String ext) {
@@ -65,6 +72,11 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return (mainExtension.isEmpty() || mainExtension.equals(ext)) && exists(suffix, ext);
     }
 
     @Override

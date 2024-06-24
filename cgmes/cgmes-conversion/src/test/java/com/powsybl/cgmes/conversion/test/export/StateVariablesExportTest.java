@@ -614,7 +614,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         }
 
         // Zip with new SV (and eventually a new TP)
-        Path repackaged = tmpDir.resolve("repackaged.zip");
+        Path repackaged = tmpDir.resolve("test.zip");
         Repackager r = new Repackager(dataSource)
                 .with("test_SV.xml", exportedSv)
                 .with("test_EQ_BD.xml", Repackager::eqBd)

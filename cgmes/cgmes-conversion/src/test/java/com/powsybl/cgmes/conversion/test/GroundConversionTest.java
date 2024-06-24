@@ -55,7 +55,7 @@ class GroundConversionTest extends AbstractSerDeTest {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.POST_PROCESSORS, "RemoveGrounds");
         Network network = Network.read(
-                new ResourceDataSource("groundTest.xml", new ResourceSet("/", "groundTest.xml")),
+                new ResourceDataSource("groundTest", new ResourceSet("/", "groundTest.xml")),
                 importParams);
 
         assertEquals(0, network.getGroundCount());

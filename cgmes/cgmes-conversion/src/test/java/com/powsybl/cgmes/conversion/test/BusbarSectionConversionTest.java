@@ -25,7 +25,7 @@ class BusbarSectionConversionTest extends AbstractSerDeTest {
     @Test
     void isolatedBusbarSectionWithoutTopologicalNodeInBusBreakerModelTest() {
         Network network = Network.read(
-                new ResourceDataSource("bbs-busbreaker",
+                new ResourceDataSource("",
                 new ResourceSet("/", "bbs-busbreaker_EQ.xml", "bbs-busbreaker_TP_withoutTN.xml")));
         // The network can be imported without any issue
         assertNotNull(network);
@@ -39,7 +39,7 @@ class BusbarSectionConversionTest extends AbstractSerDeTest {
     @Test
     void isolatedBusbarSectionWithoutLinkToTopologicalNodeInBusBreakerModelTest() {
         Network network = Network.read(
-                new ResourceDataSource("bbs-busbreaker",
+                new ResourceDataSource("",
                         new ResourceSet("/", "bbs-busbreaker_EQ.xml", "bbs-busbreaker_TP_withoutLinkToTN.xml")));
         // The network can be imported without any issue
         assertNotNull(network);
@@ -55,7 +55,7 @@ class BusbarSectionConversionTest extends AbstractSerDeTest {
     @Test
     void isolatedBusbarSectionWithTopologicalNodeInBusBreakerModelTest() {
         Network network = Network.read(
-                new ResourceDataSource("bbs-busbreaker",
+                new ResourceDataSource("",
                 new ResourceSet("/", "bbs-busbreaker_EQ.xml", "bbs-busbreaker_TP.xml")));
         // The network can be imported without any issue
         assertNotNull(network);

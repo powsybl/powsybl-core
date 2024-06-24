@@ -18,6 +18,10 @@ import java.nio.file.Path;
  */
 public class Bzip2FileDataSource extends FileDataSource {
 
+    public Bzip2FileDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
+        super(directory, baseName, mainExtension, observer);
+    }
+
     public Bzip2FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
         super(directory, baseName, observer);
     }

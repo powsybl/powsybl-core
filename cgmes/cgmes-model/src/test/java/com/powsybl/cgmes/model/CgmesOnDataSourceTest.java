@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CgmesOnDataSourceTest {
 
     private static void doTestExists(String filename, String cimVersion, boolean expectedExists) {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
+        ReadOnlyDataSource dataSource = new ResourceDataSource("",
                 new ResourceSet("/", filename));
         CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
         boolean exists = "14".equals(cimVersion) ? cgmesOnDataSource.existsCim14() : cgmesOnDataSource.exists();

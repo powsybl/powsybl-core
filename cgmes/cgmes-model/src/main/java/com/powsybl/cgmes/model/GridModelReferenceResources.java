@@ -33,7 +33,7 @@ public class GridModelReferenceResources extends AbstractGridModelReference {
 
     @Override
     public ReadOnlyDataSource dataSource() {
-        ReadOnlyDataSource ds = new ResourceDataSource(baseNameFromResourceNames(), resourceSets);
+        ReadOnlyDataSource ds = new ResourceDataSource("", resourceSets);
         if (LOG.isInfoEnabled()) {
             try {
                 LOG.info("List of names in data source for {} = {}", name(), Arrays.toString(ds.listNames(".*").toArray()));

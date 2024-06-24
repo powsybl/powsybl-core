@@ -22,6 +22,8 @@ public interface ReadOnlyDataSource {
 
     boolean exists(String fileName) throws IOException;
 
+    boolean existsStrict(String suffix, String ext) throws IOException;
+
     InputStream newInputStream(String suffix, String ext) throws IOException;
 
     InputStream newInputStream(String fileName) throws IOException;

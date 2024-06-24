@@ -1217,7 +1217,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
         Path exportedEq = exportToCgmesEQ(expected, transformersWithHighestVoltageAtEnd1);
 
         // From reference data source we use only boundaries
-        Path repackaged = tmpDir.resolve("repackaged.zip");
+        Path repackaged = tmpDir.resolve("test.zip");
         Repackager r = new Repackager(dataSource)
                 .with("test_EQ.xml", exportedEq);
         if (importTP) {

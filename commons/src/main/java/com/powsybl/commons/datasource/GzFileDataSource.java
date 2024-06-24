@@ -19,6 +19,10 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GzFileDataSource extends FileDataSource {
 
+    public GzFileDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
+        super(directory, baseName, mainExtension, observer);
+    }
+
     public GzFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
         super(directory, baseName, observer);
     }

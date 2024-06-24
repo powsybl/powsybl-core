@@ -141,7 +141,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         }
 
         // Zip with new SSH
-        Path repackaged = tmpDir.resolve("repackaged.zip");
+        Path repackaged = tmpDir.resolve("test.zip");
         Repackager r = new Repackager(dataSource)
                 .with("test_EQ.xml", Repackager::eq)
                 .with("test_TP.xml", Repackager::tp)

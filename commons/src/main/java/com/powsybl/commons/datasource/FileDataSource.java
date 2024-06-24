@@ -29,15 +29,22 @@ public class FileDataSource implements DataSource {
 
     private final String baseName;
 
+    private final String mainExtension;
+
     private final DataSourceObserver observer;
 
     public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, null);
+        this(directory, baseName, "", null);
     }
 
     public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
+        this(directory, baseName, "", observer);
+    }
+
+    public FileDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
+        this.mainExtension = Objects.requireNonNull(mainExtension);
         this.observer = observer;
     }
 
@@ -115,4 +122,10 @@ public class FileDataSource implements DataSource {
                     .collect(Collectors.toSet());
         }
     }
+
+    @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return (mainExtension.isEmpty() || mainExtension.equals(ext)) && exists(suffix, ext);
+    }
+
 }

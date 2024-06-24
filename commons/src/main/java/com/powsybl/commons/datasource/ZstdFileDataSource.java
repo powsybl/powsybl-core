@@ -18,6 +18,10 @@ import java.nio.file.Path;
  */
 public class ZstdFileDataSource extends FileDataSource {
 
+    public ZstdFileDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
+        super(directory, baseName, mainExtension, observer);
+    }
+
     public ZstdFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
         super(directory, baseName, observer);
     }

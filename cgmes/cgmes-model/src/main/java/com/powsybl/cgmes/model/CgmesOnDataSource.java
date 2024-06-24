@@ -33,6 +33,14 @@ public class CgmesOnDataSource {
     }
 
     public boolean exists() {
+        // The user has requested a basename but we need unrestricted access to all files, abort
+        try {
+            if (!dataSource().getBaseName().isEmpty() && !(dataSource().existsStrict(null, "xml") || dataSource().existsStrict("_EQ", "xml") || dataSource().existsStrict("_SV", "xml"))) {
+                return false;
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
         // check that RDF and CIM16 are defined as namespaces in the data source
         Set<String> foundNamespaces = namespaces();
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {

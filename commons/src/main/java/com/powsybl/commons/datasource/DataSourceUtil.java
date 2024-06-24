@@ -39,24 +39,34 @@ public interface DataSourceUtil {
         return pos == -1 ? fileName : fileName.substring(0, pos);
     }
 
+    static String getMainExtension(String fileName) {
+        Objects.requireNonNull(fileName);
+        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
+        return pos == -1 ? "" : fileName.substring(pos + 1);
+    }
+
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        return createDataSource(directory, basename, "", compressionExtension, observer);
+    }
+
+    static DataSource createDataSource(Path directory, String basename, String mainExtension, CompressionFormat compressionExtension, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(basename);
 
         if (compressionExtension == null) {
-            return new FileDataSource(directory, basename, observer);
+            return new FileDataSource(directory, basename, mainExtension, observer);
         } else {
             switch (compressionExtension) {
                 case BZIP2:
-                    return new Bzip2FileDataSource(directory, basename, observer);
+                    return new Bzip2FileDataSource(directory, basename, mainExtension, observer);
                 case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
+                    return new GzFileDataSource(directory, basename, mainExtension, observer);
                 case XZ:
-                    return new XZFileDataSource(directory, basename, observer);
+                    return new XZFileDataSource(directory, basename, mainExtension, observer);
                 case ZIP:
-                    return new ZipFileDataSource(directory, basename, observer);
+                    return new ZipFileDataSource(directory, basename + ".zip", basename, mainExtension, observer);
                 case ZSTD:
-                    return new ZstdFileDataSource(directory, basename, observer);
+                    return new ZstdFileDataSource(directory, basename, mainExtension, observer);
                 default:
                     throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
             }
@@ -68,17 +78,23 @@ public interface DataSourceUtil {
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zst")) {
-            return new ZstdFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            String filenameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4);
+            return new ZstdFileDataSource(directory, getBaseName(filenameWithoutCompressionExtension), getMainExtension(filenameWithoutCompressionExtension), observer);
         } else if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            String filenameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4);
+            return new ZipFileDataSource(directory, filenameWithoutCompressionExtension + ".zip", getBaseName(filenameWithoutCompressionExtension), getMainExtension(filenameWithoutCompressionExtension), observer);
         } else if (fileNameOrBaseName.endsWith(".xz")) {
-            return new XZFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            String filenameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3);
+            return new XZFileDataSource(directory, getBaseName(filenameWithoutCompressionExtension), getMainExtension(filenameWithoutCompressionExtension), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            String filenameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3);
+            return new GzFileDataSource(directory, getBaseName(filenameWithoutCompressionExtension), getMainExtension(filenameWithoutCompressionExtension), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            String filenameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4);
+            return new Bzip2FileDataSource(directory, getBaseName(filenameWithoutCompressionExtension), getMainExtension(filenameWithoutCompressionExtension), observer);
         } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), getMainExtension(fileNameOrBaseName), observer);
         }
     }
+
 }

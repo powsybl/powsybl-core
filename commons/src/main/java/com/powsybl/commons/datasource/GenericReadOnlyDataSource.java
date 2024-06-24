@@ -60,6 +60,16 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        for (ReadOnlyDataSource dataSource : dataSources) {
+            if (dataSource.existsStrict(suffix, ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
     public boolean exists(String fileName) throws IOException {
         for (ReadOnlyDataSource dataSource : dataSources) {
             if (dataSource.exists(fileName)) {

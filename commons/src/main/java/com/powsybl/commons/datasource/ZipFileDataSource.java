@@ -38,13 +38,20 @@ public class ZipFileDataSource implements DataSource {
 
     private final String baseName;
 
+    private final String mainExtension;
+
     private final DataSourceObserver observer;
 
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
+    public ZipFileDataSource(Path directory, String zipFileName, String baseName, String mainExtension, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.zipFileName = Objects.requireNonNull(zipFileName);
         this.baseName = Objects.requireNonNull(baseName);
+        this.mainExtension = Objects.requireNonNull(mainExtension);
         this.observer = observer;
+    }
+
+    public ZipFileDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
+        this(directory, zipFileName, baseName, "", observer);
     }
 
     public ZipFileDataSource(Path directory, String zipFileName, String baseName) {
@@ -75,6 +82,11 @@ public class ZipFileDataSource implements DataSource {
     @Override
     public boolean exists(String suffix, String ext) throws IOException {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return (mainExtension.isEmpty() || mainExtension.equals(ext)) && exists(suffix, ext);
     }
 
     private static boolean entryExists(Path zipFilePath, String fileName) {

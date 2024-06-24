@@ -141,7 +141,7 @@ public class ConversionTester {
                 exportCgmes(gm.name(), impl, network);
             }
             if (testExportImportCgmes) {
-                testExportImportCgmes(network, ds, fs, i, iparams, config);
+                testExportImportCgmes(gm.name(), network, ds, fs, i, iparams, config);
             }
             if (validateBusBalances) {
                 validateBusBalances(network);
@@ -186,7 +186,7 @@ public class ConversionTester {
                 .orElse("unknown");
     }
 
-    private void testExportImportCgmes(Network network, ReadOnlyDataSource originalDs, FileSystem fs, CgmesImport i, Properties iparams,
+    private void testExportImportCgmes(String namee, Network network, ReadOnlyDataSource originalDs, FileSystem fs, CgmesImport i, Properties iparams,
                                        ComparisonConfig config) throws IOException {
 
         // We copy everything from the original data source to the temporary destination with a normalized name
@@ -196,7 +196,7 @@ public class ConversionTester {
         // Create a temporary directory to store the exported files
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
-        String baseName = originalDs.getBaseName();
+        String baseName = namee;
         DataSource ds = new ZipFileDataSource(path, baseName);
 
         // Copy the original files to the temporary destination, ensuring a normalized name

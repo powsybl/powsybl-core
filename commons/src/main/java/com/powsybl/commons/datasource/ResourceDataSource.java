@@ -22,6 +22,8 @@ public class ResourceDataSource implements ReadOnlyDataSource {
 
     private final String baseName;
 
+    private final String mainExtension;
+
     private final List<ResourceSet> resourceSets;
 
     public ResourceDataSource(String baseName, ResourceSet... resourceSets) {
@@ -29,7 +31,12 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     }
 
     public ResourceDataSource(String baseName, List<ResourceSet> resourceSets) {
+        this(baseName, "", resourceSets);
+    }
+
+    public ResourceDataSource(String baseName, String mainExtension, List<ResourceSet> resourceSets) {
         this.baseName = Objects.requireNonNull(baseName);
+        this.mainExtension = Objects.requireNonNull(mainExtension);
         this.resourceSets = Objects.requireNonNull(resourceSets);
     }
 
@@ -41,6 +48,11 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     @Override
     public boolean exists(String suffix, String ext) {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    public boolean existsStrict(String suffix, String ext) {
+        return (mainExtension.isEmpty() || mainExtension.equals(ext)) && exists(suffix, ext);
     }
 
     @Override
