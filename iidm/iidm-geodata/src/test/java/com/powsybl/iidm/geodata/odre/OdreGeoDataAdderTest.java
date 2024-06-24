@@ -69,7 +69,7 @@ class OdreGeoDataAdderTest extends AbstractOdreTest {
         Path undergroundLinesFile = Paths.get(getClass()
                 .getClassLoader().getResource(directory + "underground-lines.csv").toURI());
 
-        OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
+        OdreGeoDataAdder.fillNetworkGeoDataFromFiles(network, aerialLinesFile,
                 undergroundLinesFile, substationsPath, config);
 
         Line line = network.getLine("NHV1_NHV2_2");

@@ -32,13 +32,6 @@ public class OdreGeoDataAdder {
         fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path, odreConfig));
     }
 
-    @Deprecated
-    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath,
-                                                        Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
-        fillNetworkLinesGeoData(network,
-                OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substationPath, odreConfig));
-    }
-
     public static void fillNetworkGeoDataFromFiles(Network network, Path aerialLinesFilePath,
                                                    Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
         try (Reader substationReader = InputUtils.toReader(substationPath)) {
