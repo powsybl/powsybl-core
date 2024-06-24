@@ -32,20 +32,24 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
-    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String sourceFormat, DataSourceObserver observer) {
-        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String mainExtension, DataSourceObserver observer) {
+        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, observer);
     }
 
-    public ZipArchiveDataSource(Path directory, String baseName, String sourceFormat, DataSourceObserver observer) {
-        super(directory, baseName + sourceFormat + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, observer);
+    public ZipArchiveDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
+        super(directory, baseName + mainExtension + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, observer);
     }
 
-    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String sourceFormat) {
-        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, null);
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String mainExtension) {
+        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, null);
     }
 
-    public ZipArchiveDataSource(Path directory, String baseName, String sourceFormat) {
-        super(directory, baseName + sourceFormat + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, sourceFormat, null);
+    public ZipArchiveDataSource(Path directory, String baseName, String mainExtension) {
+        super(directory, baseName + mainExtension + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, null);
+    }
+
+    public ZipArchiveDataSource(Path directory, String baseName) {
+        super(directory, baseName + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, "", null);
     }
 
     public ZipArchiveDataSource(Path zipFile) {

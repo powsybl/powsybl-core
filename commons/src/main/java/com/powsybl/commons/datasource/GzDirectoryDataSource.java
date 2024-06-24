@@ -20,9 +20,9 @@ import java.util.zip.GZIPOutputStream;
 public class GzDirectoryDataSource extends DirectoryDataSource {
 
     public GzDirectoryDataSource(Path directory, String baseName,
-                                 String sourceFormat,
+                                 String mainExtension,
                                  DataSourceObserver observer) {
-        super(directory, baseName, CompressionFormat.GZIP, sourceFormat, observer);
+        super(directory, baseName, CompressionFormat.GZIP, mainExtension, observer);
     }
 
     @Override

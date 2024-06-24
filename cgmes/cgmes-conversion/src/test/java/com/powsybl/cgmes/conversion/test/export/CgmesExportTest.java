@@ -480,7 +480,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output", "");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
             CgmesMetadataModel sshMetadata = network2
@@ -500,7 +500,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output", "");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir, "output"), importParams);
             CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
@@ -522,7 +522,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output", "");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
 
             // check network can be reimported and that ModelDescription still includes end-tag

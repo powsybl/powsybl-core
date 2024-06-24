@@ -19,9 +19,9 @@ import java.nio.file.Path;
 public class XZDirectoryDataSource extends DirectoryDataSource {
 
     public XZDirectoryDataSource(Path directory, String baseName,
-                                 String sourceFormat,
+                                 String mainExtension,
                                  DataSourceObserver observer) {
-        super(directory, baseName, CompressionFormat.XZ, sourceFormat, observer);
+        super(directory, baseName, CompressionFormat.XZ, mainExtension, observer);
     }
 
     @Override

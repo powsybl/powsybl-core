@@ -36,8 +36,7 @@ public final class Exporters {
         if (Files.exists(file) && !Files.isRegularFile(file)) {
             throw new UncheckedIOException(new IOException("File " + file + " already exists and is not a regular file"));
         }
-        Path absFile = file.toAbsolutePath();
-        return createDataSource(absFile.getParent(), absFile.getFileName().toString(), observer);
+        return DataSourceUtil.createDataSource(file, observer);
     }
 
     public static DataSource createDataSource(Path file) {

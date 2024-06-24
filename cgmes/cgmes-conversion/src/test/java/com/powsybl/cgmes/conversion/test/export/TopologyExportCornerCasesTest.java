@@ -78,7 +78,7 @@ class TopologyExportCornerCasesTest extends AbstractSerDeTest {
         // Export as CGMES 3
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, "100");
-        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name, "");
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), name);
         new CgmesExport().export(network, params, zip);
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");

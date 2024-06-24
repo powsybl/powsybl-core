@@ -200,7 +200,7 @@ public class ConversionTester {
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
         String baseName = originalDs.getBaseName();
-        DataSource ds = new ZipArchiveDataSource(path, baseName, "");
+        DataSource ds = new ZipArchiveDataSource(path, baseName);
 
         // Copy the original files to the temporary destination, ensuring a normalized name
         for (String name : new CgmesOnDataSource(originalDs).names()) {

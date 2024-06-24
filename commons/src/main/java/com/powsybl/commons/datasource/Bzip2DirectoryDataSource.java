@@ -18,9 +18,9 @@ import java.nio.file.Path;
  */
 public class Bzip2DirectoryDataSource extends DirectoryDataSource {
     public Bzip2DirectoryDataSource(Path directory, String baseName,
-                                    String sourceFormat,
+                                    String mainExtension,
                                     DataSourceObserver observer) {
-        super(directory, baseName, CompressionFormat.BZIP2, sourceFormat, observer);
+        super(directory, baseName, CompressionFormat.BZIP2, mainExtension, observer);
     }
 
     @Override

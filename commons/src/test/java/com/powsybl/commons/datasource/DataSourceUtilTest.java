@@ -9,7 +9,6 @@ package com.powsybl.commons.datasource;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.PowsyblException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -165,7 +164,7 @@ class DataSourceUtilTest {
         DataSourceObserver dataSourceObserver = new DefaultDataSourceObserver();
 
         // Create a datasource
-        DataSource dataSource = DataSourceUtil.createDirectoryDataSource(
+        DataSource dataSource = DataSourceUtil.createBaseNameFilteredDirectoryDataSource(
             fileSystem.getPath("/tmp"),
             "foo");
 
@@ -173,7 +172,7 @@ class DataSourceUtilTest {
         checkDirectoryDataSource(dataSource, "foo", "", null, null);
 
         // Create a datasource
-        dataSource = DataSourceUtil.createDirectoryDataSource(
+        dataSource = DataSourceUtil.createBaseNameFilteredDirectoryDataSource(
             fileSystem.getPath("/tmp"),
             "foo",
             dataSourceObserver);
@@ -226,14 +225,6 @@ class DataSourceUtilTest {
     void testCreateDataSource() throws IOException {
         // File
         Path filePath = fileSystem.getPath("/tmp/foo.bar.zip");
-
-        // Case where the file/folder does not exist
-        PowsyblException exception = assertThrows(PowsyblException.class,
-            () -> DataSourceUtil.createDataSource(filePath));
-        assertEquals("Path /tmp/foo.bar.zip should exist to create a data source", exception.getMessage());
-
-        // Create the file
-        Files.createFile(filePath);
 
         // Observer
         DataSourceObserver dataSourceObserver = new DefaultDataSourceObserver();

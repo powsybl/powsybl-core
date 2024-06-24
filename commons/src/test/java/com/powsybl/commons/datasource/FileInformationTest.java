@@ -53,7 +53,7 @@ class FileInformationTest {
     }
 
     private void unitTest(String filename, String baseName,
-                          CompressionFormat compressionFormat, ArchiveFormat archiveFormat, String sourceFormat) {
+                          CompressionFormat compressionFormat, ArchiveFormat archiveFormat, String mainExtension) {
         // Create the file information object
         FileInformation fileInformation = new FileInformation(filename);
 
@@ -61,7 +61,7 @@ class FileInformationTest {
         assertEquals(baseName, fileInformation.getBaseName());
         assertEquals(compressionFormat, fileInformation.getCompressionFormat());
         assertEquals(archiveFormat, fileInformation.getArchiveFormat());
-        assertEquals(sourceFormat, fileInformation.getMainExtension());
+        assertEquals(mainExtension, fileInformation.getMainExtension());
     }
 
     @Test

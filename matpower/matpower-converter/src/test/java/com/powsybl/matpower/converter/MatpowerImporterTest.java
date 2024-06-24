@@ -71,8 +71,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create118();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        assertTrue(new MatpowerImporter().exists(DataSourceUtil.createDataSource(tmpDir, model.getCaseName())), "");
-        assertFalse(new MatpowerImporter().exists(DataSourceUtil.createDataSource(tmpDir, "doesnotexist")), "");
+        assertTrue(new MatpowerImporter().exists(DataSourceUtil.createDataSource(tmpDir, model.getCaseName())));
+        assertFalse(new MatpowerImporter().exists(DataSourceUtil.createDataSource(tmpDir, "doesnotexist")));
     }
 
     @Test

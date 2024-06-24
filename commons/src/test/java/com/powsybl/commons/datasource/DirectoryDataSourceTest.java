@@ -68,10 +68,10 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
-    void writeThenReadTest(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+    void writeThenReadTest(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                                    CompressionFormat compressionFormat) throws IOException {
         // Compute the full filename
-        String fileName = testDir + "/" + baseName + sourceFormat
+        String fileName = testDir + "/" + baseName + mainExtension
             + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
 
@@ -97,11 +97,11 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    void testClassAndListing(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+    void testClassAndListing(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                   CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                   Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
-        String fileName = testDir + "/" + baseName + sourceFormat
+        String fileName = testDir + "/" + baseName + mainExtension
             + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
 

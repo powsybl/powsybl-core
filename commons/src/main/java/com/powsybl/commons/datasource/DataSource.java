@@ -24,13 +24,12 @@ public interface DataSource extends ReadOnlyDataSource {
 
     OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
 
-    static DataSource fromPath(Path file) {
-        Objects.requireNonNull(file);
-        if (!Files.isRegularFile(file)) {
-            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
+    static DataSource fromPath(Path path) {
+        Objects.requireNonNull(path);
+        if (!Files.isRegularFile(path)) {
+            throw new PowsyblException("File " + path + " does not exist or is not a regular file");
         }
-        Path absFile = file.toAbsolutePath();
-        return fromPath(absFile.getParent(), absFile.getFileName().toString());
+        return DataSourceUtil.createDataSource(path.isAbsolute() ? path : path.toAbsolutePath());
     }
 
     static DataSource fromPath(Path directory, String fileName) {

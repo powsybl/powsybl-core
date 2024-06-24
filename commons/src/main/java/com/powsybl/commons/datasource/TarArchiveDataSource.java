@@ -37,14 +37,27 @@ import java.util.regex.Pattern;
  */
 public class TarArchiveDataSource extends AbstractArchiveDataSource {
 
-    public TarArchiveDataSource(Path directory, String tarFileName, String baseName, CompressionFormat compressionFormat, String sourceFormat, DataSourceObserver observer) {
-        super(directory, tarFileName, baseName, compressionFormat, ArchiveFormat.TAR, sourceFormat, observer);
+    public TarArchiveDataSource(Path directory, String tarFileName, String baseName, CompressionFormat compressionFormat, String mainExtension, DataSourceObserver observer) {
+        super(directory, tarFileName, baseName, compressionFormat, ArchiveFormat.TAR, mainExtension, observer);
     }
 
-    public TarArchiveDataSource(Path directory, String baseName, CompressionFormat compressionFormat, String sourceFormat, DataSourceObserver observer) {
+    public TarArchiveDataSource(Path directory, String baseName, CompressionFormat compressionFormat, String mainExtension, DataSourceObserver observer) {
         super(directory,
-            baseName + sourceFormat + ".tar" + (compressionFormat == null ? "" : "." + compressionFormat.getExtension()),
-            baseName, compressionFormat, ArchiveFormat.TAR, sourceFormat, observer);
+            baseName + mainExtension + ".tar" + (compressionFormat == null ? "" : "." + compressionFormat.getExtension()),
+            baseName, compressionFormat, ArchiveFormat.TAR, mainExtension, observer);
+    }
+
+    public TarArchiveDataSource(Path directory, String baseName, CompressionFormat compressionFormat) {
+        super(directory,
+            baseName + ".tar" + (compressionFormat == null ? "" : "." + compressionFormat.getExtension()),
+            baseName, compressionFormat, ArchiveFormat.TAR, "", null);
+    }
+
+    public TarArchiveDataSource(Path tarFile) {
+        this(tarFile.getParent(), tarFile.getFileName().toString(),
+            "",
+            (new FileInformation(tarFile.getFileName().toString())).getCompressionFormat(),
+            "", null);
     }
 
     /**

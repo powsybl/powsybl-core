@@ -79,7 +79,7 @@ public class FileInformation {
          *  - case 3 ("dummy.foo"): ".foo" is the source format
          */
         mainExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
-        logSourceFormat(fileName, mainExtension, dataSourceInitialization);
+        logMainExtension(fileName, mainExtension, dataSourceInitialization);
 
         // Base name
         baseName = mainExtension.isEmpty() ?
@@ -90,8 +90,8 @@ public class FileInformation {
         }
     }
 
-    private void logSourceFormat(String fileName, String sourceFormat, boolean dataSourceInitialization) {
-        if (dataSourceInitialization && sourceFormat.isEmpty()) {
+    private void logMainExtension(String fileName, String mainExtension, boolean dataSourceInitialization) {
+        if (dataSourceInitialization && mainExtension.isEmpty()) {
             LOGGER.warn("Source format is empty in file {}", fileName);
         }
     }

@@ -19,9 +19,9 @@ import java.nio.file.Path;
 public class ZstdDirectoryDataSource extends DirectoryDataSource {
 
     public ZstdDirectoryDataSource(Path directory, String baseName,
-                                   String sourceFormat,
+                                   String mainExtension,
                                    DataSourceObserver observer) {
-        super(directory, baseName, CompressionFormat.ZSTD, sourceFormat, observer);
+        super(directory, baseName, CompressionFormat.ZSTD, mainExtension, observer);
     }
 
     @Override

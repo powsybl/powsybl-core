@@ -38,18 +38,18 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         return null;
     }
 
-    protected abstract String getFileName(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+    protected abstract String getFileName(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                                           CompressionFormat compressionFormat);
 
     protected abstract void createArchiveAndFiles(String fileName) throws IOException;
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    void testClassAndListing(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+    void testClassAndListing(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, sourceFormat, archiveFormat, compressionFormat);
+        String fileName = getFileName(baseName, mainExtension, archiveFormat, compressionFormat);
 
         // Create the Zip archive and add the files
         createArchiveAndFiles(fileName);
@@ -58,7 +58,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         unlistedFiles = filesInArchive.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the datasource
-        DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(testDir.resolve(fileName), baseName, sourceFormat);
+        DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(testDir.resolve(fileName), baseName, mainExtension);
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);

@@ -122,9 +122,9 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         );
     }
 
-    protected String getFileName(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+    protected String getFileName(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                                  CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName + sourceFormat
+        return testDir + "/" + baseName + mainExtension
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
@@ -155,10 +155,10 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
-    void writeThenReadTest(String baseName, String sourceFormat, ArchiveFormat archiveFormat,
+    void writeThenReadTest(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                            CompressionFormat compressionFormat) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, sourceFormat, archiveFormat, compressionFormat);
+        String fileName = getFileName(baseName, mainExtension, archiveFormat, compressionFormat);
 
         // Create the Zip archive and add the files
         createArchiveAndFiles(fileName);

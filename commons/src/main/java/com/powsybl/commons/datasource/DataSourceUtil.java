@@ -7,8 +7,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -253,12 +251,35 @@ public interface DataSourceUtil {
     }
 
     /**
+     * Create a directory-based DataSource based on the provided base name, source format extension and compression format
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @param observer Observer
+     * @param compressionFormat Compression format
+     * @return the created datasource
+     */
+    static DataSource createBaseNameFilteredDirectoryDataSource(Path directory, String baseName, CompressionFormat compressionFormat, DataSourceObserver observer) {
+        return createDirectoryDataSource(directory, baseName, "", compressionFormat, observer);
+    }
+
+    /**
+     * Create a directory-based DataSource based on the provided base name, source format extension and compression format
+     * @param directory Path to the folder where the file is located
+     * @param baseName base name for the files in the data source
+     * @param compressionFormat Compression format
+     * @return the created datasource
+     */
+    static DataSource createBaseNameFilteredDirectoryDataSource(Path directory, String baseName, CompressionFormat compressionFormat) {
+        return createDirectoryDataSource(directory, baseName, "", compressionFormat, null);
+    }
+
+    /**
      * Create a directory-based DataSource based on the base name
      * @param directory Path to the folder where the file is located
      * @param baseName base name for the files in the data source
      * @return the created datasource
      */
-    static DataSource createDirectoryDataSource(Path directory, String baseName, DataSourceObserver observer) {
+    static DataSource createBaseNameFilteredDirectoryDataSource(Path directory, String baseName, DataSourceObserver observer) {
         return createDirectoryDataSource(directory, baseName, "", null, observer);
     }
 
@@ -268,7 +289,7 @@ public interface DataSourceUtil {
      * @param baseName base name for the files in the data source
      * @return the created datasource
      */
-    static DataSource createDirectoryDataSource(Path directory, String baseName) {
+    static DataSource createBaseNameFilteredDirectoryDataSource(Path directory, String baseName) {
         return createDirectoryDataSource(directory, baseName, "", null, null);
     }
 
@@ -325,14 +346,27 @@ public interface DataSourceUtil {
      * @return the created datasource
      */
     static DataSource createDataSource(Path path, DataSourceObserver observer) {
-        if (!Files.exists(path)) {
-            throw new PowsyblException(String.format("Path %s should exist to create a data source", path));
-        } else if (Files.isDirectory(path)) {
+        if (Files.isDirectory(path)) {
             String baseName = path.getFileName().toString();
             baseName = baseName.endsWith("/") ? baseName.substring(0, baseName.length() - 1) : baseName;
-            return createDirectoryDataSource(path, baseName, observer);
+            return createBaseNameFilteredDirectoryDataSource(path, baseName, observer);
         } else {
-            return createDataSource(path.getParent(), path.getFileName().toString(), observer);
+            // Absolute path
+            Path absolutePath = path.isAbsolute() ? path : path.toAbsolutePath();
+
+            // File name
+            String fileName = absolutePath.getFileName().toString();
+
+            // Parent directory
+            Path parent = absolutePath.getParent() == null ? Path.of("./") : absolutePath.getParent();
+
+            // Get the file information
+            FileInformation fileInformation = new FileInformation(fileName);
+
+            // Datasource creation
+            return fileInformation.getArchiveFormat() == null ?
+                createDirectoryDataSource(parent, fileInformation.getBaseName(), fileInformation.getMainExtension(), fileInformation.getCompressionFormat(), observer) :
+                createArchiveDataSource(parent, fileName, "", "", fileInformation.getArchiveFormat(), fileInformation.getCompressionFormat(), observer);
         }
     }
 
