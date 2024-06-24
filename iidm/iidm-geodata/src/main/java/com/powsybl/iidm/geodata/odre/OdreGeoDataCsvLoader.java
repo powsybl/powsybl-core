@@ -25,34 +25,26 @@ public class OdreGeoDataCsvLoader {
     protected OdreGeoDataCsvLoader() {
     }
 
-    public static Collection<SubstationGeoData> getSubstationsGeoData(Path path, OdreConfig odreConfig) {
+    public static Collection<SubstationGeoData> getSubstationsGeoData(Path path, OdreConfig odreConfig) throws IOException {
         try (Reader reader = InputUtils.toReader(path)) {
             return GeographicDataParser.parseSubstations(reader, odreConfig).values();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     public static Collection<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
-                                                    Path substationPath, OdreConfig odreConfig) {
+                                                    Path substationPath, OdreConfig odreConfig) throws IOException {
         try (Reader substationReader = InputUtils.toReader(substationPath)) {
             return getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, GeographicDataParser.parseSubstations(substationReader, odreConfig), odreConfig);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 
     public static Collection<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
-                                                          Map<String, SubstationGeoData> substations, OdreConfig odreConfig) {
-
+                                                          Map<String, SubstationGeoData> substations, OdreConfig odreConfig) throws IOException {
         try (Reader aerialReader = InputUtils.toReader(aerialLinesFilePath);
              Reader undergroundReader = InputUtils.toReader(undergroundLinesFilePath)) {
 
             Map<String, LineGeoData> lineGeoDataMap = GeographicDataParser.parseLines(aerialReader, undergroundReader, substations, odreConfig);
             return lineGeoDataMap.values();
-
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 }

@@ -28,19 +28,17 @@ public class OdreGeoDataAdder {
     protected OdreGeoDataAdder() {
     }
 
-    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, OdreConfig odreConfig) {
+    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, OdreConfig odreConfig) throws IOException {
         fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path, odreConfig));
     }
 
     public static void fillNetworkGeoDataFromFiles(Network network, Path aerialLinesFilePath,
-                                                   Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
+                                                   Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) throws IOException {
         try (Reader substationReader = InputUtils.toReader(substationPath)) {
             Map<String, SubstationGeoData> substations = GeographicDataParser.parseSubstations(substationReader, odreConfig);
             fillNetworkSubstationsGeoData(network, substations.values());
             fillNetworkLinesGeoData(network,
                     OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substations, odreConfig));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
     }
 }

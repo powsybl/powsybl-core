@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
@@ -76,7 +77,7 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager) {
+    public void process(Network network, ComputationManager computationManager) throws IOException {
         if (Files.exists(substationsFilePath)) {
             boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
             boolean undergroundLinesPresent = Files.exists(undergroundLinesFilePath);

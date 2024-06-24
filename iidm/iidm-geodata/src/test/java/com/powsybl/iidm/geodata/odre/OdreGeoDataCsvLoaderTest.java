@@ -10,6 +10,7 @@ package com.powsybl.iidm.geodata.odre;
 import com.powsybl.iidm.geodata.elements.LineGeoData;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class OdreGeoDataCsvLoaderTest {
 
     @Test
-    void validSubstationsLineParsing() throws URISyntaxException {
+    void validSubstationsLineParsing() throws URISyntaxException, IOException {
         Path substationsPath = Paths.get(getClass()
                 .getClassLoader().getResource("valid-line-name/substations.csv").toURI());
         Path undergroundLinesPath = Paths.get(getClass()
