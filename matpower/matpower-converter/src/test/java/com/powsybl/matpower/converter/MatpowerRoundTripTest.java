@@ -9,7 +9,6 @@ package com.powsybl.matpower.converter;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;

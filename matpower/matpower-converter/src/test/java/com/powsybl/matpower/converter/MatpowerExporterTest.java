@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
