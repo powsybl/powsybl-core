@@ -226,31 +226,31 @@ public abstract class AbstractHvdcLineTest {
         assertHvdcLineConnection(hvdcLine, true, true);
 
         // Connection fails since it's already connected
-        assertFalse(hvdcLine.connectTerminals());
+        assertFalse(hvdcLine.connectConverterStations());
 
         // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
-        assertFalse(hvdcLine.disconnectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+        assertFalse(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
 
         // Disconnection
-        assertTrue(hvdcLine.disconnectTerminals());
+        assertTrue(hvdcLine.disconnectConverterStations());
         assertHvdcLineConnection(hvdcLine, false, false);
 
         // Disconnection fails since it's already disconnected
-        assertFalse(hvdcLine.disconnectTerminals());
+        assertFalse(hvdcLine.disconnectConverterStations());
 
         // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
-        assertFalse(hvdcLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate()));
+        assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL.negate()));
 
         // Connection
-        assertTrue(hvdcLine.connectTerminals());
+        assertTrue(hvdcLine.connectConverterStations());
         assertHvdcLineConnection(hvdcLine, true, true);
 
         // Disconnect one side
-        assertTrue(hvdcLine.disconnectTerminals(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertTrue(hvdcLine.disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
         assertHvdcLineConnection(hvdcLine, false, true);
 
         // Connection on the other side fails since it's still connected
-        assertFalse(hvdcLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+        assertFalse(hvdcLine.connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
     }
 
     private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {

@@ -236,44 +236,44 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public boolean connectTerminals() {
-        return connectTerminals(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    public boolean connectConverterStations() {
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
-    public boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectTerminals(isTypeSwitchToOperate, null);
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectConverterStations(isTypeSwitchToOperate, null);
     }
 
     @Override
-    public boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
-            getTerminals(side),
+            getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
             this.getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
-    public boolean disconnectTerminals() {
-        return disconnectTerminals(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    public boolean disconnectConverterStations() {
+        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
     }
 
     @Override
-    public boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable) {
-        return disconnectTerminals(isSwitchOpenable, null);
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
+        return disconnectConverterStations(isSwitchOpenable, null);
     }
 
     @Override
-    public boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
-            getTerminals(side),
+            getTerminalsOfConverterStations(side),
             isSwitchOpenable,
             this.getNetwork().getReportNodeContext().getReportNode());
     }
 
-    private List<Terminal> getTerminals(TwoSides side) {
+    private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
         return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
             case ONE -> List.of(getConverterStation1().getTerminal());
             case TWO -> List.of(getConverterStation2().getTerminal());

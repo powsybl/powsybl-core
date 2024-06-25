@@ -131,17 +131,17 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      */
     void remove(boolean updateDanglingLines);
 
-    boolean connectTerminals();
+    boolean connectDanglingLines();
 
-    boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate);
+    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate);
 
-    boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
-    boolean disconnectTerminals();
+    boolean disconnectDanglingLines();
 
-    boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable);
+    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable);
 
-    boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable, TwoSides side);
+    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     Network getNetwork();
 }

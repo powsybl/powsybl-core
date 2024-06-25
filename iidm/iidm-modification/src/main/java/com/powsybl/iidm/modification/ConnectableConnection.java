@@ -74,9 +74,9 @@ public class ConnectableConnection extends AbstractNetworkModification {
             if (identifiable instanceof Connectable<?> connectable) {
                 hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
             } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenConnected = tieLine.connectTerminals(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else if (identifiable instanceof HvdcLine hvdcLine) {
-                hasBeenConnected = hvdcLine.connectTerminals(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {
                 logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", connectableId));
             }

@@ -166,44 +166,44 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public boolean connectTerminals() {
-        return connectTerminals(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    public boolean connectDanglingLines() {
+        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
     }
 
     @Override
-    public boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectTerminals(isTypeSwitchToOperate, null);
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectDanglingLines(isTypeSwitchToOperate, null);
     }
 
     @Override
-    public boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
-            getTerminals(side),
+            getTerminalsOfDanglingLines(side),
             isTypeSwitchToOperate,
             this.getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
-    public boolean disconnectTerminals() {
-        return disconnectTerminals(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    public boolean disconnectDanglingLines() {
+        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
     }
 
     @Override
-    public boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable) {
-        return disconnectTerminals(isSwitchOpenable, null);
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
+        return disconnectDanglingLines(isSwitchOpenable, null);
     }
 
     @Override
-    public boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
-            getTerminals(side),
+            getTerminalsOfDanglingLines(side),
             isSwitchOpenable,
             this.getNetwork().getReportNodeContext().getReportNode());
     }
 
-    private List<Terminal> getTerminals(TwoSides side) {
+    private List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {
         return side == null ? List.of(getTerminal1(), getTerminal2()) : switch (side) {
             case ONE -> List.of(getTerminal1());
             case TWO -> List.of(getTerminal2());

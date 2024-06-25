@@ -444,31 +444,31 @@ public abstract class AbstractTieLineTest {
         assertTieLineConnection(tieLine, true, true);
 
         // Connection fails since it's already connected
-        assertFalse(tieLine.connectTerminals());
+        assertFalse(tieLine.connectDanglingLines());
 
         // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
-        assertFalse(tieLine.disconnectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+        assertFalse(tieLine.disconnectDanglingLines(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
 
         // Disconnection
-        assertTrue(tieLine.disconnectTerminals());
+        assertTrue(tieLine.disconnectDanglingLines());
         assertTieLineConnection(tieLine, false, false);
 
         // Disconnection fails since it's already disconnected
-        assertFalse(tieLine.disconnectTerminals());
+        assertFalse(tieLine.disconnectDanglingLines());
 
         // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
-        assertFalse(tieLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate()));
+        assertFalse(tieLine.connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL.negate()));
 
         // Connection
-        assertTrue(tieLine.connectTerminals());
+        assertTrue(tieLine.connectDanglingLines());
         assertTieLineConnection(tieLine, true, true);
 
         // Disconnect one side
-        assertTrue(tieLine.disconnectTerminals(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertTrue(tieLine.disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
         assertTieLineConnection(tieLine, false, true);
 
         // Connection on the other side fails since it's still connected
-        assertFalse(tieLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+        assertFalse(tieLine.connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
     }
 
     private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
