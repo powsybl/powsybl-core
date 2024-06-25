@@ -13,6 +13,7 @@ import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +31,12 @@ public class ConnectableConnection extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
     final String connectableId;
     final Predicate<Switch> isTypeSwitchToOperate;
+    ThreeSides side;
 
-    ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers) {
+    ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers,
+                          ThreeSides side) {
         this.connectableId = Objects.requireNonNull(connectableId);
+        this.side = side;
 
         // Initial predicate
         Predicate<Switch> predicate = SwitchPredicates.IS_NON_NULL;
@@ -55,6 +59,10 @@ public class ConnectableConnection extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            logOrThrow(throwException, "Connectable '" + connectableId + "' not found");
+            return;
+        }
 
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
@@ -62,16 +70,16 @@ public class ConnectableConnection extends AbstractNetworkModification {
         // Disconnect the connectable
         boolean hasBeenConnected;
         try {
-            hasBeenConnected = connectable.connect(isTypeSwitchToOperate);
+            hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
         } finally {
             network.getReportNodeContext().popReportNode();
         }
 
         if (hasBeenConnected) {
-            LOG.info("Connectable {} has been connected.", connectableId);
+            LOG.info("Connectable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Connectable {} has NOT been connected.", connectableId);
+            LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         }
-        connectableConnectionReport(reportNode, connectable, hasBeenConnected);
+        connectableConnectionReport(reportNode, connectable, hasBeenConnected, side);
     }
 }

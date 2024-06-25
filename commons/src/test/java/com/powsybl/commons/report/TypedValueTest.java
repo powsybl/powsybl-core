@@ -34,11 +34,11 @@ class TypedValueTest {
         assertThrows(IllegalArgumentException.class, () -> r1.withSeverity(illegalSeverity));
 
         ReportNode rn1 = r1.withSeverity(TypedValue.DEBUG_SEVERITY).add();
-        assertEquals(Optional.of(TypedValue.DEBUG_SEVERITY), rn1.getValue(ReportConstants.REPORT_SEVERITY_KEY));
+        assertEquals(Optional.of(TypedValue.DEBUG_SEVERITY), rn1.getValue(ReportConstants.SEVERITY_KEY));
 
         String customSeverity = "VeryImportant";
         ReportNode rn2 = root.newReportNode().withMessageTemplate("key", "defaultMessage").withSeverity(customSeverity).add();
-        Optional<TypedValue> value = rn2.getValue(ReportConstants.REPORT_SEVERITY_KEY);
+        Optional<TypedValue> value = rn2.getValue(ReportConstants.SEVERITY_KEY);
         assertTrue(value.isPresent());
         assertEquals(customSeverity, value.get().getValue());
     }

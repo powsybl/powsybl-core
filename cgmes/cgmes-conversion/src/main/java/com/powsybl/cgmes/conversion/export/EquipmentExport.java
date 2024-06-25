@@ -7,11 +7,13 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.*;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
@@ -54,7 +56,12 @@ public final class EquipmentExport {
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
-        context.setExportEquipment(true);
+        CgmesMetadataModel model = CgmesExport.initializeModelForExport(
+                network, CgmesSubset.EQUIPMENT, context, true, false);
+        write(network, writer, context, model);
+    }
+
+    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         try {
             boolean writeConnectivityNodes = context.writeConnectivityNodes();
 
@@ -68,7 +75,7 @@ public final class EquipmentExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getExportedEQModel(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, model, context);
             }
 
             Map<String, String> mapNodeKey2NodeId = new HashMap<>();
@@ -189,9 +196,19 @@ public final class EquipmentExport {
             if (context.isExportedEquipment(sw)) {
                 VoltageLevel vl = sw.getVoltageLevel();
                 String switchType = sw.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "switchType"); // may be null
-                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), sw.isRetained(), cimNamespace, writer, context);
+                // To ensure we do not violate rule SwitchTN1 of ENTSO-E QoCDC,
+                // we only export as retained a switch if it will be exported with different TNs at both ends
+                boolean exportAsRetained = sw.isRetained() && hasDifferentTNsAtBothEnds(sw);
+                SwitchEq.write(context.getNamingStrategy().getCgmesId(sw), sw.getNameOrId(), switchType, sw.getKind(), context.getNamingStrategy().getCgmesId(vl), sw.isOpen(), exportAsRetained, cimNamespace, writer, context);
             }
         }
+    }
+
+    private static boolean hasDifferentTNsAtBothEnds(Switch sw) {
+        // The exported Topological Nodes come from IIDM bus/breaker view buses
+        Bus bus1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
+        Bus bus2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        return bus1 != bus2;
     }
 
     private static void fillSwitchNodeKeys(VoltageLevel vl, Switch sw, String[] nodeKeys) {

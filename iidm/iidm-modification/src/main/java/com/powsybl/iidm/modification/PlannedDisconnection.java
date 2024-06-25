@@ -11,6 +11,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
 /**
@@ -18,15 +19,15 @@ import com.powsybl.iidm.network.util.SwitchPredicates;
  */
 public class PlannedDisconnection extends AbstractDisconnection {
 
-    PlannedDisconnection(String connectableId, boolean openFictitiousSwitches) {
+    PlannedDisconnection(String connectableId, boolean openFictitiousSwitches, ThreeSides side) {
         super(connectableId, openFictitiousSwitches ?
             SwitchPredicates.IS_OPEN.negate() :
-            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_NONFICTIONAL));
+            SwitchPredicates.IS_OPEN.negate().and(SwitchPredicates.IS_NONFICTIONAL), side);
     }
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
-        applyModification(network, true, reportNode);
+        applyModification(network, true, throwException, reportNode);
     }
 }

@@ -69,8 +69,10 @@ public final class CgmesExportUtil {
 
     public static String format(double value, double defaultValue) {
         // Always use scientific format for extreme values
-        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
-            return scientificFormat(value, defaultValue);
+        if (value >= Float.MAX_VALUE || value <= -Float.MAX_VALUE) {
+            // CIMXML expects xsd:float values
+            float value1 = value >= Float.MAX_VALUE ? Float.MAX_VALUE : -Float.MAX_VALUE;
+            return scientificFormat(value1, defaultValue);
         }
         return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
@@ -114,24 +116,28 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
+    public static void initializeModelId(Network network, CgmesMetadataModel model, CgmesExportContext context) {
         // The ref to build a unique model id must contain:
         // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
         CgmesObjectReference[] modelRef = {
             refTyped(network),
-            ref(subset),
+            ref(model.getSubset()),
             ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
-            ref(format(modelDescription.getVersion())),
+            ref(String.valueOf(model.getVersion())),
             ref(context.getBusinessProcess()),
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-        modelDescription.setId(modelId);
-        context.updateDependencies();
+        model.setId(modelId);
+    }
 
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
+        if (modelDescription.getId() == null || modelDescription.getId().isEmpty()) {
+            initializeModelId(network, modelDescription, context);
+        }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelId).add();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
+        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelDescription.getId()).add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();

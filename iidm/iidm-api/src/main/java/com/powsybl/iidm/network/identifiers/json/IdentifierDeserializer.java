@@ -12,10 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifierContingencyList;
-import com.powsybl.iidm.network.identifiers.IdBasedNetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
-import com.powsybl.iidm.network.identifiers.VoltageLevelAndOrderNetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.*;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -54,8 +51,7 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
                 }
                 case "identifierList" -> {
                     parser.nextToken();
-                    networkElementIdentifierList = JsonUtil.readList(deserializationContext,
-                            parser, NetworkElementIdentifier.class);
+                    networkElementIdentifierList = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
                 case "voltageLevelId1" -> voltageLevelId1 = parser.nextTextValue();
                 case "voltageLevelId2" -> voltageLevelId2 = parser.nextTextValue();
@@ -76,7 +72,8 @@ public class IdentifierDeserializer extends StdDeserializer<NetworkElementIdenti
             case ID_BASED -> new IdBasedNetworkElementIdentifier(identifier, contingencyId);
             case LIST -> new NetworkElementIdentifierContingencyList(networkElementIdentifierList, contingencyId);
             case VOLTAGE_LEVELS_AND_ORDER ->
-                    new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
+                new VoltageLevelAndOrderNetworkElementIdentifier(voltageLevelId1, voltageLevelId2, order, contingencyId);
+            case ID_WITH_WILDCARDS -> new IdWithWildcardsNetworkElementIdentifier(identifier, contingencyId);
         };
     }
 }

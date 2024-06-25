@@ -291,6 +291,11 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         ThreeSides getSide();
 
         Optional<? extends LoadingLimits> getLimits(LimitType type);
+
+        /**
+         * Get the associated three-windings transformer.
+         */
+        ThreeWindingsTransformer getTransformer();
     }
 
     Terminal getTerminal(ThreeSides side);
@@ -347,6 +352,13 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
+
+    /**
+     * Set the rated voltage at the fictitious bus.
+     */
+    default ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        throw new UnsupportedOperationException();
+    }
 
     @Override
     default IdentifiableType getType() {

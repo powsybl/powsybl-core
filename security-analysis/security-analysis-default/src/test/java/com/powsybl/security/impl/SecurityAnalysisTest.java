@@ -23,10 +23,8 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.action.Action;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
@@ -108,8 +106,6 @@ class SecurityAnalysisTest {
             .setHighLimit(0.25)
             .add();
 
-        ComputationManager computationManager = createMockComputationManager();
-
         Contingency contingency = Contingency.builder("NHV1_NHV2_2_contingency")
                                              .addBranch("NHV1_NHV2_2")
                                              .build();
@@ -117,25 +113,13 @@ class SecurityAnalysisTest {
 
         Mockito.when(contingencyMock.toModification()).thenReturn(new SecurityAnalysisModificationTest());
         ContingenciesProvider contingenciesProvider = n -> Collections.singletonList(contingencyMock);
-
-        LimitViolationFilter filter = new LimitViolationFilter();
-        LimitViolationDetector detector = new DefaultLimitViolationDetector();
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
-        List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
-        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"),
-                new AnyViolationCondition(), Collections.singletonList("action1")));
 
-        List<Action> actions = new ArrayList<>();
-        actions.add(new SwitchAction("action1", "switchId", true));
-        interceptors.add(interceptorMock);
-
-        SecurityAnalysisReport report = SecurityAnalysis.run(network,
+        SecurityAnalysisResult result = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
-                contingenciesProvider, SecurityAnalysisParameters.load(platformConfig), computationManager, filter, detector,
-                interceptors, operatorStrategies, actions);
-
-        SecurityAnalysisResult result = report.getResult();
+                contingenciesProvider,
+                createSecurityAnalysisRunParameters(interceptorMock))
+                .getResult();
 
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
@@ -168,26 +152,15 @@ class SecurityAnalysisTest {
     @Test
     void runWithoutContingency() {
         Network network = EurostagTutorialExample1Factory.create();
-        ComputationManager computationManager = createMockComputationManager();
-
         ContingenciesProvider contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
         Mockito.when(contingenciesProvider.getContingencies(network)).thenReturn(Collections.emptyList());
-
-        List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
-        interceptors.add(interceptorMock);
 
-        List<OperatorStrategy> operatorStrategies = new ArrayList<>();
-        operatorStrategies.add(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"), new AnyViolationCondition(), Collections.singletonList("action1")));
-
-        List<Action> actions = new ArrayList<>();
-        actions.add(new SwitchAction("action1", "switchId", true));
-
-        SecurityAnalysisReport report = SecurityAnalysis.run(network,
+        SecurityAnalysisResult result = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
-                contingenciesProvider, SecurityAnalysisParameters.load(platformConfig), computationManager, new LimitViolationFilter(), new DefaultLimitViolationDetector(),
-                interceptors, operatorStrategies, actions);
-        SecurityAnalysisResult result = report.getResult();
+                contingenciesProvider,
+                createSecurityAnalysisRunParameters(interceptorMock))
+                .getResult();
 
         assertSame(LoadFlowResult.ComponentResult.Status.CONVERGED, result.getPreContingencyResult().getStatus());
         assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
@@ -196,6 +169,15 @@ class SecurityAnalysisTest {
         assertEquals(0, interceptorMock.getOnPostContingencyResultCount());
         assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
         assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+    }
+
+    private SecurityAnalysisRunParameters createSecurityAnalysisRunParameters(SecurityAnalysisInterceptor interceptor) {
+        return new SecurityAnalysisRunParameters()
+                .setSecurityAnalysisParameters(SecurityAnalysisParameters.load(platformConfig))
+                .setComputationManager(createMockComputationManager())
+                .addInterceptor(interceptor)
+                .addOperatorStrategy(new OperatorStrategy("operatorStrategy", ContingencyContext.specificContingency("c1"), new AnyViolationCondition(), Collections.singletonList("action1")))
+                .addAction(new SwitchAction("action1", "switchId", true));
     }
 
     private static ComputationManager createMockComputationManager() {
@@ -246,7 +228,6 @@ class SecurityAnalysisTest {
         SecurityAnalysisParameters saParameters = new SecurityAnalysisParameters();
 
         LimitViolationFilter filter = new LimitViolationFilter();
-        LimitViolationDetector detector = new DefaultLimitViolationDetector();
 
         List<StateMonitor> monitors = new ArrayList<>();
         monitors.add(new StateMonitor(new ContingencyContext("NHV1_NHV2_1", ContingencyContextType.SPECIFIC),
@@ -257,7 +238,7 @@ class SecurityAnalysisTest {
         monitors.add(new StateMonitor(new ContingencyContext(null, ContingencyContextType.NONE),
                 Set.of("NHV1_NHV2_1", "NOT_EXISTING_BRANCH"), Set.of("VLHV1", "NOT_EXISTING_VOLTAGE_LEVEL"), Collections.singleton("NOT_EXISTING_T3W"))); // ignore IDs of non existing equipment
 
-        DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, ReportNode.NO_OP);
+        DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, filter, computationManager, monitors, ReportNode.NO_OP);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
         Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));
