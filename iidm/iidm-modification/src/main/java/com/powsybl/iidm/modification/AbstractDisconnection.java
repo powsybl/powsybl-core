@@ -48,17 +48,9 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
     }
 
     private void disconnectIdentifiable(Identifiable<?> identifiable, Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
-        boolean hasBeenDisconnected = false;
+        boolean hasBeenDisconnected;
         try {
-            if (identifiable instanceof Connectable<?> connectable) {
-                hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
-            } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenDisconnected = tieLine.disconnectTerminals(openableSwitches, side == null ? null : side.toTwoSides());
-            } else if (identifiable instanceof HvdcLine hvdcLine) {
-                hasBeenDisconnected = hvdcLine.disconnectTerminals(openableSwitches, side == null ? null : side.toTwoSides());
-            } else {
-                logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", connectableId));
-            }
+            hasBeenDisconnected = disconnect(identifiable, throwException);
         } finally {
             network.getReportNodeContext().popReportNode();
         }
@@ -69,5 +61,19 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
             LOG.info("Connectable {} has NOT been disconnected ({} disconnection) {}.", connectableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
         }
         connectableDisconnectionReport(reportNode, identifiable, hasBeenDisconnected, isPlanned, side);
+    }
+
+    private boolean disconnect(Identifiable<?> identifiable, boolean throwException) {
+        boolean hasBeenDisconnected = false;
+        if (identifiable instanceof Connectable<?> connectable) {
+            hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
+        } else if (identifiable instanceof TieLine tieLine) {
+            hasBeenDisconnected = tieLine.disconnectTerminals(openableSwitches, side == null ? null : side.toTwoSides());
+        } else if (identifiable instanceof HvdcLine hvdcLine) {
+            hasBeenDisconnected = hvdcLine.disconnectTerminals(openableSwitches, side == null ? null : side.toTwoSides());
+        } else {
+            logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", connectableId));
+        }
+        return hasBeenDisconnected;
     }
 }
