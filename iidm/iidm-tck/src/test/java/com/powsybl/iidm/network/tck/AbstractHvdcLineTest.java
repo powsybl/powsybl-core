@@ -222,9 +222,8 @@ public abstract class AbstractHvdcLineTest {
     void testConnectDisconnect() {
         HvdcLine hvdcLine = network.getHvdcLine("L");
 
-        // Check that the tie line is connected
-        assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
-        assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
+        // Check that the HVDC line is connected
+        assertHvdcLineConnection(hvdcLine, true, true);
 
         // Connection fails since it's already connected
         assertFalse(hvdcLine.connectTerminals());
@@ -234,8 +233,7 @@ public abstract class AbstractHvdcLineTest {
 
         // Disconnection
         assertTrue(hvdcLine.disconnectTerminals());
-        assertFalse(hvdcLine.getConverterStation1().getTerminal().isConnected());
-        assertFalse(hvdcLine.getConverterStation2().getTerminal().isConnected());
+        assertHvdcLineConnection(hvdcLine, false, false);
 
         // Disconnection fails since it's already disconnected
         assertFalse(hvdcLine.disconnectTerminals());
@@ -245,7 +243,18 @@ public abstract class AbstractHvdcLineTest {
 
         // Connection
         assertTrue(hvdcLine.connectTerminals());
-        assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
-        assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Disconnect one side
+        assertTrue(hvdcLine.disconnectTerminals(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertHvdcLineConnection(hvdcLine, false, true);
+
+        // Connection on the other side fails since it's still connected
+        assertFalse(hvdcLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, hvdcLine.getConverterStation2().getTerminal().isConnected());
     }
 }

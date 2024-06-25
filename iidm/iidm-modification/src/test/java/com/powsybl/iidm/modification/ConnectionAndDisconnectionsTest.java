@@ -466,6 +466,26 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         connection.apply(network);
         assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+
+        // Disconnection on one side
+        UnplannedDisconnection disconnectionSide1 = new UnplannedDisconnectionBuilder()
+            .withConnectableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.ONE)
+            .build();
+        disconnectionSide1.apply(network);
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+
+        // Disconnection on the other side
+        UnplannedDisconnection disconnectionSide2 = new UnplannedDisconnectionBuilder()
+            .withConnectableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.TWO)
+            .build();
+        disconnectionSide2.apply(network);
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 
     @Test

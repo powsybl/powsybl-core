@@ -441,8 +441,7 @@ public abstract class AbstractTieLineTest {
         TieLine tieLine = networkWithTieLine.getTieLine("TL");
 
         // Check that the tie line is connected
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, true, true);
 
         // Connection fails since it's already connected
         assertFalse(tieLine.connectTerminals());
@@ -452,8 +451,7 @@ public abstract class AbstractTieLineTest {
 
         // Disconnection
         assertTrue(tieLine.disconnectTerminals());
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, false, false);
 
         // Disconnection fails since it's already disconnected
         assertFalse(tieLine.disconnectTerminals());
@@ -463,8 +461,19 @@ public abstract class AbstractTieLineTest {
 
         // Connection
         assertTrue(tieLine.connectTerminals());
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, true, true);
+
+        // Disconnect one side
+        assertTrue(tieLine.disconnectTerminals(SwitchPredicates.IS_CLOSED_BREAKER, TwoSides.ONE));
+        assertTieLineConnection(tieLine, false, true);
+
+        // Connection on the other side fails since it's still connected
+        assertFalse(tieLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL_BREAKER, TwoSides.TWO));
+    }
+
+    private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 
     private Network createNetworkWithTieLine() {
