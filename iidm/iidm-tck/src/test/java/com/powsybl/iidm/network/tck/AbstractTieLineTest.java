@@ -445,42 +445,26 @@ public abstract class AbstractTieLineTest {
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
 
         // Connection fails since it's already connected
-        assertFalse(tieLine.connect());
+        assertFalse(tieLine.connectTerminals());
 
         // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
-        assertFalse(tieLine.disconnect(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+        assertFalse(tieLine.disconnectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
 
         // Disconnection
-        assertTrue(tieLine.disconnect());
+        assertTrue(tieLine.disconnectTerminals());
         assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
 
         // Disconnection fails since it's already disconnected
-        assertFalse(tieLine.disconnect());
+        assertFalse(tieLine.disconnectTerminals());
 
         // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
-        assertFalse(tieLine.connect(SwitchPredicates.IS_NONFICTIONAL.negate()));
+        assertFalse(tieLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate()));
 
         // Connection
-        assertTrue(tieLine.connect());
+        assertTrue(tieLine.connectTerminals());
         assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
         assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
-    }
-
-    @Test
-    void testGetTerminals() {
-        Network networkWithTieLine = createNetworkWithTieLine();
-        TieLine tieLine = networkWithTieLine.getTieLine("TL");
-
-        // Existing terminals
-        Terminal terminal1 = tieLine.getDanglingLine1().getTerminal();
-        Terminal terminal2 = tieLine.getDanglingLine2().getTerminal();
-
-        // Checks
-        assertEquals(List.of(terminal1), tieLine.getTerminals(ThreeSides.ONE));
-        assertEquals(List.of(terminal2), tieLine.getTerminals(ThreeSides.TWO));
-        assertEquals(List.of(terminal1, terminal2), tieLine.getTerminals(null));
-        assertEquals(List.of(terminal1, terminal2), tieLine.getTerminals(ThreeSides.THREE));
     }
 
     private Network createNetworkWithTieLine() {

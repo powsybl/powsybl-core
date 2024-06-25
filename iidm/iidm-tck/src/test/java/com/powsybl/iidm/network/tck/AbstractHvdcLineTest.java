@@ -227,40 +227,25 @@ public abstract class AbstractHvdcLineTest {
         assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
 
         // Connection fails since it's already connected
-        assertFalse(hvdcLine.connect());
+        assertFalse(hvdcLine.connectTerminals());
 
         // Disconnection fails if switches cannot be opened (here, only fictional switches could be opened)
-        assertFalse(hvdcLine.disconnect(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
+        assertFalse(hvdcLine.disconnectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate().and(SwitchPredicates.IS_OPEN.negate())));
 
         // Disconnection
-        assertTrue(hvdcLine.disconnect());
+        assertTrue(hvdcLine.disconnectTerminals());
         assertFalse(hvdcLine.getConverterStation1().getTerminal().isConnected());
         assertFalse(hvdcLine.getConverterStation2().getTerminal().isConnected());
 
         // Disconnection fails since it's already disconnected
-        assertFalse(hvdcLine.disconnect());
+        assertFalse(hvdcLine.disconnectTerminals());
 
         // Connection fails if switches cannot be opened (here, only fictional switches could be closed)
-        assertFalse(hvdcLine.connect(SwitchPredicates.IS_NONFICTIONAL.negate()));
+        assertFalse(hvdcLine.connectTerminals(SwitchPredicates.IS_NONFICTIONAL.negate()));
 
         // Connection
-        assertTrue(hvdcLine.connect());
+        assertTrue(hvdcLine.connectTerminals());
         assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
         assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
-    }
-
-    @Test
-    void testGetTerminals() {
-        HvdcLine hvdcLine = network.getHvdcLine("L");
-
-        // Existing terminals
-        Terminal terminal1 = hvdcLine.getConverterStation1().getTerminal();
-        Terminal terminal2 = hvdcLine.getConverterStation2().getTerminal();
-
-        // Checks
-        assertEquals(List.of(terminal1), hvdcLine.getTerminals(ThreeSides.ONE));
-        assertEquals(List.of(terminal2), hvdcLine.getTerminals(ThreeSides.TWO));
-        assertEquals(List.of(terminal1, terminal2), hvdcLine.getTerminals(null));
-        assertEquals(List.of(terminal1, terminal2), hvdcLine.getTerminals(ThreeSides.THREE));
     }
 }

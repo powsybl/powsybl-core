@@ -206,17 +206,17 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      */
     void remove();
 
-    boolean connect();
+    boolean connectTerminals();
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+    boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate);
 
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+    boolean connectTerminals(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
 
-    boolean disconnect();
+    boolean disconnectTerminals();
 
-    boolean disconnect(Predicate<Switch> isSwitchOpenable);
+    boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable);
 
-    boolean disconnect(Predicate<Switch> isSwitchOpenable, TwoSides side);
+    boolean disconnectTerminals(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     @Override
     default IdentifiableType getType() {

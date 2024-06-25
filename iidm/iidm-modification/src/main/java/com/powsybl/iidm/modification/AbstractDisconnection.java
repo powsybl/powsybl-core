@@ -53,9 +53,9 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
             if (identifiable instanceof Connectable<?> connectable) {
                 hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
             } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenDisconnected = tieLine.disconnect(openableSwitches, side);
+                hasBeenDisconnected = tieLine.disconnectTerminals(openableSwitches, side == null ? null : side.toTwoSides());
             } else if (identifiable instanceof HvdcLine hvdcLine) {
-                hasBeenDisconnected = hvdcLine.disconnect(openableSwitches, side);
+                hasBeenDisconnected = hvdcLine.disconnectTerminals(openableSwitches, side == null ? null : side.toTwoSides());
             } else {
                 logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", connectableId));
             }
