@@ -39,7 +39,7 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         // Get the connectable
         Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
-        // Disconnect the connectable
+        // Disconnect the connectable if it exists
         if (identifiable == null) {
             logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
         } else {

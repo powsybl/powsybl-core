@@ -60,7 +60,7 @@ public class ConnectableConnection extends AbstractNetworkModification {
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
-        // Disconnect the connectable
+        // Connect the element if it exists
         if (identifiable == null) {
             logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
         } else {

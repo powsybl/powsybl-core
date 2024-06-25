@@ -344,6 +344,15 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .build();
         modification.apply(network, reportNode);
         writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
+
+        // Network modification
+        PlannedDisconnection modificationSide1 = new PlannedDisconnectionBuilder()
+            .withConnectableId("L1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.ONE)
+            .build();
+        modificationSide1.apply(network, reportNode);
+        writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-disconnected-planned.txt");
     }
 
@@ -375,6 +384,15 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
+        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+
+        // Network modification
+        UnplannedDisconnection modificationSide1 = new UnplannedDisconnectionBuilder()
+            .withConnectableId("L1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.ONE)
+            .build();
+        modificationSide1.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-disconnected-unplanned.txt");
     }
@@ -409,6 +427,16 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withOnlyBreakersOperable(true)
             .build();
         modification.apply(network, reportNode);
+        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+
+        // Connection on one side
+        ConnectableConnection modificationSide1 = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .withSide(ThreeSides.ONE)
+            .build();
+        modificationSide1.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-connected.txt");
     }
@@ -447,15 +475,13 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
 
         // Disconnection
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, true, true);
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
             .withConnectableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .build();
         disconnection.apply(network);
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, false, false);
 
         // Connection
         ConnectableConnection connection = new ConnectableConnectionBuilder()
@@ -464,8 +490,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withOnlyBreakersOperable(true)
             .build();
         connection.apply(network);
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, true, true);
 
         // Disconnection on one side
         UnplannedDisconnection disconnectionSide1 = new UnplannedDisconnectionBuilder()
@@ -474,18 +499,17 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withSide(ThreeSides.ONE)
             .build();
         disconnectionSide1.apply(network);
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, false, true);
 
-        // Disconnection on the other side
-        UnplannedDisconnection disconnectionSide2 = new UnplannedDisconnectionBuilder()
+        // Connection on the same side
+        ConnectableConnection connectionSide1 = new ConnectableConnectionBuilder()
             .withConnectableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
-            .withSide(ThreeSides.TWO)
+            .withOnlyBreakersOperable(true)
+            .withSide(ThreeSides.ONE)
             .build();
-        disconnectionSide2.apply(network);
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        connectionSide1.apply(network);
+        assertTieLineConnection(tieLine, true, true);
     }
 
     @Test
@@ -494,15 +518,13 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         HvdcLine hvdcLine = network.getHvdcLine("L");
 
         // Disconnection
-        assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
-        assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
+        assertHvdcLineConnection(hvdcLine, true, true);
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
             .withConnectableId("L")
             .withFictitiousSwitchesOperable(false)
             .build();
         disconnection.apply(network);
-        assertFalse(hvdcLine.getConverterStation1().getTerminal().isConnected());
-        assertFalse(hvdcLine.getConverterStation2().getTerminal().isConnected());
+        assertHvdcLineConnection(hvdcLine, false, false);
 
         // Connection
         ConnectableConnection connection = new ConnectableConnectionBuilder()
@@ -511,12 +533,40 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withOnlyBreakersOperable(true)
             .build();
         connection.apply(network);
-        assertTrue(hvdcLine.getConverterStation1().getTerminal().isConnected());
-        assertTrue(hvdcLine.getConverterStation2().getTerminal().isConnected());
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Disconnection on one side
+        UnplannedDisconnection disconnectionSide2 = new UnplannedDisconnectionBuilder()
+            .withConnectableId("L")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.TWO)
+            .build();
+        disconnectionSide2.apply(network);
+        assertHvdcLineConnection(hvdcLine, true, false);
+
+        // Connection on the same side
+        ConnectableConnection connectionSide2 = new ConnectableConnectionBuilder()
+            .withConnectableId("L")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .withSide(ThreeSides.TWO)
+            .build();
+        connectionSide2.apply(network);
+        assertHvdcLineConnection(hvdcLine, true, true);
+    }
+
+    private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
+    }
+
+    private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, hvdcLine.getConverterStation2().getTerminal().isConnected());
     }
 
     @Test
-    void testIdentifiableNotFound() {
+    void testIdentifiableNotFoundException() {
         Network network = createNetwork();
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
             .withConnectableId("ELEMENT_NOT_PRESENT")

@@ -589,6 +589,7 @@ public final class ModificationReports {
             "Connectable ${identifiable} has NOT been connected";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
+        key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
             .withUntypedValue("identifiable", identifiable.getId())
@@ -604,6 +605,7 @@ public final class ModificationReports {
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
         key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
+        key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
             .withUntypedValue("identifiable", identifiable.getId())
