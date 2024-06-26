@@ -451,6 +451,42 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
     }
 
+    @Test
+    void testDryRunDisconnection() {
+        // Network creation
+        Network network = createNetwork();
+
+        // Disconnection - Passing dryRun
+        UnplannedDisconnection unplannedDisconnection = new UnplannedDisconnectionBuilder()
+            .withConnectableId("L1")
+            .withFictitiousSwitchesOperable(true)
+            .build();
+        assertTrue(unplannedDisconnection.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(unplannedDisconnection.hasImpactOnNetwork());
+        assertTrue(unplannedDisconnection.isLocalDryRunPossible());
+
+        // Disconnection - Failing dryRun
+        ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        UnplannedDisconnection unplannedDisconnectionFailing = new UnplannedDisconnectionBuilder()
+            .withConnectableId("dummy")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        assertFalse(unplannedDisconnectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertEquals("Dry-run failed for AbstractDisconnection. The issue is: Connectable 'dummy' not found",
+            reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
+        unplannedDisconnectionFailing = new UnplannedDisconnectionBuilder()
+            .withConnectableId("L1")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        assertFalse(unplannedDisconnectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertEquals("Dry-run failed for AbstractDisconnection. The issue is: Disconnection failed",
+            reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
+    }
+
 
     /**
      * This network modification fails on tie-lines since they are not a connectable

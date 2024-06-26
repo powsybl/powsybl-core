@@ -116,4 +116,24 @@ class ShuntCompensatorModificationTest {
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
     }
+
+    @Test
+    void testDryRun() {
+        // Passing dryRun
+        ShuntCompensatorModification shuntCompensatorModification = new ShuntCompensatorModification(shunt.getId(), null, null);
+        assertTrue(shuntCompensatorModification.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(shuntCompensatorModification.hasImpactOnNetwork());
+        assertTrue(shuntCompensatorModification.isLocalDryRunPossible());
+
+        // Failing dryRun
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        ShuntCompensatorModification modificationFailing = new ShuntCompensatorModification("SHUNT_NOT_EXISTING", null, null);
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for ShuntCompensatorModification. The issue is: ShuntCompensator 'SHUNT_NOT_EXISTING' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+    }
 }

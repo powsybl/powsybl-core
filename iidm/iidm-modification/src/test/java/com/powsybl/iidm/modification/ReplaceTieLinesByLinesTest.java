@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -87,5 +89,18 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         public String getName() {
             return "foo";
         }
+    }
+
+    @Test
+    void testDryRun() {
+        Network network = createDummyNodeBreakerNetwork();
+
+        // ReplaceTieLinesByLines - Passing dryRun
+        ReplaceTieLinesByLines networkModification = new ReplaceTieLinesByLines();
+        assertTrue(networkModification.dryRun(network));
+
+        // Useful methods for dry run
+        assertTrue(networkModification.hasImpactOnNetwork());
+        assertTrue(networkModification.isLocalDryRunPossible());
     }
 }

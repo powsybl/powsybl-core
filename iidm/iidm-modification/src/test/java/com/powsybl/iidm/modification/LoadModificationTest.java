@@ -8,13 +8,14 @@
 
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
@@ -44,5 +45,25 @@ class LoadModificationTest {
         LoadModification modification = new LoadModification("LOAD", true, -20.0, null);
         modification.apply(network);
         assertEquals(580.0, load.getP0());
+    }
+
+    @Test
+    void testDryRun() {
+        // CloseSwitch - Passing dryRun
+        LoadModification modification = new LoadModification("LOAD", false, null, 100.0);
+        assertTrue(modification.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(modification.hasImpactOnNetwork());
+        assertTrue(modification.isLocalDryRunPossible());
+
+        // CloseSwitch - Failing dryRun
+        ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        LoadModification failingModification = new LoadModification("dummy", false, null, 100.0);
+        assertFalse(failingModification.dryRun(network, reportNodeCloseSwitch));
+        assertEquals("Dry-run failed for LoadModification. The issue is: Load 'dummy' not found",
+            reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
     }
 }

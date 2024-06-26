@@ -116,6 +116,11 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
         return true;
     }
 
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private static void warningAboutExtensions(DanglingLine dl1, DanglingLine dl2, TieLine tl, ReportNode reportNode) {
         String dl1Id = dl1.getId();
         String dl2Id = dl2.getId();
