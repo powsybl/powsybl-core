@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
@@ -14,6 +15,8 @@ import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TDoubleArrayList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.OptionalDouble;
@@ -24,6 +27,7 @@ import java.util.OptionalDouble;
 public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMultiVariantIdentifiableExtension<T>
         implements ActivePowerControl<T> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ActivePowerControlImpl.class);
     private final TBooleanArrayList participate;
 
     private final TDoubleArrayList droop;
@@ -65,21 +69,37 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         checkTargetPLimits(minTargetP, maxTargetP);
     }
 
-    private double checkTargetPLimit(double targetPLimit, String name, T injection) {
+    record PLimits(double minP, double maxP) { }
 
+    private PLimits getPLimits(T injection) {
         double maxP = Double.MAX_VALUE;
         double minP = -Double.MAX_VALUE;
-        if (injection instanceof Generator) {
-            maxP = ((Generator) injection).getMaxP();
-            minP = ((Generator) injection).getMinP();
+        if (injection instanceof Generator generator) {
+            maxP = generator.getMaxP();
+            minP = generator.getMinP();
         }
-        if (injection instanceof Battery) {
-            maxP = ((Battery) injection).getMaxP();
-            minP = ((Battery) injection).getMinP();
+        if (injection instanceof Battery battery) {
+            maxP = battery.getMaxP();
+            minP = battery.getMinP();
         }
+        return new PLimits(minP, maxP);
+    }
 
-        if (!Double.isNaN(targetPLimit) && (targetPLimit < minP || targetPLimit > maxP)) {
-            throw new IllegalArgumentException(String.format("%s value (%s) is no between minP and maxP for component %s",
+    private double withinPMinMax(double value, T injection) {
+        PLimits pLimits = getPLimits(injection);
+
+        if (!Double.isNaN(value) && (value < pLimits.minP || value > pLimits.maxP)) {
+            LOGGER.warn("targetP limit is now outside of pMin,pMax for component " + injection.getId() + ". Returning closest value in [pmin,pMax].");
+            return value < pLimits.minP ? pLimits.minP : pLimits.maxP;
+        }
+        return value;
+    }
+
+    private double checkTargetPLimit(double targetPLimit, String name, T injection) {
+        PLimits pLimits = getPLimits(injection);
+
+        if (!Double.isNaN(targetPLimit) && (targetPLimit < pLimits.minP || targetPLimit > pLimits.maxP)) {
+            throw new PowsyblException(String.format("%s value (%s) is not between minP and maxP for component %s",
                     name,
                     targetPLimit,
                     injection.getId()));
@@ -91,7 +111,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     private void checkTargetPLimits(double minTargetP, double maxTargetP) {
         if (!Double.isNaN(minTargetP) && !Double.isNaN(maxTargetP)) {
             if (minTargetP > maxTargetP) {
-                throw new IllegalArgumentException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
+                throw new PowsyblException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
             }
         }
     }
@@ -152,7 +172,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     @Override
     public OptionalDouble getMinTargetP() {
         double result = minTargetP.get(getVariantIndex());
-        return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(result);
+        return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(result, getExtendable()));
     }
 
     @Override
@@ -164,7 +184,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     @Override
     public OptionalDouble getMaxTargetP() {
         double result = maxTargetP.get(getVariantIndex());
-        return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(result);
+        return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(withinPMinMax(result, getExtendable()));
     }
 
     @Override

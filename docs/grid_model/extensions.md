@@ -31,7 +31,7 @@ generator.newExtension(ActivePowerControlAdder.class)
     .withParticipationFactor(1.5)
     .add();
 ```
-
+If defined, min targetP and max targetP must be in the [pMin, pMax] interval of the Generator or Battery.
 The participation status, the participation factor, the max targetP and the min targetP are multi-variants: they can vary from one variant to another.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.

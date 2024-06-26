@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalDouble;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -91,15 +92,21 @@ public abstract class AbstractActivePowerControlTest {
         checkValues1(activePowerControl);
 
         // test limitControl
-        assertThrows(IllegalArgumentException.class, () -> activePowerControl.setMaxTargetP(bat.getMaxP() + 1));
-        assertThrows(IllegalArgumentException.class, () -> activePowerControl.setMaxTargetP(bat.getMinP() - 1));
-        assertThrows(IllegalArgumentException.class, () -> activePowerControl.setMinTargetP(bat.getMaxP() + 1));
-        assertThrows(IllegalArgumentException.class, () -> activePowerControl.setMinTargetP(bat.getMinP() - 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(bat.getMaxP() + 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(bat.getMinP() - 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(bat.getMaxP() + 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(bat.getMinP() - 1));
 
         activePowerControl.setMaxTargetP(200);
         activePowerControl.setMinTargetP(100);
-        assertThrows(IllegalArgumentException.class, () -> activePowerControl.setMinTargetP(201));
-        assertThrows(IllegalArgumentException.class, () -> activePowerControl.setMaxTargetP(99));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(201));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(99));
+
+        // try to fool the extension
+        bat.setMaxP(190);
+        bat.setMinP(110);
+        assertEquals(OptionalDouble.of(190), activePowerControl.getMaxTargetP());
+        assertEquals(OptionalDouble.of(110), activePowerControl.getMinTargetP());
 
         // Test removing current variant
         variantManager.removeVariant(variant3);
