@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -96,6 +97,15 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
+        // if given a main file compatible with our extensions, try that as the mainfile.
+        if (Arrays.asList(getExtensions()).contains(dataSource.getBaseExtension())) {
+            return dataSource.getBaseExtension();
+        // if given a main file with an extension and it's not compatible, don't import
+        // to avoid importing a file when the user specified another
+        } else if (!dataSource.getBaseExtension().isEmpty()) {
+            return null;
+        }
+
         for (String ext : getExtensions()) {
             if (dataSource.exists(null, ext)) {
                 return ext;

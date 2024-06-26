@@ -62,7 +62,19 @@ public class PowerFactoryImporter implements Importer {
     }
 
     private Optional<PowerFactoryDataLoader<StudyCase>> findProjectLoader(ReadOnlyDataSource dataSource) {
-        for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : PowerFactoryDataLoader.find(StudyCase.class)) {
+        List<PowerFactoryDataLoader<StudyCase>> loaders = PowerFactoryDataLoader.find(StudyCase.class);
+        Map<String, List<PowerFactoryDataLoader<StudyCase>>> extensions = loaders.stream().collect(
+                Collectors.groupingBy(PowerFactoryDataLoader::getExtension));
+        // if given a main file compatible with our extensions, try that as the mainfile.
+        if (extensions.containsKey(dataSource.getBaseExtension())) {
+            return Optional.of(extensions.get(dataSource.getBaseExtension()).get(0));
+        // if given a main file with an extension and it's not compatible, don't import
+        // to avoid importing a file when the user specified another
+        } else if (!dataSource.getBaseExtension().isEmpty()) {
+            return Optional.empty();
+        }
+
+        for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : loaders) {
             try {
                 if (dataSource.exists(null, studyCaseLoader.getExtension())) {
                     return Optional.of(studyCaseLoader);

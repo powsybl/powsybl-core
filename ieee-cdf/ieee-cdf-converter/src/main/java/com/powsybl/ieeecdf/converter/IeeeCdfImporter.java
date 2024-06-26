@@ -79,6 +79,12 @@ public class IeeeCdfImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
+        // if given a main file with an extension and it's not compatible, don't import
+        // to avoid importing a file when the user specified another
+        if (!EXT.equals(dataSource.getBaseExtension()) && !dataSource.getBaseExtension().isEmpty()) {
+            return false;
+        }
+
         try {
             if (dataSource.exists(null, EXT)) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {

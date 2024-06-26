@@ -950,6 +950,15 @@ public class UcteImporter implements Importer {
     }
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
+        // if given a main file compatible with our extensions, try that as the mainfile.
+        if (Arrays.asList(EXTENSIONS).contains(dataSource.getBaseExtension())) {
+            return dataSource.getBaseExtension();
+        // if given a main file with an extension and it's not compatible, don't import
+        // to avoid importing a file when the user specified another
+        } else if (!dataSource.getBaseExtension().isEmpty()) {
+            return null;
+        }
+
         for (String ext : EXTENSIONS) {
             if (dataSource.exists(null, ext)) {
                 return ext;

@@ -515,6 +515,12 @@ public class MatpowerImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
+        // if given a main file with an extension and it's not compatible, don't import
+        // to avoid importing a file when the user specified another
+        if (!EXT.equals(dataSource.getBaseExtension()) && !dataSource.getBaseExtension().isEmpty()) {
+            return false;
+        }
+
         try {
             return dataSource.exists(null, MatpowerConstants.EXT);
         } catch (IOException e) {

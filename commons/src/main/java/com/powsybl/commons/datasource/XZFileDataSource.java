@@ -18,12 +18,20 @@ import java.nio.file.Path;
  */
 public class XZFileDataSource extends FileDataSource {
 
+    public XZFileDataSource(Path directory, String baseName, String baseExtension, DataSourceObserver observer) {
+        super(directory, baseName, baseExtension, observer);
+    }
+
+    public XZFileDataSource(Path directory, String baseName, String baseExtension) {
+        super(directory, baseName, baseExtension, null);
+    }
+
     public XZFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
+        super(directory, baseName, "", observer);
     }
 
     public XZFileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
+        super(directory, baseName, "", null);
     }
 
     @Override

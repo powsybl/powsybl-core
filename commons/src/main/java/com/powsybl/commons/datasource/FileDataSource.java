@@ -29,21 +29,37 @@ public class FileDataSource implements DataSource {
 
     private final String baseName;
 
+    private final String baseExtension;
+
     private final DataSourceObserver observer;
 
     public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, null);
+        this(directory, baseName, "", null);
     }
 
     public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
+        this(directory, baseName, "", observer);
+    }
+
+    public FileDataSource(Path directory, String baseName, String baseExtension) {
+        this(directory, baseName, baseExtension, null);
+    }
+
+    public FileDataSource(Path directory, String baseName, String baseExtension, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
+        this.baseExtension = Objects.requireNonNull(baseExtension);
         this.observer = observer;
     }
 
     @Override
     public String getBaseName() {
         return baseName;
+    }
+
+    @Override
+    public String getBaseExtension() {
+        return baseExtension;
     }
 
     protected String getCompressionExt() {

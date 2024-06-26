@@ -24,6 +24,9 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesOnDataSource {
+
+    private static final String EXTENSION = "xml";
+
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
         this.dataSource = ds;
     }
@@ -33,25 +36,62 @@ public class CgmesOnDataSource {
     }
 
     public boolean exists() {
+        // if given a main file with our extension, check that the mainfile is our format
+        if (EXTENSION.equals(dataSource.getBaseExtension())) {
+            try (InputStream is = dataSource.newInputStream(null, EXTENSION)) {
+                if (!existsNamespaces(NamespaceReader.namespaces(is))) {
+                    return false;
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        // if there is an extension and it's not compatible, don't import
+        } else if (!dataSource.getBaseExtension().isEmpty()) {
+            return false;
+        }
+
         // check that RDF and CIM16 are defined as namespaces in the data source
         Set<String> foundNamespaces = namespaces();
-        if (!foundNamespaces.contains(RDF_NAMESPACE)) {
+        return existsNamespaces(foundNamespaces);
+    }
+
+    private boolean existsNamespaces(Set<String> namespaces) {
+        if (!namespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
         // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
         // But I think we do not need to support 14 separately?
-        return foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE);
+        return namespaces.contains(CIM_16_NAMESPACE) || namespaces.contains(CIM_100_NAMESPACE);
     }
 
     public boolean existsCim14() {
+        // if given a main file with our extension, check that the mainfile is our format
+        if (EXTENSION.equals(dataSource.getBaseExtension())) {
+            try (InputStream is = dataSource.newInputStream(null, EXTENSION)) {
+                if (!existsNamespacesCim14(NamespaceReader.namespaces(is))) {
+                    return false;
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        // if given a main file with an extension and it's not compatible, don't import
+        // to avoid importing a file when the user specified another
+        } else if (!dataSource.getBaseExtension().isEmpty()) {
+            return false;
+        }
+
         // check that RDF and CIM16 are defined as namespaces in the data source
         Set<String> foundNamespaces = namespaces();
-        if (!foundNamespaces.contains(RDF_NAMESPACE)) {
+        return existsNamespacesCim14(foundNamespaces);
+    }
+
+    private boolean existsNamespacesCim14(Set<String> namespaces) {
+        if (!namespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
         // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
         // But I think we do not need to support 14 separately?
-        if (!foundNamespaces.contains(CIM_14_NAMESPACE)) {
+        if (!namespaces.contains(CIM_14_NAMESPACE)) {
             return false;
         }
 
