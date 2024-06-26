@@ -34,29 +34,29 @@ Available arguments are:
 
 ### Required options
 
-**\-\-case-file**: This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path. 
+`--case-file`: This option defines the path of the case file on which the power flow simulation is run. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path. 
 
 ### Optional options
 
-**\-\-export-parameters**  
+`--export-parameters`  
 This option defines the path of the exporter's configuration file. It's possible to overload one or many parameters using the `-E property=value` syntax. The list of supported properties depends on the [output format](../../grid_exchange_formats/index.md).
 
-**\-\-import-parameters**  
+`--import-parameters`  
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
-**\-\-output-case-file**  
+`--output-case-file`  
 This option defines the path where to export the modified network.
 
-**\-\-output-case-format**  
+`--output-case-format`  
 This option defines the format of the output case file. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help. This option is required if `--output-case-file` is used.
 
-**\-\-output-file**  
+`--output-file`  
 This option defines the path where to export the [results](../../simulation/loadflow/index.md#outputs) of the load flow.
 
-**\-\-output-format**  
+`--output-format`  
 This option defines the format of the output file. The supported format are `CSV` and `JSON`. This option is required if the `--output-file` is used.
 
-**\-\-parameters-file**  
+`--parameters-file`  
 This option defines the path of the [parameters](#parameters) file of the simulation. If this option is not used, the simulation is run with the default parameters. 
 
 ## Simulators

@@ -50,14 +50,14 @@ Available arguments are:
 
 ### Required parameters
 
-**output-file**  
-The `--output-file` parameter defines the path of the output file, where the comparison results will be stored.
+`--output-file`  
+This parameter defines the path of the output file, where the comparison results will be stored.
 
-**result1-file**  
-The `--result1-file` parameter defines the path of the JSON file containing the first security analysis result. 
+`--result1-file`  
+This parameter defines the path of the JSON file containing the first security analysis result. 
 
-**result2-file**  
-The `--result2-file` parameter defines the path of the JSON file containing the second security analysis result.
+`--result2-file`  
+This parameter defines the path of the JSON file containing the second security analysis result.
 
 ### Optional parameters
 

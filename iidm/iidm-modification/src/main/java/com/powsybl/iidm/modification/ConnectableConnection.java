@@ -59,6 +59,10 @@ public class ConnectableConnection extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // Get the connectable
         Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            logOrThrow(throwException, "Connectable '" + connectableId + "' not found");
+            return;
+        }
 
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);

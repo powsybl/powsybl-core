@@ -47,5 +47,4 @@ class SecurityAnalysisInputTest {
         assertThat(inputs.getContingenciesProvider())
                 .isSameAs(provider);
     }
-
 }
