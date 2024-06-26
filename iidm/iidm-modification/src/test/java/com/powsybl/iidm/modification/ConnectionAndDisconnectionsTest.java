@@ -412,6 +412,45 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         testReportNode(reportNode, "/reportNode/connectable-not-connected.txt");
     }
 
+    @Test
+    void testDryRunConnection() {
+        // Network creation
+        Network network = createNetwork();
+
+        // Connection - Passing dryRun
+        ConnectableConnection connection = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(true)
+            .withOnlyBreakersOperable(false)
+            .build();
+        assertTrue(connection.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(connection.hasImpactOnNetwork());
+        assertTrue(connection.isLocalDryRunPossible());
+
+        // CloseSwitch - Failing dryRun
+        ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        ConnectableConnection connectionFailing = new ConnectableConnectionBuilder()
+            .withConnectableId("dummy")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        assertFalse(connectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertEquals("Dry-run failed for ConnectableConnection. The issue is: Connectable 'dummy' not found",
+            reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
+        connectionFailing = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        assertFalse(connectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertEquals("Dry-run failed for ConnectableConnection. The issue is: Connection failed",
+            reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
+    }
+
 
     /**
      * This network modification fails on tie-lines since they are not a connectable
