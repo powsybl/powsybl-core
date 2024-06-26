@@ -49,7 +49,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
             reportOnInconclusiveDryRun(reportNode,
                 "ConnectGenerator",
                 "Generator '" + generatorId + "' not found");
-        } else if (g.getTerminal() != null) {
+        } else if (g.getTerminal() == null) {
             // TODO: can the generator's terminal be null here?
             dryRunConclusive = false;
             reportOnInconclusiveDryRun(reportNode,
