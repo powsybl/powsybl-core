@@ -46,31 +46,15 @@ class SwitchModificationsTest {
     @Test
     void testInvalidOpenSwitch() {
         OpenSwitch openSwitch = new OpenSwitch(notExistingSwitchId);
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> openSwitch.apply(network, true, ReportNode.NO_OP));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> openSwitch.apply(network));
         assertEquals("Switch 'dummy' not found", exception.getMessage());
-
-        // With no exception thrown
-        ReportNode reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("test", "test")
-            .build();
-        openSwitch.apply(network, false, reportNode);
-        assertEquals("Switch 'dummy' not found",
-            reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testInvalidCloseSwitch() {
         CloseSwitch closeSwitch = new CloseSwitch(notExistingSwitchId);
-        PowsyblException exception = assertThrows(PowsyblException.class, () -> closeSwitch.apply(network, true, ReportNode.NO_OP));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> closeSwitch.apply(network));
         assertEquals("Switch 'dummy' not found", exception.getMessage());
-
-        // With no exception thrown
-        ReportNode reportNode = ReportNode.newRootReportNode()
-            .withMessageTemplate("test", "test")
-            .build();
-        closeSwitch.apply(network, false, reportNode);
-        assertEquals("Switch 'dummy' not found",
-            reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
