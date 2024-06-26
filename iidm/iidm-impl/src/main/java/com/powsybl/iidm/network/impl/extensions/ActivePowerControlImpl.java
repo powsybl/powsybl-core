@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
@@ -27,8 +29,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     private final TDoubleArrayList droop;
     private final TDoubleArrayList participationFactor;
 
-    private final TDoubleArrayList minPOverride;
-    private final TDoubleArrayList maxPOverride;
+    private final TDoubleArrayList minTargetP;
+    private final TDoubleArrayList maxTargetP;
 
     private final List<TDoubleArrayList> allTDoubleArrayLists;
 
@@ -43,22 +45,54 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
                                   boolean participate,
                                   double droop,
                                   double participationFactor,
-                                  double minPOverride,
-                                  double maxPOverride) {
+                                  double minTargetP,
+                                  double maxTargetP) {
         super(component);
         int variantArraySize = getVariantManagerHolder().getVariantManager().getVariantArraySize();
         this.participate = new TBooleanArrayList(variantArraySize);
         this.droop = new TDoubleArrayList(variantArraySize);
         this.participationFactor = new TDoubleArrayList(variantArraySize);
-        this.minPOverride = new TDoubleArrayList(variantArraySize);
-        this.maxPOverride = new TDoubleArrayList(variantArraySize);
-        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minPOverride, this.maxPOverride);
+        this.minTargetP = new TDoubleArrayList(variantArraySize);
+        this.maxTargetP = new TDoubleArrayList(variantArraySize);
+        this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
             this.participationFactor.add(participationFactor);
-            this.minPOverride.add(minPOverride);
-            this.maxPOverride.add(maxPOverride);
+            this.minTargetP.add(checkTargetPLimit(minTargetP, "minTargetP", component));
+            this.maxTargetP.add(checkTargetPLimit(maxTargetP, "maxTargetP", component));
+        }
+        checkTargetPLimits(minTargetP, maxTargetP);
+    }
+
+    private double checkTargetPLimit(double targetPLimit, String name, T injection) {
+
+        double maxP = Double.MAX_VALUE;
+        double minP = -Double.MAX_VALUE;
+        if (injection instanceof Generator) {
+            maxP = ((Generator) injection).getMaxP();
+            minP = ((Generator) injection).getMinP();
+        }
+        if (injection instanceof Battery) {
+            maxP = ((Battery) injection).getMaxP();
+            minP = ((Battery) injection).getMinP();
+        }
+
+        if (!Double.isNaN(targetPLimit) && (targetPLimit < minP || targetPLimit > maxP)) {
+            throw new IllegalArgumentException(String.format("%s value (%s) is no between minP and maxP for component %s",
+                    name,
+                    targetPLimit,
+                    injection.getId()));
+        }
+
+        return targetPLimit;
+    }
+
+    private void checkTargetPLimits(double minTargetP, double maxTargetP) {
+        if (!Double.isNaN(minTargetP) && !Double.isNaN(maxTargetP)) {
+            if (minTargetP > maxTargetP) {
+                throw new IllegalArgumentException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
+            }
         }
     }
 
@@ -116,24 +150,26 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     @Override
-    public OptionalDouble getMinPOverride() {
-        double result = minPOverride.get(getVariantIndex());
+    public OptionalDouble getMinTargetP() {
+        double result = minTargetP.get(getVariantIndex());
         return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(result);
     }
 
     @Override
-    public void setMinPOverride(double minPOverride) {
-        this.minPOverride.set(getVariantIndex(), minPOverride);
+    public void setMinTargetP(double minTargetP) {
+        checkTargetPLimits(minTargetP, maxTargetP.get(getVariantIndex()));
+        this.minTargetP.set(getVariantIndex(), checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
     }
 
     @Override
-    public OptionalDouble getMaxPOverride() {
-        double result = maxPOverride.get(getVariantIndex());
+    public OptionalDouble getMaxTargetP() {
+        double result = maxTargetP.get(getVariantIndex());
         return Double.isNaN(result) ? OptionalDouble.empty() : OptionalDouble.of(result);
     }
 
     @Override
-    public void setMaxPOverride(double maxPOverride) {
-        this.maxPOverride.set(getVariantIndex(), maxPOverride);
+    public void setMaxTargetP(double maxTargetP) {
+        checkTargetPLimits(minTargetP.get(getVariantIndex()), maxTargetP);
+        this.maxTargetP.set(getVariantIndex(), checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
     }
 }
