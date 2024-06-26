@@ -26,8 +26,8 @@ public interface DataSource extends ReadOnlyDataSource {
 
     static DataSource fromPath(Path file) {
         Objects.requireNonNull(file);
-        if (!Files.isRegularFile(file)) {
-            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
+        if (!Files.exists(file)) {
+            throw new PowsyblException("File " + file + " does not exist");
         }
         Path absFile = file.toAbsolutePath();
         return fromPath(absFile.getParent(), absFile.getFileName().toString());

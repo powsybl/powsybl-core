@@ -258,6 +258,7 @@ class CgmesExportTest {
         assertEquals("true", fictitiousSwitch.getProperty(Conversion.PROPERTY_IS_CREATED_FOR_DISCONNECTED_TERMINAL));
 
         String exportFolder = "/test-terminal-disconnected-fictitious-switch";
+        String exportFolder1 = "/test-terminal-disconnected-fictitious-switch-closed";
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
             // Export to CGMES and add boundary EQ for reimport
             Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
@@ -283,7 +284,8 @@ class CgmesExportTest {
             // And the fictitious switch is not crated when re-importing
             fictitiousSwitch.setOpen(false);
             String baseName1 = "testTerminalDisconnectedFictitiousSwitchClosedExported";
-            ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir, baseName1, ds);
+            Path tmpDir1 = Files.createDirectory(fs.getPath(exportFolder1));
+            ReadOnlyDataSource exportedCgmes1 = exportAndAddBoundaries(network, tmpDir1, baseName1, ds);
             CgmesModel cgmes1 = CgmesModelFactory.create(exportedCgmes1, TripleStoreFactory.defaultImplementation());
             assertTrue(cgmes1.isNodeBreaker());
             assertFalse(cgmes1.switches().stream().anyMatch(sw -> sw.getId("Switch").equals(fictitiousSwitchId)));
