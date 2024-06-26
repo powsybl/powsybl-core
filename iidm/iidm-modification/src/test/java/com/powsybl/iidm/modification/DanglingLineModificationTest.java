@@ -8,13 +8,14 @@
 
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pauline Jean-Marie {@literal <pauline.jean-marie at artelys.com>}
@@ -46,5 +47,25 @@ class DanglingLineModificationTest {
         DanglingLineModification modification = new DanglingLineModification("NHV1_XNODE1", true, null, 2.0);
         modification.apply(network);
         assertEquals(6.0, danglingLine.getQ0());
+    }
+
+    @Test
+    void testDryRun() {
+        // Passing dryRun
+        DanglingLineModification modification = new DanglingLineModification("NHV1_XNODE1", false, 5.0, null);
+        assertTrue(modification.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(modification.hasImpactOnNetwork());
+        assertTrue(modification.isLocalDryRunPossible());
+
+        // Failing dryRun
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        DanglingLineModification modificationFailing = new DanglingLineModification("DANGLING_LINE_NOT_EXISTING", false, 5.0, null);
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for DanglingLineModification. The issue is: Dangling line 'DANGLING_LINE_NOT_EXISTING' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }
 }
