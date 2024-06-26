@@ -28,7 +28,7 @@ public final class ConnectDisconnectUtil {
     private ConnectDisconnectUtil() {
     }
 
-    static boolean connectAllTerminals(Identifiable<?> identifiable, List<Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
+    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
 
         // Booleans
         boolean isAlreadyConnected = true;
@@ -82,7 +82,7 @@ public final class ConnectDisconnectUtil {
         return isNowConnected;
     }
 
-    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
+    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
         // Booleans
         boolean isAlreadyDisconnected = true;
         boolean isNowDisconnected = true;

@@ -205,13 +205,12 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
-        List<Terminal> terminalsToConnect = new ArrayList<>(getTerminals(side));
 
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
-            terminalsToConnect,
+            getTerminals(side),
             isTypeSwitchToOperate,
-            this.getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
@@ -226,12 +225,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
-        List<Terminal> terminalsToDisconnect = new ArrayList<>(getTerminals(side));
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
-            terminalsToDisconnect,
+            getTerminals(side),
             isSwitchOpenable,
-            this.getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     public List<TerminalExt> getTerminals(ThreeSides side) {
