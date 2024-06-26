@@ -48,6 +48,14 @@ class BatteryModificationTest {
         BatteryModification batteryModification3 = new BatteryModification("BAT_NOT_EXISTING", null, 2.0);
         PowsyblException exception = assertThrows(PowsyblException.class, () -> batteryModification3.apply(network, true, ReportNode.NO_OP));
         assertEquals("Battery 'BAT_NOT_EXISTING' not found", exception.getMessage());
+
+        // With no exception thrown
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("test", "test")
+            .build();
+        batteryModification3.apply(network, false, reportNode);
+        assertEquals("Battery 'BAT_NOT_EXISTING' not found",
+            reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
@@ -63,6 +71,10 @@ class BatteryModificationTest {
         // Passing dryRun
         BatteryModification batteryModificationPassing = new BatteryModification(battery.getId(), 1.0, null);
         assertTrue(batteryModificationPassing.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(batteryModificationPassing.hasImpactOnNetwork());
+        assertTrue(batteryModificationPassing.isLocalDryRunPossible());
 
         // Failing dryRun
         ReportNode reportNode = ReportNode.newRootReportNode()

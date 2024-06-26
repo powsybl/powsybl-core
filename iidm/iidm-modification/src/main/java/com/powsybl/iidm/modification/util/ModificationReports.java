@@ -449,6 +449,14 @@ public final class ModificationReports {
                 .add();
     }
 
+    public static void notFoundBatteryReport(ReportNode reportNode, String batteryId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("notFoundBattery", "Battery '${batteryId}' not found")
+            .withUntypedValue("batteryId", batteryId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void noCouplingDeviceOnSameBusOrBusbarSection(ReportNode reportNode, String busbarSectionId) {
         reportNode.newReportNode()
                 .withMessageTemplate("noCouplingDeviceOnSameBusOrBusbarSection", "No coupling device can be created on a same bus or busbar section (${busOrBbsId}).")
