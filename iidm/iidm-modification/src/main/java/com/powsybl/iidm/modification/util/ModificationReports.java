@@ -457,6 +457,14 @@ public final class ModificationReports {
             .add();
     }
 
+    public static void notFoundSwitchReport(ReportNode reportNode, String switchId) {
+        reportNode.newReportNode()
+            .withMessageTemplate("notFoundSwitch", "Switch '${switchId}' not found")
+            .withUntypedValue("switchId", switchId)
+            .withSeverity(TypedValue.ERROR_SEVERITY)
+            .add();
+    }
+
     public static void noCouplingDeviceOnSameBusOrBusbarSection(ReportNode reportNode, String busbarSectionId) {
         reportNode.newReportNode()
                 .withMessageTemplate("noCouplingDeviceOnSameBusOrBusbarSection", "No coupling device can be created on a same bus or busbar section (${busOrBbsId}).")

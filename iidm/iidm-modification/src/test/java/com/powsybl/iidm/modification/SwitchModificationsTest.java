@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -45,13 +46,31 @@ class SwitchModificationsTest {
     @Test
     void testInvalidOpenSwitch() {
         OpenSwitch openSwitch = new OpenSwitch(notExistingSwitchId);
-        assertThrows(RuntimeException.class, () -> openSwitch.apply(network));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> openSwitch.apply(network, true, ReportNode.NO_OP));
+        assertEquals("Switch 'dummy' not found", exception.getMessage());
+
+        // With no exception thrown
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("test", "test")
+            .build();
+        openSwitch.apply(network, false, reportNode);
+        assertEquals("Switch 'dummy' not found",
+            reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
     void testInvalidCloseSwitch() {
         CloseSwitch closeSwitch = new CloseSwitch(notExistingSwitchId);
-        assertThrows(RuntimeException.class, () -> closeSwitch.apply(network));
+        PowsyblException exception = assertThrows(PowsyblException.class, () -> closeSwitch.apply(network, true, ReportNode.NO_OP));
+        assertEquals("Switch 'dummy' not found", exception.getMessage());
+
+        // With no exception thrown
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("test", "test")
+            .build();
+        closeSwitch.apply(network, false, reportNode);
+        assertEquals("Switch 'dummy' not found",
+            reportNode.getChildren().get(0).getMessage());
     }
 
     @Test
@@ -59,6 +78,10 @@ class SwitchModificationsTest {
         // CloseSwitch - Passing dryRun
         CloseSwitch closeSwitchPassing = new CloseSwitch(existingSwitchId);
         assertTrue(closeSwitchPassing.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(closeSwitchPassing.hasImpactOnNetwork());
+        assertTrue(closeSwitchPassing.isLocalDryRunPossible());
 
         // CloseSwitch - Failing dryRun
         ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()

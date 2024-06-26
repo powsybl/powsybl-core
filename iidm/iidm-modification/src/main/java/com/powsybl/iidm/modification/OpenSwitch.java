@@ -16,6 +16,8 @@ import com.powsybl.iidm.network.Switch;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundSwitchReport;
+
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -32,7 +34,9 @@ public class OpenSwitch extends AbstractNetworkModification {
                       ComputationManager computationManager, ReportNode reportNode) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
-            throw new PowsyblException("Switch '" + switchId + "' not found");
+            notFoundSwitchReport(reportNode, switchId);
+            logOrThrow(throwException, "Switch '" + switchId + "' not found");
+            return;
         }
         sw.setOpen(true);
     }
