@@ -7,14 +7,21 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.AbstractModificationTest;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -403,5 +410,74 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         modification.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-connected.txt");
+    }
+
+
+    /**
+     * This network modification fails on tie-lines since they are not a connectable
+     */
+    @Test
+    void testExceptions() {
+        Network network = createNetwork();
+
+        // Add tie line
+        DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
+            .setId("NHV1_XNODE1")
+            .setP0(0.0)
+            .setQ0(0.0)
+            .setR(1.5)
+            .setX(20.0)
+            .setG(1E-6)
+            .setB(386E-6 / 2)
+            .setBus("bus2A")
+            .setPairingKey("XNODE1")
+            .add();
+        DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
+            .setId("XNODE1_NHV2")
+            .setP0(0.0)
+            .setQ0(0.0)
+            .setR(1.5)
+            .setX(13.0)
+            .setG(2E-6)
+            .setB(386E-6 / 2)
+            .setBus("bus3A")
+            .setPairingKey("XNODE1")
+            .add();
+        TieLine tieLine = network.newTieLine()
+            .setId("NHV1_NHV2_1")
+            .setDanglingLine1(nhv1xnode1.getId())
+            .setDanglingLine2(xnode1nhv2.getId())
+            .add();
+
+        // Disconnection
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
+            .withConnectableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
+        ComputationManager computationManager = LocalComputationManager.getDefault();
+        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertEquals("Connectable 'NHV1_NHV2_1' not found", disconnectionException.getMessage());
+        disconnection.apply(network);
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+
+        // Connection
+        tieLine.getDanglingLine1().disconnect();
+        tieLine.getDanglingLine2().disconnect();
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        ConnectableConnection connection = new ConnectableConnectionBuilder()
+            .withConnectableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertEquals("Connectable 'NHV1_NHV2_1' not found", connectionException.getMessage());
+        connection.apply(network);
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 }

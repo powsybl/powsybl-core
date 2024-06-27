@@ -45,6 +45,7 @@ public class SlackTerminalSerDe extends AbstractVersionableNetworkExtensionSerDe
                 .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.5"))
                 .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.5"))
                 .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.5"))
+                .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.5"))
                 .build(),
             new ImmutableMap.Builder<String, String>()
                 .put("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0")

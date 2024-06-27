@@ -52,7 +52,13 @@ public abstract class AbstractSubnetworksExplorationTest {
 
     private static Network createNetwork(String networkId, Country otherSubstationCountry) {
         Network n = NetworkTest1Factory.create(networkId);
+        Area area1 = n.newArea()
+                .setId(id("area1", networkId))
+                .setName("AREA")
+                .setAreaType(id("areaType1", networkId))
+                .add();
         VoltageLevel voltageLevel1 = n.getVoltageLevel(id("voltageLevel1", networkId));
+        voltageLevel1.addArea(area1);
         voltageLevel1.newBattery()
                 .setId(id("battery1", networkId))
                 .setMaxP(20.0)
@@ -275,6 +281,30 @@ public abstract class AbstractSubnetworksExplorationTest {
         assertCollection(List.of(Country.FR, Country.ES, Country.BE, Country.DE), merged.getCountries());
         assertCollection(List.of(Country.FR, Country.ES, Country.DE), subnetwork1.getCountries());
         assertCollection(List.of(Country.FR, Country.BE, Country.DE), subnetwork2.getCountries());
+    }
+
+    @Test
+    public void testExploreAreaTypes() {
+        assertEquals(2, merged.getAreaTypeCount());
+        assertEquals(1, subnetwork1.getAreaTypeCount());
+        assertEquals(1, subnetwork2.getAreaTypeCount());
+        String areaTypeId1 = id("areaType1", ID_1);
+        String areaTypeId2 = id("areaType1", ID_2);
+        assertCollection(List.of(areaTypeId1, areaTypeId2), merged.getAreaTypeStream().toList());
+        assertCollection(List.of(areaTypeId1), subnetwork1.getAreaTypeStream().toList());
+        assertCollection(List.of(areaTypeId2), subnetwork2.getAreaTypeStream().toList());
+    }
+
+    @Test
+    public void testExploreAreas() {
+        var expectedIdsForSubnetwork1 = List.of(id("area1", ID_1));
+        var expectedIdsForSubnetwork2 = List.of(id("area1", ID_2));
+
+        testExploreElements(expectedIdsForSubnetwork1, expectedIdsForSubnetwork2,
+                Network::getAreas,
+                Network::getAreaStream,
+                Network::getAreaCount,
+                Network::getArea);
     }
 
     @Test

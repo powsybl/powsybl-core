@@ -14,7 +14,7 @@ public final class IidmSerDeConstants {
 
     public static final String INDENT = "    ";
 
-    public static final IidmVersion CURRENT_IIDM_VERSION = IidmVersion.V_1_12;
+    public static final IidmVersion CURRENT_IIDM_VERSION = IidmVersion.V_1_13;
 
     public static final String IIDM_PREFIX = "iidm";
 
