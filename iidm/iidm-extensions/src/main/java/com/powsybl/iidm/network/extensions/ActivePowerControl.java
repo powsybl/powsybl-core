@@ -62,7 +62,8 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
     OptionalDouble getMinTargetP();
 
     /**
-     * Sets the overridden minimal active power.
+     * Sets the minimum value for targetP. The value must be in the [pmin,pmax] interval of the extended
+     * generator or battery.
      * @param minTargetP  The overridden value of minP. A Nan value removes the override.
      */
     void setMinTargetP(double minTargetP);
@@ -73,7 +74,8 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
     OptionalDouble getMaxTargetP();
 
     /**
-     * Sets the overridden maximal active power.
+     * Sets the maximum value for targetP. The value must be in the [pmin,pmax] interval of the extended
+     * generator or battery.
      * @param maxTargetP The overridden value of maxP. A Nan value removes the override.
      */
     void setMaxTargetP(double maxTargetP);

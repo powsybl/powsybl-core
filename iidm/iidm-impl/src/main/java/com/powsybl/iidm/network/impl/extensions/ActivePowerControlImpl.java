@@ -59,14 +59,16 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         this.minTargetP = new TDoubleArrayList(variantArraySize);
         this.maxTargetP = new TDoubleArrayList(variantArraySize);
         this.allTDoubleArrayLists = List.of(this.droop, this.participationFactor, this.minTargetP, this.maxTargetP);
+        double checkedMinTargetP = checkTargetPLimit(minTargetP, "minTargetP", component);
+        double checkedMaxTargetP = checkTargetPLimit(maxTargetP, "maxTargetP", component);
         for (int i = 0; i < variantArraySize; i++) {
             this.participate.add(participate);
             this.droop.add(droop);
             this.participationFactor.add(participationFactor);
-            this.minTargetP.add(checkTargetPLimit(minTargetP, "minTargetP", component));
-            this.maxTargetP.add(checkTargetPLimit(maxTargetP, "maxTargetP", component));
+            this.minTargetP.add(checkedMinTargetP);
+            this.maxTargetP.add(checkedMaxTargetP);
         }
-        checkTargetPLimits(minTargetP, maxTargetP);
+        checkLimitOrder(minTargetP, maxTargetP);
     }
 
     record PLimits(double minP, double maxP) { }
@@ -77,8 +79,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         if (injection instanceof Generator generator) {
             maxP = generator.getMaxP();
             minP = generator.getMinP();
-        }
-        if (injection instanceof Battery battery) {
+        } else if (injection instanceof Battery battery) {
             maxP = battery.getMaxP();
             minP = battery.getMinP();
         }
@@ -88,7 +89,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     private double withinPMinMax(double value, T injection) {
         PLimits pLimits = getPLimits(injection);
 
-        if (!Double.isNaN(value) && (value < pLimits.minP || value > pLimits.maxP)) {
+        // The test always returns false if value is undefined (Double.Nan) as it should,
+        // as side effect of Nan arithmetic operators Nan handling, as they are used below.
+        if (value < pLimits.minP || value > pLimits.maxP) {
             LOGGER.warn("targetP limit is now outside of pMin,pMax for component " + injection.getId() + ". Returning closest value in [pmin,pMax].");
             return value < pLimits.minP ? pLimits.minP : pLimits.maxP;
         }
@@ -108,7 +111,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         return targetPLimit;
     }
 
-    private void checkTargetPLimits(double minTargetP, double maxTargetP) {
+    private void checkLimitOrder(double minTargetP, double maxTargetP) {
         if (!Double.isNaN(minTargetP) && !Double.isNaN(maxTargetP)) {
             if (minTargetP > maxTargetP) {
                 throw new PowsyblException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
@@ -177,7 +180,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void setMinTargetP(double minTargetP) {
-        checkTargetPLimits(minTargetP, maxTargetP.get(getVariantIndex()));
+        checkLimitOrder(minTargetP, maxTargetP.get(getVariantIndex()));
         this.minTargetP.set(getVariantIndex(), checkTargetPLimit(minTargetP, "minTargetP", getExtendable()));
     }
 
@@ -189,7 +192,7 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
 
     @Override
     public void setMaxTargetP(double maxTargetP) {
-        checkTargetPLimits(minTargetP.get(getVariantIndex()), maxTargetP);
+        checkLimitOrder(minTargetP.get(getVariantIndex()), maxTargetP);
         this.maxTargetP.set(getVariantIndex(), checkTargetPLimit(maxTargetP, "maxTargetP", getExtendable()));
     }
 }
