@@ -36,6 +36,15 @@ public class ConnectableConnectionBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link ConnectableConnectionBuilder#withIdentifiableId(String)} instead
+     */
+    @Deprecated(since = "6.4.0")
+    public ConnectableConnectionBuilder withConnectableId(String connectableId) {
+        this.identifiableId = connectableId;
+        return this;
+    }
+
     public ConnectableConnectionBuilder withFictitiousSwitchesOperable(boolean operateFictitiousSwitches) {
         this.operateFictitiousSwitches = operateFictitiousSwitches;
         return this;

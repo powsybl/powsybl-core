@@ -37,6 +37,15 @@ public class UnplannedDisconnectionBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link UnplannedDisconnectionBuilder#withIdentifiableId(String)} instead
+     */
+    @Deprecated(since = "6.4.0")
+    public UnplannedDisconnectionBuilder withConnectableId(String connectableId) {
+        this.identifiableId = connectableId;
+        return this;
+    }
+
     public UnplannedDisconnectionBuilder withFictitiousSwitchesOperable(boolean openFictitiousSwitches) {
         this.openFictitiousSwitches = openFictitiousSwitches;
         return this;

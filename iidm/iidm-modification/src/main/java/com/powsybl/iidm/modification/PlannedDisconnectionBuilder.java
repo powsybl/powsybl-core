@@ -37,6 +37,15 @@ public class PlannedDisconnectionBuilder {
         return this;
     }
 
+    /**
+     * @deprecated Use {@link PlannedDisconnectionBuilder#withIdentifiableId(String)} instead
+     */
+    @Deprecated(since = "6.4.0")
+    public PlannedDisconnectionBuilder withConnectableId(String connectableId) {
+        this.identifiableId = connectableId;
+        return this;
+    }
+
     public PlannedDisconnectionBuilder withFictitiousSwitchesOperable(boolean openFictitiousSwitches) {
         this.openFictitiousSwitches = openFictitiousSwitches;
         return this;
