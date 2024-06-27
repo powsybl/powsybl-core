@@ -126,13 +126,13 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", ArchiveFormat.TAR, CompressionFormat.GZIP, TarArchiveDataSource.class,
+            Arguments.of("foo", "iidm", ArchiveFormat.TAR, CompressionFormat.GZIP, TarArchiveDataSource.class,
                 Set.of("foo.iidm", "foo_bar.iidm", "foo.v3.iidm"),
                 Set.of("foo_bar.iidm")),
             Arguments.of("foo", "", ArchiveFormat.TAR, CompressionFormat.BZIP2, TarArchiveDataSource.class,
                 Set.of("foo.txt", "foo.iidm", "foo.xiidm", "foo", "foo_bar.iidm", "foo.v3.iidm", "foo.v3", "foo_bar"),
                 Set.of("foo_bar.iidm", "foo_bar")),
-            Arguments.of("foo", ".v3", ArchiveFormat.TAR, CompressionFormat.ZSTD, TarArchiveDataSource.class,
+            Arguments.of("foo", "v3", ArchiveFormat.TAR, CompressionFormat.ZSTD, TarArchiveDataSource.class,
                 Set.of("foo.v3"),
                 Set.of())
         );
@@ -140,7 +140,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     protected String getFileName(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                                  CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName + mainExtension
+        return testDir + "/" + baseName + (mainExtension.isEmpty() ? "" : ".") + mainExtension
             + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
@@ -183,9 +183,9 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     private static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", ArchiveFormat.TAR, CompressionFormat.GZIP),
+            Arguments.of("foo", "iidm", ArchiveFormat.TAR, CompressionFormat.GZIP),
             Arguments.of("foo", "", ArchiveFormat.TAR, CompressionFormat.XZ),
-            Arguments.of("foo", ".v3", ArchiveFormat.TAR, CompressionFormat.ZSTD)
+            Arguments.of("foo", "v3", ArchiveFormat.TAR, CompressionFormat.ZSTD)
         );
     }
 

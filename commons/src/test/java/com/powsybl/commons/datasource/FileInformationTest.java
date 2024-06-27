@@ -21,21 +21,21 @@ class FileInformationTest {
     @Test
     void tests() {
         unitTest("dummy", "dummy", null, null, "");
-        unitTest("dummy.iidm", "dummy", null, null, ".iidm");
+        unitTest("dummy.iidm", "dummy", null, null, "iidm");
         unitTest("dummy.tar.gz", "dummy", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
-        unitTest("dummy.xml.xz", "dummy", CompressionFormat.XZ, null, ".xml");
+        unitTest("dummy.xml.xz", "dummy", CompressionFormat.XZ, null, "xml");
 
         // A zip file is a compressed archive
         unitTest("dummy.zip", "dummy", CompressionFormat.ZIP, ArchiveFormat.ZIP, "");
 
         // It can still specify the source format
-        unitTest("dummy.jiidm.zip", "dummy", CompressionFormat.ZIP, ArchiveFormat.ZIP, ".jiidm");
+        unitTest("dummy.jiidm.zip", "dummy", CompressionFormat.ZIP, ArchiveFormat.ZIP, "jiidm");
 
         // If there is a usual format and additional extensions, those extensions go in the baseName
-        unitTest("dummy.v3.xml.zst", "dummy.v3", CompressionFormat.ZSTD, null, ".xml");
+        unitTest("dummy.v3.xml.zst", "dummy.v3", CompressionFormat.ZSTD, null, "xml");
 
         // If there are additional extensions but no usual format, the last extension becomes the source format
-        unitTest("dummy.v3.bz2", "dummy", CompressionFormat.BZIP2, null, ".v3");
+        unitTest("dummy.v3.bz2", "dummy", CompressionFormat.BZIP2, null, "v3");
 
         // Hidden files
         unitTest(".dummy", ".dummy", null, null, "");
@@ -43,7 +43,7 @@ class FileInformationTest {
         unitTest(".zip", "", CompressionFormat.ZIP, ArchiveFormat.ZIP, "");
         unitTest(".dummy.tar.gz", ".dummy", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
         unitTest(".tar.gz", "", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
-        unitTest(".dummy.jiidm.zip", ".dummy", CompressionFormat.ZIP, ArchiveFormat.ZIP, ".jiidm");
+        unitTest(".dummy.jiidm.zip", ".dummy", CompressionFormat.ZIP, ArchiveFormat.ZIP, "jiidm");
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> new FileInformation(""));
         assertEquals("File name cannot be empty nor just a dot", exception.getMessage());
@@ -69,6 +69,6 @@ class FileInformationTest {
         // Create the file information object
         FileInformation fileInformation = new FileInformation("foo.bar.tar.gz");
 
-        assertEquals("FileInformation[baseName=foo, mainExtension=.bar, archiveFormat=TAR, compressionFormat=GZIP]", fileInformation.toString());
+        assertEquals("FileInformation[baseName=foo, mainExtension=bar, archiveFormat=TAR, compressionFormat=GZIP]", fileInformation.toString());
     }
 }

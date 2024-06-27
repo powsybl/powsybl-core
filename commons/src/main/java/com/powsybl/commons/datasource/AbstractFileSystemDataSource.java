@@ -62,6 +62,7 @@ abstract class AbstractFileSystemDataSource extends AbstractReadOnlyDataSource i
         return archiveFormat;
     }
 
+    @Override
     public String getMainExtension() {
         return mainExtension;
     }

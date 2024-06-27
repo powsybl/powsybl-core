@@ -78,13 +78,13 @@ public class FileInformation {
          *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no source format is given
          *  - case 3 ("dummy.foo"): ".foo" is the source format
          */
-        mainExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex);
+        mainExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex + 1);
         logMainExtension(fileName, mainExtension, dataSourceInitialization);
 
         // Base name
         baseName = mainExtension.isEmpty() ?
             fileNameWithoutCompressionNorArchive :
-            fileNameWithoutCompressionNorArchive.substring(0, fileNameWithoutCompressionNorArchive.lastIndexOf(mainExtension));
+            fileNameWithoutCompressionNorArchive.substring(0, fileNameWithoutCompressionNorArchive.lastIndexOf(mainExtension) - 1);
         if (baseName.isEmpty()) {
             LOGGER.warn("Base name is empty in file {}", fileName);
         }

@@ -14,6 +14,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -24,6 +25,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesOnDataSource {
+    private static final String[] EXTENSIONS = {"xml"};
+
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
         this.dataSource = ds;
     }
@@ -32,29 +35,53 @@ public class CgmesOnDataSource {
         return dataSource;
     }
 
+    private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) {
+        if (Arrays.asList(EXTENSIONS).contains(dataSource.getMainExtension())) {
+            try (InputStream is = dataSource.newInputStream(null, dataSource.getMainExtension())) {
+                return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+        return true;
+    }
+
     public boolean exists() {
+        // Check that the main file is a CGMES file
+        if (!dataSource.getMainExtension().isEmpty() && checkIfMainFileNotWithCgmesData(false)) {
+            return false;
+        }
         // check that RDF and CIM16 are defined as namespaces in the data source
-        Set<String> foundNamespaces = namespaces();
-        if (!foundNamespaces.contains(RDF_NAMESPACE)) {
+        return existsNamespaces(namespaces());
+    }
+
+    private boolean existsNamespaces(Set<String> namespaces) {
+        if (!namespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
         // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
         // But I think we do not need to support 14 separately?
-        return foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE);
+        return namespaces.contains(CIM_16_NAMESPACE) || namespaces.contains(CIM_100_NAMESPACE);
     }
 
     public boolean existsCim14() {
+        // Check that the main file is a CGMES file
+        if (!dataSource.getMainExtension().isEmpty() && checkIfMainFileNotWithCgmesData(true)) {
+            return false;
+        }
         // check that RDF and CIM16 are defined as namespaces in the data source
-        Set<String> foundNamespaces = namespaces();
-        if (!foundNamespaces.contains(RDF_NAMESPACE)) {
+        return existsNamespacesCim14(namespaces());
+    }
+
+    private boolean existsNamespacesCim14(Set<String> namespaces) {
+        if (!namespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
         // FIXME(Luma) This is legacy behaviour, we do not consider CIM14 valid in this check
         // But I think we do not need to support 14 separately?
-        if (!foundNamespaces.contains(CIM_14_NAMESPACE)) {
+        if (!namespaces.contains(CIM_14_NAMESPACE)) {
             return false;
         }
-
         return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
     }
 

@@ -37,7 +37,7 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
-        super(directory, baseName + mainExtension + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, observer);
+        super(directory, baseName + (mainExtension.isEmpty() ? "" : ".") + mainExtension + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, observer);
     }
 
     public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String mainExtension) {
@@ -45,7 +45,7 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, String mainExtension) {
-        super(directory, baseName + mainExtension + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, null);
+        super(directory, baseName + (mainExtension.isEmpty() ? "" : ".") + mainExtension + ".zip", baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, mainExtension, null);
     }
 
     public ZipArchiveDataSource(Path directory, String baseName) {

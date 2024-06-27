@@ -110,13 +110,13 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo", "iidm", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo.iidm", "foo_bar.iidm", "foo.v3.iidm"),
                 Set.of("foo_bar.iidm")),
             Arguments.of("foo", "", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo.txt", "foo.iidm", "foo.xiidm", "foo", "foo_bar.iidm", "foo.v3.iidm", "foo.v3", "foo_bar"),
                 Set.of("foo_bar.iidm", "foo_bar")),
-            Arguments.of("foo", ".v3", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo", "v3", ArchiveFormat.ZIP, CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo.v3"),
                 Set.of())
         );
@@ -124,7 +124,7 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     protected String getFileName(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                                  CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName + mainExtension
+        return testDir + "/" + baseName + (mainExtension.isEmpty() ? "" : ".") + mainExtension
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
@@ -147,9 +147,9 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     private static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", null, CompressionFormat.ZIP),
+            Arguments.of("foo", "iidm", null, CompressionFormat.ZIP),
             Arguments.of("foo", "", null, CompressionFormat.ZIP),
-            Arguments.of("foo", ".v3", null, CompressionFormat.ZIP)
+            Arguments.of("foo", "v3", null, CompressionFormat.ZIP)
         );
     }
 

@@ -78,7 +78,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             path,
             "foo",
-            ".iidm");
+            "iidm");
 
         // Assertions
         Set<String> files = dataSource.listNames(".*");
@@ -99,7 +99,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             file,
             "foo",
-            ".bar");
+            "bar");
 
         UnsupportedOperationException exception = assertThrows(UnsupportedOperationException.class, () -> {
             try (OutputStream ignored = dataSource.newOutputStream("foo.bar", true)) {
@@ -119,7 +119,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         DataSource dataSource = DataSourceUtil.createFilteredArchiveDataSource(
             path,
             "foo",
-            ".iidm");
+            "iidm");
 
         // Test the consistency
         if (dataSource instanceof AbstractArchiveDataSource archiveDataSource) {

@@ -18,6 +18,10 @@ public interface ReadOnlyDataSource {
 
     String getBaseName();
 
+    default String getMainExtension() {
+        return "";
+    }
+
     /**
      * Check if a file exists in the datasource. The file name will be constructed as: {@code <basename><suffix>.<ext>}
      * @param suffix Suffix to add to the basename of the datasource

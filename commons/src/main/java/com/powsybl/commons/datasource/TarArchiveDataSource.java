@@ -43,7 +43,7 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
 
     public TarArchiveDataSource(Path directory, String baseName, CompressionFormat compressionFormat, String mainExtension, DataSourceObserver observer) {
         super(directory,
-            baseName + mainExtension + ".tar" + (compressionFormat == null ? "" : "." + compressionFormat.getExtension()),
+            baseName + (mainExtension.isEmpty() ? "" : ".") + mainExtension + ".tar" + (compressionFormat == null ? "" : "." + compressionFormat.getExtension()),
             baseName, compressionFormat, ArchiveFormat.TAR, mainExtension, observer);
     }
 
