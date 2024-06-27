@@ -92,9 +92,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
         // The test always returns false if value is undefined (Double.Nan) as it should,
         // as side effect of Nan arithmetic operators Nan handling, as they are used below.
         if (value < pLimits.minP || value > pLimits.maxP) {
-            LOGGER.warn(String.
-                    format("targetP limit is now outside of pMin,pMax for component %s. Returning closest value in [pmin,pMax].",
-                            injection.getId()));
+            LOGGER.warn("targetP limit is now outside of pMin,pMax for component %s. Returning closest value in [pmin,pMax].",
+                        injection.getId());
             return value < pLimits.minP ? pLimits.minP : pLimits.maxP;
         }
         return value;
