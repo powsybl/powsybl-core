@@ -29,10 +29,12 @@ public final class ConnectDisconnectUtil {
     }
 
     /**
-     * Connect the specified terminals of the identifiable. It will connect all the specified terminals or none if at
-     * least one cannot be connected.
+     * Connect the specified terminals. It will connect all the specified terminals or none if at least one cannot be
+     * connected.
      * @param identifiable network element to connect. It can be a connectable, a tie line or an HVDC line
-     * @param terminals list of the terminals of the identifiable that should be connected
+     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
+     *                  underlying dangling lines (respectively converter stations)
      * @param isTypeSwitchToOperate type of switches that can be operated
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
@@ -92,13 +94,15 @@ public final class ConnectDisconnectUtil {
     }
 
     /**
-     * Disconnect the specified terminals of the identifiable. It will disconnect all the specified terminals or none
-     * if at least one cannot be disconnected.
+     * Disconnect the specified terminals. It will disconnect all the specified terminals or none if at least one cannot
+     * be disconnected.
      * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
-     * @param terminals list of the terminals of the identifiable that should be connected
+     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
+     *                  underlying dangling lines (respectively converter stations)
      * @param isSwitchOpenable type of switches that can be operated
      * @param reportNode report node
-     * @return {@code true} if all the specified terminals have been connected, else {@code false}.
+     * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
     static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
         // Booleans
