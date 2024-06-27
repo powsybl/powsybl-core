@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:apc="http://www.powsybl.org/schema/iidm/ext/active_power_control/1_1" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="P1" country="FR" tso="R" geographicalTags="A">
+        <iidm:voltageLevel id="VLGEN" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NGEN"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN" p="-605.0" q="-225.0">
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="P2" country="FR" tso="R" geographicalTags="B">
+        <iidm:voltageLevel id="VLBAT" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NBAT"/>
+            </iidm:busBreakerTopology>
+            <iidm:battery id="BAT" targetP="9999.99" targetQ="9999.99" minP="-9999.99" maxP="9999.99" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:battery>
+            <iidm:battery id="BAT2" targetP="100.0" targetQ="200.0" minP="-200.0" maxP="200.0" bus="NBAT" connectableBus="NBAT" p="-605.0" q="-225.0">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>
+                    <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:battery>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NBAT" connectableBus="NBAT"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="NHV1_NHV2_1" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NBAT" connectableBus2="NBAT" voltageLevelId2="VLBAT"/>
+    <iidm:line id="NHV1_NHV2_2" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NBAT" connectableBus2="NBAT" voltageLevelId2="VLBAT"/>
+    <iidm:extension id="GEN">
+        <apc:activePowerControl participate="false" droop="3.0" participationFactor="1.0"/>
+    </iidm:extension>
+    <iidm:extension id="BAT">
+        <apc:activePowerControl participate="true" droop="4.0" participationFactor="1.2"/>
+    </iidm:extension>
+</iidm:network>

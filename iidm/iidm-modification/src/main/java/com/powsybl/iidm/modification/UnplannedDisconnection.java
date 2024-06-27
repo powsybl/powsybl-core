@@ -28,6 +28,6 @@ public class UnplannedDisconnection extends AbstractDisconnection {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
-        applyModification(network, false, reportNode);
+        applyModification(network, false, throwException, reportNode);
     }
 }

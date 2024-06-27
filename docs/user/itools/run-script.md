@@ -17,7 +17,7 @@ Available arguments are:
 
 ### Required arguments
 
-**\-\-file**  
+`--file`  
 This option defines the path of the script to execute. Current, only Groovy scripts are supported.
 
 ## Groovy extensions

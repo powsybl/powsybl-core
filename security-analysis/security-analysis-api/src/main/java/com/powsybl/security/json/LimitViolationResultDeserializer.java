@@ -22,9 +22,9 @@ import java.util.List;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
+public class LimitViolationResultDeserializer extends StdDeserializer<LimitViolationsResult> {
 
-    LimitViolationResultDeserializer() {
+    public LimitViolationResultDeserializer() {
         super(LimitViolationsResult.class);
     }
 
