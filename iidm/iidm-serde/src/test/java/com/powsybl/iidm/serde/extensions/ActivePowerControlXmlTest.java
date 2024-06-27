@@ -33,6 +33,7 @@ class ActivePowerControlXmlTest extends AbstractIidmSerDeTest {
 
     private Network network;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
