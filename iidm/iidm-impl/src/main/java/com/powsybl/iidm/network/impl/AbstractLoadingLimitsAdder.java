@@ -9,15 +9,18 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
-
 import static java.lang.Integer.MAX_VALUE;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
+
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     protected final Validable validable;
@@ -74,8 +77,11 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
             if (Double.isNaN(value)) {
                 throw new ValidationException(validable, "temporary limit value is not set");
             }
-            if (value <= 0) {
-                throw new ValidationException(validable, "temporary limit value must be > 0");
+            if (value < 0) {
+                throw new ValidationException(validable, "temporary limit value must be >= 0");
+            }
+            if (value == 0) {
+                LOGGER.info("{}temporary limit value is set to 0", validable.getMessageHeader());
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(validable, "acceptable duration is not set");
