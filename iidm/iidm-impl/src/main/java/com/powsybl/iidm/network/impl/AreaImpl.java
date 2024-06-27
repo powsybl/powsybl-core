@@ -48,9 +48,19 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         }
     }
 
+    /**
+     * Must be called whenever the Area is moved to a different root Network when merging and detaching.
+     * @param fromNetwork previous root network
+     * @param toNetwork new root network
+     */
+    void moveListener(NetworkImpl fromNetwork, NetworkImpl toNetwork) {
+        fromNetwork.removeListener(this.areaListener);
+        toNetwork.addListener(this.areaListener);
+    }
+
     private final NetworkListener areaListener;
 
-    public AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
+    AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
                     double acInterchangeTarget) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
