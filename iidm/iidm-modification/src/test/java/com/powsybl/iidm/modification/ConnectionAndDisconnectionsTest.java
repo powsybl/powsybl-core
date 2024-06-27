@@ -306,7 +306,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .build();
         modification.apply(network);
         writeXmlTest(network, "/network-planned-disconnection.xiidm");
@@ -320,7 +320,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network, reportNode);
@@ -339,7 +339,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
@@ -347,7 +347,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         PlannedDisconnection modificationSide1 = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
             .withSide(ThreeSides.ONE)
             .build();
@@ -364,7 +364,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network, reportNode);
@@ -380,7 +380,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
@@ -388,7 +388,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         UnplannedDisconnection modificationSide1 = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
             .withSide(ThreeSides.ONE)
             .build();
@@ -405,7 +405,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
-            .withConnectableId("L2")
+            .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(true)
             .withOnlyBreakersOperable(false)
             .build();
@@ -422,7 +422,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
-            .withConnectableId("L2")
+            .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
@@ -431,7 +431,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Connection on one side
         ConnectableConnection modificationSide1 = new ConnectableConnectionBuilder()
-            .withConnectableId("L2")
+            .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .withSide(ThreeSides.ONE)
@@ -477,7 +477,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Disconnection
         assertTieLineConnection(tieLine, true, true);
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
-            .withConnectableId("NHV1_NHV2_1")
+            .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .build();
         disconnection.apply(network);
@@ -485,7 +485,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Connection
         ConnectableConnection connection = new ConnectableConnectionBuilder()
-            .withConnectableId("NHV1_NHV2_1")
+            .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
@@ -494,7 +494,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Disconnection on one side
         UnplannedDisconnection disconnectionSide1 = new UnplannedDisconnectionBuilder()
-            .withConnectableId("NHV1_NHV2_1")
+            .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .withSide(ThreeSides.ONE)
             .build();
@@ -503,7 +503,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Connection on the same side
         ConnectableConnection connectionSide1 = new ConnectableConnectionBuilder()
-            .withConnectableId("NHV1_NHV2_1")
+            .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .withSide(ThreeSides.ONE)
@@ -520,7 +520,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Disconnection
         assertHvdcLineConnection(hvdcLine, true, true);
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L")
+            .withIdentifiableId("L")
             .withFictitiousSwitchesOperable(false)
             .build();
         disconnection.apply(network);
@@ -528,7 +528,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Connection
         ConnectableConnection connection = new ConnectableConnectionBuilder()
-            .withConnectableId("L")
+            .withIdentifiableId("L")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
@@ -537,7 +537,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Disconnection on one side
         UnplannedDisconnection disconnectionSide2 = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L")
+            .withIdentifiableId("L")
             .withFictitiousSwitchesOperable(false)
             .withSide(ThreeSides.TWO)
             .build();
@@ -546,7 +546,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Connection on the same side
         ConnectableConnection connectionSide2 = new ConnectableConnectionBuilder()
-            .withConnectableId("L")
+            .withIdentifiableId("L")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .withSide(ThreeSides.TWO)
@@ -569,7 +569,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     void testIdentifiableNotFoundException() {
         Network network = createNetwork();
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
-            .withConnectableId("ELEMENT_NOT_PRESENT")
+            .withIdentifiableId("ELEMENT_NOT_PRESENT")
             .withFictitiousSwitchesOperable(false)
             .build();
 
@@ -579,7 +579,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", disconnectionException.getMessage());
 
         ConnectableConnection connection = new ConnectableConnectionBuilder()
-            .withConnectableId("ELEMENT_NOT_PRESENT")
+            .withIdentifiableId("ELEMENT_NOT_PRESENT")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
@@ -591,7 +591,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     void testMethodNotImplemented() {
         Network network = createNetwork();
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
-            .withConnectableId("S1")
+            .withIdentifiableId("S1")
             .withFictitiousSwitchesOperable(false)
             .build();
 
@@ -601,7 +601,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         assertEquals("Disconnection not implemented for identifiable 'S1'", disconnectionException.getMessage());
 
         ConnectableConnection connection = new ConnectableConnectionBuilder()
-            .withConnectableId("S1")
+            .withIdentifiableId("S1")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();

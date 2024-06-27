@@ -21,6 +21,15 @@ import java.util.function.Predicate;
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
 
 /**
+ * <p>This network modification is used to connect a network element to the closest bus or bus bar section.</p>
+ * <p>It works on:</p>
+ * <ul>
+ *     <li>Connectables by connecting their terminals</li>
+ *     <li>HVDC lines by connecting the terminals of their converter stations</li>
+ *     <li>Tie lines by connecting the terminals of their underlying dangling lines</li>
+ * </ul>
+ * <p>The user can specify a side of the element to connect. If no side is specified, the network modification will
+ * try to connect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ConnectableConnection extends AbstractNetworkModification {

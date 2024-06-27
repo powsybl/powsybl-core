@@ -597,14 +597,14 @@ public final class ModificationReports {
             .add();
     }
 
-    public static void connectableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
+    public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
-            "Connectable ${identifiable} has been disconnected" :
-            "Connectable ${identifiable} has NOT been disconnected";
+            "Identifiable ${identifiable} has been disconnected" :
+            "Identifiable ${identifiable} has NOT been disconnected";
         defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
-        key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
+        key += disconnectionSuccessful ? "IdentifiableDisconnected" : "IdentifiableNotDisconnected";
         key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)

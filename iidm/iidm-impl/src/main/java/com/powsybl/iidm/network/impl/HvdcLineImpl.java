@@ -251,7 +251,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
-            this.getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
@@ -270,7 +270,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
             this,
             getTerminalsOfConverterStations(side),
             isSwitchOpenable,
-            this.getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {

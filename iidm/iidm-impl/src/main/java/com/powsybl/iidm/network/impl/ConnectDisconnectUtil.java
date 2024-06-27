@@ -28,6 +28,15 @@ public final class ConnectDisconnectUtil {
     private ConnectDisconnectUtil() {
     }
 
+    /**
+     * Connect the specified terminals of the identifiable. It will connect all the specified terminals or none if at
+     * least one cannot be connected.
+     * @param identifiable network element to connect. It can be a connectable, a tie line or an HVDC line
+     * @param terminals list of the terminals of the identifiable that should be connected
+     * @param isTypeSwitchToOperate type of switches that can be operated
+     * @param reportNode report node
+     * @return {@code true} if all the specified terminals have been connected, else {@code false}.
+     */
     static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
 
         // Booleans
@@ -82,6 +91,15 @@ public final class ConnectDisconnectUtil {
         return isNowConnected;
     }
 
+    /**
+     * Disconnect the specified terminals of the identifiable. It will disconnect all the specified terminals or none
+     * if at least one cannot be disconnected.
+     * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
+     * @param terminals list of the terminals of the identifiable that should be connected
+     * @param isSwitchOpenable type of switches that can be operated
+     * @param reportNode report node
+     * @return {@code true} if all the specified terminals have been connected, else {@code false}.
+     */
     static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
         // Booleans
         boolean isAlreadyDisconnected = true;

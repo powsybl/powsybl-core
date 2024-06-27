@@ -181,7 +181,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             this,
             getTerminalsOfDanglingLines(side),
             isTypeSwitchToOperate,
-            this.getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
@@ -200,7 +200,7 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
             this,
             getTerminalsOfDanglingLines(side),
             isSwitchOpenable,
-            this.getNetwork().getReportNodeContext().getReportNode());
+            getNetwork().getReportNodeContext().getReportNode());
     }
 
     private List<Terminal> getTerminalsOfDanglingLines(TwoSides side) {

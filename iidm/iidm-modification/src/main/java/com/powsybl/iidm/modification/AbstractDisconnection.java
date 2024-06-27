@@ -15,19 +15,29 @@ import org.slf4j.LoggerFactory;
 import java.util.Objects;
 import java.util.function.Predicate;
 
-import static com.powsybl.iidm.modification.util.ModificationReports.connectableDisconnectionReport;
+import static com.powsybl.iidm.modification.util.ModificationReports.identifiableDisconnectionReport;
 
 /**
+ * <p>This network modification is used to disconnect a network element from the bus or bus bar section to which it is
+ * currently connected.</p>
+ * <p>It works on:</p>
+ * <ul>
+ *     <li>Connectables</li>
+ *     <li>HVDC lines by disconnecting their converter stations</li>
+ *     <li>Tie lines by disconnecting their underlying dangling lines</li>
+ * </ul>
+ * <p>The user can specify a side of the element to disconnect. If no side is specified, the network modification will
+ * try to disconnect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public abstract class AbstractDisconnection extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
-    final String connectableId;
+    final String identifiableId;
     final Predicate<Switch> openableSwitches;
     final ThreeSides side;
 
-    AbstractDisconnection(String connectableId, Predicate<Switch> openableSwitches, ThreeSides side) {
-        this.connectableId = Objects.requireNonNull(connectableId);
+    AbstractDisconnection(String identifiableId, Predicate<Switch> openableSwitches, ThreeSides side) {
+        this.identifiableId = Objects.requireNonNull(identifiableId);
         this.openableSwitches = openableSwitches;
         this.side = side;
     }
@@ -37,11 +47,11 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Get the connectable
-        Identifiable<?> identifiable = network.getIdentifiable(connectableId);
+        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
 
-        // Disconnect the connectable if it exists
+        // Disconnect the identifiable if it exists
         if (identifiable == null) {
-            logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+            logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
         } else {
             disconnectIdentifiable(identifiable, network, isPlanned, throwException, reportNode);
         }
@@ -56,11 +66,11 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         }
 
         if (hasBeenDisconnected) {
-            LOG.info("Connectable {} has been disconnected ({} disconnection) {}.", connectableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Identifiable {} has been disconnected ({} disconnection) {}.", identifiableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Connectable {} has NOT been disconnected ({} disconnection) {}.", connectableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Identifiable {} has NOT been disconnected ({} disconnection) {}.", identifiableId, isPlanned ? "planned" : "unplanned", side == null ? "on each side" : "on side " + side.getNum());
         }
-        connectableDisconnectionReport(reportNode, identifiable, hasBeenDisconnected, isPlanned, side);
+        identifiableDisconnectionReport(reportNode, identifiable, hasBeenDisconnected, isPlanned, side);
     }
 
     private boolean disconnect(Identifiable<?> identifiable, boolean throwException) {
@@ -72,7 +82,7 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         } else if (identifiable instanceof HvdcLine hvdcLine) {
             hasBeenDisconnected = hvdcLine.disconnectConverterStations(openableSwitches, side == null ? null : side.toTwoSides());
         } else {
-            logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", connectableId));
+            logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", identifiableId));
         }
         return hasBeenDisconnected;
     }
