@@ -30,7 +30,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
 
-        private final Logger logger = LoggerFactory.getLogger(TemporaryLimitAdderImpl.class);
+        private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
         private String name;
 
@@ -81,7 +81,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                 throw new ValidationException(validable, "temporary limit value must be >= 0");
             }
             if (value == 0) {
-                logger.info("{}temporary limit value is set to 0", validable.getMessageHeader());
+                LOGGER.info("{}temporary limit value is set to 0", validable.getMessageHeader());
             }
             if (acceptableDuration == null) {
                 throw new ValidationException(validable, "acceptable duration is not set");
