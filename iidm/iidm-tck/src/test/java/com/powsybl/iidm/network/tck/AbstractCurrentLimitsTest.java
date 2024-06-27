@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -677,5 +678,23 @@ public abstract class AbstractCurrentLimitsTest {
         Collection<String> names = adder.getTemporaryLimitNames();
         assertEquals(1, names.size());
         assertTrue(names.contains("TL1"));
+    }
+
+    @Test
+    public void testAdderWithValueZero() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(0)
+                .beginTemporaryLimit()
+                    .setName("TEST")
+                    .setAcceptableDuration(Integer.MAX_VALUE)
+                    .setValue(0)
+                .endTemporaryLimit();
+        adder.add();
+        Optional<CurrentLimits> optionalLimits = line.getCurrentLimits(TwoSides.ONE);
+        assertTrue(optionalLimits.isPresent());
+        CurrentLimits limits = optionalLimits.get();
+        assertEquals(0, limits.getPermanentLimit());
+        assertEquals(0, limits.getTemporaryLimit(Integer.MAX_VALUE).getValue());
     }
 }
