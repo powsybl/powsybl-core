@@ -92,10 +92,12 @@ public abstract class AbstractActivePowerControlTest {
         checkValues1(activePowerControl);
 
         // test limitControl
-        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(bat.getMaxP() + 1));
-        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(bat.getMinP() - 1));
-        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(bat.getMaxP() + 1));
-        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(bat.getMinP() - 1));
+        double minP = bat.getMinP();
+        double maxP = bat.getMaxP();
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(maxP + 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(minP - 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(maxP + 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(minP - 1));
 
         activePowerControl.setMaxTargetP(200);
         activePowerControl.setMinTargetP(100);

@@ -89,10 +89,8 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     private double withinPMinMax(double value, T injection) {
         PLimits pLimits = getPLimits(injection);
 
-        // The test always returns false if value is undefined (Double.Nan) as it should,
-        // as side effect of Nan arithmetic operators Nan handling, as they are used below.
-        if (value < pLimits.minP || value > pLimits.maxP) {
-            LOGGER.warn("targetP limit is now outside of pMin,pMax for component %s. Returning closest value in [pmin,pMax].",
+        if (!Double.isNaN(value) && (value < pLimits.minP || value > pLimits.maxP)) {
+            LOGGER.warn("targetP limit is now outside of pMin,pMax for component {}. Returning closest value in [pmin,pMax].",
                         injection.getId());
             return value < pLimits.minP ? pLimits.minP : pLimits.maxP;
         }
@@ -113,10 +111,9 @@ public class ActivePowerControlImpl<T extends Injection<T>> extends AbstractMult
     }
 
     private void checkLimitOrder(double minTargetP, double maxTargetP) {
-        if (!Double.isNaN(minTargetP) && !Double.isNaN(maxTargetP)) {
-            if (minTargetP > maxTargetP) {
-                throw new PowsyblException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
-            }
+        if (!Double.isNaN(minTargetP) && !Double.isNaN(maxTargetP)
+                && minTargetP > maxTargetP) {
+            throw new PowsyblException("invalid targetP limits [" + minTargetP + ", " + maxTargetP + "]");
         }
     }
 
