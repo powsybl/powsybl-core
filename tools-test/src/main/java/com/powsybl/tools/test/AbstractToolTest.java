@@ -122,7 +122,15 @@ public abstract class AbstractToolTest {
         assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
     }
 
+    /**
+     * @deprecated use {@link AbstractToolTest#assertCommandMatchTextOrRegex} instead
+     */
+    @Deprecated(since = "6.4.0")
     protected void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
+        assertCommandMatchTextOrRegex(args, expectedStatus, expectedOut, expectedErr);
+    }
+
+    protected void assertCommandMatchTextOrRegex(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
         assertCommand(args, expectedStatus, expectedOut, expectedErr, this::matchTextOrRegex);
     }
 

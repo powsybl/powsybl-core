@@ -182,10 +182,13 @@ class CommandLineToolsTest extends AbstractToolTest {
     @Test
     void testRegexOutput() {
         // Matches a regex
+        assertCommandMatchTextOrRegex(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
+
+        // Matches a regex - deprecated method
         assertCommand(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
 
         // Matches a string
-        assertCommand(new String[] {"tool1", "--option1", "file.txt"}, 0, "result1", "");
+        assertCommandMatchTextOrRegex(new String[] {"tool1", "--option1", "file.txt"}, 0, "result1", "");
     }
 
     @Test
