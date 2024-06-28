@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.OptionalDouble;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.jupiter.api.Assertions.*;
@@ -90,6 +91,25 @@ public abstract class AbstractActivePowerControlTest {
         variantManager.setWorkingVariant(variant3);
         checkValues1(activePowerControl);
 
+        // test limitControl
+        double minP = bat.getMinP();
+        double maxP = bat.getMaxP();
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(maxP + 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(minP - 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(maxP + 1));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(minP - 1));
+
+        activePowerControl.setMaxTargetP(200);
+        activePowerControl.setMinTargetP(100);
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMinTargetP(201));
+        assertThrows(PowsyblException.class, () -> activePowerControl.setMaxTargetP(99));
+
+        // try to fool the extension
+        bat.setMaxP(190);
+        bat.setMinP(110);
+        assertEquals(OptionalDouble.of(190), activePowerControl.getMaxTargetP());
+        assertEquals(OptionalDouble.of(110), activePowerControl.getMinTargetP());
+
         // Test removing current variant
         variantManager.removeVariant(variant3);
         try {
@@ -113,8 +133,8 @@ public abstract class AbstractActivePowerControlTest {
                 .withDroop(4.0)
                 .withParticipate(true)
                 .withParticipationFactor(1.2)
-                .withMinPOverride(10)
-                .withMaxPOverride(100)
+                .withMinTargetP(10)
+                .withMaxTargetP(100)
                 .add();
         ActivePowerControl<Battery> activePowerControl = bat.getExtension(ActivePowerControl.class);
         assertNotNull(activePowerControl);
@@ -130,12 +150,12 @@ public abstract class AbstractActivePowerControlTest {
         activePowerControl.setDroop(6.0);
         activePowerControl.setParticipate(false);
         activePowerControl.setParticipationFactor(3.0);
-        activePowerControl.setMaxPOverride(110.);
-        activePowerControl.setMinPOverride(Double.NaN);
+        activePowerControl.setMaxTargetP(110.);
+        activePowerControl.setMinTargetP(Double.NaN);
         checkValues4(activePowerControl);
 
-        activePowerControl.setMinPOverride(11.);
-        activePowerControl.setMaxPOverride(Double.NaN);
+        activePowerControl.setMinTargetP(11.);
+        activePowerControl.setMaxTargetP(Double.NaN);
         checkValues5(activePowerControl);
 
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
@@ -164,39 +184,40 @@ public abstract class AbstractActivePowerControlTest {
         assertTrue(activePowerControl.isParticipate());
         assertEquals(4.0, activePowerControl.getDroop(), 0.0);
         assertEquals(1.2, activePowerControl.getParticipationFactor(), 0.0);
-        assertTrue(activePowerControl.getMaxPOverride().isEmpty());
-        assertTrue(activePowerControl.getMinPOverride().isEmpty());
+        assertTrue(activePowerControl.getMaxTargetP().isEmpty());
+        assertTrue(activePowerControl.getMinTargetP().isEmpty());
     }
 
     private static void checkValues2(ActivePowerControl<Battery> activePowerControl) {
         assertFalse(activePowerControl.isParticipate());
         assertEquals(6.0, activePowerControl.getDroop(), 0.0);
         assertEquals(3.0, activePowerControl.getParticipationFactor(), 0.0);
-        assertTrue(activePowerControl.getMaxPOverride().isEmpty());
-        assertTrue(activePowerControl.getMinPOverride().isEmpty());
+        assertTrue(activePowerControl.getMaxTargetP().isEmpty());
+        assertTrue(activePowerControl.getMinTargetP().isEmpty());
     }
 
     private static void checkValues3(ActivePowerControl<Battery> activePowerControl) {
         assertTrue(activePowerControl.isParticipate());
         assertEquals(4.0, activePowerControl.getDroop(), 0.0);
         assertEquals(1.2, activePowerControl.getParticipationFactor(), 0.0);
-        assertEquals(10, activePowerControl.getMinPOverride().getAsDouble());
-        assertEquals(100, activePowerControl.getMaxPOverride().getAsDouble());
+        assertEquals(10, activePowerControl.getMinTargetP().getAsDouble());
+        assertEquals(100, activePowerControl.getMaxTargetP().getAsDouble());
     }
 
     private static void checkValues4(ActivePowerControl<Battery> activePowerControl) {
         assertFalse(activePowerControl.isParticipate());
         assertEquals(6.0, activePowerControl.getDroop(), 0.0);
         assertEquals(3.0, activePowerControl.getParticipationFactor(), 0.0);
-        assertTrue(activePowerControl.getMinPOverride().isEmpty());
-        assertEquals(110, activePowerControl.getMaxPOverride().getAsDouble());
+        assertTrue(activePowerControl.getMinTargetP().isEmpty());
+        assertEquals(110, activePowerControl.getMaxTargetP().getAsDouble());
     }
 
     private static void checkValues5(ActivePowerControl<Battery> activePowerControl) {
         assertFalse(activePowerControl.isParticipate());
         assertEquals(6.0, activePowerControl.getDroop(), 0.0);
         assertEquals(3.0, activePowerControl.getParticipationFactor(), 0.0);
-        assertTrue(activePowerControl.getMaxPOverride().isEmpty());
-        assertEquals(11, activePowerControl.getMinPOverride().getAsDouble());
+        assertTrue(activePowerControl.getMaxTargetP().isEmpty());
+        assertEquals(11, activePowerControl.getMinTargetP().getAsDouble());
     }
+
 }

@@ -20,8 +20,8 @@ This extension is used to configure the participation factor of the generator, t
 | participate          | boolean | -                      | yes      | -             | The participation status                                                              |
 | droop                | double  | None (repartition key) | no       | -             | The participation factor equals maxP / droop                                          |
 | participation factor | double  | None (repartition key) | no       | -             | Defines the participation factor explicitly                                           |
-| maxP override        | double  | MW                     | no       | -             | If defined, this limit is used for slack distribution instead of the generator's maxP |
-| minP override        | double  | MW                     | no       | -             | if defined, this limit is used for slack distribution instead of the generator's minP |             
+| max targetP          | double  | MW                     | no       | -             | If defined, this limit is used for slack distribution instead of the generator's maxP |
+| min targetP          | double  | MW                     | no       | -             | if defined, this limit is used for slack distribution instead of the generator's minP |             
 
 Here is how to add an active power control extension to a generator:
 ```java
@@ -31,8 +31,8 @@ generator.newExtension(ActivePowerControlAdder.class)
     .withParticipationFactor(1.5)
     .add();
 ```
-
-The participation status, the participation factor, the maxP override and the minP override are multi-variants: they can vary from one variant to another.
+If defined, min targetP and max targetP must be in the [pMin, pMax] interval of the Generator or Battery.
+The participation status, the participation factor, the max targetP and the min targetP are multi-variants: they can vary from one variant to another.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
