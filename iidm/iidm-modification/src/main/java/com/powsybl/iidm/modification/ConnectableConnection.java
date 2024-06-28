@@ -10,10 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +21,15 @@ import java.util.function.Predicate;
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
 
 /**
+ * <p>This network modification is used to connect a network element to the closest bus or bus bar section.</p>
+ * <p>It works on:</p>
+ * <ul>
+ *     <li>Connectables by connecting their terminals</li>
+ *     <li>HVDC lines by connecting the terminals of their converter stations</li>
+ *     <li>Tie lines by connecting the terminals of their underlying dangling lines</li>
+ * </ul>
+ * <p>The user can specify a side of the element to connect. If no side is specified, the network modification will
+ * try to connect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public class ConnectableConnection extends AbstractNetworkModification {
@@ -58,19 +64,31 @@ public class ConnectableConnection extends AbstractNetworkModification {
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // Get the connectable
-        Connectable<?> connectable = network.getConnectable(connectableId);
-        if (connectable == null) {
-            logOrThrow(throwException, "Connectable '" + connectableId + "' not found");
-            return;
-        }
+        Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
-        // Disconnect the connectable
-        boolean hasBeenConnected;
+        // Connect the element if it exists
+        if (identifiable == null) {
+            logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+        } else {
+            connectIdentifiable(identifiable, network, throwException, reportNode);
+        }
+    }
+
+    private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, ReportNode reportNode) {
+        boolean hasBeenConnected = false;
         try {
-            hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
+            if (identifiable instanceof Connectable<?> connectable) {
+                hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
+            } else if (identifiable instanceof TieLine tieLine) {
+                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+            } else if (identifiable instanceof HvdcLine hvdcLine) {
+                hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+            } else {
+                logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", connectableId));
+            }
         } finally {
             network.getReportNodeContext().popReportNode();
         }
@@ -80,6 +98,6 @@ public class ConnectableConnection extends AbstractNetworkModification {
         } else {
             LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         }
-        connectableConnectionReport(reportNode, connectable, hasBeenConnected, side);
+        connectableConnectionReport(reportNode, identifiable, hasBeenConnected, side);
     }
 }
