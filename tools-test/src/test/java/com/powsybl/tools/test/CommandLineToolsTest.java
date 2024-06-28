@@ -16,9 +16,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import java.util.Arrays;
 import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -262,5 +265,12 @@ class CommandLineToolsTest extends AbstractToolTest {
                         System.lineSeparator() +
                         "footer1" + System.lineSeparator());
 
+    }
+
+    @Test
+    void testComparisonMethods() {
+        matchTextOrRegex("works", "works");
+        matchTextOrRegex("^[a-z0-9-]+$", UUID.randomUUID().toString());
+        assertThrows(AssertionFailedError.class, () -> matchTextOrRegex("^[a-z0-9-]+$", "fail test"));
     }
 }
