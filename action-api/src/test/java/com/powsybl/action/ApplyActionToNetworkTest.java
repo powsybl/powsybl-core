@@ -63,26 +63,28 @@ class ApplyActionToNetworkTest {
         assertFalse(branch.getTerminal(TwoSides.ONE).isConnected());
     }
 
-    /**
-     * This action fails on tie-lines since they are not a connectable
-     */
     @Test
-    void terminalConnectionActionOnTieLineException() {
+    void terminalConnectionActionOnTieLine() {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
 
         // Disconnection
         TerminalsConnectionAction disconnectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", true);
         NetworkModification disconnection = disconnectionAction.toModification();
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
-        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
-        assertEquals("Connectable 'NHV1_NHV2_1' not found", disconnectionException.getMessage());
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
 
         // Connection
         TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
         NetworkModification connection = connectionAction.toModification();
-        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
-        assertEquals("Connectable 'NHV1_NHV2_1' not found", connectionException.getMessage());
+        connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 
     @Test
