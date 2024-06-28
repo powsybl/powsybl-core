@@ -17,8 +17,8 @@
             <xs:attribute name="participate" use="required" type="xs:boolean"/>
             <xs:attribute name="droop" use="optional" type="xs:double"/>
             <xs:attribute name="participationFactor" use="optional" type="xs:double"/>
-            <xs:attribute name="minPOverride" use="optional" type="xs:double"/>
-            <xs:attribute name="maxPOverride" use="optional" type="xs:double"/>
+            <xs:attribute name="minTargetP" use="optional" type="xs:double"/>
+            <xs:attribute name="maxTargetP" use="optional" type="xs:double"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
