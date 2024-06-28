@@ -18,6 +18,7 @@ import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
+import java.util.UUID;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -114,9 +115,54 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
+    private static class Tool3 implements Tool {
+
+        @Override
+        public Command getCommand() {
+            return new Command() {
+                @Override
+                public String getName() {
+                    return "tool3";
+                }
+
+                @Override
+                public String getTheme() {
+                    return "theme3";
+                }
+
+                @Override
+                public String getDescription() {
+                    return "test tool3";
+                }
+
+                @Override
+                public Options getOptions() {
+                    Options options = new Options();
+                    options.addOption(Option.builder()
+                        .longOpt("option1")
+                        .desc("this is option 1")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
+                    return options;
+                }
+
+                @Override
+                public String getUsageFooter() {
+                    return "footer1";
+                }
+            };
+        }
+
+        @Override
+        public void run(CommandLine line, ToolRunningContext context) {
+            context.getOutputStream().print(UUID.randomUUID());
+        }
+    }
+
     @Override
     protected Iterable<Tool> getTools() {
-        return Arrays.asList(new Tool1(), new Tool2());
+        return Arrays.asList(new Tool1(), new Tool2(), new Tool3());
     }
 
     @Override
@@ -131,6 +177,15 @@ class CommandLineToolsTest extends AbstractToolTest {
         command = tool.getCommand();
         assertCommand(command, "tool2", 1, 0);
         assertOption(command.getOptions(), "option2", false, false);
+    }
+
+    @Test
+    void testRegexOutput() {
+        // Matches a regex
+        assertCommand(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
+
+        // Matches a string
+        assertCommand(new String[] {"tool1", "--option1", "file.txt"}, 0, "result1", "");
     }
 
     @Test
@@ -155,7 +210,7 @@ class CommandLineToolsTest extends AbstractToolTest {
         assertCommandError(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
 
         // usage when command does not exist
-        assertCommandError(new String[] {"tool3"}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
+        assertCommandError(new String[] {"tool4"}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
 
         // command success
         assertCommandSuccessful(new String[] {"tool1", "--option1", "file.txt"}, "result1");
