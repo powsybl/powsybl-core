@@ -205,6 +205,9 @@ class CommandLineToolsTest extends AbstractToolTest {
                 System.lineSeparator() +
                 "theme2:" + System.lineSeparator() +
                 "    tool2                                    test tool2" + System.lineSeparator() +
+                System.lineSeparator() +
+                "theme3:" + System.lineSeparator() +
+                "    tool3                                    test tool3" + System.lineSeparator() +
                 System.lineSeparator();
 
         assertCommandError(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
