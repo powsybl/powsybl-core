@@ -496,4 +496,72 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .apply(network, reportNode);
         testReportNode(reportNode, "/reportNode/create-load-NB-without-extensions-report.txt");
     }
+
+    @Test
+    void testDryRun() {
+        Network network = Network.read("testNetworkNodeBreaker.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreaker.xiidm"));
+        GeneratorAdder generatorAdder = network.getVoltageLevel("vl1").newGenerator()
+            .setId("newGenerator")
+            .setVoltageRegulatorOn(true)
+            .setMaxP(9999)
+            .setMinP(-9999)
+            .setTargetV(25.5)
+            .setTargetP(600)
+            .setTargetQ(300)
+            .setRatedS(10)
+            .setEnergySource(EnergySource.NUCLEAR)
+            .setEnsureIdUnicity(true);
+        NetworkModification modification = new CreateFeederBayBuilder()
+            .withInjectionAdder(generatorAdder)
+            .withBusOrBusbarSectionId("bbs1")
+            .withInjectionPositionOrder(71)
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertTrue(modification.dryRun(network));
+
+        // Useful methods for dry run
+        assertTrue(modification.hasImpactOnNetwork());
+        assertTrue(modification.isLocalDryRunPossible());
+
+        // Failing dry run
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        CreateFeederBay modificationFailing = new CreateFeederBayBuilder()
+            .withInjectionAdder(generatorAdder)
+            .withBusOrBusbarSectionId("dummy")
+            .withInjectionPositionOrder(71)
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for AbstractCreateConnectableFeederBays. The issue is: Bus or busbar section 'dummy' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+
+        // Failing dry run
+        reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        modificationFailing = new CreateFeederBayBuilder()
+            .withInjectionAdder(generatorAdder)
+            .withBusOrBusbarSectionId("bbs1")
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for AbstractCreateConnectableFeederBays. The issue is: Position order is null for attachment in node-breaker voltage level vl1",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+
+        // Failing dry run
+        reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        modificationFailing = new CreateFeederBayBuilder()
+            .withInjectionAdder(generatorAdder)
+            .withBusOrBusbarSectionId("bbs1")
+            .withInjectionPositionOrder(-5)
+            .withInjectionDirection(BOTTOM)
+            .build();
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for AbstractCreateConnectableFeederBays. The issue is: Position order is negative for attachment in node-breaker voltage level vl1: -5",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+    }
 }

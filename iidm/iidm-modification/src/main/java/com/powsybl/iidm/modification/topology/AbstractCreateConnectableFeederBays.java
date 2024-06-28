@@ -88,8 +88,8 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 dryRunConclusive = false;
                 reportOnInconclusiveDryRun(reportNode,
                     NETWORK_MODIFICATION_NAME,
-                    String.format("Bus or busbar section %s not found", busOrBusbarSectionId));
-            } else if (busOrBusbarSection instanceof BusbarSection bbs && (getPositionOrder(side) == null || getPositionOrder(side) < 0)) {
+                    String.format("Bus or busbar section '%s' not found", busOrBusbarSectionId));
+            } else if (busOrBusbarSection instanceof BusbarSection bbs) {
                 if (getPositionOrder(side) == null) {
                     dryRunConclusive = false;
                     reportOnInconclusiveDryRun(reportNode,

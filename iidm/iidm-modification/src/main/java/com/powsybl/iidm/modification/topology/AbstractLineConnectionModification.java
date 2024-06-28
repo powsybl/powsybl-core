@@ -135,7 +135,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
             dryRunConclusive = false;
             reportOnInconclusiveDryRun(reportNode,
                 NETWORK_MODIFICATION_NAME,
-                String.format("Bus or busbar section %s not found", bbsOrBusId));
+                String.format("Bus or busbar section '%s' not found", bbsOrBusId));
         } else {
             dryRunConclusive = checkVoltageLevel(identifiable, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
         }
