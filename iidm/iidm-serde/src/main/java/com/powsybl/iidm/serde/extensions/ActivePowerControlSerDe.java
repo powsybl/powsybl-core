@@ -67,8 +67,8 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
         }
         if ("1.2".compareTo(extVersionStr) <= 0) {
             // not using writeOptionalDouble and trusting implementation convention: : writeDoubleAttribute does not write NaN values in human-readable formats JSON/XML
-            context.getWriter().writeDoubleAttribute("maxPOverride", activePowerControl.getMaxPOverride().orElse(Double.NaN));
-            context.getWriter().writeDoubleAttribute("minPOverride", activePowerControl.getMinPOverride().orElse(Double.NaN));
+            context.getWriter().writeDoubleAttribute("maxTargetP", activePowerControl.getMaxTargetP().orElse(Double.NaN));
+            context.getWriter().writeDoubleAttribute("minTargetP", activePowerControl.getMinTargetP().orElse(Double.NaN));
         }
     }
 
@@ -89,8 +89,8 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
         boolean participate = context.getReader().readBooleanAttribute("participate");
         double droop = context.getReader().readDoubleAttribute("droop");
         double participationFactor = Double.NaN;
-        double minPOverride = Double.NaN;
-        double maxPOverride = Double.NaN;
+        double minTargetP = Double.NaN;
+        double maxTargetP = Double.NaN;
         NetworkDeserializerContext networkContext = (NetworkDeserializerContext) context;
         String extVersionStr = networkContext.getExtensionVersion(this).orElseThrow(IllegalStateException::new);
         if ("1.1".compareTo(extVersionStr) <= 0) {
@@ -98,16 +98,16 @@ public class ActivePowerControlSerDe<T extends Injection<T>> extends AbstractVer
         }
         if ("1.2".compareTo(extVersionStr) <= 0) {
             // not using readOptionalDouble and trusting implementation convention: readDoubleAttribute returns Nan if attribute is absent in human-readable formats (JSON / XML)
-            maxPOverride = context.getReader().readDoubleAttribute("maxPOverride");
-            minPOverride = context.getReader().readDoubleAttribute("minPOverride");
+            maxTargetP = context.getReader().readDoubleAttribute("maxTargetP");
+            minTargetP = context.getReader().readDoubleAttribute("minTargetP");
         }
         context.getReader().readEndNode();
         ActivePowerControlAdder<T> activePowerControlAdder = identifiable.newExtension(ActivePowerControlAdder.class);
         return activePowerControlAdder.withParticipate(participate)
                 .withDroop(droop)
                 .withParticipationFactor(participationFactor)
-                .withMinPOverride(minPOverride)
-                .withMaxPOverride(maxPOverride)
+                .withMinTargetP(minTargetP)
+                .withMaxTargetP(maxTargetP)
                 .add();
     }
 }
