@@ -8,12 +8,14 @@
 package com.powsybl.cgmes.completion;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImportPreProcessor;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.conversion.export.elements.*;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -220,7 +222,9 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         String euNamespace = context.getCim().getEuNamespace();
         CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), euNamespace, writer);
         if (context.getCimVersion() >= 16) {
-            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, context.getExportedEQModel(), context);
+            CgmesMetadataModel eqModel = CgmesExport.initializeModelForExport(
+                    network, CgmesSubset.EQUIPMENT, context, true, false);
+            CgmesExportUtil.writeModelDescription(network, CgmesSubset.EQUIPMENT, writer, eqModel, context);
         }
     }
 

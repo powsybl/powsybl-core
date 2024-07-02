@@ -15,7 +15,8 @@ import com.powsybl.iidm.network.extensions.LinePosition;
 import com.powsybl.iidm.network.extensions.SubstationPosition;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -28,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
  */
-class OdreGeoDataAdderTest {
+class OdreGeoDataAdderTest extends AbstractOdreTest {
 
     private Network network;
 
@@ -37,12 +38,13 @@ class OdreGeoDataAdderTest {
         network = EurostagTutorialExample1Factory.create();
     }
 
-    @Test
-    void addSubstationsGeoDataFromFile() throws URISyntaxException {
+    @ParameterizedTest
+    @MethodSource("provideTestArguments")
+    void addSubstationsGeoDataFromFile(String descr, String directory, OdreConfig config) throws URISyntaxException {
         Path substationsPath = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/substations.csv").toURI());
+                .getClassLoader().getResource(directory + "substations.csv").toURI());
 
-        OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath);
+        OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsPath, config);
 
         Coordinate coord1 = new Coordinate(2, 1);
         Substation station1 = network.getSubstation("P1");
@@ -57,17 +59,18 @@ class OdreGeoDataAdderTest {
         assertEquals(coord2, position2.getCoordinate());
     }
 
-    @Test
-    void addLinesGeoDataFromFile() throws URISyntaxException {
+    @ParameterizedTest
+    @MethodSource("provideTestArguments")
+    void addLinesGeoDataFromFile(String descr, String directory, OdreConfig config) throws URISyntaxException {
         Path substationsPath = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/substations.csv").toURI());
+                .getClassLoader().getResource(directory + "substations.csv").toURI());
         Path aerialLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/aerial-lines.csv").toURI());
+                .getClassLoader().getResource(directory + "aerial-lines.csv").toURI());
         Path undergroundLinesFile = Paths.get(getClass()
-                .getClassLoader().getResource("eurostag-test/underground-lines.csv").toURI());
+                .getClassLoader().getResource(directory + "underground-lines.csv").toURI());
 
         OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFile,
-                undergroundLinesFile, substationsPath);
+                undergroundLinesFile, substationsPath, config);
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
