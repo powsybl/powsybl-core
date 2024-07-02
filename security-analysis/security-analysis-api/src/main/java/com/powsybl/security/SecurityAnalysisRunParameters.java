@@ -8,6 +8,7 @@
 package com.powsybl.security;
 
 import com.powsybl.security.limitreduction.LimitReduction;
+import com.powsybl.security.strategy.OperationalLimitOverride;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
 
     private SecurityAnalysisParameters securityAnalysisParameters;
     private List<LimitReduction> limitReductions = new ArrayList<>();
+    private List<OperationalLimitOverride> limitsToOverride = new ArrayList<>();
 
     /**
      * Returns a {@link SecurityAnalysisRunParameters} instance with default value on each field.
@@ -51,6 +53,10 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
         return limitReductions;
     }
 
+    public List<OperationalLimitOverride> getlLimitsToOverride() {
+        return limitsToOverride;
+    }
+
     /**
      * Sets the security analysis parameters, see {@link SecurityAnalysisParameters}.
      */
@@ -66,6 +72,15 @@ public class SecurityAnalysisRunParameters extends AbstractSecurityAnalysisRunPa
     public SecurityAnalysisRunParameters setLimitReductions(List<LimitReduction> limitReductions) {
         Objects.requireNonNull(limitReductions, "LimitReductions list should not be null");
         this.limitReductions = limitReductions;
+        return self();
+    }
+
+    /**
+     * Sets the list of the limits to override, see {@link OperationalLimitOverride}
+     */
+    public SecurityAnalysisRunParameters setLimitsToOverride(List<OperationalLimitOverride> limitsToOverride) {
+        Objects.requireNonNull(limitsToOverride);
+        this.limitsToOverride = limitsToOverride;
         return self();
     }
 

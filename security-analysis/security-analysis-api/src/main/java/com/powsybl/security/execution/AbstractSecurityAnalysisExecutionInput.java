@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.strategy.OperationalLimitOverride;
 import com.powsybl.security.strategy.OperatorStrategy;
 
 import java.util.*;
@@ -31,6 +32,7 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
     private final List<Action> actions = new ArrayList<>();
     private final List<StateMonitor> monitors = new ArrayList<>();
     private final List<LimitReduction> limitReductions = new ArrayList<>();
+    private final List<OperationalLimitOverride> limitsToOverride = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -62,6 +64,10 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
 
     public List<LimitReduction> getLimitReductions() {
         return Collections.unmodifiableList(limitReductions);
+    }
+
+    public List<OperationalLimitOverride> getLimitsToOverride() {
+        return Collections.unmodifiableList(limitsToOverride);
     }
 
     public boolean isWithLogs() {
@@ -133,6 +139,13 @@ public abstract class AbstractSecurityAnalysisExecutionInput<T extends AbstractS
         Objects.requireNonNull(limitReductions);
         this.limitReductions.clear();
         this.limitReductions.addAll(limitReductions);
+        return self();
+    }
+
+    public T setLimitsToOverride(List<OperationalLimitOverride> limitsToOverride) {
+        Objects.requireNonNull(limitsToOverride);
+        this.limitsToOverride.clear();
+        this.limitsToOverride.addAll(limitsToOverride);
         return self();
     }
 
