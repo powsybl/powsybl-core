@@ -73,7 +73,8 @@ class GenericReadOnlyDataSourceTest {
         checkDataSource(new GenericReadOnlyDataSource(testDir), "", null);
         checkDataSource(new GenericReadOnlyDataSource(testDir, "foo_bar"), "foo_bar", null);
         checkDataSource(new GenericReadOnlyDataSource(testDir, "foo_bar", "iidm"), "foo_bar", "iidm");
-        checkDataSource(new GenericReadOnlyDataSource(testDir, "foo_bar", "iidm", observer), "foo_bar", "iidm");
+        checkDataSource(new GenericReadOnlyDataSource(testDir, "foo_bar", "iidm", false), "foo_bar", "iidm");
+        checkDataSource(new GenericReadOnlyDataSource(testDir, "foo_bar", "iidm", false, observer), "foo_bar", "iidm");
     }
 
     private void checkDataSource(GenericReadOnlyDataSource dataSource, String baseName, String dataExtension) {

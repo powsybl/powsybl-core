@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -36,7 +37,7 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
+        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar", "iidm", false, observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
@@ -44,6 +45,7 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
         assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
+        assertEquals(false, dataSource.isCuratedDirectory());
         assertEquals(observer, dataSource.getObserver());
     }
 
@@ -55,12 +57,12 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new Bzip2DirectoryDataSource(testDir, "foo", null, null);
+        return new Bzip2DirectoryDataSource(testDir, "foo", null, false, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new Bzip2DirectoryDataSource(testDir, "foo", "iidm", observer);
+        return new Bzip2DirectoryDataSource(testDir, "foo", "iidm", false, observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
@@ -77,16 +79,35 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst",
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.xz", "foo_bar.xz", "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz");
+        Set<String> barFiles = Set.of(
+            "bar.iidm", "bar",
+            "bar.iidm.xz", "bar.xz",
+            "bar.iidm.zst", "bar.zst",
+            "bar.iidm.gz", "bar.gz");
+        Set<String> curatedListedFiles = Stream.concat(listedFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
+        Set<String> curatedListedBarFiles = Stream.concat(listedBarFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+            Arguments.of(null, "foo", "iidm", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+            Arguments.of(null, "foo", "", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "v3", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+            Arguments.of(null, "foo", "v3", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 listedFiles,
-                listedBarFiles)
+                listedBarFiles),
+            Arguments.of("foo.bz2", null, null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+                curatedListedFiles,
+                curatedListedBarFiles),
+            Arguments.of("foo.xiidm.bz2", null, null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+                curatedListedFiles,
+                curatedListedBarFiles),
+            Arguments.of("tmp.bz2", null, null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+                curatedListedFiles,
+                curatedListedBarFiles),
+            Arguments.of("tmp.xiidm.bz2", null, null, CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+                curatedListedFiles,
+                curatedListedBarFiles)
         );
     }
 }

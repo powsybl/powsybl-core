@@ -21,15 +21,15 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean isCuratedDirectory, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new DirectoryDataSource(directory, baseName, dataExtension, observer),
-            new ZstdDirectoryDataSource(directory, baseName, dataExtension, observer),
+            new DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
+            new ZstdDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
             new ZipArchiveDataSource(directory),
             new ZipArchiveDataSource(directory, baseName, dataExtension, observer),
-            new XZDirectoryDataSource(directory, baseName, dataExtension, observer),
-            new GzDirectoryDataSource(directory, baseName, dataExtension, observer),
-            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, observer)
+            new XZDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
+            new GzDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
+            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer)
         };
     }
 
@@ -45,7 +45,11 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension) {
-        this(directory, baseName, dataExtension, null);
+        this(directory, baseName, dataExtension, false);
+    }
+
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean isCuratedDirectory) {
+        this(directory, baseName, dataExtension, isCuratedDirectory, null);
     }
 
     @Override

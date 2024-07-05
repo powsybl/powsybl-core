@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -69,13 +70,20 @@ public interface DataSourceUtil {
         // Get the file information
         FileInformation fileInformation = new FileInformation(fileNameOrBaseName);
 
+        // If the file in the directory is in fact a nested directory,
+        // we consider it as a curated directory and it should behave like an archive
+        // (for example listNames should list everything, not filter by basename)
+        Path maybeCuratedDirectory = directory.resolve(fileNameOrBaseName);
+        boolean isCuratedDirectory = Files.isDirectory(maybeCuratedDirectory);
+
         DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
-            .withDirectory(directory)
+            .withDirectory(isCuratedDirectory ? maybeCuratedDirectory : directory)
             .withArchiveFileName(fileNameOrBaseName)
             .withBaseName(fileInformation.getBaseName())
             .withDataExtension(fileInformation.getDataExtension())
             .withCompressionFormat(fileInformation.getCompressionFormat())
             .withArchiveFormat(fileInformation.getArchiveFormat())
+            .withIsCuratedDirectory(isCuratedDirectory)
             .withObserver(observer);
 
         return dataSourceBuilder.build();

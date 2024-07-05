@@ -52,6 +52,8 @@ class DataSourceBuilderTest {
         assertInstanceOf(ZstdDirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.ZSTD).build());
         assertInstanceOf(XZDirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.XZ).build());
         assertInstanceOf(Bzip2DirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.BZIP2).build());
+        assertFalse(((DirectoryDataSource) builder.withIsCuratedDirectory(false).build()).isCuratedDirectory());
+        assertTrue(((DirectoryDataSource) builder.withIsCuratedDirectory(true).build()).isCuratedDirectory());
 
         // Archive datasources
         assertInstanceOf(TarArchiveDataSource.class, builder.withArchiveFormat(ArchiveFormat.TAR).build());

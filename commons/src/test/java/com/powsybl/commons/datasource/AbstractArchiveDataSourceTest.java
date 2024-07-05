@@ -132,4 +132,18 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         AbstractArchiveDataSource dataSource = createArchiveDataSource();
         assertFalse(dataSource.exists("test.bar"));
     }
+
+    @Override
+    protected String getContainerPath(String maybeContainerFileName, String baseName, String dataExtension,
+            CompressionFormat compressionFormat) {
+        return testDir + "/" + (maybeContainerFileName != null ?
+                maybeContainerFileName : getFileName(baseName, dataExtension, compressionFormat));
+    }
+
+    @Override
+    protected String getDatasourcePath(String maybeContainerFileName, String baseName, String dataExtension,
+            CompressionFormat compressionFormat) {
+        return getContainerPath(maybeContainerFileName, baseName, dataExtension, compressionFormat);
+    }
+
 }

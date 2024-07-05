@@ -55,7 +55,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     @Override
     protected String getFileName(String baseName, String dataExtension, CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName
+        return baseName
                 + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension)
                 + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
                 + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
@@ -114,13 +114,13 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.GZIP, TarArchiveDataSource.class,
+            Arguments.of(null, "foo", "iidm", CompressionFormat.GZIP, TarArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
-            Arguments.of("foo", "", CompressionFormat.BZIP2, TarArchiveDataSource.class,
+            Arguments.of(null, "foo", "", CompressionFormat.BZIP2, TarArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
-            Arguments.of("foo", "v3", CompressionFormat.ZSTD, TarArchiveDataSource.class,
+            Arguments.of(null, "foo", "v3", CompressionFormat.ZSTD, TarArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar"))
         );
@@ -218,4 +218,5 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
             default -> os;
         };
     }
+
 }

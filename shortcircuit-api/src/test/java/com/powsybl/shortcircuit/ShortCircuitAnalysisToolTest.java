@@ -73,7 +73,7 @@ class ShortCircuitAnalysisToolTest extends AbstractToolTest {
 
     @Test
     void checkFailsWhenNetworkFileNotFound() {
-        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "wrongFile.uct"}, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
+        assertCommandErrorMatch(new String[] {COMMAND_NAME, "--input-file", "input.txt", "--case-file", "wrongFile.uct"}, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist");
     }
 
     @Test

@@ -26,6 +26,7 @@ class DataSourceBuilder {
     private ArchiveFormat archiveFormat;
     private String dataExtension = "";
     private DataSourceObserver observer;
+    private boolean isCuratedDirectory;
 
     DataSourceBuilder withDirectory(Path directory) {
         this.directory = directory;
@@ -62,6 +63,11 @@ class DataSourceBuilder {
         return this;
     }
 
+    DataSourceBuilder withIsCuratedDirectory(boolean isCuratedDirectory) {
+        this.isCuratedDirectory = isCuratedDirectory;
+        return this;
+    }
+
     DataSource build() {
         // Check the mandatory parameters
         buildChecks();
@@ -74,16 +80,16 @@ class DataSourceBuilder {
                 new TarArchiveDataSource(directory, baseName, dataExtension, compressionFormat, observer) :
                 new TarArchiveDataSource(directory, archiveFileName, baseName, dataExtension, compressionFormat, observer);
         } else if (compressionFormat == null) {
-            return new DirectoryDataSource(directory, baseName, dataExtension, observer);
+            return new DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer);
         } else {
             return switch (compressionFormat) {
-                case BZIP2 -> new Bzip2DirectoryDataSource(directory, baseName, dataExtension, observer);
-                case GZIP -> new GzDirectoryDataSource(directory, baseName, dataExtension, observer);
-                case XZ -> new XZDirectoryDataSource(directory, baseName, dataExtension, observer);
-                case ZSTD -> new ZstdDirectoryDataSource(directory, baseName, dataExtension, observer);
+                case BZIP2 -> new Bzip2DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer);
+                case GZIP -> new GzDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer);
+                case XZ -> new XZDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer);
+                case ZSTD -> new ZstdDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer);
                 default -> {
                     LOGGER.warn("Unsupported compression format {}", compressionFormat);
-                    yield new DirectoryDataSource(directory, baseName, dataExtension, observer);
+                    yield new DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer);
                 }
             };
         }

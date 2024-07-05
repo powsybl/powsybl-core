@@ -17,6 +17,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,19 +50,30 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     }
 
     @Override
-    protected void createFiles(String fileName) {
-        createFiles();
+    protected String getContainerPath(String maybeContainerFileName, String baseName, String dataExtension,
+            CompressionFormat compressionFormat) {
+        return testDir + (maybeContainerFileName == null ? "" : "/" + maybeContainerFileName);
     }
 
-    private void createFiles() {
+    @Override
+    protected void createFiles(String fileName) throws IOException {
+        Files.createDirectories(fileSystem.getPath(fileName));
         // Create the test files
-        existingFiles.forEach(fileName -> {
+        existingFiles.forEach(eachFileName -> {
             try {
-                Files.createFile(fileSystem.getPath(testDir + "/" + fileName));
+                Files.createFile(fileSystem.getPath(fileName + "/" + eachFileName));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    @Override
+    protected String getDatasourcePath(String maybeContainerFileName, String baseName, String dataExtension,
+            CompressionFormat compressionFormat) {
+        return baseName == null ?
+                getContainerPath(maybeContainerFileName, baseName, dataExtension, compressionFormat) :
+                testDir + "/" + getFileName(baseName, dataExtension, compressionFormat);
     }
 
     @Test
@@ -111,16 +123,33 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.xz", "foo_bar.xz",
             "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz");
+        Set<String> barFiles = Set.of(
+            "bar.iidm", "bar",
+            "bar.iidm.bz2", "bar.bz2",
+            "bar.iidm.xz", "bar.xz",
+            "bar.iidm.zst", "bar.zst",
+            "bar.iidm.gz", "bar.gz");
+        Set<String> curatedListedFiles = Stream.concat(listedFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
+        Set<String> curatedListedBarFiles = Stream.concat(listedBarFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
         return Stream.of(
-            Arguments.of("foo", "iidm", null, DirectoryDataSource.class,
+            Arguments.of(null, "foo", "iidm", null, DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "", null, DirectoryDataSource.class,
+            Arguments.of(null, "foo", "", null, DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "v3", null, DirectoryDataSource.class,
+            Arguments.of(null, "foo", "v3", null, DirectoryDataSource.class,
                 listedFiles,
-                listedBarFiles)
+                listedBarFiles),
+            Arguments.of("tmp", null, null, null, DirectoryDataSource.class,
+                curatedListedFiles,
+                curatedListedBarFiles),
+            Arguments.of("foo", null, null, null, DirectoryDataSource.class,
+                curatedListedFiles,
+                curatedListedBarFiles),
+            Arguments.of("foo.xiidm", null, null, null, DirectoryDataSource.class,
+                    curatedListedFiles,
+                    curatedListedBarFiles)
         );
     }
 
@@ -133,4 +162,5 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         // An exception is thrown because the directory does not exist
         assertThrows(IOException.class, () -> dataSource.listNames(".*"));
     }
+
 }
