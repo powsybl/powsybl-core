@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -77,6 +78,15 @@ public interface DataSourceUtil {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileNameOrBaseName);
 
+        // For a directory, we list all files because we assume everything is related.
+        // And this allows to still have the directory name as the basename (for example for writing new files named like the directory)
+        if (Files.isDirectory(directory.resolve(fileNameOrBaseName))) {
+            return new FileDataSource(directory.resolve(fileNameOrBaseName), getBaseName(fileNameOrBaseName), observer);
+        }
+
+        // For a file in a directory, we filter by basename to get similar files only because other files may be unrelated
+        // Additionnally, we give the base extension to allow to know the exact file that was used to specify this datasource to avoid importing
+        // a similarly named unrelated network.
         if (fileNameOrBaseName.endsWith(".zst")) {
             String fileNameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4);
             return new ZstdFileDataSource(directory, getBaseName(fileNameWithoutCompressionExtension), getBaseExtension(fileNameWithoutCompressionExtension), observer);

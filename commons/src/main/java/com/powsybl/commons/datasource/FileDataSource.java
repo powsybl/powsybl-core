@@ -31,24 +31,43 @@ public class FileDataSource implements DataSource {
 
     private final String baseExtension;
 
+    private final boolean isolatedDirectory;
+
     private final DataSourceObserver observer;
 
     public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, "", null);
+        this(directory, baseName, "", false, null);
     }
 
     public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this(directory, baseName, "", observer);
+        this(directory, baseName, "", false, observer);
     }
 
     public FileDataSource(Path directory, String baseName, String baseExtension) {
-        this(directory, baseName, baseExtension, null);
+        this(directory, baseName, baseExtension, false, null);
     }
 
     public FileDataSource(Path directory, String baseName, String baseExtension, DataSourceObserver observer) {
+        this(directory, baseName, baseExtension, false, observer);
+    }
+
+    public FileDataSource(Path directory, String baseName, boolean filterDirectory) {
+        this(directory, baseName, "", filterDirectory, null);
+    }
+
+    public FileDataSource(Path directory, String baseName, boolean filterDirectory, DataSourceObserver observer) {
+        this(directory, baseName, "", filterDirectory, observer);
+    }
+
+    public FileDataSource(Path directory, String baseName, String baseExtension, boolean filterDirectory) {
+        this(directory, baseName, baseExtension, filterDirectory, null);
+    }
+
+    public FileDataSource(Path directory, String baseName, String baseExtension, boolean isolatedDirectory, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
         this.baseExtension = Objects.requireNonNull(baseExtension);
+        this.isolatedDirectory = isolatedDirectory;
         this.observer = observer;
     }
 
@@ -120,11 +139,14 @@ public class FileDataSource implements DataSource {
         Pattern p = Pattern.compile(regex);
         int maxDepth = 1;
         try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
-            return paths
+
+            var filenames = paths
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
-                    .map(Path::toString)
-                    .filter(name -> name.startsWith(baseName))
+                    .map(Path::toString);
+            var maybeFilteredFilenames = isolatedDirectory ? filenames
+                    : filenames.filter(name -> name.startsWith(baseName));
+            return maybeFilteredFilenames
                     // Return names after removing the compression extension
                     .map(name -> name.replace(getCompressionExt(), ""))
                     .filter(s -> p.matcher(s).matches())
