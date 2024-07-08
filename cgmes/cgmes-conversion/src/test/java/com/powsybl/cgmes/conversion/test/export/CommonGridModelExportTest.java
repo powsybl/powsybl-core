@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -462,8 +463,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         // Obtain exported model identifiers from reporter
         Set<String> exportedModelIdsFromReporter = new HashSet<>();
         for (ReportNode n : report.getChildren()) {
-            if ("CgmesId".equals(n.getMessageKey())) {
-                exportedModelIdsFromReporter.add(n.getMessage());
+            if (CgmesExportUtil.REPORT_NODE_KEY_EXPORTED_CGMES_ID.equals(n.getMessageKey())) {
+                n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_ID).ifPresent(v -> exportedModelIdsFromReporter.add(v.getValue().toString()));
             }
         }
         assertFalse(exportedModelIdsFromReporter.isEmpty());

@@ -18,6 +18,7 @@ import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import org.slf4j.Logger;
@@ -46,6 +47,9 @@ public final class CgmesExportUtil {
 
     private CgmesExportUtil() {
     }
+
+    public static final String REPORT_NODE_KEY_EXPORTED_CGMES_ID = "ExportedCgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_ID = "cgmesId";
 
     // Avoid trailing zeros and format always using US locale
 
@@ -137,9 +141,10 @@ public final class CgmesExportUtil {
         }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
+        // Report the exported CGMES model identifiers
         context.getReportNode().newReportNode()
-                .withMessageTemplate("CgmesId", "${cgmesid}")
-                .withUntypedValue("cgmesid", modelDescription.getId())
+                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, String.format("CGMES exported model identifier: ${%s}", REPORT_VALUE_EXPORTED_CGMES_ID))
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, modelDescription.getId(), TypedValue.URN_UUID)
                 .add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
