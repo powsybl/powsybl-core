@@ -97,7 +97,12 @@ public abstract class AbstractTapChangerTest {
         assertEquals(1.0, neutralStep.getRho(), 0.0);
         phaseTapChanger.setTapPosition(0);
         assertEquals(0, phaseTapChanger.getTapPosition());
-        assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
+        assertEquals(phaseTapChanger.getCurrentStep().getR(), phaseTapChanger.getStep(0).getR(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getX(), phaseTapChanger.getStep(0).getX(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getG(), phaseTapChanger.getStep(0).getG(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getB(), phaseTapChanger.getStep(0).getB(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getAlpha(), phaseTapChanger.getStep(0).getAlpha(), 0.0);
+        assertEquals(phaseTapChanger.getCurrentStep().getRho(), phaseTapChanger.getStep(0).getRho(), 0.0);
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
         phaseTapChanger.setTargetDeadband(0.5);
