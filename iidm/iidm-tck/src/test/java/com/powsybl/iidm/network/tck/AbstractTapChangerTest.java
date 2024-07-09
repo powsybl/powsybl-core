@@ -234,12 +234,12 @@ public abstract class AbstractTapChangerTest {
 
         //check neutral step attributes
         PhaseTapChangerStep neutralStep = phaseTapChanger.getNeutralStep().orElseThrow();
-        assertEquals(0, neutralStep.getAlpha());
-        assertEquals(1, neutralStep.getRho());
-        assertEquals(1, neutralStep.getR());
-        assertEquals(2, neutralStep.getX());
-        assertEquals(3, neutralStep.getG());
-        assertEquals(4, neutralStep.getB());
+        assertEquals(0, neutralStep.getAlpha(), 0.0);
+        assertEquals(1, neutralStep.getRho(), 0.0);
+        assertEquals(1, neutralStep.getR(), 0.0);
+        assertEquals(2, neutralStep.getX(), 0.0);
+        assertEquals(3, neutralStep.getG(), 0.0);
+        assertEquals(4, neutralStep.getB(), 0.0);
 
         //replace steps
         phaseTapChanger.stepsReplacer()
@@ -277,12 +277,12 @@ public abstract class AbstractTapChangerTest {
 
         //check neutral step attributes
         neutralStep = phaseTapChanger.getNeutralStep().orElseThrow();
-        assertEquals(0, neutralStep.getAlpha());
-        assertEquals(1, neutralStep.getRho());
-        assertEquals(9, neutralStep.getR());
-        assertEquals(10, neutralStep.getX());
-        assertEquals(11, neutralStep.getG());
-        assertEquals(12, neutralStep.getB());
+        assertEquals(0, neutralStep.getAlpha(), 0.0);
+        assertEquals(1, neutralStep.getRho(), 0.0);
+        assertEquals(9, neutralStep.getR(), 0.0);
+        assertEquals(10, neutralStep.getX(), 0.0);
+        assertEquals(11, neutralStep.getG(), 0.0);
+        assertEquals(12, neutralStep.getB(), 0.0);
     }
 
     @Test
