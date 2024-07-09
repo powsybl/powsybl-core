@@ -69,32 +69,32 @@ public abstract class AbstractAreaTest {
         assertEquals("ControlArea_A", controlAreaA.getId());
         assertEquals("Control Area A", controlAreaA.getOptionalName().orElseThrow());
         assertEquals(CONTROL_AREA_TYPE, controlAreaA.getAreaType());
-        assertEquals(-602.6, controlAreaA.getAcInterchangeTarget().orElseThrow());
+        assertEquals(-602.6, controlAreaA.getInterchangeTarget().orElseThrow());
         assertEquals(Set.of(vlgen, vlhv1), controlAreaA.getVoltageLevels());
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
 
         assertEquals("ControlArea_B", controlAreaB.getId());
         assertEquals("Control Area B", controlAreaB.getOptionalName().orElseThrow());
         assertEquals(CONTROL_AREA_TYPE, controlAreaB.getAreaType());
-        assertEquals(+602.6, controlAreaB.getAcInterchangeTarget().orElseThrow());
+        assertEquals(+602.6, controlAreaB.getInterchangeTarget().orElseThrow());
         assertEquals(Set.of(vlhv2, vlload), controlAreaB.getVoltageLevels());
         assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
 
         assertEquals("Region_AB", regionAB.getId());
         assertEquals("Region AB", regionAB.getOptionalName().orElseThrow());
         assertEquals(REGION_AREA_TYPE, regionAB.getAreaType());
-        assertFalse(regionAB.getAcInterchangeTarget().isPresent());
+        assertFalse(regionAB.getInterchangeTarget().isPresent());
         assertEquals(Set.of(vlgen, vlhv1, vlhv2, vlload), regionAB.getVoltageLevels());
         assertEquals(0, regionAB.getAreaBoundaryStream().count());
     }
 
     @Test
     public void testSetterGetter() {
-        controlAreaA.setAcInterchangeTarget(123.0);
-        assertTrue(controlAreaA.getAcInterchangeTarget().isPresent());
-        assertEquals(123.0, controlAreaA.getAcInterchangeTarget().getAsDouble());
-        controlAreaA.setAcInterchangeTarget(Double.NaN);
-        assertTrue(controlAreaA.getAcInterchangeTarget().isEmpty());
+        controlAreaA.setInterchangeTarget(123.0);
+        assertTrue(controlAreaA.getInterchangeTarget().isPresent());
+        assertEquals(123.0, controlAreaA.getInterchangeTarget().getAsDouble());
+        controlAreaA.setInterchangeTarget(Double.NaN);
+        assertTrue(controlAreaA.getInterchangeTarget().isEmpty());
     }
 
     @Test
@@ -105,32 +105,32 @@ public abstract class AbstractAreaTest {
         network.addListener(mockedListener);
 
         // Get initial values
-        double oldValue = controlAreaA.getAcInterchangeTarget().orElseThrow();
+        double oldValue = controlAreaA.getInterchangeTarget().orElseThrow();
         // Change values
-        controlAreaA.setAcInterchangeTarget(Double.NaN);
+        controlAreaA.setInterchangeTarget(Double.NaN);
 
         // Check update notification
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, oldValue, Double.NaN);
+                .onUpdate(controlAreaA, "interchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, oldValue, Double.NaN);
 
         // Change values
-        controlAreaA.setAcInterchangeTarget(123.4);
+        controlAreaA.setInterchangeTarget(123.4);
 
         // Check update notification
         Mockito.verify(mockedListener, Mockito.times(1))
-                .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, Double.NaN, 123.4);
+                .onUpdate(controlAreaA, "interchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, Double.NaN, 123.4);
 
         // After this point, no more changes are taken into account.
 
         // Simulate exception for onUpdate calls
         Mockito.doThrow(new PowsyblException()).when(mockedListener)
-                .onUpdate(controlAreaA, "acInterchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, oldValue, 123.4);
+                .onUpdate(controlAreaA, "interchangeTarget", VariantManagerConstants.INITIAL_VARIANT_ID, oldValue, 123.4);
 
         // Case when same value is set
-        controlAreaA.setAcInterchangeTarget(123.4);
+        controlAreaA.setInterchangeTarget(123.4);
         // Case when no listener is registered
         network.removeListener(mockedListener);
-        controlAreaA.setAcInterchangeTarget(456.7);
+        controlAreaA.setInterchangeTarget(456.7);
 
         // Check no notification
         Mockito.verifyNoMoreInteractions(mockedListener);
@@ -150,11 +150,11 @@ public abstract class AbstractAreaTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(-602.6, controlAreaA.getAcInterchangeTarget().orElseThrow(), 0.0);
+        assertEquals(-602.6, controlAreaA.getInterchangeTarget().orElseThrow(), 0.0);
         // change values in s4
-        controlAreaA.setAcInterchangeTarget(123.0);
+        controlAreaA.setInterchangeTarget(123.0);
         // Check P0 & Q0 update notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(controlAreaA, "acInterchangeTarget", "s4", -602.6, 123.0);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(controlAreaA, "interchangeTarget", "s4", -602.6, 123.0);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -162,16 +162,16 @@ public abstract class AbstractAreaTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(123.0, controlAreaA.getAcInterchangeTarget().orElseThrow(), 0.0);
+        assertEquals(123.0, controlAreaA.getInterchangeTarget().orElseThrow(), 0.0);
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(-602.6, controlAreaA.getAcInterchangeTarget().orElseThrow(), 0.0);
+        assertEquals(-602.6, controlAreaA.getInterchangeTarget().orElseThrow(), 0.0);
 
         // remove working variant s4
         variantManager.setWorkingVariant("s4");
         variantManager.removeVariant("s4");
         try {
-            controlAreaA.getAcInterchangeTarget();
+            controlAreaA.getInterchangeTarget();
             fail();
         } catch (Exception ignored) {
             // ignore
@@ -198,22 +198,22 @@ public abstract class AbstractAreaTest {
     public void areaInterchangeComputation() {
         assertEquals(-602.94, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-602.94, controlAreaA.getTotalInterchange(), DELTA);
+        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
 
         assertEquals(+602.94, controlAreaB.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaB.getDcInterchange());
-        assertEquals(+602.94, controlAreaB.getTotalInterchange(), DELTA);
+        assertEquals(+602.94, controlAreaB.getInterchange(), DELTA);
 
         // no boundaries defined
         assertEquals(0.0, regionAB.getAcInterchange());
         assertEquals(0.0, regionAB.getDcInterchange());
-        assertEquals(0.0, regionAB.getTotalInterchange());
+        assertEquals(0.0, regionAB.getInterchange());
 
         // verify NaN do not mess up the calculation
         dlXnode1A.getTerminal().setP(Double.NaN);
         assertEquals(-301.47, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-301.47, controlAreaA.getTotalInterchange(), DELTA);
+        assertEquals(-301.47, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
@@ -287,17 +287,17 @@ public abstract class AbstractAreaTest {
 
         assertEquals(-604.89, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-604.89, controlAreaA.getTotalInterchange(), DELTA);
+        assertEquals(-604.89, controlAreaA.getInterchange(), DELTA);
 
         assertEquals(+604.89, controlAreaB.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaB.getDcInterchange());
-        assertEquals(+604.89, controlAreaB.getTotalInterchange(), DELTA);
+        assertEquals(+604.89, controlAreaB.getInterchange(), DELTA);
 
         // verify NaN do not mess up the calculation
         ngenNhv1.getTerminal2().setP(Double.NaN);
         assertEquals(0.0, controlAreaA.getAcInterchange());
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(0.0, controlAreaA.getTotalInterchange());
+        assertEquals(0.0, controlAreaA.getInterchange());
 
         // test removing Terminal boundaries
         controlAreaB
@@ -317,7 +317,7 @@ public abstract class AbstractAreaTest {
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(-602.94, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(0.0, controlAreaA.getDcInterchange());
-        assertEquals(-602.94, controlAreaA.getTotalInterchange(), DELTA);
+        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
 
         // change them to DC
         controlAreaA
@@ -326,7 +326,7 @@ public abstract class AbstractAreaTest {
         assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
         assertEquals(0.0, controlAreaA.getAcInterchange());
         assertEquals(-602.94, controlAreaA.getDcInterchange(), DELTA);
-        assertEquals(-602.94, controlAreaA.getTotalInterchange(), DELTA);
+        assertEquals(-602.94, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
@@ -342,7 +342,7 @@ public abstract class AbstractAreaTest {
         dlXnode2A.setP0(310.0);
         assertEquals(-290.0, controlAreaA.getAcInterchange(), DELTA);
         assertEquals(-310.0, controlAreaA.getDcInterchange());
-        assertEquals(-600.0, controlAreaA.getTotalInterchange(), DELTA);
+        assertEquals(-600.0, controlAreaA.getInterchange(), DELTA);
     }
 
     @Test
@@ -505,13 +505,13 @@ public abstract class AbstractAreaTest {
 
         Throwable e1 = assertThrows(PowsyblException.class, controlAreaA::getAreaType);
         assertEquals("Cannot access area type of removed area ControlArea_A", e1.getMessage());
-        Throwable e2 = assertThrows(PowsyblException.class, controlAreaA::getAcInterchangeTarget);
-        assertEquals("Cannot access AC interchange target of removed area ControlArea_A", e2.getMessage());
+        Throwable e2 = assertThrows(PowsyblException.class, controlAreaA::getInterchangeTarget);
+        assertEquals("Cannot access interchange target of removed area ControlArea_A", e2.getMessage());
         Throwable e3 = assertThrows(PowsyblException.class, controlAreaA::getAcInterchange);
         assertEquals("Cannot access AC interchange of removed area ControlArea_A", e3.getMessage());
         Throwable e4 = assertThrows(PowsyblException.class, controlAreaA::getDcInterchange);
         assertEquals("Cannot access DC interchange of removed area ControlArea_A", e4.getMessage());
-        Throwable e5 = assertThrows(PowsyblException.class, controlAreaA::getTotalInterchange);
+        Throwable e5 = assertThrows(PowsyblException.class, controlAreaA::getInterchange);
         assertEquals("Cannot access total interchange of removed area ControlArea_A", e5.getMessage());
         Throwable e6 = assertThrows(PowsyblException.class, controlAreaA::getVoltageLevels);
         assertEquals("Cannot access voltage levels of removed area ControlArea_A", e6.getMessage());

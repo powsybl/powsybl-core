@@ -29,7 +29,7 @@
         <iidm:areaBoundary ac="true" type="terminalRef" id="L1"/>
         <iidm:areaBoundary ac="false" type="boundaryRef" id="DL1"/>
     </iidm:area>
-    <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone" acInterchangeTarget="100.0">
+    <iidm:area id="BidZoneId2" name="BidZoneName2" areaType="BiddingZone" interchangeTarget="100.0">
         <iidm:areaBoundary ac="true" type="terminalRef" id="Line1" side="ONE"/>
     </iidm:area>
     <iidm:area id="ControlAreaId1" name="ControlAreaName1" areaType="ControlArea">

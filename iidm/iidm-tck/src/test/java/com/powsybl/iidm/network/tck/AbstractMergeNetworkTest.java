@@ -417,7 +417,7 @@ public abstract class AbstractMergeNetworkTest {
     public void testMergeAndDetachWithDistinctAreas() {
         addCommonSubstationsAndVoltageLevels();
         Area n1TsoA = addArea(n1, "tsoA", "tso");
-        Area n2BzB = n2.newArea().setId("bzB").setName("bzB_Name").setAreaType("bz").setFictitious(true).setAcInterchangeTarget(100.).add();
+        Area n2BzB = n2.newArea().setId("bzB").setName("bzB_Name").setAreaType("bz").setFictitious(true).setInterchangeTarget(100.).add();
         n1TsoA.addVoltageLevel(n1.getVoltageLevel("vl1"));
         n2BzB.addVoltageLevel(n2.getVoltageLevel("vl2"));
 
@@ -428,8 +428,8 @@ public abstract class AbstractMergeNetworkTest {
         final Area mergedBzB = merged.getArea("bzB");
         assertNotNull(mergedBzB);
         assertTrue(mergedBzB.isFictitious());
-        assertTrue(mergedBzB.getAcInterchangeTarget().isPresent());
-        assertEquals(100., mergedBzB.getAcInterchangeTarget().getAsDouble());
+        assertTrue(mergedBzB.getInterchangeTarget().isPresent());
+        assertEquals(100., mergedBzB.getInterchangeTarget().getAsDouble());
 
         // Detach n1, and check its content
         Network n1Detached = merged.getSubnetwork(n1.getId()).detach();
@@ -446,8 +446,8 @@ public abstract class AbstractMergeNetworkTest {
         final Area detachedBzB = n2Detached.getArea("bzB");
         assertNotNull(detachedBzB);
         assertTrue(detachedBzB.isFictitious());
-        assertTrue(detachedBzB.getAcInterchangeTarget().isPresent());
-        assertEquals(100., detachedBzB.getAcInterchangeTarget().getAsDouble());
+        assertTrue(detachedBzB.getInterchangeTarget().isPresent());
+        assertEquals(100., detachedBzB.getInterchangeTarget().getAsDouble());
     }
 
     @Test
