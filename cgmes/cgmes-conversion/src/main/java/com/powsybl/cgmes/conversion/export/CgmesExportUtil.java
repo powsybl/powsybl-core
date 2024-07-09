@@ -143,7 +143,7 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
         // Report the exported CGMES model identifiers
         context.getReportNode().newReportNode()
-                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, String.format("CGMES exported model identifier: ${%s}", REPORT_VALUE_EXPORTED_CGMES_ID))
+                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId}")
                 .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, modelDescription.getId(), TypedValue.URN_UUID)
                 .add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
