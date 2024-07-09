@@ -16,8 +16,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.AssertionFailedError;
 
 import java.util.Arrays;
+import java.util.UUID;
+
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -114,9 +118,54 @@ class CommandLineToolsTest extends AbstractToolTest {
         }
     }
 
+    private static class Tool3 implements Tool {
+
+        @Override
+        public Command getCommand() {
+            return new Command() {
+                @Override
+                public String getName() {
+                    return "tool3";
+                }
+
+                @Override
+                public String getTheme() {
+                    return "theme3";
+                }
+
+                @Override
+                public String getDescription() {
+                    return "test tool3";
+                }
+
+                @Override
+                public Options getOptions() {
+                    Options options = new Options();
+                    options.addOption(Option.builder()
+                        .longOpt("option1")
+                        .desc("this is option 1")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
+                    return options;
+                }
+
+                @Override
+                public String getUsageFooter() {
+                    return "footer1";
+                }
+            };
+        }
+
+        @Override
+        public void run(CommandLine line, ToolRunningContext context) {
+            context.getOutputStream().print(UUID.randomUUID());
+        }
+    }
+
     @Override
     protected Iterable<Tool> getTools() {
-        return Arrays.asList(new Tool1(), new Tool2());
+        return Arrays.asList(new Tool1(), new Tool2(), new Tool3());
     }
 
     @Override
@@ -131,6 +180,18 @@ class CommandLineToolsTest extends AbstractToolTest {
         command = tool.getCommand();
         assertCommand(command, "tool2", 1, 0);
         assertOption(command.getOptions(), "option2", false, false);
+    }
+
+    @Test
+    void testRegexOutput() {
+        // Matches a regex
+        assertCommandMatchTextOrRegex(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
+
+        // Matches a regex - deprecated method
+        assertCommand(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
+
+        // Matches a string
+        assertCommandMatchTextOrRegex(new String[] {"tool1", "--option1", "file.txt"}, 0, "result1", "");
     }
 
     @Test
@@ -150,12 +211,15 @@ class CommandLineToolsTest extends AbstractToolTest {
                 System.lineSeparator() +
                 "theme2:" + System.lineSeparator() +
                 "    tool2                                    test tool2" + System.lineSeparator() +
+                System.lineSeparator() +
+                "theme3:" + System.lineSeparator() +
+                "    tool3                                    test tool3" + System.lineSeparator() +
                 System.lineSeparator();
 
         assertCommandError(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
 
         // usage when command does not exist
-        assertCommandError(new String[] {"tool3"}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
+        assertCommandError(new String[] {"tool4"}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, usage);
 
         // command success
         assertCommandSuccessful(new String[] {"tool1", "--option1", "file.txt"}, "result1");
@@ -201,5 +265,12 @@ class CommandLineToolsTest extends AbstractToolTest {
                         System.lineSeparator() +
                         "footer1" + System.lineSeparator());
 
+    }
+
+    @Test
+    void testComparisonMethods() {
+        matchTextOrRegex("works", "works");
+        matchTextOrRegex("^[a-z0-9-]+$", UUID.randomUUID().toString());
+        assertThrows(AssertionFailedError.class, () -> matchTextOrRegex("^[a-z0-9-]+$", "fail test"));
     }
 }

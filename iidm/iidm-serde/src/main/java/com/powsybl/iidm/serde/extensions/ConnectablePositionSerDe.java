@@ -49,6 +49,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
                         .put(IidmVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmVersion.V_1_12, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")

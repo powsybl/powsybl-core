@@ -31,21 +31,21 @@ Where OUTPUT_FORMAT is one of [CGMES, AMPL, UCTE, XIIDM]
 
 ### Required arguments
 
-**\-\-input-file**  
+`--input-file`  
 This option defines the path of the input file. The [supported formats](../../grid_exchange_formats/index.md) depend on the execution class path.
 
-**\-\-output-file**  
+`--output-file`  
 This option defines the path of the output file.
 
-**\-\-output-format**  
+`--output-format`  
 This option defines the format of the output file. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help.
 
 ### Optional arguments
 
-**\-\-export-parameters**  
+`--export-parameters`  
 This option defines the path of the exporter's configuration file. It's possible to overload one or many parameters using the `-E property=value` syntax. The list of supported properties depends on the [output format](../../grid_exchange_formats/index.md).
 
-**\-\-import-parameters**  
+`--import-parameters`  
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
 
 ## Examples

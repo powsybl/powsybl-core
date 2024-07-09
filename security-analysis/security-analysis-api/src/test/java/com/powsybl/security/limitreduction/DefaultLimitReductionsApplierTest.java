@@ -8,13 +8,13 @@
 package com.powsybl.security.limitreduction;
 
 import com.powsybl.contingency.ContingencyContext;
+import com.powsybl.iidm.criteria.AtLeastOneNominalVoltageCriterion;
+import com.powsybl.iidm.criteria.IdentifiableCriterion;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
+import com.powsybl.iidm.criteria.VoltageInterval;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.BeforeAll;
@@ -63,10 +63,17 @@ class DefaultLimitReductionsApplierTest {
                 .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
                 .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
                 .build();
-        LimitReduction reduction5 = LimitReduction.builder(LimitType.CURRENT, 0.2)
+        LimitReduction reduction5 = LimitReduction.builder(LimitType.CURRENT, 0.1)
+                .withMonitoringOnly(false)
+                .withContingencyContext(ContingencyContext.specificContingency("contingency5"))
+                // Applicable only for the 2 winding transformer NHV2_NLOAD on Side 2
+                .withNetworkElementCriteria(new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
+                        VoltageInterval.between(150., 160., true, true))))
+                .build();
+        LimitReduction reduction6 = LimitReduction.builder(LimitType.CURRENT, 0.2)
                 .withMonitoringOnly(true)
                 .build();
-        applier = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5));
+        applier = new DefaultLimitReductionsApplier(List.of(reduction1, reduction2, reduction3, reduction4, reduction5, reduction6));
     }
 
     @Test
@@ -174,6 +181,44 @@ class DefaultLimitReductionsApplierTest {
                 LimitType.CURRENT, ThreeSides.ONE, false);
         // There are no limits on "NGEN_NHV1" => no reduced limits.
         assertTrue(optLimits.isEmpty());
+    }
+
+    @Test
+    void reduceOnOneSideOnlyTest() {
+        applier.setWorkingContingency("contingency5");
+        TwoWindingsTransformer nhv2Nload = network.getTwoWindingsTransformer("NHV2_NLOAD");
+        nhv2Nload.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setValue(1200.)
+                    .setAcceptableDuration(60)
+                    .setName("60'")
+                .endTemporaryLimit()
+                .add();
+        nhv2Nload.newCurrentLimits2()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                    .setValue(1200.)
+                    .setAcceptableDuration(60)
+                    .setName("60'")
+                .endTemporaryLimit()
+                .add();
+        // The reduction only applies on side 2 for NHV2_NLOAD
+        Optional<LimitsContainer<LoadingLimits>> optLimits = applier.computeLimits(nhv2Nload,
+                LimitType.CURRENT, ThreeSides.ONE, false);
+        assertTrue(optLimits.isPresent());
+        assertEquals(1000., optLimits.get().getLimits().getPermanentLimit(), 0.01);
+        assertEquals(1200., optLimits.get().getLimits().getTemporaryLimitValue(60), 0.01);
+        assertFalse(optLimits.get().isDistinct());
+
+        // The reduction only applies on side 1 for NHV2_NLOAD
+        optLimits = applier.computeLimits(nhv2Nload, LimitType.CURRENT, ThreeSides.TWO, false);
+        assertTrue(optLimits.isPresent());
+        assertEquals(1000., optLimits.get().getOriginalLimits().getPermanentLimit(), 0.01);
+        assertEquals(100., optLimits.get().getLimits().getPermanentLimit(), 0.01);
+        assertEquals(1200., optLimits.get().getOriginalLimits().getTemporaryLimitValue(60), 0.01);
+        assertEquals(120., optLimits.get().getLimits().getTemporaryLimitValue(60), 0.01);
+        assertTrue(optLimits.get().isDistinct());
     }
 
     @ParameterizedTest(name = "{0}")

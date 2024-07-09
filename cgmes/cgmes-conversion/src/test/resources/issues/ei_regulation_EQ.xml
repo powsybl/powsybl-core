@@ -1,0 +1,83 @@
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/CIM100#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:eu="http://iec.ch/TC57/CIM100-European#">
+    <md:FullModel rdf:about="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73">
+        <md:Model.created>2024-06-28T11:00:00Z</md:Model.created>
+        <md:Model.scenarioTime>2024-06-28T11:00:00Z</md:Model.scenarioTime>
+        <md:Model.version>1</md:Model.version>
+        <md:Model.description>Equivalent injection missing regulation target</md:Model.description>
+        <md:Model.modelingAuthoritySet>https://www.powsybl.org/</md:Model.modelingAuthoritySet>
+        <md:Model.profile>http://iec.ch/TC57/ns/CIM/CoreEquipment-EU/3.0</md:Model.profile>
+    </md:FullModel>
+
+    <cim:GeographicalRegion rdf:ID="_GeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>GeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>GeographicalRegionTest</cim:IdentifiedObject.name>
+    </cim:GeographicalRegion>
+    <cim:SubGeographicalRegion rdf:ID="_SubGeographicalRegionTest">
+        <cim:IdentifiedObject.mRID>SubGeographicalRegionTest</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>SubGeographicalRegionTest</cim:IdentifiedObject.name>
+        <cim:SubGeographicalRegion.Region rdf:resource="#_GeographicalRegionTest" />
+    </cim:SubGeographicalRegion>
+    <cim:Substation rdf:ID="_Substation1">
+        <cim:IdentifiedObject.mRID>Substation1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Substation1</cim:IdentifiedObject.name>
+        <cim:Substation.Region rdf:resource="#_SubGeographicalRegionTest" />
+    </cim:Substation>
+    <cim:VoltageLevel rdf:ID="_VoltageLevel1">
+        <cim:IdentifiedObject.mRID>VoltageLevel1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>VoltageLevel1</cim:IdentifiedObject.name>
+        <cim:VoltageLevel.highVoltageLimit>420</cim:VoltageLevel.highVoltageLimit>
+        <cim:VoltageLevel.lowVoltageLimit>380</cim:VoltageLevel.lowVoltageLimit>
+        <cim:VoltageLevel.Substation rdf:resource="#_Substation1"/>
+        <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+    </cim:VoltageLevel>
+    <cim:ConnectivityNode rdf:ID="_ConnectivityNode1">
+        <cim:IdentifiedObject.mRID>ConnectivityNode1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>Connectivity Node 1</cim:IdentifiedObject.name>
+        <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_VoltageLevel1" />
+    </cim:ConnectivityNode>
+
+    <cim:ACLineSegment rdf:ID="_ACLS1">
+        <cim:IdentifiedObject.mRID>ACLS1</cim:IdentifiedObject.mRID>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400"/>
+        <cim:IdentifiedObject.name>ACLS1</cim:IdentifiedObject.name>
+        <cim:ACLineSegment.x>0.12</cim:ACLineSegment.x>
+        <cim:ACLineSegment.bch>0</cim:ACLineSegment.bch>
+        <cim:Conductor.length>0.3</cim:Conductor.length>
+        <cim:ACLineSegment.r>0.34</cim:ACLineSegment.r>
+    </cim:ACLineSegment>
+    <cim:Terminal rdf:ID="_ACLS1_T1">
+        <cim:IdentifiedObject.mRID>ACLS1_T1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>ACLS1 Terminal 1</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLS1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNode1" />
+    </cim:Terminal>
+    <cim:Terminal rdf:ID="_ACLS1_T2">
+        <cim:IdentifiedObject.mRID>ACLS1_T2</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>ACLS1 Terminal 2</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_ACLS1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNodeAtBoundary1" />
+    </cim:Terminal>
+
+    <cim:EquivalentInjection rdf:ID="_EI1">
+        <cim:IdentifiedObject.mRID>EI1</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>EI1</cim:IdentifiedObject.name>
+        <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BaseVoltage400" />
+        <cim:Equipment.EquipmentContainer rdf:resource="#_LineContainerAtBoundary1" />
+        <cim:EquivalentInjection.r>0</cim:EquivalentInjection.r>
+        <cim:EquivalentInjection.x>0</cim:EquivalentInjection.x>
+        <cim:EquivalentInjection.regulationCapability>true</cim:EquivalentInjection.regulationCapability>
+    </cim:EquivalentInjection>
+    <cim:Terminal rdf:ID="_E1_T">
+        <cim:IdentifiedObject.mRID>EI1_T</cim:IdentifiedObject.mRID>
+        <cim:IdentifiedObject.name>EI1 Terminal</cim:IdentifiedObject.name>
+        <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+        <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/CIM100#PhaseCode.ABC" />
+        <cim:Terminal.ConductingEquipment rdf:resource="#_EI1" />
+        <cim:Terminal.ConnectivityNode rdf:resource="#_ConnectivityNodeAtBoundary1" />
+    </cim:Terminal>
+
+</rdf:RDF>
