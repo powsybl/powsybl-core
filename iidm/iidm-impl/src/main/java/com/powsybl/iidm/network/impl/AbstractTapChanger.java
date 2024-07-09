@@ -29,7 +29,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected int lowTapPosition;
 
-    protected final Integer relativeNeutralPosition;
+    protected Integer relativeNeutralPosition;
 
     protected List<S> steps;
 
@@ -160,6 +160,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
 
         this.steps = steps;
+        this.relativeNeutralPosition = getRelativeNeutralPosition();
         return (C) this;
     }
 
