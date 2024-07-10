@@ -138,6 +138,7 @@ public class CgmesMetadataModelImpl implements CgmesMetadataModel {
     @Override
     public CgmesMetadataModelImpl clearDependencies() {
         this.dependentOn.clear();
+        this.supersedes.clear();
         return this;
     }
 
