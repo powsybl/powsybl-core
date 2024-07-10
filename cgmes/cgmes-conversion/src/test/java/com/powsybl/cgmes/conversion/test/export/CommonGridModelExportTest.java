@@ -470,6 +470,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
             String country = n.getSubstations().iterator().next().getCountry().orElseThrow().toString();
             CgmesMetadataModel sshModel = n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             sshModel.clearDependencies()
+                    .clearSupersedes()
                     .addDependentOn("myDependency")
                     .addSupersedes("mySupersede")
                     .setVersion(exportedVersion)
@@ -578,6 +579,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .setVersion(version)
                 .setModelingAuthoritySet("http://elia.be/CGMES/2.4.15")
                 .addDependentOn("BE EQ model ID")
+                .addSupersedes("BE SSH previous ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
                 .add()
                 .add();
@@ -589,6 +591,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .setVersion(version)
                 .setModelingAuthoritySet("http://tennet.nl/CGMES/2.4.15")
                 .addDependentOn("NL EQ model ID")
+                .addSupersedes("NL SSH previous ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
                 .add()
                 .add();
