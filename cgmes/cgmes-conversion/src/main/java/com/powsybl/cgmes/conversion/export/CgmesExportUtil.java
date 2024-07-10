@@ -50,6 +50,8 @@ public final class CgmesExportUtil {
 
     public static final String REPORT_NODE_KEY_EXPORTED_CGMES_ID = "ExportedCgmesId";
     public static final String REPORT_VALUE_EXPORTED_CGMES_ID = "cgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_SUBSET = "cgmesSubset";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID = "networkId";
 
     // Avoid trailing zeros and format always using US locale
 
@@ -143,8 +145,10 @@ public final class CgmesExportUtil {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
         // Report the exported CGMES model identifiers
         context.getReportNode().newReportNode()
-                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId}")
+                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
                 .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, modelDescription.getId(), TypedValue.URN_UUID)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_SUBSET, subset.getIdentifier(), TypedValue.CGMES_SUBSET)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID, network.getId(), TypedValue.ID)
                 .add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));

@@ -435,6 +435,9 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
 
         // Check the output
         Set<String> exportedModelIdsFromFiles = new HashSet<>();
+        Map<String, String> exportedModelId2Subset = new HashMap<>();
+        Map<String, String> exportedModelId2NetworkId = new HashMap<>();
+        String cgmesId;
         for (Map.Entry<Country, String> entry : TSO_BY_COUNTRY.entrySet()) {
             Country country = entry.getKey();
             // For this unit test we do not need the TSO from the entry value
@@ -452,19 +455,30 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
             // To know the exported version we should read what has been written in the output files
             int sshVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
             assertEquals(expectedOutputVersion, sshVersionInOutput);
-            exportedModelIdsFromFiles.add(readModelId(memDataSource, filenameFromCgmesExport));
+            cgmesId = readModelId(memDataSource, filenameFromCgmesExport);
+            exportedModelIdsFromFiles.add(cgmesId);
+            exportedModelId2Subset.put(cgmesId, CgmesSubset.STEADY_STATE_HYPOTHESIS.getIdentifier());
+            exportedModelId2NetworkId.put(cgmesId, nc.getId());
         }
         String filenameFromCgmesExport = cgmNetwork.getNameOrId() + "_SV.xml";
         // We have to read it from inside the SV file ...
         int svVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
         assertEquals(expectedOutputVersion, svVersionInOutput);
-        exportedModelIdsFromFiles.add(readModelId(memDataSource, filenameFromCgmesExport));
+        cgmesId = readModelId(memDataSource, filenameFromCgmesExport);
+        exportedModelIdsFromFiles.add(cgmesId);
+        exportedModelId2Subset.put(cgmesId, CgmesSubset.STATE_VARIABLES.getIdentifier());
+        exportedModelId2NetworkId.put(cgmesId, cgmNetwork.getId());
 
         // Obtain exported model identifiers from reporter
         Set<String> exportedModelIdsFromReporter = new HashSet<>();
         for (ReportNode n : report.getChildren()) {
             if (CgmesExportUtil.REPORT_NODE_KEY_EXPORTED_CGMES_ID.equals(n.getMessageKey())) {
-                n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_ID).ifPresent(v -> exportedModelIdsFromReporter.add(v.getValue().toString()));
+                cgmesId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_ID).orElseThrow().toString();
+                exportedModelIdsFromReporter.add(cgmesId);
+                String subset = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_SUBSET).orElseThrow().toString();
+                String networkId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID).orElseThrow().toString();
+                assertEquals(exportedModelId2Subset.get(cgmesId), subset);
+                assertEquals(exportedModelId2NetworkId.get(cgmesId), networkId);
             }
         }
         assertFalse(exportedModelIdsFromReporter.isEmpty());
