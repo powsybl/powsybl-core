@@ -300,7 +300,7 @@ public final class ModificationReports {
         reportNode.newReportNode()
                 .withMessageTemplate("noConnectablePositionExtensions", "No ConnectablePosition extension found on voltageLevel ${voltageLevel}. The ConnectablePosition extension is not created for new feeder ${connectableId}.")
                 .withUntypedValue("voltageLevel", voltageLevel.getId())
-                .withUntypedValue("connectableId", connectableId)
+                .withUntypedValue(CONNECTABLE_ID, connectableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
