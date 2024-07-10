@@ -223,7 +223,7 @@ class CgmesNamingStrategyTest extends AbstractSerDeTest {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
         Files.createDirectories(exportFolder);
-        return new FileDataSource(exportFolder, baseName);
+        return new DirectoryDataSource(exportFolder, baseName);
     }
 
     private void copyBoundary(String outputFolderName, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {

@@ -7,8 +7,8 @@
  */
 package com.powsybl.commons.datasource;
 
-import org.apache.commons.compress.compressors.xz.XZCompressorInputStream;
-import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorInputStream;
+import org.apache.commons.compress.compressors.zstandard.ZstdCompressorOutputStream;
 
 import java.io.*;
 import java.nio.file.Path;
@@ -16,28 +16,23 @@ import java.nio.file.Path;
 /**
  * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
-public class XZFileDataSource extends FileDataSource {
+public class ZstdDirectoryDataSource extends DirectoryDataSource {
 
-    public XZFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
+    public ZstdDirectoryDataSource(Path directory, String baseName, DataSourceObserver observer) {
+        super(directory, baseName, CompressionFormat.ZSTD, observer);
     }
 
-    public XZFileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
-    }
-
-    @Override
-    protected String getCompressionExt() {
-        return ".xz";
+    public ZstdDirectoryDataSource(Path directory, String baseName) {
+        super(directory, baseName, CompressionFormat.ZSTD);
     }
 
     @Override
     protected InputStream getCompressedInputStream(InputStream is) throws IOException {
-        return new XZCompressorInputStream(new BufferedInputStream(is));
+        return new ZstdCompressorInputStream(new BufferedInputStream(is));
     }
 
     @Override
     protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
-        return new XZCompressorOutputStream(new BufferedOutputStream(os));
+        return new ZstdCompressorOutputStream(new BufferedOutputStream(os));
     }
 }

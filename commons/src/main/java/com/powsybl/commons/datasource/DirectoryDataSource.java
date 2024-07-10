@@ -20,34 +20,32 @@ import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class FileDataSource implements DataSource {
+public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
-    private static final String COMPRESSION_EXT = "";
-
-    private final Path directory;
-
-    private final String baseName;
-
-    private final DataSourceObserver observer;
-
-    public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, null);
+    public DirectoryDataSource(Path directory, String baseName) {
+        this(directory, baseName, null, null);
     }
 
-    public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this.directory = Objects.requireNonNull(directory);
-        this.baseName = Objects.requireNonNull(baseName);
-        this.observer = observer;
+    public DirectoryDataSource(Path directory, String baseName,
+                               DataSourceObserver observer) {
+        this(directory, baseName, null, observer);
     }
 
-    @Override
-    public String getBaseName() {
-        return baseName;
+    public DirectoryDataSource(Path directory, String baseName,
+                               CompressionFormat compressionFormat) {
+        this(directory, baseName, compressionFormat, null);
+    }
+
+    public DirectoryDataSource(Path directory, String baseName,
+                               CompressionFormat compressionFormat,
+                               DataSourceObserver observer) {
+        super(directory, baseName, compressionFormat, observer);
     }
 
     protected String getCompressionExt() {
-        return COMPRESSION_EXT;
+        return compressionFormat == null ? "" : "." + compressionFormat.getExtension();
     }
 
     protected InputStream getCompressedInputStream(InputStream is) throws IOException {

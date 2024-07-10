@@ -16,19 +16,14 @@ import java.nio.file.Path;
 /**
  * @author Christian Biasuzzi {@literal <christian.biasuzzi@techrain.it>}
  */
-public class Bzip2FileDataSource extends FileDataSource {
+public class Bzip2DirectoryDataSource extends DirectoryDataSource {
 
-    public Bzip2FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
+    public Bzip2DirectoryDataSource(Path directory, String baseName, DataSourceObserver observer) {
+        super(directory, baseName, CompressionFormat.BZIP2, observer);
     }
 
-    public Bzip2FileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
-    }
-
-    @Override
-    protected String getCompressionExt() {
-        return ".bz2";
+    public Bzip2DirectoryDataSource(Path directory, String baseName) {
+        super(directory, baseName, CompressionFormat.BZIP2);
     }
 
     @Override
