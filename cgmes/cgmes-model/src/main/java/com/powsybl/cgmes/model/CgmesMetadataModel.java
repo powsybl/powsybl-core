@@ -166,4 +166,12 @@ public interface CgmesMetadataModel {
      * @return The model with an empty set of values this model depends on.
      */
     CgmesMetadataModelImpl clearDependencies();
+
+    /**
+     * Remove all the model ids this model supersedes.
+     * @return The model with an empty set of values this model supersedes.
+     */
+    default CgmesMetadataModelImpl clearSupersedes() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
