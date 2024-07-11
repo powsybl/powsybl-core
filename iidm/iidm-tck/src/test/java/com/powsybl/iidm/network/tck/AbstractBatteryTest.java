@@ -131,7 +131,7 @@ public abstract class AbstractBatteryTest {
         int count = network.getBatteryCount();
         Battery battery = network.getBattery(TO_REMOVE);
         assertNotNull(battery);
-        battery.remove();
+        battery.remove();    // <---- TODO HERE
         assertNotNull(battery);
         Terminal terminal = battery.getTerminal();
         assertNotNull(terminal);

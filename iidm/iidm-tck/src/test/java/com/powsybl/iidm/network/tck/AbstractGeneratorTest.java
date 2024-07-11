@@ -216,7 +216,7 @@ public abstract class AbstractGeneratorTest {
         int count = network.getGeneratorCount();
         Generator generator = network.getGenerator(TO_REMOVE);
         assertNotNull(generator);
-        generator.remove();
+        generator.remove();    // <---- TODO HERE
         assertNotNull(generator);
         Terminal terminal = generator.getTerminal();
         assertNotNull(terminal);
