@@ -32,6 +32,7 @@ class GeneratorScalableTest {
     private Scalable g3;
     private Scalable g4;
     private Scalable g5;
+    private Scalable g6;
     private Scalable unknownGeneratorScalable;
 
     @BeforeEach
@@ -45,6 +46,8 @@ class GeneratorScalableTest {
 
         g4 = Scalable.onGenerator("g2", 0., 80);
         g5 = Scalable.onGenerator("g2", 20., 100);
+
+        g6 = Scalable.onGenerator("g4");
     }
 
     @Test
@@ -288,5 +291,22 @@ class GeneratorScalableTest {
         assertFalse(generator.getTerminal().isConnected());
         assertEquals(0.0, g1.scale(network, 10));
         assertEquals(20.0, generator.getTargetP(), 1e-3);
+
+    }
+
+    @Test
+    void testForGeneratorDisconnectedFromMainComponent() {
+        //reconnect true and generator remains disconnected
+        Generator generator = network.getGenerator("g4");
+        generator.getTerminal().disconnect();
+        assertFalse(generator.getTerminal().isConnected());
+        assertFalse(generator.getTerminal().getBusBreakerView().getConnectableBus().isInMainConnectedComponent());
+        assertEquals(0.0, generator.getTargetP(), 1e-3);
+
+        ScalingParameters parameters = new ScalingParameters().setReconnect(true);
+        assertEquals(0., g6.scale(network, 20.0, parameters), 1e-3);
+        assertEquals(0., generator.getTargetP(), 1e-3);
+        assertTrue(generator.getTerminal().isConnected());
+        assertFalse(generator.getTerminal().getBusBreakerView().getConnectableBus().isInMainConnectedComponent());
     }
 }

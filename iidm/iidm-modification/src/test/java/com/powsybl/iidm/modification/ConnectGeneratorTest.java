@@ -13,6 +13,10 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -101,4 +105,41 @@ class ConnectGeneratorTest {
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
     }
+
+    @Test
+    void testConnectGeneratorWithTransformers() {
+        Network networkWithTransformers = Network.read("/testCase_with_transformers.xiidm", getClass().getResourceAsStream("/testCase_with_transformers.xiidm"));
+
+        // These generators are directly connected to main grid: it should remain that way
+        List<String> generatorsInitiallyConnected = List.of("ESDCGU1 _generator", "ESDCGN1 _generator", "ESCTGU1 _generator", "ESCTGN1 _generator");
+        checkTerminalStatus(networkWithTransformers, generatorsInitiallyConnected, true, true);
+
+        // These generators are directly connected to grid but its terminal is disconnected: they should be reconnected
+        List<String> generatorsToConnectTerminal = List.of("ESDDGU1 _generator", "ESDDGN1 _generator");
+        checkTerminalStatus(networkWithTransformers, generatorsToConnectTerminal, false, true);
+
+        // These generators are linked to grid through a line that is disconnected: it should remain that way
+        List<String> generatorsRemainsDisconnectedToTheMainComponent = List.of("ESCDGU1 _generator", "ESCDGN1 _generator");
+
+        // These generators are connected to grid through 2 transformers that are disconnected: they should be reconnected
+        List<String> generatorsToConnectToTheMainComponent = List.of("ESD2GU1 _generator", "ESDTGU1 _generator", "ESD2GN1 _generator", "ESDTGN1 _generator");
+        checkTerminalStatus(networkWithTransformers, Stream.concat(generatorsToConnectToTheMainComponent.stream(), generatorsRemainsDisconnectedToTheMainComponent.stream()).collect(Collectors.toList()), false, false);
+
+        for (List<String> generatorsId : List.of(generatorsInitiallyConnected, generatorsToConnectTerminal, generatorsToConnectToTheMainComponent, generatorsRemainsDisconnectedToTheMainComponent)) {
+            generatorsId.forEach(generatorId -> new ConnectGenerator(generatorId).apply(networkWithTransformers));
+        }
+        checkTerminalStatus(networkWithTransformers, generatorsRemainsDisconnectedToTheMainComponent, true, false);
+        checkTerminalStatus(networkWithTransformers, generatorsInitiallyConnected, true, true);
+        checkTerminalStatus(networkWithTransformers, Stream.concat(generatorsToConnectToTheMainComponent.stream(), generatorsToConnectTerminal.stream()).collect(Collectors.toList()), true, true);
+
+    }
+
+    private void checkTerminalStatus(Network network, List<String> ids, boolean shouldBeConnected, boolean shouldBeInMainSynchronousComponent) {
+        ids.forEach(id -> {
+            Generator gen = network.getGenerator(id);
+            assertEquals(shouldBeConnected, gen.getTerminal().isConnected());
+            assertEquals(shouldBeInMainSynchronousComponent, gen.getTerminal().getBusBreakerView().getConnectableBus().isInMainSynchronousComponent());
+        });
+    }
+
 }

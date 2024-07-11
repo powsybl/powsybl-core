@@ -95,6 +95,25 @@ final class ScalableTestNetwork {
                 .setB1(0)
                 .setB2(0)
                 .add();
+        VoltageLevel vl3 = s.newVoltageLevel()
+                .setId("vl3")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(380)
+                .add();
+        vl3.getBusBreakerView().newBus()
+                .setId("bus3")
+                .add();
+        vl3.newGenerator()
+                .setId("g4")
+                .setBus("bus3")
+                .setConnectableBus("bus3")
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setTargetP(0.0)
+                .setVoltageRegulatorOn(false)
+                .setTargetQ(0.0)
+                .add();
+
         return network;
     }
 
