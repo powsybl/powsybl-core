@@ -11,6 +11,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -20,6 +22,8 @@ import java.util.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class NetworkIndex {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NetworkIndex.class);
 
     private final Map<String, Identifiable<?>> objectsById = new HashMap<>();
     private final Map<String, String> idByAlias = new HashMap<>();
@@ -180,7 +184,14 @@ class NetworkIndex {
      */
     void merge(NetworkIndex other) {
         for (Identifiable obj : other.objectsById.values()) {
-            checkAndAdd(obj);
+            if (objectsById.containsKey(obj.getId())) {
+                // FIXME(Luma) What about just log errors instead of throwing an exception ???
+                LOGGER.error("Other object ({}) '{}' is ignored because it already exists in this network.",
+                        obj.getClass().getName(),
+                        obj.getId());
+            } else {
+                checkAndAdd(obj);
+            }
         }
         other.clean();
     }
