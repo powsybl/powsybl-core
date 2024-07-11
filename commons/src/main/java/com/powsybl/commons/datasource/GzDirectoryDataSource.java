@@ -24,7 +24,7 @@ public class GzDirectoryDataSource extends DirectoryDataSource {
     }
 
     public GzDirectoryDataSource(Path directory, String baseName) {
-        super(directory, baseName, CompressionFormat.GZIP);
+        super(directory, baseName, CompressionFormat.GZIP, null);
     }
 
     @Override

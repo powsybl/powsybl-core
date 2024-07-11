@@ -23,7 +23,7 @@ public class Bzip2DirectoryDataSource extends DirectoryDataSource {
     }
 
     public Bzip2DirectoryDataSource(Path directory, String baseName) {
-        super(directory, baseName, CompressionFormat.BZIP2);
+        super(directory, baseName, CompressionFormat.BZIP2, null);
     }
 
     @Override

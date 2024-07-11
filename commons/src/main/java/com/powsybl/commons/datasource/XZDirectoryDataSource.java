@@ -23,7 +23,7 @@ public class XZDirectoryDataSource extends DirectoryDataSource {
     }
 
     public XZDirectoryDataSource(Path directory, String baseName) {
-        super(directory, baseName, CompressionFormat.XZ);
+        super(directory, baseName, CompressionFormat.XZ, null);
     }
 
     @Override

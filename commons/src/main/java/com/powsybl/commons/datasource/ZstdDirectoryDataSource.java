@@ -23,7 +23,7 @@ public class ZstdDirectoryDataSource extends DirectoryDataSource {
     }
 
     public ZstdDirectoryDataSource(Path directory, String baseName) {
-        super(directory, baseName, CompressionFormat.ZSTD);
+        super(directory, baseName, CompressionFormat.ZSTD, null);
     }
 
     @Override

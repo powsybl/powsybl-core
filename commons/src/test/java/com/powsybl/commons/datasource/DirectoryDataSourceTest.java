@@ -65,7 +65,6 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
 
         // Check constructors
         checkDataSource(new DirectoryDataSource(testDir, "foo_bar", CompressionFormat.GZIP, observer), CompressionFormat.GZIP, observer);
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", CompressionFormat.GZIP), CompressionFormat.GZIP, null);
         checkDataSource(new DirectoryDataSource(testDir, "foo_bar", observer), null, observer);
         checkDataSource(new DirectoryDataSource(testDir, "foo_bar"), null, null);
     }
