@@ -71,17 +71,5 @@
       },
       "actionIds" : [ "actionId3" ]
     } ]
-  }, {
-    "id" : "id6",
-    "contingencyContextType" : "SPECIFIC",
-    "contingencyIds" : [ "contingencyId8", "contingencyId9" ],
-    "conditionalActions" : [ {
-      "id" : "stage1",
-      "condition" : {
-        "type" : "ALL_VIOLATION",
-        "violationIds" : [ "violation1", "violation2" ]
-      },
-      "actionIds" : [ "actionId3" ]
-    } ]
   } ]
 }

@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +46,16 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
         OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.0.json"));
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             operatorStrategies.write(bos);
-            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileOldVersionReferenceTest.json"), new ByteArrayInputStream(bos.toByteArray()));
+        }
+    }
+
+    @Test
+    void operatorStrategyReadV11() throws IOException {
+        OperatorStrategyList operatorStrategies = OperatorStrategyList.read(getClass().getResourceAsStream("/OperatorStrategyFileTestV1.1.json"));
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            operatorStrategies.write(bos);
+            ComparisonUtils.assertTxtEquals(getClass().getResourceAsStream("/OperatorStrategyFileOldVersionReferenceTest.json"), new ByteArrayInputStream(bos.toByteArray()));
         }
     }
 
@@ -67,6 +77,9 @@ class JsonActionAndOperatorStrategyTest extends AbstractSerDeTest {
                 Collections.singleton(HIGH_VOLTAGE)),
                 List.of("actionId1", "actionId5")))));
         operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency("contingencyId5"),
+            List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
+                List.of("actionId3")))));
+        operatorStrategies.add(new OperatorStrategy("id6", ContingencyContext.specificContingency(Arrays.asList("contingencyId8", "contingencyId9")),
             List.of(new ConditionalActions("stage1", new AllViolationCondition(List.of("violation1", "violation2")),
                 List.of("actionId3")))));
         OperatorStrategyList operatorStrategyList = new OperatorStrategyList(operatorStrategies);

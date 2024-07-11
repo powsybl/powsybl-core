@@ -23,14 +23,16 @@ public class StateMonitorIndex {
     private final Map<String, StateMonitor> specificStateMonitors = new HashMap<>();
 
     public StateMonitorIndex(List<StateMonitor> stateMonitors) {
-        allStateMonitor = new StateMonitor(new ContingencyContext(null, ContingencyContextType.ALL),
+        allStateMonitor = new StateMonitor(ContingencyContext.all(),
                 new HashSet<>(), new HashSet<>(), new HashSet<>());
-        noneStateMonitor = new StateMonitor(new ContingencyContext(null, ContingencyContextType.NONE),
+        noneStateMonitor = new StateMonitor(ContingencyContext.none(),
                 new HashSet<>(), new HashSet<>(), new HashSet<>());
         stateMonitors.forEach(monitor -> {
-            String id = monitor.getContingencyContext().getContingencyId();
-            if (id != null) {
-                this.specificStateMonitors.merge(id, monitor, StateMonitor::merge);
+            List<String> ids = monitor.getContingencyContext().getContingencyIds();
+            if (!ids.isEmpty()) {
+                for (String id : ids) {
+                    this.specificStateMonitors.merge(id, monitor, StateMonitor::merge);
+                }
             } else if (monitor.getContingencyContext().getContextType() == ContingencyContextType.ALL) {
                 allStateMonitor.merge(monitor);
             } else if (monitor.getContingencyContext().getContextType() == ContingencyContextType.NONE) {

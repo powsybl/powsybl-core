@@ -62,8 +62,10 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
                 .registerModule(new ContingencyJsonModule());
 
         // create factors
-        List<SensitivityFactor> factors = List.of(new SensitivityFactor(BRANCH_ACTIVE_POWER_1, "NHV1_NHV2_1", INJECTION_ACTIVE_POWER, "GEN", false, ContingencyContext.all()),
-                                                  new SensitivityFactor(BRANCH_ACTIVE_POWER_2, "NHV1_NHV2_1", INJECTION_ACTIVE_POWER, "glsk", true, ContingencyContext.specificContingency("NHV1_NHV2_2")));
+        List<SensitivityFactor> factors = List.of(new SensitivityFactor(BRANCH_ACTIVE_POWER_1, "NHV1_NHV2_1",
+                INJECTION_ACTIVE_POWER, "GEN", false, ContingencyContext.all()),
+            new SensitivityFactor(BRANCH_ACTIVE_POWER_2, "NHV1_NHV2_1",
+                INJECTION_ACTIVE_POWER, "glsk", true, ContingencyContext.specificContingency("NHV1_NHV2_2")));
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("factors.json"), StandardCharsets.UTF_8)) {
             objectMapper.writeValue(writer, factors);
         }

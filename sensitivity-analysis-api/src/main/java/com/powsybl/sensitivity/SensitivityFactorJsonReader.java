@@ -30,7 +30,6 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
     @Override
     public void read(Handler handler) {
         Objects.requireNonNull(handler);
-
         JsonUtil.parseJson(jsonFile, parser -> {
             try {
                 var context = new SensitivityFactor.ParsingContext();
@@ -40,7 +39,7 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
                         SensitivityFactor.parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
                         handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
-                                ContingencyContext.create(context.contingencyId, context.contingencyContextType));
+                                ContingencyContext.create(context.contingencyIds, context.contingencyContextType));
                         context.reset();
                     } else if (token == JsonToken.END_ARRAY) {
                         break;

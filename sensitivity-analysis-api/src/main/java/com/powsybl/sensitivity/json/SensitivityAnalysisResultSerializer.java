@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 public class SensitivityAnalysisResultSerializer extends StdSerializer<SensitivityAnalysisResult> {
 
-    private static final String VERSION = "1.0";
+    public static final String VERSION = "1.1";
 
     public SensitivityAnalysisResultSerializer() {
         super(SensitivityAnalysisResult.class);
