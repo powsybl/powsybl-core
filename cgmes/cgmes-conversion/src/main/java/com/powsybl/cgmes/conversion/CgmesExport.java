@@ -235,7 +235,9 @@ public class CgmesExport implements Exporter {
      */
     private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel) {
         // Each updated SSH model supersedes the original one
+        // Clear previous dependencies
         igmModels.forEach(m -> m.updatedSsh.clearDependencies());
+        igmModels.forEach(m -> m.updatedSsh.clearSupersedes());
         igmModels.forEach(m -> m.updatedSsh.addSupersedes(m.originalSsh.getId()));
 
         // Updated SV model depends on updated SSH models and original TP models
