@@ -40,23 +40,27 @@ public interface DataSourceUtil {
     }
 
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        return createDataSource(directory, basename, null, compressionExtension, observer);
+    }
+
+    static DataSource createDataSource(Path directory, String basename, String mainExtension, CompressionFormat compressionExtension, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(basename);
 
         if (compressionExtension == null) {
-            return new DirectoryDataSource(directory, basename, observer);
+            return new DirectoryDataSource(directory, basename, mainExtension, observer);
         } else {
             switch (compressionExtension) {
                 case BZIP2:
-                    return new Bzip2DirectoryDataSource(directory, basename, observer);
+                    return new Bzip2DirectoryDataSource(directory, basename, mainExtension, observer);
                 case GZIP:
-                    return new GzDirectoryDataSource(directory, basename, observer);
+                    return new GzDirectoryDataSource(directory, basename, mainExtension, observer);
                 case XZ:
-                    return new XZDirectoryDataSource(directory, basename, observer);
+                    return new XZDirectoryDataSource(directory, basename, mainExtension, observer);
                 case ZIP:
-                    return new ZipArchiveDataSource(directory, basename, observer);
+                    return new ZipArchiveDataSource(directory, basename, mainExtension, observer);
                 case ZSTD:
-                    return new ZstdDirectoryDataSource(directory, basename, observer);
+                    return new ZstdDirectoryDataSource(directory, basename, mainExtension, observer);
                 default:
                     throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
             }
@@ -68,17 +72,17 @@ public interface DataSourceUtil {
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zst")) {
-            return new ZstdDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZstdDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), null, observer);
         } else if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipArchiveDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZipArchiveDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), null, observer);
         } else if (fileNameOrBaseName.endsWith(".xz")) {
-            return new XZDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            return new XZDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), null, observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            return new GzDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), null, observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2DirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new Bzip2DirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), null, observer);
         } else {
-            return new DirectoryDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+            return new DirectoryDataSource(directory, getBaseName(fileNameOrBaseName), null, observer);
         }
     }
 }

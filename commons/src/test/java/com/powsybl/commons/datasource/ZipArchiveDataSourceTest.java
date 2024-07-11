@@ -55,15 +55,16 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", observer), "foo_bar.zip", "foo", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo"), "foo_bar.zip", "foo", null);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", observer), "foo.zip", "foo", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null);
-        checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", ".iidm", observer), "foo_bar.zip", "foo", ".iidm", observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", ".iidm", null), "foo_bar.zip", "foo", ".iidm", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", ".iidm", observer), "foo.iidm.zip", "foo", ".iidm", observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null, null);
+        checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null, null);
     }
 
-    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, DataSourceObserver observer) {
+    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, String mainExtension, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
+        assertEquals(mainExtension, dataSource.getMainExtension());
         assertEquals(zipFileName, dataSource.getArchiveFilePath().getFileName().toString());
         assertEquals(baseName, dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -76,12 +77,12 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new ZipArchiveDataSource(testDir, "foo.zip", "foo");
+        return new ZipArchiveDataSource(testDir, "foo.zip", "foo", null, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new ZipArchiveDataSource(testDir, "foo", observer);
+        return new ZipArchiveDataSource(testDir, "foo", ".iidm", observer);
     }
 
     @Override

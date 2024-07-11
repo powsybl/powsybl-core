@@ -18,8 +18,8 @@ public abstract class AbstractArchiveDataSource extends AbstractFileSystemDataSo
     private final String archiveFileName;
     final ArchiveFormat archiveFormat;
 
-    AbstractArchiveDataSource(Path directory, String archiveFileName, String baseName, CompressionFormat compressionFormat, ArchiveFormat archiveFormat, DataSourceObserver observer) {
-        super(directory, baseName, compressionFormat, observer);
+    AbstractArchiveDataSource(Path directory, String archiveFileName, String baseName, String mainExtension, CompressionFormat compressionFormat, ArchiveFormat archiveFormat, DataSourceObserver observer) {
+        super(directory, baseName, mainExtension, compressionFormat, observer);
         this.archiveFileName = archiveFileName;
         this.archiveFormat = archiveFormat;
     }

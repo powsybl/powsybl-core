@@ -64,13 +64,15 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", CompressionFormat.GZIP, observer), CompressionFormat.GZIP, observer);
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", observer), null, observer);
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar"), null, null);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar"), null, null, null);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", observer), null, null, observer);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", ".iidm", observer), ".iidm", null, observer);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", ".iidm", CompressionFormat.GZIP, observer), ".iidm", CompressionFormat.GZIP, observer);
     }
 
-    private void checkDataSource(DirectoryDataSource dataSource, CompressionFormat compressionFormat, DataSourceObserver observer) {
+    private void checkDataSource(DirectoryDataSource dataSource, String mainExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
+        assertEquals(mainExtension, dataSource.getMainExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -83,7 +85,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new DirectoryDataSource(testDir, "foo", observer);
+        return new DirectoryDataSource(testDir, "foo", ".iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {

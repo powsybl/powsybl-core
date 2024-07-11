@@ -32,7 +32,7 @@ abstract class AbstractFileSystemDataSource implements DataSource {
                                  DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
-        this.mainExtension = Objects.requireNonNull(mainExtension);
+        this.mainExtension = mainExtension;
         this.compressionFormat = compressionFormat;
         this.observer = observer;
     }
@@ -44,6 +44,10 @@ abstract class AbstractFileSystemDataSource implements DataSource {
     @Override
     public String getBaseName() {
         return baseName;
+    }
+
+    public String getMainExtension() {
+        return mainExtension;
     }
 
     public CompressionFormat getCompressionFormat() {

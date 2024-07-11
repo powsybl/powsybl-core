@@ -25,18 +25,25 @@ import java.util.stream.Stream;
 public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
     public DirectoryDataSource(Path directory, String baseName) {
-        this(directory, baseName, null, null);
+        this(directory, baseName, null, null, null);
     }
 
     public DirectoryDataSource(Path directory, String baseName,
                                DataSourceObserver observer) {
-        this(directory, baseName, null, observer);
+        this(directory, baseName, null, null, observer);
+    }
+
+    public DirectoryDataSource(Path directory, String baseName,
+                               String mainExtension,
+                               DataSourceObserver observer) {
+        this(directory, baseName, mainExtension, null, observer);
     }
 
     DirectoryDataSource(Path directory, String baseName,
+                        String mainExtension,
                         CompressionFormat compressionFormat,
                         DataSourceObserver observer) {
-        super(directory, baseName, compressionFormat, observer);
+        super(directory, baseName, mainExtension, compressionFormat, observer);
     }
 
     protected String getCompressionExt() {

@@ -154,8 +154,9 @@ abstract class AbstractFileSystemDataSourceTest {
 
         // Checks
         assertInstanceOf(AbstractFileSystemDataSource.class, dataSourceWithObserver);
-        assertEquals("foo", dataSourceWithObserver.getBaseName());
         assertEquals(testDir, ((AbstractFileSystemDataSource) dataSourceWithObserver).getDirectory());
+        assertEquals("foo", dataSourceWithObserver.getBaseName());
+        assertEquals(".iidm", ((AbstractFileSystemDataSource) dataSourceWithObserver).getMainExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithObserver).getCompressionFormat());
         assertEquals(observer, ((AbstractFileSystemDataSource) dataSourceWithObserver).getObserver());
 
@@ -164,8 +165,9 @@ abstract class AbstractFileSystemDataSourceTest {
 
         // Checks
         assertInstanceOf(AbstractFileSystemDataSource.class, dataSourceWithoutObserver);
-        assertEquals("foo", dataSourceWithoutObserver.getBaseName());
         assertEquals(testDir, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getDirectory());
+        assertEquals("foo", dataSourceWithoutObserver.getBaseName());
+        assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getMainExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getCompressionFormat());
         assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getObserver());
     }

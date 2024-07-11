@@ -19,12 +19,8 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GzDirectoryDataSource extends DirectoryDataSource {
 
-    public GzDirectoryDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, CompressionFormat.GZIP, observer);
-    }
-
-    public GzDirectoryDataSource(Path directory, String baseName) {
-        super(directory, baseName, CompressionFormat.GZIP, null);
+    public GzDirectoryDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
+        super(directory, baseName, mainExtension, CompressionFormat.GZIP, observer);
     }
 
     @Override
