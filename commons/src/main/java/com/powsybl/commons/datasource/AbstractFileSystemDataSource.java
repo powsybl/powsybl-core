@@ -16,6 +16,7 @@ import java.util.Objects;
 abstract class AbstractFileSystemDataSource implements DataSource {
     final Path directory;
     final String baseName;
+    final String mainExtension;
     final CompressionFormat compressionFormat;
     final DataSourceObserver observer;
 
@@ -26,10 +27,12 @@ abstract class AbstractFileSystemDataSource implements DataSource {
      * @param observer Data source observer
      */
     AbstractFileSystemDataSource(Path directory, String baseName,
+                                 String mainExtension,
                                  CompressionFormat compressionFormat,
                                  DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
+        this.mainExtension = Objects.requireNonNull(mainExtension);
         this.compressionFormat = compressionFormat;
         this.observer = observer;
     }
