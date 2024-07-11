@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.4.0</version>
+        <version>6.4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-iidm-comparator</artifactId>

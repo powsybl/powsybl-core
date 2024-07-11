@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-security-analysis</artifactId>
-        <version>6.4.0</version>
+        <version>6.4.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-security-analysis-default</artifactId>
