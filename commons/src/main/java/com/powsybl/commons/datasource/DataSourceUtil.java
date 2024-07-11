@@ -50,20 +50,13 @@ public interface DataSourceUtil {
         if (compressionExtension == null) {
             return new DirectoryDataSource(directory, basename, mainExtension, observer);
         } else {
-            switch (compressionExtension) {
-                case BZIP2:
-                    return new Bzip2DirectoryDataSource(directory, basename, mainExtension, observer);
-                case GZIP:
-                    return new GzDirectoryDataSource(directory, basename, mainExtension, observer);
-                case XZ:
-                    return new XZDirectoryDataSource(directory, basename, mainExtension, observer);
-                case ZIP:
-                    return new ZipArchiveDataSource(directory, basename, mainExtension, observer);
-                case ZSTD:
-                    return new ZstdDirectoryDataSource(directory, basename, mainExtension, observer);
-                default:
-                    throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
-            }
+            return switch (compressionExtension) {
+                case BZIP2 -> new Bzip2DirectoryDataSource(directory, basename, mainExtension, observer);
+                case GZIP -> new GzDirectoryDataSource(directory, basename, mainExtension, observer);
+                case XZ -> new XZDirectoryDataSource(directory, basename, mainExtension, observer);
+                case ZIP -> new ZipArchiveDataSource(directory, basename, mainExtension, observer);
+                case ZSTD -> new ZstdDirectoryDataSource(directory, basename, mainExtension, observer);
+            };
         }
     }
 

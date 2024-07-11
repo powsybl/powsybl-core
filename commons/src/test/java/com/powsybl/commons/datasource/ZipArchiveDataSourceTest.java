@@ -56,8 +56,10 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Check constructors
         checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", ".iidm", observer), "foo_bar.zip", "foo", ".iidm", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", ".iidm", null), "foo_bar.zip", "foo", ".iidm", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", ".iidm"), "foo_bar.zip", "foo", ".iidm", null);
         checkDataSource(new ZipArchiveDataSource(testDir, "foo", ".iidm", observer), "foo.iidm.zip", "foo", ".iidm", observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", ".iidm"), "foo.iidm.zip", "foo", ".iidm", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", observer), "foo.zip", "foo", null, observer);
         checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null, null);
         checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null, null);
     }
@@ -141,7 +143,7 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     @Test
     void createZipDataSourceWithMoreThanOneDot() throws IOException {
-        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(ZIP_PATH)));) {
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(ZIP_PATH)))) {
             // create an entry
             ZipEntry e = new ZipEntry(UNRELATED_FILE);
             out.putNextEntry(e);
