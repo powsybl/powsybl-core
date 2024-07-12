@@ -64,7 +64,7 @@ public class PowerFactoryImporter implements Importer {
     private Optional<PowerFactoryDataLoader<StudyCase>> findProjectLoader(ReadOnlyDataSource dataSource) {
         for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : PowerFactoryDataLoader.find(StudyCase.class)) {
             try {
-                if (dataSource.exists(null, studyCaseLoader.getExtension())) {
+                if (dataSource.existsStrict(null, studyCaseLoader.getExtension())) {
                     return Optional.of(studyCaseLoader);
                 }
             } catch (IOException e) {

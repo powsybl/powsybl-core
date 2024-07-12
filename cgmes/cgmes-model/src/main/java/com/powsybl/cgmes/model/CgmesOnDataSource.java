@@ -48,7 +48,7 @@ public class CgmesOnDataSource {
 
     public boolean exists() {
         // Check that the main file is a CGMES file
-        if (!dataSource.getMainExtension().isEmpty() && checkIfMainFileNotWithCgmesData(false)) {
+        if (dataSource.getMainExtension() != null && !dataSource.getMainExtension().isEmpty() && checkIfMainFileNotWithCgmesData(false)) {
             return false;
         }
         // check that RDF and CIM16 are defined as namespaces in the data source
@@ -66,7 +66,7 @@ public class CgmesOnDataSource {
 
     public boolean existsCim14() {
         // Check that the main file is a CGMES file
-        if (!dataSource.getMainExtension().isEmpty() && checkIfMainFileNotWithCgmesData(true)) {
+        if (dataSource.getMainExtension() != null && !dataSource.getMainExtension().isEmpty() && checkIfMainFileNotWithCgmesData(true)) {
             return false;
         }
         // check that RDF and CIM16 are defined as namespaces in the data source
