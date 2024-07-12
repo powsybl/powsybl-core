@@ -36,12 +36,12 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar", ".iidm", observer), observer);
+        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
-        assertEquals(".iidm", dataSource.getMainExtension());
+        assertEquals("iidm", dataSource.getMainExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -60,7 +60,7 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new Bzip2DirectoryDataSource(testDir, "foo", ".iidm", observer);
+        return new Bzip2DirectoryDataSource(testDir, "foo", "iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {

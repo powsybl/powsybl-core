@@ -36,12 +36,12 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new XZDirectoryDataSource(testDir, "foo_bar", ".iidm", observer), observer);
+        checkDataSource(new XZDirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
-        assertEquals(".iidm", dataSource.getMainExtension());
+        assertEquals("iidm", dataSource.getMainExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -60,7 +60,7 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new XZDirectoryDataSource(testDir, "foo", ".iidm", observer);
+        return new XZDirectoryDataSource(testDir, "foo", "iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {

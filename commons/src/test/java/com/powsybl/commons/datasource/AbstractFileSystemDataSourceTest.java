@@ -156,7 +156,7 @@ abstract class AbstractFileSystemDataSourceTest {
         assertInstanceOf(AbstractFileSystemDataSource.class, dataSourceWithObserver);
         assertEquals(testDir, ((AbstractFileSystemDataSource) dataSourceWithObserver).getDirectory());
         assertEquals("foo", dataSourceWithObserver.getBaseName());
-        assertEquals(".iidm", ((AbstractFileSystemDataSource) dataSourceWithObserver).getMainExtension());
+        assertEquals("iidm", dataSourceWithObserver.getMainExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithObserver).getCompressionFormat());
         assertEquals(observer, ((AbstractFileSystemDataSource) dataSourceWithObserver).getObserver());
 
@@ -167,8 +167,29 @@ abstract class AbstractFileSystemDataSourceTest {
         assertInstanceOf(AbstractFileSystemDataSource.class, dataSourceWithoutObserver);
         assertEquals(testDir, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getDirectory());
         assertEquals("foo", dataSourceWithoutObserver.getBaseName());
-        assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getMainExtension());
+        assertNull(dataSourceWithoutObserver.getMainExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getCompressionFormat());
         assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getObserver());
+    }
+
+    @Test
+    void testExists() throws IOException {
+        // Observer
+        DataSourceObserver observer = new DefaultDataSourceObserver();
+
+        // Create an archive when needed
+        if (archiveFormat != null) {
+            createArchiveAndFiles(getFileName("foo", "iidm", archiveFormat, compressionFormat));
+        }
+
+        // Create the datasource
+        DataSource dataSourceWithObserver = createDataSource(observer);
+
+        // Checks
+        assertTrue(dataSourceWithObserver.exists(null, "iidm"));
+        assertTrue(dataSourceWithObserver.exists(null, "txt"));
+        assertTrue(dataSourceWithObserver.existsStrict(null, "iidm"));
+        assertFalse(dataSourceWithObserver.existsStrict(null, "txt"));
+
     }
 }

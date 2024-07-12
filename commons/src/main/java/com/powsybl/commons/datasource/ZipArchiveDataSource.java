@@ -42,11 +42,11 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
-        this(directory, baseName + (mainExtension == null ? "" : mainExtension) + ".zip", baseName, mainExtension, observer);
+        this(directory, baseName + ((mainExtension == null || mainExtension.isEmpty()) ? "" : "." + mainExtension) + ".zip", baseName, mainExtension, observer);
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, String mainExtension) {
-        this(directory, baseName + (mainExtension == null ? "" : mainExtension) + ".zip", baseName, mainExtension, null);
+        this(directory, baseName + ((mainExtension == null || mainExtension.isEmpty()) ? "" : "." + mainExtension) + ".zip", baseName, mainExtension, null);
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, DataSourceObserver observer) {

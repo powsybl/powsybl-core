@@ -9,7 +9,9 @@ package com.powsybl.commons.datasource;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -17,6 +19,30 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
 class ResourcesDataSourceTest {
+
+    @Test
+    void testExists() throws IOException {
+        ResourceDataSource dataSourceWithNoMainExtension = new ResourceDataSource("foo", List.of(new ResourceSet("/test/", "foo.txt", "foo.bar")));
+        assertTrue(dataSourceWithNoMainExtension.exists("foo.txt"));
+        assertTrue(dataSourceWithNoMainExtension.exists(null, "bar"));
+        assertTrue(dataSourceWithNoMainExtension.exists(null, "txt"));
+        assertTrue(dataSourceWithNoMainExtension.existsStrict(null, "bar"));
+        assertTrue(dataSourceWithNoMainExtension.existsStrict(null, "txt"));
+
+        ResourceDataSource dataSourceWithEmptyMainExtension = new ResourceDataSource("foo", "", List.of(new ResourceSet("/test/", "foo.txt", "foo.bar")));
+        assertTrue(dataSourceWithEmptyMainExtension.exists("foo.txt"));
+        assertTrue(dataSourceWithEmptyMainExtension.exists(null, "bar"));
+        assertTrue(dataSourceWithEmptyMainExtension.exists(null, "txt"));
+        assertTrue(dataSourceWithEmptyMainExtension.existsStrict(null, "bar"));
+        assertTrue(dataSourceWithEmptyMainExtension.existsStrict(null, "txt"));
+
+        ResourceDataSource dataSourceWithMainExtension = new ResourceDataSource("foo", "txt", List.of(new ResourceSet("/test/", "foo.txt", "foo.bar")));
+        assertTrue(dataSourceWithMainExtension.exists("foo.txt"));
+        assertTrue(dataSourceWithMainExtension.exists(null, "bar"));
+        assertTrue(dataSourceWithMainExtension.exists(null, "txt"));
+        assertFalse(dataSourceWithMainExtension.existsStrict(null, "bar"));
+        assertTrue(dataSourceWithMainExtension.existsStrict(null, "txt"));
+    }
 
     @Test
     void test() {

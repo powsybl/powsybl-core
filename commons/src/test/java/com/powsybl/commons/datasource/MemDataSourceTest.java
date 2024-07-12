@@ -63,6 +63,11 @@ class MemDataSourceTest {
         assertEquals(dataSource.getBaseName(), getBaseName());
     }
 
+    @Test
+    void existsTest() throws IOException {
+
+    }
+
     private void writeThenReadTest(String suffix, String ext) throws IOException {
         // check file does not exist
         assertFalse(dataSource.exists(suffix, ext));
