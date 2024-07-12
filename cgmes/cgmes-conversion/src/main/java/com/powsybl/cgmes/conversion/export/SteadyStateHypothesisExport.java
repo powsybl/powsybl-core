@@ -7,11 +7,13 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
+import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
@@ -46,6 +48,12 @@ public final class SteadyStateHypothesisExport {
     }
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
+        CgmesMetadataModel model = CgmesExport.initializeModelForExport(
+                network, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, true, false);
+        write(network, writer, context, model);
+    }
+
+    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context, CgmesMetadataModel model) {
         final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
         String cimNamespace = context.getCim().getNamespace();
 
@@ -53,7 +61,7 @@ public final class SteadyStateHypothesisExport {
             CgmesExportUtil.writeRdfRoot(cimNamespace, context.getCim().getEuPrefix(), context.getCim().getEuNamespace(), writer);
 
             if (context.getCimVersion() >= 16) {
-                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, context.getExportedSSHModel(), context);
+                CgmesExportUtil.writeModelDescription(network, CgmesSubset.STEADY_STATE_HYPOTHESIS, writer, model, context);
             }
 
             writeLoads(network, cimNamespace, writer, context);

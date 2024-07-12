@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:sa="http://www.itesla_project.eu/schema/iidm/ext/standby_automaton/1_0" id="svcTestCase" caseDate="2016-06-29T14:54:03.427+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:sa="http://www.itesla_project.eu/schema/iidm/ext/standby_automaton/1_0" id="svcTestCase" caseDate="2016-06-29T14:54:03.427+02:00" forecastDistance="0" sourceFormat="code" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
