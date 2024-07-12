@@ -34,12 +34,38 @@ import static org.junit.jupiter.api.Assertions.*;
 class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
 
     @Test
+    void testExportCgmSvDependenciesNotUpdated() throws IOException {
+        // We check that prepared SV dependencies have not been modified even if we export as CGM (SSH + SV)
+        // This is really not useful, since in this scenario we would want to export only SV
+        // But we want to let the parameter "update-dependencies" be valid in both types of export: IGM and CGM
+
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSvWithMas().dataSource();
+        Network network = Network.read(ds);
+
+        List<String> sshIds = List.of("ssh-dep1", "ssh-dep2", "ssh-dep3");
+        buildSvDependenciesManaginMetadataModels(network, sshIds);
+
+        Properties exportParams = new Properties();
+        exportParams.put(CgmesExport.CGM_EXPORT, "True");
+        exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, "False");
+        String exportBasename = "tmp-micro-bc-CGM";
+        network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
+
+        String sv = Files.readString(tmpDir.resolve(exportBasename + "_SV.xml"));
+
+        Set<String> deps = findAll(REGEX_DEPENDENT_ON, sv);
+        Set<String> prepared = network.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STATE_VARIABLES).orElseThrow().getDependentOn();
+        assertEquals(prepared, deps);
+    }
+
+    @Test
     void testExportCgmSvDependenciesOnNetworkProperties() throws IOException {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSvWithMas().dataSource();
         Network network = Network.read(ds);
 
         // This is the legacy way of preparing dependencies for SV externally,
-        // used by projects in the FARAO community
+        // It was used by projects in the FARAO community
+        // The support for this way of preparing dependencies has been dropped
         network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID", network::hasProperty), "ssh-updated-dep1");
         network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID", network::hasProperty), "ssh-updated-dep2");
         network.setProperty(Identifiables.getUniqueId(CGMES_PREFIX_ALIAS_PROPERTIES + "SSH_ID", network::hasProperty), "ssh-updated-dep3");
@@ -53,7 +79,9 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve(exportBasename));
 
         Set<String> deps = findAll(REGEX_DEPENDENT_ON, Files.readString(tmpDir.resolve(exportBasename + "_SV.xml")));
-        assertEquals(Set.of("ssh-updated-dep1", "ssh-updated-dep2", "ssh-updated-dep3", "tp-initial-dep1", "tp-initial-dep2", "tp-initial-dep3"), deps);
+        // We ensure that written dependencies do not match any of the prepared through properties
+        Set<String> prepared = Set.of("ssh-updated-dep1", "ssh-updated-dep2", "ssh-updated-dep3", "tp-initial-dep1", "tp-initial-dep2", "tp-initial-dep3");
+        assertFalse(deps.stream().anyMatch(prepared::contains));
     }
 
     @Test
@@ -81,6 +109,10 @@ class LegacyCommonGridModelExportTest extends AbstractSerDeTest {
         Set<String> deps = findAll(REGEX_DEPENDENT_ON, sv);
         assertTrue(deps.containsAll(updatedSshIds));
         initialSshIds.forEach(initialSshId -> assertFalse(deps.contains(initialSshId)));
+
+        // Ensure that only the prepared dependencies have been put in the output
+        Set<String> prepared = network.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STATE_VARIABLES).orElseThrow().getDependentOn();
+        assertEquals(prepared, deps);
 
         assertEquals("MAS1", findFirst(MODELING_AUTHORITY, sv));
     }

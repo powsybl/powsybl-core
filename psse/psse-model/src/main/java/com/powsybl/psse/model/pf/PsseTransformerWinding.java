@@ -82,20 +82,12 @@ public class PsseTransformerWinding extends PsseVersioned {
         return windv;
     }
 
-    public void setWindv(double windv) {
-        this.windv = windv;
-    }
-
     public double getNomv() {
         return nomv;
     }
 
     public double getAng() {
         return ang;
-    }
-
-    public void setAng(double ang) {
-        this.ang = ang;
     }
 
     public int getCod() {
@@ -149,6 +141,66 @@ public class PsseTransformerWinding extends PsseVersioned {
 
     public double getCnxa() {
         return cnxa;
+    }
+
+    public void setWindv(double windv) {
+        this.windv = windv;
+    }
+
+    public void setNomv(double nomv) {
+        this.nomv = nomv;
+    }
+
+    public void setAng(double ang) {
+        this.ang = ang;
+    }
+
+    public void setCod(int cod) {
+        this.cod = cod;
+    }
+
+    public void setCont(int cont) {
+        this.cont = cont;
+    }
+
+    public void setNode(int node) {
+        this.node = node;
+    }
+
+    public void setRma(double rma) {
+        this.rma = rma;
+    }
+
+    public void setRmi(double rmi) {
+        this.rmi = rmi;
+    }
+
+    public void setVma(double vma) {
+        this.vma = vma;
+    }
+
+    public void setVmi(double vmi) {
+        this.vmi = vmi;
+    }
+
+    public void setNtp(int ntp) {
+        this.ntp = ntp;
+    }
+
+    public void setTab(int tab) {
+        this.tab = tab;
+    }
+
+    public void setCr(double cr) {
+        this.cr = cr;
+    }
+
+    public void setCx(double cx) {
+        this.cx = cx;
+    }
+
+    public void setCnxa(double cnxa) {
+        this.cnxa = cnxa;
     }
 
     public PsseTransformerWinding copy() {

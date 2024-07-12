@@ -99,6 +99,55 @@ When defining the model, the user has to specify how the different equipment con
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Slack Terminal](extensions.md#slack-terminal)
 
+(area)=
+## Area
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Area.html)
+
+An Area is a geographical zone of a given type.
+
+An Area is composed of a collection of [voltage levels](#voltage-level), and a collection of area boundaries.
+Area boundaries can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
+
+The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
+
+A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of different type.
+
+The area boundaries define how interchange are to be calculated for the area.  
+Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
+for DC part only (considering only DC boundaries) and in total (AC+DC).  
+Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
+
+For area types that are meant to be used for area interchange control, e.g. in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
+
+All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
+
+**Characteristics of an Area**
+
+| Attribute           | Unit | Description                                                    |
+|---------------------|------|----------------------------------------------------------------|
+| $AreaType$          |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
+| $interchangeTarget$ | MW   | Target active power interchange                                |
+| $VoltageLevels$     |      | List of voltage levels of the area                             |
+| $AreaBoundaries$    |      | List of area boundaries of the area                            |
+
+**Characteristics of an AreaBoundary**
+
+An area boundary is modeled by an `AreaBoundary` instance.
+It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
+is to be considered as AC or DC.
+
+The `Ac` flag is informative and is present to support the use case where boundaries are defined on AC components even though
+the boundary is related to an HVDC link. An example for this is a DanglingLine (which is an AC equipment) that may actually represent
+an HVDC interconnection that is not explicitly described in the network model. This information is used when computing area interchanges,
+which are then separated for AC and DC parts.
+
+| Attribute  | Unit | Description                                                                 |
+|------------|------|-----------------------------------------------------------------------------|
+| $Area$     |      | The area of this boundary                                                   |
+| $Boundary$ |      | Boundary of a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
+| $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
+
 (generator)=
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
@@ -109,18 +158,19 @@ A generator is an equipment that injects or consumes active power, and injects o
 
 **Characteristics**
 
-| Attribute | Unit | Description                                                 |
-| --------- | ---- |-------------------------------------------------------------|
-| $MinP$ | MW | Minimum generator active power output                       |
-| $MaxP$ | MW | Maximum generator active power output                       |
-| $ReactiveLimits$ | MVar | Operational limits of the generator (P/Q/V diagram)         |
-| $RatedS$ | MVA | The rated nominal power                                     |
-| $TargetP$ | MW | The active power target                                     |
-| $TargetQ$ | MVAr | The reactive power target at local terminal                 |
-| $TargetV$ | kV | The voltage target at regulating terminal                   |
-| $RegulatingTerminal$ |  | Associated node or bus for which voltage is to be regulated |
-| $VoltageRegulatorOn$ |  | True if the generator regulates voltage                     |
-| $EnergySource$ |  | The energy source harnessed to turn the generator           |
+| Attribute            | Unit | Description                                                 |
+|----------------------|------|-------------------------------------------------------------|
+| $MinP$               | MW   | Minimum generator active power output                       |
+| $MaxP$               | MW   | Maximum generator active power output                       |
+| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)         |
+| $RatedS$             | MVA  | The rated nominal power                                     |
+| $TargetP$            | MW   | The active power target                                     |
+| $TargetQ$            | MVAr | The reactive power target at local terminal                 |
+| $TargetV$            | kV   | The voltage target at regulating terminal                   |
+| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated |
+| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                     |
+| $EnergySource$       |      | The energy source harnessed to turn the generator           |
+| $IsCondenser$        |      | True if the generator may behave as a condenser             |
 
 **Specifications**
 
@@ -129,6 +179,9 @@ The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power o
 The `VoltageRegulatorOn` attribute is required. It voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 
 Target values for generators (`TargetP` and `TargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The following diagram shows the sign convention of these quantities with an example.
+
+The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
+
 
 **Available extensions**
 

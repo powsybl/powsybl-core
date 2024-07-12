@@ -44,7 +44,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    SecurityAnalysisResultDeserializer() {
+    public SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
     }
 
