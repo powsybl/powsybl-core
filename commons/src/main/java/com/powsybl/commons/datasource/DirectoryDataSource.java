@@ -46,10 +46,6 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         super(directory, baseName, mainExtension, compressionFormat, observer);
     }
 
-    protected String getCompressionExt() {
-        return compressionFormat == null ? "" : "." + compressionFormat.getExtension();
-    }
-
     /**
      * @throws IOException Overriding classes may throw this exception
      */
@@ -66,7 +62,8 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
     private Path getPath(String fileName) {
         Objects.requireNonNull(fileName);
-        return directory.resolve(fileName + getCompressionExt());
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName);
     }
 
     @Override
@@ -116,7 +113,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
                 .map(Path::toString)
                 .filter(name -> name.startsWith(baseName))
                 // Return names after removing the compression extension
-                .map(name -> name.replace(getCompressionExt(), ""))
+                .map(name -> name.replace(getCompressionExtension(), ""))
                 .filter(s -> p.matcher(s).matches())
                 .collect(Collectors.toSet());
         }

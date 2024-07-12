@@ -22,6 +22,7 @@ class ResourcesDataSourceTest {
     void test() {
         ResourceDataSource dataSource = new ResourceDataSource("foo", new ResourceSet("/test/", "foo.txt"));
         assertEquals("foo", dataSource.getBaseName());
+        assertNull(dataSource.getMainExtension());
         assertTrue(dataSource.exists("foo.txt"));
         assertTrue(dataSource.exists(null, "txt"));
         assertFalse(dataSource.exists("foo.doc"));

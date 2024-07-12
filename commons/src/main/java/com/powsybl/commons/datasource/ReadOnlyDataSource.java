@@ -18,9 +18,15 @@ public interface ReadOnlyDataSource {
 
     String getBaseName();
 
+    default String getMainExtension() {
+        return null;
+    }
+
     boolean exists(String suffix, String ext) throws IOException;
 
     boolean exists(String fileName) throws IOException;
+
+    boolean existsStrict(String suffix, String ext) throws IOException;
 
     InputStream newInputStream(String suffix, String ext) throws IOException;
 

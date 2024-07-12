@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
@@ -37,6 +38,12 @@ abstract class AbstractFileSystemDataSource implements DataSource {
         this.observer = observer;
     }
 
+    @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return (mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext))
+            && exists(suffix, ext);
+    }
+
     public Path getDirectory() {
         return this.directory;
     }
@@ -46,12 +53,17 @@ abstract class AbstractFileSystemDataSource implements DataSource {
         return baseName;
     }
 
+    @Override
     public String getMainExtension() {
         return mainExtension;
     }
 
     public CompressionFormat getCompressionFormat() {
         return compressionFormat;
+    }
+
+    String getCompressionExtension() {
+        return compressionFormat == null ? "" : "." + compressionFormat.getExtension();
     }
 
     public DataSourceObserver getObserver() {

@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -22,14 +23,21 @@ public class ResourceDataSource implements ReadOnlyDataSource {
 
     private final String baseName;
 
+    private final String mainExtension;
+
     private final List<ResourceSet> resourceSets;
 
     public ResourceDataSource(String baseName, ResourceSet... resourceSets) {
-        this(baseName, Arrays.asList(resourceSets));
+        this(baseName, null, Arrays.asList(resourceSets));
     }
 
     public ResourceDataSource(String baseName, List<ResourceSet> resourceSets) {
+        this(baseName, null, resourceSets);
+    }
+
+    public ResourceDataSource(String baseName, String mainExtension, List<ResourceSet> resourceSets) {
         this.baseName = Objects.requireNonNull(baseName);
+        this.mainExtension = mainExtension;
         this.resourceSets = Objects.requireNonNull(resourceSets);
     }
 
@@ -39,8 +47,19 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     }
 
     @Override
+    public String getMainExtension() {
+        return mainExtension;
+    }
+
+    @Override
     public boolean exists(String suffix, String ext) {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
+
+    @Override
+    public boolean existsStrict(String suffix, String ext) throws IOException {
+        return (mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext))
+            && exists(suffix, ext);
     }
 
     @Override
