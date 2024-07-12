@@ -18,6 +18,7 @@ import java.time.ZonedDateTime;
 public final class EurostagTutorialExample1Factory {
 
     private static final String VLGEN = "VLGEN";
+    private static final String VLLOAD = "VLLOAD";
     public static final String CASE_DATE = "2018-01-01T11:00:00+01:00";
     public static final String DANGLING_LINE_XNODE1_1 = "NHV1_XNODE1";
     public static final String DANGLING_LINE_XNODE1_2 = "XNODE1_NHV2";
@@ -29,6 +30,7 @@ public final class EurostagTutorialExample1Factory {
     public static final String NHV1_NHV2_2 = "NHV1_NHV2_2";
     public static final String NGEN_NHV1 = "NGEN_NHV1";
     public static final String NHV2_NLOAD = "NHV2_NLOAD";
+    public static final String XNODE_1 = "XNODE1";
 
     private EurostagTutorialExample1Factory() {
     }
@@ -67,7 +69,7 @@ public final class EurostagTutorialExample1Factory {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
         VoltageLevel vlload = p2.newVoltageLevel()
-                .setId("VLLOAD")
+                .setId(VLLOAD)
                 .setNominalV(150.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
@@ -219,7 +221,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(1E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV1")
-                .setPairingKey("XNODE1")
+                .setPairingKey(XNODE_1)
                 .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel(VLHV2).newDanglingLine()
                 .setId(DANGLING_LINE_XNODE1_2)
@@ -230,7 +232,7 @@ public final class EurostagTutorialExample1Factory {
                 .setG(2E-6)
                 .setB(386E-6 / 2)
                 .setBus("NHV2")
-                .setPairingKey("XNODE1")
+                .setPairingKey(XNODE_1)
                 .add();
         network.newTieLine()
                 .setId(NHV1_NHV2_1)
@@ -875,6 +877,52 @@ public final class EurostagTutorialExample1Factory {
             .setLowLimit(-0.20)
             .setHighLimit(0.35)
             .add();
+
+        return network;
+    }
+
+    public static Network createWithTieLinesAndAreas() {
+        return createWithTieLinesAndAreas(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithTieLinesAndAreas(NetworkFactory networkFactory) {
+        Network network = createWithTieLines(networkFactory);
+
+        // createWithTieLines sets non-zero G for dangling lines, while the load flow solution included is for zero G.
+        // Here we set all DanglingLine's G to zero. Doing this the DanglingLine's P and Q at boundary side (calculated by iIDM)
+        // are consistent with included load flow results. In particular, flows of the 2 DanglingLines of a tie-line are consistent
+        // (verifying dl1.getBoundary().getP() ~= -1.0 * dl2.getBoundary().getP())
+        network.getDanglingLineStream().forEach(dl -> dl.setG(0.0));
+
+        network.newArea()
+                .setId("ControlArea_A")
+                .setName("Control Area A")
+                .setAreaType("ControlArea")
+                .setInterchangeTarget(-602.6)
+                .addVoltageLevel(network.getVoltageLevel(VLGEN))
+                .addVoltageLevel(network.getVoltageLevel(VLHV1))
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE1_1).getBoundary(), true)
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_1).getBoundary(), true)
+                .add();
+        network.newArea()
+                .setId("ControlArea_B")
+                .setName("Control Area B")
+                .setAreaType("ControlArea")
+                .setInterchangeTarget(+602.6)
+                .addVoltageLevel(network.getVoltageLevel(VLHV2))
+                .addVoltageLevel(network.getVoltageLevel(VLLOAD))
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE1_2).getBoundary(), true)
+                .addAreaBoundary(network.getDanglingLine(DANGLING_LINE_XNODE2_2).getBoundary(), true)
+                .add();
+        network.newArea()
+                .setId("Region_AB")
+                .setName("Region AB")
+                .setAreaType("Region")
+                .addVoltageLevel(network.getVoltageLevel(VLGEN))
+                .addVoltageLevel(network.getVoltageLevel(VLHV1))
+                .addVoltageLevel(network.getVoltageLevel(VLHV2))
+                .addVoltageLevel(network.getVoltageLevel(VLLOAD))
+                .add();
 
         return network;
     }

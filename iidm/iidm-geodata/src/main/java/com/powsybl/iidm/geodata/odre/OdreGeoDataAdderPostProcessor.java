@@ -37,21 +37,29 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     private final Path aerialLinesFilePath;
     private final Path undergroundLinesFilePath;
 
+    private final OdreConfig odreConfig;
+
     public OdreGeoDataAdderPostProcessor() {
-        this(PlatformConfig.defaultConfig());
+        this(PlatformConfig.defaultConfig(), OdreConfig.getDefaultOdreConfig());
     }
 
     public OdreGeoDataAdderPostProcessor(PlatformConfig config) {
+        this(config, OdreConfig.getDefaultOdreConfig());
+    }
+
+    public OdreGeoDataAdderPostProcessor(PlatformConfig config, OdreConfig odreConfig) {
         this(getEquipmentFileFromConfig(config, "substations"),
                 getEquipmentFileFromConfig(config, "aerial-lines"),
-                getEquipmentFileFromConfig(config, "underground-lines"));
+                getEquipmentFileFromConfig(config, "underground-lines"),
+                odreConfig);
     }
 
     public OdreGeoDataAdderPostProcessor(Path substationsFilePath, Path aerialLinesFilePath,
-                                         Path undergroundLinesFilePath) {
+                                         Path undergroundLinesFilePath, OdreConfig odreConfig) {
         this.substationsFilePath = substationsFilePath;
         this.aerialLinesFilePath = aerialLinesFilePath;
         this.undergroundLinesFilePath = undergroundLinesFilePath;
+        this.odreConfig = odreConfig;
     }
 
     private static Path getEquipmentFileFromConfig(PlatformConfig platformConfig, String type) {
@@ -70,12 +78,12 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     @Override
     public void process(Network network, ComputationManager computationManager) {
         if (Files.exists(substationsFilePath)) {
-            OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath);
+            OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath, odreConfig);
             boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
             boolean undergroundLinesPresent = Files.exists(undergroundLinesFilePath);
             if (aerialLinesPresent && undergroundLinesPresent) {
                 OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network,
-                        aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath);
+                        aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath, odreConfig);
             } else {
                 String missingAerialFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
                 String missingFiles = missingAerialFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());

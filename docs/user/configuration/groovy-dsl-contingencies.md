@@ -1,9 +1,3 @@
----
-layout: default
-todo:
-    - add link to missing page
----
-
 # groovy-dsl-contingencies
 The `groovy-dsl-contingencies` module is used by the `com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory`, which is an implementation of the `com.powsybl.contingency.ContingenciesProviderFactory` used by the [security-analysis](../itools/security-analysis.md) command.
 

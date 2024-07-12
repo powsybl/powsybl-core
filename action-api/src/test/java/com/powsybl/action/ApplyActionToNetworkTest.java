@@ -9,7 +9,12 @@
 package com.powsybl.action;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControlAdder;
@@ -56,6 +61,30 @@ class ApplyActionToNetworkTest {
         action2.toModification().apply(network);
         assertTrue(branch.getTerminal(TwoSides.TWO).isConnected());
         assertFalse(branch.getTerminal(TwoSides.ONE).isConnected());
+    }
+
+    @Test
+    void terminalConnectionActionOnTieLine() {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        TieLine tieLine = network.getTieLine("NHV1_NHV2_1");
+
+        // Disconnection
+        TerminalsConnectionAction disconnectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", true);
+        NetworkModification disconnection = disconnectionAction.toModification();
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
+        ComputationManager computationManager = LocalComputationManager.getDefault();
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
+        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+
+        // Connection
+        TerminalsConnectionAction connectionAction = new TerminalsConnectionAction("id", "NHV1_NHV2_1", false);
+        NetworkModification connection = connectionAction.toModification();
+        connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP);
+        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 
     @Test

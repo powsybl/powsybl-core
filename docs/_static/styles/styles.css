@@ -1,0 +1,6 @@
+/* The following code ensures font is not too big (Furo theme can make font too big on large screens) */
+@media(min-width:97em) {
+    html {
+        font-size: 100%
+    }
+}
