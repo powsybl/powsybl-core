@@ -30,11 +30,11 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     @Override
     protected void writeRootElementAttributes(final Area area, final Network parent, final NetworkSerializerContext context) {
         context.getWriter().writeStringAttribute("areaType", context.getAnonymizer().anonymizeString(area.getAreaType()));
-        Double acInterchangeTarget = null;
-        if (area.getAcInterchangeTarget().isPresent()) {
-            acInterchangeTarget = area.getAcInterchangeTarget().getAsDouble();
+        Double interchangeTarget = null;
+        if (area.getInterchangeTarget().isPresent()) {
+            interchangeTarget = area.getInterchangeTarget().getAsDouble();
         }
-        context.getWriter().writeOptionalDoubleAttribute("acInterchangeTarget", acInterchangeTarget);
+        context.getWriter().writeOptionalDoubleAttribute("interchangeTarget", interchangeTarget);
     }
 
     @Override
@@ -58,8 +58,8 @@ public class AreaSerDe extends AbstractSimpleIdentifiableSerDe<Area, AreaAdder, 
     protected Area readRootElementAttributes(final AreaAdder adder, final Network parent, final NetworkDeserializerContext context) {
         String areaType = context.getAnonymizer().deanonymizeString(context.getReader().readStringAttribute("areaType"));
         adder.setAreaType(areaType);
-        OptionalDouble acInterchangeTarget = context.getReader().readOptionalDoubleAttribute("acInterchangeTarget");
-        acInterchangeTarget.ifPresent(adder::setAcInterchangeTarget);
+        OptionalDouble interchangeTarget = context.getReader().readOptionalDoubleAttribute("interchangeTarget");
+        interchangeTarget.ifPresent(adder::setInterchangeTarget);
         return adder.add();
     }
 

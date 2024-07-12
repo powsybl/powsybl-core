@@ -118,18 +118,17 @@ for DC part only (considering only DC boundaries) and in total (AC+DC).
 Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
 
 For area types that are meant to be used for area interchange control, e.g. in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
-Note that this target interchange is for only the AC part of the interchange.
 
 All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
 
 **Characteristics of an Area**
 
-| Attribute             | Unit | Description                                                    |
-|-----------------------|------|----------------------------------------------------------------|
-| $AreaType$            |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
-| $AcInterchangeTarget$ | MW   | Target AC active power interchange                             |
-| $VoltageLevels$       |      | List of voltage levels of the area                             |
-| $AreaBoundaries$      |      | List of area boundaries of the area                            |
+| Attribute           | Unit | Description                                                    |
+|---------------------|------|----------------------------------------------------------------|
+| $AreaType$          |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
+| $interchangeTarget$ | MW   | Target active power interchange                                |
+| $VoltageLevels$     |      | List of voltage levels of the area                             |
+| $AreaBoundaries$    |      | List of area boundaries of the area                            |
 
 **Characteristics of an AreaBoundary**
 

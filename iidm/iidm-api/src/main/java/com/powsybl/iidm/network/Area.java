@@ -58,12 +58,12 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black">The type of Area. For instance: "ControlArea", "BiddingZone", "Country"...</td>
  *         </tr>
  *         <tr>
- *             <td style="border: 1px solid black">AcInterchangeTarget</td>
+ *             <td style="border: 1px solid black">interchangeTarget</td>
  *             <td style="border: 1px solid black">Double</td>
  *             <td style="border: 1px solid black">-</td>
  *             <td style="border: 1px solid black">no</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The optional target AC Interchange of this area in MW, using load sign convention (negative is export, positive is import)</td>
+ *             <td style="border: 1px solid black">The optional target interchange of this area in MW, using load sign convention (negative is export, positive is import)</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -153,20 +153,20 @@ public interface Area extends Identifiable<Area> {
     }
 
     /**
-     * Get the optional target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
+     * Get the optional target interchange of this area in MW, in load sign convention (negative is export, positive is import).
      * <p>Depends on the working variant.</p>
      *
-     * @return the AC Interchange target (MW)
+     * @return the interchange target (MW)
      */
-    OptionalDouble getAcInterchangeTarget();
+    OptionalDouble getInterchangeTarget();
 
     /**
-     * Set the target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
+     * Set the target interchange of this area in MW, in load sign convention (negative is export, positive is import).
      * Providing Double.NaN removes the target.
      * <p>Depends on the working variant.</p>
-     * @param acInterchangeTarget new AC interchange target (MW)
+     * @param interchangeTarget new interchange target (MW)
      */
-    Area setAcInterchangeTarget(double acInterchangeTarget);
+    Area setInterchangeTarget(double interchangeTarget);
 
     /**
      * Get the current AC Interchange of this area in MW, in load sign convention (negative is export, positive is import)
@@ -184,7 +184,7 @@ public interface Area extends Identifiable<Area> {
      * Get the current total (AC+DC) Interchange of this area in MW, in load sign convention (negative is export, positive is import)
      * @return the total position (MW, 0 MW if no boundary)
      */
-    double getTotalInterchange();
+    double getInterchange();
 
     void remove();
 
