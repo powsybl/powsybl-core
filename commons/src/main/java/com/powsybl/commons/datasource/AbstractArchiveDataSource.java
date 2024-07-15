@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import java.io.IOException;
 import java.nio.file.Path;
 
 /**
@@ -26,17 +25,5 @@ public abstract class AbstractArchiveDataSource extends AbstractFileSystemDataSo
 
     protected Path getArchiveFilePath() {
         return directory.resolve(archiveFileName);
-    }
-
-    /**
-     * Check if a file exists in the archive. The file name will be constructed as:
-     * {@code <basename><suffix>.<ext>}</p>
-     * @param suffix Suffix to add to the basename of the datasource
-     * @param ext Extension of the file (for example: .iidm, .xml, .txt, etc.)
-     * @return true if the file exists, else false
-     */
-    @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 }
