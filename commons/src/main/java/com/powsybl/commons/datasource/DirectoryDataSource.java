@@ -79,11 +79,6 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
-    }
-
-    @Override
     public boolean exists(String fileName) throws IOException {
         Path path = getPath(fileName);
         return Files.isRegularFile(path);

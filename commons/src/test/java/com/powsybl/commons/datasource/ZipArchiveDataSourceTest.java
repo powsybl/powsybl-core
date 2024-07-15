@@ -91,30 +91,30 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     @Override
-    protected String getFileName(String baseName, String mainExtension, ArchiveFormat archiveFormat,
+    protected String getFileName(String baseName, ArchiveFormat archiveFormat,
                                  CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName + (mainExtension.isEmpty() ? "" : ".") + mainExtension
+        return testDir + "/" + baseName
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.ZIP),
-            Arguments.of("foo", "", CompressionFormat.ZIP),
-            Arguments.of("foo", "v3", CompressionFormat.ZIP)
+            Arguments.of("foo.iidm", CompressionFormat.ZIP),
+            Arguments.of("foo", CompressionFormat.ZIP),
+            Arguments.of("foo.v3", CompressionFormat.ZIP)
         );
     }
 
     // Currently, the files are not filtered in the zip archive
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo.iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
-            Arguments.of("foo", "", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
-            Arguments.of("foo", "v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo.v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar"))
         );

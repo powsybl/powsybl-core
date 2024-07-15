@@ -69,4 +69,9 @@ abstract class AbstractFileSystemDataSource implements DataSource {
     public DataSourceObserver getObserver() {
         return observer;
     }
+
+    @Override
+    public boolean exists(String suffix, String ext) throws IOException {
+        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
+    }
 }
