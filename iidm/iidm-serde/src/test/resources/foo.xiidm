@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<network xmlns="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:as="http://www.itesla_project.eu/schema/iidm/ext/active-season/1_0" xmlns:bbsp="http://www.itesla_project.eu/schema/iidm/ext/busbarsectionposition/1_0" xmlns:clps="http://www.itesla_project.eu/schema/iidm/ext/current-limits-per-season/1_0" xmlns:cp="http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0" xmlns:gapc="http://www.itesla_project.eu/schema/iidm/ext/generator_active_power_control/1_0" xmlns:gec="http://www.itesla_project.eu/schema/iidm/ext/generator_entsoe_category/1_0" xmlns:gs="http://www.itesla_project.eu/schema/iidm/ext/generator_startup/1_0" xmlns:hapc="http://www.itesla_project.eu/schema/iidm/ext/hvdc_angle_droop_active_power_control/1_0" xmlns:hopr="http://www.itesla_project.eu/schema/iidm/ext/hvdc_operator_active_power_range/1_0" xmlns:ld="http://www.itesla_project.eu/schema/iidm/ext/load_detail/1_0" xmlns:sa="http://www.itesla_project.eu/schema/iidm/ext/standby_automaton/1_0" id="Reseau_test_Topase_avec_report_seuils_reduits" caseDate="2015-09-29T09:14:00.000+01:00" forecastDistance="0" sourceFormat="NF">
+  <substation id="NO" country="FR" tso="RTE">
+    <property name="paysCvg" value="FRANCE"/>
+    <property name="regionCvg" value="LILLE"/>
+    <voltageLevel id="NO_poste" nominalV="380" lowVoltageLimit="342" highVoltageLimit="418.0001220703125" topologyKind="NODE_BREAKER">
+      <nodeBreakerTopology nodeCount="14">
+        <busbarSection id="NOD1_1" name="1" node="0" v="380" angle="0"/>
+        <busbarSection id="NOD1_mnv" name="mnv" node="1" v="380" angle="0"/>
+        <switch id="NOD1_NOD1  NE1  1_SC5_0" name="NOD1  NE1  1_SC5_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+        <switch id="NOD1_NOD1  NE1  1_SC5_1" name="NOD1  NE1  1_SC5_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+        <switch id="NOD1_NOD1  NE1  1_DJ5" name="NOD1  NE1  1_DJ5" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
+        <switch id="NOD1_NOD1  NE1  2_SC7_0" name="NOD1  NE1  2_SC7_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="4"/>
+        <switch id="NOD1_NOD1  NE1  2_SC7_1" name="NOD1  NE1  2_SC7_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="4"/>
+        <switch id="NOD1_NOD1  NE1  2_DJ7" name="NOD1  NE1  2_DJ7" kind="BREAKER" retained="false" open="false" node1="4" node2="5"/>
+        <switch id="NOD1_SOO1  NOD1  1_SC9_0" name="SOO1  NOD1  1_SC9_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="6"/>
+        <switch id="NOD1_SOO1  NOD1  1_SC9_1" name="SOO1  NOD1  1_SC9_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="6"/>
+        <switch id="NOD1_SOO1  NOD1  1_DJ9" name="SOO1  NOD1  1_DJ9" kind="BREAKER" retained="false" open="false" node1="6" node2="7"/>
+        <switch id="NOD1_SOO1  NOD1  2_SC11_0" name="SOO1  NOD1  2_SC11_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="8"/>
+        <switch id="NOD1_SOO1  NOD1  2_SC11_1" name="SOO1  NOD1  2_SC11_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="8"/>
+        <switch id="NOD1_SOO1  NOD1  2_DJ11" name="SOO1  NOD1  2_DJ11" kind="BREAKER" retained="false" open="false" node1="8" node2="9"/>
+        <switch id="NOD1_NOD1  NETD  1_SC13_0" name="NOD1  NETD  1_SC13_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="10"/>
+        <switch id="NOD1_NOD1  NETD  1_SC13_1" name="NOD1  NETD  1_SC13_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="10"/>
+        <switch id="NOD1_NOD1  NETD  1_DJ13" name="NOD1  NETD  1_DJ13" kind="BREAKER" retained="false" open="false" node1="10" node2="11"/>
+        <switch id="NOD1__SC14_0" name="_SC14_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+        <switch id="NOD1__SC14_1" name="_SC14_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="12"/>
+        <switch id="NOD1__SC15_0" name="_SC15_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
+        <switch id="NOD1__SC15_1" name="_SC15_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="13"/>
+        <switch id="NOD1_NOD1_DJ_OMN" name="NOD1_DJ_OMN" kind="BREAKER" retained="false" open="false" node1="12" node2="13"/>
+      </nodeBreakerTopology>
+    </voltageLevel>
+    <voltageLevel id="NE_poste" nominalV="380" lowVoltageLimit="342" highVoltageLimit="418.0001220703125" topologyKind="NODE_BREAKER">
+      <property name="siteInit" value="FTDPR"/>
+      <nodeBreakerTopology nodeCount="14">
+        <busbarSection id="NETD_1" name="1" node="0" v="380" angle="-0.0380914769006283"/>
+        <busbarSection id="NETD_mnv" name="mnv" node="1" v="380" angle="-0.0380914769006283"/>
+        <switch id="NETD_NETD  NE1  1_SC5_0" name="NETD  NE1  1_SC5_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+        <switch id="NETD_NETD  NE1  1_SC5_1" name="NETD  NE1  1_SC5_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+        <switch id="NETD_NETD  NE1  1_DJ5" name="NETD  NE1  1_DJ5" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
+        <switch id="NETD_NETD  NE1  2_SC7_0" name="NETD  NE1  2_SC7_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="4"/>
+        <switch id="NETD_NETD  NE1  2_SC7_1" name="NETD  NE1  2_SC7_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="4"/>
+        <switch id="NETD_NETD  NE1  2_DJ7" name="NETD  NE1  2_DJ7" kind="BREAKER" retained="false" open="false" node1="4" node2="5"/>
+        <switch id="NETD_SEI1  NETD  1_SC9_0" name="SEI1  NETD  1_SC9_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="6"/>
+        <switch id="NETD_SEI1  NETD  1_SC9_1" name="SEI1  NETD  1_SC9_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="6"/>
+        <switch id="NETD_SEI1  NETD  1_DJ9" name="SEI1  NETD  1_DJ9" kind="BREAKER" retained="false" open="false" node1="6" node2="7"/>
+        <switch id="NETD_SEI1  NETD  2_SC11_0" name="SEI1  NETD  2_SC11_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="8"/>
+        <switch id="NETD_SEI1  NETD  2_SC11_1" name="SEI1  NETD  2_SC11_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="8"/>
+        <switch id="NETD_SEI1  NETD  2_DJ11" name="SEI1  NETD  2_DJ11" kind="BREAKER" retained="false" open="false" node1="8" node2="9"/>
+        <switch id="NETD_NOD1  NETD  1_SC13_0" name="NOD1  NETD  1_SC13_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="10"/>
+        <switch id="NETD_NOD1  NETD  1_SC13_1" name="NOD1  NETD  1_SC13_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="10"/>
+        <switch id="NETD_NOD1  NETD  1_DJ13" name="NOD1  NETD  1_DJ13" kind="BREAKER" retained="false" open="false" node1="10" node2="11"/>
+        <switch id="NETD__SC14_0" name="_SC14_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+        <switch id="NETD__SC14_1" name="_SC14_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="12"/>
+        <switch id="NETD__SC15_0" name="_SC15_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
+        <switch id="NETD__SC15_1" name="_SC15_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="13"/>
+        <switch id="NETD_NETD_DJ_OMN" name="NETD_DJ_OMN" kind="BREAKER" retained="false" open="false" node1="12" node2="13"/>
+      </nodeBreakerTopology>
+    </voltageLevel>
+    <twoWindingsTransformer id="NE_NO_1" r="13" x="1" g="0" b="0" ratedU1="380" ratedU2="380" voltageLevelId1="NE_poste" node1="11" voltageLevelId2="NO_poste" node2="11" p1="-95.999614295758562" p2="95.999614295758562">
+      <phaseTapChanger lowTapPosition="0" tapPosition="17" regulationMode="CURRENT_LIMITER" regulationValue="600" regulating="true">
+        <terminalRef id="NE_NO_1" side="ONE"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-9.1672477722167969"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.15"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.14"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.13"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.12"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.11"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.1"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.09"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.08"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.07"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.06"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.05"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.04"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.03"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.02"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="-0.01"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.01"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.02"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.03"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.04"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.05"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.06"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.07"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.08"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.09"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.1"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.11"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.12"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.13"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.14"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="0.15"/>
+        <step r="0.00067052996018901467" x="0.00066161161521449685" g="0" b="0" rho="1" alpha="9.1672477722167969"/>
+      </phaseTapChanger>
+      <currentLimits1 permanentLimit="400"/>
+      <currentLimits2 permanentLimit="400">
+        <temporaryLimit name="IT20" acceptableDuration="1200" value="450.00003051757812"/>
+        <temporaryLimit name="IT10" acceptableDuration="600" value="500.00003051757812"/>
+        <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+      </currentLimits2>
+    </twoWindingsTransformer>
+  </substation>
+  <substation id="S" country="FR" tso="RTE">
+    <property name="paysCvg" value="FRANCE"/>
+    <property name="regionCvg" value="LILLE"/>
+    <voltageLevel id="S_poste" nominalV="380" lowVoltageLimit="342" highVoltageLimit="418.0001220703125" topologyKind="NODE_BREAKER">
+      <nodeBreakerTopology nodeCount="12">
+        <busbarSection id="SS1_1" name="1" node="0" v="380" angle="-0.01904573845031415"/>
+        <busbarSection id="SS1_mnv" name="mnv" node="1" v="380" angle="-0.01904573845031415"/>
+        <switch id="SS1_SS1  SEI1  1_SC5_0" name="SS1  SEI1  1_SC5_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+        <switch id="SS1_SS1  SEI1  1_SC5_1" name="SS1  SEI1  1_SC5_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+        <switch id="SS1_SS1  SEI1  1_DJ5" name="SS1  SEI1  1_DJ5" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
+        <switch id="SS1_SS1  SEI1  2_SC7_0" name="SS1  SEI1  2_SC7_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="4"/>
+        <switch id="SS1_SS1  SEI1  2_SC7_1" name="SS1  SEI1  2_SC7_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="4"/>
+        <switch id="SS1_SS1  SEI1  2_DJ7" name="SS1  SEI1  2_DJ7" kind="BREAKER" retained="false" open="false" node1="4" node2="5"/>
+        <switch id="SS1__SC12_0" name="_SC12_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="6"/>
+        <switch id="SS1__SC12_1" name="_SC12_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="6"/>
+        <switch id="SS1__SC13_0" name="_SC13_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="7"/>
+        <switch id="SS1__SC13_1" name="_SC13_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="7"/>
+        <switch id="SS1_SS1_DJ_OMN" name="SS1_DJ_OMN" kind="BREAKER" retained="true" open="false" node1="6" node2="7"/>
+        <switch id="SS1_Disj SS1 SOO1 1" name="Disj SS1 SOO1 1" kind="BREAKER" retained="false" open="false" node1="8" node2="9"/>
+        <switch id="SS1_Sect 1 SS1 SOO1 1" name="Sect 1 SS1 SOO1 1" kind="DISCONNECTOR" retained="false" open="false" node1="9" node2="0"/>
+        <switch id="SS1_Sect mnv SS1 SOO1 1" name="Sect mnv SS1 SOO1 1" kind="DISCONNECTOR" retained="false" open="true" node1="9" node2="1"/>
+        <switch id="SS1_Disj SS1 SOO1 2" name="Disj SS1 SOO1 2" kind="BREAKER" retained="false" open="false" node1="10" node2="11"/>
+        <switch id="SS1_Sect 1 SS1 SOO1 2" name="Sect 1 SS1 SOO1 2" kind="DISCONNECTOR" retained="false" open="true" node1="11" node2="0"/>
+        <switch id="SS1_Sect mnv SS1 SOO1 2" name="Sect mnv SS1 SOO1 2" kind="DISCONNECTOR" retained="false" open="false" node1="11" node2="1"/>
+      </nodeBreakerTopology>
+    </voltageLevel>
+  </substation>
+  <substation id="SO" country="FR" tso="RTE">
+    <property name="paysCvg" value="FRANCE"/>
+    <property name="regionCvg" value="LILLE"/>
+    <voltageLevel id="SO_poste" nominalV="380" lowVoltageLimit="342" highVoltageLimit="418.0001220703125" topologyKind="NODE_BREAKER">
+      <nodeBreakerTopology nodeCount="22">
+        <busbarSection id="SOO1_1" name="1" node="0" v="380" angle="0.038091349365863954"/>
+        <busbarSection id="SOO1_mnv" name="mnv" node="1" v="380" angle="0.038091349365863954"/>
+        <switch id="SOO1_SOO11_G_SC3_0" name="SOO11_G_SC3_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+        <switch id="SOO1_SOO11_G_SC3_1" name="SOO11_G_SC3_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+        <switch id="SOO1_SOO11_G_DJ3" name="SOO11_G_DJ3" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
+        <switch id="SOO1_SOO1  NOD1  1_SC5_0" name="SOO1  NOD1  1_SC5_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="4"/>
+        <switch id="SOO1_SOO1  NOD1  1_SC5_1" name="SOO1  NOD1  1_SC5_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="4"/>
+        <switch id="SOO1_SOO1  NOD1  1_DJ5" name="SOO1  NOD1  1_DJ5" kind="BREAKER" retained="false" open="false" node1="4" node2="5"/>
+        <switch id="SOO1_SOO1  NOD1  2_SC7_0" name="SOO1  NOD1  2_SC7_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="6"/>
+        <switch id="SOO1_SOO1  NOD1  2_SC7_1" name="SOO1  NOD1  2_SC7_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="6"/>
+        <switch id="SOO1_SOO1  NOD1  2_DJ7" name="SOO1  NOD1  2_DJ7" kind="BREAKER" retained="false" open="false" node1="6" node2="7"/>
+        <switch id="SOO1__SC12_0" name="_SC12_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="8"/>
+        <switch id="SOO1__SC12_1" name="_SC12_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="8"/>
+        <switch id="SOO1__SC13_0" name="_SC13_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="9"/>
+        <switch id="SOO1__SC13_1" name="_SC13_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="9"/>
+        <switch id="SOO1_SOO1_DJ_OMN" name="SOO1_DJ_OMN" kind="BREAKER" retained="true" open="false" node1="8" node2="9"/>
+        <switch id="SOO1_Disj HVDC1" name="Disj HVDC1" kind="BREAKER" retained="false" open="false" node1="10" node2="11"/>
+        <switch id="SOO1_Sect 1 HVDC1" name="Sect 1 HVDC1" kind="DISCONNECTOR" retained="false" open="true" node1="11" node2="0"/>
+        <switch id="SOO1_Sect mnv HVDC1" name="Sect mnv HVDC1" kind="DISCONNECTOR" retained="false" open="false" node1="11" node2="1"/>
+        <switch id="SOO1_Disj HVDC2" name="Disj HVDC2" kind="BREAKER" retained="false" open="false" node1="12" node2="13"/>
+        <switch id="SOO1_Sect 1 HVDC2" name="Sect 1 HVDC2" kind="DISCONNECTOR" retained="false" open="false" node1="13" node2="0"/>
+        <switch id="SOO1_Sect mnv HVDC2" name="Sect mnv HVDC2" kind="DISCONNECTOR" retained="false" open="true" node1="13" node2="1"/>
+        <switch id="SOO1_Disj SS1 SOO1 1" name="Disj SS1 SOO1 1" kind="BREAKER" retained="false" open="false" node1="14" node2="15"/>
+        <switch id="SOO1_Sect 1 SS1 SOO1 1" name="Sect 1 SS1 SOO1 1" kind="DISCONNECTOR" retained="false" open="true" node1="15" node2="0"/>
+        <switch id="SOO1_Sect mnv SS1 SOO1 1" name="Sect mnv SS1 SOO1 1" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="1"/>
+        <switch id="SOO1_Disj SS1 SOO1 2" name="Disj SS1 SOO1 2" kind="BREAKER" retained="false" open="false" node1="16" node2="17"/>
+        <switch id="SOO1_Sect 1 SS1 SOO1 2" name="Sect 1 SS1 SOO1 2" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="0"/>
+        <switch id="SOO1_Sect mnv SS1 SOO1 2" name="Sect mnv SS1 SOO1 2" kind="DISCONNECTOR" retained="false" open="true" node1="17" node2="1"/>
+        <switch id="SOO1_Disj SOO11_L" name="Disj SOO11_L" kind="BREAKER" retained="false" open="false" node1="18" node2="19"/>
+        <switch id="SOO1_Sect 1 SOO11_L" name="Sect 1 SOO11_L" kind="DISCONNECTOR" retained="false" open="false" node1="19" node2="0"/>
+        <switch id="SOO1_Sect mnv SOO11_L" name="Sect mnv SOO11_L" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="1"/>
+        <switch id="SOO1_Disj SOO12_G" name="Disj SOO12_G" kind="BREAKER" retained="false" open="false" node1="20" node2="21"/>
+        <switch id="SOO1_Sect 1 SOO12_G" name="Sect 1 SOO12_G" kind="DISCONNECTOR" retained="false" open="true" node1="21" node2="0"/>
+        <switch id="SOO1_Sect mnv SOO12_G" name="Sect mnv SOO12_G" kind="DISCONNECTOR" retained="false" open="false" node1="21" node2="1"/>
+      </nodeBreakerTopology>
+      <generator id="SO_G1" energySource="THERMAL" minP="0" maxP="2000" voltageRegulatorOn="true" targetP="480.0" targetQ="2.3523099422454834" targetV="406.45004272460938" node="3" p="-480">
+        <property name="genreCvg" value="CHARBON"/>
+        <reactiveCapabilityCurve>
+          <point p="0" minQ="-200" maxQ="200"/>
+          <point p="2000" minQ="-200" maxQ="200"/>
+        </reactiveCapabilityCurve>
+      </generator>
+      <generator id="SO_G2" energySource="THERMAL" minP="0" maxP="2000" voltageRegulatorOn="true" targetP="480.0" targetQ="2.3523099422454834" targetV="406.45004272460938" node="20" p="-480">
+        <property name="genreCvg" value="CHARBON"/>
+        <reactiveCapabilityCurve>
+          <point p="0" minQ="-200" maxQ="200"/>
+          <point p="2000" minQ="-200" maxQ="200"/>
+        </reactiveCapabilityCurve>
+      </generator>
+      <load id="SO_L" loadType="UNDEFINED" p0="480" q0="4.8000001907348633" node="18" p="480"/>
+      <vscConverterStation id="SOO1_SOO1_HVDC1" name="SOO1_HVDC1" voltageRegulatorOn="false" lossFactor="2" voltageSetpoint="406" reactivePowerSetpoint="0" node="10" p="0">
+        <reactiveCapabilityCurve>
+          <point p="-1011" minQ="-300" maxQ="300"/>
+          <point p="1011" minQ="-300" maxQ="300"/>
+        </reactiveCapabilityCurve>
+      </vscConverterStation>
+      <vscConverterStation id="SOO1_SOO1_HVDC2" name="SOO1_HVDC2" voltageRegulatorOn="false" lossFactor="2" voltageSetpoint="406" reactivePowerSetpoint="0" node="12" p="0">
+        <reactiveCapabilityCurve>
+          <point p="-1011" minQ="-300" maxQ="300"/>
+          <point p="1011" minQ="-300" maxQ="300"/>
+        </reactiveCapabilityCurve>
+      </vscConverterStation>
+    </voltageLevel>
+  </substation>
+  <substation id="SE" country="FR" tso="RTE">
+    <property name="paysCvg" value="FRANCE"/>
+    <property name="regionCvg" value="LILLE"/>
+    <voltageLevel id="SE_poste" nominalV="380" lowVoltageLimit="342" highVoltageLimit="418.0001220703125" topologyKind="NODE_BREAKER">
+      <nodeBreakerTopology nodeCount="22">
+        <busbarSection id="SEI1_1" name="1" node="0" v="380" angle="-0.076182826266492268"/>
+        <busbarSection id="SEI1_mnv" name="mnv" node="1" v="380" angle="-0.076182826266492268"/>
+        <switch id="SEI1_SEI11_G_SC3_0" name="SEI11_G_SC3_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+        <switch id="SEI1_SEI11_G_SC3_1" name="SEI11_G_SC3_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+        <switch id="SEI1_SEI11_G_DJ3" name="SEI11_G_DJ3" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
+        <switch id="SEI1_SS1  SEI1  1_SC5_0" name="SS1  SEI1  1_SC5_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="4"/>
+        <switch id="SEI1_SS1  SEI1  1_SC5_1" name="SS1  SEI1  1_SC5_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="4"/>
+        <switch id="SEI1_SS1  SEI1  1_DJ5" name="SS1  SEI1  1_DJ5" kind="BREAKER" retained="false" open="false" node1="4" node2="5"/>
+        <switch id="SEI1_SS1  SEI1  2_SC7_0" name="SS1  SEI1  2_SC7_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="6"/>
+        <switch id="SEI1_SS1  SEI1  2_SC7_1" name="SS1  SEI1  2_SC7_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="6"/>
+        <switch id="SEI1_SS1  SEI1  2_DJ7" name="SS1  SEI1  2_DJ7" kind="BREAKER" retained="false" open="false" node1="6" node2="7"/>
+        <switch id="SEI1_SEI1  NETD  1_SC9_0" name="SEI1  NETD  1_SC9_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="8"/>
+        <switch id="SEI1_SEI1  NETD  1_SC9_1" name="SEI1  NETD  1_SC9_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="8"/>
+        <switch id="SEI1_SEI1  NETD  1_DJ9" name="SEI1  NETD  1_DJ9" kind="BREAKER" retained="false" open="false" node1="8" node2="9"/>
+        <switch id="SEI1_SEI1  NETD  2_SC11_0" name="SEI1  NETD  2_SC11_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="10"/>
+        <switch id="SEI1_SEI1  NETD  2_SC11_1" name="SEI1  NETD  2_SC11_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="10"/>
+        <switch id="SEI1_SEI1  NETD  2_DJ11" name="SEI1  NETD  2_DJ11" kind="BREAKER" retained="false" open="false" node1="10" node2="11"/>
+        <switch id="SEI1__SC12_0" name="_SC12_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+        <switch id="SEI1__SC12_1" name="_SC12_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="12"/>
+        <switch id="SEI1__SC13_0" name="_SC13_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
+        <switch id="SEI1__SC13_1" name="_SC13_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="13"/>
+        <switch id="SEI1_SEI1_DJ_OMN" name="SEI1_DJ_OMN" kind="BREAKER" retained="true" open="false" node1="12" node2="13"/>
+        <switch id="SEI1_Disj HVDC1" name="Disj HVDC1" kind="BREAKER" retained="false" open="false" node1="14" node2="15"/>
+        <switch id="SEI1_Sect 1 HVDC1" name="Sect 1 HVDC1" kind="DISCONNECTOR" retained="false" open="false" node1="15" node2="0"/>
+        <switch id="SEI1_Sect mnv HVDC1" name="Sect mnv HVDC1" kind="DISCONNECTOR" retained="false" open="true" node1="15" node2="1"/>
+        <switch id="SEI1_Disj HVDC2" name="Disj HVDC2" kind="BREAKER" retained="false" open="false" node1="16" node2="17"/>
+        <switch id="SEI1_Sect 1 HVDC2" name="Sect 1 HVDC2" kind="DISCONNECTOR" retained="false" open="false" node1="17" node2="0"/>
+        <switch id="SEI1_Sect mnv HVDC2" name="Sect mnv HVDC2" kind="DISCONNECTOR" retained="false" open="true" node1="17" node2="1"/>
+        <switch id="SEI1_Disj SEI11_L" name="Disj SEI11_L" kind="BREAKER" retained="false" open="false" node1="18" node2="19"/>
+        <switch id="SEI1_Sect 1 SEI11_L" name="Sect 1 SEI11_L" kind="DISCONNECTOR" retained="false" open="false" node1="19" node2="0"/>
+        <switch id="SEI1_Sect mnv SEI11_L" name="Sect mnv SEI11_L" kind="DISCONNECTOR" retained="false" open="true" node1="19" node2="1"/>
+        <switch id="SEI1_Disj SEI11_L2" name="Disj SEI11_L2" kind="BREAKER" retained="false" open="false" node1="20" node2="21"/> 
+        <switch id="SEI1_Sect 1 SEI11_L2" name="Sect 1 SEI11_L2" kind="DISCONNECTOR" retained="false" open="true" node1="21" node2="0"/>
+        <switch id="SEI1_Sect mnv SEI11_L2" name="Sect mnv SEI11_L2" kind="DISCONNECTOR" retained="false" open="false" node1="21" node2="1"/>
+     </nodeBreakerTopology>
+      <generator id="SE_G" energySource="THERMAL" minP="0" maxP="600" voltageRegulatorOn="true" targetP="100" targetQ="6.4549798965454102" targetV="406.45004272460938" node="3" p="-0">
+        <property name="genreCvg" value="CHARBON"/>
+        <reactiveCapabilityCurve>
+          <point p="0" minQ="-200" maxQ="200"/>
+          <point p="2500" minQ="-200" maxQ="200"/>
+        </reactiveCapabilityCurve>
+      </generator>
+      <load id="SE_L1" loadType="UNDEFINED" p0="480" q0="4.8000001907348633" node="18" p="480"/>
+      <load id="SE_L2" loadType="UNDEFINED" p0="0" q0="4.8000001907348633" node="20" p="0"/>
+      <vscConverterStation id="SEI1_SEI1_HVDC1" name="SEI1_HVDC1" voltageRegulatorOn="false" lossFactor="2" voltageSetpoint="406" reactivePowerSetpoint="0" node="14" p="0">
+        <reactiveCapabilityCurve>
+          <point p="-1011" minQ="-300" maxQ="300"/>
+          <point p="1011" minQ="-300" maxQ="300"/>
+        </reactiveCapabilityCurve>
+      </vscConverterStation>
+      <vscConverterStation id="SEI1_SEI1_HVDC2" name="SEI1_HVDC2" voltageRegulatorOn="false" lossFactor="2" voltageSetpoint="406" reactivePowerSetpoint="0" node="16" p="0">
+        <reactiveCapabilityCurve>
+          <point p="-1011" minQ="-300" maxQ="300"/>
+          <point p="1011" minQ="-300" maxQ="300"/>
+        </reactiveCapabilityCurve>
+      </vscConverterStation>
+    </voltageLevel>
+  </substation>
+  <substation id="N" country="FR" tso="RTE">
+    <property name="paysCvg" value="FRANCE"/>
+    <property name="regionCvg" value="LILLE"/>
+    <voltageLevel id="N_poste" nominalV="380" lowVoltageLimit="342" highVoltageLimit="418.0001220703125" topologyKind="NODE_BREAKER">
+      <nodeBreakerTopology nodeCount="14">
+        <busbarSection id="NE1_1" name="1" node="0" v="380" angle="-0.01904573845031415"/>
+        <busbarSection id="NE1_mnv" name="mnv" node="1" v="380" angle="-0.01904573845031415"/>
+        <switch id="NE1_NE11_G_SC3_0" name="NE11_G_SC3_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="2"/>
+        <switch id="NE1_NE11_G_SC3_1" name="NE11_G_SC3_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="2"/>
+        <switch id="NE1_NE11_G_DJ3" name="NE11_G_DJ3" kind="BREAKER" retained="false" open="false" node1="2" node2="3"/>
+        <switch id="NE1_NOD1  NE1  1_SC5_0" name="NOD1  NE1  1_SC5_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="4"/>
+        <switch id="NE1_NOD1  NE1  1_SC5_1" name="NOD1  NE1  1_SC5_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="4"/>
+        <switch id="NE1_NOD1  NE1  1_DJ5" name="NOD1  NE1  1_DJ5" kind="BREAKER" retained="false" open="false" node1="4" node2="5"/>
+        <switch id="NE1_NOD1  NE1  2_SC7_0" name="NOD1  NE1  2_SC7_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="6"/>
+        <switch id="NE1_NOD1  NE1  2_SC7_1" name="NOD1  NE1  2_SC7_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="6"/>
+        <switch id="NE1_NOD1  NE1  2_DJ7" name="NOD1  NE1  2_DJ7" kind="BREAKER" retained="false" open="false" node1="6" node2="7"/>
+        <switch id="NE1_NETD  NE1  1_SC9_0" name="NETD  NE1  1_SC9_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="8"/>
+        <switch id="NE1_NETD  NE1  1_SC9_1" name="NETD  NE1  1_SC9_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="8"/>
+        <switch id="NE1_NETD  NE1  1_DJ9" name="NETD  NE1  1_DJ9" kind="BREAKER" retained="false" open="false" node1="8" node2="9"/>
+        <switch id="NE1_NETD  NE1  2_SC11_0" name="NETD  NE1  2_SC11_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="10"/>
+        <switch id="NE1_NETD  NE1  2_SC11_1" name="NETD  NE1  2_SC11_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="10"/>
+        <switch id="NE1_NETD  NE1  2_DJ11" name="NETD  NE1  2_DJ11" kind="BREAKER" retained="false" open="false" node1="10" node2="11"/>
+        <switch id="NE1__SC12_0" name="_SC12_0" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="12"/>
+        <switch id="NE1__SC12_1" name="_SC12_1" kind="DISCONNECTOR" retained="false" open="true" node1="1" node2="12"/>
+        <switch id="NE1__SC13_0" name="_SC13_0" kind="DISCONNECTOR" retained="false" open="true" node1="0" node2="13"/>
+        <switch id="NE1__SC13_1" name="_SC13_1" kind="DISCONNECTOR" retained="false" open="false" node1="1" node2="13"/>
+        <switch id="NE1_NE1_DJ_OMN" name="NE1_DJ_OMN" kind="BREAKER" retained="false" open="false" node1="12" node2="13"/>
+      </nodeBreakerTopology>
+      <generator id="N_G" energySource="THERMAL" minP="0" maxP="600" voltageRegulatorOn="true" targetP="0" targetQ="7.4815797805786133" targetV="406.45004272460938" node="3" p="-0">
+        <property name="genreCvg" value="CHARBON"/>
+        <reactiveCapabilityCurve>
+          <point p="0" minQ="-200" maxQ="200"/>
+          <point p="600" minQ="-200" maxQ="200"/>
+        </reactiveCapabilityCurve>
+      </generator>
+    </voltageLevel>
+  </substation>
+  <line id="NO_N_1" r="1" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="NO_poste" node1="3" voltageLevelId2="N_poste" node2="5" p1="48.000128568080498" p2="-48.000128568080498">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="NO_N_2" r="2" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="NO_poste" node1="5" voltageLevelId2="N_poste" node2="7" p1="48.000128568080498" p2="-48.000128568080498">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="S_SE_1" r="3" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="3" voltageLevelId2="SE_poste" node2="5" p1="144.00006428404029" p2="-144.00006428404029">
+    <currentLimits1 permanentLimit="500.00006103515625">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="500.00006103515625"/>
+      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="600"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="500.00006103515625"/>
+  </line>
+  <line id="S_SE_2" r="4" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="5" voltageLevelId2="SE_poste" node2="7" p1="144.00006428404029" p2="-144.00006428404029">
+    <currentLimits1 permanentLimit="500.00006103515625">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="500.00006103515625"/>
+      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="600"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="500.00006103515625"/>
+  </line>
+  <line id="S_SO_1" r="5" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="8" voltageLevelId2="SO_poste" node2="14" p1="-144.00006428404023" p2="144.00006428404023">
+    <currentLimits1 permanentLimit="500.00006103515625">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="500.00006103515625"/>
+      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="600"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="500.00006103515625"/>
+  </line>
+  <line id="S_SO_2" r="6" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="S_poste" node1="10" voltageLevelId2="SO_poste" node2="16" p1="-144.00006428404023" p2="144.00006428404023">
+    <currentLimits1 permanentLimit="500.00006103515625">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="500.00006103515625"/>
+      <temporaryLimit name="IST" value="550" fictitious="true"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="600"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="500.00006103515625"/>
+  </line>
+  <line id="SO_NO_1" r="7" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="SO_poste" node1="5" voltageLevelId2="NO_poste" node2="7" p1="95.999935715959751" p2="-95.999935715959751">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="SO_NO_2" r="8" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="SO_poste" node1="7" voltageLevelId2="NO_poste" node2="9" p1="95.999935715959751" p2="-95.999935715959751">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="NE_N_1" r="9" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="NE_poste" node1="3" voltageLevelId2="N_poste" node2="9" p1="-48.000128568080498" p2="48.000128568080498">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="NE_N_2" r="10" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="NE_poste" node1="5" voltageLevelId2="N_poste" node2="11" p1="-48.000128568080498" p2="48.000128568080498">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="SE_NE_1" r="11" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="SE_poste" node1="9" voltageLevelId2="NE_poste" node2="7" p1="-95.999935715959779" p2="95.999935715959779">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <line id="SE_NE_2" r="12" x="1" g1="0" b1="0" g2="0" b2="0" voltageLevelId1="SE_poste" node1="11" voltageLevelId2="NE_poste" node2="9" p1="-95.999935715959779" p2="95.999935715959779">
+    <currentLimits1 permanentLimit="600">
+      <temporaryLimit name="IT20" acceptableDuration="1200" value="650"/>
+      <temporaryLimit name="IT10" acceptableDuration="600" value="700"/>
+      <temporaryLimit name="IT0.0166667" acceptableDuration="1"/>
+    </currentLimits1>
+    <currentLimits2 permanentLimit="600"/>
+  </line>
+  <hvdcLine id="HVDC1" r="0.25" nominalV="320" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0" maxP="1011" converterStation1="SOO1_SOO1_HVDC1" converterStation2="SEI1_SEI1_HVDC1"/>
+  <hvdcLine id="HVDC2" r="0.25" nominalV="320" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0" maxP="1011" converterStation1="SOO1_SOO1_HVDC2" converterStation2="SEI1_SEI1_HVDC2"/>
+  <extension id="HVDC2">
+    <hapc:hvdcAngleDroopActivePowerControl p0="100" droop="180" enabled="false"/>
+    <hopr:hvdcOperatorActivePowerRange fromCS1toCS2="1000." fromCS2toCS1="1000."/>
+  </extension>
+
+</network>
