@@ -177,7 +177,7 @@ class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--case-file", "wrongFile.xiidm",
             "--factors-file", "factors.json",
             "--output-file", "output.csv"},
-                "com.powsybl.commons.PowsyblException: File wrongFile.xiidm does not exist or is not a regular file");
+                "com.powsybl.commons.PowsyblException: File wrongFile.xiidm does not exist");
     }
 
     @Test

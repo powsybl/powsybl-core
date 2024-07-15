@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -96,6 +97,8 @@ public interface DataSourceUtil {
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
             String fileNameWithoutCompressionExtension = fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4);
             return new Bzip2FileDataSource(directory, getBaseName(fileNameWithoutCompressionExtension), getBaseExtension(fileNameWithoutCompressionExtension), observer);
+        } else if (Files.isDirectory(directory.resolve(fileNameOrBaseName))) {
+            return new FileDataSource(directory.resolve(fileNameOrBaseName), getBaseName(fileNameOrBaseName), "", observer);
         } else {
             return new FileDataSource(directory, getBaseName(fileNameOrBaseName), getBaseExtension(fileNameOrBaseName), observer);
         }

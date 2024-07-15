@@ -42,16 +42,16 @@ class FileDataSourceTest extends AbstractDataSourceTest {
         }
 
         // A file data source created using the complete filename does not return other filenames
-        Set<String> names = new FileDataSource(testDir, getBaseName() + ".txt").listNames(".*");
+        Set<String> names = new FileDataSource(testDir, getBaseName(), ".txt").listNames(".*");
         assertEquals(1, names.size());
         assertTrue(names.contains(validFilename));
         assertFalse(names.contains(otherFilename));
 
-        // A file data source created using the test folder and the basename sees only the right file
+        // A file data source created using the test folder and the basename sees all the files
         names = new FileDataSource(testDir, getBaseName()).listNames(".*");
-        assertEquals(1, names.size());
+        assertEquals(2, names.size());
         assertTrue(names.contains(validFilename));
-        assertFalse(names.contains(otherFilename));
+        assertTrue(names.contains(otherFilename));
     }
 
     @Test
@@ -81,11 +81,11 @@ class FileDataSourceTest extends AbstractDataSourceTest {
         assertTrue(ds.exists("dummy.txt"));
         assertTrue(ds.exists("dummy2.txt"));
 
-        // but only the files that contain the basename can be accessed through list names
+        // all the files can be accessed through list names for basename datasource (no extension)
         Set<String> names = ds.listNames(".*");
-        assertEquals(1, names.size());
+        assertEquals(3, names.size());
         assertTrue(names.contains(getBaseName() + suffix + "." + ext));
-        assertFalse(names.contains("dummy.txt"));
-        assertFalse(names.contains("dummy2.txt"));
+        assertTrue(names.contains("dummy.txt"));
+        assertTrue(names.contains("dummy2.txt"));
     }
 }

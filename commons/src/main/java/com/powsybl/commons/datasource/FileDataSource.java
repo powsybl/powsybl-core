@@ -120,11 +120,17 @@ public class FileDataSource implements DataSource {
         Pattern p = Pattern.compile(regex);
         int maxDepth = 1;
         try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
-            return paths
+
+            var filenames = paths
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
-                    .map(Path::toString)
-                    .filter(name -> name.startsWith(baseName))
+                    .map(Path::toString);
+            // For a file in a directory, we filter by basename to get similar files only because other files may be unrelated.
+            // For a directory, we list all files because we assume everything is related. And this allows to still have the directory name as the basename (for example for writing new files named like the directory)
+            var isListingAllDirectory = baseExtension.isEmpty(); // we assume all files have extensions so if we have a mainExtension, this means we are not in a clean separate directory
+            var maybeBaseNameFilteredFilenames = isListingAllDirectory ? filenames
+                    : filenames.filter(name -> name.startsWith(baseName));
+            return maybeBaseNameFilteredFilenames
                     // Return names after removing the compression extension
                     .map(name -> name.replace(getCompressionExt(), ""))
                     .filter(s -> p.matcher(s).matches())
