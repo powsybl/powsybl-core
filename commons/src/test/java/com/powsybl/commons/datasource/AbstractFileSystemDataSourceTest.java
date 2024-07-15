@@ -45,9 +45,9 @@ abstract class AbstractFileSystemDataSourceTest {
 
     protected abstract DataSource createDataSource(DataSourceObserver observer);
 
-    protected String getFileName(String baseName, ArchiveFormat archiveFormat,
+    protected String getFileName(String baseName, String mainExtension, ArchiveFormat archiveFormat,
                                  CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName
+        return testDir + "/" + baseName + (mainExtension == null || mainExtension.isEmpty() ? "" : "." + mainExtension)
             + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
@@ -58,9 +58,9 @@ abstract class AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
-    void writeThenReadTest(String baseName, CompressionFormat compressionFormat) throws IOException {
+    void writeThenReadTest(String baseName, String mainExtension, CompressionFormat compressionFormat) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, archiveFormat, compressionFormat);
+        String fileName = getFileName(baseName, mainExtension, archiveFormat, compressionFormat);
 
         // Create an archive when needed
         if (archiveFormat != null) {
@@ -119,11 +119,11 @@ abstract class AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    void testClassAndListing(String baseName,
+    void testClassAndListing(String baseName, String mainExtension,
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, archiveFormat, compressionFormat);
+        String fileName = getFileName(baseName, mainExtension, archiveFormat, compressionFormat);
 
         // Update the list of unlisted files
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
