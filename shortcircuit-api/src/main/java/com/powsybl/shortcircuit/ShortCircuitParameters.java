@@ -271,7 +271,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      * The initial voltage profile mode, it can be either:
      * - nominal: nominal voltages will be used
      * - configured: the voltage profile is given by the user, voltage ranges and associated coefficients should be given using {@link VoltageRange}
-     * - previous value: the voltage profile computed from the loadflow will be used
+     * - previous value: the voltage profile computed from the load flow will be used
      */
     public InitialVoltageProfileMode getInitialVoltageProfileMode() {
         return initialVoltageProfileMode;
@@ -309,7 +309,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * Validates the ShortCircuitParameters. If the initial voltage profile mode is set to configured, then the voltage ranges should not be empty.
+     * Validates the ShortCircuitParameters. If the initial voltage profile mode is set to CONFIGURED, then the voltage ranges should not be empty.
      */
     public void validate() {
         if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRanges == null || voltageRanges.isEmpty())) {
