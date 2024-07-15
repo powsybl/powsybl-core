@@ -65,27 +65,27 @@ class XZDirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", CompressionFormat.XZ),
-            Arguments.of("foo", "", CompressionFormat.XZ),
-            Arguments.of("foo", ".v3", CompressionFormat.XZ)
+            Arguments.of("foo.iidm", CompressionFormat.XZ),
+            Arguments.of("foo", CompressionFormat.XZ),
+            Arguments.of("foo.v3", CompressionFormat.XZ)
         );
     }
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", ".iidm", CompressionFormat.XZ, XZDirectoryDataSource.class,
+            Arguments.of("foo.iidm", CompressionFormat.XZ, XZDirectoryDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar",
                     "foo.bz2", "foo.txt.bz2", "foo.iidm.bz2", "foo.xiidm.bz2", "foo.v3.iidm.bz2", "foo.v3.bz2", "foo_bar.iidm.bz2", "foo_bar.bz2",
                     "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst",
                     "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz"),
                 Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz")),
-            Arguments.of("foo", "", CompressionFormat.XZ, XZDirectoryDataSource.class,
+            Arguments.of("foo", CompressionFormat.XZ, XZDirectoryDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar",
                     "foo.bz2", "foo.txt.bz2", "foo.iidm.bz2", "foo.xiidm.bz2", "foo.v3.iidm.bz2", "foo.v3.bz2", "foo_bar.iidm.bz2", "foo_bar.bz2",
                     "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst",
                     "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz"),
                 Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz")),
-            Arguments.of("foo", ".v3", CompressionFormat.XZ, XZDirectoryDataSource.class,
+            Arguments.of("foo.v3", CompressionFormat.XZ, XZDirectoryDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar",
                     "foo.bz2", "foo.txt.bz2", "foo.iidm.bz2", "foo.xiidm.bz2", "foo.v3.iidm.bz2", "foo.v3.bz2", "foo_bar.iidm.bz2", "foo_bar.bz2",
                     "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst",
