@@ -61,7 +61,7 @@ class ConversionTest {
     void testConversionZip() throws IOException {
         // Prepare the firectory and file
         Files.createDirectory(fileSystem.getPath("/tmp"));
-        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/foo.xiidm")), fileSystem.getPath("/tmp/foo.xiidm"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/slackTerminal.xml")), fileSystem.getPath("/tmp/foo.xiidm"));
 
         // Prepare the command
         String[] commandLine = new String[] {
