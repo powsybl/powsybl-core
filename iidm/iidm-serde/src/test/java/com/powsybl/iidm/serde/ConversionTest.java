@@ -78,7 +78,8 @@ class ConversionTest {
 
         // Assert the command worked
         assertEquals(0, status);
-        assertEquals("Generating file /tmp/bar.zip:bar.xiidm...\n", bout.toString(StandardCharsets.UTF_8));
+        assertEquals("Generating file /tmp/bar.zip:bar.xiidm..." + System.lineSeparator(),
+            bout.toString(StandardCharsets.UTF_8));
         assertEquals("", berr.toString(StandardCharsets.UTF_8));
 
         // Assert the right files are created
