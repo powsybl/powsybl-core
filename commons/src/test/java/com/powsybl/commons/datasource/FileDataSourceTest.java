@@ -87,5 +87,12 @@ class FileDataSourceTest extends AbstractDataSourceTest {
         assertTrue(names.contains(getBaseName() + suffix + "." + ext));
         assertFalse(names.contains("dummy.txt"));
         assertFalse(names.contains("dummy2.txt"));
+
+        // but all the files are listed through list names for the isolated directory FileDataSource
+        DataSource dsUnfiltered = new FileDataSource(testDir, getBaseName(), true);
+        assertEquals(3, names.size());
+        assertTrue(names.contains(getBaseName() + suffix + "." + ext));
+        assertTrue(names.contains("dummy.txt"));
+        assertTrue(names.contains("dummy2.txt"));
     }
 }
