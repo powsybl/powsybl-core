@@ -9,7 +9,6 @@ package com.powsybl.commons.datasource;
 
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
