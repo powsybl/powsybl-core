@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ResourcesDataSourceTest {
 
     @Test
-    void testExists() throws IOException {
+    void testExists() {
         ResourceDataSource dataSourceWithNoMainExtension = new ResourceDataSource("foo", List.of(new ResourceSet("/test/", "foo.txt", "foo.bar")));
         assertTrue(dataSourceWithNoMainExtension.exists("foo.txt"));
         assertTrue(dataSourceWithNoMainExtension.exists(null, "bar"));
