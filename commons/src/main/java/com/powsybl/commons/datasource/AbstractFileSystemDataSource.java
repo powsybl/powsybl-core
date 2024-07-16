@@ -39,9 +39,8 @@ abstract class AbstractFileSystemDataSource implements DataSource {
     }
 
     @Override
-    public boolean existsStrict(String suffix, String ext) throws IOException {
-        return (mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext))
-            && exists(suffix, ext);
+    public boolean isMainExtension(String ext) {
+        return mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext);
     }
 
     public Path getDirectory() {

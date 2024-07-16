@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -57,9 +56,8 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean existsStrict(String suffix, String ext) throws IOException {
-        return (mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext))
-            && exists(suffix, ext);
+    public boolean isMainExtension(String ext) {
+        return mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext);
     }
 
     @Override

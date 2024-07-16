@@ -188,8 +188,8 @@ abstract class AbstractFileSystemDataSourceTest {
         // Checks
         assertTrue(dataSourceWithObserver.exists(null, "iidm"));
         assertTrue(dataSourceWithObserver.exists(null, "txt"));
-        assertTrue(dataSourceWithObserver.existsStrict(null, "iidm"));
-        assertFalse(dataSourceWithObserver.existsStrict(null, "txt"));
+        assertTrue(dataSourceWithObserver.isMainExtension("iidm"));
+        assertFalse(dataSourceWithObserver.isMainExtension("txt"));
 
     }
 }

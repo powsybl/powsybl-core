@@ -26,22 +26,22 @@ class ResourcesDataSourceTest {
         assertTrue(dataSourceWithNoMainExtension.exists("foo.txt"));
         assertTrue(dataSourceWithNoMainExtension.exists(null, "bar"));
         assertTrue(dataSourceWithNoMainExtension.exists(null, "txt"));
-        assertTrue(dataSourceWithNoMainExtension.existsStrict(null, "bar"));
-        assertTrue(dataSourceWithNoMainExtension.existsStrict(null, "txt"));
+        assertTrue(dataSourceWithNoMainExtension.isMainExtension("bar"));
+        assertTrue(dataSourceWithNoMainExtension.isMainExtension("txt"));
 
         ResourceDataSource dataSourceWithEmptyMainExtension = new ResourceDataSource("foo", "", List.of(new ResourceSet("/test/", "foo.txt", "foo.bar")));
         assertTrue(dataSourceWithEmptyMainExtension.exists("foo.txt"));
         assertTrue(dataSourceWithEmptyMainExtension.exists(null, "bar"));
         assertTrue(dataSourceWithEmptyMainExtension.exists(null, "txt"));
-        assertTrue(dataSourceWithEmptyMainExtension.existsStrict(null, "bar"));
-        assertTrue(dataSourceWithEmptyMainExtension.existsStrict(null, "txt"));
+        assertTrue(dataSourceWithEmptyMainExtension.isMainExtension("bar"));
+        assertTrue(dataSourceWithEmptyMainExtension.isMainExtension("txt"));
 
         ResourceDataSource dataSourceWithMainExtension = new ResourceDataSource("foo", "txt", List.of(new ResourceSet("/test/", "foo.txt", "foo.bar")));
         assertTrue(dataSourceWithMainExtension.exists("foo.txt"));
         assertTrue(dataSourceWithMainExtension.exists(null, "bar"));
         assertTrue(dataSourceWithMainExtension.exists(null, "txt"));
-        assertFalse(dataSourceWithMainExtension.existsStrict(null, "bar"));
-        assertTrue(dataSourceWithMainExtension.existsStrict(null, "txt"));
+        assertFalse(dataSourceWithMainExtension.isMainExtension("bar"));
+        assertTrue(dataSourceWithMainExtension.isMainExtension("txt"));
     }
 
     @Test

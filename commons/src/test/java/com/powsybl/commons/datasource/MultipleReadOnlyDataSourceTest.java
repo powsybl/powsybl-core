@@ -54,7 +54,7 @@ class MultipleReadOnlyDataSourceTest {
         assertTrue(dataSource.exists(null, "txt"));
         assertFalse(dataSource.exists(null, "json"));
         assertTrue(dataSource.exists(null, "foo"));
-        assertFalse(dataSource.existsStrict(null, "foo"));
+        assertTrue(dataSource.isMainExtension("foo"));
         assertTrue(dataSource.exists("a.txt"));
         assertTrue(dataSource.exists("b.txt"));
         assertFalse(dataSource.exists("c.txt"));

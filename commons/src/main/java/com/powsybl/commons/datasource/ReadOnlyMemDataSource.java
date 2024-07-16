@@ -67,9 +67,14 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
         return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
+    /**
+     * {@inheritDoc}
+     * As a ReadOnlyMemDataSource does not have a main extension, this method always returns true
+     * @return true
+     */
     @Override
-    public boolean existsStrict(String suffix, String ext) throws IOException {
-        return exists(suffix, ext);
+    public boolean isMainExtension(String ext) {
+        return true;
     }
 
     @Override

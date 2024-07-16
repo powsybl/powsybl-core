@@ -52,14 +52,8 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean existsStrict(String suffix, String ext) {
-        return dataSources.stream().anyMatch(dataSource -> {
-            try {
-                return dataSource.existsStrict(suffix, ext);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        });
+    public boolean isMainExtension(String ext) {
+        return dataSources.stream().anyMatch(dataSource -> dataSource.isMainExtension(ext));
     }
 
     @Override

@@ -190,8 +190,8 @@ public class CgmesImport implements Importer {
         }
 
         @Override
-        public boolean existsStrict(String suffix, String ext) throws IOException {
-            return ds.existsStrict(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        public boolean isMainExtension(String ext) {
+            return ds.isMainExtension(ext);
         }
 
         @Override

@@ -33,12 +33,17 @@ public interface ReadOnlyDataSource {
 
     /**
      * Check if a file exists in the datasource.
-     * @param fileName Name of the file (excluding the compression extension)
+     * @param fileName Name of the file
      * @return true if the file exists, else false
      */
     boolean exists(String fileName) throws IOException;
 
-    boolean existsStrict(String suffix, String ext) throws IOException;
+    /**
+     * Check if the provided extension is the same as the one from the datasource.
+     * @param ext Extension to compare to the datasource main extension
+     * @return true if the datasource main extension is null, empty or equal to {@code ext}, else false
+     */
+    boolean isMainExtension(String ext);
 
     InputStream newInputStream(String suffix, String ext) throws IOException;
 

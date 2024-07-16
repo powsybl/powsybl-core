@@ -60,9 +60,9 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean existsStrict(String suffix, String ext) throws IOException {
+    public boolean isMainExtension(String ext) {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.existsStrict(suffix, ext)) {
+            if (dataSource.isMainExtension(ext)) {
                 return true;
             }
         }
