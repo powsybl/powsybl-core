@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.pf.PsseRates;
 import com.powsybl.psse.model.pf.PsseSubstation;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
 import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
@@ -380,6 +381,14 @@ public abstract class AbstractConverter {
         return (shuntAdmittance + (1 - vnom1 / vnom2) * admittanceTransmission) * vnom2 * vnom2 / sbase;
     }
 
+    static Complex impedanceToPerUnit(Complex impedance, double vnom, double sbase) {
+        return impedance.multiply(sbase / (vnom * vnom));
+    }
+
+    static Complex admittanceToPerUnit(Complex admittance, double vnom, double sbase) {
+        return admittance.multiply(vnom * vnom / sbase);
+    }
+
     static double powerToShuntAdmittance(double power, double vnom) {
         return power / (vnom * vnom);
     }
@@ -402,6 +411,50 @@ public abstract class AbstractConverter {
 
     static double getVa(Bus bus) {
         return bus != null && Double.isFinite(bus.getAngle()) ? bus.getAngle() : 0.0;
+    }
+
+    static List<Double> getSortedRates(CurrentLimits currentLimits, double nominalV) {
+        List<Double> rates = new ArrayList<>();
+        rates.add(convertToMva(currentLimits.getPermanentLimit(), nominalV));
+        rates.addAll(currentLimits.getTemporaryLimits().stream().map(temporaryLimit -> convertToMva(temporaryLimit.getValue(), nominalV)).toList());
+        return rates.stream().sorted().toList();
+    }
+
+    static List<Double> getSortedRates(ApparentPowerLimits apparentPowerLimits) {
+        List<Double> rates = new ArrayList<>();
+        rates.add(apparentPowerLimits.getPermanentLimit());
+        rates.addAll(apparentPowerLimits.getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getValue).toList());
+        return rates.stream().sorted().toList();
+    }
+
+    static List<Double> getSortedRates(ActivePowerLimits activePowerLimits) {
+        List<Double> rates = new ArrayList<>();
+        rates.add(activePowerLimits.getPermanentLimit());
+        rates.addAll(activePowerLimits.getTemporaryLimits().stream().map(LoadingLimits.TemporaryLimit::getValue).toList());
+        return rates.stream().sorted().toList();
+    }
+
+    private static double convertToMva(double current, double nominalV) {
+        return (current / 1000.0) * Math.sqrt(3.0) * nominalV;
+    }
+
+    static void setSortedRatesToPsseRates(List<Double> sortedRates, PsseRates rates) {
+        rates.setRate1(getRate(sortedRates, 0));
+        rates.setRate2(getRate(sortedRates, 1));
+        rates.setRate3(getRate(sortedRates, 2));
+        rates.setRate4(getRate(sortedRates, 3));
+        rates.setRate5(getRate(sortedRates, 4));
+        rates.setRate6(getRate(sortedRates, 5));
+        rates.setRate7(getRate(sortedRates, 6));
+        rates.setRate8(getRate(sortedRates, 7));
+        rates.setRate9(getRate(sortedRates, 8));
+        rates.setRate10(getRate(sortedRates, 9));
+        rates.setRate11(getRate(sortedRates, 10));
+        rates.setRate12(getRate(sortedRates, 11));
+    }
+
+    private static double getRate(List<Double> sortedRates, int index) {
+        return sortedRates.size() > index ? sortedRates.get(index) : 0.0;
     }
 
     private final ContainersMapping containersMapping;

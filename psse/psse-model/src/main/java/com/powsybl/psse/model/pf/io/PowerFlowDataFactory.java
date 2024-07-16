@@ -67,7 +67,9 @@ public final class PowerFlowDataFactory {
         context.setFieldNames(PowerFlowRecordGroup.FIXED_BUS_SHUNT, FixedBusShuntData.FIELD_NAMES_35);
         context.setFieldNames(PowerFlowRecordGroup.GENERATOR, GeneratorData.FIELD_NAMES_35);
         context.setFieldNames(PowerFlowRecordGroup.NON_TRANSFORMER_BRANCH, NonTransformerBranchData.FIELD_NAMES_35);
-
+        context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER, TransformerData.FIELD_NAMES_35);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_IMPEDANCES, TransformerData.FIELD_NAMES_IMPEDANCES_35);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_WINDING, TransformerData.FIELD_NAMES_WINDING_35);
         return context;
     }
 }

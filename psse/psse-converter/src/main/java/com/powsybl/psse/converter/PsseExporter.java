@@ -138,7 +138,7 @@ public class PsseExporter implements Exporter {
         FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, updatedPsseModel, contextExport);
         GeneratorConverter.updateAndCreateGenerators(network, updatedPsseModel, contextExport, perUnitContext);
         LineConverter.updateAndCreateLines(network, updatedPsseModel, contextExport, perUnitContext);
-        TransformerConverter.updateTransformers(network, updatedPsseModel, contextExport);
+        TransformerConverter.updateAndCreateTransformers(network, updatedPsseModel, contextExport, perUnitContext);
         TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
         SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, contextExport);
     }
@@ -156,6 +156,7 @@ public class PsseExporter implements Exporter {
         FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, psseModel, contextExport);
         GeneratorConverter.updateAndCreateGenerators(network, psseModel, contextExport, perUnitContext);
         LineConverter.updateAndCreateLines(network, psseModel, contextExport, perUnitContext);
+        TransformerConverter.updateAndCreateTransformers(network, psseModel, contextExport, perUnitContext);
         return psseModel;
     }
 

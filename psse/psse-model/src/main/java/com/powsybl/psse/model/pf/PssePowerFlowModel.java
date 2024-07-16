@@ -139,6 +139,11 @@ public class PssePowerFlowModel {
         this.transformers.addAll(modelled(transformers));
     }
 
+    public void replaceAllTransformers(List<PsseTransformer> transformers) {
+        this.transformers.clear();
+        this.transformers.addAll(modelled(transformers));
+    }
+
     public List<PsseTransformer> getTransformers() {
         return Collections.unmodifiableList(transformers);
     }

@@ -357,6 +357,10 @@ public class PsseTransformer extends PsseVersioned {
         this.winding3Rates = winding3Rates;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public TransformerImpedances getImpedances() {
         return impedances;
     }

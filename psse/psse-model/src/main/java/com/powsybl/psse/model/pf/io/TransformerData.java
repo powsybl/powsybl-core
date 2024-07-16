@@ -37,12 +37,15 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     private static final String[] FIELD_NAMES_T2W_IMPEDANCES_RECORD = {"r12", "x12", "sbase12"};
     private static final String[] FIELD_NAMES_T2W_WINDING_RECORD = {STR_WINDV, "nomv"};
     private static final String[] FIELD_NAMES_WINDING_32_33 = {STR_WINDV, "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
+    static final String[] FIELD_NAMES_35 = {"ibus", "jbus", "kbus", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmet", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, "zcod"};
+    static final String[] FIELD_NAMES_IMPEDANCES_35 = {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar"};
+    static final String[] FIELD_NAMES_WINDING_35 = {STR_WINDV, "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
 
     TransformerData() {
         super(TRANSFORMER);
         withFieldNames(V32, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4);
         withFieldNames(V33, "i", "j", "k", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmetr", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP);
-        withFieldNames(V35, "ibus", "jbus", "kbus", STR_CKT, STR_CW, STR_CZ, STR_CM, STR_MAG1, STR_MAG2, "nmet", STR_NAME, STR_STAT, STR_O1, STR_F1, STR_O2, STR_F2, STR_O3, STR_F3, STR_O4, STR_F4, STR_VECGRP, "zcod");
+        withFieldNames(V35, FIELD_NAMES_35);
         withQuotedFields(STR_CKT, STR_NAME, STR_VECGRP);
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
@@ -169,7 +172,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
         private static class PsseTransformerImpedancesRecordData extends AbstractRecordGroup<TransformerImpedances> {
             PsseTransformerImpedancesRecordData() {
-                super(INTERNAL_TRANSFORMER_IMPEDANCES, "r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar");
+                super(INTERNAL_TRANSFORMER_IMPEDANCES, FIELD_NAMES_IMPEDANCES_35);
             }
 
             @Override
@@ -183,7 +186,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 super(INTERNAL_TRANSFORMER_WINDING);
                 withFieldNames(V32, FIELD_NAMES_WINDING_32_33);
                 withFieldNames(V33, FIELD_NAMES_WINDING_32_33);
-                withFieldNames(V35, STR_WINDV, "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
+                withFieldNames(V35, FIELD_NAMES_WINDING_35);
             }
 
             @Override

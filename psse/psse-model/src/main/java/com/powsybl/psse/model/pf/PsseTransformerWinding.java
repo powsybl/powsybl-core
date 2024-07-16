@@ -90,6 +90,10 @@ public class PsseTransformerWinding extends PsseVersioned {
         return nomv;
     }
 
+    public void setNomv(double nomv) {
+        this.nomv = nomv;
+    }
+
     public double getAng() {
         return ang;
     }
@@ -102,12 +106,16 @@ public class PsseTransformerWinding extends PsseVersioned {
         return cod;
     }
 
-    public void setCont(int cont) {
-        this.cont = cont;
+    public void setCod(int cod) {
+        this.cod = cod;
     }
 
     public int getCont() {
         return cont;
+    }
+
+    public void setCont(int cont) {
+        this.cont = cont;
     }
 
     public int getNode() {
@@ -115,40 +123,80 @@ public class PsseTransformerWinding extends PsseVersioned {
         return node;
     }
 
+    public void setNode(int node) {
+        this.node = node;
+    }
+
     public double getRma() {
         return rma;
+    }
+
+    public void setRma(double rma) {
+        this.rma = rma;
     }
 
     public double getRmi() {
         return rmi;
     }
 
+    public void setRmi(double rmi) {
+        this.rmi = rmi;
+    }
+
     public double getVma() {
         return vma;
+    }
+
+    public void setVma(double vma) {
+        this.vma = vma;
     }
 
     public double getVmi() {
         return vmi;
     }
 
+    public void setVmi(double vmi) {
+        this.vmi = vmi;
+    }
+
     public int getNtp() {
         return ntp;
+    }
+
+    public void setNtp(int ntp) {
+        this.ntp = ntp;
     }
 
     public int getTab() {
         return tab;
     }
 
+    public void setTab(int tab) {
+        this.tab = tab;
+    }
+
     public double getCr() {
         return cr;
+    }
+
+    public void setCr(double cr) {
+        this.cr = cr;
     }
 
     public double getCx() {
         return cx;
     }
 
+    public void setCx(double cx) {
+        this.cx = cx;
+    }
+
     public double getCnxa() {
         return cnxa;
+    }
+
+    public void setCnxa(double cnxa) {
+        this.cnxa = cnxa;
     }
 
     public PsseTransformerWinding copy() {
