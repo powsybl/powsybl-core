@@ -1015,7 +1015,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static PsseRates findRates(TwoWindingsTransformer t2w) {
-        PsseRates windingRates = findDefaultWindingRates();
+        PsseRates windingRates = findDefaultRates();
         if (t2w.getApparentPowerLimits1().isPresent()) {
             setSortedRatesToPsseRates(getSortedRates(t2w.getApparentPowerLimits1().get()), windingRates);
         } else if (t2w.getApparentPowerLimits2().isPresent()) {
@@ -1229,7 +1229,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static PsseRates findRates(Leg leg) {
-        PsseRates windingRates = findDefaultWindingRates();
+        PsseRates windingRates = findDefaultRates();
         if (leg.getApparentPowerLimits().isPresent()) {
             setSortedRatesToPsseRates(getSortedRates(leg.getApparentPowerLimits().get()), windingRates);
         } else if (leg.getCurrentLimits().isPresent()) {
@@ -1332,23 +1332,6 @@ class TransformerConverter extends AbstractConverter {
         psseOwnership.setO4(0);
         psseOwnership.setF4(0.0);
         return psseOwnership;
-    }
-
-    private static PsseRates findDefaultWindingRates() {
-        PsseRates windingRates = new PsseRates();
-        windingRates.setRate1(0.0);
-        windingRates.setRate2(0.0);
-        windingRates.setRate3(0.0);
-        windingRates.setRate4(0.0);
-        windingRates.setRate5(0.0);
-        windingRates.setRate6(0.0);
-        windingRates.setRate7(0.0);
-        windingRates.setRate8(0.0);
-        windingRates.setRate9(0.0);
-        windingRates.setRate10(0.0);
-        windingRates.setRate11(0.0);
-        windingRates.setRate12(0.0);
-        return windingRates;
     }
 
     private final PsseTransformer psseTransformer;

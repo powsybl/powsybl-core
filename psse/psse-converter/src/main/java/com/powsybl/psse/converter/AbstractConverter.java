@@ -457,6 +457,23 @@ public abstract class AbstractConverter {
         return sortedRates.size() > index ? sortedRates.get(index) : 0.0;
     }
 
+    static PsseRates findDefaultRates() {
+        PsseRates windingRates = new PsseRates();
+        windingRates.setRate1(0.0);
+        windingRates.setRate2(0.0);
+        windingRates.setRate3(0.0);
+        windingRates.setRate4(0.0);
+        windingRates.setRate5(0.0);
+        windingRates.setRate6(0.0);
+        windingRates.setRate7(0.0);
+        windingRates.setRate8(0.0);
+        windingRates.setRate9(0.0);
+        windingRates.setRate10(0.0);
+        windingRates.setRate11(0.0);
+        windingRates.setRate12(0.0);
+        return windingRates;
+    }
+
     private final ContainersMapping containersMapping;
     private final Network network;
 }

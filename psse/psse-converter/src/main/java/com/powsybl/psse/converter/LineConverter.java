@@ -152,28 +152,22 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    private static double getRate(Line line, double vNominal1, double vNominal2) {
-        if (line.getApparentPowerLimits1().isPresent() && line.getApparentPowerLimits2().isPresent()) {
-            return Math.min(line.getApparentPowerLimits1().get().getPermanentLimit(), line.getApparentPowerLimits2().get().getPermanentLimit());
-        } else if (line.getApparentPowerLimits1().isPresent()) {
-            return line.getApparentPowerLimits1().get().getPermanentLimit();
+    private static PsseRates findRates(Line line, double vNominal1, double vNominal2) {
+        PsseRates windingRates = findDefaultRates();
+        if (line.getApparentPowerLimits1().isPresent()) {
+            setSortedRatesToPsseRates(getSortedRates(line.getApparentPowerLimits1().get()), windingRates);
         } else if (line.getApparentPowerLimits2().isPresent()) {
-            return line.getApparentPowerLimits2().get().getPermanentLimit();
-        } else if (line.getCurrentLimits1().isPresent() && line.getCurrentLimits2().isPresent()) {
-            return Math.min(line.getCurrentLimits1().get().getPermanentLimit() * Math.sqrt(3) * vNominal1, line.getCurrentLimits2().get().getPermanentLimit() * Math.sqrt(3) * vNominal2);
+            setSortedRatesToPsseRates(getSortedRates(line.getApparentPowerLimits2().get()), windingRates);
         } else if (line.getCurrentLimits1().isPresent()) {
-            return line.getCurrentLimits1().get().getPermanentLimit() * Math.sqrt(3) * vNominal1;
+            setSortedRatesToPsseRates(getSortedRates(line.getCurrentLimits1().get(), vNominal1), windingRates);
         } else if (line.getCurrentLimits2().isPresent()) {
-            return line.getCurrentLimits2().get().getPermanentLimit() * Math.sqrt(3) * vNominal2;
-        } else if (line.getActivePowerLimits1().isPresent() && line.getActivePowerLimits2().isPresent()) {
-            return Math.min(line.getActivePowerLimits1().get().getPermanentLimit(), line.getActivePowerLimits2().get().getPermanentLimit());
+            setSortedRatesToPsseRates(getSortedRates(line.getCurrentLimits2().get(), vNominal2), windingRates);
         } else if (line.getActivePowerLimits1().isPresent()) {
-            return line.getActivePowerLimits1().get().getPermanentLimit();
+            setSortedRatesToPsseRates(getSortedRates(line.getActivePowerLimits1().get()), windingRates);
         } else if (line.getActivePowerLimits2().isPresent()) {
-            return line.getActivePowerLimits2().get().getPermanentLimit();
-        } else {
-            return 0.0;
+            setSortedRatesToPsseRates(getSortedRates(line.getActivePowerLimits2().get()), windingRates);
         }
+        return windingRates;
     }
 
     static PsseNonTransformerBranch createLine(Line line, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
@@ -192,20 +186,7 @@ class LineConverter extends AbstractConverter {
         psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getX(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setB(0.0);
         psseLine.setName(line.getNameOrId().substring(0, Math.min(40, line.getNameOrId().length())));
-        PsseRates psseRates = new PsseRates();
-        psseRates.setRate1(getRate(line, vNom1, vNom2));
-        psseRates.setRate2(0.0);
-        psseRates.setRate3(0.0);
-        psseRates.setRate4(0.0);
-        psseRates.setRate5(0.0);
-        psseRates.setRate6(0.0);
-        psseRates.setRate7(0.0);
-        psseRates.setRate8(0.0);
-        psseRates.setRate9(0.0);
-        psseRates.setRate10(0.0);
-        psseRates.setRate11(0.0);
-        psseRates.setRate12(0.0);
-        psseLine.setRates(psseRates);
+        psseLine.setRates(findRates(line, vNom1, vNom2));
         psseLine.setGi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), line.getG1(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setBi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), line.getB1(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setGj(admittanceEnd2ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), line.getG2(), vNom1, vNom2, perUnitContext.sBase()));
