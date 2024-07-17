@@ -69,6 +69,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         checkDataSource(new TarArchiveDataSource(testDir, "foo", "", compressionFormat), "foo.tar.gz", "foo", "", archiveFormat, compressionFormat, null);
         checkDataSource(new TarArchiveDataSource(testDir, "foo", compressionFormat, observer), "foo.tar.gz", "foo", null, archiveFormat, compressionFormat, observer);
         checkDataSource(new TarArchiveDataSource(testDir, "foo", compressionFormat), "foo.tar.gz", "foo", null, archiveFormat, compressionFormat, null);
+        checkDataSource(new TarArchiveDataSource(testDir, "foo"), "foo.tar", "foo", null, archiveFormat, null, null);
         checkDataSource(new TarArchiveDataSource(testDir.resolve("foo_bar.tar.gz")), "foo_bar.tar.gz", "foo_bar", "", archiveFormat, compressionFormat, null);
     }
 
