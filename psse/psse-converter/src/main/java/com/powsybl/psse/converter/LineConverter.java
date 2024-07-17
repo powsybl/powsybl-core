@@ -130,8 +130,8 @@ class LineConverter extends AbstractConverter {
             } else {
                 psseModel.addNonTransformerBranches(Collections.singletonList(createLine(line, contextExport, perUnitContext)));
             }
-            psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
         });
+        psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
 
     static void updateLine(Line line, PsseNonTransformerBranch psseLine, ContextExport contextExport) {

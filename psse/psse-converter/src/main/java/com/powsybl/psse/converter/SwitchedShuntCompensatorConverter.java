@@ -292,9 +292,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
                 } else {
                     psseModel.addSwitchedShunts(Collections.singletonList(createSwitchedShunt(shuntCompensator, version, contextExport)));
                 }
-                psseModel.replaceAllSwitchedShunts(psseModel.getSwitchedShunts().stream().sorted(Comparator.comparingInt(PsseSwitchedShunt::getI).thenComparing(PsseSwitchedShunt::getId)).toList());
             }
         });
+        psseModel.replaceAllSwitchedShunts(psseModel.getSwitchedShunts().stream().sorted(Comparator.comparingInt(PsseSwitchedShunt::getI).thenComparing(PsseSwitchedShunt::getId)).toList());
     }
 
     static void updateSwitchedShunt(ShuntCompensator shuntCompensator, PsseSwitchedShunt psseSwitchedShunt, PsseVersion version, ContextExport contextExport) {

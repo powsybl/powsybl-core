@@ -130,8 +130,8 @@ class GeneratorConverter extends AbstractConverter {
             } else {
                 psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, perUnitContext)));
             }
-            psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
         });
+        psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
     }
 
     static void updateGenerator(Generator generator, PsseGenerator psseGenerator, ContextExport contextExport) {

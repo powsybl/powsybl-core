@@ -101,8 +101,8 @@ class LoadConverter extends AbstractConverter {
             } else {
                 psseModel.addLoads(Collections.singletonList(createLoad(load, contextExport)));
             }
-            psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
         });
+        psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
     }
 
     private static void updateLoad(Load load, PsseLoad psseLoad, ContextExport contextExport) {

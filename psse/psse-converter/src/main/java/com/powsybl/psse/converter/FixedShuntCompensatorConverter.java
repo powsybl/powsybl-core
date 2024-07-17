@@ -73,9 +73,9 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
                 } else {
                     psseModel.addFixedShunts(Collections.singletonList(createFixedShunt(shuntCompensator, contextExport)));
                 }
-                psseModel.replaceAllFixedShunts(psseModel.getFixedShunts().stream().sorted(Comparator.comparingInt(PsseFixedShunt::getI).thenComparing(PsseFixedShunt::getId)).toList());
             }
         });
+        psseModel.replaceAllFixedShunts(psseModel.getFixedShunts().stream().sorted(Comparator.comparingInt(PsseFixedShunt::getI).thenComparing(PsseFixedShunt::getId)).toList());
     }
 
     static void updateFixedShunt(ShuntCompensator shuntCompensator, PsseFixedShunt psseFixedShunt, ContextExport contextExport) {
