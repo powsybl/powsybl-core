@@ -61,7 +61,7 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
         this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()));
     }
 
-    private static boolean entryExists(Path zipFilePath, String fileName) {
+    protected boolean entryExists(Path zipFilePath, String fileName) {
         if (Files.exists(zipFilePath)) {
             try (ZipFile zipFile = ZipFile.builder()
                 .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
@@ -72,13 +72,6 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
             }
         }
         return false;
-    }
-
-    @Override
-    public boolean exists(String fileName) {
-        Objects.requireNonNull(fileName);
-        Path zipFilePath = getArchiveFilePath();
-        return entryExists(zipFilePath, fileName);
     }
 
     @Override

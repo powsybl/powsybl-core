@@ -56,10 +56,18 @@ public class FileInformation {
         // File name without the compression extension
         String fileNameWithoutCompressionExtension = compressionFormat == null ? fileName : fileName.substring(0, currentDotIndex);
 
+        // Last dot index
+        currentDotIndex = fileNameWithoutCompressionExtension.lastIndexOf('.');
+
         // Archive extension
         String fileNameWithoutCompressionNorArchive;
-        archiveFormat = compressionFormat == CompressionFormat.ZIP ? ArchiveFormat.ZIP : null;
-        fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension;
+        if (compressionFormat == CompressionFormat.ZIP) {
+            archiveFormat = ArchiveFormat.ZIP;
+            fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension;
+        } else {
+            archiveFormat = "tar".equals(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1)) ? ArchiveFormat.TAR : null;
+            fileNameWithoutCompressionNorArchive = archiveFormat == null ? fileNameWithoutCompressionExtension : fileNameWithoutCompressionExtension.substring(0, currentDotIndex);
+        }
 
         // Last dot index
         currentDotIndex = fileNameWithoutCompressionNorArchive.lastIndexOf('.');

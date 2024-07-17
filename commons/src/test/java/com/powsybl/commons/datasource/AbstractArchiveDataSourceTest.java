@@ -47,6 +47,18 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         fileSystem.close();
     }
 
+    protected void checkDataSource(AbstractArchiveDataSource dataSource, String zipFileName, String baseName,
+                                   String dataExtension, ArchiveFormat archiveFormat,
+                                   CompressionFormat compressionFormat, DataSourceObserver observer) {
+        assertEquals(testDir, dataSource.getDirectory());
+        assertEquals(zipFileName, dataSource.getArchiveFilePath().getFileName().toString());
+        assertEquals(baseName, dataSource.getBaseName());
+        assertEquals(dataExtension, dataSource.getDataExtension());
+        assertEquals(archiveFormat, dataSource.getArchiveFormat());
+        assertEquals(compressionFormat, dataSource.getCompressionFormat());
+        assertEquals(observer, dataSource.getObserver());
+    }
+
     @Test
     void testFileInSubfolder() throws IOException {
         // File

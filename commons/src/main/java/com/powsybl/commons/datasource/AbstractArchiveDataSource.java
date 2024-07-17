@@ -8,6 +8,7 @@
 package com.powsybl.commons.datasource;
 
 import java.nio.file.Path;
+import java.util.Objects;
 
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
@@ -25,5 +26,18 @@ public abstract class AbstractArchiveDataSource extends AbstractFileSystemDataSo
 
     protected Path getArchiveFilePath() {
         return directory.resolve(archiveFileName);
+    }
+
+    protected ArchiveFormat getArchiveFormat() {
+        return archiveFormat;
+    }
+
+    protected abstract boolean entryExists(Path archiveFilePath, String fileName);
+
+    @Override
+    public boolean exists(String fileName) {
+        Objects.requireNonNull(fileName);
+        Path archiveFilePath = getArchiveFilePath();
+        return entryExists(archiveFilePath, fileName);
     }
 }

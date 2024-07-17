@@ -19,11 +19,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ArchiveFormatTest {
     @Test
     void test() {
-        assertEquals(1, ArchiveFormat.values().length);
+        assertEquals(2, ArchiveFormat.values().length);
         assertEquals("zip", ArchiveFormat.ZIP.getExtension());
+        assertEquals("tar", ArchiveFormat.TAR.getExtension());
 
         List<String> formats = List.of(
-            ArchiveFormat.ZIP.name());
+            ArchiveFormat.ZIP.name(),
+            ArchiveFormat.TAR.name());
         assertEquals(formats, ArchiveFormat.getFormats());
     }
 }

@@ -55,24 +55,16 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", "iidm", observer), "foo_bar.zip", "foo", "iidm", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", "iidm"), "foo_bar.zip", "foo", "iidm", null);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "iidm", observer), "foo.iidm.zip", "foo", "iidm", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "", observer), "foo.zip", "foo", "", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "iidm"), "foo.iidm.zip", "foo", "iidm", null);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", (String) null), "foo.zip", "foo", null, null);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", ""), "foo.zip", "foo", "", null);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", observer), "foo.zip", "foo", null, observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null, null);
-        checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null, null);
-    }
-
-    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, String dataExtension, DataSourceObserver observer) {
-        assertEquals(testDir, dataSource.getDirectory());
-        assertEquals(dataExtension, dataSource.getDataExtension());
-        assertEquals(zipFileName, dataSource.getArchiveFilePath().getFileName().toString());
-        assertEquals(baseName, dataSource.getBaseName());
-        assertEquals(observer, dataSource.getObserver());
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", "iidm", observer), "foo_bar.zip", "foo", "iidm", archiveFormat, compressionFormat, observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", "iidm"), "foo_bar.zip", "foo", "iidm", archiveFormat, compressionFormat, null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "iidm", observer), "foo.iidm.zip", "foo", "iidm", archiveFormat, compressionFormat, observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "", observer), "foo.zip", "foo", "", archiveFormat, compressionFormat, observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "iidm"), "foo.iidm.zip", "foo", "iidm", archiveFormat, compressionFormat, null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", (String) null), "foo.zip", "foo", null, archiveFormat, compressionFormat, null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", ""), "foo.zip", "foo", "", archiveFormat, compressionFormat, null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", observer), "foo.zip", "foo", null, archiveFormat, compressionFormat, observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null, archiveFormat, compressionFormat, null);
+        checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null, archiveFormat, compressionFormat, null);
     }
 
     @Override
@@ -161,8 +153,12 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
             out.closeEntry();
 
         }
+
+        // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
         DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, null);
+
+        // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
         assertFalse(dataSource.exists("not.zip"));
         assertTrue(dataSource.exists(null, MAIN_EXT));
