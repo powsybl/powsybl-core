@@ -86,10 +86,6 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
         psseFixedShunt.setI(bus);
     }
 
-    private static int getStatus(ShuntCompensator shuntCompensator) {
-        return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
-    }
-
     private static double getP(ShuntCompensator shuntCompensator) {
         return shuntAdmittanceToPower(shuntCompensator.getG(shuntCompensator.getSectionCount()),
                 shuntCompensator.getTerminal().getVoltageLevel().getNominalV());

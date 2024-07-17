@@ -232,6 +232,11 @@ public class PssePowerFlowModel {
         this.switchedShunts.addAll(modelled(switchedShunts));
     }
 
+    public void replaceAllSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
+        this.switchedShunts.clear();
+        this.switchedShunts.addAll(switchedShunts);
+    }
+
     public List<PsseSwitchedShunt> getSwitchedShunts() {
         return Collections.unmodifiableList(switchedShunts);
     }

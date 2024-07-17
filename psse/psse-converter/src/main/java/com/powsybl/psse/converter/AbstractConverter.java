@@ -191,6 +191,10 @@ public abstract class AbstractConverter {
         }
     }
 
+    static int getStatus(ShuntCompensator shuntCompensator) {
+        return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
+    }
+
     static List<String> getEquipmentListToBeExported(VoltageLevel voltageLevel) {
         List<String> equipmentListToBeExported = new ArrayList<>();
         for (Connectable<?> connectable : voltageLevel.getConnectables()) {
