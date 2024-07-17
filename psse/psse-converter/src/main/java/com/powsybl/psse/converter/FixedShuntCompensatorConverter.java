@@ -63,13 +63,13 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     static void updateAndCreateFixedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        Map<String, PsseFixedShunt> generatorsToPsseFixedShunt = new HashMap<>();
-        psseModel.getFixedShunts().forEach(psseFixedShunt -> generatorsToPsseFixedShunt.put(getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId()), psseFixedShunt));
+        Map<String, PsseFixedShunt> shuntCompensatorsToPsseFixedShunt = new HashMap<>();
+        psseModel.getFixedShunts().forEach(psseFixedShunt -> shuntCompensatorsToPsseFixedShunt.put(getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId()), psseFixedShunt));
 
         network.getShuntCompensators().forEach(shuntCompensator -> {
             if (isFixedShunt(shuntCompensator)) {
-                if (generatorsToPsseFixedShunt.containsKey(shuntCompensator.getId())) {
-                    updateFixedShunt(shuntCompensator, generatorsToPsseFixedShunt.get(shuntCompensator.getId()), contextExport);
+                if (shuntCompensatorsToPsseFixedShunt.containsKey(shuntCompensator.getId())) {
+                    updateFixedShunt(shuntCompensator, shuntCompensatorsToPsseFixedShunt.get(shuntCompensator.getId()), contextExport);
                 } else {
                     psseModel.addFixedShunts(Collections.singletonList(createFixedShunt(shuntCompensator, contextExport)));
                 }
