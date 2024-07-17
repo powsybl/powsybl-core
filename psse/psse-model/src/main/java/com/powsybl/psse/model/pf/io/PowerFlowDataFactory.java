@@ -72,6 +72,9 @@ public final class PowerFlowDataFactory {
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TRANSFORMER_WINDING, TransformerData.FIELD_NAMES_WINDING_35);
         context.setFieldNames(PowerFlowRecordGroup.SWITCHED_SHUNT, SwitchedShuntData.FIELD_NAMES_35);
 
+        context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, TwoTerminalDcTransmissionLineData.FIELD_NAMES_35);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER, TwoTerminalDcTransmissionLineData.FIELD_NAMES_CONVERTER_35);
+
         return context;
     }
 }

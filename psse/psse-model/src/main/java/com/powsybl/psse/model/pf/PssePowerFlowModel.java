@@ -160,6 +160,11 @@ public class PssePowerFlowModel {
         this.twoTerminalDcTransmissionLines.addAll(modelled(twoTerminalDcTransmissionLines));
     }
 
+    public void replaceAllTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines) {
+        this.twoTerminalDcTransmissionLines.clear();
+        this.twoTerminalDcTransmissionLines.addAll(twoTerminalDcTransmissionLines);
+    }
+
     public List<PsseTwoTerminalDcTransmissionLine> getTwoTerminalDcTransmissionLines() {
         return Collections.unmodifiableList(twoTerminalDcTransmissionLines);
     }

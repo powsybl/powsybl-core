@@ -191,6 +191,10 @@ public abstract class AbstractConverter {
         }
     }
 
+    static boolean isTwoTerminalDcTransmissionLine(HvdcLine hvdcLine) {
+        return hvdcLine.getConverterStation1().getHvdcType().equals(HvdcConverterStation.HvdcType.LCC);
+    }
+
     static int getStatus(ShuntCompensator shuntCompensator) {
         return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
     }

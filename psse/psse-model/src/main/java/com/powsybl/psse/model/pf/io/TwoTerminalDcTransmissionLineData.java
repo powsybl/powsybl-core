@@ -30,13 +30,15 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
 
     private static final String[] FIELD_NAMES_32_33 = {"name", "mdc", "rdc", "setvl", "vschd", "vcmod", "rcomp", "delti", "meter", "dcvmin", "cccitmx", "cccacc"};
     private static final String[] FIELD_NAMES_CONVERTER_32_33 = {"ip", "nb", "anmx", "anmn", "rc", "xc", "ebas", "tr", "tap", "tmx", "tmn", "stp", "ic", "if", "it", "id", "xcap"};
+    static final String[] FIELD_NAMES_35 = {"name", "mdc", "rdc", "setvl", "vschd", "vcmod", "rcomp", "delti", "met", "dcvmin", "cccitmx", "cccacc"};
+    static final String[] FIELD_NAMES_CONVERTER_35 = {"ip", "nb", "anmx", "anmn", "rc", "xc", "ebas", "tr", "tap", "tmx", "tmn", "stp", "ic", "nd", "if", "it", "id", "xcap"};
 
     TwoTerminalDcTransmissionLineData() {
         super(TWO_TERMINAL_DC_TRANSMISSION_LINE);
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
-        withFieldNames(V35, "name", "mdc", "rdc", "setvl", "vschd", "vcmod", "rcomp", "delti", "met", "dcvmin", "cccitmx", "cccacc");
+        withFieldNames(V35, FIELD_NAMES_35);
         withQuotedFields("name", "meter", "idr", "idi", "met", "id");
     }
 
@@ -116,7 +118,7 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
                 super(INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER);
                 withFieldNames(V32, FIELD_NAMES_CONVERTER_32_33);
                 withFieldNames(V33, FIELD_NAMES_CONVERTER_32_33);
-                withFieldNames(V35, "ip", "nb", "anmx", "anmn", "rc", "xc", "ebas", "tr", "tap", "tmx", "tmn", "stp", "ic", "nd", "if", "it", "id", "xcap");
+                withFieldNames(V35, FIELD_NAMES_CONVERTER_35);
                 withQuotedFields();
             }
 
