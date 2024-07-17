@@ -82,6 +82,11 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         return new ZipArchiveDataSource(testDir, "foo", "iidm", observer);
     }
 
+    @Override
+    protected AbstractArchiveDataSource createArchiveDataSource() {
+        return new ZipArchiveDataSource(testDir, "foo.bar", "foo", null, null);
+    }
+
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
             Arguments.of("foo", "iidm", CompressionFormat.ZIP),

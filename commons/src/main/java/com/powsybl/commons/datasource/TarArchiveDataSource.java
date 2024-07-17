@@ -156,7 +156,9 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
     public InputStream newInputStream(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
         Path tarFilePath = getArchiveFilePath();
-        try {
+
+        // If the file is in the archive, we can open it
+        if (entryExists(tarFilePath, fileName)) {
             InputStream fis = Files.newInputStream(tarFilePath);
             BufferedInputStream bis = new BufferedInputStream(fis);
             InputStream is = getCompressedInputStream(bis, this.compressionFormat);
@@ -167,10 +169,8 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
                     return observer != null ? new ObservableInputStream(tais, tarFilePath + ":" + fileName, observer) : tais;
                 }
             }
-            return null;
-        } catch (IOException e) {
-            return null;
         }
+        return null;
     }
 
     private static final class TarEntryOutputStream extends ForwardingOutputStream<OutputStream> {
@@ -220,13 +220,13 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
             }
         }
 
-        private static OutputStream getCompressedOutputStream(OutputStream is, CompressionFormat compressionFormat) throws IOException {
-            return switch (compressionFormat) {
-                case GZIP -> new GzipCompressorOutputStream(is);
-                case BZIP2 -> new BZip2CompressorOutputStream(is);
-                case XZ -> new XZCompressorOutputStream(is);
-                case ZSTD -> new ZstdCompressorOutputStream(is);
-                default -> is;
+        private static OutputStream getCompressedOutputStream(OutputStream os, CompressionFormat compressionFormat) throws IOException {
+            return compressionFormat == null ? os : switch (compressionFormat) {
+                case GZIP -> new GzipCompressorOutputStream(os);
+                case BZIP2 -> new BZip2CompressorOutputStream(os);
+                case XZ -> new XZCompressorOutputStream(os);
+                case ZSTD -> new ZstdCompressorOutputStream(os);
+                default -> os;
             };
         }
 

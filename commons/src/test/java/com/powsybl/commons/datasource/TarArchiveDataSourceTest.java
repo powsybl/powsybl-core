@@ -89,11 +89,18 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         return new TarArchiveDataSource(testDir, "foo", "iidm", compressionFormat, observer);
     }
 
+    @Override
+    protected AbstractArchiveDataSource createArchiveDataSource() {
+        return new TarArchiveDataSource(testDir, "foo.bar", "foo", null, compressionFormat, null);
+    }
+
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
             Arguments.of("foo", "iidm", CompressionFormat.GZIP),
             Arguments.of("foo", "", CompressionFormat.XZ),
-            Arguments.of("foo", "v3", CompressionFormat.ZSTD)
+            Arguments.of("foo", "v3", CompressionFormat.ZSTD),
+            Arguments.of("foo", "v3", CompressionFormat.BZIP2),
+            Arguments.of("foo", "v3", null)
         );
     }
 
@@ -195,7 +202,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     private OutputStream getCompressedOutputStream(OutputStream os, CompressionFormat compressionFormat) throws IOException {
-        return switch (compressionFormat) {
+        return compressionFormat == null ? os : switch (compressionFormat) {
             case GZIP -> new GzipCompressorOutputStream(os);
             case BZIP2 -> new BZip2CompressorOutputStream(os);
             case XZ -> new XZCompressorOutputStream(os);

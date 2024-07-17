@@ -93,4 +93,20 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         });
         assertEquals(appendException, exception.getMessage());
     }
+
+    protected abstract AbstractArchiveDataSource createArchiveDataSource();
+
+    @Test
+    void testMissingArchive() throws IOException {
+        AbstractArchiveDataSource dataSource = createArchiveDataSource();
+        assertFalse(dataSource.exists("test.bar"));
+        assertNull(dataSource.newInputStream("test.bar"));
+    }
+
+    @Test
+    void testWrongTypeOfFile() throws IOException {
+        Files.createFile(testDir.resolve("foo.bar"));
+        AbstractArchiveDataSource dataSource = createArchiveDataSource();
+        assertFalse(dataSource.exists("test.bar"));
+    }
 }
