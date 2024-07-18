@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -75,6 +76,27 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         assertTrue(files.contains("foo_bar.iidm"));
         assertFalse(files.contains("foo_baz.iidm"));
         assertTrue(files.contains("subfolder/foo_baz.iidm"));
+    }
+
+    @Test
+    void testStreams() throws IOException {
+        // Create file
+        createArchiveAndFiles(archiveWithSubfolders);
+        Path path = fileSystem.getPath(archiveWithSubfolders);
+
+        // Datasource with an observer
+        DataSourceObserver observer = new DefaultDataSourceObserver();
+        DataSource dataSource = DataSourceUtil.createDataSource(fileSystem.getPath("."), archiveWithSubfolders, observer);
+        assertInstanceOf(ObservableInputStream.class, dataSource.newInputStream("foo.iidm"));
+        assertInstanceOf(ObservableOutputStream.class, dataSource.newOutputStream("test.iidm", false));
+
+        // Datasource without an observer
+        dataSource = DataSource.fromPath(path);
+        try (InputStream inputStream = dataSource.newInputStream("foo.iidm");
+             OutputStream outputStream = dataSource.newOutputStream("test.iidm", false)) {
+            assertFalse(inputStream instanceof ObservableInputStream);
+            assertFalse(outputStream instanceof ObservableOutputStream);
+        }
     }
 
     @Test
