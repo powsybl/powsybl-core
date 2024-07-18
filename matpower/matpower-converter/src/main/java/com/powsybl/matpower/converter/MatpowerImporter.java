@@ -533,6 +533,11 @@ public class MatpowerImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Collections.singletonList(MatpowerConstants.EXT);
+    }
+
+    @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);

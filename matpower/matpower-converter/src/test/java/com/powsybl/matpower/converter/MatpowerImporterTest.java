@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
@@ -50,6 +51,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Importer importer = new MatpowerImporter();
         assertEquals("MATPOWER", importer.getFormat());
         assertEquals("MATPOWER Format to IIDM converter", importer.getComment());
+        assertEquals(List.of("mat"), importer.getSupportedExtensions());
         assertEquals(1, importer.getParameters().size());
         assertEquals("matpower.import.ignore-base-voltage", importer.getParameters().get(0).getName());
     }

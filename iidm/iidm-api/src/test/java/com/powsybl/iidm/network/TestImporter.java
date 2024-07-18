@@ -13,6 +13,7 @@ import com.powsybl.commons.report.ReportNode;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -24,6 +25,11 @@ public class TestImporter implements Importer {
     @Override
     public String getFormat() {
         return "TST";
+    }
+
+    @Override
+    public List<String> getSupportedExtensions() {
+        return List.of("tst");
     }
 
     @Override

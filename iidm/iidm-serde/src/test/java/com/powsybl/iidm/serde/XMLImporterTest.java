@@ -22,6 +22,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.TestUtil.normalizeLineSeparator;
@@ -132,20 +133,13 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void getFormat() {
+    void testMetaInfos() {
         assertEquals("XIIDM", importer.getFormat());
-    }
-
-    @Test
-    void getParameters() {
+        assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
+        assertEquals(List.of("xiidm", "iidm", "xml", "iidm.xml"), importer.getSupportedExtensions());
         assertEquals(5, importer.getParameters().size());
         assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
         assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
-    }
-
-    @Test
-    void getComment() {
-        assertEquals("IIDM XML v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
     }
 
     @Test

@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
@@ -44,6 +45,7 @@ class PsseImporterTest extends AbstractSerDeTest {
         Importer importer = new PsseImporter();
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
+        assertEquals(List.of("raw", "RAW", "rawx", "RAWX"), importer.getSupportedExtensions());
         assertEquals(1, importer.getParameters().size());
         assertEquals("psse.import.ignore-base-voltage", importer.getParameters().get(0).getName());
     }

@@ -62,6 +62,11 @@ public class PsseImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(EXTENSIONS);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
         return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
     }

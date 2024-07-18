@@ -276,6 +276,10 @@ public interface Importer {
      */
     String getFormat();
 
+    default List<String> getSupportedExtensions() {
+        return Collections.emptyList();
+    }
+
     /**
      * Get a description of import parameters
      * @return

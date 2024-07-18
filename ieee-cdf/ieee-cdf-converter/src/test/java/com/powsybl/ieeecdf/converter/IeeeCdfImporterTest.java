@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertXmlEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +41,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
         Importer importer = new IeeeCdfImporter();
         assertEquals("IEEE-CDF", importer.getFormat());
         assertEquals("IEEE Common Data Format to IIDM converter", importer.getComment());
+        assertEquals(List.of("txt"), importer.getSupportedExtensions());
         assertEquals(1, importer.getParameters().size());
         assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
     }

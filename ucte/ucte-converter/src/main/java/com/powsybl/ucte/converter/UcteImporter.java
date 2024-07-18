@@ -940,6 +940,11 @@ public class UcteImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(EXTENSIONS);
+    }
+
+    @Override
     public String getComment() {
         return "UCTE-DEF";
     }

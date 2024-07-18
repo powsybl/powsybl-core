@@ -25,6 +25,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertEquals("POWER-FACTORY", importer.getFormat());
         assertTrue(importer.getParameters().isEmpty());
         assertEquals("PowerFactory to IIDM converter", importer.getComment());
+        assertEquals(List.of("json", "dgs"), importer.getSupportedExtensions());
     }
 
     @Test
