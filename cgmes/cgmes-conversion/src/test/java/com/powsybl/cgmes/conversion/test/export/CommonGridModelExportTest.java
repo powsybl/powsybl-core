@@ -9,15 +9,18 @@ package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
 import com.powsybl.cgmes.extensions.CgmesMetadataModels;
 import com.powsybl.cgmes.extensions.CgmesMetadataModelsAdder;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -36,6 +39,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * Summary from CGM Building Process Implementation Guide:
@@ -420,8 +424,20 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, true);
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "MAS1");
 
+        // Export using a reporter to gather the exported model identifiers
+        ReportNode report = ReportNode
+                .newRootReportNode()
+                .withMessageTemplate("rootKey", "")
+                .build();
+
         MemDataSource memDataSource = new MemDataSource();
-        cgmNetwork.write("CGMES", exportParams, memDataSource);
+        cgmNetwork.write(new ExportersServiceLoader(), "CGMES", exportParams, memDataSource, report);
+
+        // Check the output
+        Set<String> exportedModelIdsFromFiles = new HashSet<>();
+        Map<String, String> exportedModelId2Subset = new HashMap<>();
+        Map<String, String> exportedModelId2NetworkId = new HashMap<>();
+        String cgmesId;
         for (Map.Entry<Country, String> entry : TSO_BY_COUNTRY.entrySet()) {
             Country country = entry.getKey();
             // For this unit test we do not need the TSO from the entry value
@@ -439,11 +455,34 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
             // To know the exported version we should read what has been written in the output files
             int sshVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
             assertEquals(expectedOutputVersion, sshVersionInOutput);
+            cgmesId = readModelId(memDataSource, filenameFromCgmesExport);
+            exportedModelIdsFromFiles.add(cgmesId);
+            exportedModelId2Subset.put(cgmesId, CgmesSubset.STEADY_STATE_HYPOTHESIS.getIdentifier());
+            exportedModelId2NetworkId.put(cgmesId, nc.getId());
         }
         String filenameFromCgmesExport = cgmNetwork.getNameOrId() + "_SV.xml";
         // We have to read it from inside the SV file ...
         int svVersionInOutput = readVersion(memDataSource, filenameFromCgmesExport).orElseThrow();
         assertEquals(expectedOutputVersion, svVersionInOutput);
+        cgmesId = readModelId(memDataSource, filenameFromCgmesExport);
+        exportedModelIdsFromFiles.add(cgmesId);
+        exportedModelId2Subset.put(cgmesId, CgmesSubset.STATE_VARIABLES.getIdentifier());
+        exportedModelId2NetworkId.put(cgmesId, cgmNetwork.getId());
+
+        // Obtain exported model identifiers from reporter
+        Set<String> exportedModelIdsFromReporter = new HashSet<>();
+        for (ReportNode n : report.getChildren()) {
+            if (CgmesExportUtil.REPORT_NODE_KEY_EXPORTED_CGMES_ID.equals(n.getMessageKey())) {
+                cgmesId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_ID).orElseThrow().toString();
+                exportedModelIdsFromReporter.add(cgmesId);
+                String subset = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_SUBSET).orElseThrow().toString();
+                String networkId = n.getValue(CgmesExportUtil.REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID).orElseThrow().toString();
+                assertEquals(exportedModelId2Subset.get(cgmesId), subset);
+                assertEquals(exportedModelId2NetworkId.get(cgmesId), networkId);
+            }
+        }
+        assertFalse(exportedModelIdsFromReporter.isEmpty());
+        assertEquals(exportedModelIdsFromReporter, exportedModelIdsFromFiles);
     }
 
     @Test
@@ -470,6 +509,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
             String country = n.getSubstations().iterator().next().getCountry().orElseThrow().toString();
             CgmesMetadataModel sshModel = n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
             sshModel.clearDependencies()
+                    .clearSupersedes()
                     .addDependentOn("myDependency")
                     .addSupersedes("mySupersede")
                     .setVersion(exportedVersion)
@@ -552,6 +592,32 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         return Optional.empty();
     }
 
+    private static String readModelId(ReadOnlyDataSource ds, String filename) {
+        try {
+            return readId(ds.newInputStream(filename));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static String readId(InputStream is) {
+        try {
+            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
+            while (reader.hasNext()) {
+                int next = reader.next();
+                if (next == XMLStreamConstants.START_ELEMENT && reader.getLocalName().equals("FullModel")) {
+                    String id = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, "about");
+                    reader.close();
+                    return id;
+                }
+            }
+            reader.close();
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
+    }
+
     private Network bareNetwork2Subnetworks() {
         Network network1 = Network
                 .create("Network_BE", "test")
@@ -578,6 +644,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .setVersion(version)
                 .setModelingAuthoritySet("http://elia.be/CGMES/2.4.15")
                 .addDependentOn("BE EQ model ID")
+                .addSupersedes("BE SSH previous ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
                 .add()
                 .add();
@@ -589,6 +656,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .setVersion(version)
                 .setModelingAuthoritySet("http://tennet.nl/CGMES/2.4.15")
                 .addDependentOn("NL EQ model ID")
+                .addSupersedes("NL SSH previous ID")
                 .addProfile("http://entsoe.eu/CIM/SteadyStateHypothesis/1/1")
                 .add()
                 .add();
