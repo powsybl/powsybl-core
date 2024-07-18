@@ -76,9 +76,11 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
     }
 
     public TarArchiveDataSource(Path tarFile) {
-        this(tarFile.getParent(), (new FileInformation(tarFile.getFileName().toString(), false)).getBaseName(),
-            (new FileInformation(tarFile.getFileName().toString(), false)).getDataExtension(),
-            (new FileInformation(tarFile.getFileName().toString(), false)).getCompressionFormat());
+        this(tarFile.getParent(), new FileInformation(tarFile.getFileName().toString(), false));
+    }
+
+    private TarArchiveDataSource(Path directory, FileInformation fileInformation) {
+        this(directory, fileInformation.getBaseName(), fileInformation.getDataExtension(), fileInformation.getCompressionFormat());
     }
 
     /**
