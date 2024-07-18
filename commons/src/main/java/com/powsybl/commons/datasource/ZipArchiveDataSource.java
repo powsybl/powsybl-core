@@ -186,7 +186,6 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
     @Override
     public Set<String> listNames(String regex) throws IOException {
-        // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
         Set<String> names = new HashSet<>();
         Path zipFilePath = getArchiveFilePath();

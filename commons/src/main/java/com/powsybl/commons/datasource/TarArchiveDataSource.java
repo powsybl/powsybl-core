@@ -101,13 +101,10 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
              TarArchiveInputStream tar = new TarArchiveInputStream(cis)) {
             ArchiveEntry entry;
             while ((entry = tar.getNextEntry()) != null) {
-                // Consider only files located at the root of the archive
                 if (!entry.isDirectory()
-                    && entry.getName().indexOf('/') == entry.getName().lastIndexOf('/')
                     && p.matcher(entry.getName()).matches()) {
                     names.add(entry.getName());
                 }
-
             }
         }
         return names;
