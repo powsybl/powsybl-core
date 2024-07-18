@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
@@ -159,18 +160,31 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
 
         // If the file is in the archive, we can open it
         if (entryExists(tarFilePath, fileName)) {
-            InputStream fis = Files.newInputStream(tarFilePath);
-            BufferedInputStream bis = new BufferedInputStream(fis);
-            InputStream is = getCompressedInputStream(bis, this.compressionFormat);
-            TarArchiveInputStream tais = new TarArchiveInputStream(is);
+            InputStream is = new TarEntryInputStream(tarFilePath, fileName, compressionFormat);
+            return observer != null ? new ObservableInputStream(is, tarFilePath + ":" + fileName, observer) : is;
+        }
+        return null;
+    }
+
+    private static final class TarEntryInputStream extends ForwardingInputStream<InputStream> {
+
+        private TarEntryInputStream(Path tarFilePath, String fileName, CompressionFormat compressionFormat) throws IOException {
+            super(setStreamToFile(getTmpStream(tarFilePath, compressionFormat), fileName));
+        }
+
+        private static TarArchiveInputStream getTmpStream(Path tarFilePath, CompressionFormat compressionFormat) throws IOException {
+            return new TarArchiveInputStream(getCompressedInputStream(new BufferedInputStream(Files.newInputStream(tarFilePath)), compressionFormat));
+        }
+
+        private static InputStream setStreamToFile(TarArchiveInputStream tais, String fileName) throws IOException {
             TarArchiveEntry entry;
             while ((entry = tais.getNextEntry()) != null) {
                 if (entry.getName().equals(fileName)) {
-                    return observer != null ? new ObservableInputStream(tais, tarFilePath + ":" + fileName, observer) : tais;
+                    return tais;
                 }
             }
+            return null;
         }
-        return null;
     }
 
     private static final class TarEntryOutputStream extends ForwardingOutputStream<OutputStream> {
