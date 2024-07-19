@@ -15,7 +15,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.test.ComparisonUtils;
@@ -142,7 +142,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
 
         Properties properties = new Properties();
         properties.put("matpower.import.ignore-base-voltage", false);
-        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
 
         exportToMatAndCompareTo(network, "/ieee30-considering-base-voltage.json");
     }
@@ -276,7 +276,7 @@ class MatpowerExporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(matpowerModel, matFile, true);
 
-        var network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+        var network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
 
         exportToMatAndCompareTo(network, "/t_case9_dcline_exported.json");
     }

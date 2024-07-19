@@ -17,19 +17,14 @@ import java.util.zip.GZIPOutputStream;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class GzFileDataSource extends FileDataSource {
+public class GzDirectoryDataSource extends DirectoryDataSource {
 
-    public GzFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
+    public GzDirectoryDataSource(Path directory, String baseName, DataSourceObserver observer) {
+        super(directory, baseName, CompressionFormat.GZIP, observer);
     }
 
-    public GzFileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
-    }
-
-    @Override
-    protected String getCompressionExt() {
-        return ".gz";
+    public GzDirectoryDataSource(Path directory, String baseName) {
+        super(directory, baseName, CompressionFormat.GZIP, null);
     }
 
     @Override
