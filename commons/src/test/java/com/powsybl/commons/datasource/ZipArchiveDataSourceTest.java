@@ -84,13 +84,6 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         return new ZipArchiveDataSource(testDir, "foo", observer);
     }
 
-    @Override
-    protected String getFileName(String baseName, ArchiveFormat archiveFormat,
-                                 CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName
-            + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
-    }
-
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
             Arguments.of("foo.iidm", CompressionFormat.ZIP),
@@ -117,7 +110,7 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     @Override
-    protected void createArchiveAndFiles(String fileName) throws IOException {
+    protected void createFiles(String fileName) throws IOException {
         // Create the Zip archive and add the files
         try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(fileName)))) {
             filesInArchive.forEach(fileInArchive -> {

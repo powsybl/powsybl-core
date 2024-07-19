@@ -31,7 +31,6 @@ abstract class AbstractFileSystemDataSourceTest {
     protected Path testDir;
     protected Set<String> unlistedFiles;
     protected Set<String> existingFiles;
-    protected ArchiveFormat archiveFormat;
     protected CompressionFormat compressionFormat;
 
     @Test
@@ -45,27 +44,21 @@ abstract class AbstractFileSystemDataSourceTest {
 
     protected abstract DataSource createDataSource(DataSourceObserver observer);
 
-    protected String getFileName(String baseName, ArchiveFormat archiveFormat,
-                                 CompressionFormat compressionFormat) {
+    protected String getFileName(String baseName, CompressionFormat compressionFormat) {
         return testDir + "/" + baseName
-            + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
-    protected void createArchiveAndFiles(String fileName) throws IOException {
-        // Do nothing
-    }
+    protected abstract void createFiles(String fileName) throws IOException;
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
     void writeThenReadTest(String baseName, CompressionFormat compressionFormat) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, archiveFormat, compressionFormat);
+        String fileName = getFileName(baseName, compressionFormat);
 
-        // Create an archive when needed
-        if (archiveFormat != null) {
-            createArchiveAndFiles(fileName);
-        }
+        // Create the files
+        createFiles(fileName);
 
         // Create the datasource
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
@@ -123,15 +116,13 @@ abstract class AbstractFileSystemDataSourceTest {
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, archiveFormat, compressionFormat);
+        String fileName = getFileName(baseName, compressionFormat);
 
         // Update the list of unlisted files
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
-        // Create archive when needed
-        if (archiveFormat != null) {
-            createArchiveAndFiles(fileName);
-        }
+        // Create the files
+        createFiles(fileName);
 
         // Create the datasource
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));

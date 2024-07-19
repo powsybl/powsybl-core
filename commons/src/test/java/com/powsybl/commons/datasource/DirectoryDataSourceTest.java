@@ -41,7 +41,19 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
             "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst", "bar.iidm.zst", "bar.zst",
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz", "bar.iidm.gz", "bar.gz"
         );
+    }
 
+    @AfterEach
+    void tearDown() throws Exception {
+        fileSystem.close();
+    }
+
+    @Override
+    protected void createFiles(String fileName) throws IOException {
+        createFiles();
+    }
+
+    private void createFiles() {
         // Create the test files
         existingFiles.forEach(fileName -> {
             try {
@@ -50,11 +62,6 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
                 throw new RuntimeException(e);
             }
         });
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        fileSystem.close();
     }
 
     @Test
