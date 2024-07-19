@@ -49,7 +49,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     }
 
     @Override
-    protected void createFiles(String fileName) throws IOException {
+    protected void createFiles(String fileName) {
         createFiles();
     }
 
