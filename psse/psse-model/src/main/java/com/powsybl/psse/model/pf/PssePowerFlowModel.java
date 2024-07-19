@@ -279,8 +279,6 @@ public class PssePowerFlowModel {
 
     private static void referencePermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
         newPsseModel.addAreas(psseModel.getAreas());
-        newPsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
-        newPsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
         newPsseModel.addTransformerImpedanceCorrections(psseModel.getTransformerImpedanceCorrections());
         newPsseModel.addMultiTerminalDcTransmissionLines(psseModel.getMultiTerminalDcTransmissionLines());
         newPsseModel.addLineGrouping(psseModel.getLineGrouping());
@@ -293,7 +291,6 @@ public class PssePowerFlowModel {
     }
 
     private static void copyModifiedBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
-        psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
         psseModel.getBuses().forEach(psseBus -> newPsseModel.buses.add(psseBus.copy()));
         psseModel.getLoads().forEach(psseLoad -> newPsseModel.loads.add(psseLoad.copy()));
 
@@ -301,7 +298,12 @@ public class PssePowerFlowModel {
         psseModel.getGenerators().forEach(psseGenerator -> newPsseModel.generators.add(psseGenerator.copy()));
         psseModel.getNonTransformerBranches().forEach(nonTransformerBranch -> newPsseModel.nonTransformerBranches.add(nonTransformerBranch.copy()));
         psseModel.getTransformers().forEach(psseTransformer -> newPsseModel.transformers.add(psseTransformer.copy()));
+
+        psseModel.getTwoTerminalDcTransmissionLines().forEach(twoTerminalDc -> newPsseModel.twoTerminalDcTransmissionLines.add(twoTerminalDc.copy()));
+        psseModel.getVoltageSourceConverterDcTransmissionLines().forEach(vscDcTransmissionLine -> newPsseModel.voltageSourceConverterDcTransmissionLines.add(vscDcTransmissionLine.copy()));
+
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> newPsseModel.switchedShunts.add(psseSwitchedShunt.copy()));
+        psseModel.getSubstations().forEach(psseSubstation -> newPsseModel.substations.add(psseSubstation.copy()));
     }
 
     private <T extends PsseVersioned> List<T> modelled(List<T> elements) {
