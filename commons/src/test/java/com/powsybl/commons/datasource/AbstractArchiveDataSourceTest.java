@@ -71,11 +71,12 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
 
         // All the files are listed, no filter is applied
         Set<String> files = dataSource.listNames(".*");
-        assertEquals(3, files.size());
+        assertEquals(4, files.size());
         assertTrue(files.contains("foo.iidm"));
         assertTrue(files.contains("foo_bar.iidm"));
         assertFalse(files.contains("foo_baz.iidm"));
         assertTrue(files.contains("subfolder/foo_baz.iidm"));
+        assertTrue(files.contains("subfolder/subsubfolder/foo.v3.iidm"));
     }
 
     @Test
