@@ -304,6 +304,9 @@ public abstract class AbstractConnectableTest {
         // Failing disconnection
         assertFalse(line1.disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER));
 
+        // Check that line1 is still fully connected
+        line1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+
         // disconnect the line 1
         assertTrue(line1.disconnect());
 
@@ -318,6 +321,12 @@ public abstract class AbstractConnectableTest {
         assertFalse(line1.disconnect());
         network.getReportNodeContext().popReportNode();
         assertEquals("alreadyDisconnectedTerminal", reportNode.getChildren().get(0).getMessageKey());
+
+        // Failing reconnection of the line 1
+        assertFalse(line1.connect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER));
+
+        // Check that line1 is still fully disconnected
+        line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
 
         // Reconnect the line 1
         assertTrue(line1.connect());
