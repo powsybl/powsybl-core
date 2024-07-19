@@ -14,10 +14,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.pf.PsseRates;
-import com.powsybl.psse.model.pf.PsseSubstation;
-import com.powsybl.psse.model.pf.PsseTwoTerminalDcConverter;
-import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
+import com.powsybl.psse.model.pf.*;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -30,6 +27,8 @@ public abstract class AbstractConverter {
 
     private static final String FIXED_SHUNT_TAG = "-SH";
     private static final String SWITCHED_SHUNT_TAG = "-SwSH";
+    private static final String TWO_TERMINAL_DC_TAG = "TwoTerminalDc-";
+    private static final String VSC_DC_TRANSMISSION_LINE_TAG = "VscDcTransmissionLine-";
 
     enum PsseEquipmentType {
         PSSE_LOAD("L"),
@@ -116,16 +115,29 @@ public abstract class AbstractConverter {
     // we can not use rectifierIp and inverterIp as it is managed with only one end in substationData
     // In Psse each two-terminal dc line must have a unique name (up to 12 characters)
     static String getTwoTerminalDcId(String name) {
-        return "TwoTerminalDc-" + name;
+        return TWO_TERMINAL_DC_TAG + name;
     }
 
     public static String extractTwoTerminalDcName(String twoTerminalDcId) {
-        String name = twoTerminalDcId.replace("TwoTerminalDc-", "");
+        String name = twoTerminalDcId.replace(TWO_TERMINAL_DC_TAG, "");
         return name.substring(0, Math.min(12, name.length()));
     }
 
     static String getLccConverterId(Network network, PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, PsseTwoTerminalDcConverter converter) {
         return Identifiables.getUniqueId("LccConverter-" + converter.getIp() + "-" + psseTwoTerminalDc.getName(), id -> network.getLccConverterStation(id) != null);
+    }
+
+    static String getVscDcTransmissionLineId(String name) {
+        return "VscDcTransmissionLine-" + name;
+    }
+
+    public static String extractVscDcTransmissionLineName(String vscDcTransmissionLineId) {
+        String name = vscDcTransmissionLineId.replace("VscDcTransmissionLine-", "");
+        return name.substring(0, Math.min(12, name.length()));
+    }
+
+    static String getVscConverterId(Network network, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionine, PsseVoltageSourceConverter converter) {
+        return Identifiables.getUniqueId("VscConverter-" + converter.getIbus() + "-" + psseVscDcTransmissionine.getName(), id -> network.getVscConverterStation(id) != null);
     }
 
     static String getSwitchId(String voltageLevelId, PsseSubstation.PsseSubstationSwitchingDevice switchingDevice) {
@@ -137,17 +149,31 @@ public abstract class AbstractConverter {
     }
 
     public static Optional<String> extractCkt(String identifiableId, IdentifiableType identifiableType) {
-        return switch (identifiableType) {
-            case SWITCH, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER -> extractCkt(identifiableId, "-");
-            case LOAD -> extractCkt(identifiableId, "-L");
-            case GENERATOR -> extractCkt(identifiableId, "-G");
+        switch (identifiableType) {
+            case SWITCH, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER -> {
+                return extractCkt(identifiableId, "-");
+            }
+            case LOAD -> {
+                return extractCkt(identifiableId, "-L");
+            }
+            case GENERATOR -> {
+                return extractCkt(identifiableId, "-G");
+            }
             case SHUNT_COMPENSATOR -> {
                 Optional<String> ckt = extractCkt(identifiableId, FIXED_SHUNT_TAG);
-                yield ckt.isPresent() ? ckt : extractCkt(identifiableId, SWITCHED_SHUNT_TAG);
+                return ckt.isPresent() ? ckt : extractCkt(identifiableId, SWITCHED_SHUNT_TAG);
             }
-            case HVDC_LINE -> Optional.of(extractTwoTerminalDcName(identifiableId));
+            case HVDC_LINE -> {
+                if (identifiableId.contains(TWO_TERMINAL_DC_TAG)) {
+                    return Optional.of(extractTwoTerminalDcName(identifiableId));
+                } else if (identifiableId.contains(VSC_DC_TRANSMISSION_LINE_TAG)) {
+                    return Optional.of(extractVscDcTransmissionLineName(identifiableId));
+                } else {
+                    return Optional.empty();
+                }
+            }
             default -> throw new PsseException("unexpected identifiableType: " + identifiableType.name());
-        };
+        }
     }
 
     private static Optional<String> extractCkt(String identifiableId, String subString) {
@@ -174,7 +200,10 @@ public abstract class AbstractConverter {
                 ShuntCompensator shunt = (ShuntCompensator) identifiable;
                 yield isFixedShunt(shunt) ? PsseEquipmentType.PSSE_FIXED_SHUNT.getTextCode() : PsseEquipmentType.PSSE_SWITCHED_SHUNT.getTextCode();
             }
-            case HVDC_LINE -> PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE.getTextCode();
+            case HVDC_LINE -> {
+                HvdcLine hvdcLine = (HvdcLine) identifiable;
+                yield isTwoTerminalDcTransmissionLine(hvdcLine) ? PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE.getTextCode() : PsseEquipmentType.PSSE_VSC_DC_LINE.getTextCode();
+            }
             default -> throw new PsseException("unexpected identifiableType: " + identifiable.getType().name());
         };
     }
@@ -193,6 +222,10 @@ public abstract class AbstractConverter {
 
     static boolean isTwoTerminalDcTransmissionLine(HvdcLine hvdcLine) {
         return hvdcLine.getConverterStation1().getHvdcType().equals(HvdcConverterStation.HvdcType.LCC);
+    }
+
+    static boolean isVscDcTransmissionLine(HvdcLine hvdcLine) {
+        return !isTwoTerminalDcTransmissionLine(hvdcLine);
     }
 
     static int getStatus(ShuntCompensator shuntCompensator) {
@@ -480,6 +513,10 @@ public abstract class AbstractConverter {
         windingRates.setRate11(0.0);
         windingRates.setRate12(0.0);
         return windingRates;
+    }
+
+    static double currentInAmpsToMw(double current, double nominalV) {
+        return current * nominalV / 1000.0;
     }
 
     private final ContainersMapping containersMapping;

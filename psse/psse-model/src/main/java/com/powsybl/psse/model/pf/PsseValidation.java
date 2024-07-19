@@ -71,6 +71,8 @@ public class PsseValidation {
         validateGenerators(model.getBuses(), model.getGenerators(), buses);
         validateNonTransformerBranches(model.getNonTransformerBranches(), buses);
         validateTransformers(model.getTransformers(), buses);
+        validateTwoTerminalDcTransmissionLines(model.getTwoTerminalDcTransmissionLines(), buses);
+        validateVscDcTransmissionLines(model.getVoltageSourceConverterDcTransmissionLines(), buses, psseVersion);
 
         validateSwitchedShunts(model.getSwitchedShunts(), buses, psseVersion);
     }
@@ -209,13 +211,13 @@ public class PsseValidation {
     }
 
     private void validateTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
-        List<PsseTransformer> twoWinddingsTransformers = transformers.parallelStream()
+        List<PsseTransformer> twoWindingsTransformers = transformers.parallelStream()
             .filter(transformer -> transformer.getK() == 0).collect(Collectors.toList());
-        validateTwoWindingsTransformers(twoWinddingsTransformers, buses);
+        validateTwoWindingsTransformers(twoWindingsTransformers, buses);
 
-        List<PsseTransformer> threeWinddingsTransformers = transformers.parallelStream()
+        List<PsseTransformer> threeWindingsTransformers = transformers.parallelStream()
             .filter(transformer -> transformer.getK() != 0).collect(Collectors.toList());
-        validateThreeWindingsTransformers(threeWinddingsTransformers, buses);
+        validateThreeWindingsTransformers(threeWindingsTransformers, buses);
     }
 
     private void validateTwoWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
@@ -243,8 +245,7 @@ public class PsseValidation {
     private void validateThreeWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
         Map<String, List<String>> busesTransformers = new HashMap<>();
 
-        for (int i = 0; i < transformers.size(); i++) {
-            PsseTransformer transformer = transformers.get(i);
+        for (PsseTransformer transformer : transformers) {
             validateTransformerBus(buses, transformer.getI(), "I");
             validateTransformerBus(buses, transformer.getJ(), "J");
             validateTransformerBus(buses, transformer.getK(), "K");
@@ -344,11 +345,66 @@ public class PsseValidation {
         }
     }
 
+    private void validateTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines, Map<Integer, List<Integer>> buses) {
+        Map<String, Integer> twoTerminalDcNames = new HashMap<>();
+        for (PsseTwoTerminalDcTransmissionLine twoTerminalDc : twoTerminalDcTransmissionLines) {
+            if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
+                warnings.add(String.format("TwoTerminalDcTransmissionLine: Unexpected rectifier Ip: %d", twoTerminalDc.getRectifier().getIp()));
+                validCase = false;
+            }
+            if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
+                warnings.add(String.format("TwoTerminalDcTransmissionLine: Unexpected inverter Ip: %d", twoTerminalDc.getInverter().getIp()));
+                validCase = false;
+            }
+            twoTerminalDcNames.put(twoTerminalDc.getName(), twoTerminalDcNames.getOrDefault(twoTerminalDc.getName(), 0) + 1);
+        }
+        List<String> duplicatedNames = twoTerminalDcNames.keySet().stream().filter(key -> twoTerminalDcNames.get(key) > 1).toList();
+        if (!duplicatedNames.isEmpty()) {
+            duplicatedNames.forEach(name -> warnings.add(String.format("TwoTerminalDcTransmissionLine: This name %s is not unique", name)));
+            validCase = false;
+        }
+    }
+
+    private void validateVscDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> vscDcTransmissionLines, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {
+        Map<String, Integer> vscDcTransmissionLinesNames = new HashMap<>();
+        for (PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine : vscDcTransmissionLines) {
+            if (!buses.containsKey(vscDcTransmissionLine.getConverter1().getIbus())) {
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter1 Ibus: %d", vscDcTransmissionLine.getConverter1().getIbus()));
+                validCase = false;
+            }
+            if (!buses.containsKey(vscDcTransmissionLine.getConverter2().getIbus())) {
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter2 Ibus: %d", vscDcTransmissionLine.getConverter2().getIbus()));
+                validCase = false;
+            }
+            if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion))) {
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter1 Vsreg bus: %d", vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion)));
+                validCase = false;
+            }
+            if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion))) {
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter2 Vsreg bus: %d", vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion)));
+                validCase = false;
+            }
+            vscDcTransmissionLinesNames.put(vscDcTransmissionLine.getName(), vscDcTransmissionLinesNames.getOrDefault(vscDcTransmissionLine.getName(), 0) + 1);
+        }
+        List<String> duplicatedNames = vscDcTransmissionLinesNames.keySet().stream().filter(key -> vscDcTransmissionLinesNames.get(key) > 1).toList();
+        if (!duplicatedNames.isEmpty()) {
+            duplicatedNames.forEach(name -> warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: This name %s is not unique", name)));
+            validCase = false;
+        }
+    }
+
+    private static int vscDcTransmissionLineRegulatingBus(PsseVoltageSourceConverter converter, PsseVersion psseVersion) {
+        if (psseVersion.major() == V35) {
+            return converter.getVsreg();
+        } else {
+            return converter.getRemot();
+        }
+    }
+
     private void validateSwitchedShunts(List<PsseSwitchedShunt> switchedShunts, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {
         Map<String, List<String>> busesSwitchedShunts = new HashMap<>();
 
-        for (int i = 0; i < switchedShunts.size(); i++) {
-            PsseSwitchedShunt switchedShunt = switchedShunts.get(i);
+        for (PsseSwitchedShunt switchedShunt : switchedShunts) {
             if (!buses.containsKey(switchedShunt.getI())) {
                 warnings.add(String.format("SwitchedShunt: Unexpected I: %d", switchedShunt.getI()));
                 validCase = false;
@@ -464,17 +520,17 @@ public class PsseValidation {
 
     private static int firstBus(String busKey) {
         String[] tokens = busKey.split("-");
-        return Integer.valueOf(tokens[0]);
+        return Integer.parseInt(tokens[0]);
     }
 
     private static int secondBus(String busKey) {
         String[] tokens = busKey.split("-");
-        return Integer.valueOf(tokens[1]);
+        return Integer.parseInt(tokens[1]);
     }
 
     private static int thirdBus(String busKey) {
         String[] tokens = busKey.split("-");
-        return Integer.valueOf(tokens[2]);
+        return Integer.parseInt(tokens[2]);
     }
 
     private void checkDuplicates(String tag, String tagEquipments, Map<String, List<String>> duplicatedBusesEquipments) {

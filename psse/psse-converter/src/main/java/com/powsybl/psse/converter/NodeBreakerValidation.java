@@ -94,6 +94,18 @@ final class NodeBreakerValidation {
             busEquipmentTerminals.computeIfAbsent(psseTwoTerminalDcTransmissionLine.getRectifier().getIp(), k -> new ArrayList<>()).add(idRectifier);
             busEquipmentTerminals.computeIfAbsent(psseTwoTerminalDcTransmissionLine.getInverter().getIp(), k -> new ArrayList<>()).add(idInverter);
         });
+        pssePowerFlowModel.getVoltageSourceConverterDcTransmissionLines().forEach(psseVscDcTransmissionLine -> {
+            String idConverter1 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, psseVscDcTransmissionLine.getConverter1().getIbus(), psseVscDcTransmissionLine.getName());
+            String idConverter2 = getNodeBreakerEquipmentId(PSSE_VSC_DC_LINE, psseVscDcTransmissionLine.getConverter2().getIbus(), psseVscDcTransmissionLine.getName());
+            busEquipmentTerminals.computeIfAbsent(psseVscDcTransmissionLine.getConverter1().getIbus(), k -> new ArrayList<>()).add(idConverter1);
+            busEquipmentTerminals.computeIfAbsent(psseVscDcTransmissionLine.getConverter2().getIbus(), k -> new ArrayList<>()).add(idConverter2);
+            if (psseVscDcTransmissionLine.getConverter1().getVsreg() != 0) {
+                busControls.computeIfAbsent(psseVscDcTransmissionLine.getConverter1().getVsreg(), k -> new ArrayList<>()).add(new NodeBreakerControl(idConverter1, psseVscDcTransmissionLine.getConverter1().getNreg()));
+            }
+            if (psseVscDcTransmissionLine.getConverter2().getVsreg() != 0) {
+                busControls.computeIfAbsent(psseVscDcTransmissionLine.getConverter2().getVsreg(), k -> new ArrayList<>()).add(new NodeBreakerControl(idConverter2, psseVscDcTransmissionLine.getConverter2().getNreg()));
+            }
+        });
         pssePowerFlowModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
             String id = getNodeBreakerEquipmentId(PSSE_SWITCHED_SHUNT, psseSwitchedShunt.getI(), psseSwitchedShunt.getId());
             busEquipmentTerminals.computeIfAbsent(psseSwitchedShunt.getI(), k -> new ArrayList<>()).add(id);

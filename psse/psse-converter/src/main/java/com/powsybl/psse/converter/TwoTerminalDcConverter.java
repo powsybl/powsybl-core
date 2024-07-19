@@ -90,8 +90,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
                 // The desired real power demand
                     Math.abs(psseTwoTerminalDc.getSetvl());
             case 2 ->
-                // It is the current in amps (should divide by 1000 to convert to MW)
-                    psseTwoTerminalDc.getSetvl() * psseTwoTerminalDc.getVschd() / 1000.0;
+                    currentInAmpsToMw(psseTwoTerminalDc.getSetvl(), psseTwoTerminalDc.getVschd());
             default -> 0.0;
         };
     }

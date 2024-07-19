@@ -218,6 +218,10 @@ public class PsseImporter implements Importer {
             new TwoTerminalDcConverter(psseTwoTerminaDc, containersMapping, network, nodeBreakerImport).create();
         }
 
+        for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
+            new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).create();
+        }
+
         // Attach a slack bus
         new SlackConverter(psseModel.getBuses(), containersMapping, network, nodeBreakerImport).create();
 
@@ -231,7 +235,9 @@ public class PsseImporter implements Importer {
         for (PsseTransformer psseTransformer : psseModel.getTransformers()) {
             new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).addControl();
         }
-
+        for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
+            new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
         return network;
     }
 

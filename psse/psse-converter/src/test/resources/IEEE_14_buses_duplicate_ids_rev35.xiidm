@@ -63,6 +63,14 @@
             <iidm:shunt id="B9-SH 0" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
+            <iidm:vscConverterStation id="VscConverter-7-VDCLINE1" voltageRegulatorOn="false" lossFactor="0.047824007" voltageSetpoint="138.0" reactivePowerSetpoint="68.6949779823824" bus="B7" connectableBus="B7">
+                <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
+                <iidm:regulatingTerminal id="L-7-8-1 " side="ONE"/>
+            </iidm:vscConverterStation>
+            <iidm:vscConverterStation id="VscConverter-9-VDCLINE1" voltageRegulatorOn="true" lossFactor="0.043062203" voltageSetpoint="136.62" reactivePowerSetpoint="0.0" bus="B9" connectableBus="B9">
+                <iidm:minMaxReactiveLimits minQ="-140.0" maxQ="150.0"/>
+                <iidm:regulatingTerminal id="B9-L1 "/>
+            </iidm:vscConverterStation>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-4-7-1 " r="0.0" x="39.8248128" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL4" bus2="B7" connectableBus2="B7">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
@@ -123,6 +131,10 @@
                 <iidm:bus id="B11" name="Bus 11      " v="145.85358" angle="-14.7906"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B11-L1 " loadType="UNDEFINED" p0="3.5" q0="1.8" bus="B11" connectableBus="B11"/>
+            <iidm:vscConverterStation id="VscConverter-11-VDCLINE2" voltageRegulatorOn="true" lossFactor="0.0999001" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B11" connectableBus="B11">
+                <iidm:minMaxReactiveLimits minQ="-150.0" maxQ="200.0"/>
+                <iidm:regulatingTerminal id="B11-L1 "/>
+            </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S12">
@@ -141,6 +153,10 @@
                 <iidm:bus id="B13" name="Bus 13      " v="144.95244000000002" angle="-15.1562"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B13-L1 " loadType="UNDEFINED" p0="13.5" q0="5.8" bus="B13" connectableBus="B13"/>
+            <iidm:vscConverterStation id="VscConverter-13-VDCLINE2" voltageRegulatorOn="true" lossFactor="0.093" voltageSetpoint="138.0" reactivePowerSetpoint="0.0" bus="B13" connectableBus="B13">
+                <iidm:minMaxReactiveLimits minQ="-250.0" maxQ="225.0"/>
+                <iidm:regulatingTerminal id="B13-L1 "/>
+            </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S14">
@@ -171,8 +187,10 @@
     <iidm:line id="L-10-11-1 " r="15.625601999999999" x="36.577810799999995" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL10" bus1="B10" connectableBus1="B10" voltageLevelId2="VL11" bus2="B11" connectableBus2="B11"/>
     <iidm:line id="L-12-13-1 " r="42.0720048" x="38.0651472" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL12" bus1="B12" connectableBus1="B12" voltageLevelId2="VL13" bus2="B13" connectableBus2="B13"/>
     <iidm:line id="L-13-14-1 " r="32.5519092" x="66.2769288" g1="0.0" b1="0.0" g2="0.0" b2="0.0" voltageLevelId1="VL13" bus1="B13" connectableBus1="B13" voltageLevelId2="VL14" bus2="B14" connectableBus2="B14"/>
-    <iidm:hvdcLine id="TwoTerminalDc-EATL P1           " name="EATL P1     " r="7.365" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="0.0" converterStation1="LccConverter-10-EATL P1     " converterStation2="LccConverter-12-EATL P1     "/>
-    <iidm:hvdcLine id="TwoTerminalDc-WATL P1           " name="WATL P1     " r="5.125" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="280.0" maxP="336.0" converterStation1="LccConverter-12-WATL P1     " converterStation2="LccConverter-14-WATL P1     "/>
+    <iidm:hvdcLine id="TwoTerminalDc-EATL P1     " name="EATL P1     " r="7.365" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="0.0" maxP="0.0" converterStation1="LccConverter-10-EATL P1     " converterStation2="LccConverter-12-EATL P1     "/>
+    <iidm:hvdcLine id="TwoTerminalDc-WATL P1     " name="WATL P1     " r="5.125" nominalV="500.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="280.0" maxP="336.0" converterStation1="LccConverter-12-WATL P1     " converterStation2="LccConverter-14-WATL P1     "/>
+    <iidm:hvdcLine id="VscDcTransmissionLine-VDCLINE1" name="VDCLINE1" r="0.71" nominalV="138.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="209.0" maxP="400.0" converterStation1="VscConverter-7-VDCLINE1" converterStation2="VscConverter-9-VDCLINE1"/>
+    <iidm:hvdcLine id="VscDcTransmissionLine-VDCLINE2" name="VDCLINE2" r="0.35" nominalV="138.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="250.0" converterStation1="VscConverter-11-VDCLINE2" converterStation2="VscConverter-13-VDCLINE2"/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-SwSH1"/>
     </iidm:extension>
