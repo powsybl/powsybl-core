@@ -101,16 +101,18 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     // Currently, the files are not filtered in the zip archive
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
+        Set<String> listedFiles = Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
+        Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
         return Stream.of(
             Arguments.of("foo.iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
-                Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
-                Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
+                listedFiles,
+                listedBarFiles),
             Arguments.of("foo", CompressionFormat.ZIP, ZipArchiveDataSource.class,
-                Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
-                Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
+                listedFiles,
+                listedBarFiles),
             Arguments.of("foo.v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
-                Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
-                Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar"))
+                listedFiles,
+                listedBarFiles)
         );
     }
 
