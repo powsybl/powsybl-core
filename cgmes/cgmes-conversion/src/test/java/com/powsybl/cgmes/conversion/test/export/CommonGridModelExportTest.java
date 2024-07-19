@@ -17,7 +17,7 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.report.ReportNode;
@@ -515,7 +515,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                     .setVersion(exportedVersion)
                     .setModelingAuthoritySet("myModellingAuthority");
             exportParams.put(CgmesExport.PROFILES, List.of("SSH"));
-            n.write("CGMES", exportParams, new FileDataSource(tmpFolder, basename + "_" + country));
+            n.write("CGMES", exportParams, new DirectoryDataSource(tmpFolder, basename + "_" + country));
         }
 
         // In the main network, CREATE the metadata for SV and export it
@@ -531,7 +531,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
                 .add()
                 .add();
         exportParams.put(CgmesExport.PROFILES, List.of("SV"));
-        DataSource dataSource = new FileDataSource(tmpFolder, basename);
+        DataSource dataSource = new DirectoryDataSource(tmpFolder, basename);
         cgmNetwork.write("CGMES", exportParams, dataSource);
 
         int expectedOutputVersion = exportedVersion;

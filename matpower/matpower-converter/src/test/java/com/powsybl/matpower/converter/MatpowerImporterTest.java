@@ -7,7 +7,7 @@
  */
 package com.powsybl.matpower.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -61,8 +61,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create9();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        new MatpowerImporter().copy(new FileDataSource(tmpDir, model.getCaseName()),
-            new FileDataSource(tmpDir, "copy"));
+        new MatpowerImporter().copy(new DirectoryDataSource(tmpDir, model.getCaseName()),
+            new DirectoryDataSource(tmpDir, "copy"));
         assertTrue(Files.exists(tmpDir.resolve("copy.mat")));
     }
 
@@ -71,8 +71,8 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         MatpowerModel model = MatpowerModelFactory.create118();
         Path matpowerBinCase = tmpDir.resolve(model.getCaseName() + ".mat");
         MatpowerWriter.write(model, matpowerBinCase, true);
-        assertTrue(new MatpowerImporter().exists(new FileDataSource(tmpDir, model.getCaseName())));
-        assertFalse(new MatpowerImporter().exists(new FileDataSource(tmpDir, "doesnotexist")));
+        assertTrue(new MatpowerImporter().exists(new DirectoryDataSource(tmpDir, model.getCaseName())));
+        assertFalse(new MatpowerImporter().exists(new DirectoryDataSource(tmpDir, "doesnotexist")));
     }
 
     @Test
@@ -152,7 +152,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
 
     @Test
     void testNonexistentCase() {
-        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(new FileDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
+        assertThrows(UncheckedIOException.class, () -> testNetwork(new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, "unknown"), NetworkFactory.findDefault(), null)));
     }
 
     private void testCase(MatpowerModel model) throws IOException {
@@ -164,7 +164,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile, true);
 
-        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), properties);
         testNetwork(network, caseId);
     }
 
@@ -190,7 +190,7 @@ class MatpowerImporterTest extends AbstractSerDeTest {
         Path matFile = tmpDir.resolve(caseId + ".mat");
         MatpowerWriter.write(model, matFile, true);
 
-        Network network = new MatpowerImporter().importData(new FileDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
+        Network network = new MatpowerImporter().importData(new DirectoryDataSource(tmpDir, caseId), NetworkFactory.findDefault(), null);
         testSolved(network);
     }
 

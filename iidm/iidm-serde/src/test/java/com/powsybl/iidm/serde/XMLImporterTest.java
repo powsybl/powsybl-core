@@ -122,7 +122,7 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     void backwardCompatibilityTest() throws IOException {
         // create network and datasource
         writeNetwork("/v_1_0.xiidm", IidmVersion.V_1_0, false);
-        DataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "v_1_0");
+        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "v_1_0");
 
         // exists
         assertTrue(importer.exists(dataSource));
@@ -144,23 +144,23 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
 
     @Test
     void exists() {
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test0")));
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test1")));
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test0")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test1")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test2")));
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/"), "testDummy"))); // namespace URI is not defined
     }
 
     @Test
     void copy() throws Exception {
-        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test0"), new FileDataSource(fileSystem.getPath("/"), "test0_copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), new DirectoryDataSource(fileSystem.getPath("/"), "test0_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test0_copy.xiidm")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test0.xiidm"), StandardCharsets.UTF_8),
                 Files.readAllLines(fileSystem.getPath("/test0_copy.xiidm"), StandardCharsets.UTF_8));
 
         // test copy with id mapping file
-        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test6"), new FileDataSource(fileSystem.getPath("/"), "test6_copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), new DirectoryDataSource(fileSystem.getPath("/"), "test6_copy"));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy.xiidm")));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy_mapping.csv")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test6.xiidm"), StandardCharsets.UTF_8),
@@ -172,24 +172,24 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
     @Test
     void importData() {
         // should be ok
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), NetworkFactory.findDefault(), null));
+        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test0"), NetworkFactory.findDefault(), null));
 
         // should fail because file that does not exist
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4"), NetworkFactory.findDefault(), null);
+            importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test4"), NetworkFactory.findDefault(), null);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // extension plugin will be not found but default option just warn
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null));
+        assertNotNull(importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null));
 
         // extension plugin will be not found but option is set to throw an exception
         // (deprecated parameter name)
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params);
+            importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params);
             fail();
         } catch (RuntimeException ignored) {
         }
@@ -199,28 +199,28 @@ class XMLImporterTest extends AbstractIidmSerDeTest {
         Properties params2 = new Properties();
         params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params2);
+            importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params2);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // read file with id mapping
-        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6"), NetworkFactory.findDefault(), params);
+        Network network = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test6"), NetworkFactory.findDefault(), params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
-        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), NetworkFactory.findDefault(), null);
+        Network network2 = importer.importData(new DirectoryDataSource(fileSystem.getPath("/"), "test7"), NetworkFactory.findDefault(), null);
         assertNotNull(network2.getSubstation("P1"));
     }
 
     @Test
     void importDataReportNodeTest() throws IOException {
-        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test8");
+        DirectoryDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test8");
         importDataAndTestReportNode("/importXmlReport.txt", dataSource);
     }
 
     @Test
     void importDataReportNodeExtensionNotFoundTest() throws IOException {
-        FileDataSource dataSource = new FileDataSource(fileSystem.getPath("/"), "test5");
+        DirectoryDataSource dataSource = new DirectoryDataSource(fileSystem.getPath("/"), "test5");
         importDataAndTestReportNode("/importXmlReportExtensionsNotFound.txt", dataSource);
     }
 
