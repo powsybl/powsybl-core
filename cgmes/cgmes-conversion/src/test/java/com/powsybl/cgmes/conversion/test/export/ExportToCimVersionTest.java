@@ -74,7 +74,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         String cimZipFilename = "ieee14_CIM100";
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
         new CgmesExport().export(network, params, zip);
 
         Properties importParams = new Properties();
@@ -127,7 +127,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         String cimZipFilename = name + "_CIM" + cimVersion;
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, Integer.toString(cimVersion));
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
         new CgmesExport().export(network, params, zip);
 
         // Reimport and verify contents of Network
