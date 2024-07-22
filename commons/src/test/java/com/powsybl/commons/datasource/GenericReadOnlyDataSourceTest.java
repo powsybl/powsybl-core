@@ -85,7 +85,7 @@ class GenericReadOnlyDataSourceTest {
         return testDir + "/" + baseName + (mainExtension == null || mainExtension.isEmpty() ? "" : "." + mainExtension);
     }
 
-    private void createFiles(String archiveName) throws IOException{
+    private void createFiles(String archiveName) throws IOException {
         // Create the test files in the directory
         existingFiles.forEach(fileName -> {
             try {
@@ -186,6 +186,4 @@ class GenericReadOnlyDataSourceTest {
         assertTrue(dataSource.isMainExtension("iidm"));
 
     }
-
-
 }
