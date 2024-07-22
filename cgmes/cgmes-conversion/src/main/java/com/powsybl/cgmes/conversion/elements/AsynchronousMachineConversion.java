@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -31,8 +32,8 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         // We make no difference based on the type (motor/generator)
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(p0())
-                .setQ0(q0())
+                .setP0(0.0)
+                .setQ0(0.0)
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
@@ -45,6 +46,16 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
 
     private static void addSpecificProperties(Load load) {
         load.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.ASYNCHRONOUS_MACHINE);
+    }
+
+    @Override
+    public void update(Network network) {
+        //super.update(network); TODO JAM delete
+        Load load = network.getLoad(id);
+        if (load == null) {
+            return;
+        }
+        load.setP0(p0()).setQ0(q0());
     }
 }
 
