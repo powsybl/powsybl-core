@@ -32,10 +32,10 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
     @Override
     public Criterion deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         CriterionType type = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval1 = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval2 = null;
-        SingleNominalVoltageCriterion.VoltageInterval voltageInterval3 = null;
+        VoltageInterval voltageInterval = null;
+        VoltageInterval voltageInterval1 = null;
+        VoltageInterval voltageInterval2 = null;
+        VoltageInterval voltageInterval3 = null;
         List<String> countries = Collections.emptyList();
         List<String> countries1 = Collections.emptyList();
         List<String> countries2 = Collections.emptyList();
@@ -50,22 +50,22 @@ public class CriterionDeserializer extends StdDeserializer<Criterion> {
                 case "voltageInterval" -> {
                     parser.nextToken();
                     voltageInterval = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "voltageInterval1" -> {
                     parser.nextToken();
                     voltageInterval1 = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "voltageInterval2" -> {
                     parser.nextToken();
                     voltageInterval2 = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "voltageInterval3" -> {
                     parser.nextToken();
                     voltageInterval3 = JsonUtil.readValue(deserializationContext, parser,
-                            SingleNominalVoltageCriterion.VoltageInterval.class);
+                            VoltageInterval.class);
                 }
                 case "countries" -> {
                     parser.nextToken();

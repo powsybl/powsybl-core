@@ -171,4 +171,45 @@ class IntervalTemporaryDurationCriterionTest {
         assertThrows(IllegalArgumentException.class, () -> builder5.setLowBound(Integer.MAX_VALUE, false));
         assertDoesNotThrow(() -> builder5.setLowBound(Integer.MAX_VALUE, true)); // [MAX_VALUE ; MAX_VALUE] is valid
     }
+
+    @Test
+    void betweenTest() {
+        IntervalTemporaryDurationCriterion interval = IntervalTemporaryDurationCriterion.between(300, 600, false, true);
+        assertFalse(interval.isLowClosed());
+        assertTrue(interval.isHighClosed());
+        assertEquals(300, interval.getLowBound().orElse(0));
+        assertEquals(600, interval.getHighBound().orElse(0));
+
+        interval = IntervalTemporaryDurationCriterion.between(900, 1200, true, false);
+        assertTrue(interval.isLowClosed());
+        assertFalse(interval.isHighClosed());
+        assertEquals(900, interval.getLowBound().orElse(0));
+        assertEquals(1200, interval.getHighBound().orElse(0));
+    }
+
+    @Test
+    void lowerThanTest() {
+        IntervalTemporaryDurationCriterion interval = IntervalTemporaryDurationCriterion.lowerThan(300, true);
+        assertTrue(interval.getLowBound().isEmpty());
+        assertEquals(300, interval.getHighBound().orElse(0));
+        assertTrue(interval.isHighClosed());
+
+        interval = IntervalTemporaryDurationCriterion.lowerThan(600, false);
+        assertTrue(interval.getLowBound().isEmpty());
+        assertEquals(600, interval.getHighBound().orElse(0));
+        assertFalse(interval.isHighClosed());
+    }
+
+    @Test
+    void greaterThanTest() {
+        IntervalTemporaryDurationCriterion interval = IntervalTemporaryDurationCriterion.greaterThan(60, false);
+        assertEquals(60, interval.getLowBound().orElse(0));
+        assertTrue(interval.getHighBound().isEmpty());
+        assertFalse(interval.isLowClosed());
+
+        interval = IntervalTemporaryDurationCriterion.greaterThan(300, true);
+        assertEquals(300, interval.getLowBound().orElse(0));
+        assertTrue(interval.getHighBound().isEmpty());
+        assertTrue(interval.isLowClosed());
+    }
 }

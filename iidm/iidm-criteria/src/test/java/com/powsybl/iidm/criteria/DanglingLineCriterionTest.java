@@ -7,18 +7,19 @@
  */
 package com.powsybl.iidm.criteria;
 
+import com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapter;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.ThreeSides;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Optional;
 
+import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockDanglingLine;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -46,10 +47,10 @@ public class DanglingLineCriterionTest {
     @Test
     void emptyCriterionTest() {
         DanglingLineCriterion criterion = new DanglingLineCriterion(null, null);
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine4)));
+        assertCriterionTrue(criterion, danglingLine1);
+        assertCriterionTrue(criterion, danglingLine2);
+        assertCriterionTrue(criterion, danglingLine3);
+        assertCriterionTrue(criterion, danglingLine4);
 
         NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
         assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
@@ -58,52 +59,52 @@ public class DanglingLineCriterionTest {
     @Test
     void nominalVoltageTest() {
         DanglingLineCriterion criterion = new DanglingLineCriterion(null, new SingleNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine4)));
+                VoltageInterval.between(40., 100., true, true)));
+        assertCriterionTrue(criterion, danglingLine1);
+        assertCriterionFalse(criterion, danglingLine2);
+        assertCriterionFalse(criterion, danglingLine3);
+        assertCriterionTrue(criterion, danglingLine4);
     }
 
     @Test
     void countryTest() {
         DanglingLineCriterion criterion = new DanglingLineCriterion(new SingleCountryCriterion(List.of(Country.BE)), null);
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine4)));
+        assertCriterionFalse(criterion, danglingLine1);
+        assertCriterionFalse(criterion, danglingLine2);
+        assertCriterionTrue(criterion, danglingLine3);
+        assertCriterionTrue(criterion, danglingLine4);
 
         criterion = new DanglingLineCriterion(new SingleCountryCriterion(List.of(Country.FR, Country.BE)), null);
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine4)));
+        assertCriterionTrue(criterion, danglingLine1);
+        assertCriterionTrue(criterion, danglingLine2);
+        assertCriterionTrue(criterion, danglingLine3);
+        assertCriterionTrue(criterion, danglingLine4);
     }
 
     @Test
     void mixedCriteriaTest() {
         DanglingLineCriterion criterion = new DanglingLineCriterion(new SingleCountryCriterion(List.of(Country.FR)),
                 new SingleNominalVoltageCriterion(
-                        new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine3)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine4)));
+                        VoltageInterval.between(350., 450., true, true)));
+        assertCriterionFalse(criterion, danglingLine1);
+        assertCriterionTrue(criterion, danglingLine2);
+        assertCriterionFalse(criterion, danglingLine3);
+        assertCriterionFalse(criterion, danglingLine4);
+    }
+
+    private void assertCriterionTrue(DanglingLineCriterion criterion, NetworkElement danglingLine) {
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine, ThreeSides.ONE)));
+    }
+
+    private void assertCriterionFalse(DanglingLineCriterion criterion, NetworkElement danglingLine) {
+        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine, ThreeSides.ONE)));
     }
 
     protected static NetworkElement createDanglingLine(String id, Country country, double nominalVoltage) {
-        NetworkElement n = Mockito.mock(NetworkElement.class);
-        when(n.getId()).thenReturn(id);
-        when(n.getCountry()).thenReturn(Optional.of(country));
-        when(n.getCountry1()).thenReturn(Optional.of(country));
-        when(n.getCountry2()).thenReturn(Optional.empty());
-        when(n.getNominalVoltage()).thenReturn(Optional.of(nominalVoltage));
-        when(n.getNominalVoltage1()).thenReturn(Optional.of(nominalVoltage));
-        when(n.getNominalVoltage2()).thenReturn(Optional.empty());
-        when(n.getNominalVoltage3()).thenReturn(Optional.empty());
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.DANGLING_LINE)).thenReturn(true);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE)).thenReturn(true);
-        return n;
+        DanglingLine danglingLine = mockDanglingLine(id, country, nominalVoltage);
+        return new DefaultNetworkElementAdapter(danglingLine);
     }
 }
 

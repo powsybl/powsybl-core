@@ -90,7 +90,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
         SecondaryVoltageControlAdder adder = network.newExtension(SecondaryVoltageControlAdder.class);
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(CONTROL_ZONE_ROOT_ELEMENT)) {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'secondaryVoltageControl'");
+                throw new PowsyblException(getExceptionMessageUnknownElement(elementName, "secondaryVoltageControl"));
             }
             readControlZone(context, adder);
         });
@@ -105,7 +105,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
             switch (elementName) {
                 case PILOT_POINT_ELEMENT -> readPilotPoint(context, controlZoneAdder);
                 case CONTROL_UNIT_ROOT_ELEMENT -> readControlUnit(context, controlZoneAdder);
-                default -> throw new PowsyblException("Unknown element name '" + elementName + "' in 'controlZone'");
+                default -> throw new PowsyblException(getExceptionMessageUnknownElement(elementName, "'controlZone'"));
             }
         });
         controlZoneAdder.add();
@@ -116,7 +116,7 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
         List<String> busbarSectionsOrBusesIds = new ArrayList<>();
         context.getReader().readChildNodes(elementName -> {
             if (!elementName.equals(BUSBAR_SECTION_OR_BUS_ID_ROOT_ELEMENT)) {
-                throw new PowsyblException("Unknown element name '" + elementName + "' in 'pilotPoint'");
+                throw new PowsyblException(getExceptionMessageUnknownElement(elementName, PILOT_POINT_ELEMENT));
             }
             busbarSectionsOrBusesIds.add(context.getReader().readContent());
         });
@@ -133,5 +133,9 @@ public class SecondaryVoltageControlSerDe extends AbstractExtensionSerDe<Network
                 .withId(id)
                 .withParticipate(participate)
                 .add();
+    }
+
+    private static String getExceptionMessageUnknownElement(String elementName, String where) {
+        return "Unknown element name '" + elementName + "' in '" + where + "'";
     }
 }

@@ -15,10 +15,7 @@ import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.NamingStrategy;
 import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.extensions.*;
-import com.powsybl.cgmes.model.CgmesMetadataModel;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Identifiable;
@@ -31,6 +28,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.obtainSynchronousMachineKind;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part.*;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
@@ -53,22 +51,23 @@ public class CgmesExportContext {
     private static final String REGION_NAME = "regionName";
     private static final String DEFAULT_REGION = "default region";
     public static final String SUB_REGION_ID = "subRegionId";
+    private static final String BOUNDARY_EQ_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EQ_BD_ID";
+    private static final String BOUNDARY_TP_ID_PROPERTY = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "TP_BD_ID";
 
     private CgmesNamespace.Cim cim = CgmesNamespace.CIM_16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private ZonedDateTime scenarioTime = ZonedDateTime.now();
     private ReportNode reportNode = ReportNode.NO_OP;
-    private String boundaryEqId; // may be null
-    private String boundaryTpId; // may be null
     private String businessProcess = DEFAULT_BUSINESS_PROCESS;
-
-    private final CgmesMetadataModel exportedEQModel = new CgmesMetadataModel(CgmesSubset.EQUIPMENT, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel exportedTPModel = new CgmesMetadataModel(CgmesSubset.TOPOLOGY, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel exportedSVModel = new CgmesMetadataModel(CgmesSubset.STATE_VARIABLES, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-    private final CgmesMetadataModel exportedSSHModel = new CgmesMetadataModel(CgmesSubset.STEADY_STATE_HYPOTHESIS, DEFAULT_MODELING_AUTHORITY_SET_VALUE);
-
     private NamingStrategy namingStrategy = new NamingStrategy.Identity();
-
+    private String modelingAuthoritySet = null;
+    private String modelDescription = null;
+    private String modelVersion = null;
+    private String boundaryEqId = null;
+    private String boundaryTpId = null;
+    private List<String> profiles = null;
+    private String baseName = null;
+    public static final boolean CGM_EXPORT_VALUE = false;
     public static final boolean EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE = true;
     public static final boolean EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE = true;
     public static final boolean EXPORT_TRANSFORMERS_WITH_HIGHEST_VOLTAGE_AT_END1_DEFAULT_VALUE = false;
@@ -81,6 +80,7 @@ public class CgmesExportContext {
     public static final String DEFAULT_MODELING_AUTHORITY_SET_VALUE = "powsybl.org";
     public static final UUID DEFAULT_UUID_NAMESPACE = Generators.nameBasedGenerator().generate(DEFAULT_MODELING_AUTHORITY_SET_VALUE);
     public static final String DEFAULT_BUSINESS_PROCESS = "1D";
+    public static final boolean UPDATE_DEPENDENCIES_DEFAULT_VALUE = true;
 
     private boolean exportBoundaryPowerFlows = EXPORT_BOUNDARY_POWER_FLOWS_DEFAULT_VALUE;
     private boolean exportFlowsForSwitches = EXPORT_POWER_FLOWS_FOR_SWITCHES_DEFAULT_VALUE;
@@ -89,6 +89,7 @@ public class CgmesExportContext {
     private double maxPMismatchConverged = MAX_P_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private double maxQMismatchConverged = MAX_Q_MISMATCH_CONVERGED_DEFAULT_VALUE;
     private boolean isExportSvInjectionsForSlacks = EXPORT_SV_INJECTIONS_FOR_SLACKS_DEFAULT_VALUE;
+    private boolean updateDependencies = UPDATE_DEPENDENCIES_DEFAULT_VALUE;
     private boolean exportEquipment = false;
     private boolean encodeIds = ENCODE_IDS_DEFAULT_VALUE;
 
@@ -100,42 +101,6 @@ public class CgmesExportContext {
     private final Map<String, Bus> topologicalNodes = new HashMap<>();
     private final ReferenceDataProvider referenceDataProvider;
 
-    /**
-     * Update dependencies in a way that:
-     *   SV depends on TP and SSH
-     *   TP depends on EQ
-     *   SSH depends on EQ
-     * If the boundaries subset have been defined:
-     *   EQ depends on EQ_BD
-     *   SV depends on TP_BD
-     */
-    public void updateDependencies() {
-        String eqModelId = getExportedEQModel().getId();
-        if (eqModelId == null || eqModelId.isEmpty()) {
-            return;
-        }
-
-        getExportedTPModel()
-                .clearDependencies()
-                .addDependentOn(eqModelId);
-
-        getExportedSSHModel()
-                .clearDependencies()
-                .addDependentOn(eqModelId);
-
-        getExportedSVModel()
-                .clearDependencies()
-                .addDependentOn(getExportedTPModel().getId())
-                .addDependentOn(getExportedSSHModel().getId());
-
-        if (boundaryEqId != null) {
-            getExportedEQModel().addDependentOn(boundaryEqId);
-        }
-        if (boundaryTpId != null) {
-            getExportedSVModel().addDependentOn(boundaryTpId);
-        }
-    }
-
     public String getFictitiousContainerFor(Identifiable<?> id) {
         return fictitiousContainers.get(id.getId());
     }
@@ -145,7 +110,6 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext() {
-        initializeExportedModelProfiles(this.cim);
         referenceDataProvider = null;
     }
 
@@ -166,7 +130,6 @@ public class CgmesExportContext {
     }
 
     public CgmesExportContext(Network network, ReferenceDataProvider referenceDataProvider, NamingStrategy namingStrategy) {
-        initializeExportedModelProfiles(this.cim);
         this.referenceDataProvider = referenceDataProvider;
         this.namingStrategy = namingStrategy;
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
@@ -177,41 +140,14 @@ public class CgmesExportContext {
             topologyKind = networkTopologyKind(network);
         }
         scenarioTime = network.getCaseDate();
-        CgmesMetadataModels models = network.getExtension(CgmesMetadataModels.class);
-        if (models != null) {
-            models.getModelForSubset(CgmesSubset.EQUIPMENT).ifPresent(eq -> prepareExportedModelFrom(exportedEQModel, eq));
-            models.getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).ifPresent(ssh -> prepareExportedModelFrom(exportedSSHModel, ssh));
-            models.getModelForSubset(CgmesSubset.TOPOLOGY).ifPresent(tp -> prepareExportedModelFrom(exportedTPModel, tp));
-            models.getModelForSubset(CgmesSubset.STATE_VARIABLES).ifPresent(sv -> prepareExportedModelFrom(exportedSVModel, sv));
-        }
         addIidmMappings(network);
-    }
 
-    /**
-     * Set for each exported model the profile relative to the cim version.
-     * @param cim The cim version from which depends the models profiles uri.
-     */
-    private void initializeExportedModelProfiles(CgmesNamespace.Cim cim) {
-        if (cim.hasProfiles()) {
-            exportedEQModel.setProfile(cim.getProfileUri("EQ"));
-            exportedTPModel.setProfile(cim.getProfileUri("TP"));
-            exportedSVModel.setProfile(cim.getProfileUri("SV"));
-            exportedSSHModel.setProfile(cim.getProfileUri("SSH"));
+        if (network.hasProperty(BOUNDARY_EQ_ID_PROPERTY)) {
+            setBoundaryEqId(network.getProperty(BOUNDARY_EQ_ID_PROPERTY));
         }
-    }
-
-    /**
-     * Update the model used for the export according to the network model.
-     * All the metadata information will be duplicated, except for the version that will be incremented.
-     * @param exportedModel The {@link CgmesMetadataModel} used for the export.
-     * @param fromModel The {@link CgmesMetadataModel} attached to the network.
-     */
-    private void prepareExportedModelFrom(CgmesMetadataModel exportedModel, CgmesMetadataModel fromModel) {
-        exportedModel.setDescription(fromModel.getDescription());
-        exportedModel.setVersion(fromModel.getVersion() + 1);
-        exportedModel.addSupersedes(fromModel.getId());
-        exportedModel.addDependentOn(fromModel.getDependentOn());
-        exportedModel.setModelingAuthoritySet(fromModel.getModelingAuthoritySet());
+        if (network.hasProperty(BOUNDARY_TP_ID_PROPERTY)) {
+            setBoundaryTpId(network.getProperty(BOUNDARY_TP_ID_PROPERTY));
+        }
     }
 
     private CgmesTopologyKind networkTopologyKind(Network network) {
@@ -350,16 +286,6 @@ public class CgmesExportContext {
         return !ignored;
     }
 
-    public CgmesExportContext setBoundaryEqId(String boundaryEqId) {
-        this.boundaryEqId = boundaryEqId;
-        return this;
-    }
-
-    public CgmesExportContext setBoundaryTpId(String boundaryTpId) {
-        this.boundaryTpId = boundaryTpId;
-        return this;
-    }
-
     private void addIidmMappingsSwitchTerminals(Network network) {
         for (Switch sw : network.getSwitches()) {
             String terminal1Id = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1").orElse(null);
@@ -440,8 +366,7 @@ public class CgmesExportContext {
     }
 
     private static boolean isCondenser(Generator generator) {
-        // TODO(Luma) This has to be revisited with the pull request for preserving detailed info for generators (#2726)
-        return generator.getMinP() == 0 && generator.getMaxP() == 0;
+        return obtainSynchronousMachineKind(generator, generator.getMinP(), generator.getMaxP(), CgmesExportUtil.obtainCurve(generator)).contains("condenser");
     }
 
     private void addIidmMappingsGenerators(Network network) {
@@ -621,7 +546,6 @@ public class CgmesExportContext {
 
     public CgmesExportContext setCimVersion(int cimVersion) {
         cim = CgmesNamespace.getCim(cimVersion);
-        initializeExportedModelProfiles(cim);
         return this;
     }
 
@@ -641,22 +565,6 @@ public class CgmesExportContext {
     public CgmesExportContext setScenarioTime(ZonedDateTime scenarioTime) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
         return this;
-    }
-
-    public CgmesMetadataModel getExportedEQModel() {
-        return exportedEQModel;
-    }
-
-    public CgmesMetadataModel getExportedTPModel() {
-        return exportedTPModel;
-    }
-
-    public CgmesMetadataModel getExportedSVModel() {
-        return exportedSVModel;
-    }
-
-    public CgmesMetadataModel getExportedSSHModel() {
-        return exportedSSHModel;
     }
 
     public boolean exportBoundaryPowerFlows() {
@@ -805,6 +713,78 @@ public class CgmesExportContext {
     public CgmesExportContext setBusinessProcess(String businessProcess) {
         this.businessProcess = businessProcess;
         return this;
+    }
+
+    public String getModelingAuthoritySet() {
+        return modelingAuthoritySet;
+    }
+
+    public CgmesExportContext setModelingAuthoritySet(String modelingAuthoritySet) {
+        this.modelingAuthoritySet = modelingAuthoritySet;
+        return this;
+    }
+
+    public String getModelDescription() {
+        return modelDescription;
+    }
+
+    public CgmesExportContext setModelDescription(String modelDescription) {
+        this.modelDescription = modelDescription;
+        return this;
+    }
+
+    public String getModelVersion() {
+        return modelVersion;
+    }
+
+    public CgmesExportContext setModelVersion(String modelVersion) {
+        this.modelVersion = modelVersion;
+        return this;
+    }
+
+    public String getBoundaryEqId() {
+        return boundaryEqId;
+    }
+
+    public CgmesExportContext setBoundaryEqId(String boundaryEqId) {
+        this.boundaryEqId = boundaryEqId;
+        return this;
+    }
+
+    public String getBoundaryTpId() {
+        return boundaryTpId;
+    }
+
+    public CgmesExportContext setBoundaryTpId(String boundaryTpId) {
+        this.boundaryTpId = boundaryTpId;
+        return this;
+    }
+
+    public List<String> getProfiles() {
+        return profiles;
+    }
+
+    public CgmesExportContext setProfiles(List<String> profiles) {
+        this.profiles = profiles;
+        return this;
+    }
+
+    public String getBaseName() {
+        return baseName;
+    }
+
+    public CgmesExportContext setBaseName(String baseName) {
+        this.baseName = baseName;
+        return this;
+    }
+
+    public CgmesExportContext setUpdateDependencies(boolean updateDependencies) {
+        this.updateDependencies = updateDependencies;
+        return this;
+    }
+
+    public boolean updateDependencies() {
+        return updateDependencies;
     }
 }
 

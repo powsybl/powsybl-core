@@ -13,11 +13,9 @@ import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -41,6 +39,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     private double lowVoltageLimit;
 
     private double highVoltageLimit;
+
+    /** Areas associated to this VoltageLevel, with at most one area for each area type */
+    private final Set<Area> areas = new LinkedHashSet<>();
 
     private boolean removed = false;
 
@@ -83,6 +84,72 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             throw new PowsyblException("Cannot access substation of removed voltage level " + id);
         }
         return Optional.ofNullable(substation);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        if (removed) {
+            throwAreasRemovedVoltageLevel();
+        }
+        return areas;
+    }
+
+    @Override
+    public Stream<Area> getAreasStream() {
+        if (removed) {
+            throwAreasRemovedVoltageLevel();
+        }
+        return areas.stream();
+    }
+
+    @Override
+    public Optional<Area> getArea(String areaType) {
+        Objects.requireNonNull(areaType);
+        if (removed) {
+            throwAreasRemovedVoltageLevel();
+        }
+        return areas.stream().filter(area -> Objects.equals(area.getAreaType(), areaType)).findFirst();
+    }
+
+    private void throwAreasRemovedVoltageLevel() {
+        throw new PowsyblException("Cannot access areas of removed voltage level " + id);
+    }
+
+    @Override
+    public void addArea(Area area) {
+        Objects.requireNonNull(area);
+        if (removed) {
+            throw new PowsyblException("Cannot add areas to removed voltage level " + id);
+        }
+        if (areas.contains(area)) {
+            // Nothing to do
+            return;
+        }
+
+        // Check that the VoltageLevel belongs to the same network or subnetwork
+        if (area.getParentNetwork() != getParentNetwork()) {
+            throw new PowsyblException("VoltageLevel " + getId() + " cannot be added to Area " + area.getId() + ". It does not belong to the same network or subnetwork.");
+        }
+
+        // Check if the voltageLevel is already in another Area of the same type
+        final Optional<Area> previousArea = getArea(area.getAreaType());
+        if (previousArea.isPresent() && previousArea.get() != area) {
+            // This instance already has a different area with the same AreaType
+            throw new PowsyblException("VoltageLevel " + getId() + " is already in Area of the same type=" + previousArea.get().getAreaType() + " with id=" + previousArea.get().getId());
+        }
+        // No conflict, add the area to this voltageLevel and vice versa
+        areas.add(area);
+        area.addVoltageLevel(this);
+    }
+
+    @Override
+    public void removeArea(Area area) {
+        Objects.requireNonNull(area);
+        if (removed) {
+            throw new PowsyblException("Cannot remove areas from removed voltage level " + id);
+        }
+        areas.remove(area);
+        area.removeVoltageLevel(this);
     }
 
     @Override
@@ -503,6 +570,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         // Remove the topology
         removeTopology();
 
+        // Remove this voltage level from the areas
+        getAreas().forEach(area -> area.removeVoltageLevel(this));
         // Remove this voltage level from the network
         getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
         network.getIndex().remove(this);

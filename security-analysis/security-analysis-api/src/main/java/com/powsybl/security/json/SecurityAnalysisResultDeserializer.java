@@ -12,7 +12,6 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.extensions.*;
@@ -32,6 +31,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
@@ -44,7 +44,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    SecurityAnalysisResultDeserializer() {
+    public SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
     }
 

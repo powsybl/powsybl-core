@@ -27,7 +27,7 @@ public class LimitViolationBuilder {
     private Double limit;
     private String limitName;
     private Integer duration;
-    private float reduction = 1.0f;
+    private double reduction = 1.0;
     private Double value;
     private ThreeSides side;
 
@@ -71,7 +71,7 @@ public class LimitViolationBuilder {
         return this;
     }
 
-    public LimitViolationBuilder reduction(float reduction) {
+    public LimitViolationBuilder reduction(double reduction) {
         this.reduction = reduction;
         return this;
     }

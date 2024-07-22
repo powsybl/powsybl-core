@@ -169,8 +169,11 @@ public class Conversion {
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
 
+        // First build all the containers
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
+        createFictitiousVoltageLevelsForLineContainers(context);
+
         PropertyBags nodes = context.nodeBreaker()
                 ? cgmes.connectivityNodes()
                 : cgmes.topologicalNodes();
@@ -272,17 +275,21 @@ public class Conversion {
                 if (terminalBoundaryId == null) {
                     LOG.warn("Dangling line {}: alias for terminal at boundary is missing", dl.getId());
                 } else {
-                    CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
-                    if (terminalBoundary == null) {
-                        LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
-                    } else {
-                        if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
-                            LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
-                            CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
-                            dl.getTerminal().disconnect();
-                        }
-                    }
+                    disconnectDanglingLineAtBounddary(dl, terminalBoundaryId, context);
                 }
+            }
+        }
+    }
+
+    private void disconnectDanglingLineAtBounddary(DanglingLine dl, String terminalBoundaryId, Context context) {
+        CgmesTerminal terminalBoundary = cgmes.terminal(terminalBoundaryId);
+        if (terminalBoundary == null) {
+            LOG.warn("Dangling line {}: terminal at boundary with id {} is not found in CGMES model", dl.getId(), terminalBoundaryId);
+        } else {
+            if (!terminalBoundary.connected() && dl.getTerminal().isConnected()) {
+                LOG.warn("DanglingLine {} was connected at network side and disconnected at boundary side. It has been disconnected also at network side.", dl.getId());
+                CgmesReports.danglingLineDisconnectedAtBoundaryHasBeenDisconnectedReport(context.getReportNode(), dl.getId());
+                dl.getTerminal().disconnect();
             }
         }
     }
@@ -523,9 +530,9 @@ public class Conversion {
                                                               Supplier<String> terminalId2,
                                                               Map<String, VoltageLevel> nominalVoltageByLineContainerId,
                                                               Context context) {
-        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId("VoltageLevel",
+        String vlId = Optional.ofNullable(context.namingStrategy().getIidmId(VOLTAGE_LEVEL,
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
-                .orElseGet(() -> context.namingStrategy().getIidmId("VoltageLevel",
+                .orElseGet(() -> context.namingStrategy().getIidmId(VOLTAGE_LEVEL,
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
         if (vlId != null) {
             VoltageLevel vl = context.network().getVoltageLevel(vlId);
@@ -536,23 +543,9 @@ public class Conversion {
     }
 
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
-        Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
-        PropertyBags acLineSegments = cgmes.acLineSegments();
-        for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
-            String lineContainerId = line.getId("Line");
-            if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
-                putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> line.getId("Terminal1"), () -> line.getId("Terminal2"),
-                        voltageLevelRefByLineContainerId, context);
-            }
-        }
-        for (PropertyBag line : acLineSegments) {
+        for (PropertyBag line : cgmes.acLineSegments()) {
             if (LOG.isTraceEnabled()) {
                 LOG.trace(line.tabulateLocals("ACLineSegment"));
-            }
-            String lineContainerId = line.getId("Line");
-            if (lineContainerId != null) { // Create fictitious voltage levels for AC line segments inside line containers outside boundaries
-                VoltageLevel vlRef = voltageLevelRefByLineContainerId.get(lineContainerId);
-                createLineContainerFictitiousVoltageLevels(context, lineContainerId, vlRef, line);
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
@@ -567,16 +560,44 @@ public class Conversion {
         }
     }
 
+    private void createFictitiousVoltageLevelsForLineContainers(Context context) {
+        Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
+        PropertyBags acLineSegments = cgmes.acLineSegments();
+        // First we have to iterate over all ACLSs inside Line Containers to find a voltage level reference for each Line Container
+        // There may be ACLSs that have the two nodes in the interior of Line Container and do not help in determining a voltage level reference
+        for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
+            String lineContainerId = line.getId("Line");
+            if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
+                putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> line.getId("Terminal1"), () -> line.getId("Terminal2"),
+                        voltageLevelRefByLineContainerId, context);
+            }
+        }
+        // Now, iterate again over all ACLSs inside Line Containers to determine specific voltage levels to be created from the reference
+        for (PropertyBag line : acLineSegments) {
+            String lineContainerId = line.getId("Line");
+            if (lineContainerId != null) { // Create fictitious voltage levels for AC line segments inside line containers outside boundaries
+                VoltageLevel vlRef = voltageLevelRefByLineContainerId.get(lineContainerId);
+                if (vlRef != null) {
+                    createLineContainerFictitiousVoltageLevels(context, lineContainerId, vlRef, line);
+                } else {
+                    LOG.error("No fictitious Voltage Level created for Line container {}. No voltage level reference could be found", lineContainerId);
+                }
+            }
+        }
+    }
+
+    public static String getFictitiousVoltageLevelForNodeInContainer(String containerId, String nodeId) {
+        // We should try to create only one voltage level for each container,
+        // instead of one voltage level for each node
+        LOG.trace("Fictitious voltage level id for container {} node {}", containerId, nodeId);
+        return nodeId + "_VL";
+    }
+
     static class LineContainerFictitiousVoltageLevelData {
         String lineId;
-
         String lineName;
         String nodeId;
         VoltageLevel vl;
-
-        String idForFictitiousVoltageLevel() {
-            return nodeId + "_VL";
-        }
     }
 
     private LineContainerFictitiousVoltageLevelData voltageLevelDataForACLSinLineContainer(Context context, String lineId, PropertyBag lineSegment, String terminalRef) {
@@ -585,12 +606,9 @@ public class Conversion {
         vldata.lineName = lineSegment.get("lineName");
         CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
         vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
-        String vlId = context.namingStrategy().getIidmId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
-        if (vlId != null) {
-            vldata.vl = context.network().getVoltageLevel(vlId);
-        } else {
-            vldata.vl = context.network().getVoltageLevel(vldata.idForFictitiousVoltageLevel());
-        }
+        String vlId = context.namingStrategy().getIidmId(VOLTAGE_LEVEL, context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        vldata.vl = context.network().getVoltageLevel(
+                Objects.requireNonNullElseGet(vlId, () -> getFictitiousVoltageLevelForNodeInContainer(vldata.lineId, vldata.nodeId)));
         return vldata;
     }
 
@@ -609,8 +627,8 @@ public class Conversion {
     }
 
     private void createLineContainerFictitiousVoltageLevel(Context context, LineContainerFictitiousVoltageLevelData vldata, VoltageLevel vlref) {
-        String id = vldata.idForFictitiousVoltageLevel();
-        LOG.warn("Fictitious Voltage Level {} created for Line container {} node {}", id, vldata.lineId, vldata.lineName);
+        String id = Conversion.getFictitiousVoltageLevelForNodeInContainer(vldata.lineId, vldata.nodeId);
+        LOG.warn("Fictitious Voltage Level {} created for Line container {} name {} node {}", id, vldata.lineId, vldata.lineName, vldata.nodeId);
         // Nominal voltage and low/high limits are copied from the reference voltage level, if it is given
         VoltageLevel vl = context.network().newVoltageLevel()
                 .setNominalV(vlref.getNominalV())
@@ -625,9 +643,6 @@ public class Conversion {
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
         vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
-        if (!context.nodeBreaker()) {
-            vl.getBusBreakerView().newBus().setId(vldata.nodeId).add();
-        }
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
@@ -799,9 +814,10 @@ public class Conversion {
     private void clearUnattachedHvdcConverterStations(Network network, Context context) {
         network.getHvdcConverterStationStream()
                 .filter(converter -> converter.getHvdcLine() == null)
-                .peek(converter -> context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found."))
-                .toList()
-                .forEach(Connectable::remove);
+                .forEach(converter -> {
+                    context.ignored("HVDC Converter Station " + converter.getId(), "No correct linked HVDC line found.");
+                    converter.remove();
+                });
     }
 
     private void debugTopology(Context context) {
@@ -1058,6 +1074,8 @@ public class Conversion {
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
+    private static final String VOLTAGE_LEVEL = "VoltageLevel";
+
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
@@ -1069,4 +1087,7 @@ public class Conversion {
     public static final String PROPERTY_FOSSIL_FUEL_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "fuelType";
     public static final String PROPERTY_CGMES_ORIGINAL_CLASS = CGMES_PREFIX_ALIAS_PROPERTIES + "originalClass";
     public static final String PROPERTY_BUSBAR_SECTION_TERMINALS = CGMES_PREFIX_ALIAS_PROPERTIES + "busbarSectionTerminals";
+    public static final String PROPERTY_CGMES_GOVERNOR_SCD = CGMES_PREFIX_ALIAS_PROPERTIES + "governorSCD";
+    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineType";
+    public static final String PROPERTY_CGMES_SYNCHRONOUS_MACHINE_OPERATING_MODE = CGMES_PREFIX_ALIAS_PROPERTIES + "synchronousMachineOperatingMode";
 }

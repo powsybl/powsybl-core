@@ -17,8 +17,8 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
-import com.powsybl.iidm.network.impl.util.RefChain;
-import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
@@ -252,6 +252,46 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     @Override
     public int getCountryCount() {
         return getCountries().size();
+    }
+
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return Collections.unmodifiableCollection(index.getAll(AreaImpl.class));
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return index.getAll(AreaImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Area getArea(String id) {
+        return index.get(id, AreaImpl.class);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return index.getAll(AreaImpl.class).size();
     }
 
     @Override
@@ -977,6 +1017,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         long start = System.currentTimeMillis();
 
         checkMergeability(otherNetwork);
+
+        otherNetwork.getAreaStream().forEach(a -> {
+            AreaImpl area = (AreaImpl) a;
+            area.moveListener(otherNetwork, this);
+        });
 
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();

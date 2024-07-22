@@ -81,6 +81,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(2.3, leg1.getB(), 0.0);
         leg1.setRatedS(2.4);
         assertEquals(2.4, leg1.getRatedS(), 0.0);
+        assertEquals("twt", leg1.getTransformer().getId());
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
@@ -115,11 +116,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         leg3.setRatedS(1.3);
         assertEquals(1.3, leg3.getRatedS(), 0.0);
 
-        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(leg1,
-            transformer.getTerminal(ThreeSides.ONE));
+        RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(leg1, transformer.getTerminal(ThreeSides.ONE));
+        ratioTapChangerInLeg1.setTargetV(12).setTapPosition(2);
+        assertEquals(ratioTapChangerInLeg1.getTargetV(), transformer.getLeg(ThreeSides.ONE).getRatioTapChanger().getTargetV(), 0.0);
+        assertEquals(ratioTapChangerInLeg1.getTapPosition(), transformer.getLeg(ThreeSides.ONE).getRatioTapChanger().getTapPosition());
 
         assertTrue(leg1.getOptionalRatioTapChanger().isPresent());
-        assertSame(ratioTapChangerInLeg1, leg1.getRatioTapChanger());
         CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
             .setPermanentLimit(100)
             .beginTemporaryLimit()
@@ -456,8 +458,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
-        createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
-                0.0, 0.0);
+        RatioTapChanger ratioTapChanger = assertDoesNotThrow(() -> createRatioTapChangerOneStep(leg2, transformer.getTerminal(ThreeSides.TWO), 0.0, 0.0, 0.0,
+            0.0, 0.0));
+        assertNotNull(ratioTapChanger);
     }
 
     @Test
@@ -512,8 +515,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         // Verify that other invalidPhaseStepArgument* tests are not throwing when arguments are ok
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
-        createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
-                0.0, 0.0, 0.0);
+        PhaseTapChanger phaseTapChanger = assertDoesNotThrow(() -> createPhaseTapChangerOneStep(leg3, transformer.getTerminal(ThreeSides.THREE), 0.0, 0.0, 0.0,
+            0.0, 0.0, 0.0));
+        assertNotNull(phaseTapChanger);
     }
 
     @Test
@@ -837,7 +841,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg1Arguments() {
         //Verify that other invalidLeg1Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0));
     }
 
     @Test
@@ -921,7 +925,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg2Arguments() {
         //Verify that other invalidLeg2Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, 5.2);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg2(1.2, 2.2, 3.2, 4.2, 5.2));
     }
 
     private void createThreeWindingsTransformerWithLeg2(double r, double x, double g, double b, double ratedU) {
@@ -989,7 +993,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void validLeg3Arguments() {
         //Verify that other invalidLeg3Arguments* tests are not throwing when arguments are ok
-        createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3);
+        assertDoesNotThrow(() -> createThreeWindingsTransformerWithLeg3(1.3, 2.3, 3.3, 4.3, 5.3));
     }
 
     @Test

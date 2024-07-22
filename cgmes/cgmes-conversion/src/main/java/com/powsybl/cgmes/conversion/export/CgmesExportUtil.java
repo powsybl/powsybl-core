@@ -18,6 +18,7 @@ import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import org.slf4j.Logger;
@@ -35,8 +36,7 @@ import java.util.regex.Pattern;
 
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.ref;
 import static com.powsybl.cgmes.conversion.naming.CgmesObjectReference.refTyped;
-import static com.powsybl.cgmes.model.CgmesNames.PHASE_TAP_CHANGER;
-import static com.powsybl.cgmes.model.CgmesNames.RATIO_TAP_CHANGER;
+import static com.powsybl.cgmes.model.CgmesNames.*;
 import static com.powsybl.cgmes.model.CgmesNamespace.MD_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
@@ -47,6 +47,11 @@ public final class CgmesExportUtil {
 
     private CgmesExportUtil() {
     }
+
+    public static final String REPORT_NODE_KEY_EXPORTED_CGMES_ID = "ExportedCgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_ID = "cgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_SUBSET = "cgmesSubset";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID = "networkId";
 
     // Avoid trailing zeros and format always using US locale
 
@@ -70,8 +75,10 @@ public final class CgmesExportUtil {
 
     public static String format(double value, double defaultValue) {
         // Always use scientific format for extreme values
-        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
-            return scientificFormat(value, defaultValue);
+        if (value >= Float.MAX_VALUE || value <= -Float.MAX_VALUE) {
+            // CIMXML expects xsd:float values
+            float value1 = value >= Float.MAX_VALUE ? Float.MAX_VALUE : -Float.MAX_VALUE;
+            return scientificFormat(value1, defaultValue);
         }
         return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
@@ -115,24 +122,34 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
+    public static void initializeModelId(Network network, CgmesMetadataModel model, CgmesExportContext context) {
         // The ref to build a unique model id must contain:
         // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
         CgmesObjectReference[] modelRef = {
             refTyped(network),
-            ref(subset),
+            ref(model.getSubset()),
             ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
-            ref(format(modelDescription.getVersion())),
+            ref(String.valueOf(model.getVersion())),
             ref(context.getBusinessProcess()),
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-        modelDescription.setId(modelId);
-        context.updateDependencies();
+        model.setId(modelId);
+    }
 
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
+        if (modelDescription.getId() == null || modelDescription.getId().isEmpty()) {
+            initializeModelId(network, modelDescription, context);
+        }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelId).add();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
+        // Report the exported CGMES model identifiers
+        context.getReportNode().newReportNode()
+                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, modelDescription.getId(), TypedValue.URN_UUID)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_SUBSET, subset.getIdentifier(), TypedValue.CGMES_SUBSET)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID, network.getId(), TypedValue.ID)
+                .add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();
@@ -452,5 +469,51 @@ public final class CgmesExportUtil {
                     && shuntCompensator.getSectionCount() == 0;
         }
         return false;
+    }
+
+    static <I extends ReactiveLimitsHolder & Injection<I>> ReactiveCapabilityCurve obtainCurve(I i) {
+        return i.getReactiveLimits().getKind().equals(ReactiveLimitsKind.CURVE) ? i.getReactiveLimits(ReactiveCapabilityCurve.class) : null;
+    }
+
+    // Original synchronous machine kind it is only preserved if it is compatible with the calculated synchronous machine kind
+    // calculated synchronous machine kind is based on the present limits
+    static <I extends ReactiveLimitsHolder & Injection<I>> String obtainSynchronousMachineKind(I i, double minP, double maxP, ReactiveCapabilityCurve curve) {
+        String kind = i.getProperty(Conversion.PROPERTY_CGMES_SYNCHRONOUS_MACHINE_TYPE);
+        String calculatedKind = CgmesExportUtil.obtainCalculatedSynchronousMachineKind(minP, maxP, curve, kind);
+        if (kind == null) {
+            return calculatedKind;
+        } else if (calculatedKind.contains(kind)) {
+            return kind;
+        } else {
+            LOG.warn("original synchronousMachineKind {} has been modified to {} according to the limits", kind, calculatedKind);
+            return calculatedKind;
+        }
+    }
+
+    // we cannot discriminate between generatorOrMotor and generatorOrCondenserOrMotor so,
+    // we preserve the original kind if it is available
+    static String obtainCalculatedSynchronousMachineKind(double minP, double maxP, ReactiveCapabilityCurve curve, String originalKind) {
+        double min = curve != null ? curve.getMinP() : minP;
+        double max = curve != null ? curve.getMaxP() : maxP;
+
+        String kind;
+        if (min > 0) {
+            kind = "generator";
+        } else if (max < 0) {
+            kind = "motor";
+        } else if (min == 0 && max == 0) {
+            kind = "condenser";
+        } else if (min == 0) {
+            kind = "generatorOrCondenser";
+        } else if (max == 0) {
+            kind = "motorOrCondenser";
+        } else {
+            kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
+        }
+        return kind;
+    }
+
+    public static boolean isMinusOrMaxValue(double value) {
+        return value == -Double.MAX_VALUE || value == Double.MAX_VALUE;
     }
 }

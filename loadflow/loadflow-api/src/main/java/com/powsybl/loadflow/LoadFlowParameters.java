@@ -14,6 +14,8 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -68,6 +70,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         MAIN,
         ALL,
     }
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowParameters.class);
 
     // VERSION = 1.0 specificCompatibility
     // VERSION = 1.1 t2wtSplitShuntAdmittance
@@ -144,6 +148,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                     parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
                     parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
                     parameters.setConnectedComponentMode(config.getEnumProperty("connectedComponentMode", ConnectedComponentMode.class, DEFAULT_CONNECTED_COMPONENT_MODE));
+                    parameters.setHvdcAcEmulation(config.getBooleanProperty("hvdcAcEmulation", DEFAULT_HVDC_AC_EMULATION_ON));
                     parameters.setDcPowerFactor(config.getDoubleProperty("dcPowerFactor", DEFAULT_DC_POWER_FACTOR));
                 });
     }
@@ -181,6 +186,25 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private double dcPowerFactor = DEFAULT_DC_POWER_FACTOR;
 
     public LoadFlowParameters() {
+        this(ServiceLoader.load(LoadFlowDefaultParametersLoader.class)
+                .stream()
+                .map(ServiceLoader.Provider::get)
+                .toList());
+    }
+
+    public LoadFlowParameters(List<LoadFlowDefaultParametersLoader> defaultParametersLoaders) {
+        int numberOfLoadersFound = Objects.requireNonNull(defaultParametersLoaders).size();
+        if (numberOfLoadersFound > 1) {
+            List<String> names = defaultParametersLoaders.stream()
+                    .map(LoadFlowDefaultParametersLoader::getSourceName)
+                    .toList();
+            LOGGER.warn("Multiple default loadflow parameters classes have been found in the class path : {}. No default parameters file loaded",
+                    names);
+        } else if (numberOfLoadersFound == 1) {
+            LoadFlowDefaultParametersLoader loader = defaultParametersLoaders.get(0);
+            JsonLoadFlowParameters.update(this, loader.loadDefaultParametersFromFile());
+            LOGGER.debug("Default loadflow configuration has been updated using the reference file from parameters loader '{}'", loader.getSourceName());
+        }
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {

@@ -43,8 +43,7 @@ class DynamicSimulationParametersTest {
         fileSystem.close();
     }
 
-    private static void checkValues(DynamicSimulationParameters parameters, int startTime,
-                             int stopTime) {
+    private static void checkValues(DynamicSimulationParameters parameters, double startTime, double stopTime) {
         assertEquals(parameters.getStartTime(), startTime);
         assertEquals(parameters.getStopTime(), stopTime);
     }
@@ -85,8 +84,8 @@ class DynamicSimulationParametersTest {
 
     @Test
     void testToString() {
-        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 1000);
-        assertEquals("{startTime=0, stopTime=1000}", parameters.toString());
+        DynamicSimulationParameters parameters = new DynamicSimulationParameters(0, 40.55);
+        assertEquals("{startTime=0.0, stopTime=40.55}", parameters.toString());
     }
 
     @Test
@@ -132,8 +131,8 @@ class DynamicSimulationParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
+        assertInstanceOf(DummyExtension.class, parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -143,7 +142,7 @@ class DynamicSimulationParametersTest {
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
-        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -151,7 +150,7 @@ class DynamicSimulationParametersTest {
         DynamicSimulationParameters parameters = DynamicSimulationParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName("dummyExtension") instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummyExtension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 

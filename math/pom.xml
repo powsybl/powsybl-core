@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-math</artifactId>
@@ -40,6 +40,10 @@
 
     <dependencies>
         <!-- Compilation dependencies -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>

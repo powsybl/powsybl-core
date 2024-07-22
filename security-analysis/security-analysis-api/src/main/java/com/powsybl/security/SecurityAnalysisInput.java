@@ -7,18 +7,11 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
-import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.execution.NetworkVariant;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  *
@@ -27,14 +20,10 @@ import java.util.Set;
  * However, all fields must always be non {@literal null}.
  *
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
+ * @author Laurent Issertial {@literal <laurent.issertial at rte-france.com>}
  */
-public class SecurityAnalysisInput {
+public class SecurityAnalysisInput extends AbstractSecurityAnalysisInput<SecurityAnalysisInput> {
 
-    private final NetworkVariant networkVariant;
-    private Set<SecurityAnalysisInterceptor> interceptors;
-    private LimitViolationFilter filter;
-    private LimitViolationDetector detector;
-    private ContingenciesProvider contingencies;
     private SecurityAnalysisParameters parameters;
 
     public SecurityAnalysisInput(Network network, String variantId) {
@@ -42,11 +31,7 @@ public class SecurityAnalysisInput {
     }
 
     public SecurityAnalysisInput(NetworkVariant networkVariant) {
-        this.networkVariant = Objects.requireNonNull(networkVariant);
-        this.interceptors = new HashSet<>();
-        this.filter = new LimitViolationFilter();
-        this.detector = new DefaultLimitViolationDetector();
-        this.contingencies = ContingenciesProviders.emptyProvider();
+        super(networkVariant);
         this.parameters = new SecurityAnalysisParameters();
     }
 
@@ -57,57 +42,14 @@ public class SecurityAnalysisInput {
         return parameters;
     }
 
-    /**
-     * Get specified {@link ContingenciesProvider}.
-     */
-    public ContingenciesProvider getContingenciesProvider() {
-        return contingencies;
-    }
-
-    /**
-     * Get specified {@link LimitViolationDetector}.
-     */
-    public LimitViolationDetector getLimitViolationDetector() {
-        return detector;
-    }
-
-    public LimitViolationFilter getFilter() {
-        return filter;
-    }
-
-    public Set<SecurityAnalysisInterceptor> getInterceptors() {
-        return Collections.unmodifiableSet(interceptors);
-    }
-
-    public SecurityAnalysisInput setDetector(LimitViolationDetector detector) {
-        Objects.requireNonNull(detector);
-        this.detector = detector;
-        return this;
-    }
-
-    public SecurityAnalysisInput setContingencies(ContingenciesProvider contingencies) {
-        Objects.requireNonNull(contingencies);
-        this.contingencies = contingencies;
-        return this;
-    }
-
     public SecurityAnalysisInput setParameters(SecurityAnalysisParameters parameters) {
         Objects.requireNonNull(parameters);
         this.parameters = parameters;
-        return this;
+        return self();
     }
 
-    public SecurityAnalysisInput addInterceptor(SecurityAnalysisInterceptor interceptor) {
-        interceptors.add(Objects.requireNonNull(interceptor));
+    @Override
+    protected SecurityAnalysisInput self() {
         return this;
-    }
-
-    public SecurityAnalysisInput setFilter(LimitViolationFilter filter) {
-        this.filter = Objects.requireNonNull(filter);
-        return this;
-    }
-
-    public NetworkVariant getNetworkVariant() {
-        return networkVariant;
     }
 }

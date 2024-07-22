@@ -248,35 +248,43 @@ public final class TieLineUtil {
                     associateDanglingLines.accept(dls.get(0), candidateDanglingLine);
                 }
                 if (dls.size() > 1) { // if more than one dangling line in the merging network, check how many are connected
-                    List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).collect(Collectors.toList());
-                    if (connectedDls.size() == 1) { // if there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
-                        LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
-                                        "Tie line automatically created using the only connected one '{}'.",
-                                dls.stream().map(DanglingLine::getId).collect(Collectors.toList()), connectedDls.get(0).getPairingKey(),
-                                connectedDls.get(0).getId());
-                        associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
-                    } else {
-                        String status = connectedDls.size() > 1 ? "connected" : "disconnected";
-                        LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
-                                status, connectedDls.stream().map(DanglingLine::getId).collect(Collectors.toList()),
-                                connectedDls.get(0).getPairingKey());
-                    }
+                    associateConnectedDanglingLine(candidateDanglingLine, dls, associateDanglingLines);
                 }
             }
         }
 
     }
 
+    private static void associateConnectedDanglingLine(DanglingLine candidateDanglingLine, List<DanglingLine> dls,
+                                                       BiConsumer<DanglingLine, DanglingLine> associateDanglingLines) {
+        // Connected DanglingLines
+        List<DanglingLine> connectedDls = dls.stream().filter(dl -> dl.getTerminal().isConnected()).toList();
+
+        // If there is exactly one connected dangling line in the merging network, merge it. Otherwise, do nothing
+        if (connectedDls.size() == 1) {
+            LOGGER.warn("Several dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " +
+                    "Tie line automatically created using the only connected one '{}'.",
+                dls.stream().map(DanglingLine::getId).toList(), connectedDls.get(0).getPairingKey(),
+                connectedDls.get(0).getId());
+            associateDanglingLines.accept(connectedDls.get(0), candidateDanglingLine);
+        } else {
+            String status = connectedDls.size() > 1 ? "connected" : "disconnected";
+            LOGGER.warn("Several {} dangling lines {} of the same subnetwork are candidate for merging for pairing key '{}'. " + NO_TIE_LINE_MESSAGE,
+                status, connectedDls.stream().map(DanglingLine::getId).toList(),
+                connectedDls.get(0).getPairingKey());
+        }
+    }
+
     public static double getR(DanglingLine dl1, DanglingLine dl2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
-        return adm.y12().negate().reciprocal().getReal() + 0.0;
+        return zeroImpedanceLine(adm) ? 0.0 : adm.y12().negate().reciprocal().getReal() + 0.0;
     }
 
     public static double getX(DanglingLine dl1, DanglingLine dl2) {
         LinkData.BranchAdmittanceMatrix adm = TieLineUtil.equivalentBranchAdmittanceMatrix(dl1, dl2);
         // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
-        return adm.y12().negate().reciprocal().getImaginary() + 0.0;
+        return zeroImpedanceLine(adm) ? 0.0 : adm.y12().negate().reciprocal().getImaginary() + 0.0;
     }
 
     public static double getG1(DanglingLine dl1, DanglingLine dl2) {
@@ -318,7 +326,9 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
-        if (zeroImpedanceLine(adm1)) {
+        if (zeroImpedanceLine(adm1) && zeroImpedanceLine(adm2)) {
+            return adm1;
+        } else if (zeroImpedanceLine(adm1)) {
             return adm2;
         } else if (zeroImpedanceLine(adm2)) {
             return adm1;
@@ -345,7 +355,15 @@ public final class TieLineUtil {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(dl2.getR(), dl2.getX(), 1.0, 0.0, 1.0, 0.0,
                 new Complex(0.0, 0.0), new Complex(dl2.getG(), dl2.getB()));
 
-        return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
+        if (zeroImpedanceLine(adm1) && zeroImpedanceLine(adm2)) {
+            return v1;
+        } else if (zeroImpedanceLine(adm1)) {
+            return v1;
+        } else if (zeroImpedanceLine(adm2)) {
+            return v2;
+        } else {
+            return adm1.y21().multiply(v1).add(adm2.y12().multiply(v2)).negate().divide(adm1.y22().add(adm2.y11()));
+        }
     }
 
     /**

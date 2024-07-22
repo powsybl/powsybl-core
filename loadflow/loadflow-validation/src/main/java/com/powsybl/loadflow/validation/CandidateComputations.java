@@ -7,14 +7,13 @@
  */
 package com.powsybl.loadflow.validation;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
+import java.util.function.Supplier;
 
 /**
  * Provides access to the list of known candidate computations.
@@ -32,6 +31,7 @@ public final class CandidateComputations {
 
     /**
      * Get the list of all known candidate computations implementations.
+     * The returned list is immutable.
      */
     public static List<CandidateComputation> getComputations() {
         return COMPUTATIONS.get();
@@ -39,9 +39,10 @@ public final class CandidateComputations {
 
     /**
      * Get the list of all known candidate computations names.
+     * The returned list is immutable.
      */
     public static List<String> getComputationsNames() {
-        return getComputations().stream().map(CandidateComputation::getName).collect(Collectors.toList());
+        return getComputations().stream().map(CandidateComputation::getName).toList();
     }
 
     /**

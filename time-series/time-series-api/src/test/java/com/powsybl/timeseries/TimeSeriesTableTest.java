@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
@@ -111,7 +110,7 @@ class TimeSeriesTableTest {
     void testMillisCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, false);
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),

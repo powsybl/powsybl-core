@@ -7,17 +7,19 @@
  */
 package com.powsybl.iidm.criteria;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapter;
 import com.powsybl.iidm.criteria.translation.NetworkElement;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.ThreeSides;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
-import java.util.Optional;
 
+import static com.powsybl.iidm.criteria.translation.DefaultNetworkElementAdapterTest.mockLine;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -45,63 +47,68 @@ public class LineCriterionTest {
     @Test
     void emptyCriterionTest() {
         LineCriterion criterion = new LineCriterion(null, null);
-        assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line4)));
+        assertCriterionTrue(criterion, line1);
+        assertCriterionTrue(criterion, line2);
+        assertCriterionTrue(criterion, line3);
+        assertCriterionTrue(criterion, line4);
 
         NetworkElement anotherTypeElement = Mockito.mock(NetworkElement.class);
-        assertFalse(criterion.accept(new NetworkElementVisitor(anotherTypeElement)));
+        assertCriterionFalse(criterion, anotherTypeElement);
     }
 
     @Test
     void nominalVoltageTest() {
         LineCriterion criterion = new LineCriterion(null, new TwoNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true), null));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line4)));
+                VoltageInterval.between(40., 100., true, true),
+                null));
+        assertCriterionTrue(criterion, line1);
+        assertCriterionFalse(criterion, line2);
+        assertCriterionFalse(criterion, line3);
+        assertCriterionTrue(criterion, line4);
     }
 
     @Test
     void countriesTest() {
         LineCriterion criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.BE)), null);
-        assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line4)));
+        assertCriterionFalse(criterion, line1);
+        assertCriterionFalse(criterion, line2);
+        assertCriterionTrue(criterion, line3);
+        assertCriterionFalse(criterion, line4);
 
         criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR, Country.BE), List.of(Country.BE)), null);
-        assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line3)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line4)));
+        assertCriterionFalse(criterion, line1);
+        assertCriterionFalse(criterion, line2);
+        assertCriterionTrue(criterion, line3);
+        assertCriterionTrue(criterion, line4);
     }
 
     @Test
     void mixedCriteriaTest() {
         LineCriterion criterion = new LineCriterion(new TwoCountriesCriterion(List.of(Country.FR), List.of(Country.FR)),
-                new TwoNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(350., 450., true, true), null));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line3)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(line4)));
+                new TwoNominalVoltageCriterion(
+                        VoltageInterval.between(350., 450., true, true),
+                        null));
+        assertCriterionFalse(criterion, line1);
+        assertCriterionTrue(criterion, line2);
+        assertCriterionFalse(criterion, line3);
+        assertCriterionFalse(criterion, line4);
+    }
+
+    private void assertCriterionTrue(LineCriterion criterion, NetworkElement line) {
+        assertTrue(criterion.accept(new NetworkElementVisitor(line)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line, ThreeSides.TWO)));
+    }
+
+    private void assertCriterionFalse(LineCriterion criterion, NetworkElement line) {
+        assertFalse(criterion.accept(new NetworkElementVisitor(line)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(line, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(line, ThreeSides.TWO)));
     }
 
     protected static NetworkElement createLine(String id, Country country1, Country country2, double nominalVoltage) {
-        NetworkElement n = Mockito.mock(NetworkElement.class);
-        when(n.getId()).thenReturn(id);
-        when(n.getCountry()).thenReturn(Optional.of(country1));
-        when(n.getCountry1()).thenReturn(Optional.of(country1));
-        when(n.getCountry2()).thenReturn(Optional.of(country2));
-        when(n.getNominalVoltage()).thenReturn(Optional.of(nominalVoltage));
-        when(n.getNominalVoltage1()).thenReturn(Optional.of(nominalVoltage));
-        when(n.getNominalVoltage2()).thenReturn(Optional.empty());
-        when(n.getNominalVoltage3()).thenReturn(Optional.empty());
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.LINE)).thenReturn(true);
-        when(n.isValidFor(NetworkElementCriterion.NetworkElementCriterionType.IDENTIFIABLE)).thenReturn(true);
-        return n;
+        Line l = mockLine(id, country1, country2, nominalVoltage, nominalVoltage);
+        return new DefaultNetworkElementAdapter(l);
     }
 }
 

@@ -115,6 +115,12 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+
+        addSpecificProperties(g);
+    }
+
+    private static void addSpecificProperties(Generator generator) {
+        generator.setProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS, CgmesNames.EQUIVALENT_INJECTION);
     }
 
     static class Regulation {
@@ -137,10 +143,9 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         regulation.targetV = Double.NaN;
         if (regulation.status) {
             regulation.targetV = p.asDouble(REGULATION_TARGET);
-            if (regulation.targetV == 0) {
-                fixed(REGULATION_TARGET, "Target voltage value can not be zero", regulation.targetV,
-                        voltageLevel().getNominalV());
-                regulation.targetV = voltageLevel().getNominalV();
+            if (Double.isNaN(regulation.targetV) || regulation.targetV == 0) {
+                missing("Valid target voltage value (voltage regulation is considered as off)");
+                regulation.status = false;
             }
         }
 

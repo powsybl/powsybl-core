@@ -9,6 +9,7 @@ package com.powsybl.iidm.criteria;
 
 import com.powsybl.iidm.criteria.translation.NetworkElement;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.ThreeSides;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -60,7 +61,7 @@ public class IdentifiableCriterionTest {
     void creationErrorsTest() {
         AtLeastOneCountryCriterion countryCriterion = new AtLeastOneCountryCriterion(List.of(Country.DE));
         AtLeastOneNominalVoltageCriterion nominalVoltageCriterion = new AtLeastOneNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true));
+                VoltageInterval.between(40., 100., true, true));
         assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test1", null, null));
         assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test2", countryCriterion, null));
         assertThrows(NullPointerException.class, () -> new IdentifiableCriterion("test3", null, nominalVoltageCriterion));
@@ -75,52 +76,131 @@ public class IdentifiableCriterionTest {
     }
 
     @Test
-    void nominalVoltageTest() {
+    void linesNominalVoltageTest() {
         IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
-                new SingleNominalVoltageCriterion.VoltageInterval(40., 100., true, true)));
+                VoltageInterval.between(80., 100., true, true)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1, ThreeSides.ONE)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2, ThreeSides.ONE)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line1, ThreeSides.TWO)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(line2, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(line2, ThreeSides.TWO)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1, ThreeSides.TWO)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2, ThreeSides.TWO)));
     }
 
     @Test
-    void countriesTest() {
+    void transformersNominalVoltageTest() {
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneNominalVoltageCriterion(
+                VoltageInterval.between(80., 100., true, true)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt1, ThreeSides.TWO)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.TWO)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.THREE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.TWO)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.THREE)));
+    }
+
+    @Test
+    void lineOneCountryTest() {
         IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1, ThreeSides.ONE)));
         assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2, ThreeSides.ONE)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(line1, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(line1, ThreeSides.TWO)));
         assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line2, ThreeSides.TWO)));
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1, ThreeSides.TWO)));
         assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2)));
-        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2, ThreeSides.TWO)));
+    }
 
-        criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1)));
+    @Test
+    void transformersOneCountryTest() {
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt1)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt1, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt1, ThreeSides.TWO)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2)));
-        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.TWO)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.TWO)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.THREE)));
         assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.THREE)));
+    }
+
+    @Test
+    void linesTwoCountriesTest() {
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(danglingLine2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line1, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(line2, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine1, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine1, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(tieLine2, ThreeSides.TWO)));
+    }
+
+    @Test
+    void transformersTwoCountriesTest() {
+        IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR, Country.BE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt1, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt1, ThreeSides.THREE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.TWO)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.THREE)));
     }
 
     @Test
     void mixedCriteriaTest() {
         IdentifiableCriterion criterion = new IdentifiableCriterion(new AtLeastOneCountryCriterion(List.of(Country.FR)),
-                new AtLeastOneNominalVoltageCriterion(new SingleNominalVoltageCriterion.VoltageInterval(190., 230., true, true)));
+                new AtLeastOneNominalVoltageCriterion(VoltageInterval.between(190., 230., true, true)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine1)));
         assertFalse(criterion.accept(new NetworkElementVisitor(danglingLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(line1)));
@@ -129,8 +209,12 @@ public class IdentifiableCriterionTest {
         assertFalse(criterion.accept(new NetworkElementVisitor(tieLine2)));
         assertFalse(criterion.accept(new NetworkElementVisitor(twoWt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.ONE)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(twoWt2, ThreeSides.TWO)));
         assertFalse(criterion.accept(new NetworkElementVisitor(threeWt1)));
         assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.ONE)));
+        assertTrue(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.TWO)));
+        assertFalse(criterion.accept(new NetworkElementVisitor(threeWt2, ThreeSides.THREE)));
     }
-
 }

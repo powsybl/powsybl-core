@@ -14,7 +14,7 @@
     <parent>
         <artifactId>powsybl-cgmes</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.3.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-gl</artifactId>
@@ -67,6 +67,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-config-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
             <scope>test</scope>
         </dependency>
 

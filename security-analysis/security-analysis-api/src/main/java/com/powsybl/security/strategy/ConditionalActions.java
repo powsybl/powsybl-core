@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * A conditional action is a link between a {@link Condition} and a list of actions through ids.
+ * In a security analysis, we first check the condition and if verified, the list of actions is applied on
+ * the network. All actions are applied and in the order defined by the list.
+ *
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
  */
 public class ConditionalActions {

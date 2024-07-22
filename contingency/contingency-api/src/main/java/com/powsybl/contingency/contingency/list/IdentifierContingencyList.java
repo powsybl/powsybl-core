@@ -10,7 +10,7 @@ package com.powsybl.contingency.contingency.list;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.contingency.contingency.list.identifier.NetworkElementIdentifier;
+import com.powsybl.iidm.network.identifiers.NetworkElementIdentifier;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -52,17 +52,17 @@ public class IdentifierContingencyList implements ContingencyList {
     @Override
     public List<Contingency> getContingencies(Network network) {
         return networkElementIdentifiers.stream()
-                .filter(identifier -> !identifier.filterIdentifiable(network).isEmpty())
-                .map(identifier -> {
-                    List<ContingencyElement> contingencyElements = identifier.filterIdentifiable(network)
-                            .stream()
-                            .map(ContingencyElement::of)
-                            .collect(Collectors.toList());
-                    String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(contingencyElements));
-                    return new Contingency(contingencyId, contingencyElements);
-                })
-                .filter(contingency -> contingency.isValid(network))
-                .collect(Collectors.toList());
+            .filter(identifier -> !identifier.filterIdentifiable(network).isEmpty())
+            .map(identifier -> {
+                List<ContingencyElement> contingencyElements = identifier.filterIdentifiable(network)
+                    .stream()
+                    .map(ContingencyElement::of)
+                    .toList();
+                String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(contingencyElements));
+                return new Contingency(contingencyId, contingencyElements);
+            })
+            .filter(contingency -> contingency.isValid(network))
+            .collect(Collectors.toList());
     }
 
     public Map<String, Set<String>> getNotFoundElements(Network network) {
@@ -71,8 +71,8 @@ public class IdentifierContingencyList implements ContingencyList {
             Set<String> notFoundElements = identifier.getNotFoundElements(network);
             if (!notFoundElements.isEmpty()) {
                 String contingencyId = identifier.getContingencyId().orElse(getGeneratedContingencyId(identifier.filterIdentifiable(network)
-                        .stream()
-                        .map(ContingencyElement::of).toList()));
+                    .stream()
+                    .map(ContingencyElement::of).toList()));
                 notFoundElementsMap.put(contingencyId, notFoundElements);
             }
 
@@ -82,8 +82,8 @@ public class IdentifierContingencyList implements ContingencyList {
 
     private String getGeneratedContingencyId(List<ContingencyElement> contingencyElements) {
         return "Contingency : " + contingencyElements
-                        .stream()
-                        .map(ContingencyElement::getId)
-                        .collect(Collectors.joining(" + "));
+            .stream()
+            .map(ContingencyElement::getId)
+            .collect(Collectors.joining(" + "));
     }
 }

@@ -1,5 +1,5 @@
 {
-  "version" : "1.5",
+  "version" : "1.6",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -166,15 +166,18 @@
         "actionIds" : [ "actionId1" ]
       } ]
     },
-    "status" : "CONVERGED",
-    "limitViolationsResult" : {
-      "limitViolations" : [ ],
-      "actionsTaken" : [ ]
-    },
-    "networkResult" : {
-      "branchResults" : [ ],
-      "busResults" : [ ],
-      "threeWindingsTransformerResults" : [ ]
-    }
+    "conditionalActionsResults" : [ {
+      "conditionalActionsId" : "strategyId",
+      "status" : "CONVERGED",
+      "limitViolationsResult" : {
+        "limitViolations" : [ ],
+        "actionsTaken" : [ ]
+      },
+      "networkResult" : {
+        "branchResults" : [ ],
+        "busResults" : [ ],
+        "threeWindingsTransformerResults" : [ ]
+      }
+    } ]
   } ]
 }

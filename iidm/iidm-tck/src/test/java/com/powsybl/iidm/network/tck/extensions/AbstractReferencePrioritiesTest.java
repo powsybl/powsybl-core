@@ -72,7 +72,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void test() {
+    public void test() {
         assertEquals(3, ReferencePriority.get(bbs1));
         assertEquals(8, ReferencePriority.get(bbs2));
         assertEquals(9, ReferencePriority.get(bbs3));
@@ -102,7 +102,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testThreeWindingsTransformer() {
+    public void testThreeWindingsTransformer() {
         network = ThreeWindingsTransformerNetworkFactory.create();
         ThreeWindingsTransformer t3wf = network.getThreeWindingsTransformer("3WT");
         assertEquals(0, ReferencePriority.get(t3wf, ThreeSides.ONE));
@@ -119,7 +119,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testDeleteAll() {
+    public void testDeleteAll() {
         ReferencePriorities.delete(network);
         assertEquals(0, ReferencePriorities.get(network).size());
         assertEquals(0, ReferencePriority.get(bbs1));
@@ -129,7 +129,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testVariants() {
+    public void testVariants() {
         // create variants
         String variant1 = "variant1";
         String variant2 = "variant2";
@@ -182,7 +182,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testNoTerminalProvided() {
+    public void testNoTerminalProvided() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(NullPointerException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)
                 .newReferencePriority()
@@ -192,7 +192,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testBadPriority() {
+    public void testBadPriority() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(PowsyblException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)
                 .newReferencePriority()
@@ -203,7 +203,7 @@ public abstract class AbstractReferencePrioritiesTest {
     }
 
     @Test
-    void testTerminalNotInConnectable() {
+    public void testTerminalNotInConnectable() {
         lineS3S4.newExtension(ReferencePrioritiesAdder.class).add();
         Throwable thrown = assertThrows(PowsyblException.class, () -> lineS3S4.getExtension(ReferencePriorities.class)
                 .newReferencePriority()

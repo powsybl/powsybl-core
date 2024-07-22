@@ -22,7 +22,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
 
     private final class ReferenceTerminalsListener extends DefaultNetworkListener {
         @Override
-        public void beforeRemoval(Identifiable identifiable) {
+        public void beforeRemoval(Identifiable<?> identifiable) {
             if (identifiable instanceof Connectable<?> connectable) {
                 // if connectable removed from network, remove its terminals from this extension
                 terminalsPerVariant.forEach(referenceTerminals -> connectable.getTerminals().forEach(referenceTerminals::remove));
@@ -36,15 +36,24 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     public ReferenceTerminalsImpl(Network network, Set<Terminal> terminals) {
         super(network);
         this.terminalsPerVariant = new ArrayList<>(
-                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), null));
+                Collections.nCopies(getVariantManagerHolder().getVariantManager().getVariantArraySize(), new LinkedHashSet<>()));
         setReferenceTerminals(terminals);
         this.referenceTerminalsListener = new ReferenceTerminalsListener();
-        network.addListener(this.referenceTerminalsListener);
+    }
+
+    @Override
+    public void setExtendable(Network extendable) {
+        super.setExtendable(extendable);
+        if (extendable != null) {
+            // Add the listener, this will be done both extension creation, but also on extension transfer when merging and detaching.
+            extendable.getNetwork().addListener(this.referenceTerminalsListener);
+        }
     }
 
     @Override
     protected void cleanup() {
-        getExtendable().removeListener(this.referenceTerminalsListener);
+        // when extension removed from extendable, remove the listener. This will happen when merging and detaching.
+        getExtendable().getNetwork().removeListener(this.referenceTerminalsListener);
     }
 
     @Override
@@ -91,7 +100,7 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
 
     @Override
     public void deleteVariantArrayElement(int index) {
-        terminalsPerVariant.set(index, null);
+        terminalsPerVariant.set(index, new LinkedHashSet<>());
     }
 
     @Override
@@ -103,9 +112,19 @@ class ReferenceTerminalsImpl extends AbstractMultiVariantIdentifiableExtension<N
     }
 
     private static void checkTerminalInNetwork(Terminal terminal, Network network) {
-        if (!terminal.getVoltageLevel().getNetwork().equals(network)) {
-            throw new PowsyblException("Terminal given is not in the right Network ("
-                    + terminal.getVoltageLevel().getNetwork().getId() + " instead of " + network.getId() + ")");
+        final boolean extendableIsRootNetwork = network.getNetwork().equals(network);
+        if (extendableIsRootNetwork) {
+            // it is all fine as long as the terminal belongs to the merged network
+            if (!terminal.getVoltageLevel().getNetwork().equals(network)) {
+                throw new PowsyblException("Terminal given is not in the right Network ("
+                        + terminal.getVoltageLevel().getNetwork().getId() + " instead of " + network.getId() + ")");
+            }
+        } else {
+            // subnetwork: the terminal must be in the subnetwork
+            if (!terminal.getVoltageLevel().getParentNetwork().equals(network)) {
+                throw new PowsyblException("Terminal given is not in the right Network ("
+                        + terminal.getVoltageLevel().getParentNetwork().getId() + " instead of " + network.getId() + ")");
+            }
         }
     }
 }

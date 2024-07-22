@@ -619,6 +619,48 @@ public interface Network extends Container<Network> {
     int getCountryCount();
 
     /**
+     * Get all areaTypes.
+     */
+    Iterable<String> getAreaTypes();
+
+    /**
+     * Get all areaTypes.
+     */
+    Stream<String> getAreaTypeStream();
+
+    /**
+     * Get the areaType count.
+     */
+    int getAreaTypeCount();
+
+    /**
+     * Get a builder to create a new area.
+     * @return a builder to create a new area
+     */
+    AreaAdder newArea();
+
+    /**
+     * @return all existing areas, which may include several areas for each area type
+     */
+    Iterable<Area> getAreas();
+
+    /**
+     * @return all existing areas, which may include several areas for each area type
+     */
+    Stream<Area> getAreaStream();
+
+    /**
+     * Get an area.
+     * @param id the id or an alias of the area
+     */
+    Area getArea(String id);
+
+    /**
+     * Get the area count.
+     */
+    int getAreaCount();
+
+    /**
      * Get a builder to create a new substation.
      * @return a builder to create a new substation
      */
@@ -1405,44 +1447,26 @@ public interface Network extends Container<Network> {
     }
 
     default Stream<Identifiable<?>> getIdentifiableStream(IdentifiableType identifiableType) {
-        switch (identifiableType) {
-            case SWITCH:
-                return getSwitchStream().map(Function.identity());
-            case TWO_WINDINGS_TRANSFORMER:
-                return getTwoWindingsTransformerStream().map(Function.identity());
-            case THREE_WINDINGS_TRANSFORMER:
-                return getThreeWindingsTransformerStream().map(Function.identity());
-            case DANGLING_LINE:
-                return getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
-            case LINE:
-                return getLineStream().map(Function.identity());
-            case TIE_LINE:
-                return getTieLineStream().map(Function.identity());
-            case LOAD:
-                return getLoadStream().map(Function.identity());
-            case BATTERY:
-                return getBatteryStream().map(Function.identity());
-            case GENERATOR:
-                return getGeneratorStream().map(Function.identity());
-            case HVDC_LINE:
-                return getHvdcLineStream().map(Function.identity());
-            case SUBSTATION:
-                return getSubstationStream().map(Function.identity());
-            case VOLTAGE_LEVEL:
-                return getVoltageLevelStream().map(Function.identity());
-            case BUSBAR_SECTION:
-                return getBusbarSectionStream().map(Function.identity());
-            case SHUNT_COMPENSATOR:
-                return getShuntCompensatorStream().map(Function.identity());
-            case HVDC_CONVERTER_STATION:
-                return getHvdcConverterStationStream().map(Function.identity());
-            case STATIC_VAR_COMPENSATOR:
-                return getStaticVarCompensatorStream().map(Function.identity());
-            case GROUND:
-                return getGroundStream().map(Function.identity());
-            default:
-                throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
-        }
+        return switch (identifiableType) {
+            case SWITCH -> getSwitchStream().map(Function.identity());
+            case TWO_WINDINGS_TRANSFORMER -> getTwoWindingsTransformerStream().map(Function.identity());
+            case THREE_WINDINGS_TRANSFORMER -> getThreeWindingsTransformerStream().map(Function.identity());
+            case DANGLING_LINE -> getDanglingLineStream(DanglingLineFilter.ALL).map(Function.identity());
+            case LINE -> getLineStream().map(Function.identity());
+            case TIE_LINE -> getTieLineStream().map(Function.identity());
+            case LOAD -> getLoadStream().map(Function.identity());
+            case BATTERY -> getBatteryStream().map(Function.identity());
+            case GENERATOR -> getGeneratorStream().map(Function.identity());
+            case HVDC_LINE -> getHvdcLineStream().map(Function.identity());
+            case SUBSTATION -> getSubstationStream().map(Function.identity());
+            case VOLTAGE_LEVEL -> getVoltageLevelStream().map(Function.identity());
+            case BUSBAR_SECTION -> getBusbarSectionStream().map(Function.identity());
+            case SHUNT_COMPENSATOR -> getShuntCompensatorStream().map(Function.identity());
+            case HVDC_CONVERTER_STATION -> getHvdcConverterStationStream().map(Function.identity());
+            case STATIC_VAR_COMPENSATOR -> getStaticVarCompensatorStream().map(Function.identity());
+            case GROUND -> getGroundStream().map(Function.identity());
+            default -> throw new PowsyblException("can get a stream of " + identifiableType + " from a network.");
+        };
     }
 
     /**
@@ -1500,7 +1524,7 @@ public interface Network extends Container<Network> {
      * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, ReportNode reportNode) {
-        write(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reportNode);
+        write(loader, format, parameters, new DirectoryDataSource(Paths.get(directory), baseName), reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {

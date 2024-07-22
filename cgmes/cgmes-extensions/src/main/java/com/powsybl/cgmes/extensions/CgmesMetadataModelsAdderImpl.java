@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.cgmes.model.CgmesMetadataModel;
+import com.powsybl.cgmes.model.CgmesMetadataModelImpl;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
@@ -84,16 +85,13 @@ class CgmesMetadataModelsAdderImpl extends AbstractExtensionAdder<Network, Cgmes
             if (subset == null) {
                 throw new PowsyblException("Model subset is undefined");
             }
-            if (id == null) {
-                throw new PowsyblException("Model id is undefined");
-            }
             if (modelingAuthoritySet == null) {
                 throw new PowsyblException("Model modelingAuthoritySet is undefined");
             }
             if (profiles.isEmpty()) {
                 throw new PowsyblException("Model must contain at least one profile");
             }
-            models.add(new CgmesMetadataModel(subset, modelingAuthoritySet)
+            models.add(new CgmesMetadataModelImpl(subset, modelingAuthoritySet)
                     .setId(id)
                     .setDescription(description)
                     .setVersion(version)

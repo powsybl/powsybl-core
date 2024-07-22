@@ -10,6 +10,8 @@ package com.powsybl.commons.report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -18,6 +20,21 @@ import java.util.*;
 public class RootContext {
     private static final Logger LOGGER = LoggerFactory.getLogger(RootContext.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
+    private final boolean timestamps;
+    private final DateTimeFormatter timestampFormatter;
+
+    public RootContext() {
+        this(false);
+    }
+
+    public RootContext(boolean timestamps) {
+        this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
+    }
+
+    public RootContext(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
+        this.timestamps = timestamps;
+        this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
+    }
 
     public Map<String, String> getDictionary() {
         return Collections.unmodifiableMap(dictionary);
@@ -29,12 +46,20 @@ public class RootContext {
 
     private static String mergeEntries(String key, String previousMessageTemplate, String newMessageTemplate) {
         if (!previousMessageTemplate.equals(newMessageTemplate)) {
-            LOGGER.warn("Same key {} for two non-equal message templates: '{}' / '{}'", key, previousMessageTemplate, newMessageTemplate);
+            LOGGER.warn("Same key {} for two non-equal message templates: '{}' / '{}'. Keeping the first one.", key, previousMessageTemplate, newMessageTemplate);
         }
-        return newMessageTemplate;
+        return previousMessageTemplate;
     }
 
     public synchronized void merge(RootContext otherContext) {
-        dictionary.putAll(otherContext.dictionary);
+        otherContext.dictionary.forEach(this::addDictionaryEntry);
+    }
+
+    public boolean isTimestampAdded() {
+        return timestamps;
+    }
+
+    public TypedValue getTimestamp() {
+        return new TypedValue(timestampFormatter.format(ZonedDateTime.now()), TypedValue.TIMESTAMP);
     }
 }
