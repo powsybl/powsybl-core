@@ -49,7 +49,7 @@ abstract class AbstractFileSystemDataSourceTest {
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
-    protected abstract void createFiles(String fileName, String mainExtension) throws IOException;
+    protected abstract void createFiles(String fileName) throws IOException;
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
@@ -58,7 +58,7 @@ abstract class AbstractFileSystemDataSourceTest {
         String fileName = getFileName(baseName, mainExtension, compressionFormat);
 
         // Create the files
-        createFiles(fileName, mainExtension);
+        createFiles(fileName);
 
         // Create the datasource
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
@@ -122,7 +122,7 @@ abstract class AbstractFileSystemDataSourceTest {
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the files
-        createFiles(fileName, mainExtension);
+        createFiles(fileName);
 
         // Create the datasource
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(fileName));
@@ -169,10 +169,8 @@ abstract class AbstractFileSystemDataSourceTest {
         // Observer
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
-        // Create an archive when needed
-        if (archiveFormat != null) {
-            createArchiveAndFiles(getFileName("foo", "iidm", archiveFormat, compressionFormat));
-        }
+        // Create the files
+        createFiles(getFileName("foo", "iidm", compressionFormat));
 
         // Create the datasource
         DataSource dataSourceWithObserver = createDataSource(observer);
