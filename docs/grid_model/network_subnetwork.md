@@ -89,7 +89,8 @@ PowSyBl provides an integrated topology processor that allows to automatically o
 
 The following diagram represents an example voltage level with two busbars separated by a circuit breaker, a transformer connected to one of them and three generators that can connect to any of the two busbars. The three topology levels are shown.
 
-![VoltageLevel](img/voltage-level.svg){width="100%" align=center}
+![VoltageLevel](img/voltage-level.svg){width="100%" align=center class="only-light"}
+![VoltageLevel](img/dark_mode/voltage-level.svg){width="100%" align=center class="only-dark"}
 
 When defining the model, the user has to specify how the different equipment connect to the network. If the voltage level is built at node/breaker level, the user has to specify a `Node` when adding equipment to the model. If the user is building using bus/breaker level, the `Bus` of the equipment must be specified. Using this information, the model creates a `Terminal` that will be used to manage the point of connection of the equipment to the network.
 
@@ -118,18 +119,17 @@ for DC part only (considering only DC boundaries) and in total (AC+DC).
 Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
 
 For area types that are meant to be used for area interchange control, e.g. in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
-Note that this target interchange is for only the AC part of the interchange.
 
 All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
 
 **Characteristics of an Area**
 
-| Attribute             | Unit | Description                                                    |
-|-----------------------|------|----------------------------------------------------------------|
-| $AreaType$            |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
-| $AcInterchangeTarget$ | MW   | Target AC active power interchange                             |
-| $VoltageLevels$       |      | List of voltage levels of the area                             |
-| $AreaBoundaries$      |      | List of area boundaries of the area                            |
+| Attribute           | Unit | Description                                                    |
+|---------------------|------|----------------------------------------------------------------|
+| $AreaType$          |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
+| $interchangeTarget$ | MW   | Target active power interchange                                |
+| $VoltageLevels$     |      | List of voltage levels of the area                             |
+| $AreaBoundaries$    |      | List of area boundaries of the area                            |
 
 **Characteristics of an AreaBoundary**
 
@@ -155,7 +155,8 @@ which are then separated for AC and DC parts.
 
 A generator is an equipment that injects or consumes active power, and injects or consumes reactive power. It may be used as a controller to hold a voltage or reactive target somewhere in the network, not necessarily directly where it is connected. In that specific case, the voltage or reactive power control is remote.
 
-![GeneratorSignConvention](img/generator-sign-convention.svg){width="40%" align=center}
+![GeneratorSignConvention](img/generator-sign-convention.svg){width="50%" align=center class="only-light"}
+![GeneratorSignConvention](img/dark_mode/generator-sign-convention.svg){width="50%" align=center class="only-dark"}
 
 **Characteristics**
 
@@ -279,7 +280,8 @@ A battery on the electric grid is an energy storage device that is either capabl
 
 A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection, in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 
-![Dangling line model](img/danglingLine.svg){width="50%" align=center}
+![Dangling line model](img/dangling-line.svg){width="50%" align=center class="only-light"}
+![Dangling line model](img/dark_mode/dangling-line.svg){width="50%" align=center class="only-dark"}
 
 A generation part, at boundary side can also be modeled, with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal can not be set, it is necessary the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
 
@@ -463,7 +465,8 @@ In IIDM the static VAR compensator also comprises some metadata:
 
 AC transmission lines are modeled using a standard $\pi$ model with distributed parameters. A `Line` is a `Branch`, that models equipment with two terminals (or two sides). For the time being, a branch is an AC equipment.
 
-![Line model](img/line-model.svg){width="50%" align=center}
+![Line model](img/line-model.svg){width="50%" align=center class="only-light"}
+![Line model](img/dark_mode/line-model.svg){width="50%" align=center class="only-dark"}
 
 With series impedance $z$ and the shunt admittance on each side $y_1$ and $y_2$:
 
@@ -551,7 +554,8 @@ A tie line is not a connectable. It is just a container of two underlying dangli
 A two windings power transformer is connected to two voltage levels (side 1 and side 2) that belong to a same substation.
 Two windings transformers are modeled with the following equivalent $\Pi$ model:
 
-![Power line model](img/two-windings-transformer-model.svg){width="50%" align=center}
+![Power line model](img/two-winding-transformer-model.svg){width="50%" align=center class="only-light"}
+![Power line model](img/dark_mode/two-winding-transformer-model.svg){width="50%" align=center class="only-dark"}
 
 With the series impedance $z$ and the shunt admittance $y$ and the voltage ratio $\rho$ and the angle difference $\alpha$ and potentially parameters from the current step of a [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer), we have:
 
@@ -626,13 +630,14 @@ same substation. We usually have:
 A three windings transformer is modeled with three legs, where every leg model is electrically equivalent to a two windings transformer.
 For each leg, the network bus is at side 1 and the star bus is at side 2.
 
-![Line model](img/three-windings-transformer-model.svg){width="50%" align=center}
+![Line model](img/three-winding-transformer-model.svg){width="50%" align=center class="only-light"}
+![Line model](img/dark_mode/three-winding-transformer-model.svg){width="50%" align=center class="only-dark"}
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $RatedU0$ | kV | The rated voltage at the star bus |
+| Attribute | Unit | Description                       |
+|-----------|------|-----------------------------------|
+| $RatedU0$ | kV   | The rated voltage at the star bus |
 
 **Specifications**
 

@@ -31,6 +31,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         "foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
     protected String archiveWithSubfolders;
     protected String appendException;
+    protected ArchiveFormat archiveFormat;
 
     @BeforeEach
     void setUp() throws Exception {
