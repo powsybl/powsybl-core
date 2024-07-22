@@ -21,15 +21,15 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new DirectoryDataSource(directory, baseName, null, observer),
-            new ZstdDirectoryDataSource(directory, baseName, null, observer),
+            new DirectoryDataSource(directory, baseName, mainExtension, observer),
+            new ZstdDirectoryDataSource(directory, baseName, mainExtension, observer),
             new ZipArchiveDataSource(directory),
-            new ZipArchiveDataSource(directory, baseName, null, observer),
-            new XZDirectoryDataSource(directory, baseName, null, observer),
-            new GzDirectoryDataSource(directory, baseName, null, observer),
-            new Bzip2DirectoryDataSource(directory, baseName, null, observer)
+            new ZipArchiveDataSource(directory, baseName, mainExtension, observer),
+            new XZDirectoryDataSource(directory, baseName, mainExtension, observer),
+            new GzDirectoryDataSource(directory, baseName, mainExtension, observer),
+            new Bzip2DirectoryDataSource(directory, baseName, mainExtension, observer)
         };
     }
 
@@ -37,16 +37,25 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
      * The data source contains all files inside the given directory.
      */
     public GenericReadOnlyDataSource(Path directory) {
-        this(directory, "");
+        this(directory, "", null);
     }
 
     public GenericReadOnlyDataSource(Path directory, String baseName) {
         this(directory, baseName, null);
     }
 
+    public GenericReadOnlyDataSource(Path directory, String baseName, String mainExtension) {
+        this(directory, baseName, mainExtension, null);
+    }
+
     @Override
     public String getBaseName() {
         return dataSources[0].getBaseName();
+    }
+
+    @Override
+    public String getMainExtension() {
+        return dataSources[0].getMainExtension();
     }
 
     @Override
