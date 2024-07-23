@@ -1396,7 +1396,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
     }
 
     private String getEQ(Network network, String baseName, Path tmpDir, Properties exportParams) throws IOException {
-        new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
         return Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
     }
 
