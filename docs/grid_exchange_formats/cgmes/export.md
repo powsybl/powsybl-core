@@ -178,6 +178,16 @@ Each dangling line will be exported as one `EquivalentInjection` and one `ACLine
 
 PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
 
+#### RegulatingControl export
+Imported CGMES `RegulatingControl` for `Generator` is always exported.
+
+`RegulatingControl` is not exported when `Generator` has no regulation capability `minQ=maxQ`.
+
+`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.reactivePower` when 
+`Generator->RemoteReactivePowerControl.enabled=true` and `Generator->voltageRegulatorOn=false`
+
+`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage` in all other cases.
+
 <span style="color: red">TODO details</span>
 
 ### HVDC line and HVDC converter stations
@@ -202,11 +212,26 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
 
+#### RegulatingControl export
+`RegulatingControl` for `ShuntCompensator` is not exported when`RegulatingTerminal` is the same as `ShuntCompensator` 
+Terminal (local control) and `TargetV` is not set.
+
+In all other cases, `RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage`
+
 <span style="color: red">TODO details</span>
 
 ### StaticVarCompensator
 
 PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-var-compensator) is exported as `StaticVarCompensator`.
+
+#### RegulatingControl export
+`RegulatingControl` is not exported when `RegulatingTerminal` is the same as `StaticVarCompensator` Terminal, 
+`StaticVarCompensator->regulationMode=OFF` and there is not valid `voltageSetpoint` or `reactivePowerSetpoint`.
+
+`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.reactivePower` when
+`StaticVarCompensator->regulationMode=OFF` or `StaticVarCompensator->regulationMode=REACTIVE_POWER`, `voltageSetpoint` is not valid and `reactivePowerSetpoint` is valid.
+
+`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage` in all other cases.
 
 <span style="color: red">TODO details</span>
 
@@ -225,6 +250,23 @@ PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is expo
 ### ThreeWindingsTransformer
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-windings-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
+
+#### TapChangerControl export
+
+`RatioTapChanger`:
+- `TapChangerControl` is not exported when `RatioTapChanger->regulationMode` is not defined.
+- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.reactivePower` when
+`RatioTapChanger->regulationMode=REACTIVE_POWER`.
+- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage` when
+`RatioTapChanger->regulationMode=VOLTAGE`.
+
+`PhaseTapChanger`
+- `TapChangerControl` is not exported when `PhaseTapChanger->regulationMode=OFF`.
+- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.activePower` when
+  `PhaseTapChanger->regulationMode=ACTIVE_POWER_CONTROL`.
+- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.currentFlow` when
+  `PhaseTapChanger->regulationMode=CURRENT_LIMITER`.
+
 <span style="color: red">TODO details</span>
 
 ### TwoWindingsTransformer
