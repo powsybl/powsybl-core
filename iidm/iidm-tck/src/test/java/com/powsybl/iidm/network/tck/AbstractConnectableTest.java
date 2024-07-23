@@ -295,14 +295,19 @@ public abstract class AbstractConnectableTest {
         // Useful elements
         VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL1").getNodeBreakerView();
         Line line1 = network.getLine("L1");
+        Switch switch1 = network.getSwitch("B_L1_1");
+        Switch switch2 = network.getSwitch("B_L1_2");
 
         // Line1 is fully connected
         assertTrue(topo.getOptionalTerminal(4).isPresent());
-        line1.getTerminals().forEach(terminal -> assertNotNull(terminal.getBusView().getBus()));
-        line1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+        checkLineConnection(line1, true);
+        assertFalse(switch1.isOpen());
+        assertFalse(switch2.isOpen());
 
         // Failing disconnection
         assertFalse(line1.disconnect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER));
+        assertFalse(switch1.isOpen());
+        assertFalse(switch2.isOpen());
 
         // Check that line1 is still fully connected
         line1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
@@ -312,8 +317,9 @@ public abstract class AbstractConnectableTest {
 
         // check line 1 is disconnected
         assertTrue(topo.getOptionalTerminal(4).isPresent());
-        line1.getTerminals().forEach(terminal -> assertNull(terminal.getBusView().getBus()));
-        line1.getTerminals().forEach(terminal -> assertFalse(terminal.isConnected()));
+        checkLineConnection(line1, false);
+        assertTrue(switch1.isOpen());
+        assertTrue(switch2.isOpen());
 
         // disconnect the already fully disconnected line 1
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing reportNode").build();
@@ -321,6 +327,8 @@ public abstract class AbstractConnectableTest {
         assertFalse(line1.disconnect());
         network.getReportNodeContext().popReportNode();
         assertEquals("alreadyDisconnectedTerminal", reportNode.getChildren().get(0).getMessageKey());
+        assertTrue(switch1.isOpen());
+        assertTrue(switch2.isOpen());
 
         // Failing reconnection of the line 1
         assertFalse(line1.connect(SwitchPredicates.IS_NONFICTIONAL_CLOSED_BREAKER));
@@ -333,8 +341,20 @@ public abstract class AbstractConnectableTest {
 
         // check line 1 is connected
         assertTrue(topo.getOptionalTerminal(5).isPresent());
-        line1.getTerminals().forEach(terminal -> assertNotNull(terminal.getBusView().getBus()));
-        line1.getTerminals().forEach(terminal -> assertTrue(terminal.isConnected()));
+        checkLineConnection(line1, true);
+
+        // One of the two switches has been closed to connect the line
+        assertFalse(switch1.isOpen() && switch2.isOpen());
+        assertTrue(switch1.isOpen() || switch2.isOpen());
+    }
+
+    private void checkLineConnection(Line line, boolean shouldBeConnected) {
+        if (shouldBeConnected) {
+            line.getTerminals().forEach(terminal -> assertNotNull(terminal.getBusView().getBus()));
+        } else {
+            line.getTerminals().forEach(terminal -> assertNull(terminal.getBusView().getBus()));
+        }
+        line.getTerminals().forEach(terminal -> assertEquals(shouldBeConnected, terminal.isConnected()));
     }
 
     @Test
