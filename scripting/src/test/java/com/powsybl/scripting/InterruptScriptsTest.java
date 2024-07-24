@@ -19,11 +19,12 @@ import com.powsybl.tools.ToolInitializationContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
@@ -39,6 +40,7 @@ import java.util.Objects;
  */
 @Order(2)
 class InterruptScriptsTest extends AbstractTaskInterruptionTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(InterruptScriptsTest.class);
 
     protected FileSystem fileSystem;
     private RunScriptTool tool;
@@ -66,7 +68,7 @@ class InterruptScriptsTest extends AbstractTaskInterruptionTest {
         }
     }
 
-    protected int runCommand(String[] args) {
+    protected int runCommand(String[] args) throws InterruptedException {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
         int status;
@@ -104,28 +106,28 @@ class InterruptScriptsTest extends AbstractTaskInterruptionTest {
                     return computationManager;
                 }
             });
-        } catch (Exception e) {
-            status = -1;
         }
-
+        LOGGER.info("berr: {}", berr.toString().lines().findFirst().orElse(""));
+        if (berr.toString().startsWith("java.lang.InterruptedException")) {
+            // When the task is interrupted during the initialization: "java.lang.InterruptedException: Execution Interrupted"
+            // When the Groovy execution is interrupted: "java.lang.InterruptedException: Execution interrupted. The current thread has been interrupted."
+            throw new InterruptedException();
+        }
         return status;
     }
 
     @ParameterizedTest
-    @Timeout(3)
+    @Timeout(5)
     @ValueSource(booleans = {false, true})
-    @Disabled("Test not working for now")
     void testCancelTask(boolean isDelayed) throws Exception {
-        // TODO : make these tests work
-
         // Script content
         String scriptFile = "/hello.groovy";
         String scriptContent = """
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 200; i++) {
                 print(i)
                 sleep(500)
             }
-            """ + "print 'hello ' + args[0]";
+            """ + "print ' hello ' + args[0]";
         createFile(scriptFile, scriptContent);
 
         // Cancel the task
@@ -136,6 +138,5 @@ class InterruptScriptsTest extends AbstractTaskInterruptionTest {
                 throw new RuntimeException(e);
             }
         });
-
     }
 }
