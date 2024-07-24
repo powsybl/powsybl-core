@@ -28,8 +28,7 @@ public abstract class AbstractTaskInterruptionTest {
 
     // Counters
     public CountDownLatch waitForStart;
-    public CountDownLatch waitForFinish;
-    public CountDownLatch waitForInterruption;
+    public CountDownLatch waitForEnd;
 
     // Booleans
     public AtomicBoolean config;
@@ -38,24 +37,23 @@ public abstract class AbstractTaskInterruptionTest {
     private void assertions(CompletableFuture<Object> task) throws InterruptedException {
 
         // This line is used to check that the task has already started
-        LOGGER.warn("assertions - waitForStart - " + ZonedDateTime.now());
+        LOGGER.info("assertions - waitForStart - {}", ZonedDateTime.now());
         waitForStart.await();
 
         // The task should not be done at that point
-        LOGGER.warn("assertions - isDone - " + ZonedDateTime.now());
         assertFalse(task.isDone());
 
         // Cancel the task
-        LOGGER.warn("assertions - cancel - " + ZonedDateTime.now());
+        LOGGER.info("assertions - cancel - {}", ZonedDateTime.now());
         boolean cancelled = task.cancel(true);
 
         // Check that the task is cancelled
-        LOGGER.warn("assertions - isCancelled - " + ZonedDateTime.now());
+        LOGGER.info("assertions - isCancelled - {}", ZonedDateTime.now());
         assertTrue(cancelled);
         assertTrue(task.isCancelled());
 
         // Boolean stays at false if the task is cancelled
-        LOGGER.warn("assertions - get - " + ZonedDateTime.now());
+        LOGGER.info("assertions - get - {}", ZonedDateTime.now());
         assertFalse(config.get());
 
         // This should throw an exception since the task is cancelled
@@ -65,8 +63,8 @@ public abstract class AbstractTaskInterruptionTest {
         });
 
         // This line should return immediately since the task has been cancelled
-        LOGGER.warn("assertions - waitForInterruption - " + ZonedDateTime.now());
-        waitForInterruption.await();
+        LOGGER.info("assertions - waitForEnd - {}", ZonedDateTime.now());
+        waitForEnd.await();
 
         // This boolean is true if the task has been interrupted
         assertTrue(interrupted.get());
@@ -78,20 +76,20 @@ public abstract class AbstractTaskInterruptionTest {
 
     private CompletableFuture<Object> createTask(Supplier<?> methodCalledInTask) {
         return CompletableFutureTask.runAsync(() -> {
-            LOGGER.warn("createTask - START - " + ZonedDateTime.now());
+            LOGGER.info("createTask - START - {}", ZonedDateTime.now());
             waitForStart.countDown();
             try {
-                LOGGER.warn("createTask - TRY - " + ZonedDateTime.now());
+                LOGGER.info("createTask - TRY - {}", ZonedDateTime.now());
                 methodCalledInTask.get();
-                LOGGER.warn("createTask - CONFIG TRUE - " + ZonedDateTime.now());
+                LOGGER.info("createTask - CONFIG TRUE - {}", ZonedDateTime.now());
                 config.set(true);
-                waitForFinish.countDown();
             } catch (Exception e) { // Thread interrupted => good
-                LOGGER.warn("createTask - INTERRUPT - " + ZonedDateTime.now());
+                LOGGER.info("createTask - INTERRUPT - {}", ZonedDateTime.now());
                 interrupted.set(true);
-                waitForInterruption.countDown();
+            } finally {
+                waitForEnd.countDown();
             }
-            LOGGER.warn("createTask - END - " + ZonedDateTime.now());
+            LOGGER.info("createTask - END - {}", ZonedDateTime.now());
             return null;
         }, Executors.newSingleThreadExecutor());
     }
@@ -106,8 +104,7 @@ public abstract class AbstractTaskInterruptionTest {
 
         // Counters
         waitForStart = new CountDownLatch(1);
-        waitForFinish = new CountDownLatch(1);
-        waitForInterruption = new CountDownLatch(1);
+        waitForEnd = new CountDownLatch(1);
 
         // Booleans
         config = new AtomicBoolean(false);
@@ -118,7 +115,7 @@ public abstract class AbstractTaskInterruptionTest {
 
         // If asked, wait a bit to simulate interruption by a user
         if (isDelayed) {
-            Thread.sleep(800);
+            Thread.sleep(2000);
         }
 
         assertions(task);
@@ -134,8 +131,7 @@ public abstract class AbstractTaskInterruptionTest {
 
         // Counters
         waitForStart = new CountDownLatch(1);
-        waitForFinish = new CountDownLatch(1);
-        waitForInterruption = new CountDownLatch(1);
+        waitForEnd = new CountDownLatch(1);
 
         // Booleans
         config = new AtomicBoolean(false);
@@ -146,12 +142,12 @@ public abstract class AbstractTaskInterruptionTest {
 
         // If asked, wait a bit to simulate interruption by a user
         if (isDelayed) {
-            Thread.sleep(800);
+            Thread.sleep(2000);
 
             // This line is used to check that the task has already started
             waitForStart.await();
 
-            // the script was to short to be interrupted before its end so the task is done
+            // the script was too short to be interrupted before its end so the task is done
             assertTrue(task.isDone());
 
             // Cancel the task
