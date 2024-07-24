@@ -183,10 +183,10 @@ Imported CGMES `RegulatingControl` for `Generator` is always exported.
 
 `RegulatingControl` is not exported when `Generator` has no regulation capability `minQ=maxQ`.
 
-`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.reactivePower` when 
-`Generator->RemoteReactivePowerControl.enabled=true` and `Generator->voltageRegulatorOn=false`
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when 
+`Generator` with `RemoteReactivePowerControl.enabled` set to `true` and `Generator` `voltageRegulatorOn` set to `false`
 
-`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage` in all other cases.
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` in all other cases.
 
 <span style="color: red">TODO details</span>
 
@@ -216,7 +216,7 @@ PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compen
 `RegulatingControl` for `ShuntCompensator` is not exported when`RegulatingTerminal` is the same as `ShuntCompensator` 
 Terminal (local control) and `TargetV` is not set.
 
-In all other cases, `RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage`
+In all other cases, `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`
 
 <span style="color: red">TODO details</span>
 
@@ -226,12 +226,12 @@ PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-v
 
 #### RegulatingControl export
 `RegulatingControl` is not exported when `RegulatingTerminal` is the same as `StaticVarCompensator` Terminal, 
-`StaticVarCompensator->regulationMode=OFF` and there is not valid `voltageSetpoint` or `reactivePowerSetpoint`.
+`StaticVarCompensator` is with `regulationMode` set to `OFF` and there is not valid `voltageSetpoint` or `reactivePowerSetpoint`.
 
-`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.reactivePower` when
-`StaticVarCompensator->regulationMode=OFF` or `StaticVarCompensator->regulationMode=REACTIVE_POWER`, `voltageSetpoint` is not valid and `reactivePowerSetpoint` is valid.
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+`StaticVarCompensator` is with `regulationMode` set to `OFF` or `StaticVarCompensator` with `regulationMode` set to `REACTIVE_POWER`, `voltageSetpoint` is not valid and `reactivePowerSetpoint` is valid.
 
-`RegulatingControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage` in all other cases.
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` in all other cases.
 
 <span style="color: red">TODO details</span>
 
@@ -254,18 +254,18 @@ PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#thre
 #### TapChangerControl export
 
 `RatioTapChanger`:
-- `TapChangerControl` is not exported when `RatioTapChanger->regulationMode` is not defined.
-- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.reactivePower` when
-`RatioTapChanger->regulationMode=REACTIVE_POWER`.
-- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.voltage` when
-`RatioTapChanger->regulationMode=VOLTAGE`.
+- `TapChangerControl` is not exported when `RatioTapChanger` `regulationMode` is not defined.
+- `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+`RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`.
+- `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
+`RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
 
 `PhaseTapChanger`
-- `TapChangerControl` is not exported when `PhaseTapChanger->regulationMode=OFF`.
-- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.activePower` when
-  `PhaseTapChanger->regulationMode=ACTIVE_POWER_CONTROL`.
-- `TapChangerControl` is exported with `RegulatingControl.mode=RegulatingControlModeKind.currentFlow` when
-  `PhaseTapChanger->regulationMode=CURRENT_LIMITER`.
+- `TapChangerControl` is not exported when `PhaseTapChanger` `regulationMode` is set to `OFF`.
+- `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when
+  `PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`.
+- `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow` when
+  `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
 <span style="color: red">TODO details</span>
 
