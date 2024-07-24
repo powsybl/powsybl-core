@@ -11,10 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.ZonedDateTime;
-import java.util.concurrent.CancellationException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
@@ -64,7 +61,8 @@ public abstract class AbstractTaskInterruptionTest {
 
         // This line should return immediately since the task has been cancelled
         LOGGER.info("assertions - waitForEnd - {}", ZonedDateTime.now());
-        waitForEnd.await();
+        waitUntilTaskEnd(task);
+        LOGGER.info("assertions - ended - {}", ZonedDateTime.now());
 
         // This boolean is true if the task has been interrupted
         assertTrue(interrupted.get());
@@ -81,16 +79,15 @@ public abstract class AbstractTaskInterruptionTest {
             try {
                 LOGGER.info("createTask - TRY - {}", ZonedDateTime.now());
                 methodCalledInTask.get();
-                LOGGER.info("createTask - CONFIG TRUE - {}", ZonedDateTime.now());
+                LOGGER.info("createTask - FINISHED - {}", ZonedDateTime.now());
                 config.set(true);
             } catch (Exception e) { // Thread interrupted => good
-                LOGGER.info("createTask - INTERRUPT - {}", ZonedDateTime.now());
+                LOGGER.info("createTask - INTERRUPTED - {}", ZonedDateTime.now());
                 interrupted.set(true);
             } finally {
                 waitForEnd.countDown();
             }
-            LOGGER.info("createTask - END - {}", ZonedDateTime.now());
-            return null;
+            return Boolean.TRUE;
         }, Executors.newSingleThreadExecutor());
     }
 
@@ -101,6 +98,16 @@ public abstract class AbstractTaskInterruptionTest {
      * @throws InterruptedException Exception that should be thrown during the interruption
      */
     public void testCancelLongTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws InterruptedException {
+        testCancelLongTask(isDelayed ? 2000 : 0, methodCalledInTask);
+    }
+
+    /**
+     * Test the interruption of a task containing a call to a specific method.
+     * @param delayBeforeInterruption delay (in ms) between the task launch and the interruption
+     * @param methodCalledInTask method called in the task
+     * @throws InterruptedException Exception that should be thrown during the interruption
+     */
+    public void testCancelLongTask(int delayBeforeInterruption, Supplier<?> methodCalledInTask) throws InterruptedException {
 
         // Counters
         waitForStart = new CountDownLatch(1);
@@ -114,8 +121,8 @@ public abstract class AbstractTaskInterruptionTest {
         CompletableFuture<Object> task = createTask(methodCalledInTask);
 
         // If asked, wait a bit to simulate interruption by a user
-        if (isDelayed) {
-            Thread.sleep(2000);
+        if (delayBeforeInterruption > 0) {
+            Thread.sleep(delayBeforeInterruption);
         }
 
         assertions(task);
@@ -142,20 +149,35 @@ public abstract class AbstractTaskInterruptionTest {
 
         // If asked, wait a bit to simulate interruption by a user
         if (isDelayed) {
-            Thread.sleep(2000);
+            // For short tasks, the cancellation may be done after the task's end.
+            // We test here that it doesn't raise any problems.
+            LOGGER.info("shortTask - waitForEnd - {}", ZonedDateTime.now());
 
-            // This line is used to check that the task has already started
-            waitForStart.await();
+            waitUntilTaskEnd(task);
+            LOGGER.info("shortTask - ended - {}", ZonedDateTime.now());
 
-            // the script was too short to be interrupted before its end so the task is done
-            assertTrue(task.isDone());
-
-            // Cancel the task
+            // Cancel the task (after its end)
+            LOGGER.info("shortTask - cancel task - {}", ZonedDateTime.now());
             boolean cancelled = task.cancel(true);
             assertFalse(cancelled);
         } else {
             // If it's not delayed, the script didn't have enough time to finish yet
             assertions(task);
+        }
+    }
+
+    private void waitUntilTaskEnd(CompletableFuture<Object> task) throws InterruptedException {
+        // When the task is not interrupted, the latch is released before the task is properly ended.
+        // We thus wait for the CompletableFuture's end in order to have the right CompletableFuture's status
+        // when we will test it.
+        // Note that when the task is interrupted, "task.join()" throws an Exception before the task is totally
+        // finished. This is why we also use the latch.
+        waitForEnd.await();
+        try {
+            task.join();
+        } catch (CancellationException | CompletionException e) {
+            LOGGER.info("Task ended with exception - {}", ZonedDateTime.now());
+            LOGGER.info("{}", e.getMessage());
         }
     }
 }

@@ -48,7 +48,7 @@ class InterruptScriptsTest extends AbstractTaskInterruptionTest {
     private CommandLineTools tools;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         tool = new RunScriptTool();
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
