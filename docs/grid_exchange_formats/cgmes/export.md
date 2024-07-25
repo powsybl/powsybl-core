@@ -254,23 +254,27 @@ PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is expo
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-windings-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
 
-#### TapChangerControl export
+#### Tap changer control
 
 If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
-too. Otherwise, a `TapChangerControl` is is exported for the tap changer if it is considered as defined. A `RatioTapChanger` is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal. A `PhaseTapChanger` is considered as defined if it has a regulaton mode different of `FIXED_TAP`, a valid regulation value, a valid target deadband, and a non-null regulating terminal.
+too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
+is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
+A `PhaseTapChanger` is considered as defined if it has a regulation mode different of `FIXED_TAP`, a valid regulation value,
+a valid target deadband, and a non-null regulating terminal.
 
 In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
 `RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
 `RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
 
-In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when `PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow` when
-  `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
+In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when
+`PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow`
+when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
 ### TwoWindingsTransformer
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-windings-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
-Tap changer controls for two windings transformers are exported following the same rules explained in the previous section about three windings transformers. See [tap changer control export](#tapchangercontrol-export).
+Tap changer controls for two windings transformers are exported following the same rules explained in the previous section about three windings transformers. See [tap changer control](#tap-changer-control).
 
 ### Voltage level
 
