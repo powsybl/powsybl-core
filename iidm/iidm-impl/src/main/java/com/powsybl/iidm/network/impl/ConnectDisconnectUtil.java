@@ -46,7 +46,7 @@ public final class ConnectDisconnectUtil {
         boolean isNowConnected = true;
 
         // Initialisation of a list to open in case some terminals are in node-breaker view
-        Set<SwitchImpl> switchForDisconnection = new HashSet<>();
+        Set<SwitchImpl> switchForConnection = new HashSet<>();
 
         // We try to connect each terminal
         for (Terminal terminal : terminals) {
@@ -64,7 +64,7 @@ public final class ConnectDisconnectUtil {
 
             // If it's a node-breaker terminal, the switches to connect are added to a set
             if (terminal.getVoltageLevel() instanceof NodeBreakerVoltageLevel nodeBreakerVoltageLevel) {
-                isNowConnected = nodeBreakerVoltageLevel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForDisconnection);
+                isNowConnected = nodeBreakerVoltageLevel.getConnectingSwitches(terminal, isTypeSwitchToOperate, switchForConnection);
             }
             // If it's a bus-breaker terminal, there is nothing to do
 
@@ -89,7 +89,7 @@ public final class ConnectDisconnectUtil {
         }
 
         // Disconnect all switches on node-breaker terminals
-        switchForDisconnection.forEach(sw -> sw.setOpen(false));
+        switchForConnection.forEach(sw -> sw.setOpen(false));
         return isNowConnected;
     }
 
@@ -97,7 +97,7 @@ public final class ConnectDisconnectUtil {
      * Disconnect the specified terminals. It will disconnect all the specified terminals or none if at least one cannot
      * be disconnected.
      * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
-     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     * @param terminals list of the terminals that should be disconnected. For a connectable, it should be its own
      *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
      *                  underlying dangling lines (respectively converter stations)
      * @param isSwitchOpenable type of switches that can be operated

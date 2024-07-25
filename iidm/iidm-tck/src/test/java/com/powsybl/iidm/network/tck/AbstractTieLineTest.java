@@ -476,7 +476,7 @@ public abstract class AbstractTieLineTest {
         assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
     }
 
-    private Network createNetworkWithTieLine() {
+    public Network createNetworkWithTieLine() {
         // Initialize the network
         Network networkWithTieLine = FourSubstationsNodeBreakerFactory.create();
 
