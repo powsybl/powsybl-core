@@ -32,28 +32,43 @@ import java.util.Objects;
 public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionSerDe<Battery, VoltageRegulation> {
 
     public VoltageRegulationSerDe() {
-        super("voltageRegulation", VoltageRegulation.class, "vr",
+        super(VoltageRegulation.NAME, VoltageRegulation.class, "vr",
                 ImmutableMap.<IidmVersion, ImmutableSortedSet<String>>builder()
                         .put(IidmVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.0-legacy"))
                         .put(IidmVersion.V_1_1, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_2, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_3, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_4, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_5, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_6, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_7, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_8, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_9, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.1"))
-                        .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.1"))
+                        .put(IidmVersion.V_1_2, reversedNaturalOrderOf("1.1", "1.2"))
+                        .put(IidmVersion.V_1_3, reversedNaturalOrderOf("1.1", "1.3"))
+                        .put(IidmVersion.V_1_4, reversedNaturalOrderOf("1.1", "1.4"))
+                        .put(IidmVersion.V_1_5, reversedNaturalOrderOf("1.1", "1.5"))
+                        .put(IidmVersion.V_1_6, reversedNaturalOrderOf("1.1", "1.6"))
+                        .put(IidmVersion.V_1_7, reversedNaturalOrderOf("1.1", "1.7"))
+                        .put(IidmVersion.V_1_8, reversedNaturalOrderOf("1.1", "1.8"))
+                        .put(IidmVersion.V_1_9, reversedNaturalOrderOf("1.1", "1.9"))
+                        .put(IidmVersion.V_1_10, reversedNaturalOrderOf("1.1", "1.10"))
+                        .put(IidmVersion.V_1_11, reversedNaturalOrderOf("1.1", "1.11"))
+                        .put(IidmVersion.V_1_12, reversedNaturalOrderOf("1.1", "1.12"))
                         .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/voltage_regulation/1_0")
                         .put("1.0-legacy", "http://www.itesla_project.eu/schema/iidm/ext/voltageregulation/1_0")
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_1")
+                        .put("1.2", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_2")
+                        .put("1.3", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_3")
+                        .put("1.4", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_4")
+                        .put("1.5", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_5")
+                        .put("1.6", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_6")
+                        .put("1.7", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_7")
+                        .put("1.8", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_8")
+                        .put("1.9", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_9")
+                        .put("1.10", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_10")
+                        .put("1.11", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_11")
+                        .put("1.12", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_12")
                         .build());
+    }
+
+    private static ImmutableSortedSet<String> reversedNaturalOrderOf(String... versions) {
+        return ImmutableSortedSet.<String>reverseOrder().add(versions).build();
     }
 
     @Override
@@ -63,9 +78,20 @@ public class VoltageRegulationSerDe extends AbstractVersionableNetworkExtensionS
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return List.of(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_0.xsd"),
-                getClass().getResourceAsStream("/xsd/voltageRegulation_V1_0_legacy.xsd"),
-                getClass().getResourceAsStream("/xsd/voltageRegulation_V1_1.xsd"));
+        return List.of(Objects.requireNonNull(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_0.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_0_legacy.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/voltageRegulation_V1_1.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_2.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_3.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_4.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_5.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_6.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_7.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_8.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_9.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_10.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_11.xsd")),
+                Objects.requireNonNull(getClass().getResourceAsStream("/xsd/compatibility/voltage_regulation/voltageRegulation_V1_12.xsd")));
     }
 
     @Override

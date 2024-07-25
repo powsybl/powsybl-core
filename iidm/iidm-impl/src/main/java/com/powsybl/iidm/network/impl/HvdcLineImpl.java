@@ -7,10 +7,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SwitchPredicates;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+
+import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -229,6 +233,51 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         network.getIndex().remove(this);
 
         network.getListeners().notifyAfterRemoval(id);
+    }
+
+    @Override
+    public boolean connectConverterStations() {
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+    }
+
+    @Override
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
+        return connectConverterStations(isTypeSwitchToOperate, null);
+    }
+
+    @Override
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+        return ConnectDisconnectUtil.connectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isTypeSwitchToOperate,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    public boolean disconnectConverterStations() {
+        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
+    }
+
+    @Override
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
+        return disconnectConverterStations(isSwitchOpenable, null);
+    }
+
+    @Override
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+        return ConnectDisconnectUtil.disconnectAllTerminals(
+            this,
+            getTerminalsOfConverterStations(side),
+            isSwitchOpenable,
+            getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    private List<Terminal> getTerminalsOfConverterStations(TwoSides side) {
+        return side == null ? List.of(getConverterStation1().getTerminal(), getConverterStation2().getTerminal()) : switch (side) {
+            case ONE -> List.of(getConverterStation1().getTerminal());
+            case TWO -> List.of(getConverterStation2().getTerminal());
+        };
     }
 
     @Override

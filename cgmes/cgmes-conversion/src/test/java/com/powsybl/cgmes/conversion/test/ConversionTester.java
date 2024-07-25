@@ -19,9 +19,9 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.XMLExporter;
@@ -165,17 +165,17 @@ public class ConversionTester {
         XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
-            xmlExporter.export(expected, null, new FileDataSource(path, "expected"));
+            xmlExporter.export(expected, null, new DirectoryDataSource(path, "expected"));
         }
         if (actual != null) {
-            xmlExporter.export(actual, null, new FileDataSource(path, "actual"));
+            xmlExporter.export(actual, null, new DirectoryDataSource(path, "actual"));
         }
     }
 
     private static void exportCgmes(String name, String impl, Network network) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl + "-");
-        new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
+        new CgmesExport().export(network, null, new DirectoryDataSource(path, "foo"));
     }
 
     private static String subsetFromName(String name) {
@@ -197,7 +197,7 @@ public class ConversionTester {
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
         String baseName = originalDs.getBaseName();
-        DataSource ds = new ZipFileDataSource(path, baseName);
+        DataSource ds = new ZipArchiveDataSource(path, baseName);
 
         // Copy the original files to the temporary destination, ensuring a normalized name
         for (String name : new CgmesOnDataSource(originalDs).names()) {

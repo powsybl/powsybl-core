@@ -16,6 +16,7 @@ import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -305,7 +306,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
 
         // Network modification
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .build();
         modification.apply(network);
         writeXmlTest(network, "/network-planned-disconnection.xiidm");
@@ -319,7 +320,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportPlannedDisconnectionComplete", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network, reportNode);
@@ -338,10 +339,19 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         PlannedDisconnection modification = new PlannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
+        writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
+
+        // Network modification
+        PlannedDisconnection modificationSide1 = new PlannedDisconnectionBuilder()
+            .withIdentifiableId("L1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.ONE)
+            .build();
+        modificationSide1.apply(network, reportNode);
         writeXmlTest(network, "/network-planned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-disconnected-planned.txt");
     }
@@ -354,7 +364,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
         modification.apply(network, reportNode);
@@ -370,10 +380,19 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoDisconnection", "Testing reportNode for connectable disconnection").build();
         UnplannedDisconnection modification = new UnplannedDisconnectionBuilder()
-            .withConnectableId("L1")
+            .withIdentifiableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
         modification.apply(network, reportNode);
+        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+
+        // Network modification
+        UnplannedDisconnection modificationSide1 = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("L1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.ONE)
+            .build();
+        modificationSide1.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-disconnected-unplanned.txt");
     }
@@ -386,7 +405,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
-            .withConnectableId("L2")
+            .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(true)
             .withOnlyBreakersOperable(false)
             .build();
@@ -403,21 +422,27 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
         // Network modification
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTestConnectionNoConnection", "Testing reportNode for connectable connection").build();
         ConnectableConnection modification = new ConnectableConnectionBuilder()
-            .withConnectableId("L2")
+            .withIdentifiableId("L2")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
         modification.apply(network, reportNode);
         writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
+
+        // Connection on one side
+        ConnectableConnection modificationSide1 = new ConnectableConnectionBuilder()
+            .withIdentifiableId("L2")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .withSide(ThreeSides.ONE)
+            .build();
+        modificationSide1.apply(network, reportNode);
+        writeXmlTest(network, "/network-unplanned-disconnection-not-disconnected.xiidm");
         testReportNode(reportNode, "/reportNode/connectable-not-connected.txt");
     }
 
-
-    /**
-     * This network modification fails on tie-lines since they are not a connectable
-     */
     @Test
-    void testExceptions() {
+    void testTieLine() {
         Network network = createNetwork();
 
         // Add tie line
@@ -450,34 +475,137 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
 
         // Disconnection
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertTieLineConnection(tieLine, true, true);
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
-            .withConnectableId("NHV1_NHV2_1")
+            .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .build();
+        disconnection.apply(network);
+        assertTieLineConnection(tieLine, false, false);
+
+        // Connection
+        ConnectableConnection connection = new ConnectableConnectionBuilder()
+            .withIdentifiableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        connection.apply(network);
+        assertTieLineConnection(tieLine, true, true);
+
+        // Disconnection on one side
+        UnplannedDisconnection disconnectionSide1 = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.ONE)
+            .build();
+        disconnectionSide1.apply(network);
+        assertTieLineConnection(tieLine, false, true);
+
+        // Connection on the same side
+        ConnectableConnection connectionSide1 = new ConnectableConnectionBuilder()
+            .withIdentifiableId("NHV1_NHV2_1")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .withSide(ThreeSides.ONE)
+            .build();
+        connectionSide1.apply(network);
+        assertTieLineConnection(tieLine, true, true);
+    }
+
+    @Test
+    void testHvdcLine() {
+        Network network = HvdcTestNetwork.createLcc();
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+
+        // Disconnection
+        assertHvdcLineConnection(hvdcLine, true, true);
+        UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("L")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        disconnection.apply(network);
+        assertHvdcLineConnection(hvdcLine, false, false);
+
+        // Connection
+        ConnectableConnection connection = new ConnectableConnectionBuilder()
+            .withIdentifiableId("L")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        connection.apply(network);
+        assertHvdcLineConnection(hvdcLine, true, true);
+
+        // Disconnection on one side
+        UnplannedDisconnection disconnectionSide2 = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("L")
+            .withFictitiousSwitchesOperable(false)
+            .withSide(ThreeSides.TWO)
+            .build();
+        disconnectionSide2.apply(network);
+        assertHvdcLineConnection(hvdcLine, true, false);
+
+        // Connection on the same side
+        ConnectableConnection connectionSide2 = new ConnectableConnectionBuilder()
+            .withIdentifiableId("L")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .withSide(ThreeSides.TWO)
+            .build();
+        connectionSide2.apply(network);
+        assertHvdcLineConnection(hvdcLine, true, true);
+    }
+
+    private void assertTieLineConnection(TieLine tieLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, tieLine.getDanglingLine1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, tieLine.getDanglingLine2().getTerminal().isConnected());
+    }
+
+    private void assertHvdcLineConnection(HvdcLine hvdcLine, boolean expectedConnectionOnSide1, boolean expectedConnectionOnSide2) {
+        assertEquals(expectedConnectionOnSide1, hvdcLine.getConverterStation1().getTerminal().isConnected());
+        assertEquals(expectedConnectionOnSide2, hvdcLine.getConverterStation2().getTerminal().isConnected());
+    }
+
+    @Test
+    void testIdentifiableNotFoundException() {
+        Network network = createNetwork();
+        UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("ELEMENT_NOT_PRESENT")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+
         NamingStrategy namingStrategy = new DefaultNamingStrategy();
         ComputationManager computationManager = LocalComputationManager.getDefault();
         PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
-        assertEquals("Connectable 'NHV1_NHV2_1' not found", disconnectionException.getMessage());
-        disconnection.apply(network);
-        assertTrue(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertTrue(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", disconnectionException.getMessage());
 
-        // Connection
-        tieLine.getDanglingLine1().disconnect();
-        tieLine.getDanglingLine2().disconnect();
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
         ConnectableConnection connection = new ConnectableConnectionBuilder()
-            .withConnectableId("NHV1_NHV2_1")
+            .withIdentifiableId("ELEMENT_NOT_PRESENT")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
         PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
-        assertEquals("Connectable 'NHV1_NHV2_1' not found", connectionException.getMessage());
-        connection.apply(network);
-        assertFalse(tieLine.getDanglingLine1().getTerminal().isConnected());
-        assertFalse(tieLine.getDanglingLine2().getTerminal().isConnected());
+        assertEquals("Identifiable 'ELEMENT_NOT_PRESENT' not found", connectionException.getMessage());
+    }
+
+    @Test
+    void testMethodNotImplemented() {
+        Network network = createNetwork();
+        UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("S1")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+
+        NamingStrategy namingStrategy = new DefaultNamingStrategy();
+        ComputationManager computationManager = LocalComputationManager.getDefault();
+        PowsyblException disconnectionException = assertThrows(PowsyblException.class, () -> disconnection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertEquals("Disconnection not implemented for identifiable 'S1'", disconnectionException.getMessage());
+
+        ConnectableConnection connection = new ConnectableConnectionBuilder()
+            .withIdentifiableId("S1")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        PowsyblException connectionException = assertThrows(PowsyblException.class, () -> connection.apply(network, namingStrategy, true, computationManager, ReportNode.NO_OP));
+        assertEquals("Connection not implemented for identifiable 'S1'", connectionException.getMessage());
     }
 }

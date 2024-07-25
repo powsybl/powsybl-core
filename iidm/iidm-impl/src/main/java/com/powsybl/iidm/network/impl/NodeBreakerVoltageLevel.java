@@ -1169,7 +1169,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return SwitchPredicates.IS_OPEN.test(sw) && isSwitchOperable.negate().test(sw);
     }
 
-    private void checkTopologyKind(TerminalExt terminal) {
+    private void checkTopologyKind(Terminal terminal) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalStateException(WRONG_TERMINAL_TYPE_EXCEPTION_MESSAGE + terminal.getClass().getName());
         }
@@ -1216,7 +1216,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    boolean getConnectingSwitches(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
+    boolean getConnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOperable, Set<SwitchImpl> switchForConnection) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1274,7 +1274,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    boolean getDisconnectingSwitches(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
+    boolean getDisconnectingSwitches(Terminal terminal, Predicate<? super SwitchImpl> isSwitchOpenable, Set<SwitchImpl> switchForDisconnection) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
