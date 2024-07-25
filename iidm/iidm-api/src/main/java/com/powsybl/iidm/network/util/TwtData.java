@@ -25,8 +25,6 @@ import com.powsybl.iidm.network.ThreeSides;
  */
 public class TwtData {
 
-    private static final String UNEXPECTED_SIDE = "Unexpected side";
-
     private final String id;
 
     private final double p1;
