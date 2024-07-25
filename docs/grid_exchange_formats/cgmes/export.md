@@ -181,7 +181,7 @@ PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is expor
 #### Regulating control
 
 If the network comes from a CIM-CGMES model and a generator has initially a `RegulatingControl`, it always has at export
-too. Otherwise, a `RegulatingControl` is always exported for generators, excepted if it has no regulating capabilities because
+too. Otherwise, a `RegulatingControl` is always exported for generators, except if it has no regulating capabilities because
 $minQ = maxQ$.
 
 A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when a 
