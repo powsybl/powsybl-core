@@ -17,6 +17,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
@@ -248,9 +249,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
             List<PsseMultiTerminalDcTransmissionLine> multiTerminalDcTransmissionLineList = new ArrayList<>();
             for (PsseMultiTerminalDcMain main : mainList) {
-                List<PsseMultiTerminalDcConverter> converterList = converterxList.stream().filter(c -> c.getName().equals(main.getName())).map(PsseMultiTerminalDcConverterx::getConverter).toList();
-                List<PsseMultiTerminalDcBus> busList = busxList.stream().filter(c -> c.getName().equals(main.getName())).map(PsseMultiTerminalDcBusx::getBus).toList();
-                List<PsseMultiTerminalDcLink> linkList = linkxList.stream().filter(c -> c.getName().equals(main.getName())).map(PsseMultiTerminalDcLinkx::getLink).toList();
+                List<PsseMultiTerminalDcConverter> converterList = converterxList.stream().filter(c -> c.getName().equals(main.getName())).map(PsseMultiTerminalDcConverterx::getConverter).collect(Collectors.toList());
+                List<PsseMultiTerminalDcBus> busList = busxList.stream().filter(c -> c.getName().equals(main.getName())).map(PsseMultiTerminalDcBusx::getBus).collect(Collectors.toList());
+                List<PsseMultiTerminalDcLink> linkList = linkxList.stream().filter(c -> c.getName().equals(main.getName())).map(PsseMultiTerminalDcLinkx::getLink).collect(Collectors.toList());
 
                 multiTerminalDcTransmissionLineList.add(new PsseMultiTerminalDcTransmissionLine(main, converterList, busList, linkList));
             }

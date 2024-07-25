@@ -177,8 +177,8 @@ class TransformerConverter extends AbstractConverter {
         Optional<PhaseAngleClockModel> pac3 = pac3WModel.getEnd(windingTypeEnds.get(2));
         if (pac2.isPresent() || pac3.isPresent()) {
             t3wt.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
-                .withPhaseAngleClockLeg2(pac2.map(phaseAngleClockModel -> phaseAngleClockModel.pac).orElse(0))
-                .withPhaseAngleClockLeg3(pac3.map(angleClockModel -> angleClockModel.pac).orElse(0)).add();
+                .withPhaseAngleClockLeg2(pac2.map(model -> model.pac).orElse(0))
+                .withPhaseAngleClockLeg3(pac3.map(model -> model.pac).orElse(0)).add();
         }
     }
 

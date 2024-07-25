@@ -7,7 +7,6 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.powerfactory.converter.PowerFactoryImporter.ImportContext;
 import com.powsybl.powerfactory.model.DataObject;
@@ -72,14 +71,11 @@ class LineConverter extends AbstractConverter {
 
     private void createFromElmLneFromElmTow(DataObject elmTow, DataObject elmLne) {
         List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
-        Optional<LineModel> lineModel = LineModel.createFromElmTow(elmTow, elmLne);
+        LineModel lineModel = LineModel.createFromElmTow(elmTow, elmLne);
 
         NodeRef end1 = nodeRefs.get(0);
         NodeRef end2 = nodeRefs.get(1);
-        if (lineModel.isEmpty()) {
-            throw new PowsyblException("line Model cant be null to create a Line");
-        }
-        createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+        createLine(end1, end2, elmLne.getLocName(), lineModel);
     }
 
     private static final class LineModel {
@@ -150,7 +146,7 @@ class LineConverter extends AbstractConverter {
             return 0.0;
         }
 
-        private static Optional<LineModel> createFromElmTow(DataObject elmTow, DataObject elmLne) {
+        private static LineModel createFromElmTow(DataObject elmTow, DataObject elmLne) {
             float dline = elmLne.getFloatAttributeValue("dline");
             DataObject typTow = getTypeTow(elmTow);
 
@@ -159,7 +155,7 @@ class LineConverter extends AbstractConverter {
             double g = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("G_c1").getEntry(0, 0) * dline);
             double b = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("B_c1").getEntry(0, 0) * dline);
 
-            return Optional.of(new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5));
+            return new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5);
         }
 
         private static DataObject getTypeTow(DataObject elmTow) {

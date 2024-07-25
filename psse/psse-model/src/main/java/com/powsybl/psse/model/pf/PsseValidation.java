@@ -204,13 +204,13 @@ public class PsseValidation {
     }
 
     private void validateTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
-        List<PsseTransformer> twoWinddingsTransformers = transformers.parallelStream()
+        List<PsseTransformer> twoWindingsTransformers = transformers.parallelStream()
             .filter(transformer -> transformer.getK() == 0).toList();
-        validateTwoWindingsTransformers(twoWinddingsTransformers, buses);
+        validateTwoWindingsTransformers(twoWindingsTransformers, buses);
 
-        List<PsseTransformer> threeWinddingsTransformers = transformers.parallelStream()
+        List<PsseTransformer> threeWindingsTransformers = transformers.parallelStream()
             .filter(transformer -> transformer.getK() != 0).toList();
-        validateThreeWindingsTransformers(threeWinddingsTransformers, buses);
+        validateThreeWindingsTransformers(threeWindingsTransformers, buses);
     }
 
     private void validateTwoWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {

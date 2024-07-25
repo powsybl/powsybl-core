@@ -379,7 +379,6 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             case ONE -> getLeg1().getTerminal();
             case TWO -> getLeg2().getTerminal();
             case THREE -> getLeg3().getTerminal();
-            default -> throw new IllegalStateException();
         };
     }
 

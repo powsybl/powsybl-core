@@ -328,37 +328,35 @@ public class AmplNetworkWriter {
         for (Line l : getSortedIdentifiables(network.getLineStream())) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
-            Bus bus1 = AmplUtil.getBus(t1);
-            Bus bus2 = AmplUtil.getBus(t2);
-            if (!warnLineConnectedOnSameBus(context, t1, t2, bus1, bus2, l.getId())) {
+            if (addVoltageLevelIdsToExport(context, t1, t2, l.getId())) {
                 columnsExporter.writeLinesToFormatter(formatter, l);
                 addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
             }
         }
     }
 
-    private boolean warnLineConnectedOnSameBus(AmplExportContext context, Terminal t1, Terminal t2, Bus bus1, Bus bus2, String id) {
+    private boolean addVoltageLevelIdsToExport(AmplExportContext context, Terminal t1, Terminal t2, String id) {
+        Bus bus1 = AmplUtil.getBus(t1);
+        Bus bus2 = AmplUtil.getBus(t2);
         if (bus2 != null && bus1 == bus2) {
             LOGGER.warn("Skipping line '{}' connected to the same bus at both sides", id);
-            return true;
+            return false;
         }
         String bus1Id = AmplUtil.getBusId(bus1);
         String bus2Id = AmplUtil.getBusId(bus2);
         if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, bus2Id))) {
-            return true;
+            return false;
         }
         context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
         context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
-        return false;
+        return true;
     }
 
     private void writeTieLines(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (TieLine l : getSortedIdentifiables(network.getTieLineStream())) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
-            Bus bus1 = AmplUtil.getBus(t1);
-            Bus bus2 = AmplUtil.getBus(t2);
-            if (!warnLineConnectedOnSameBus(context, t1, t2, bus1, bus2, l.getId())) {
+            if (addVoltageLevelIdsToExport(context, t1, t2, l.getId())) {
                 columnsExporter.writeTieLineToFormatter(formatter, l);
                 addExtensions(mapper.getInt(AmplSubset.BRANCH, l.getId()), l);
             }
@@ -373,7 +371,7 @@ public class AmplNetworkWriter {
             Bus bus2 = AmplUtil.getBus(t2);
             if (bus1 != null && bus1 == bus2) {
                 LOGGER.warn("Skipping transformer '{}' connected to the same bus at both sides", twt.getId());
-            } else if (!(isOnlyMainCc() && !(isBusExported(context, AmplUtil.getBusId(bus1)) || isBusExported(context, AmplUtil.getBusId(bus2))))) {
+            } else if (!isOnlyMainCc() || isBusExported(context, AmplUtil.getBusId(bus1)) || isBusExported(context, AmplUtil.getBusId(bus2))) {
                 context.voltageLevelIdsToExport.add(t1.getVoltageLevel().getId());
                 context.voltageLevelIdsToExport.add(t2.getVoltageLevel().getId());
                 columnsExporter.writeTwoWindingsTranformerToFormatter(formatter, twt);
@@ -436,7 +434,7 @@ public class AmplNetworkWriter {
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = AmplUtil.getBusId(bus1);
             String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
-            if (!(isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, middleBusId)))) {
+            if (!isOnlyMainCc() || isBusExported(context, bus1Id) || isBusExported(context, middleBusId)) {
                 VoltageLevel vl = t.getVoltageLevel();
                 String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
                 context.voltageLevelIdsToExport.add(vl.getId());

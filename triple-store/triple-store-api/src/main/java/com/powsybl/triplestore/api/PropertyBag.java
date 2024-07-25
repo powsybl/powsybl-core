@@ -154,9 +154,9 @@ public class PropertyBag extends HashMap<String, String> {
             String format = String.format("%%-%ds", lenPad);
 
             // Performance : avoid using concat() -> use a StringBuilder instead.
-            return title + lineSeparator + propertyNames.stream()
-                .map(n -> INDENTATION + String.format(format, n) + " : " + getValue.apply(this, n))
-                .collect(Collectors.joining(lineSeparator));
+            return new StringBuilder(title).append(lineSeparator).append(propertyNames.stream()
+                .map(n -> new StringBuilder(INDENTATION).append(String.format(format, n)).append(" : ").append(getValue.apply(this, n)).toString())
+                .collect(Collectors.joining(lineSeparator))).toString();
         }
         return "";
     }
