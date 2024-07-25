@@ -178,17 +178,16 @@ Each dangling line will be exported as one `EquivalentInjection` and one `ACLine
 
 PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
 
-#### RegulatingControl export
-Imported CGMES `RegulatingControl` for `Generator` is always exported.
+#### Regulating control
 
-`RegulatingControl` is not exported when `Generator` has no regulation capability `minQ=maxQ`.
+If the network comes from a CIM-CGMES model and a generator has initially a `RegulatingControl`, it always has at export
+too. Otherwise, a `RegulatingControl` is always exported for generators, excepted if it has no regulating capabilities because
+$minQ = maxQ$.
 
-`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when 
-`Generator` with `RemoteReactivePowerControl.enabled` set to `true` and `Generator` `voltageRegulatorOn` set to `false`
-
-`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` in all other cases.
-
-<span style="color: red">TODO details</span>
+A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when a 
+generator has the extension [`RemoteReactivePowerControl`](../../grid_model/extensions.md#remote-reactive-power-control)
+with the `enabled` activated and the generator attribute `voltageRegulatorOn` set to `false`. In all other cases, a
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
 ### HVDC line and HVDC converter stations
 
@@ -212,28 +211,32 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
 
-#### RegulatingControl export
-`RegulatingControl` for `ShuntCompensator` is not exported when`RegulatingTerminal` is the same as `ShuntCompensator` 
-Terminal (local control) and `TargetV` is not set.
+#### Regulating control
 
-In all other cases, `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`
+If the network comes from a CIM-CGMES model and a shunt compensator has initially a `RegulatingControl`, it always
+has at export too.
 
-<span style="color: red">TODO details</span>
+A shunt compensator with local voltage control (i.e. the regulating terminal is the same of the terminal of connection)
+and no valid voltage target will not have any exported regulating control. In all other cases, a `RegulatingControl`
+is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
 ### StaticVarCompensator
 
 PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-var-compensator) is exported as `StaticVarCompensator`.
 
-#### RegulatingControl export
-`RegulatingControl` is not exported when `RegulatingTerminal` is the same as `StaticVarCompensator` Terminal, 
-`StaticVarCompensator` is with `regulationMode` set to `OFF` and there is not valid `voltageSetpoint` or `reactivePowerSetpoint`.
+#### Regulating control
 
-`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
-`StaticVarCompensator` is with `regulationMode` set to `OFF` or `StaticVarCompensator` with `regulationMode` set to `REACTIVE_POWER`, `voltageSetpoint` is not valid and `reactivePowerSetpoint` is valid.
+If the network comes from a CIM-CGMES model and a static VAR compensator has initially a `RegulatingControl`, it always
+has at export too.
 
-`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` in all other cases.
+A static VAR compensator which voltage control is local (i.e. the regulating terminal is the same of the terminal of
+connection) and no valid voltage or reactive power target will not have any exported regulating control.
 
-<span style="color: red">TODO details</span>
+A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+the static VAR compensator mode is `REACTIVE_POWER`. A `RegulatingControl` is exported with `RegulatingControl.mode` set
+to `RegulatingControlModeKind.voltage` when the static VAR compensator mode is `VOLTAGE`. When the static VAR compensator
+is `OFF`, the exported regulating control mode will be reactive power only if the voltage target is not valid but the
+reactive power target is. Otherwise, the exported mode will be voltage.
 
 ### Substation
 
