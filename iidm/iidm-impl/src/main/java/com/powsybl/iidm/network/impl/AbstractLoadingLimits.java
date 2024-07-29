@@ -12,9 +12,7 @@ import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -96,7 +94,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     @Override
     public L setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue) {
 
-        // vérif
+        // verif
         NetworkImpl network = group.getNetwork();
         ValidationUtil.checkLoadingLimits(
                 group.getValidable(),
@@ -116,23 +114,35 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
             return (L) this;
         }
 
-        Double oldValue = identifiedLimit.getValue();
+        double oldValue = identifiedLimit.getValue();
 
         // vérifier que l'ancienne valeur est non nulle pour procéder au remplacement
-        if (oldValue != null && !Double.isNaN(oldValue)) {
+        if (!Double.isNaN(oldValue)) {
+            // création des repérages par index
+            Map.Entry<Integer, TemporaryLimit> lowerEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
+            Map.Entry<Integer, TemporaryLimit> higherEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
 
-            // maj de la valeur de la limite identifiée
-            identifiedLimit.setValue(temporaryLimitValue);
-            network.invalidateValidationLevel();
-            group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
+            // verifier si lowerEntry et higherEntry ne sont pas null
+            if (lowerEntry != null && higherEntry != null) {
+                // conditions pour la maj
+                if (lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
+                        && higherEntry.getValue().getAcceptableDuration() < acceptableDuration
+                        && lowerEntry.getValue().getValue() < temporaryLimitValue
+                        && higherEntry.getValue().getValue() > temporaryLimitValue) {
 
+                    identifiedLimit.setValue(temporaryLimitValue);
+                    network.invalidateValidationLevel();
+                    group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
+                }
+            } else {
+                LOGGER.info("Lower or higher entry is null, cannot proceed with the update");
+            }
         } else {
             LOGGER.info("Temporary limit value is not set");
         }
 
         return (L) this;
     }
-
 
 
 
