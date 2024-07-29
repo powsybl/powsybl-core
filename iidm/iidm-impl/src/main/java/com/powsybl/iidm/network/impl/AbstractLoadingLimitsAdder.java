@@ -73,6 +73,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
 
         @Override
+        public B setTemporaryLimit(int acceptableDuration, double temporaryLimit) {
+            this.value = temporaryLimit;
+            return (B) this;
+        }
+
+        @Override
         public B endTemporaryLimit() {
             if (Double.isNaN(value)) {
                 throw new ValidationException(validable, "temporary limit value is not set");

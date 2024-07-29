@@ -80,4 +80,14 @@ public interface LoadingLimits extends OperationalLimits {
      * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration
      */
     double getTemporaryLimitValue(int acceptableDuration);
+
+
+     /**
+      * Set the permanent limit
+      *
+      * @param temporaryLimitValue the temporary limit
+      * @param acceptableDuration acceptable duration in second
+      * @return itself for method chaining
+      */
+    LoadingLimits setTemporaryLimit(double temporaryLimitValue, int acceptableDuration);
 }

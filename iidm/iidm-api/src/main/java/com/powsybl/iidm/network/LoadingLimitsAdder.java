@@ -29,10 +29,14 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
 
         TemporaryLimitAdder<A> ensureNameUnicity();
 
+        TemporaryLimitAdder<A> setTemporaryLimit(int acceptableDuration, double temporaryLimit);
+
         A endTemporaryLimit();
     }
 
     A setPermanentLimit(double limit);
+
+//    A setTemporaryLimit(int acceptableDuration, double limit);
 
     TemporaryLimitAdder<A> beginTemporaryLimit();
 

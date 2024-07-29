@@ -41,5 +41,4 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
         group.setCurrentLimits(limits);
         return limits;
     }
-
 }

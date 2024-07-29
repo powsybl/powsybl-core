@@ -124,6 +124,12 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
         doNotify(attributeName + "_" + limitType + ".permanentLimit", oldPermanentLimitInfo, newPermanentLimitInfo);
     }
 
+    public void notifyTemporaryLimitValueUpdate(LimitType limitType, double oldValue, double newValue) {
+        TemporaryLimitInfo oldTemporaryLimitInfo = new TemporaryLimitInfo(oldValue, id, id.equals(selectedGroupId));
+        TemporaryLimitInfo newTemporaryLimitInfo = new TemporaryLimitInfo(newValue, id, id.equals(selectedGroupId));
+        doNotify(attributeName + "_" + limitType + ".temporaryLimit.value", oldTemporaryLimitInfo, newTemporaryLimitInfo);
+    }
+
     private void notifyUpdate(LimitType limitType, OperationalLimits oldValue, OperationalLimits newValue) {
         OperationalLimitsInfo oldOperationalLimitsInfo = new OperationalLimitsInfo(oldValue, id, id.equals(selectedGroupId));
         OperationalLimitsInfo newOperationalLimitsInfo = new OperationalLimitsInfo(newValue, id, id.equals(selectedGroupId));
@@ -151,6 +157,9 @@ public class OperationalLimitsGroupImpl implements OperationalLimitsGroup, Valid
     }
 
     public record PermanentLimitInfo(double value, String groupId, boolean inSelectedGroup) {
+    }
+
+    public record TemporaryLimitInfo(double value, String groupId, boolean inSelectedGroup) {
     }
 
     public record OperationalLimitsInfo(OperationalLimits value, String groupId, boolean inSelectedGroup) {

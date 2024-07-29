@@ -102,6 +102,11 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     }
 
     @Override
+    public LoadingLimits setTemporaryLimit(double temporaryLimitValue, int acceptableDuration) {
+        throw new UnsupportedOperationException("Unsupported operation for reduced loading limits.");
+    }
+
+    @Override
     public void remove() {
         throw new UnsupportedOperationException("Reduced loading limits are not linked to a network element and thus cannot be removed.");
     }

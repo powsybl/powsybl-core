@@ -8,17 +8,18 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
-
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
@@ -84,6 +85,47 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
         return (L) this;
     }
+
+    @Override
+    public L setTemporaryLimit(double temporaryLimitValue, int acceptableDuration) {
+
+        // vérif
+        NetworkImpl network = group.getNetwork();
+        ValidationUtil.checkLoadingLimits(
+                group.getValidable(),
+                getPermanentLimit(),
+                getTemporaryLimits(),
+                network.getMinValidationLevel(),
+                network.getReportNodeContext().getReportNode()
+        );
+
+        // copie de la liste des temporary limits établies
+        TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
+
+        // trouver la limite qu'on veut modifier et sa valeur
+        TemporaryLimit identifiedLimit = getTemporaryLimit(acceptableDuration);
+        if (identifiedLimit == null) {
+            LOGGER.info("No temporary limit found for the given acceptable duration");
+            return (L) this;
+        }
+
+        Double oldValue = identifiedLimit.getValue();
+
+        // vérifier que l'ancienne valeur est non nulle pour procéder au remplacement
+        if (oldValue != null && !Double.isNaN(oldValue)) {
+
+            // maj de la valeur de la limite identifiée
+            identifiedLimit.setValue(temporaryLimitValue);
+            network.invalidateValidationLevel();
+            group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
+
+        } else {
+            LOGGER.info("Temporary limit value is not set");
+        }
+
+        return (L) this;
+    }
+
 
     @Override
     public Collection<TemporaryLimit> getTemporaryLimits() {

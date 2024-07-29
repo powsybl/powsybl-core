@@ -10,6 +10,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ApparentPowerLimits;
 import com.powsybl.iidm.network.ApparentPowerLimitsAdder;
+import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Validable;
 
 import java.util.function.Supplier;
