@@ -11,7 +11,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.computation.ComputationManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,6 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Sylvain Leclerc {@literal <sylvain.leclerc at rte-france.com>}
@@ -32,7 +30,6 @@ class DistributedSecurityAnalysisTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
-    private final ComputationManager cm = mock(ComputationManager.class);
 
     @BeforeEach
     void setUp() throws IOException {

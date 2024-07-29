@@ -139,7 +139,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                                           DeserializationContext deserializationContext) throws IOException {
             DummyExtension dummyExtension = new DummyExtension();
             while (jsonParser.nextToken() != JsonToken.END_OBJECT) {
-                switch (jsonParser.getCurrentName()) {
+                switch (jsonParser.currentName()) {
                     case "parameterBoolean":
                         jsonParser.nextToken();
                         dummyExtension.setParameterBoolean(jsonParser.getValueAsBoolean());
@@ -152,7 +152,7 @@ class JsonOperatorStrategyExtensionTest extends AbstractSerDeTest {
                         dummyExtension.setParameterString(jsonParser.nextTextValue());
                         break;
                     default:
-                        throw new PowsyblException("Unexpected field " + jsonParser.getCurrentName());
+                        throw new PowsyblException("Unexpected field " + jsonParser.currentName());
                 }
             }
             return dummyExtension;

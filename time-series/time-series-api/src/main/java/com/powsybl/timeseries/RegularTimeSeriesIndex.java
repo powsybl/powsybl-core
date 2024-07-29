@@ -86,7 +86,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
             while ((token = parser.nextToken()) != null) {
                 switch (token) {
                     case FIELD_NAME -> {
-                        String fieldName = parser.getCurrentName();
+                        String fieldName = parser.currentName();
                         switch (fieldName) {
                             case "startTime" -> startTime = parser.nextLongValue(-1);
                             case "endTime" -> endTime = parser.nextLongValue(-1);

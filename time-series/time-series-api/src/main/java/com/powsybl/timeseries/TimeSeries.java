@@ -543,7 +543,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     switch (fieldName) {
                         case "metadata" -> metadata = TimeSeriesMetadata.parseJson(parser);
                         case "chunks" -> {

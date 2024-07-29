@@ -95,7 +95,7 @@ public class SensitivityVariableSet {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     switch (fieldName) {
                         case "id" -> id = parser.nextTextValue();
                         case "variables" -> variables = WeightedSensitivityVariable.parseJson(parser);

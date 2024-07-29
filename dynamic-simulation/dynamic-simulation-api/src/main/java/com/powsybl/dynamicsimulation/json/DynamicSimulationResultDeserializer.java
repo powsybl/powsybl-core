@@ -46,7 +46,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         List<TimelineEvent> timeLine = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> parser.nextToken(); // skip
                 case "status" -> {
                     parser.nextToken();
@@ -64,7 +64,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     parser.nextToken();
                     deserializeTimeline(parser, timeLine);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 
@@ -92,11 +92,11 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         String modelName = null;
         String message = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "time" -> time = parser.getValueAsDouble();
                 case "modelName" -> modelName = parser.getValueAsString();
                 case "message" -> message = parser.getValueAsString();
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return new TimelineEvent(time, modelName, message);

@@ -201,7 +201,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     }
 
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "offset" -> {
                 context.offset = parser.nextIntValue(-1);

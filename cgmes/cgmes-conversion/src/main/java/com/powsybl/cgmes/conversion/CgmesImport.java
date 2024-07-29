@@ -133,7 +133,7 @@ public class CgmesImport implements Importer {
         }
         // If we are configured to support CIM14,
         // check if there is this CIM14 data
-        return importCim14 && cds.existsCim14();
+        return IMPORT_CIM_14 && cds.existsCim14();
     }
 
     @Override
@@ -725,5 +725,5 @@ public class CgmesImport implements Importer {
     // Parameters of importers are only passed to importData method,
     // but to decide if we are importers also for CIM 14 files
     // we must implement the exists method, that has not access to parameters
-    private final boolean importCim14 = false;
+    private static final boolean IMPORT_CIM_14 = false;
 }
