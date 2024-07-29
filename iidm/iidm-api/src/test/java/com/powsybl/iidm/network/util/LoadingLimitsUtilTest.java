@@ -134,6 +134,11 @@ class LoadingLimitsUtilTest {
         }
 
         @Override
+        public A setTemporaryLimitValue(int acceptableDuration, double limit) {
+            return null;
+        }
+
+        @Override
         public TemporaryLimitAdder<A> beginTemporaryLimit() {
             return null;
         }

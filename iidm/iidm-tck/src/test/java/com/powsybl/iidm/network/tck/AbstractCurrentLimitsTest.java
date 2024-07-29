@@ -697,4 +697,51 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals(0, limits.getPermanentLimit());
         assertEquals(0, limits.getTemporaryLimit(Integer.MAX_VALUE).getValue());
     }
+
+
+    @Test
+    public void testSetTemporaryLimitValue() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+
+        Optional<CurrentLimits> optionalLimits = line.getCurrentLimits(TwoSides.ONE);
+        assertTrue(optionalLimits.isPresent());
+        CurrentLimits limits = optionalLimits.get();
+
+        // test 1
+        limits.setTemporaryLimitValue(10 * 60, 1450.0);
+        assertEquals(1450.0, limits.getTemporaryLimit(10*60).getValue());
+        System.out.println(limits.getTemporaryLimit(10*60).getValue());
+
+        // test 2
+        limits.setTemporaryLimitValue(5 * 60, 1550.0);
+        assertEquals(1550.0, limits.getTemporaryLimit(5*60).getValue());
+        System.out.println(limits.getTemporaryLimit(5*60).getValue());
+
+        // test 3
+        limits.setTemporaryLimitValue(20 * 60, 1750.0);
+        System.out.println(limits.getTemporaryLimit(20*60).getValue());
+
+
+
+
+    }
+
 }

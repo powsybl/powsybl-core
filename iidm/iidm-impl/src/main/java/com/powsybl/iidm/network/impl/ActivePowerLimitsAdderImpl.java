@@ -37,4 +37,9 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
         group.setActivePowerLimits(limits);
         return limits;
     }
+
+    @Override
+    public ActivePowerLimitsAdder setTemporaryLimitValue(int acceptableDuration, double limit) {
+        return null;
+    }
 }

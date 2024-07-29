@@ -8,6 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.LoadingLimits;
 
 import java.util.TreeMap;
 
@@ -25,4 +26,5 @@ public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> 
     public void remove() {
         group.removeCurrentLimits();
     }
+
 }

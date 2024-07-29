@@ -44,6 +44,8 @@ public interface LoadingLimits extends OperationalLimits {
          * @return false if it is a real limit, false otherwise
          */
         boolean isFictitious();
+
+        void setValue(double temporaryLimitValue);
     }
 
     /**
@@ -80,4 +82,12 @@ public interface LoadingLimits extends OperationalLimits {
      * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration
      */
     double getTemporaryLimitValue(int acceptableDuration);
+
+    /**
+     * Set the temporary limit value
+     * @param acceptableDuration the acceptable duration
+     * @param temporaryLimitValue the temporary limit value
+     * @return itself for method chaining
+     */
+    LoadingLimits setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue);
 }

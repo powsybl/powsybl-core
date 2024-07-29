@@ -40,4 +40,9 @@ public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<App
         group.setApparentPowerLimits(limits);
         return limits;
     }
+
+    @Override
+    public ApparentPowerLimitsAdder setTemporaryLimitValue(int acceptableDuration, double limit) {
+        return null;
+    }
 }
