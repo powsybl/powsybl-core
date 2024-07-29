@@ -533,7 +533,7 @@ public class Comparison {
             Point pa = a.get(k);
             compare("reactiveCapabilityCurvePoint.p", pe.getP(), pa.getP());
             compare("reactiveCapabilityCurvePoint.minQ", pe.getMinQ(), pa.getMinQ());
-            compare("reactiveCapabilityCurvebPoint.maxQ", pe.getMaxQ(), pa.getMaxQ());
+            compare("reactiveCapabilityCurvePoint.maxQ", pe.getMaxQ(), pa.getMaxQ());
         }
     }
 
