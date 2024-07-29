@@ -78,6 +78,11 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         return observer != null ? new ObservableOutputStream(os, path.toString(), observer) : os;
     }
 
+    /**
+     * Check if a file exists in the datasource.
+     * @param fileName Name of the file (excluding the compression extension)
+     * @return true if the file exists, else false
+     */
     @Override
     public boolean exists(String fileName) throws IOException {
         Path path = getPath(fileName);

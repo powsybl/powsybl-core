@@ -33,7 +33,7 @@ public interface ReadOnlyDataSource {
 
     /**
      * Check if a file exists in the datasource.
-     * @param fileName Name of the file (excluding the compression extension)
+     * @param fileName Name of the file
      * @return true if the file exists, else false
      */
     boolean exists(String fileName) throws IOException;
