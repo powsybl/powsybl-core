@@ -32,7 +32,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
 
     // attributes depending on the variant
 
-    private final TDoubleArrayList acInterchangeTarget;
+    private final TDoubleArrayList interchangeTarget;
 
     private final class AreaListener extends DefaultNetworkListener {
         @Override
@@ -61,7 +61,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     private final NetworkListener areaListener;
 
     AreaImpl(Ref<NetworkImpl> ref, Ref<SubnetworkImpl> subnetworkRef, String id, String name, boolean fictitious, String areaType,
-                    double acInterchangeTarget) {
+                    double interchangeTarget) {
         super(id, name, fictitious);
         this.networkRef = Objects.requireNonNull(ref);
         this.subnetworkRef = subnetworkRef;
@@ -70,9 +70,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
         this.areaBoundaries = new ArrayList<>();
 
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.acInterchangeTarget = new TDoubleArrayList(variantArraySize);
+        this.interchangeTarget = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.acInterchangeTarget.add(acInterchangeTarget);
+            this.interchangeTarget.add(interchangeTarget);
         }
         this.areaListener = new AreaListener();
         getNetwork().addListener(this.areaListener);
@@ -114,9 +114,9 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public OptionalDouble getAcInterchangeTarget() {
-        throwIfRemoved("AC interchange target");
-        double target = acInterchangeTarget.get(getNetwork().getVariantIndex());
+    public OptionalDouble getInterchangeTarget() {
+        throwIfRemoved("interchange target");
+        double target = interchangeTarget.get(getNetwork().getVariantIndex());
         if (Double.isNaN(target)) {
             return OptionalDouble.empty();
         }
@@ -124,12 +124,12 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public Area setAcInterchangeTarget(double acInterchangeTarget) {
+    public Area setInterchangeTarget(double interchangeTarget) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.acInterchangeTarget.set(variantIndex, acInterchangeTarget);
+        double oldValue = this.interchangeTarget.set(variantIndex, interchangeTarget);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("acInterchangeTarget", variantId, oldValue, acInterchangeTarget);
+        notifyUpdate("interchangeTarget", variantId, oldValue, interchangeTarget);
         return this;
     }
 
@@ -146,7 +146,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     }
 
     @Override
-    public double getTotalInterchange() {
+    public double getInterchange() {
         throwIfRemoved("total interchange");
         return getInterchange(areaBoundary -> true);
     }
@@ -266,16 +266,16 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        acInterchangeTarget.ensureCapacity(acInterchangeTarget.size() + number);
+        interchangeTarget.ensureCapacity(interchangeTarget.size() + number);
         for (int i = 0; i < number; i++) {
-            acInterchangeTarget.add(acInterchangeTarget.get(sourceIndex));
+            interchangeTarget.add(interchangeTarget.get(sourceIndex));
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        acInterchangeTarget.remove(acInterchangeTarget.size() - number, number);
+        interchangeTarget.remove(interchangeTarget.size() - number, number);
     }
 
     @Override
@@ -288,7 +288,7 @@ public class AreaImpl extends AbstractIdentifiable<Area> implements Area {
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            acInterchangeTarget.set(index, acInterchangeTarget.get(sourceIndex));
+            interchangeTarget.set(index, interchangeTarget.get(sourceIndex));
         }
     }
 

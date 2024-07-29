@@ -141,6 +141,12 @@ public class CgmesMetadataModelImpl implements CgmesMetadataModel {
         return this;
     }
 
+    @Override
+    public CgmesMetadataModelImpl clearSupersedes() {
+        this.supersedes.clear();
+        return this;
+    }
+
     private static void addIfNonEmpty(String id, Collection<String> ids) {
         if (id != null && !id.isEmpty()) {
             ids.add(id);

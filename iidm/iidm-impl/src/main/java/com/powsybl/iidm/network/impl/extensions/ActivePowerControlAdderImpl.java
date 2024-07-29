@@ -20,8 +20,8 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
 
     private double droop = Double.NaN;
     private double participationFactor = Double.NaN;
-    private double minPOverride = Double.NaN;
-    private double maxPOverride = Double.NaN;
+    private double minTargetP = Double.NaN;
+    private double maxTargetP = Double.NaN;
 
     protected ActivePowerControlAdderImpl(I extendable) {
         super(extendable);
@@ -29,7 +29,7 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
 
     @Override
     protected ActivePowerControlImpl<I> createExtension(I extendable) {
-        return new ActivePowerControlImpl<>(extendable, participate, droop, participationFactor, minPOverride, maxPOverride);
+        return new ActivePowerControlImpl<>(extendable, participate, droop, participationFactor, minTargetP, maxTargetP);
     }
 
     @Override
@@ -51,14 +51,14 @@ public class ActivePowerControlAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public ActivePowerControlAdder<I> withMinPOverride(double minPOverride) {
-        this.minPOverride = minPOverride;
+    public ActivePowerControlAdder<I> withMinTargetP(double minTargetP) {
+        this.minTargetP = minTargetP;
         return this;
     }
 
     @Override
-    public ActivePowerControlAdder<I> withMaxPOverride(double maxPOverride) {
-        this.maxPOverride = maxPOverride;
+    public ActivePowerControlAdder<I> withMaxTargetP(double maxTargetP) {
+        this.maxTargetP = maxTargetP;
         return this;
     }
 

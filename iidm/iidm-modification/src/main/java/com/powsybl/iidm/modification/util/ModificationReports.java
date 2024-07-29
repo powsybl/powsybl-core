@@ -296,10 +296,11 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel) {
+    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel, String connectableId) {
         reportNode.newReportNode()
-                .withMessageTemplate("noConnectablePositionExtensions", "No extensions found on voltageLevel ${voltageLevel}. The extension on the connectable is not created.")
+                .withMessageTemplate("noConnectablePositionExtensions", "No ConnectablePosition extension found on voltageLevel ${voltageLevel}. The ConnectablePosition extension is not created for new feeder ${connectableId}.")
                 .withUntypedValue("voltageLevel", voltageLevel.getId())
+                .withUntypedValue(CONNECTABLE_ID, connectableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
@@ -599,30 +600,32 @@ public final class ModificationReports {
             .add();
     }
 
-    public static void connectableConnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean connectionSuccessful, ThreeSides side) {
+    public static void connectableConnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean connectionSuccessful, ThreeSides side) {
         String defaultMessage = connectionSuccessful ?
-            "Connectable ${connectable} has been connected" :
-            "Connectable ${connectable} has NOT been connected";
+            "Connectable ${identifiable} has been connected" :
+            "Connectable ${identifiable} has NOT been connected";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = connectionSuccessful ? "connectableConnected" : "connectableNotConnected";
+        key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("connectable", connectable.getId())
+            .withUntypedValue("identifiable", identifiable.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }
 
-    public static void connectableDisconnectionReport(ReportNode reportNode, Connectable<?> connectable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
+    public static void identifiableDisconnectionReport(ReportNode reportNode, Identifiable<?> identifiable, boolean disconnectionSuccessful, boolean isPlanned, ThreeSides side) {
         String defaultMessage = disconnectionSuccessful ?
-            "Connectable ${connectable} has been disconnected" :
-            "Connectable ${connectable} has NOT been disconnected";
+            "Identifiable ${identifiable} has been disconnected" :
+            "Identifiable ${identifiable} has NOT been disconnected";
         defaultMessage += isPlanned ? " (planned disconnection)" : " (unplanned disconnection)";
         defaultMessage += side == null ? " on each side." : " on side " + side.getNum() + ".";
         String key = isPlanned ? "planned" : "unplanned";
-        key += disconnectionSuccessful ? "ConnectableDisconnected" : "ConnectableNotDisconnected";
+        key += disconnectionSuccessful ? "IdentifiableDisconnected" : "IdentifiableNotDisconnected";
+        key += side == null ? "" : "Side" + side.getNum();
         reportNode.newReportNode()
             .withMessageTemplate(key, defaultMessage)
-            .withUntypedValue("connectable", connectable.getId())
+            .withUntypedValue("identifiable", identifiable.getId())
             .withSeverity(TypedValue.INFO_SEVERITY)
             .add();
     }
