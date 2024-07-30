@@ -807,6 +807,7 @@ A busbar section is a non impedant element used in a node/breaker substation top
 ## Breaker/switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Switch.html)<br>
+A switch to connect equipments in a substation.
 
 <!---
 <span style="color:red"> TODO</span>
