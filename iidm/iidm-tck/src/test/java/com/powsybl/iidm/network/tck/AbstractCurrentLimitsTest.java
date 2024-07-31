@@ -698,7 +698,6 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals(0, limits.getTemporaryLimit(Integer.MAX_VALUE).getValue());
     }
 
-
     @Test
     public void testSetTemporaryLimitValue() {
         Line line = createNetwork().getLine("L");
@@ -726,21 +725,13 @@ public abstract class AbstractCurrentLimitsTest {
         CurrentLimits limits = optionalLimits.get();
 
         limits.setTemporaryLimitValue(20 * 60, 1050.0);
-        assertEquals(1050.0, limits.getTemporaryLimit(20*60).getValue());
+        assertEquals(1050.0, limits.getTemporaryLimit(20 * 60).getValue());
 
         limits.setTemporaryLimitValue(10 * 60, 1450.0);
-        assertEquals(1450.0, limits.getTemporaryLimit(10*60).getValue());
+        assertEquals(1450.0, limits.getTemporaryLimit(10 * 60).getValue());
 
         limits.setTemporaryLimitValue(5 * 60, 1750.0);
-        assertEquals(1750.0, limits.getTemporaryLimit(5*60).getValue());
-
-
-
-
-
-
-
-
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
     }
 
 }

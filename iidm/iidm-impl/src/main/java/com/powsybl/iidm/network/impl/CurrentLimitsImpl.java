@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Validable;
 
 import java.util.TreeMap;

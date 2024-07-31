@@ -8,6 +8,7 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.LoadingLimits;
 
 /**
  * <p>Simple implementation of {@link CurrentLimits} not linked to a network element, used to provide
@@ -18,5 +19,10 @@ public class ReducedCurrentLimits extends AbstractReducedLoadingLimits implement
     public ReducedCurrentLimits(double permanentLimit, double originalPermanentLimit,
                                 double permanentLimitReduction) {
         super(permanentLimit, originalPermanentLimit, permanentLimitReduction);
+    }
+
+    @Override
+    public LoadingLimits setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue) {
+        return null;
     }
 }

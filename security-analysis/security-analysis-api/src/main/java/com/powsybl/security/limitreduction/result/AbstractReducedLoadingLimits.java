@@ -46,6 +46,10 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
             return fictitious();
         }
 
+        @Override
+        public void setValue(double temporaryLimitValue) {
+        }
+
         public double getOriginalValue() {
             return originalValue();
         }

@@ -8,7 +8,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -137,7 +137,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
                 }
 
             // s'il n y a pas de valeur inférieure il faut vérifier la limite permanente
-            } else if  (lowerEntry == null && higherEntry != null) {
+            } else if (lowerEntry == null && higherEntry != null) {
                 // verifier si la limite permanente est inférieure à la limite qu'on essaie de définir
                 if (temporaryLimitValue > this.permanentLimit &&
                     higherEntry.getValue().getValue() > temporaryLimitValue) {
@@ -149,13 +149,12 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
                 }
 
             } else if (lowerEntry != null && higherEntry == null) {
-                if (lowerEntry.getValue().getAcceptableDuration() > acceptableDuration &&
-                lowerEntry.getValue().getValue() < temporaryLimitValue) {
+                if (lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
+                        && lowerEntry.getValue().getValue() < temporaryLimitValue) {
                     identifiedLimit.setValue(temporaryLimitValue);
                     network.invalidateValidationLevel();
                     group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
-                }
-                else {
+                } else {
                     LOGGER.error("Temporary limit should be greater than the previous limit (previous limit value : {})", lowerEntry.getValue().getValue());
                 }
             }
@@ -165,8 +164,6 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
 
         return (L) this;
     }
-
-
 
     @Override
     public Collection<TemporaryLimit> getTemporaryLimits() {
