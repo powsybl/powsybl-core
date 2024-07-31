@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractNetworkModification implements NetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
-    protected boolean dryRunConclusive = true;
 
     @Override
     public final boolean apply(Network network) {
