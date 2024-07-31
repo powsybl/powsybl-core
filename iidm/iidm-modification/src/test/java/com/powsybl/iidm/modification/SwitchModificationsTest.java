@@ -61,7 +61,7 @@ class SwitchModificationsTest {
     void testDryRun() {
         // CloseSwitch - Passing dryRun
         CloseSwitch closeSwitchPassing = new CloseSwitch(existingSwitchId);
-        assertTrue(closeSwitchPassing.dryRun(network));
+        assertTrue(closeSwitchPassing.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(closeSwitchPassing.hasImpactOnNetwork());
@@ -72,20 +72,20 @@ class SwitchModificationsTest {
             .withMessageTemplate("", "")
             .build();
         CloseSwitch closeSwitchFailing = new CloseSwitch(notExistingSwitchId);
-        assertFalse(closeSwitchFailing.dryRun(network, reportNodeCloseSwitch));
+        assertFalse(closeSwitchFailing.apply(network, reportNodeCloseSwitch, true));
         assertEquals("Dry-run failed for CloseSwitch. The issue is: Switch 'dummy' not found",
             reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
 
         // OpenSwitch - Passing dryRun
         OpenSwitch openSwitchPassing = new OpenSwitch(existingSwitchId);
-        assertTrue(openSwitchPassing.dryRun(network));
+        assertTrue(openSwitchPassing.apply(network, true));
 
         // OpenSwitch - Failing dryRun
         ReportNode reportNodeOpenSwitch = ReportNode.newRootReportNode()
             .withMessageTemplate("", "")
             .build();
         OpenSwitch openSwitchFailing = new OpenSwitch(notExistingSwitchId);
-        assertFalse(openSwitchFailing.dryRun(network, reportNodeOpenSwitch));
+        assertFalse(openSwitchFailing.apply(network, reportNodeOpenSwitch, true));
         assertEquals("Dry-run failed for OpenSwitch. The issue is: Switch 'dummy' not found",
             reportNodeOpenSwitch.getChildren().get(0).getChildren().get(0).getMessage());
     }

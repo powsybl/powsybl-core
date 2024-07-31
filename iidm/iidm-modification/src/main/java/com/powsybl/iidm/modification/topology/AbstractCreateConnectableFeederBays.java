@@ -59,10 +59,10 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                        boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         // Set the connectable bus or node
         if (!setAdderConnectivity(network, reportNode, throwException)) {

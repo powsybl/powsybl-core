@@ -56,8 +56,8 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
                                                 boolean throwException, boolean dryRun);
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-            boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
         if (threeWindingsTransformer != null) {

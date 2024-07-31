@@ -139,10 +139,10 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                        boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         //checks
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reportNode, false)) {

@@ -33,9 +33,9 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                        ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
@@ -49,7 +49,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
             if (hcs.getHvdcLine() != null) {
-                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, false, reportNode);
+                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, reportNode);
             }
         });
 
@@ -60,7 +60,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
                 removedConnectableReport(reportNode, connectableId);
                 LOGGER.info("Connectable {} removed", connectableId);
             } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, false, reportNode);
+                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
             }
         });
 

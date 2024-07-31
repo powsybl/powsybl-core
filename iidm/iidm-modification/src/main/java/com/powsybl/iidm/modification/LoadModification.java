@@ -44,8 +44,8 @@ public class LoadModification extends AbstractLoadModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Load load = network.getLoad(getLoadId());
         if (load == null) {
             logOrThrow(throwException, "Load '" + getLoadId() + "' not found");

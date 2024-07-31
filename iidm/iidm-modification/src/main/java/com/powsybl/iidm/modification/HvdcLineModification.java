@@ -46,8 +46,8 @@ public class HvdcLineModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
         if (hvdcLine == null) {
             logOrThrow(throwException, "Hvdc line '" + hvdcId + "' not found");

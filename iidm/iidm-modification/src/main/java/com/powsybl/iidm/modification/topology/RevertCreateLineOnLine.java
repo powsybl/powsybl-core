@@ -106,9 +106,9 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reportNode, throwException);
         Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reportNode, throwException);

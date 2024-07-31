@@ -35,8 +35,8 @@ public class BatteryModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Battery battery = network.getBattery(batteryId);
         if (battery == null) {
             notFoundBatteryReport(reportNode, batteryId);

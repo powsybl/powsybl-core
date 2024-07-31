@@ -39,8 +39,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                        boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
         if (hvdcLine != null) {
             HvdcConverterStation<?> hvdcConverterStation1 = hvdcLine.getConverterStation1();
@@ -102,7 +102,7 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
             // check whether the shunt compensator is connected to the same voltage level as the lcc
             String shuntId = shuntCompensator.getId();
             if (vl1 == shuntVl || vl2 == shuntVl) {
-                new RemoveFeederBay(shuntId).apply(network, throwException, computationManager, false, reportNode);
+                new RemoveFeederBay(shuntId).apply(network, throwException, computationManager, reportNode);
                 removedShuntCompensatorReport(reportNode, shuntId);
                 LOGGER.info("Shunt compensator {} has been removed", shuntId);
             } else {
@@ -117,8 +117,8 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
         String station2Id = hvdcConverterStation2.getId();
         HvdcConverterStation.HvdcType station1Type = hvdcConverterStation1.getHvdcType();
         HvdcConverterStation.HvdcType station2Type = hvdcConverterStation2.getHvdcType();
-        new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, false, reportNode);
-        new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, false, reportNode);
+        new RemoveFeederBay(station1Id).apply(network, throwException, computationManager, reportNode);
+        new RemoveFeederBay(station2Id).apply(network, throwException, computationManager, reportNode);
         reportConverterStationRemoved(reportNode, station1Id, station1Type);
         reportConverterStationRemoved(reportNode, station2Id, station2Type);
     }

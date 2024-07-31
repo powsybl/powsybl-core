@@ -517,7 +517,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionPositionOrder(71)
             .withInjectionDirection(BOTTOM)
             .build();
-        assertTrue(modification.dryRun(network));
+        assertTrue(modification.apply(network, true));
 
         // Useful methods for dry run
         assertTrue(modification.hasImpactOnNetwork());
@@ -533,7 +533,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionPositionOrder(71)
             .withInjectionDirection(BOTTOM)
             .build();
-        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertFalse(modificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for AbstractCreateConnectableFeederBays. The issue is: Bus or busbar section 'dummy' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
 
@@ -546,7 +546,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withBusOrBusbarSectionId("bbs1")
             .withInjectionDirection(BOTTOM)
             .build();
-        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertFalse(modificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for AbstractCreateConnectableFeederBays. The issue is: Position order is null for attachment in node-breaker voltage level vl1",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
 
@@ -560,7 +560,7 @@ class CreateFeederBayTest extends AbstractModificationTest {
             .withInjectionPositionOrder(-5)
             .withInjectionDirection(BOTTOM)
             .build();
-        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertFalse(modificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for AbstractCreateConnectableFeederBays. The issue is: Position order is negative for attachment in node-breaker voltage level vl1: -5",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }

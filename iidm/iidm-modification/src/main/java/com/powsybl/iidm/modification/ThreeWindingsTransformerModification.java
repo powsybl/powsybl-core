@@ -31,7 +31,7 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
         if (t3wt == null) {
             logOrThrow(throwException, "ThreeWindingsTransformer '" + transformerId + "' not found");

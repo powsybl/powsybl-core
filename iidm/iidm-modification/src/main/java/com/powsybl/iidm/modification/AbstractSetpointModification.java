@@ -42,8 +42,8 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                        boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         T networkElement = getNetworkElement(network, elementId);
 
         if (networkElement == null) {

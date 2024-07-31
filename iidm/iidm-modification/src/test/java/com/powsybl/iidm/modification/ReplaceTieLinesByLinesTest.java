@@ -97,7 +97,7 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
 
         // ReplaceTieLinesByLines - Passing dryRun
         ReplaceTieLinesByLines networkModification = new ReplaceTieLinesByLines();
-        assertTrue(networkModification.dryRun(network));
+        assertTrue(networkModification.apply(network, true));
 
         // Useful methods for dry run
         assertTrue(networkModification.hasImpactOnNetwork());

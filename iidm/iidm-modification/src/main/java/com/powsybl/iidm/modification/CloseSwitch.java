@@ -28,7 +28,7 @@ public class CloseSwitch extends AbstractNetworkModification {
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
             throw new PowsyblException("Switch '" + switchId + "' not found");

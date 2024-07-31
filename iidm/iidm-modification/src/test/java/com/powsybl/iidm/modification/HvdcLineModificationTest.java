@@ -107,13 +107,13 @@ class HvdcLineModificationTest {
             .withMessageTemplate("", "")
             .build();
         hvdcLineModification = new HvdcLineModification("LINE_NOT_EXISTING", null, 300.0, null, null, null, null);
-        assertFalse(hvdcLineModification.dryRun(network, reportNode));
+        assertFalse(hvdcLineModification.apply(network, reportNode, true));
         assertEquals("Dry-run failed for HvdcLineModification. The issue is: Hvdc line 'LINE_NOT_EXISTING' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
 
         // Failing dryRun
         hvdcLineModification = new HvdcLineModification(l.getId(), true, null, null, 50.0, 12.0, true);
-        assertFalse(hvdcLineModification.dryRun(network, reportNode));
+        assertFalse(hvdcLineModification.apply(network, reportNode, true));
         assertEquals("Dry-run failed for HvdcLineModification. The issue is: Relative value is set to true but it will not be applied since active power setpoint is undefined (null)",
             reportNode.getChildren().get(1).getChildren().get(0).getMessage());
         assertEquals("Dry-run failed for HvdcLineModification. The issue is: AV emulation enable is defined but it will not be applied since the hvdc line L does not have a HvdcAngleDroopActivePowerControl extension",
@@ -126,6 +126,6 @@ class HvdcLineModificationTest {
         // Passing dryRun
         l.newExtension(HvdcAngleDroopActivePowerControlAdder.class).add();
         hvdcLineModification = new HvdcLineModification(l.getId(), true, null, null, 50.0, 12.0, null);
-        assertTrue(hvdcLineModification.dryRun(network));
+        assertTrue(hvdcLineModification.apply(network, true));
     }
 }

@@ -226,7 +226,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
             .withLine(line)
             .withLineAdder(adder)
             .build();
-        assertTrue(modification.dryRun(network));
+        assertTrue(modification.apply(network, true));
 
         // Useful methods for dry run
         assertTrue(modification.hasImpactOnNetwork());
@@ -241,7 +241,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
             .withLine(line)
             .withLineAdder(adder)
             .build();
-        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertFalse(modificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for AbstractLineConnectionModification. The issue is: Bus or busbar section 'dummy' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
 
@@ -255,7 +255,7 @@ class CreateLineOnLineTest extends AbstractModificationTest {
             .withPositionPercent(Double.NaN)
             .withLineAdder(adder)
             .build();
-        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertFalse(modificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for AbstractLineConnectionModification. The issue is: Percent should not be undefined",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }

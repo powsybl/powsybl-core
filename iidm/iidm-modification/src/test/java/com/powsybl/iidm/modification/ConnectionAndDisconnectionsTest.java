@@ -452,7 +452,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(true)
             .withOnlyBreakersOperable(false)
             .build();
-        assertTrue(connection.dryRun(network));
+        assertTrue(connection.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(connection.hasImpactOnNetwork());
@@ -467,7 +467,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        assertFalse(connectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertFalse(connectionFailing.apply(network, reportNodeCloseSwitch, true));
         assertEquals("Dry-run failed for ConnectableConnection. The issue is: Identifiable 'dummy' not found",
             reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
         connectionFailing = new ConnectableConnectionBuilder()
@@ -475,7 +475,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        assertFalse(connectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertFalse(connectionFailing.apply(network, reportNodeCloseSwitch, true));
         assertEquals("Dry-run failed for ConnectableConnection. The issue is: Connection failed",
             reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
     }
@@ -490,7 +490,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(true)
             .build();
-        assertTrue(unplannedDisconnection.dryRun(network));
+        assertTrue(unplannedDisconnection.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(unplannedDisconnection.hasImpactOnNetwork());
@@ -504,14 +504,14 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withConnectableId("dummy")
             .withFictitiousSwitchesOperable(false)
             .build();
-        assertFalse(unplannedDisconnectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertFalse(unplannedDisconnectionFailing.apply(network, reportNodeCloseSwitch, true));
         assertEquals("Dry-run failed for AbstractDisconnection. The issue is: Identifiable 'dummy' not found",
             reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
         unplannedDisconnectionFailing = new UnplannedDisconnectionBuilder()
             .withConnectableId("L1")
             .withFictitiousSwitchesOperable(false)
             .build();
-        assertFalse(unplannedDisconnectionFailing.dryRun(network, reportNodeCloseSwitch));
+        assertFalse(unplannedDisconnectionFailing.apply(network, reportNodeCloseSwitch, true));
         assertEquals("Dry-run failed for AbstractDisconnection. The issue is: Disconnection failed",
             reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
     }

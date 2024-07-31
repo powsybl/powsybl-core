@@ -60,7 +60,9 @@ class SecurityAnalysisTest {
 
     private static final class SecurityAnalysisModificationTest extends AbstractNetworkModification {
         @Override
-        public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+        public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                            ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+            assertNotDryRun(dryRun);
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
             network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
@@ -68,8 +70,8 @@ class SecurityAnalysisTest {
         }
 
         @Override
-        protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-            return true;
+        public String getName() {
+            return "SecurityAnalysisModificationTest";
         }
     }
 

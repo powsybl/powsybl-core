@@ -45,6 +45,6 @@ public class ReplaceTieLinesByLinesPostProcessor implements ImportPostProcessor 
 
     @Override
     public void process(Network network, ComputationManager computationManager, ReportNode reportNode) {
-        new ReplaceTieLinesByLines().apply(network, Parameter.readBoolean("XIIDM", null, THROW_EXCEPTION_PARAMETER, defaultValueConfig), computationManager, false, reportNode);
+        new ReplaceTieLinesByLines().apply(network, Parameter.readBoolean("XIIDM", null, THROW_EXCEPTION_PARAMETER, defaultValueConfig), computationManager, reportNode);
     }
 }

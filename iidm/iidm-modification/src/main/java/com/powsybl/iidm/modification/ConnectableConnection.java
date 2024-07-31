@@ -62,8 +62,8 @@ public class ConnectableConnection extends AbstractNetworkModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Get the connectable
         Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 

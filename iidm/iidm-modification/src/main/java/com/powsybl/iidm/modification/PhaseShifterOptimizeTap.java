@@ -23,7 +23,7 @@ public class PhaseShifterOptimizeTap extends AbstractPhaseShifterModification {
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Note: local dryRun is not possible (see isLocalDryRunPossible())
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)
                 .findMaximalFlowTap(network, phaseShifterId);

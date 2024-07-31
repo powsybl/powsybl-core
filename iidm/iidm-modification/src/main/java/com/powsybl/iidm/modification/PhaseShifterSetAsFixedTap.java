@@ -26,7 +26,7 @@ public class PhaseShifterSetAsFixedTap extends AbstractPhaseShifterModification 
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Objects.requireNonNull(network);
         PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network);
         phaseTapChanger.setTapPosition(tapPosition, dryRun);

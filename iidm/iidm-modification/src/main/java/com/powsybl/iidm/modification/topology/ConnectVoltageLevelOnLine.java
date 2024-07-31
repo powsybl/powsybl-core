@@ -53,9 +53,9 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                      ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         // Checks
         if (failChecks(network, throwException, reportNode, LOG)) {

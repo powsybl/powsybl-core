@@ -121,9 +121,9 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reportNode, throwException);
         if (tpLine1 == null) {
@@ -201,7 +201,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         tpLine2.remove();
         removedLineReport(reportNode, teePointLine2Id);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, dryRun, reportNode);
+        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reportNode);
         removedLineReport(reportNode, teePointLineToRemoveId);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLineToRemoveId);
 

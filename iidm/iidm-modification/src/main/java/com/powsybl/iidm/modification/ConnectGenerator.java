@@ -32,7 +32,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");

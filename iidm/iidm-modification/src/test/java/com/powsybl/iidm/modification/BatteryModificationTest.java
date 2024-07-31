@@ -70,7 +70,7 @@ class BatteryModificationTest {
     void testDryRun() {
         // Passing dryRun
         BatteryModification batteryModificationPassing = new BatteryModification(battery.getId(), 1.0, null);
-        assertTrue(batteryModificationPassing.dryRun(network));
+        assertTrue(batteryModificationPassing.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(batteryModificationPassing.hasImpactOnNetwork());
@@ -81,7 +81,7 @@ class BatteryModificationTest {
             .withMessageTemplate("", "")
             .build();
         BatteryModification batteryModificationFailing = new BatteryModification("BAT_NOT_EXISTING", 1.0, null);
-        assertFalse(batteryModificationFailing.dryRun(network, reportNode));
+        assertFalse(batteryModificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for BatteryModification. The issue is: Battery 'BAT_NOT_EXISTING' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }

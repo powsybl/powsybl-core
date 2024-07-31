@@ -36,8 +36,8 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
 
         if (shuntCompensator == null) {

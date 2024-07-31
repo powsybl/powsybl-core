@@ -32,14 +32,15 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotDryRun(dryRun);
         script.call(network, computationManager);
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        // TODO: what do we do here?
-        return true;
+    public String getName() {
+        return "ScriptNetworkModification";
     }
 }

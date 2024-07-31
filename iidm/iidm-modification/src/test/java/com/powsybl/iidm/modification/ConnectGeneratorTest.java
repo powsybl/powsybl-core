@@ -107,7 +107,7 @@ class ConnectGeneratorTest {
     void testDryRunConnection() {
         // Passing dryRun
         ConnectGenerator connectGenerator = new ConnectGenerator(g2.getId());
-        assertTrue(connectGenerator.dryRun(network));
+        assertTrue(connectGenerator.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(connectGenerator.hasImpactOnNetwork());
@@ -118,7 +118,7 @@ class ConnectGeneratorTest {
             .withMessageTemplate("", "")
             .build();
         ConnectGenerator connectGeneratorFailing = new ConnectGenerator("GEN_NOT_EXISTING");
-        assertFalse(connectGeneratorFailing.dryRun(network, reportNode));
+        assertFalse(connectGeneratorFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for ConnectGenerator. The issue is: Generator 'GEN_NOT_EXISTING' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }
@@ -135,7 +135,7 @@ class ConnectGeneratorTest {
 
         // Passing dryRun
         GeneratorModification generatorModification = new GeneratorModification(g2.getId(), modifs);
-        assertTrue(generatorModification.dryRun(network));
+        assertTrue(generatorModification.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(generatorModification.hasImpactOnNetwork());
@@ -146,7 +146,7 @@ class ConnectGeneratorTest {
             .withMessageTemplate("", "")
             .build();
         GeneratorModification connectGeneratorFailing = new GeneratorModification("GEN_NOT_EXISTING", modifs);
-        assertFalse(connectGeneratorFailing.dryRun(network, reportNode));
+        assertFalse(connectGeneratorFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for GeneratorModification. The issue is: Generator 'GEN_NOT_EXISTING' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }

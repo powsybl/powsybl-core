@@ -37,9 +37,9 @@ public class RemoveSubstation extends AbstractNetworkModification {
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                        ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
@@ -51,7 +51,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
             return;
         }
         List<String> vlIds = substation.getVoltageLevelStream().map(VoltageLevel::getId).toList();
-        vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, false, reportNode));
+        vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, reportNode));
         substation.remove();
         removedSubstationReport(reportNode, substationId);
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);

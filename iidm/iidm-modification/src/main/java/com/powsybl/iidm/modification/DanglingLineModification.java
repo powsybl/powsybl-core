@@ -44,8 +44,8 @@ public class DanglingLineModification extends AbstractLoadModification {
     }
 
     @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      boolean dryRun, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         DanglingLine danglingLine = network.getDanglingLine(getDanglingLineId());
         if (danglingLine == null) {
             logOrThrow(throwException, "DanglingLine '" + getDanglingLineId() + "' not found");

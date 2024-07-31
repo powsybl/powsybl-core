@@ -53,7 +53,7 @@ class DanglingLineModificationTest {
     void testDryRun() {
         // Passing dryRun
         DanglingLineModification modification = new DanglingLineModification("NHV1_XNODE1", false, 5.0, null);
-        assertTrue(modification.dryRun(network));
+        assertTrue(modification.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(modification.hasImpactOnNetwork());
@@ -64,7 +64,7 @@ class DanglingLineModificationTest {
             .withMessageTemplate("", "")
             .build();
         DanglingLineModification modificationFailing = new DanglingLineModification("DANGLING_LINE_NOT_EXISTING", false, 5.0, null);
-        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertFalse(modificationFailing.apply(network, reportNode, true));
         assertEquals("Dry-run failed for DanglingLineModification. The issue is: Dangling line 'DANGLING_LINE_NOT_EXISTING' not found",
             reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }

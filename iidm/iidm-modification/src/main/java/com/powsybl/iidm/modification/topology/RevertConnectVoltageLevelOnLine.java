@@ -81,9 +81,9 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     @Override
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotLocalDryRun(dryRun);
+        assertNotDryRun(dryRun);
 
         Line line1 = checkAndGetLine(network, line1Id, reportNode, throwException);
         Line line2 = checkAndGetLine(network, line2Id, reportNode, throwException);

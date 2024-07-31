@@ -51,7 +51,7 @@ class LoadModificationTest {
     void testDryRun() {
         // CloseSwitch - Passing dryRun
         LoadModification modification = new LoadModification("LOAD", false, null, 100.0);
-        assertTrue(modification.dryRun(network));
+        assertTrue(modification.apply(network, true));
 
         // Useful methods for dry run
         assertFalse(modification.hasImpactOnNetwork());
@@ -62,7 +62,7 @@ class LoadModificationTest {
             .withMessageTemplate("", "")
             .build();
         LoadModification failingModification = new LoadModification("dummy", false, null, 100.0);
-        assertFalse(failingModification.dryRun(network, reportNodeCloseSwitch));
+        assertFalse(failingModification.apply(network, reportNodeCloseSwitch, true));
         assertEquals("Dry-run failed for LoadModification. The issue is: Load 'dummy' not found",
             reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
     }
