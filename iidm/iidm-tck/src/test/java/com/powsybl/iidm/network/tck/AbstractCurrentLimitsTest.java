@@ -725,19 +725,18 @@ public abstract class AbstractCurrentLimitsTest {
         assertTrue(optionalLimits.isPresent());
         CurrentLimits limits = optionalLimits.get();
 
-        // test 1
+        limits.setTemporaryLimitValue(20 * 60, 1050.0);
+        assertEquals(1050.0, limits.getTemporaryLimit(20*60).getValue());
+
         limits.setTemporaryLimitValue(10 * 60, 1450.0);
         assertEquals(1450.0, limits.getTemporaryLimit(10*60).getValue());
-        System.out.println(limits.getTemporaryLimit(10*60).getValue());
 
-        // test 2
-        limits.setTemporaryLimitValue(5 * 60, 1550.0);
-        assertEquals(1550.0, limits.getTemporaryLimit(5*60).getValue());
-        System.out.println(limits.getTemporaryLimit(5*60).getValue());
+        limits.setTemporaryLimitValue(5 * 60, 1750.0);
+        assertEquals(1750.0, limits.getTemporaryLimit(5*60).getValue());
 
-        // test 3
-        limits.setTemporaryLimitValue(20 * 60, 1750.0);
-        System.out.println(limits.getTemporaryLimit(20*60).getValue());
+
+
+
 
 
 
