@@ -8,6 +8,8 @@
 package com.powsybl.shortcircuit;
 
 /**
+ * A class to represent the result if the analysis has failed.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class FailedFaultResult extends AbstractFaultResult {
