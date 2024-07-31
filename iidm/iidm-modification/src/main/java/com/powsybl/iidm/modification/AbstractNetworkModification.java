@@ -27,62 +27,120 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public final boolean apply(Network network) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), false, ReportNode.NO_OP);
+        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, false);
     }
 
     @Override
     public final boolean apply(Network network, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), dryRun, ReportNode.NO_OP);
+        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
+    }
+
+    @Override
+    public final boolean apply(Network network, ComputationManager computationManager) {
+        return apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP, false);
     }
 
     @Override
     public final boolean apply(Network network, ComputationManager computationManager, boolean dryRun) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, dryRun, ReportNode.NO_OP);
+        return apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP, dryRun);
     }
 
     @Override
-    public final boolean apply(Network network, ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, dryRun, reportNode);
+    public final boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode) {
+        return apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode, false);
     }
 
     @Override
-    public final boolean apply(Network network, boolean throwException, boolean dryRun, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), dryRun, reportNode);
+    public final boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        return apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode, dryRun);
     }
 
     @Override
-    public final boolean apply(Network network, boolean throwException, ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), throwException, computationManager, dryRun, reportNode);
+    public final boolean apply(Network network, ReportNode reportNode) {
+        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode, false);
+    }
+
+    @Override
+    public final boolean apply(Network network, ReportNode reportNode, boolean dryRun) {
+        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode, dryRun);
+    }
+
+    @Override
+    public final boolean apply(Network network, boolean throwException, ReportNode reportNode) {
+        return apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode, false);
+    }
+
+    @Override
+    public final boolean apply(Network network, boolean throwException, ReportNode reportNode, boolean dryRun) {
+        return apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode, dryRun);
+    }
+
+    @Override
+    public final boolean apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+        return apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode, false);
+    }
+
+    @Override
+    public final boolean apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        return apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode, dryRun);
+    }
+
+    @Override
+    public final boolean apply(Network network, NamingStrategy namingStrategy) {
+        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP, false);
     }
 
     @Override
     public final boolean apply(Network network, NamingStrategy namingStrategy, boolean dryRun) {
-        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), dryRun, ReportNode.NO_OP);
+        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP, dryRun);
+    }
+
+    @Override
+    public final boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager) {
+        return apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP, false);
     }
 
     @Override
     public final boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, boolean dryRun) {
-        return apply(network, namingStrategy, false, computationManager, dryRun, ReportNode.NO_OP);
+        return apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP, dryRun);
     }
 
     @Override
-    public final boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
-        return apply(network, namingStrategy, false, computationManager, dryRun, reportNode);
+    public final boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        return apply(network, namingStrategy, false, computationManager, reportNode, false);
     }
 
     @Override
-    public final boolean apply(Network network, NamingStrategy namingStrategy, boolean dryRun, ReportNode reportNode) {
-        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), dryRun, reportNode);
+    public final boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        return apply(network, namingStrategy, false, computationManager, reportNode, dryRun);
     }
 
     @Override
-    public final boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, boolean dryRun, ReportNode reportNode) {
-        return apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), dryRun, reportNode);
+    public final boolean apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode, false);
     }
 
+    @Override
+    public final boolean apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode, boolean dryRun) {
+        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode, dryRun);
+    }
+
+    @Override
+    public final boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode) {
+        return apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reportNode, false);
+    }
+
+    @Override
+    public final boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode, boolean dryRun) {
+        return apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reportNode, dryRun);
+    }
+
+    //TODO It would be safer if this method was also final...
+    // But we need to override it for NetworkModificationList
+    // This should be achievable using "Sealed Classes".
     @Override
     public boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                         boolean dryRun, ReportNode reportNode) {
+                         ReportNode reportNode, boolean dryRun) {
         if (dryRun) {
             ReportNode reportNode1 = reportOnDryRunStart(network, reportNode);
             try {
