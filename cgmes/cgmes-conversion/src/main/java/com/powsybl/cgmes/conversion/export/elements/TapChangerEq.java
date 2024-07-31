@@ -99,7 +99,7 @@ public final class TapChangerEq {
     public static void writeControl(String id, String name, String mode, String terminalId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         CgmesExportUtil.writeStartIdName("TapChangerControl", id, name, cimNamespace, writer, context);
         writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s.%s", cimNamespace, "RegulatingControlModeKind", mode));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, String.format("%s%s", cimNamespace, mode));
         CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer, context);
         writer.writeEndElement();
     }

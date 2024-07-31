@@ -17,7 +17,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -81,7 +81,7 @@ class ImportExportPerformanceTest {
         CgmesExport e = new CgmesExport();
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
-        DataSource exportDataSource = new FileDataSource(exportFolder, "");
+        DataSource exportDataSource = new DirectoryDataSource(exportFolder, "");
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.CIM_VERSION, "16");
         e.export(n, exportParameters, exportDataSource);

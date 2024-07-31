@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.test.export.issues;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -104,7 +104,7 @@ class SwitchExportTest extends AbstractSerDeTest {
         // Check that the coupler is preserved when exported to CGMES
         String basename = n.getNameOrId();
         n.write("CGMES", null, tmpDir.resolve(basename));
-        Network n1 = Network.read(new FileDataSource(tmpDir, basename));
+        Network n1 = Network.read(new DirectoryDataSource(tmpDir, basename));
         assertNotNull(n1.getSwitch("coupler"));
     }
 

@@ -178,7 +178,16 @@ Each dangling line will be exported as one `EquivalentInjection` and one `ACLine
 
 PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
 
-<span style="color: red">TODO details</span>
+#### Regulating control
+
+If the network comes from a CIM-CGMES model and a generator has initially a `RegulatingControl`, it always has at export
+too. Otherwise, a `RegulatingControl` is always exported for generators, except if it has no regulating capabilities because
+$minQ = maxQ$.
+
+A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when a 
+generator has the extension [`RemoteReactivePowerControl`](../../grid_model/extensions.md#remote-reactive-power-control)
+with the `enabled` activated and the generator attribute `voltageRegulatorOn` set to `false`. In all other cases, a
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
 ### HVDC line and HVDC converter stations
 
@@ -202,13 +211,32 @@ PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `Co
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
 
-<span style="color: red">TODO details</span>
+#### Regulating control
+
+If the network comes from a CIM-CGMES model and a shunt compensator has initially a `RegulatingControl`, it always
+has at export too.
+
+A shunt compensator with local voltage control (i.e. the regulating terminal is the same of the terminal of connection)
+and no valid voltage target will not have any exported regulating control. In all other cases, a `RegulatingControl`
+is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
 ### StaticVarCompensator
 
 PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-var-compensator) is exported as `StaticVarCompensator`.
 
-<span style="color: red">TODO details</span>
+#### Regulating control
+
+If the network comes from a CIM-CGMES model and a static VAR compensator has initially a `RegulatingControl`, it always
+has at export too.
+
+A static VAR compensator which voltage control is local (i.e. the regulating terminal is the same of the terminal of
+connection) and no valid voltage or reactive power target will not have any exported regulating control.
+
+A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+the static VAR compensator mode is `REACTIVE_POWER`. A `RegulatingControl` is exported with `RegulatingControl.mode` set
+to `RegulatingControlModeKind.voltage` when the static VAR compensator mode is `VOLTAGE`. When the static VAR compensator
+is `OFF`, the exported regulating control mode will be reactive power only if the voltage target is not valid but the
+reactive power target is. Otherwise, the exported mode will be voltage.
 
 ### Substation
 
@@ -225,13 +253,28 @@ PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is expo
 ### ThreeWindingsTransformer
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-windings-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
-<span style="color: red">TODO details</span>
+
+#### Tap changer control
+
+If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
+too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
+is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
+A `PhaseTapChanger` is considered as defined if it has a regulation mode different of `FIXED_TAP`, a valid regulation value,
+a valid target deadband, and a non-null regulating terminal.
+
+In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+`RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
+`RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
+
+In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when
+`PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow`
+when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
 ### TwoWindingsTransformer
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-windings-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
-<span style="color: red">TODO details</span>
+Tap changer controls for two windings transformers are exported following the same rules explained in the previous section about three windings transformers. See [tap changer control](#tap-changer-control).
 
 ### Voltage level
 

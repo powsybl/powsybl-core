@@ -183,4 +183,35 @@ public final class PhaseShifterTestCaseFactory {
                 .setTargetDeadband(10.0);
         return network;
     }
+
+    public static Network createLocalActivePowerWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        return network;
+    }
+
+    public static Network createLocalCurrentLimiterWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        return network;
+    }
+
+    public static Network createRemoteActivePowerWithTargetDeadband() {
+        return createRemote(createLocalActivePowerWithTargetDeadband());
+    }
+
+    public static Network createRemoteCurrentLimiterWithTargetDeadband() {
+        return createRemote(createLocalCurrentLimiterWithTargetDeadband());
+    }
+
+    private static Network createRemote(Network network) {
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationTerminal(network.getLoad("LD2").getTerminal());
+        return network;
+    }
 }

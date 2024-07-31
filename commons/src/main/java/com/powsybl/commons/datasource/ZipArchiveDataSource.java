@@ -29,52 +29,28 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class ZipFileDataSource implements DataSource {
+public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
-    private final Path directory;
-
-    private final String zipFileName;
-
-    private final String baseName;
-
-    private final DataSourceObserver observer;
-
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
-        this.directory = Objects.requireNonNull(directory);
-        this.zipFileName = Objects.requireNonNull(zipFileName);
-        this.baseName = Objects.requireNonNull(baseName);
-        this.observer = observer;
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
+        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, observer);
     }
 
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName) {
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName) {
         this(directory, zipFileName, baseName, null);
     }
 
-    public ZipFileDataSource(Path directory, String baseName) {
+    public ZipArchiveDataSource(Path directory, String baseName) {
         this(directory, baseName + ".zip", baseName, null);
     }
 
-    public ZipFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
+    public ZipArchiveDataSource(Path directory, String baseName, DataSourceObserver observer) {
         this(directory, baseName + ".zip", baseName, observer);
     }
 
-    public ZipFileDataSource(Path zipFile) {
+    public ZipArchiveDataSource(Path zipFile) {
         this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()));
-    }
-
-    @Override
-    public String getBaseName() {
-        return baseName;
-    }
-
-    private Path getZipFilePath() {
-        return directory.resolve(zipFileName);
-    }
-
-    @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     private static boolean entryExists(Path zipFilePath, String fileName) {
@@ -93,7 +69,7 @@ public class ZipFileDataSource implements DataSource {
     @Override
     public boolean exists(String fileName) {
         Objects.requireNonNull(fileName);
-        Path zipFilePath = getZipFilePath();
+        Path zipFilePath = getArchiveFilePath();
         return entryExists(zipFilePath, fileName);
     }
 
@@ -122,7 +98,7 @@ public class ZipFileDataSource implements DataSource {
     @Override
     public InputStream newInputStream(String fileName) throws IOException {
         Objects.requireNonNull(fileName);
-        Path zipFilePath = getZipFilePath();
+        Path zipFilePath = getArchiveFilePath();
         if (entryExists(zipFilePath, fileName)) {
             InputStream is = new ZipEntryInputStream(ZipFile.builder()
                 .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
@@ -197,7 +173,7 @@ public class ZipFileDataSource implements DataSource {
         if (append) {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
-        Path zipFilePath = getZipFilePath();
+        Path zipFilePath = getArchiveFilePath();
         OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName);
         return observer != null ? new ObservableOutputStream(os, zipFilePath + ":" + fileName, observer) : os;
     }
@@ -212,7 +188,7 @@ public class ZipFileDataSource implements DataSource {
         // Consider only files in the given folder, do not go into folders
         Pattern p = Pattern.compile(regex);
         Set<String> names = new HashSet<>();
-        Path zipFilePath = getZipFilePath();
+        Path zipFilePath = getArchiveFilePath();
         try (ZipFile zipFile = ZipFile.builder()
             .setSeekableByteChannel(Files.newByteChannel(zipFilePath))
             .get()) {

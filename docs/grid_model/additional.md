@@ -85,7 +85,8 @@ The component on which the current limits are applied can safely remain
 between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
 Please look at this scheme to fully understand the modelling (the following example shows current limits but this modelling is valid for all loading limits):
 
-![Loading limits model](img/currentLimits.svg){width="50%" align=center}
+![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
+![Loading limits model](img/dark_mode/current-limits.svg){width="50%" align=center class="only-dark"}
 
 Note that, following this modelling, in general the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero. If temporary limits are modeled, the permanent limit becomes mandatory.
 
@@ -118,7 +119,8 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
     .endTemporaryLimit()
     .add();
 ```
-![Current limits scheme_example1](img/currentLimitsExample1.svg)
+![Current limits scheme_example1](img/current-limits-example1.svg){align=center class="only-light"}
+![Current limits scheme_example1](img/dark_mode/current-limits-example1.svg){align=center class="only-dark"}
 
 ##### Second example
 This second example creates a `CurrentLimits` instance containing one permanent limit and three temporary limits, one of them having an infinite limit value.
@@ -142,7 +144,8 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
     .endTemporaryLimit()
     .add();
 ```
-![Current limits scheme_example2](img/currentLimitsExample2.svg)
+![Current limits scheme_example2](img/current-limits-example2.svg){align=center class="only-light"}
+![Current limits scheme_example2](img/dark_mode/current-limits-example2.svg){align=center class="only-dark"}
 
 (phase-tap-changer)=
 ## Phase tap changer

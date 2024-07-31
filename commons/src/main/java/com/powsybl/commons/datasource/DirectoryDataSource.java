@@ -20,40 +20,39 @@ import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class FileDataSource implements DataSource {
+public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
-    private static final String COMPRESSION_EXT = "";
-
-    private final Path directory;
-
-    private final String baseName;
-
-    private final DataSourceObserver observer;
-
-    public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, null);
+    public DirectoryDataSource(Path directory, String baseName) {
+        this(directory, baseName, null, null);
     }
 
-    public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this.directory = Objects.requireNonNull(directory);
-        this.baseName = Objects.requireNonNull(baseName);
-        this.observer = observer;
+    public DirectoryDataSource(Path directory, String baseName,
+                               DataSourceObserver observer) {
+        this(directory, baseName, null, observer);
     }
 
-    @Override
-    public String getBaseName() {
-        return baseName;
+    DirectoryDataSource(Path directory, String baseName,
+                        CompressionFormat compressionFormat,
+                        DataSourceObserver observer) {
+        super(directory, baseName, compressionFormat, observer);
     }
 
     protected String getCompressionExt() {
-        return COMPRESSION_EXT;
+        return compressionFormat == null ? "" : "." + compressionFormat.getExtension();
     }
 
+    /**
+     * @throws IOException Overriding classes may throw this exception
+     */
     protected InputStream getCompressedInputStream(InputStream is) throws IOException {
         return is;
     }
 
+    /**
+     * @throws IOException Overriding classes may throw this exception
+     */
     protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
         return os;
     }
@@ -73,11 +72,6 @@ public class FileDataSource implements DataSource {
         Path path = getPath(fileName);
         OutputStream os = getCompressedOutputStream(Files.newOutputStream(path, DataSourceUtil.getOpenOptions(append)));
         return observer != null ? new ObservableOutputStream(os, path.toString(), observer) : os;
-    }
-
-    @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     @Override
@@ -105,14 +99,14 @@ public class FileDataSource implements DataSource {
         int maxDepth = 1;
         try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
             return paths
-                    .filter(Files::isRegularFile)
-                    .map(Path::getFileName)
-                    .map(Path::toString)
-                    .filter(name -> name.startsWith(baseName))
-                    // Return names after removing the compression extension
-                    .map(name -> name.replace(getCompressionExt(), ""))
-                    .filter(s -> p.matcher(s).matches())
-                    .collect(Collectors.toSet());
+                .filter(Files::isRegularFile)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .filter(name -> name.startsWith(baseName))
+                // Return names after removing the compression extension
+                .map(name -> name.replace(getCompressionExt(), ""))
+                .filter(s -> p.matcher(s).matches())
+                .collect(Collectors.toSet());
         }
     }
 }

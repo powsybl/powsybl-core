@@ -25,23 +25,22 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class RegulatingControlEq {
 
     public static final String REGULATING_CONTROL_VOLTAGE = "RegulatingControlModeKind.voltage";
+    public static final String REGULATING_CONTROL_REACTIVE_POWER = "RegulatingControlModeKind.reactivePower";
+    public static final String REGULATING_CONTROL_ACTIVE_POWER = "RegulatingControlModeKind.activePower";
+    public static final String REGULATING_CONTROL_CURRENT_FLOW = "RegulatingControlModeKind.currentFlow";
 
-    public static String writeKindVoltage(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    public static String writeRegulatingControlEq(Connectable<?> c, String terminalId, Set<String> regulatingControlsWritten, String mode, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         String regulatingControlId = context.getNamingStrategy().getCgmesIdFromProperty(c, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
         if (regulatingControlId != null && !regulatingControlsWritten.contains(regulatingControlId)) {
             String regulatingControlName = "RC_" + c.getNameOrId();
-            RegulatingControlEq.writeKindVoltage(regulatingControlId, regulatingControlName, terminalId, cimNamespace, writer, context);
+            CgmesExportUtil.writeStartIdName("RegulatingControl", regulatingControlId, regulatingControlName, cimNamespace, writer, context);
+            CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer, context);
+            writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + mode);
+            writer.writeEndElement();
             regulatingControlsWritten.add(regulatingControlId);
         }
         return regulatingControlId;
-    }
-
-    private static void writeKindVoltage(String id, String regulatingControlName, String terminalId, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesExportUtil.writeStartIdName("RegulatingControl", id, regulatingControlName, cimNamespace, writer, context);
-        CgmesExportUtil.writeReference("RegulatingControl.Terminal", terminalId, cimNamespace, writer, context);
-        writer.writeEmptyElement(cimNamespace, "RegulatingControl.mode");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + REGULATING_CONTROL_VOLTAGE);
-        writer.writeEndElement();
     }
 
     private RegulatingControlEq() {

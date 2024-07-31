@@ -140,4 +140,125 @@ public final class SvcTestCaseFactory {
 
         return network;
     }
+
+    private static Network addReactiveTarget(Network network) {
+        network.getStaticVarCompensator("SVC2")
+                .setReactivePowerSetpoint(350);
+        return network;
+    }
+
+    private static Network addVoltageTarget(Network network) {
+        network.getStaticVarCompensator("SVC2")
+                .setVoltageSetpoint(390);
+        return network;
+    }
+
+    private static Network addBothTarget(Network network) {
+        network.getStaticVarCompensator("SVC2")
+                .setReactivePowerSetpoint(350)
+                .setVoltageSetpoint(390);
+        return network;
+    }
+
+    private static Network createLocalVoltageControl(Network network) {
+        return addVoltageControl(network);
+    }
+
+    public static Network createLocalVoltageControl() {
+        return createLocalVoltageControl(create());
+    }
+
+    public static Network createRemoteVoltageControl() {
+        return createLocalVoltageControl(createWithRemoteRegulatingTerminal());
+    }
+
+    private static Network addVoltageControl(Network network) {
+        addVoltageTarget(network);
+        network.getStaticVarCompensator("SVC2")
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        return network;
+    }
+
+    private static Network createReactiveControl(Network network) {
+        return addReactiveControl(network);
+    }
+
+    public static Network createLocalReactiveControl() {
+        return createReactiveControl(create());
+    }
+
+    public static Network createRemoteReactiveControl() {
+        return createReactiveControl(createWithRemoteRegulatingTerminal());
+    }
+
+    private static Network addReactiveControl(Network network) {
+        addReactiveTarget(network);
+        network.getStaticVarCompensator("SVC2")
+                .setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        return network;
+    }
+
+    public static Network createLocalOffReactiveTarget() {
+        return createOffReactiveTarget(create());
+    }
+
+    public static Network createRemoteOffReactiveTarget() {
+        return createOffReactiveTarget(createWithRemoteRegulatingTerminal());
+    }
+
+    private static Network createOffReactiveTarget(Network network) {
+        return addOffReactiveTarget(network);
+    }
+
+    private static Network addOffReactiveTarget(Network network) {
+        return addReactiveTarget(addOffNoTarget(network));
+    }
+
+    public static Network createLocalOffVoltageTarget() {
+        return createOffVoltageTarget(create());
+    }
+
+    public static Network createRemoteOffVoltageTarget() {
+        return createOffVoltageTarget(createWithRemoteRegulatingTerminal());
+    }
+
+    private static Network createOffVoltageTarget(Network network) {
+        return addOffVoltageTarget(network);
+    }
+
+    private static Network addOffVoltageTarget(Network network) {
+        return addVoltageTarget(addOffNoTarget(network));
+    }
+
+    public static Network createLocalOffBothTarget() {
+        return createOffBothTarget(create());
+    }
+
+    public static Network createRemoteOffBothTarget() {
+        return createOffBothTarget(createWithRemoteRegulatingTerminal());
+    }
+
+    private static Network createOffBothTarget(Network network) {
+        return addOffBothTarget(network);
+    }
+
+    private static Network addOffBothTarget(Network network) {
+        return addBothTarget(addOffNoTarget(network));
+    }
+
+    public static Network createLocalOffNoTarget() {
+        return addOffNoTarget(create());
+    }
+
+    public static Network createRemoteOffNoTarget() {
+        return addOffNoTarget(createWithRemoteRegulatingTerminal());
+    }
+
+    private static Network addOffNoTarget(Network network) {
+        network.getStaticVarCompensator("SVC2")
+                .setRegulationMode(StaticVarCompensator.RegulationMode.OFF)
+                .setVoltageSetpoint(Double.NaN)
+                .setReactivePowerSetpoint(Double.NaN);
+        return network;
+    }
 }

@@ -44,19 +44,19 @@ public interface DataSourceUtil {
         Objects.requireNonNull(basename);
 
         if (compressionExtension == null) {
-            return new FileDataSource(directory, basename, observer);
+            return new DirectoryDataSource(directory, basename, observer);
         } else {
             switch (compressionExtension) {
                 case BZIP2:
-                    return new Bzip2FileDataSource(directory, basename, observer);
+                    return new Bzip2DirectoryDataSource(directory, basename, observer);
                 case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
+                    return new GzDirectoryDataSource(directory, basename, observer);
                 case XZ:
-                    return new XZFileDataSource(directory, basename, observer);
+                    return new XZDirectoryDataSource(directory, basename, observer);
                 case ZIP:
-                    return new ZipFileDataSource(directory, basename, observer);
+                    return new ZipArchiveDataSource(directory, basename, observer);
                 case ZSTD:
-                    return new ZstdFileDataSource(directory, basename, observer);
+                    return new ZstdDirectoryDataSource(directory, basename, observer);
                 default:
                     throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
             }
@@ -68,17 +68,17 @@ public interface DataSourceUtil {
         Objects.requireNonNull(fileNameOrBaseName);
 
         if (fileNameOrBaseName.endsWith(".zst")) {
-            return new ZstdFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZstdDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new ZipArchiveDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else if (fileNameOrBaseName.endsWith(".xz")) {
-            return new XZFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            return new XZDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
+            return new GzDirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
         } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+            return new Bzip2DirectoryDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
         } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+            return new DirectoryDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         }
     }
 }

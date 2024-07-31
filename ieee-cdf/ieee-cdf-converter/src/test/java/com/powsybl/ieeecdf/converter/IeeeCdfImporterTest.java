@@ -7,7 +7,7 @@
  */
 package com.powsybl.ieeecdf.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -47,7 +47,7 @@ class IeeeCdfImporterTest extends AbstractSerDeTest {
     @Test
     void copyTest() {
         new IeeeCdfImporter().copy(new ResourceDataSource("ieee14cdf", new ResourceSet("/", "ieee14cdf.txt")),
-            new FileDataSource(fileSystem.getPath("/work"), "copy"));
+            new DirectoryDataSource(fileSystem.getPath("/work"), "copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work").resolve("copy.txt")));
     }
 

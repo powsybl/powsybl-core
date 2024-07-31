@@ -10,6 +10,8 @@ package com.powsybl.shortcircuit;
 import com.powsybl.iidm.network.ThreeSides;
 
 /**
+ * Three-phase current of a feeder contributing to the short-circuit current.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public class MagnitudeFeederResult extends AbstractFeederResult {

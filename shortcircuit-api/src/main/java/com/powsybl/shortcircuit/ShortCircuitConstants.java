@@ -8,6 +8,8 @@
 package com.powsybl.shortcircuit;
 
 /**
+ * Some constants related to the short-circuit API. Includes the default values of parameters.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public final class ShortCircuitConstants {

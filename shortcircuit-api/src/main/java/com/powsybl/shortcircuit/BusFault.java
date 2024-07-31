@@ -8,8 +8,7 @@
 package com.powsybl.shortcircuit;
 
 /**
- * Class to describe the characteristics of the fault to be simulated.
- * Used for elementary short-circuit analysis only.
+ * Class to describe the characteristics of a fault that occurs on a bus and that is to be simulated.
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
