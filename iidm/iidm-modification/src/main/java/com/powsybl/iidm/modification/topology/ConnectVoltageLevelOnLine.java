@@ -12,6 +12,7 @@ import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,7 +56,7 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotDryRun(dryRun);
+        DryRunUtils.assertNotDryRun(dryRun);
 
         // Checks
         if (failChecks(network, throwException, reportNode, LOG)) {

@@ -14,6 +14,7 @@ import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                         ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotDryRun(dryRun);
+        DryRunUtils.assertNotDryRun(dryRun);
 
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {

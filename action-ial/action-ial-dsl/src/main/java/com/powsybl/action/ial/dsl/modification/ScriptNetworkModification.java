@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import groovy.lang.Closure;
 
 import java.util.Objects;
@@ -35,7 +36,7 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                         ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotDryRun(dryRun);
+        DryRunUtils.assertNotDryRun(dryRun);
         script.call(network, computationManager);
     }
 

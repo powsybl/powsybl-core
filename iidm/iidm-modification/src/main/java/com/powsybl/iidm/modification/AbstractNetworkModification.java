@@ -196,12 +196,6 @@ public abstract class AbstractNetworkModification implements NetworkModification
             .add();
     }
 
-    protected void assertNotDryRun(boolean dryRun) {
-        if (dryRun) {
-            throw new IllegalStateException("Local dry-run is not supported");
-        }
-    }
-
     protected static boolean checkVoltageLevel(Identifiable<?> identifiable, ReportNode reportNode, String networkModification, boolean dryRunConclusive) {
         boolean localDryRunConclusive = dryRunConclusive;
         VoltageLevel vl = null;

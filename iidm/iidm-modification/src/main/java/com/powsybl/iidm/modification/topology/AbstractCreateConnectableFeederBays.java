@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.apache.commons.lang3.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,7 +63,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                         ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotDryRun(dryRun);
+        DryRunUtils.assertNotDryRun(dryRun);
 
         // Set the connectable bus or node
         if (!setAdderConnectivity(network, reportNode, throwException)) {

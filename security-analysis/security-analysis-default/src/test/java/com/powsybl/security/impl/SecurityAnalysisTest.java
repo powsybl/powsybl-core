@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.action.SwitchAction;
@@ -62,7 +63,7 @@ class SecurityAnalysisTest {
         @Override
         public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                             ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
-            assertNotDryRun(dryRun);
+            DryRunUtils.assertNotDryRun(dryRun);
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
             network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);

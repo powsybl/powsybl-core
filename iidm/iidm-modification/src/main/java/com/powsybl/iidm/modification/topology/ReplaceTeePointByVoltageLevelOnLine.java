@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +124,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                         ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Local dry run is not managed (see isLocalDryRunPossible())
-        assertNotDryRun(dryRun);
+        DryRunUtils.assertNotDryRun(dryRun);
 
         Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reportNode, throwException);
         if (tpLine1 == null) {
