@@ -80,14 +80,16 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     }
 
     @Override
-    public LoadImpl setP0(double p0) {
+    public LoadImpl setP0(double p0, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkP0(this, p0, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
-        double oldValue = this.p0.set(variantIndex, p0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("p0", variantId, oldValue, p0);
+        if (!dryRun) {
+            double oldValue = this.p0.set(variantIndex, p0);
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("p0", variantId, oldValue, p0);
+        }
         return this;
     }
 
@@ -97,14 +99,16 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     }
 
     @Override
-    public LoadImpl setQ0(double q0) {
+    public LoadImpl setQ0(double q0, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkQ0(this, q0, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = network.get().getVariantIndex();
-        double oldValue = this.q0.set(variantIndex, q0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("q0", variantId, oldValue, q0);
+        if (!dryRun) {
+            double oldValue = this.q0.set(variantIndex, q0);
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("q0", variantId, oldValue, q0);
+        }
         return this;
     }
 

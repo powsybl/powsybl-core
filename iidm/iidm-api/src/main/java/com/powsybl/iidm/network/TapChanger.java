@@ -66,7 +66,21 @@ public interface TapChanger<
      *
      * @param tapPosition the current tap position
      */
-    C setTapPosition(int tapPosition);
+    default C setTapPosition(int tapPosition) {
+        return setTapPosition(tapPosition, false);
+    }
+
+    /**
+     * Set the current tap position.
+     * <p>
+     * It is expected to be contained between the lowest and the highest tap position.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     *
+     * @param tapPosition the current tap position
+     */
+    C setTapPosition(int tapPosition, boolean dryRun);
 
     /**
      * Unset the current tap position: tap position is now undefined.
@@ -132,7 +146,17 @@ public interface TapChanger<
      * Depends on the working variant.
      * @see VariantManager
      */
-    C setRegulating(boolean regulating);
+    default C setRegulating(boolean regulating) {
+        return setRegulating(regulating, false);
+    }
+
+    /**
+     * Set the regulating status.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    C setRegulating(boolean regulating, boolean dryRun);
 
     /**
      * Get the terminal used for regulation.

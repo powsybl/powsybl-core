@@ -62,7 +62,8 @@ public class ConnectableConnection extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                      boolean dryRun, ReportNode reportNode) {
         // Get the connectable
         Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
@@ -73,19 +74,24 @@ public class ConnectableConnection extends AbstractNetworkModification {
         if (identifiable == null) {
             logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
         } else {
-            connectIdentifiable(identifiable, network, throwException, reportNode);
+            connectIdentifiable(identifiable, network, throwException, dryRun, reportNode);
         }
     }
 
-    private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, ReportNode reportNode) {
+    @Override
+    public String getName() {
+        return "ConnectableConnection";
+    }
+
+    private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, boolean dryRun, ReportNode reportNode) {
         boolean hasBeenConnected = false;
         try {
             if (identifiable instanceof Connectable<?> connectable) {
-                hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
+                hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side, dryRun);
             } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides(), dryRun);
             } else if (identifiable instanceof HvdcLine hvdcLine) {
-                hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides(), dryRun);
             } else {
                 logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", connectableId));
             }
@@ -102,31 +108,12 @@ public class ConnectableConnection extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Connectable<?> connectable = network.getConnectable(connectableId);
-        if (connectable == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "ConnectableConnection",
-                "Identifiable '" + connectableId + "' not found");
-        } else if (!connectable.connect(isTypeSwitchToOperate, side, true)) {
-            // TODO : differenciate the cases where the connectable does not exist, where it is already connected, where it cannot be connected, etc.
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "ConnectableConnection",
-                "Connection failed");
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
     public boolean hasImpactOnNetwork() {
         return false;
     }
 
     @Override
     public boolean isLocalDryRunPossible() {
-        // TODO: see TODO in applyDryRun
         return true;
     }
 }

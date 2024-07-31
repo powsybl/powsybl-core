@@ -22,7 +22,14 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     /**
      * Remove the connectable from the voltage level (dangling switches are kept).
      */
-    void remove();
+    default void remove() {
+        remove(false);
+    }
+
+    /**
+     * Remove the connectable from the voltage level (dangling switches are kept).
+     */
+    void remove(boolean dryRun);
 
     boolean connect();
 

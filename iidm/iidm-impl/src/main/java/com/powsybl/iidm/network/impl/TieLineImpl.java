@@ -167,39 +167,41 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
 
     @Override
     public boolean connectDanglingLines() {
-        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+        return connectDanglingLines(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, false);
     }
 
     @Override
     public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectDanglingLines(isTypeSwitchToOperate, null);
+        return connectDanglingLines(isTypeSwitchToOperate, null, false);
     }
 
     @Override
-    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+    public boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean dryRun) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfDanglingLines(side),
             isTypeSwitchToOperate,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
     public boolean disconnectDanglingLines() {
-        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null);
+        return disconnectDanglingLines(SwitchPredicates.IS_CLOSED_BREAKER, null, false);
     }
 
     @Override
     public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable) {
-        return disconnectDanglingLines(isSwitchOpenable, null);
+        return disconnectDanglingLines(isSwitchOpenable, null, false);
     }
 
     @Override
-    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+    public boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean dryRun) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminalsOfDanglingLines(side),
             isSwitchOpenable,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 

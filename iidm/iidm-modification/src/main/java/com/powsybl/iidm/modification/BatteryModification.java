@@ -35,31 +35,27 @@ public class BatteryModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                      boolean dryRun, ReportNode reportNode) {
         Battery battery = network.getBattery(batteryId);
         if (battery == null) {
             notFoundBatteryReport(reportNode, batteryId);
             logOrThrow(throwException, "Battery '" + batteryId + "' not found");
             return;
         }
-        if (targetP != null) {
-            battery.setTargetP(targetP);
-        }
-        if (targetQ != null) {
-            battery.setTargetQ(targetQ);
+        if (!dryRun) {
+            if (targetP != null) {
+                battery.setTargetP(targetP);
+            }
+            if (targetQ != null) {
+                battery.setTargetQ(targetQ);
+            }
         }
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getBattery(batteryId) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "BatteryModification",
-                "Battery '" + batteryId + "' not found");
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "BatteryModification";
     }
 
     @Override

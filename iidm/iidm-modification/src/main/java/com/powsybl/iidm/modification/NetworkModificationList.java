@@ -38,16 +38,30 @@ public class NetworkModificationList extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
-        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
+    public final boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                               boolean dryRun, ReportNode reportNode) {
+        if (dryRun) {
+            return applyDryRun(network, namingStrategy, computationManager, reportNode);
+        }
+        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, false, reportNode));
+        return true;
     }
 
     @Override
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Should not be called
+        throw new IllegalStateException("Should not be called");
+    }
+
+    @Override
+    public String getName() {
+        return "NetworkModificationList";
+    }
+
     protected boolean applyDryRun(Network network, NamingStrategy namingStrategy,
                           ComputationManager computationManager, ReportNode reportNode) {
         if (!hasImpactOnNetwork() && isLocalDryRunPossible()) {
-            dryRunConclusive = getFlattenedModificationList().stream().allMatch(modification -> modification.dryRun(network, namingStrategy, computationManager, reportNode));
+            dryRunConclusive = getFlattenedModificationList().stream().allMatch(modification -> modification.apply(network, namingStrategy, computationManager, true, reportNode));
             if (!dryRunConclusive) {
                 reportOnInconclusiveDryRun(reportNode,
                     "NetworkModificationList",
@@ -112,7 +126,7 @@ public class NetworkModificationList extends AbstractNetworkModification {
             //TODO The following copy performs an XML export/import. It will be more performant to change it to the BIN format.
             Network dryRunNetwork = NetworkSerDe.copy(network);
             dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
-            apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
+            apply(dryRunNetwork, namingStrategy, true, computationManager, false, dryRunReportNode);
         } catch (PowsyblException powsyblException) {
             dryRunReportNode.newReportNode()
                     .withMessageTemplate("networkModificationsDryRun-failure",

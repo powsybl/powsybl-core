@@ -8,9 +8,6 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
@@ -34,13 +31,7 @@ public class LoadTripping extends AbstractInjectionTripping {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getLoad(id) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "LoadTripping",
-                "Load '" + id + "' not found");
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "LoadTripping";
     }
 }

@@ -9,7 +9,6 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
@@ -24,8 +23,6 @@ import static com.powsybl.iidm.modification.util.ModificationReports.unexpectedI
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractLineConnectionModification<M extends AbstractLineConnectionModification<M>> extends AbstractNetworkModification {
-    private static final String NETWORK_MODIFICATION_NAME = "AbstractLineConnectionModification";
-
     protected final String bbsOrBusId;
 
     protected final Line line;
@@ -126,31 +123,6 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         }
         voltageLevel = getVoltageLevel(identifiable, throwException, reportNode, logger);
         return voltageLevel == null;
-    }
-
-    @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
-        if (identifiable == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format("Bus or busbar section '%s' not found", bbsOrBusId));
-        } else {
-            dryRunConclusive = checkVoltageLevel(identifiable, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
-        }
-        if (Double.isNaN(positionPercent)) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                "Percent should not be undefined");
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
     }
 
     private static VoltageLevel getVoltageLevel(Identifiable<?> identifiable, boolean throwException, ReportNode reportNode, Logger logger) {

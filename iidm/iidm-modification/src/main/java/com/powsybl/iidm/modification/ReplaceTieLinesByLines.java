@@ -34,7 +34,9 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceTieLinesByLines.class);
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                      boolean dryRun, ReportNode reportNode) {
+        // Note: local dryRun is not possible (see isLocalDryRunPossible())
         for (TieLine tl : network.getTieLineStream().toList()) {
             DanglingLine dl1 = tl.getDanglingLine1();
             DanglingLine dl2 = tl.getDanglingLine2();
@@ -112,13 +114,8 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        return true;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return "ReplaceTieLinesByLines";
     }
 
     private static void warningAboutExtensions(DanglingLine dl1, DanglingLine dl2, TieLine tl, ReportNode reportNode) {

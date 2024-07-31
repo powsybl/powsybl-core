@@ -8,8 +8,6 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,35 +43,16 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Connectable<?> connectable = network.getConnectable(identifiableId);
-        if (connectable == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractDisconnection",
-                "Identifiable '" + identifiableId + "' not found");
-        } else if (!connectable.disconnect(openableSwitches, side, true)) {
-            // TODO : differenciate the cases where the identifiable does not exist, where it is already disconnected, where it cannot be disconnected, etc.
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractDisconnection",
-                "Disconnection failed");
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
     public boolean hasImpactOnNetwork() {
         return false;
     }
 
     @Override
     public boolean isLocalDryRunPossible() {
-        // TODO: see TODO in applyDryRun
         return true;
     }
 
-    public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
+    public void applyModification(Network network, boolean isPlanned, boolean throwException, boolean dryRun, ReportNode reportNode) {
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
@@ -84,14 +63,14 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         if (identifiable == null) {
             logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
         } else {
-            disconnectIdentifiable(identifiable, network, isPlanned, throwException, reportNode);
+            disconnectIdentifiable(identifiable, network, isPlanned, throwException, dryRun, reportNode);
         }
     }
 
-    private void disconnectIdentifiable(Identifiable<?> identifiable, Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
+    private void disconnectIdentifiable(Identifiable<?> identifiable, Network network, boolean isPlanned, boolean throwException, boolean dryRun, ReportNode reportNode) {
         boolean hasBeenDisconnected;
         try {
-            hasBeenDisconnected = disconnect(identifiable, throwException);
+            hasBeenDisconnected = disconnect(identifiable, throwException, dryRun);
         } finally {
             network.getReportNodeContext().popReportNode();
         }
@@ -104,14 +83,14 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         identifiableDisconnectionReport(reportNode, identifiable, hasBeenDisconnected, isPlanned, side);
     }
 
-    private boolean disconnect(Identifiable<?> identifiable, boolean throwException) {
+    private boolean disconnect(Identifiable<?> identifiable, boolean throwException, boolean dryRun) {
         boolean hasBeenDisconnected = false;
         if (identifiable instanceof Connectable<?> connectable) {
-            hasBeenDisconnected = connectable.disconnect(openableSwitches, side);
+            hasBeenDisconnected = connectable.disconnect(openableSwitches, side, dryRun);
         } else if (identifiable instanceof TieLine tieLine) {
-            hasBeenDisconnected = tieLine.disconnectDanglingLines(openableSwitches, side == null ? null : side.toTwoSides());
+            hasBeenDisconnected = tieLine.disconnectDanglingLines(openableSwitches, side == null ? null : side.toTwoSides(), dryRun);
         } else if (identifiable instanceof HvdcLine hvdcLine) {
-            hasBeenDisconnected = hvdcLine.disconnectConverterStations(openableSwitches, side == null ? null : side.toTwoSides());
+            hasBeenDisconnected = hvdcLine.disconnectConverterStations(openableSwitches, side == null ? null : side.toTwoSides(), dryRun);
         } else {
             logOrThrow(throwException, String.format("Disconnection not implemented for identifiable '%s'", identifiableId));
         }

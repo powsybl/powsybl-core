@@ -33,4 +33,9 @@ public class LineTripping extends BranchTripping {
     protected PowsyblException createNotConnectedException() {
         return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to line '" + id + "'");
     }
+
+    @Override
+    public String getName() {
+        return "LineTripping";
+    }
 }

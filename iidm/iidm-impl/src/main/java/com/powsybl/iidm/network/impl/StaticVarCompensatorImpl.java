@@ -92,15 +92,17 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
+    public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode(),
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
+        if (!dryRun) {
+            double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
+        }
         return this;
     }
 
@@ -110,15 +112,17 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+    public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode(),
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        if (!dryRun) {
+            double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        }
         return this;
     }
 
@@ -136,7 +140,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         int variantIndex = n.getVariantIndex();
         int oldValueOrdinal = regulatingPoint.setRegulationMode(variantIndex,
                 regulationMode != null ? regulationMode.ordinal() : -1);
-        regulatingPoint.setUseVoltageRegulation(regulationMode == RegulationMode.VOLTAGE);
+        regulatingPoint.setUseVoltageRegulation(regulationMode == RegulationMode.VOLTAGE, false);
         String variantId = n.getVariantManager().getVariantId(variantIndex);
         n.invalidateValidationLevel();
         notifyUpdate("regulationMode", variantId, oldValueOrdinal == -1 ? null : RegulationMode.values()[oldValueOrdinal], regulationMode);
@@ -158,9 +162,9 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public void remove() {
-        regulatingPoint.remove();
-        super.remove();
+    public void remove(boolean dryRun) {
+        regulatingPoint.remove(dryRun);
+        super.remove(dryRun);
     }
 
     @Override

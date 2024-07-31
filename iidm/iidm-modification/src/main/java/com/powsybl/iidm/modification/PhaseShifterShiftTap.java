@@ -32,18 +32,23 @@ public class PhaseShifterShiftTap extends AbstractPhaseShifterModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
         Objects.requireNonNull(network);
         PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network);
-        adjustTapPosition(phaseTapChanger);
-        phaseTapChanger.setRegulating(false);
-        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        adjustTapPosition(phaseTapChanger, dryRun);
+        phaseTapChanger.setRegulating(false, dryRun);
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP, dryRun);
     }
 
-    private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
+    @Override
+    public String getName() {
+        return "PhaseShifterShiftTap";
+    }
+
+    private void adjustTapPosition(PhaseTapChanger phaseTapChanger, boolean dryRun) {
         phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
-                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
+                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()), dryRun);
     }
 
     @Override

@@ -17,58 +17,57 @@ import com.powsybl.iidm.network.Network;
  */
 public interface NetworkModification {
 
-    void apply(Network network);
+    boolean apply(Network network);
 
-    void apply(Network network, ComputationManager computationManager);
+    boolean apply(Network network, boolean dryRun);
 
-    void apply(Network network, ComputationManager computationManager, ReportNode reportNode);
+    boolean apply(Network network, ComputationManager computationManager, boolean dryRun);
 
-    void apply(Network network, ReportNode reportNode);
-
-    /**
-     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
-     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
-     * in case of error.
-     */
-    void apply(Network network, boolean throwException, ReportNode reportNode);
+    boolean apply(Network network, ComputationManager computationManager, boolean dryRun, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
+     * @return When {@code dryRun} is {@code true}, it returns a boolean indicating if the modification can really be applied
+     * (call with {@code dryRun} as {@code false}) without errors. Else always {@code true}.
      */
-    void apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
-
-    void apply(Network network, NamingStrategy namingStrategy);
-
-    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager);
-
-    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
-
-    void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode);
+    boolean apply(Network network, boolean throwException, boolean dryRun, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
+     * @return When {@code dryRun} is {@code true}, it returns a boolean indicating if the modification can really be applied
+     * (call with {@code dryRun} as {@code false}) without errors. Else always {@code true}.
      */
-    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode);
+    boolean apply(Network network, boolean throwException, ComputationManager computationManager, boolean dryRun, ReportNode reportNode);
+
+    boolean apply(Network network, NamingStrategy namingStrategy, boolean dryRun);
+
+    boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, boolean dryRun);
+
+    boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, boolean dryRun, ReportNode reportNode);
+
+    boolean apply(Network network, NamingStrategy namingStrategy, boolean dryRun, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
+     * @return When {@code dryRun} is {@code true}, it returns a boolean indicating if the modification can really be applied
+     * (call with {@code dryRun} as {@code false}) without errors. Else always {@code true}.
      */
-    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
-
-    boolean dryRun(Network network);
-
-    boolean dryRun(Network network, ReportNode reportNode);
+    boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, boolean dryRun, ReportNode reportNode);
 
     /**
-     * Test the application of the modification to the given network by checking prerequisites.
+     * Applies the modification to the given network. If throwException is set to true, then in case of error, an
+     * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
+     * in case of error.
+     * @return When {@code dryRun} is {@code true}, it returns a boolean indicating if the modification can really be applied
+     * (call with {@code dryRun} as {@code false}) without errors. Else always {@code true}.
      */
-    boolean dryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
+    boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, boolean dryRun, ReportNode reportNode);
 
     /**
      * Tells if a network modification may have an impact on another network modification that would be applied afterwards

@@ -139,7 +139,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                        boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         //checks
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reportNode, false)) {
             return;
@@ -179,43 +183,8 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        // Checks on the attributes
-        dryRunConclusive = checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, reportNode, true);
-
-        // Get the voltage level
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                "Voltage level is null");
-        } else if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
-            if (switchKinds.size() != sectionCount - 1) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    "Unexpected switch kinds count (" + switchKinds.size() + "). Should be " + (sectionCount - 1));
-            }
-            if (switchKinds.contains(null)) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    "All switch kinds must be defined");
-            }
-            if (switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER)) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    "Switch kinds must be DISCONNECTOR or BREAKER");
-            }
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return NETWORK_MODIFICATION_NAME;
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {

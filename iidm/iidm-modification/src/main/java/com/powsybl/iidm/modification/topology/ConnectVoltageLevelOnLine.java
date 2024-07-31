@@ -52,8 +52,11 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         // Checks
         if (failChecks(network, throwException, reportNode, LOG)) {
             return;
@@ -127,5 +130,10 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
                 .withUntypedValue("originalLineId", originalLineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
+    }
+
+    @Override
+    public String getName() {
+        return "ConnectVoltageLevelOnLine";
     }
 }

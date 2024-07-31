@@ -36,7 +36,11 @@ public class RemoveSubstation extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             LOGGER.error("Substation {} not found", substationId);
@@ -47,26 +51,15 @@ public class RemoveSubstation extends AbstractNetworkModification {
             return;
         }
         List<String> vlIds = substation.getVoltageLevelStream().map(VoltageLevel::getId).toList();
-        vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, reportNode));
+        vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, false, reportNode));
         substation.remove();
         removedSubstationReport(reportNode, substationId);
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getSubstation(substationId) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "RemoveSubstation",
-                "Substation '" + substationId + "' not found");
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return "RemoveSubstation";
     }
 }
 

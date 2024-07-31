@@ -36,15 +36,15 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                      boolean dryRun, ReportNode reportNode) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
         traverse(network, switchesToOpen, terminalsToDisconnect);
 
-        switchesToOpen.forEach(s -> s.setOpen(true));
-        terminalsToDisconnect.forEach(Terminal::disconnect);
+        switchesToOpen.forEach(s -> s.setOpen(true, dryRun));
+        terminalsToDisconnect.forEach(t -> t.disconnect(dryRun));
     }
 
     @Override

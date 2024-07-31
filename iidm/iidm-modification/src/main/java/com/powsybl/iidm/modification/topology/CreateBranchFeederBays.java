@@ -157,4 +157,9 @@ public class CreateBranchFeederBays extends AbstractCreateConnectableFeederBays 
     private static IllegalStateException createSideIllegalStateException(int side) {
         return new IllegalStateException("Unexpected side: " + side);
     }
+
+    @Override
+    public String getName() {
+        return "CreateBranchFeederBays";
+    }
 }

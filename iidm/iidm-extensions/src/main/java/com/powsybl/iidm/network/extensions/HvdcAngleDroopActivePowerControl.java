@@ -29,10 +29,22 @@ public interface HvdcAngleDroopActivePowerControl extends Extension<HvdcLine> {
 
     boolean isEnabled();
 
-    HvdcAngleDroopActivePowerControl setP0(float p0);
+    default HvdcAngleDroopActivePowerControl setP0(float p0) {
+        return setP0(p0, false);
+    }
 
-    HvdcAngleDroopActivePowerControl setDroop(float droop);
+    HvdcAngleDroopActivePowerControl setP0(float p0, boolean dryRun);
 
-    HvdcAngleDroopActivePowerControl setEnabled(boolean enabled);
+    default HvdcAngleDroopActivePowerControl setDroop(float droop) {
+        return setDroop(droop, false);
+    }
+
+    HvdcAngleDroopActivePowerControl setDroop(float droop, boolean dryRun);
+
+    default HvdcAngleDroopActivePowerControl setEnabled(boolean enabled) {
+        return setEnabled(enabled, false);
+    }
+
+    HvdcAngleDroopActivePowerControl setEnabled(boolean enabled, boolean dryRun);
 
 }

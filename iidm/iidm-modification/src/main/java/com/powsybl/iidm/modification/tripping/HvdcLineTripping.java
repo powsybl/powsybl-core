@@ -8,10 +8,10 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 import java.util.Set;
@@ -22,8 +22,6 @@ import java.util.Set;
 public class HvdcLineTripping extends AbstractTripping {
 
     private final String voltageLevelId;
-
-    private static final String NETWORK_MODIFICATION_NAME = "HvdcLineTripping";
 
     public HvdcLineTripping(String hvdcLineId) {
         this(hvdcLineId, null);
@@ -50,28 +48,7 @@ public class HvdcLineTripping extends AbstractTripping {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        HvdcLine hvdcLine = network.getHvdcLine(id);
-        if (hvdcLine == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format("HvdcLine %s not found", id));
-        }
-        if (voltageLevelId == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                "voltageLevelId should not be null");
-        }
-        if (hvdcLine != null && voltageLevelId != null
-            && !voltageLevelId.equals(hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getId())
-            && !voltageLevelId.equals(hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getId())) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format("HvdcLine %s is not connected to voltage level %s", id, voltageLevelId));
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "HvdcLineTripping";
     }
 }

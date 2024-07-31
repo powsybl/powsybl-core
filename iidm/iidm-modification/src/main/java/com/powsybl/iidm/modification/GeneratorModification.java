@@ -31,52 +31,46 @@ public class GeneratorModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             logOrThrow(throwException, "Generator '" + generatorId + "' not found");
             return;
         }
         if (modifs.getMinP() != null) {
-            g.setMinP(modifs.getMinP());
+            g.setMinP(modifs.getMinP(), dryRun);
         }
         if (modifs.getMaxP() != null) {
-            g.setMaxP(modifs.getMaxP());
+            g.setMaxP(modifs.getMaxP(), dryRun);
         }
         if (modifs.getTargetV() != null) {
-            g.setTargetV(modifs.getTargetV());
+            g.setTargetV(modifs.getTargetV(), dryRun);
         }
         if (modifs.getTargetQ() != null) {
-            g.setTargetQ(modifs.getTargetQ());
+            g.setTargetQ(modifs.getTargetQ(), dryRun);
         }
         boolean skipOtherConnectionChange = false;
         if (modifs.getConnected() != null) {
-            changeConnectionState(g, modifs.getConnected());
+            changeConnectionState(g, modifs.getConnected(), dryRun);
             skipOtherConnectionChange = true;
         }
         if (modifs.getVoltageRegulatorOn() != null) {
             if (Double.isNaN(g.getTargetV()) && modifs.getVoltageRegulatorOn().booleanValue()) {
                 double plausibleTargetV = VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
                         g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
-                g.setTargetV(plausibleTargetV);
+                g.setTargetV(plausibleTargetV, dryRun);
             }
-            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
+            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn(), dryRun);
         }
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
-            applyTargetP(g, skipOtherConnectionChange);
+            applyTargetP(g, skipOtherConnectionChange, dryRun);
         }
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getGenerator(generatorId) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "GeneratorModification",
-                "Generator '" + generatorId + "' not found");
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "GeneratorModification";
     }
 
     @Override
@@ -89,7 +83,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         return true;
     }
 
-    private void applyTargetP(Generator g, boolean skipOtherConnectionChange) {
+    private void applyTargetP(Generator g, boolean skipOtherConnectionChange, boolean dryRun) {
         Double newTargetP;
         if (modifs.getTargetP() != null) {
             newTargetP = modifs.getTargetP();
@@ -99,29 +93,29 @@ public class GeneratorModification extends AbstractNetworkModification {
             return;
         }
         if (modifs.isIgnoreCorrectiveOperations()) {
-            g.setTargetP(newTargetP);
+            g.setTargetP(newTargetP, dryRun);
         } else {
-            setTargetPWithinBoundaries(g, newTargetP, skipOtherConnectionChange);
+            setTargetPWithinBoundaries(g, newTargetP, skipOtherConnectionChange, dryRun);
         }
     }
 
-    private void changeConnectionState(Generator g, boolean connect) {
+    private void changeConnectionState(Generator g, boolean connect, boolean dryRun) {
         if (connect) {
             if (!g.getTerminal().isConnected()) {
-                ConnectGenerator.connect(g);
+                ConnectGenerator.connect(g, dryRun);
             }
         } else {
             if (g.getTerminal().isConnected()) {
-                g.getTerminal().disconnect();
+                g.getTerminal().disconnect(dryRun);
             }
         }
     }
 
-    private void setTargetPWithinBoundaries(Generator g, double targetP, boolean skipConnect) {
+    private void setTargetPWithinBoundaries(Generator g, double targetP, boolean skipConnect, boolean dryRun) {
         if (!skipConnect) {
-            changeConnectionState(g, true);
+            changeConnectionState(g, true, dryRun);
         }
-        g.setTargetP(Math.min(g.getMaxP(), Math.max(g.getMinP(), targetP)));
+        g.setTargetP(Math.min(g.getMaxP(), Math.max(g.getMinP(), targetP)), dryRun);
     }
 
     public Modifs getModifs() {

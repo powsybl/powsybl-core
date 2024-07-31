@@ -11,7 +11,6 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -23,28 +22,16 @@ public class PhaseShifterOptimizeTap extends AbstractPhaseShifterModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Note: local dryRun is not possible (see isLocalDryRunPossible())
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)
                 .findMaximalFlowTap(network, phaseShifterId);
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        // TODO: should we run the loadflow or not? If not, delete this method
-        TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
-        if (phaseShifter == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractPhaseShifterModification",
-                String.format("Transformer %s not found", phaseShifterId));
-        } else if (!phaseShifter.hasPhaseTapChanger()) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractPhaseShifterModification",
-                String.format("Transformer %s is not a phase shifter", phaseShifterId));
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "PhaseShifterOptimizeTap";
     }
 
     @Override

@@ -31,33 +31,19 @@ public final class ConnectGenerator extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");
         }
 
-        connect(g);
+        connect(g, dryRun);
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Generator g = network.getGenerator(generatorId);
-        if (g == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "ConnectGenerator",
-                "Generator '" + generatorId + "' not found");
-        } else if (g.getTerminal() == null) {
-            // TODO: can the generator's terminal be null here?
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "ConnectGenerator",
-                "Terminal for the generator '" + generatorId + "' is null");
-
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "ConnectGenerator";
     }
 
     @Override
@@ -70,7 +56,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         return true;
     }
 
-    static void connect(Generator g) {
+    static void connect(Generator g, boolean dryRun) {
         Objects.requireNonNull(g);
 
         if (g.getTerminal().isConnected()) {
@@ -78,10 +64,10 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         }
 
         Terminal t = g.getTerminal();
-        t.connect();
+        t.connect(dryRun);
         if (g.isVoltageRegulatorOn()) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(), g.getId(), IdentifiableType.GENERATOR)
-                    .ifPresent(g::setTargetV);
+                    .ifPresent(targetV -> g.setTargetV(targetV, dryRun));
         }
     }
 }

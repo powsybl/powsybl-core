@@ -1182,9 +1182,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
-    public boolean connect(TerminalExt terminal) {
+    public boolean connect(TerminalExt terminal, boolean dryRun) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return connect(terminal, SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+        return connect(terminal, SwitchPredicates.IS_NONFICTIONAL_BREAKER, dryRun);
     }
 
     /**
@@ -1194,7 +1194,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
      * @return <code>true</code> if the terminal has been connected, <code>false</code> if it hasn't or if it was already connected
      */
     @Override
-    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable) {
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOperable, boolean dryRun) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1209,7 +1209,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // Get the list of switches to close
         if (getConnectingSwitches(terminal, isSwitchOperable, switchForConnection)) {
             // Close the switches
-            switchForConnection.forEach(sw -> sw.setOpen(false));
+            switchForConnection.forEach(sw -> sw.setOpen(false, dryRun));
             return true;
         } else {
             return false;
@@ -1246,13 +1246,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal) {
+    public boolean disconnect(TerminalExt terminal, boolean dryRun) {
         // Only keep the closed non-fictional breakers in the nominal case
-        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER);
+        return disconnect(terminal, SwitchPredicates.IS_CLOSED_BREAKER, dryRun);
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable, boolean dryRun) {
         // Check the topology kind
         checkTopologyKind(terminal);
 
@@ -1267,7 +1267,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // Get the list of switches to open
         if (getDisconnectingSwitches(terminal, isSwitchOpenable, switchesToOpen)) {
             // Open the switches
-            switchesToOpen.forEach(sw -> sw.setOpen(true));
+            switchesToOpen.forEach(sw -> sw.setOpen(true, dryRun));
             return true;
         } else {
             return false;

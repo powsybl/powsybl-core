@@ -32,7 +32,6 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
 public class CreateCouplingDevice extends AbstractNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateCouplingDevice.class);
-    private static final String NETWORK_MODIFICATION_NAME = "CreateCouplingDevice";
 
     private final String busOrBbsId1;
 
@@ -75,7 +74,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                        boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
         if (failBbs(busOrBbs1, busOrBbs2, reportNode, throwException)) {
@@ -115,34 +118,8 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
-        Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
-        if (busOrBbs1 == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format("Bus or busbar section %s not found", busOrBbsId1));
-        }
-        if (busOrBbs2 == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format("Bus or busbar section %s not found", busOrBbsId2));
-        } else if (busOrBbs2 == busOrBbs1) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format("No coupling device can be created on a same bus or busbar section (%s)", busOrBbsId1));
-        }
-        dryRunConclusive = checkVoltageLevel(busOrBbs1, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
-        dryRunConclusive = checkVoltageLevel(busOrBbs2, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return "CreateCouplingDevice";
     }
 
     /**

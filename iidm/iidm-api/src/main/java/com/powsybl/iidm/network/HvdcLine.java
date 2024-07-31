@@ -127,7 +127,16 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * @param mode converters mode
      * @return the station itself to allow method chaining.
      */
-    HvdcLine setConvertersMode(ConvertersMode mode);
+    default HvdcLine setConvertersMode(ConvertersMode mode) {
+        return setConvertersMode(mode, false);
+    }
+
+    /**
+     * Change converters mode.
+     * @param mode converters mode
+     * @return the station itself to allow method chaining.
+     */
+    HvdcLine setConvertersMode(ConvertersMode mode, boolean dryRun);
 
     /**
      * Get resistance (in &#937;) of the line.
@@ -166,7 +175,16 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * @param activePowerSetpoint the active power setpoint
      * @return the HVDC line itself to allow method chaining
      */
-    HvdcLine setActivePowerSetpoint(double activePowerSetpoint);
+    default HvdcLine setActivePowerSetpoint(double activePowerSetpoint) {
+        return setActivePowerSetpoint(activePowerSetpoint, false);
+    }
+
+    /**
+     * Set the active power setpoint (in MW).
+     * @param activePowerSetpoint the active power setpoint
+     * @return the HVDC line itself to allow method chaining
+     */
+    HvdcLine setActivePowerSetpoint(double activePowerSetpoint, boolean dryRun);
 
     /**
      * Get the maximum active power (in MW).
@@ -210,13 +228,21 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
 
     boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate);
 
-    boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+    default boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+        return connectConverterStations(isTypeSwitchToOperate, side, false);
+    }
+
+    boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean dryRun);
 
     boolean disconnectConverterStations();
 
     boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable);
 
-    boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);
+    default boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+        return disconnectConverterStations(isSwitchOpenable, side, false);
+    }
+
+    boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean dryRun);
 
     @Override
     default IdentifiableType getType() {

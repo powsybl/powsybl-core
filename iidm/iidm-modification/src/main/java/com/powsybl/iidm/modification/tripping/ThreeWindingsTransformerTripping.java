@@ -8,9 +8,6 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -41,18 +38,12 @@ public class ThreeWindingsTransformerTripping extends AbstractTripping {
         TrippingTopologyTraverser.traverse(twt3.getLeg3().getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
     }
 
-    @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getThreeWindingsTransformer(id) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "ThreeWindingsTransformerTripping",
-                "ThreeWindingsTransformer '" + id + "' not found");
-        }
-        return dryRunConclusive;
-    }
-
     protected PowsyblException createNotFoundException() {
         return new PowsyblException("ThreeWindingsTransformer '" + id + "' not found");
+    }
+
+    @Override
+    public String getName() {
+        return "ThreeWindingsTransformerTripping";
     }
 }

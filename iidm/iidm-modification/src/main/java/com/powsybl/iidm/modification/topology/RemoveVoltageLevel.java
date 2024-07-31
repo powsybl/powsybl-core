@@ -32,7 +32,11 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.error("Voltage level {} not found", voltageLevelId);
@@ -45,7 +49,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
         voltageLevel.getConnectables(HvdcConverterStation.class).forEach(hcs -> {
             if (hcs.getHvdcLine() != null) {
-                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, reportNode);
+                new RemoveHvdcLineBuilder().withHvdcLineId(hcs.getHvdcLine().getId()).build().apply(network, throwException, computationManager, false, reportNode);
             }
         });
 
@@ -56,7 +60,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
                 removedConnectableReport(reportNode, connectableId);
                 LOGGER.info("Connectable {} removed", connectableId);
             } else {
-                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, reportNode);
+                new RemoveFeederBayBuilder().withConnectableId(connectable.getId()).build().apply(network, throwException, computationManager, false, reportNode);
             }
         });
 
@@ -66,19 +70,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getVoltageLevel(voltageLevelId) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "RemoveVoltageLevel",
-                "Voltage level '" + voltageLevelId + "' not found");
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "RemoveVoltageLevel";
     }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
-    }
-
 }

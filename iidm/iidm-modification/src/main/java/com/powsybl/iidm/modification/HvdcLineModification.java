@@ -46,8 +46,8 @@ public class HvdcLineModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                      boolean dryRun, ReportNode reportNode) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
         if (hvdcLine == null) {
             logOrThrow(throwException, "Hvdc line '" + hvdcId + "' not found");
@@ -58,16 +58,21 @@ public class HvdcLineModification extends AbstractNetworkModification {
             if (relativeValue != null && relativeValue) {
                 newActivePowerSetpoint = hvdcLine.getActivePowerSetpoint() + activePowerSetpoint;
             }
-            hvdcLine.setActivePowerSetpoint(newActivePowerSetpoint);
+            hvdcLine.setActivePowerSetpoint(newActivePowerSetpoint, dryRun);
         } else {
             if (relativeValue != null && relativeValue) {
                 LOG.warn("Relative value is set to true but it will not be applied since active power setpoint is undefined (null)");
             }
         }
         if (converterMode != null) {
-            hvdcLine.setConvertersMode(converterMode);
+            hvdcLine.setConvertersMode(converterMode, dryRun);
         }
-        applyToHvdcAngleDroopActivePowerControlExtension(hvdcLine);
+        applyToHvdcAngleDroopActivePowerControlExtension(hvdcLine, dryRun);
+    }
+
+    @Override
+    public String getName() {
+        return "HvdcLineModification";
     }
 
     @Override
@@ -80,63 +85,25 @@ public class HvdcLineModification extends AbstractNetworkModification {
         return true;
     }
 
-    @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
-        if (hvdcLine == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                "Hvdc line '" + hvdcId + "' not found");
-        }
-        if (activePowerSetpoint == null && Boolean.TRUE.equals(relativeValue)) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                "Relative value is set to true but it will not be applied since active power setpoint is undefined (null)");
-        }
-        if (hvdcLine != null && hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class) == null) {
-            if (acEmulationEnabled != null) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    String.format("AV emulation enable is defined but it will not be applied since the hvdc line %s does not have a HvdcAngleDroopActivePowerControl extension", hvdcId));
-            }
-            if (p0 != null) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    String.format("P0 is defined but it will not be applied since the hvdc line %s does not have a HvdcAngleDroopActivePowerControl extension", hvdcId));
-            }
-            if (droop != null) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    String.format("Droop is defined but it will not be applied since the hvdc line %s does not have a HvdcAngleDroopActivePowerControl extension", hvdcId));
-            }
-        }
-        return dryRunConclusive;
-    }
-
-    private void applyToHvdcAngleDroopActivePowerControlExtension(HvdcLine hvdcLine) {
+    private void applyToHvdcAngleDroopActivePowerControlExtension(HvdcLine hvdcLine, boolean dryRun) {
         HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         if (acEmulationEnabled != null) {
             if (hvdcAngleDroopActivePowerControl != null) {
-                hvdcAngleDroopActivePowerControl.setEnabled(acEmulationEnabled);
+                hvdcAngleDroopActivePowerControl.setEnabled(acEmulationEnabled, dryRun);
             } else {
                 LOG.warn("AV emulation enable is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", acEmulationEnabled, hvdcId);
             }
         }
         if (p0 != null) {
             if (hvdcAngleDroopActivePowerControl != null) {
-                hvdcAngleDroopActivePowerControl.setP0(p0.floatValue());
+                hvdcAngleDroopActivePowerControl.setP0(p0.floatValue(), dryRun);
             } else {
                 LOG.warn("P0 is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", p0, hvdcId);
             }
         }
         if (droop != null) {
             if (hvdcAngleDroopActivePowerControl != null) {
-                hvdcAngleDroopActivePowerControl.setDroop(droop.floatValue());
+                hvdcAngleDroopActivePowerControl.setDroop(droop.floatValue(), dryRun);
             } else {
                 LOG.warn("Droop is define with value {}, but it will not be apply since the hvdc line {} do not have a HvdcAngleDroopActivePowerControl extension", droop, hvdcId);
             }

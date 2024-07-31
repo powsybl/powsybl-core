@@ -44,7 +44,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+                      boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (!checkConnectable(throwException, reportNode, connectable)) {
             return;
@@ -63,26 +67,8 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Connectable<?> connectable = network.getConnectable(connectableId);
-        if (connectable == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "RemoveFeederBay",
-                String.format("Connectable not found: %s", connectableId));
-        }
-        if (connectable instanceof BusbarSection) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "RemoveFeederBay",
-                String.format("BusbarSection connectables are not allowed as RemoveFeederBay input: %s", connectableId));
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return "RemoveFeederBay";
     }
 
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {

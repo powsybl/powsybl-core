@@ -63,21 +63,25 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean dryRun) {
         NetworkImpl network = getNetwork();
 
-        network.getListeners().notifyBeforeRemoval(this);
+        if (!dryRun) {
+            network.getListeners().notifyBeforeRemoval(this);
+            network.getIndex().remove(this);
+        }
 
-        network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
-            terminal.removeAsRegulationPoint();
+            terminal.removeAsRegulationPoint(dryRun);
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal);
         }
 
-        network.getListeners().notifyAfterRemoval(id);
-        removed = true;
-        terminals.forEach(TerminalExt::remove);
+        if (!dryRun) {
+            network.getListeners().notifyAfterRemoval(id);
+            removed = true;
+        }
+        terminals.forEach(t -> t.remove(dryRun));
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -94,6 +98,18 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue, boolean dryRun) {
+        if (dryRun) {
+            getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+        }
+    }
+
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue, boolean dryRun) {
+        if (!dryRun) {
+            getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+        }
     }
 
     @Override

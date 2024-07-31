@@ -271,7 +271,14 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         /**
          * Set the rated voltage in kV.
          */
-        Leg setRatedU(double ratedU);
+        default Leg setRatedU(double ratedU) {
+            return setRatedU(ratedU, false);
+        }
+
+        /**
+         * Set the rated voltage in kV.
+         */
+        Leg setRatedU(double ratedU, boolean dryRun);
 
         /**
          * Get the normal apparent power rating in MVA (optional).
@@ -364,6 +371,13 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Set the rated voltage at the fictitious bus.
      */
     default ThreeWindingsTransformer setRatedU0(double ratedU0) {
+        return setRatedU0(ratedU0, false);
+    }
+
+    /**
+     * Set the rated voltage at the fictitious bus.
+     */
+    default ThreeWindingsTransformer setRatedU0(double ratedU0, boolean dryRun) {
         throw new UnsupportedOperationException();
     }
 

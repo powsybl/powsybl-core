@@ -27,13 +27,13 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
     }
 
     @Override
-    protected void setVoltageSetpoint(VscConverterStation networkElement, Double voltageSetpoint) {
-        networkElement.setVoltageSetpoint(voltageSetpoint);
+    protected void setVoltageSetpoint(VscConverterStation networkElement, Double voltageSetpoint, boolean dryRun) {
+        networkElement.setVoltageSetpoint(voltageSetpoint, dryRun);
     }
 
     @Override
-    protected void setReactivePowerSetpoint(VscConverterStation networkElement, Double reactivePowerSetpoint) {
-        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
+    protected void setReactivePowerSetpoint(VscConverterStation networkElement, Double reactivePowerSetpoint, boolean dryRun) {
+        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint, dryRun);
     }
 
     @Override
@@ -43,5 +43,10 @@ public class VscConverterStationModification extends AbstractSetpointModificatio
 
     public String getVscConverterStationId() {
         return getElementId();
+    }
+
+    @Override
+    public String getName() {
+        return "VscConverterStationModification";
     }
 }

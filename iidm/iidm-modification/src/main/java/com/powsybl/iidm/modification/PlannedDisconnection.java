@@ -37,8 +37,13 @@ public class PlannedDisconnection extends AbstractDisconnection {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
-        applyModification(network, true, throwException, reportNode);
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        applyModification(network, true, throwException, dryRun, reportNode);
+    }
+
+    @Override
+    public String getName() {
+        return "PlannedDisconnection";
     }
 }

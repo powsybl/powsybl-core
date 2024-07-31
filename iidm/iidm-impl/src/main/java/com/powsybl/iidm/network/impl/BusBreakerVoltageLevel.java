@@ -912,7 +912,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean connect(TerminalExt terminal) {
+    public boolean connect(TerminalExt terminal, boolean dryRun) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
@@ -920,6 +920,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         // already connected?
         if (terminal.isConnected()) {
             return false;
+        }
+
+        if (dryRun) {
+            return true;
         }
 
         ((BusTerminal) terminal).setConnected(true);
@@ -931,18 +935,22 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
-        return connect(terminal);
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate, boolean dryRun) {
+        return connect(terminal, dryRun);
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal) {
+    public boolean disconnect(TerminalExt terminal, boolean dryRun) {
         if (!(terminal instanceof BusTerminal)) {
             throw new IllegalStateException("Given TerminalExt not supported: " + terminal.getClass().getName());
         }
         // already disconnected?
         if (!terminal.isConnected()) {
             return false;
+        }
+
+        if (dryRun) {
+            return true;
         }
 
         ((BusTerminal) terminal).setConnected(false);
@@ -954,8 +962,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
-        return disconnect(terminal);
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable, boolean dryRun) {
+        return disconnect(terminal, dryRun);
     }
 
     void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, TraversalType traversalType) {

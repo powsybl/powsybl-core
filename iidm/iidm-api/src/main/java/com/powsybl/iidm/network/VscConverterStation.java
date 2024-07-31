@@ -97,7 +97,16 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @param voltageSetpoint the voltage setpoint
      * @return the converter itself to allow method chaining
      */
-    VscConverterStation setVoltageSetpoint(double voltageSetpoint);
+    default VscConverterStation setVoltageSetpoint(double voltageSetpoint) {
+        return setVoltageSetpoint(voltageSetpoint, false);
+    }
+
+    /**
+     * Set the voltage setpoint (Kv).
+     * @param voltageSetpoint the voltage setpoint
+     * @return the converter itself to allow method chaining
+     */
+    VscConverterStation setVoltageSetpoint(double voltageSetpoint, boolean dryRun);
 
     /**
      * Get the reactive power setpoint (MVar).
@@ -110,7 +119,16 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return the converter itself to allow method chaining
      */
-    VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
+    default VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        return setReactivePowerSetpoint(reactivePowerSetpoint, false);
+    }
+
+    /**
+     * Set the reactive power setpoint (MVar).
+     * @param reactivePowerSetpoint the reactive power setpoint
+     * @return the converter itself to allow method chaining
+     */
+    VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint, boolean dryRun);
 
     /**
      * Get the terminal used for regulation.

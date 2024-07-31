@@ -8,9 +8,6 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.report.ReportNode;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -28,23 +25,6 @@ public abstract class AbstractPhaseShifterModification extends AbstractNetworkMo
 
     protected AbstractPhaseShifterModification(String phaseShifterId) {
         this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
-    }
-
-    @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
-        if (phaseShifter == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractPhaseShifterModification",
-                String.format(TRANSFORMER_NOT_FOUND, phaseShifterId));
-        } else if (!phaseShifter.hasPhaseTapChanger()) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractPhaseShifterModification",
-                String.format(NOT_A_PHASE_SHIFTER, phaseShifterId));
-        }
-        return dryRunConclusive;
     }
 
     protected PhaseTapChanger getPhaseTapChanger(Network network) {

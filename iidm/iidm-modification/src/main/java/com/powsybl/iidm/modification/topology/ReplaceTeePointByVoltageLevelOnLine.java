@@ -120,8 +120,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reportNode, throwException);
         if (tpLine1 == null) {
             return;
@@ -198,7 +201,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         tpLine2.remove();
         removedLineReport(reportNode, teePointLine2Id);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLine2Id);
-        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, reportNode);
+        new RemoveFeederBay(tpLineToRemove.getId()).apply(network, namingStrategy, throwException, computationManager, dryRun, reportNode);
         removedLineReport(reportNode, teePointLineToRemoveId);
         LOGGER.info(LINE_REMOVED_LOG_MESSAGE, teePointLineToRemoveId);
 
@@ -220,45 +223,8 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        Line tpLine1 = network.getLine(teePointLine1Id);
-        Line tpLine2 = network.getLine(teePointLine2Id);
-        Line tpLineToRemove = network.getLine(teePointLineToRemoveId);
-        if (tpLine1 == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine1Id));
-        }
-        if (tpLine2 == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLine2Id));
-        }
-        if (tpLineToRemove == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                NETWORK_MODIFICATION_NAME,
-                String.format(LINE_NOT_FOUND_REPORT_MESSAGE, teePointLineToRemoveId));
-        }
-
-        // tee point is the voltage level in common with tpLine1, tpLine2 and tpLineToRemove
-        if (tpLine1 != null && tpLine2 != null && tpLineToRemove != null) {
-            VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(tpLine1, tpLine2, tpLineToRemove);
-            if (teePoint == null) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    String.format("No common voltage level found for %s, %s and %s", teePointLine1Id, teePointLine2Id, teePointLineToRemoveId));
-            }
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return "ReplaceTeePointByVoltageLevelOnLine";
     }
 
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {

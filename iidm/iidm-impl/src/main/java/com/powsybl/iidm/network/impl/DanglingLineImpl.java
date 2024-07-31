@@ -304,11 +304,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean dryRun) {
         if (tieLine != null) {
             throw new UnsupportedOperationException("Parent tie line " + tieLine.getId() + " should be removed before the child dangling line");
         }
-        super.remove();
+        super.remove(dryRun);
     }
 
     void removeTieLine() {
@@ -331,13 +331,15 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setP0(double p0) {
+    public DanglingLineImpl setP0(double p0, boolean dryRun) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.p0.set(variantIndex, p0);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("p0", variantId, oldValue, p0);
+        if (!dryRun) {
+            double oldValue = this.p0.set(variantIndex, p0);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("p0", variantId, oldValue, p0);
+        }
         return this;
     }
 
@@ -347,13 +349,15 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setQ0(double q0) {
+    public DanglingLineImpl setQ0(double q0, boolean dryRun) {
         NetworkImpl n = getNetwork();
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.q0.set(variantIndex, q0);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("q0", variantId, oldValue, q0);
+        if (!dryRun) {
+            double oldValue = this.q0.set(variantIndex, q0);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("q0", variantId, oldValue, q0);
+        }
         return this;
     }
 

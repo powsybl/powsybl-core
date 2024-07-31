@@ -58,7 +58,7 @@ class RegulatingPoint implements MultiVariantObject {
 
     void setRegulatingTerminal(TerminalExt regulatingTerminal) {
         if (this.regulatingTerminal != null) {
-            this.regulatingTerminal.removeRegulatingPoint(this);
+            this.regulatingTerminal.removeRegulatingPoint(this, false);
         }
         this.regulatingTerminal = regulatingTerminal != null ? regulatingTerminal : localTerminalSupplier.get();
         if (this.regulatingTerminal != null) {
@@ -71,11 +71,20 @@ class RegulatingPoint implements MultiVariantObject {
     }
 
     boolean setRegulating(int index, boolean regulating) {
+        return setRegulating(index, regulating, false);
+    }
+
+    boolean setRegulating(int index, boolean regulating, boolean dryRun) {
+        if (dryRun) {
+            return this.regulating.get(index);
+        }
         return this.regulating.set(index, regulating);
     }
 
-    void setUseVoltageRegulation(boolean useVoltageRegulation) {
-        this.useVoltageRegulation = useVoltageRegulation;
+    void setUseVoltageRegulation(boolean useVoltageRegulation, boolean dryRun) {
+        if (!dryRun) {
+            this.useVoltageRegulation = useVoltageRegulation;
+        }
     }
 
     boolean isRegulating(int index) {
@@ -90,7 +99,7 @@ class RegulatingPoint implements MultiVariantObject {
         return regulationMode.get(index);
     }
 
-    void removeRegulatingTerminal() {
+    void removeRegulatingTerminal(boolean dryRun) {
         Objects.requireNonNull(regulatingTerminal);
         TerminalExt localTerminal = localTerminalSupplier.get();
         if (localTerminal != null && useVoltageRegulation) { // if local voltage regulation, we keep the regulating status, and re-locate the regulation at the regulated equipment
@@ -99,23 +108,31 @@ class RegulatingPoint implements MultiVariantObject {
             if (bus != null && bus == localBus) {
                 LOG.warn("Connectable {} was a local voltage regulation point for {}. Regulation point is re-located at {}.", regulatingTerminal.getConnectable().getId(),
                         regulatedEquipmentId, regulatedEquipmentId);
-                regulatingTerminal = localTerminal;
+                if (!dryRun) {
+                    regulatingTerminal = localTerminal;
+                }
                 return;
             }
         }
         LOG.warn("Connectable {} was a regulation point for {}. Regulation is deactivated", regulatingTerminal.getConnectable().getId(), regulatedEquipmentId);
-        regulatingTerminal = localTerminal;
-        if (regulating != null) {
-            regulating.fill(0, regulating.size(), false);
-        }
-        if (regulationMode != null) {
-            regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
+        if (!dryRun) {
+            regulatingTerminal = localTerminal;
+            if (regulating != null) {
+                regulating.fill(0, regulating.size(), false);
+            }
+            if (regulationMode != null) {
+                regulationMode.fill(0, regulationMode.size(), StaticVarCompensator.RegulationMode.OFF.ordinal());
+            }
         }
     }
 
     void remove() {
+        remove(false);
+    }
+
+    void remove(boolean dryRun) {
         if (regulatingTerminal != null) {
-            regulatingTerminal.removeRegulatingPoint(this);
+            regulatingTerminal.removeRegulatingPoint(this, dryRun);
         }
     }
 

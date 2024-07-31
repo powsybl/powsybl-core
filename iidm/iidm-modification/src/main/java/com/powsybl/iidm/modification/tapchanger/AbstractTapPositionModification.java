@@ -39,7 +39,7 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
     /**
      * @param tapPosition the new tap position
      * @param legSide     defines on which leg of the three winding transformer the modification will be done.
-     *                    If <code>null</code> on three windings transformer, {@link AbstractTapPositionModification#apply(Network)} will search for a unique rtc.
+     *                    If <code>null</code> on three windings transformer, {@link AbstractTapPositionModification#apply(Network, boolean)} will search for a unique rtc.
      *                    Ignored on two windings transformers.
      */
     protected AbstractTapPositionModification(String transformerId, int tapPosition,
@@ -50,35 +50,23 @@ public abstract class AbstractTapPositionModification extends AbstractNetworkMod
     }
 
     abstract void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
-                                              boolean throwException);
+                                              boolean throwException, boolean dryRun);
 
     abstract void applyThreeWindingsTransformer(Network network, ThreeWindingsTransformer threeWindingsTransformer,
-                                                boolean throwException);
+                                                boolean throwException, boolean dryRun);
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+            boolean dryRun, ReportNode reportNode) {
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
         if (threeWindingsTransformer != null) {
-            applyThreeWindingsTransformer(network, threeWindingsTransformer, throwException);
+            applyThreeWindingsTransformer(network, threeWindingsTransformer, throwException, dryRun);
         } else if (twoWindingsTransformer != null) {
-            applyTwoWindingsTransformer(network, twoWindingsTransformer, throwException);
+            applyTwoWindingsTransformer(network, twoWindingsTransformer, throwException, dryRun);
         } else {
             logOrThrow(throwException, "No matching transformer found with ID:" + getTransformerId());
         }
-    }
-
-    @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        // TODO: fix this
-        if (network.getTwoWindingsTransformer(getTransformerId()) == null && network.getThreeWindingsTransformer(getTransformerId()) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "AbstractTapPositionModification",
-                TRANSFORMER_STR + getTransformerId() + "' not found");
-        }
-        return dryRunConclusive;
     }
 
     @Override

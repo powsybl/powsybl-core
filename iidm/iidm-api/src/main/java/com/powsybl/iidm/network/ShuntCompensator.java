@@ -148,7 +148,21 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @param sectionCount the number of sections wanted to be put in service
      * @return the shunt compensator to chain method calls.
      */
-    ShuntCompensator setSectionCount(int sectionCount);
+    default ShuntCompensator setSectionCount(int sectionCount) {
+        return setSectionCount(sectionCount, false);
+    }
+
+    /**
+     * Change the count of sections in service.
+     * Please note sections can only be sequentially in service i.e. the first sectionCount sections are in service.
+     * <p>
+     * Depends on the working variant.
+     *
+     * @see VariantManager
+     * @param sectionCount the number of sections wanted to be put in service
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setSectionCount(int sectionCount, boolean dryRun);
 
     /**
      * Unset the count of sections in service.
@@ -258,6 +272,16 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * @see VariantManager
      */
     default ShuntCompensator setTargetV(double targetV) {
+        return setTargetV(targetV, false);
+    }
+
+    /**
+     * Set the shunt compensator's voltage target in kV.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default ShuntCompensator setTargetV(double targetV, boolean dryRun) {
         throw new UnsupportedOperationException();
     }
 

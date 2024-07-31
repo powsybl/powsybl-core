@@ -30,30 +30,24 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
         if (t3wt == null) {
             logOrThrow(throwException, "ThreeWindingsTransformer '" + transformerId + "' not found");
             return;
         }
         if (ratedU0 > 0) {
-            t3wt.getLeg1().setRatedU(calculateNewRatedU(t3wt.getLeg1().getRatedU(), t3wt.getRatedU0(), ratedU0));
-            t3wt.getLeg2().setRatedU(calculateNewRatedU(t3wt.getLeg2().getRatedU(), t3wt.getRatedU0(), ratedU0));
-            t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0));
-            t3wt.setRatedU0(ratedU0);
+            t3wt.getLeg1().setRatedU(calculateNewRatedU(t3wt.getLeg1().getRatedU(), t3wt.getRatedU0(), ratedU0), dryRun);
+            t3wt.getLeg2().setRatedU(calculateNewRatedU(t3wt.getLeg2().getRatedU(), t3wt.getRatedU0(), ratedU0), dryRun);
+            t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0), dryRun);
+            t3wt.setRatedU0(ratedU0, dryRun);
         }
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getThreeWindingsTransformer(transformerId) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "ThreeWindingsTransformerModification",
-                "ThreeWindingsTransformer '" + transformerId + "' not found");
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "ThreeWindingsTransformerModification";
     }
 
     @Override

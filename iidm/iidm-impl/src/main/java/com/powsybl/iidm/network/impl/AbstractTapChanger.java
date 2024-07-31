@@ -115,17 +115,19 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected abstract String getTapChangerAttribute();
 
-    public C setTapPosition(int tapPosition) {
+    public C setTapPosition(int tapPosition, boolean dryRun) {
         NetworkImpl n = getNetwork();
         if (tapPosition < lowTapPosition
             || tapPosition > getHighTapPosition()) {
             throwIncorrectTapPosition(tapPosition, getHighTapPosition());
         }
         int variantIndex = n.getVariantIndex();
-        Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
+        if (!dryRun) {
+            Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
+        }
         return (C) this;
     }
 
@@ -176,14 +178,16 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return regulatingPoint.isRegulating(network.get().getVariantIndex());
     }
 
-    public C setRegulating(boolean regulating) {
+    public C setRegulating(boolean regulating, boolean dryRun) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
+        boolean oldValue = regulatingPoint.setRegulating(variantIndex, regulating, dryRun);
+        if (!dryRun) {
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            n.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
+        }
         return (C) this;
     }
 

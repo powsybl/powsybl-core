@@ -105,8 +105,11 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        assertNotLocalDryRun(dryRun);
+
         Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reportNode, throwException);
         Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reportNode, throwException);
         Line lineToBeDeleted = checkAndGetLine(network, lineToBeDeletedId, reportNode, throwException);
@@ -184,30 +187,8 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        dryRunConclusive = checkLine(network, lineToBeMerged1Id, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
-        dryRunConclusive = checkLine(network, lineToBeMerged2Id, reportNode, NETWORK_MODIFICATION_NAME, dryRunConclusive);
-
-        if (dryRunConclusive) {
-            Line lineToBeMerged1 = network.getLine(lineToBeMerged1Id);
-            Line lineToBeMerged2 = network.getLine(lineToBeMerged2Id);
-            Line lineToBeDeleted = network.getLine(lineToBeDeletedId);
-
-            // tee point is the voltage level in common with lineToBeMerged1, lineToBeMerged2 and lineToBeDeleted
-            VoltageLevel teePoint = TopologyModificationUtils.findTeePoint(lineToBeMerged1, lineToBeMerged2, lineToBeDeleted);
-            if (teePoint == null) {
-                dryRunConclusive = false;
-                reportOnInconclusiveDryRun(reportNode,
-                    NETWORK_MODIFICATION_NAME,
-                    String.format("No common voltage level found for %s, %s and %s", lineToBeMerged1, lineToBeMerged2, lineToBeDeleted));
-            }
-        }
-        return dryRunConclusive;
-    }
-
-    @Override
-    public boolean isLocalDryRunPossible() {
-        return true;
+    public String getName() {
+        return "RevertCreateLineOnLine";
     }
 
     public String getLineToBeMerged1Id() {

@@ -40,7 +40,18 @@ public interface Switch extends Identifiable<Switch> {
      * @param open the new switch status
      * @see VariantManager
      */
-    void setOpen(boolean open);
+    default void setOpen(boolean open) {
+        setOpen(open, false);
+    }
+
+    /**
+     * Change the switch status.
+     * <p>
+     * Depends on the working variant.
+     * @param open the new switch status
+     * @see VariantManager
+     */
+    void setOpen(boolean open, boolean dryRun);
 
     /**
      * Get the retain status of the switch. A retained switch is a switch that

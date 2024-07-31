@@ -35,7 +35,16 @@ public interface PhaseTapChanger extends TapChanger<
      * @param regulationMode the regulation mode
      * @return itself for method chaining
      */
-    PhaseTapChanger setRegulationMode(RegulationMode regulationMode);
+    default PhaseTapChanger setRegulationMode(RegulationMode regulationMode) {
+        return setRegulationMode(regulationMode, false);
+    }
+
+    /**
+     * Set the regulation mode
+     * @param regulationMode the regulation mode
+     * @return itself for method chaining
+     */
+    PhaseTapChanger setRegulationMode(RegulationMode regulationMode, boolean dryRun);
 
     /**
      * Get the regulation value.

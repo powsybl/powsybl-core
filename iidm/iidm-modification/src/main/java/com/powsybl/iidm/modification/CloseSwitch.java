@@ -27,24 +27,18 @@ public class CloseSwitch extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                      ComputationManager computationManager, boolean dryRun, ReportNode reportNode) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
             throw new PowsyblException("Switch '" + switchId + "' not found");
         }
-        sw.setOpen(false);
+        sw.setOpen(false, dryRun);
     }
 
     @Override
-    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        if (network.getSwitch(switchId) == null) {
-            dryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                "CloseSwitch",
-                "Switch '" + switchId + "' not found");
-        }
-        return dryRunConclusive;
+    public String getName() {
+        return "CloseSwitch";
     }
 
     @Override
