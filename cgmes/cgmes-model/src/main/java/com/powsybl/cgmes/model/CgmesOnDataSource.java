@@ -14,7 +14,6 @@ import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -25,7 +24,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesOnDataSource {
-    private static final String[] EXTENSIONS = {"xml"};
+    private static final String EXTENSIONS = "xml";
 
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
         this.dataSource = ds;
@@ -38,8 +37,8 @@ public class CgmesOnDataSource {
     private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) {
         if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty()) {
             return false;
-        } else if (Arrays.asList(EXTENSIONS).contains(dataSource.getDataExtension())) {
-            try (InputStream is = dataSource.newInputStream(null, dataSource.getDataExtension())) {
+        } else if (EXTENSIONS.equals(dataSource.getDataExtension())) {
+            try (InputStream is = dataSource.newInputStream(null, EXTENSIONS)) {
                 return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
