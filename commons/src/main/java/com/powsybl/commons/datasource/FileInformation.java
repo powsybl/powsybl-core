@@ -76,7 +76,7 @@ public class FileInformation {
         // Base name
         baseName = mainExtension.isEmpty() ?
             fileNameWithoutCompressionNorArchive :
-            fileNameWithoutCompressionNorArchive.substring(0, fileNameWithoutCompressionNorArchive.lastIndexOf(mainExtension) - 1);
+            fileNameWithoutCompressionNorArchive.substring(0, currentDotIndex);
         if (baseName.isEmpty()) {
             LOGGER.warn("Base name is empty in file {}", fileName);
         }
