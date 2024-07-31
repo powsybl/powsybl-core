@@ -45,7 +45,7 @@ class MultipleImporterIssueTest {
         @Override
         public boolean exists(ReadOnlyDataSource dataSource) {
             try {
-                return dataSource.isMainExtension("foo") && dataSource.exists(null, "foo");
+                return dataSource.isDataExtension("foo") && dataSource.exists(null, "foo");
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
@@ -72,7 +72,7 @@ class MultipleImporterIssueTest {
         @Override
         public boolean exists(ReadOnlyDataSource dataSource) {
             try {
-                return dataSource.isMainExtension("bar") && dataSource.exists(null, "bar");
+                return dataSource.isDataExtension("bar") && dataSource.exists(null, "bar");
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

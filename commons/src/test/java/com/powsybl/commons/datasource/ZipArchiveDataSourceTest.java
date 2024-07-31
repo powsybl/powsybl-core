@@ -67,9 +67,9 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null, null);
     }
 
-    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, String mainExtension, DataSourceObserver observer) {
+    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, String dataExtension, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
-        assertEquals(mainExtension, dataSource.getMainExtension());
+        assertEquals(dataExtension, dataSource.getDataExtension());
         assertEquals(zipFileName, dataSource.getArchiveFilePath().getFileName().toString());
         assertEquals(baseName, dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());

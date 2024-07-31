@@ -17,7 +17,7 @@ import java.util.Objects;
 abstract class AbstractFileSystemDataSource implements DataSource {
     final Path directory;
     final String baseName;
-    final String mainExtension;
+    final String dataExtension;
     final CompressionFormat compressionFormat;
     final DataSourceObserver observer;
 
@@ -28,19 +28,19 @@ abstract class AbstractFileSystemDataSource implements DataSource {
      * @param observer Data source observer
      */
     AbstractFileSystemDataSource(Path directory, String baseName,
-                                 String mainExtension,
+                                 String dataExtension,
                                  CompressionFormat compressionFormat,
                                  DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.baseName = Objects.requireNonNull(baseName);
-        this.mainExtension = mainExtension;
+        this.dataExtension = dataExtension;
         this.compressionFormat = compressionFormat;
         this.observer = observer;
     }
 
     @Override
-    public boolean isMainExtension(String ext) {
-        return mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext);
+    public boolean isDataExtension(String ext) {
+        return dataExtension == null || dataExtension.isEmpty() || dataExtension.equals(ext);
     }
 
     public Path getDirectory() {
@@ -53,8 +53,8 @@ abstract class AbstractFileSystemDataSource implements DataSource {
     }
 
     @Override
-    public String getMainExtension() {
-        return mainExtension;
+    public String getDataExtension() {
+        return dataExtension;
     }
 
     public CompressionFormat getCompressionFormat() {

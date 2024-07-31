@@ -52,8 +52,8 @@ public class MultipleReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean isMainExtension(String ext) {
-        return dataSources.stream().anyMatch(dataSource -> dataSource.isMainExtension(ext));
+    public boolean isDataExtension(String ext) {
+        return dataSources.stream().anyMatch(dataSource -> dataSource.isDataExtension(ext));
     }
 
     @Override

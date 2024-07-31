@@ -33,20 +33,20 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
-    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String mainExtension, DataSourceObserver observer) {
-        super(directory, zipFileName, baseName, mainExtension, CompressionFormat.ZIP, ArchiveFormat.ZIP, observer);
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String dataExtension, DataSourceObserver observer) {
+        super(directory, zipFileName, baseName, dataExtension, CompressionFormat.ZIP, ArchiveFormat.ZIP, observer);
     }
 
-    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String mainExtension) {
-        this(directory, zipFileName, baseName, mainExtension, null);
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String dataExtension) {
+        this(directory, zipFileName, baseName, dataExtension, null);
     }
 
-    public ZipArchiveDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
-        this(directory, baseName + ((mainExtension == null || mainExtension.isEmpty()) ? "" : "." + mainExtension) + ".zip", baseName, mainExtension, observer);
+    public ZipArchiveDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
+        this(directory, baseName + ((dataExtension == null || dataExtension.isEmpty()) ? "" : "." + dataExtension) + ".zip", baseName, dataExtension, observer);
     }
 
-    public ZipArchiveDataSource(Path directory, String baseName, String mainExtension) {
-        this(directory, baseName + ((mainExtension == null || mainExtension.isEmpty()) ? "" : "." + mainExtension) + ".zip", baseName, mainExtension, null);
+    public ZipArchiveDataSource(Path directory, String baseName, String dataExtension) {
+        this(directory, baseName + ((dataExtension == null || dataExtension.isEmpty()) ? "" : "." + dataExtension) + ".zip", baseName, dataExtension, null);
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, DataSourceObserver observer) {

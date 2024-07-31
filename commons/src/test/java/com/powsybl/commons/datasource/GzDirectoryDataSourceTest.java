@@ -41,7 +41,7 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
-        assertEquals("iidm", dataSource.getMainExtension());
+        assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());

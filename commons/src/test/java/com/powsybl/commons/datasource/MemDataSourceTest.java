@@ -64,8 +64,8 @@ class MemDataSourceTest {
     }
 
     @Test
-    void mainExtensionTest() {
-        assertNull(dataSource.getMainExtension());
+    void dataExtensionTest() {
+        assertNull(dataSource.getDataExtension());
     }
 
     private void writeThenReadTest(String suffix, String ext) throws IOException {

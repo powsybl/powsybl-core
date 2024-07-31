@@ -190,8 +190,8 @@ public class CgmesImport implements Importer {
         }
 
         @Override
-        public boolean isMainExtension(String ext) {
-            return ds.isMainExtension(ext);
+        public boolean isDataExtension(String ext) {
+            return ds.isDataExtension(ext);
         }
 
         @Override

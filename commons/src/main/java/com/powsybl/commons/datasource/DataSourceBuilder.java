@@ -24,7 +24,7 @@ class DataSourceBuilder {
     private String archiveFileName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
-    private String mainExtension = "";
+    private String dataExtension = "";
     private DataSourceObserver observer;
 
     DataSourceBuilder withDirectory(Path directory) {
@@ -52,8 +52,8 @@ class DataSourceBuilder {
         return this;
     }
 
-    DataSourceBuilder withMainExtension(String mainExtension) {
-        this.mainExtension = mainExtension;
+    DataSourceBuilder withDataExtension(String dataExtension) {
+        this.dataExtension = dataExtension;
         return this;
     }
 
@@ -70,16 +70,16 @@ class DataSourceBuilder {
         if (compressionFormat == CompressionFormat.ZIP || archiveFormat == ArchiveFormat.ZIP) {
             return buildZip();
         } else if (compressionFormat == null) {
-            return new DirectoryDataSource(directory, baseName, mainExtension, observer);
+            return new DirectoryDataSource(directory, baseName, dataExtension, observer);
         } else {
             return switch (compressionFormat) {
-                case BZIP2 -> new Bzip2DirectoryDataSource(directory, baseName, mainExtension, observer);
-                case GZIP -> new GzDirectoryDataSource(directory, baseName, mainExtension, observer);
-                case XZ -> new XZDirectoryDataSource(directory, baseName, mainExtension, observer);
-                case ZSTD -> new ZstdDirectoryDataSource(directory, baseName, mainExtension, observer);
+                case BZIP2 -> new Bzip2DirectoryDataSource(directory, baseName, dataExtension, observer);
+                case GZIP -> new GzDirectoryDataSource(directory, baseName, dataExtension, observer);
+                case XZ -> new XZDirectoryDataSource(directory, baseName, dataExtension, observer);
+                case ZSTD -> new ZstdDirectoryDataSource(directory, baseName, dataExtension, observer);
                 default -> {
                     LOGGER.warn("Unsupported compression format {}", compressionFormat);
-                    yield new DirectoryDataSource(directory, baseName, mainExtension, observer);
+                    yield new DirectoryDataSource(directory, baseName, dataExtension, observer);
                 }
             };
         }
@@ -102,7 +102,7 @@ class DataSourceBuilder {
             throw new PowsyblException(String.format("Incoherence between compression format %s and archive format %s", compressionFormat, archiveFormat));
         }
         return archiveFileName == null ?
-            new ZipArchiveDataSource(directory, baseName, mainExtension, observer) :
-            new ZipArchiveDataSource(directory, archiveFileName, baseName, mainExtension, observer);
+            new ZipArchiveDataSource(directory, baseName, dataExtension, observer) :
+            new ZipArchiveDataSource(directory, archiveFileName, baseName, dataExtension, observer);
     }
 }

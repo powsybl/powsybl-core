@@ -34,16 +34,16 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
     }
 
     public DirectoryDataSource(Path directory, String baseName,
-                               String mainExtension,
+                               String dataExtension,
                                DataSourceObserver observer) {
-        this(directory, baseName, mainExtension, null, observer);
+        this(directory, baseName, dataExtension, null, observer);
     }
 
     DirectoryDataSource(Path directory, String baseName,
-                        String mainExtension,
+                        String dataExtension,
                         CompressionFormat compressionFormat,
                         DataSourceObserver observer) {
-        super(directory, baseName, mainExtension, compressionFormat, observer);
+        super(directory, baseName, dataExtension, compressionFormat, observer);
     }
 
     /**

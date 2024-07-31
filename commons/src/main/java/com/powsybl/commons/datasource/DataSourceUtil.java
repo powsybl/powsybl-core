@@ -43,14 +43,14 @@ public interface DataSourceUtil {
         return createDataSource(directory, basename, null, compressionExtension, observer);
     }
 
-    static DataSource createDataSource(Path directory, String basename, String mainExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
+    static DataSource createDataSource(Path directory, String basename, String dataExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(basename);
 
         DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
             .withDirectory(directory)
             .withBaseName(basename)
-            .withMainExtension(mainExtension)
+            .withDataExtension(dataExtension)
             .withCompressionFormat(compressionFormat)
             .withObserver(observer);
 
@@ -73,7 +73,7 @@ public interface DataSourceUtil {
             .withDirectory(directory)
             .withArchiveFileName(fileNameOrBaseName)
             .withBaseName(fileInformation.getBaseName())
-            .withMainExtension(fileInformation.getMainExtension())
+            .withDataExtension(fileInformation.getDataExtension())
             .withCompressionFormat(fileInformation.getCompressionFormat())
             .withArchiveFormat(fileInformation.getArchiveFormat())
             .withObserver(observer);

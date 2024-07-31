@@ -22,7 +22,7 @@ public class FileInformation {
     private String baseName;
     private CompressionFormat compressionFormat;
     private ArchiveFormat archiveFormat;
-    private String mainExtension;
+    private String dataExtension;
 
     FileInformation(String fileName) {
         Objects.requireNonNull(fileName);
@@ -64,17 +64,17 @@ public class FileInformation {
         // Last dot index
         currentDotIndex = fileNameWithoutCompressionNorArchive.lastIndexOf('.');
 
-        /* Main datasource extension
+        /* Data datasource extension
          * Four cases are possible:
          *  - case 1 ("dummy"): currentDotIndex < 0 -> no source format is given
          *  - case 2 (".dummy"): currentDotIndex == 0 -> considered as a hidden file so no source format is given
          *  - case 3 ("dummy.foo"): ".foo" is the source format
          */
-        mainExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex + 1);
-        logMainExtension(fileName, mainExtension, dataSourceInitialization);
+        dataExtension = currentDotIndex < 1 ? "" : fileNameWithoutCompressionNorArchive.substring(currentDotIndex + 1);
+        logDataExtension(fileName, dataExtension, dataSourceInitialization);
 
         // Base name
-        baseName = mainExtension.isEmpty() ?
+        baseName = dataExtension.isEmpty() ?
             fileNameWithoutCompressionNorArchive :
             fileNameWithoutCompressionNorArchive.substring(0, currentDotIndex);
         if (baseName.isEmpty()) {
@@ -82,9 +82,9 @@ public class FileInformation {
         }
     }
 
-    private void logMainExtension(String fileName, String mainExtension, boolean dataSourceInitialization) {
-        if (dataSourceInitialization && mainExtension.isEmpty()) {
-            LOGGER.warn("Source format is empty in file {}", fileName);
+    private void logDataExtension(String fileName, String dataExtension, boolean dataSourceInitialization) {
+        if (dataSourceInitialization && dataExtension.isEmpty()) {
+            LOGGER.warn("Data extension is empty in file {}", fileName);
         }
     }
 
@@ -100,14 +100,14 @@ public class FileInformation {
         return archiveFormat;
     }
 
-    public String getMainExtension() {
-        return mainExtension;
+    public String getDataExtension() {
+        return dataExtension;
     }
 
     public String toString() {
         return "FileInformation["
             + "baseName=" + baseName + ", "
-            + "mainExtension=" + mainExtension + ", "
+            + "dataExtension=" + dataExtension + ", "
             + "archiveFormat=" + archiveFormat + ", "
             + "compressionFormat=" + compressionFormat
             + "]";

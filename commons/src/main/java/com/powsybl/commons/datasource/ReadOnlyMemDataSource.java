@@ -73,7 +73,7 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
      * @return true
      */
     @Override
-    public boolean isMainExtension(String ext) {
+    public boolean isDataExtension(String ext) {
         return true;
     }
 

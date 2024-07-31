@@ -21,15 +21,15 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String mainExtension, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new DirectoryDataSource(directory, baseName, mainExtension, observer),
-            new ZstdDirectoryDataSource(directory, baseName, mainExtension, observer),
+            new DirectoryDataSource(directory, baseName, dataExtension, observer),
+            new ZstdDirectoryDataSource(directory, baseName, dataExtension, observer),
             new ZipArchiveDataSource(directory),
-            new ZipArchiveDataSource(directory, baseName, mainExtension, observer),
-            new XZDirectoryDataSource(directory, baseName, mainExtension, observer),
-            new GzDirectoryDataSource(directory, baseName, mainExtension, observer),
-            new Bzip2DirectoryDataSource(directory, baseName, mainExtension, observer)
+            new ZipArchiveDataSource(directory, baseName, dataExtension, observer),
+            new XZDirectoryDataSource(directory, baseName, dataExtension, observer),
+            new GzDirectoryDataSource(directory, baseName, dataExtension, observer),
+            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, observer)
         };
     }
 
@@ -44,8 +44,8 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
         this(directory, baseName, null);
     }
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String mainExtension) {
-        this(directory, baseName, mainExtension, null);
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension) {
+        this(directory, baseName, dataExtension, null);
     }
 
     @Override
@@ -54,8 +54,8 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public String getMainExtension() {
-        return dataSources[0].getMainExtension();
+    public String getDataExtension() {
+        return dataSources[0].getDataExtension();
     }
 
     @Override
@@ -69,9 +69,9 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean isMainExtension(String ext) {
+    public boolean isDataExtension(String ext) {
         for (ReadOnlyDataSource dataSource : dataSources) {
-            if (dataSource.isMainExtension(ext)) {
+            if (dataSource.isDataExtension(ext)) {
                 return true;
             }
         }

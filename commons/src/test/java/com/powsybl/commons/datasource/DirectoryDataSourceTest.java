@@ -77,9 +77,9 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         checkDataSource(new DirectoryDataSource(testDir, "foo_bar", "iidm", CompressionFormat.GZIP, observer), "iidm", CompressionFormat.GZIP, observer);
     }
 
-    private void checkDataSource(DirectoryDataSource dataSource, String mainExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
+    private void checkDataSource(DirectoryDataSource dataSource, String dataExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
-        assertEquals(mainExtension, dataSource.getMainExtension());
+        assertEquals(dataExtension, dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());

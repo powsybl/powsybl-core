@@ -22,7 +22,7 @@ public class ResourceDataSource implements ReadOnlyDataSource {
 
     private final String baseName;
 
-    private final String mainExtension;
+    private final String dataExtension;
 
     private final List<ResourceSet> resourceSets;
 
@@ -34,9 +34,9 @@ public class ResourceDataSource implements ReadOnlyDataSource {
         this(baseName, null, resourceSets);
     }
 
-    public ResourceDataSource(String baseName, String mainExtension, List<ResourceSet> resourceSets) {
+    public ResourceDataSource(String baseName, String dataExtension, List<ResourceSet> resourceSets) {
         this.baseName = Objects.requireNonNull(baseName);
-        this.mainExtension = mainExtension;
+        this.dataExtension = dataExtension;
         this.resourceSets = Objects.requireNonNull(resourceSets);
     }
 
@@ -46,8 +46,8 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public String getMainExtension() {
-        return mainExtension;
+    public String getDataExtension() {
+        return dataExtension;
     }
 
     @Override
@@ -56,8 +56,8 @@ public class ResourceDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public boolean isMainExtension(String ext) {
-        return mainExtension == null || mainExtension.isEmpty() || mainExtension.equals(ext);
+    public boolean isDataExtension(String ext) {
+        return dataExtension == null || dataExtension.isEmpty() || dataExtension.equals(ext);
     }
 
     @Override

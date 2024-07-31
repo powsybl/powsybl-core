@@ -76,13 +76,13 @@ class GenericReadOnlyDataSourceTest {
         checkDataSource(new GenericReadOnlyDataSource(testDir, "foo_bar", "iidm", observer), "foo_bar", "iidm");
     }
 
-    private void checkDataSource(GenericReadOnlyDataSource dataSource, String baseName, String mainExtension) {
+    private void checkDataSource(GenericReadOnlyDataSource dataSource, String baseName, String dataExtension) {
         assertEquals(baseName, dataSource.getBaseName());
-        assertEquals(mainExtension, dataSource.getMainExtension());
+        assertEquals(dataExtension, dataSource.getDataExtension());
     }
 
-    private String getFileName(String baseName, String mainExtension) {
-        return testDir + "/" + baseName + (mainExtension == null || mainExtension.isEmpty() ? "" : "." + mainExtension);
+    private String getFileName(String baseName, String dataExtension) {
+        return testDir + "/" + baseName + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension);
     }
 
     private void createFiles(String archiveName) throws IOException {
@@ -152,11 +152,11 @@ class GenericReadOnlyDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    void testClassAndListing(String baseName, String mainExtension,
+    void testClassAndListing(String baseName, String dataExtension,
                              Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, mainExtension);
+        String fileName = getFileName(baseName, dataExtension);
 
         // Update the list of unlisted files
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
@@ -165,7 +165,7 @@ class GenericReadOnlyDataSourceTest {
         createFiles(fileName);
 
         // Create the datasource
-        GenericReadOnlyDataSource dataSource = new GenericReadOnlyDataSource(testDir, baseName, mainExtension);
+        GenericReadOnlyDataSource dataSource = new GenericReadOnlyDataSource(testDir, baseName, dataExtension);
 
         // Check the class
         assertInstanceOf(dataSourceClass, dataSource);
@@ -176,14 +176,14 @@ class GenericReadOnlyDataSourceTest {
     }
 
     @Test
-    void testIsMainExtension() {
+    void testIsDataExtension() {
         GenericReadOnlyDataSource dataSource = new GenericReadOnlyDataSource(testDir, "foo_bar");
-        assertTrue(dataSource.isMainExtension("test"));
-        assertTrue(dataSource.isMainExtension("iidm"));
+        assertTrue(dataSource.isDataExtension("test"));
+        assertTrue(dataSource.isDataExtension("iidm"));
 
         dataSource = new GenericReadOnlyDataSource(testDir, "foo_bar", "iidm");
-        assertTrue(dataSource.isMainExtension("test"));
-        assertTrue(dataSource.isMainExtension("iidm"));
+        assertTrue(dataSource.isDataExtension("test"));
+        assertTrue(dataSource.isDataExtension("iidm"));
 
     }
 }

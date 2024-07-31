@@ -36,10 +36,10 @@ public class CgmesOnDataSource {
     }
 
     private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) {
-        if (dataSource.getMainExtension() == null || dataSource.getMainExtension().isEmpty()) {
+        if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty()) {
             return false;
-        } else if (Arrays.asList(EXTENSIONS).contains(dataSource.getMainExtension())) {
-            try (InputStream is = dataSource.newInputStream(null, dataSource.getMainExtension())) {
+        } else if (Arrays.asList(EXTENSIONS).contains(dataSource.getDataExtension())) {
+            try (InputStream is = dataSource.newInputStream(null, dataSource.getDataExtension())) {
                 return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
