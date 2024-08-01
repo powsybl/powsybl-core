@@ -87,7 +87,7 @@ While the files located in the archive **may not** be compressed, the archive fi
 archive format:
 - A Zip archive is also already compressed so the compression format for `ZipArchiveDataSource` is always ZIP.
 - A Tar archive can be compressed by any compression format, excluding ZIP (since it would create a Zip archive containing
-the Tar archive): BZIP2, GZIP, XZ or ZSTD.
+the Tar archive): BZIP2, GZIP, XZ or ZSTD. It can also not be compressed.
 
 Just like `DirectoryDataSource`, the archive datasources integrate the notions of base name and data extension. If not
 given as a parameter in the datasource constructor, the archive file name is even defined using the base name and the
