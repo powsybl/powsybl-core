@@ -173,6 +173,11 @@ public class PssePowerFlowModel {
         this.voltageSourceConverterDcTransmissionLines.addAll(modelled(voltageSourceConverterDcTransmissionLines));
     }
 
+    public void replaceAllVoltageSourceConverterDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> vscDcTransmissionLines) {
+        this.voltageSourceConverterDcTransmissionLines.clear();
+        this.voltageSourceConverterDcTransmissionLines.addAll(vscDcTransmissionLines);
+    }
+
     public List<PsseVoltageSourceConverterDcTransmissionLine> getVoltageSourceConverterDcTransmissionLines() {
         return Collections.unmodifiableList(voltageSourceConverterDcTransmissionLines);
     }

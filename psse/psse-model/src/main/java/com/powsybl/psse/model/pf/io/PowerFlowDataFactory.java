@@ -74,6 +74,8 @@ public final class PowerFlowDataFactory {
 
         context.setFieldNames(PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE, TwoTerminalDcTransmissionLineData.FIELD_NAMES_35);
         context.setFieldNames(PowerFlowRecordGroup.INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER, TwoTerminalDcTransmissionLineData.FIELD_NAMES_CONVERTER_35);
+        context.setFieldNames(PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, VoltageSourceConverterDcTransmissionLineData.FIELD_NAMES_35);
+        context.setFieldNames(PowerFlowRecordGroup.INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER, VoltageSourceConverterDcTransmissionLineData.FIELD_NAMES_CONVERTER_35);
 
         return context;
     }

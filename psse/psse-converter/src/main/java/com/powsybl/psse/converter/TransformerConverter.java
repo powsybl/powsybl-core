@@ -1321,19 +1321,6 @@ class TransformerConverter extends AbstractConverter {
     private record RatioR(int cod, double windv, double ang, int cont, int node, double rma, double rmi, int ntp) {
     }
 
-    private static PsseOwnership findDefaultOwnership() {
-        PsseOwnership psseOwnership = new PsseOwnership();
-        psseOwnership.setO1(1);
-        psseOwnership.setF1(1.0);
-        psseOwnership.setO2(0);
-        psseOwnership.setF2(0.0);
-        psseOwnership.setO3(0);
-        psseOwnership.setF3(0.0);
-        psseOwnership.setO4(0);
-        psseOwnership.setF4(0.0);
-        return psseOwnership;
-    }
-
     private final PsseTransformer psseTransformer;
     private final Map<Integer, PsseBus> busNumToPsseBus;
     private final double sbase;

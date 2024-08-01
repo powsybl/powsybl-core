@@ -124,7 +124,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         int busRectifier = getTerminalBusI(rectifierTerminal(hvdcLine), contextExport);
         int busInverter = getTerminalBusI(inverterTerminal(hvdcLine), contextExport);
 
-        psseTwoTerminalDc.setMdc(obtainControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
+        psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
         psseTwoTerminalDc.getRectifier().setIp(busRectifier);
         psseTwoTerminalDc.getInverter().setIp(busInverter);
     }
@@ -137,7 +137,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) ? hvdcLine.getConverterStation2().getTerminal() : hvdcLine.getConverterStation1().getTerminal();
     }
 
-    private static int obtainControlMode(HvdcLine hvdcLine, int mdc) {
+    private static int findControlMode(HvdcLine hvdcLine, int mdc) {
         if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus() != null
                 && hvdcLine.getConverterStation2().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus() != null) {
             return mdc != 0 ? mdc : 1;
@@ -150,7 +150,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc = new PsseTwoTerminalDcTransmissionLine();
 
         psseTwoTerminalDc.setName(extractTwoTerminalDcName(hvdcLine.getId()));
-        psseTwoTerminalDc.setMdc(0);
+        psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
         psseTwoTerminalDc.setRdc(hvdcLine.getR());
         psseTwoTerminalDc.setSetvl(getVl(hvdcLine));
         psseTwoTerminalDc.setVschd(hvdcLine.getNominalV());

@@ -10,6 +10,7 @@ package com.powsybl.psse.converter;
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
+import com.powsybl.iidm.network.util.HvdcUtils;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.*;
 
@@ -211,6 +212,14 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         }
     }
 
+    private static void setVscDcTransmissionLineRegulatingBus(PsseVoltageSourceConverter converter, PsseVersion psseVersion, int regulatingBus) {
+        if (psseVersion.major() == V35) {
+            converter.setVsreg(regulatingBus);
+        } else {
+            converter.setRemot(regulatingBus);
+        }
+    }
+
     private static double findTargetVpu(PsseVoltageSourceConverter converter) {
         return converter.getMode() == 1 && isVoltageSetpointValid(converter.getAcset()) ? converter.getAcset() : 1.0;
     }
@@ -221,6 +230,126 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
 
     private static boolean findIsRegulatingOn(PsseVoltageSourceConverter converter) {
         return converter.getMode() == 1;
+    }
+
+    static void updateAndCreateVscDcTransmissionLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        Map<String, PsseVoltageSourceConverterDcTransmissionLine> hvdcLinesToPsseVscDcTransmissionLine = new HashMap<>();
+        psseModel.getVoltageSourceConverterDcTransmissionLines().forEach(psseVscDcTransmissionLine -> hvdcLinesToPsseVscDcTransmissionLine.put(getVscDcTransmissionLineId(psseVscDcTransmissionLine.getName()), psseVscDcTransmissionLine));
+
+        PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
+        network.getHvdcLines().forEach(hvdcLine -> {
+            if (isVscDcTransmissionLine(hvdcLine)) {
+                if (hvdcLinesToPsseVscDcTransmissionLine.containsKey(hvdcLine.getId())) {
+                    updateVscDcTransmissionLine(hvdcLine, hvdcLinesToPsseVscDcTransmissionLine.get(hvdcLine.getId()), version, contextExport);
+                } else {
+                    psseModel.addVoltageSourceConverterDcTransmissionLines(Collections.singletonList(createVscDcTransmissionLine(hvdcLine, version, contextExport)));
+                }
+            }
+        });
+        psseModel.replaceAllVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines().stream().sorted(Comparator.comparing(PsseVoltageSourceConverterDcTransmissionLine::getName)).toList());
+    }
+
+    private static void updateVscDcTransmissionLine(HvdcLine hvdcLine, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVersion version, ContextExport contextExport) {
+        VscConverterStation c1 = (VscConverterStation) hvdcLine.getConverterStation1();
+        VscConverterStation c2 = (VscConverterStation) hvdcLine.getConverterStation2();
+        int busConverter1 = getTerminalBusI(c1.getTerminal(), contextExport);
+        int busConverter2 = getTerminalBusI(c2.getTerminal(), contextExport);
+        int regulatingBus1 = getRegulatingTerminalBusI(c1.getRegulatingTerminal(), busConverter1, vscDcTransmissionLineRegulatingBus(psseVscDcTransmissionLine.getConverter1(), version), contextExport);
+        int regulatingBus2 = getRegulatingTerminalBusI(c2.getRegulatingTerminal(), busConverter2, vscDcTransmissionLineRegulatingBus(psseVscDcTransmissionLine.getConverter2(), version), contextExport);
+
+        psseVscDcTransmissionLine.setMdc(findControlMode(hvdcLine));
+        psseVscDcTransmissionLine.getConverter1().setIbus(busConverter1);
+        psseVscDcTransmissionLine.getConverter2().setIbus(busConverter2);
+        setVscDcTransmissionLineRegulatingBus(psseVscDcTransmissionLine.getConverter1(), version, regulatingBus1);
+        setVscDcTransmissionLineRegulatingBus(psseVscDcTransmissionLine.getConverter2(), version, regulatingBus2);
+    }
+
+    private static int findControlMode(HvdcLine hvdcLine) {
+        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus() != null
+                && hvdcLine.getConverterStation2().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus() != null) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private static PsseVoltageSourceConverterDcTransmissionLine createVscDcTransmissionLine(HvdcLine hvdcLine, PsseVersion version, ContextExport contextExport) {
+        PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine = new PsseVoltageSourceConverterDcTransmissionLine();
+        vscDcTransmissionLine.setName(extractVscDcTransmissionLineName(hvdcLine.getId()));
+        vscDcTransmissionLine.setMdc(findControlMode(hvdcLine));
+        vscDcTransmissionLine.setRdc(hvdcLine.getR());
+        vscDcTransmissionLine.setOwnership(findDefaultOwnership());
+
+        vscDcTransmissionLine.setConverter1(findConverter((VscConverterStation) hvdcLine.getConverterStation1(), version, contextExport));
+        vscDcTransmissionLine.setConverter2(findConverter((VscConverterStation) hvdcLine.getConverterStation2(), version, contextExport));
+        return vscDcTransmissionLine;
+    }
+
+    private static PsseVoltageSourceConverter findConverter(VscConverterStation vscConverter, PsseVersion version, ContextExport contextExport) {
+        PsseVoltageSourceConverter psseConverter = findDefaultConverter();
+        int busI = getTerminalBusI(vscConverter.getTerminal(), contextExport);
+        int regulatingBus = getRegulatingTerminalBusI(vscConverter.getRegulatingTerminal(), busI, vscDcTransmissionLineRegulatingBus(psseConverter, version), contextExport);
+        double converterTargetP = HvdcUtils.getConverterStationTargetP(vscConverter);
+
+        psseConverter.setIbus(busI);
+        psseConverter.setType(2);
+        psseConverter.setMode(getMode(vscConverter));
+        psseConverter.setDcset(converterTargetP);
+        psseConverter.setAcset(findAcset(vscConverter, getMode(vscConverter), converterTargetP));
+        psseConverter.setAloss(findALosses(vscConverter.getLossFactor(), converterTargetP));
+        psseConverter.setMaxq(checkAndFixMaxQ(vscConverter.getReactiveLimits().getMaxQ(converterTargetP)));
+        psseConverter.setMinq(checkAndFixMinQ(vscConverter.getReactiveLimits().getMinQ(converterTargetP)));
+        psseConverter.setVsreg(regulatingBus);
+        psseConverter.setNreg(getRegulatingTerminalNode(vscConverter.getRegulatingTerminal(), contextExport));
+
+        return psseConverter;
+    }
+
+    private static int getMode(VscConverterStation vscConverter) {
+        return vscConverter.isVoltageRegulatorOn() ? 1 : 2;
+    }
+
+    private static double findAcset(VscConverterStation vscConverter, int mode, double targetP) {
+        if (mode == 1) {
+            double targetV = vscConverter.getVoltageSetpoint();
+            return Double.isFinite(targetV) && targetV > 0.0 ? targetV / vscConverter.getRegulatingTerminal().getVoltageLevel().getNominalV() : 1.0;
+        } else {
+            double targetQ = vscConverter.getReactivePowerSetpoint();
+            return Double.isFinite(targetP) && targetP != 0.0 && Double.isFinite(targetQ) && targetQ != 0.0 ? targetP / Math.sqrt(targetP * targetP + targetQ * targetQ) : 1.0;
+        }
+    }
+
+    private static double findALosses(double lossFactor, double converterTargetP) {
+        return converterTargetP != 0.0 ? 1000.0 * lossFactor * converterTargetP / 100.0 : 0.0;
+    }
+
+    private static double checkAndFixMaxQ(double maxQ) {
+        return Double.isNaN(maxQ) ? 9999.0 : maxQ;
+    }
+
+    private static double checkAndFixMinQ(double minQ) {
+        return Double.isNaN(minQ) ? -9999.0 : minQ;
+    }
+
+    private static PsseVoltageSourceConverter findDefaultConverter() {
+        PsseVoltageSourceConverter converter = new PsseVoltageSourceConverter();
+        converter.setIbus(0);
+        converter.setType(1);
+        converter.setMode(1);
+        converter.setDcset(0.0);
+        converter.setAcset(1.0);
+        converter.setAloss(0.0);
+        converter.setBloss(0.0);
+        converter.setMinloss(0.0);
+        converter.setSmax(0.0);
+        converter.setImax(0.0);
+        converter.setPwf(1.0);
+        converter.setMaxq(9999.0);
+        converter.setMinq(-9999.0);
+        converter.setVsreg(0);
+        converter.setNreg(0);
+        converter.setRmpct(100.0);
+        return converter;
     }
 
     private final PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine;

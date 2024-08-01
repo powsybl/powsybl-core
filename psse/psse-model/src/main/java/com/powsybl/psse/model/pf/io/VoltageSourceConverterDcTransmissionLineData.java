@@ -29,9 +29,11 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.VOLTAGE_SOURCE_C
 class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<PsseVoltageSourceConverterDcTransmissionLine> {
 
     private static final String[] FIELD_NAMES_CONVERTER_32_33 = {"ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "remot", "rmpct"};
+    static final String[] FIELD_NAMES_35 = {"name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+    static final String[] FIELD_NAMES_CONVERTER_35 = {"ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "vsreg", "nreg", "rmpct"};
 
     VoltageSourceConverterDcTransmissionLineData() {
-        super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, "name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
+        super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, FIELD_NAMES_35);
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
         withQuotedFields("name");
     }
@@ -112,7 +114,7 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
                 super(INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER);
                 withFieldNames(V32, FIELD_NAMES_CONVERTER_32_33);
                 withFieldNames(V33, FIELD_NAMES_CONVERTER_32_33);
-                withFieldNames(V35, "ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "vsreg", "nreg", "rmpct");
+                withFieldNames(V35, FIELD_NAMES_CONVERTER_35);
                 withQuotedFields();
             }
 

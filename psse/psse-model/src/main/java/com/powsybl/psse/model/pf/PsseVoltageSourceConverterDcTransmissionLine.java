@@ -75,6 +75,10 @@ public class PsseVoltageSourceConverterDcTransmissionLine extends PsseVersioned 
         return ownership;
     }
 
+    public void setOwnership(PsseOwnership ownership) {
+        this.ownership = ownership;
+    }
+
     public void setConverter1(PsseVoltageSourceConverter converter1) {
         this.converter1 = converter1;
     }
