@@ -82,7 +82,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
     @Test
     void testStreams() throws IOException {
         // Create file
-        createArchiveAndFiles(archiveWithSubfolders);
+        createFiles(archiveWithSubfolders);
         Path path = fileSystem.getPath(archiveWithSubfolders);
 
         // Datasource with an observer

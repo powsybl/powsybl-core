@@ -53,6 +53,14 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         compressionFormat = CompressionFormat.GZIP;
     }
 
+    @Override
+    protected String getFileName(String baseName, String dataExtension, CompressionFormat compressionFormat) {
+        return testDir + "/" + baseName
+                + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension)
+                + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
+                + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
+    }
+
     @Test
     @Override
     void testConstructors() {
@@ -119,7 +127,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     @Override
-    protected void createArchiveAndFiles(String fileName) throws IOException {
+    protected void createFiles(String fileName) throws IOException {
 
         // File information
         FileInformation fileInformation = new FileInformation(fileName);
