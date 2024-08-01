@@ -190,6 +190,11 @@ public class CgmesImport implements Importer {
         }
 
         @Override
+        public boolean isDataExtension(String ext) {
+            return ds.isDataExtension(ext);
+        }
+
+        @Override
         public boolean exists(String fileName) throws IOException {
             return ds.exists(fileName) && filter.test(fileName);
         }

@@ -33,20 +33,28 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipArchiveDataSource extends AbstractArchiveDataSource {
 
-    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
-        super(directory, zipFileName, baseName, CompressionFormat.ZIP, ArchiveFormat.ZIP, observer);
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String dataExtension, DataSourceObserver observer) {
+        super(directory, zipFileName, baseName, dataExtension, CompressionFormat.ZIP, ArchiveFormat.ZIP, observer);
     }
 
-    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName) {
-        this(directory, zipFileName, baseName, null);
+    public ZipArchiveDataSource(Path directory, String zipFileName, String baseName, String dataExtension) {
+        this(directory, zipFileName, baseName, dataExtension, null);
     }
 
-    public ZipArchiveDataSource(Path directory, String baseName) {
-        this(directory, baseName + ".zip", baseName, null);
+    public ZipArchiveDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
+        this(directory, baseName + ((dataExtension == null || dataExtension.isEmpty()) ? "" : "." + dataExtension) + ".zip", baseName, dataExtension, observer);
+    }
+
+    public ZipArchiveDataSource(Path directory, String baseName, String dataExtension) {
+        this(directory, baseName + ((dataExtension == null || dataExtension.isEmpty()) ? "" : "." + dataExtension) + ".zip", baseName, dataExtension, null);
     }
 
     public ZipArchiveDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this(directory, baseName + ".zip", baseName, observer);
+        this(directory, baseName + ".zip", baseName, null, observer);
+    }
+
+    public ZipArchiveDataSource(Path directory, String baseName) {
+        this(directory, baseName + ".zip", baseName, null, null);
     }
 
     public ZipArchiveDataSource(Path zipFile) {

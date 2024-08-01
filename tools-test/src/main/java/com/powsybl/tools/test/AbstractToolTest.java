@@ -137,6 +137,17 @@ public abstract class AbstractToolTest {
     private void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
+        int status = runCommand(args, bout, berr, tools, fileSystem);
+        assertEquals(expectedStatus, status);
+        if (expectedOut != null) {
+            assertMatches(expectedOut, bout, comparisonFunction);
+        }
+        if (expectedErr != null) {
+            assertMatches(expectedErr, berr, comparisonFunction);
+        }
+    }
+
+    public static int runCommand(String[] args, ByteArrayOutputStream bout, ByteArrayOutputStream berr, CommandLineTools tools, FileSystem fileSystem) {
         int status;
         try (PrintStream out = new PrintStream(bout);
              PrintStream err = new PrintStream(berr);
@@ -173,13 +184,7 @@ public abstract class AbstractToolTest {
                 }
             });
         }
-        assertEquals(expectedStatus, status);
-        if (expectedOut != null) {
-            assertMatches(expectedOut, bout, comparisonFunction);
-        }
-        if (expectedErr != null) {
-            assertMatches(expectedErr, berr, comparisonFunction);
-        }
+        return status;
     }
 
     @Test
