@@ -40,7 +40,7 @@ public class TestImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource == null || dataSource.exists(null, "tst");
+            return dataSource == null || dataSource.isDataExtension("tst") && dataSource.exists(null, "tst");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

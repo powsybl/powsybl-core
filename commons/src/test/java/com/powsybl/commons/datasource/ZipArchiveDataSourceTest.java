@@ -55,15 +55,21 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", observer), "foo_bar.zip", "foo", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo"), "foo_bar.zip", "foo", null);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo", observer), "foo.zip", "foo", observer);
-        checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null);
-        checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", "iidm", observer), "foo_bar.zip", "foo", "iidm", observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo_bar.zip", "foo", "iidm"), "foo_bar.zip", "foo", "iidm", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "iidm", observer), "foo.iidm.zip", "foo", "iidm", observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "", observer), "foo.zip", "foo", "", observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", "iidm"), "foo.iidm.zip", "foo", "iidm", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", (String) null), "foo.zip", "foo", null, null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", ""), "foo.zip", "foo", "", null);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo", observer), "foo.zip", "foo", null, observer);
+        checkDataSource(new ZipArchiveDataSource(testDir, "foo"), "foo.zip", "foo", null, null);
+        checkDataSource(new ZipArchiveDataSource(testDir.resolve("foo_bar.zip")), "foo_bar.zip", "foo_bar", null, null);
     }
 
-    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, DataSourceObserver observer) {
+    private void checkDataSource(ZipArchiveDataSource dataSource, String zipFileName, String baseName, String dataExtension, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
+        assertEquals(dataExtension, dataSource.getDataExtension());
         assertEquals(zipFileName, dataSource.getArchiveFilePath().getFileName().toString());
         assertEquals(baseName, dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -76,19 +82,19 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new ZipArchiveDataSource(testDir, "foo.zip", "foo");
+        return new ZipArchiveDataSource(testDir, "foo.zip", "foo", null, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new ZipArchiveDataSource(testDir, "foo", observer);
+        return new ZipArchiveDataSource(testDir, "foo", "iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo.iidm", CompressionFormat.ZIP),
-            Arguments.of("foo", CompressionFormat.ZIP),
-            Arguments.of("foo.v3", CompressionFormat.ZIP)
+            Arguments.of("foo", "iidm", CompressionFormat.ZIP),
+            Arguments.of("foo", "", CompressionFormat.ZIP),
+            Arguments.of("foo", "v3", CompressionFormat.ZIP)
         );
     }
 
@@ -97,13 +103,13 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         Set<String> listedFiles = Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
         return Stream.of(
-            Arguments.of("foo.iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo", "iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo", "", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo.v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of("foo", "v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );
