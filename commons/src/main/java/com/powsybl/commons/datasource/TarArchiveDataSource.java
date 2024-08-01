@@ -257,21 +257,21 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
                     taos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_POSIX);
                     taos.setLongFileMode(TarArchiveOutputStream.LONGFILE_POSIX);
 
-                    // Copy content of temporary stream file into an entry of the temporary archive
-                    try (InputStream is = Files.newInputStream(getTmpStreamFilePath(tarFilePath))) {
+                    // Temporary stream file path
+                    Path tmpStreamFilePath = getTmpStreamFilePath(tarFilePath);
 
-                        // Content of the stream
-                        byte[] streamContent = is.readAllBytes();
+                    // Copy content of temporary stream file into an entry of the temporary archive
+                    try (InputStream is = Files.newInputStream(tmpStreamFilePath)) {
 
                         // New tar entry
                         TarArchiveEntry entry = new TarArchiveEntry(fileName);
-                        entry.setSize(streamContent.length);
+                        entry.setSize(Files.size(tmpStreamFilePath));
 
                         // New file to add
                         taos.putArchiveEntry(entry);
 
                         // Write the data in the entry
-                        taos.write(streamContent);
+                        taos.write(is.readAllBytes());
 
                         // close new entry
                         taos.closeArchiveEntry();
