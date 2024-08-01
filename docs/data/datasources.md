@@ -4,7 +4,8 @@
 ## Principles
 
 Datasources are Java-objects used to facilitate I/O operations around PowSyBl.
-It allows users to read and write files 
+It allows users to read and write files. It is for example used by Importers during Network imports when using 
+`Network.read()` methods.
 
 
 ## Types of datasources
