@@ -99,16 +99,14 @@ compression extension being optional depending on the archive format.
 
 Let's consider a directory containing the following files:
 
-```java
-/*
-    directory              
-    ├── foo              
-    ├── foo.bar         
-    ├── foo.xiidm.gz    
-    ├── foo.v3.xiidm.gz
-    ├── foo.gz         
-    └── toto.xiidm.gz  
- */
+```
+directory              
+├── foo              
+├── foo.bar         
+├── foo.xiidm.gz    
+├── foo.v3.xiidm.gz
+├── foo.gz         
+└── toto.xiidm.gz  
 ```
 
 A datasource on this directory could be used this way:
