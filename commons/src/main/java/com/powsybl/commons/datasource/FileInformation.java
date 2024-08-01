@@ -64,9 +64,12 @@ public class FileInformation {
         if (compressionFormat == CompressionFormat.ZIP) {
             archiveFormat = ArchiveFormat.ZIP;
             fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension;
+        } else if (ArchiveFormat.TAR.getExtension().equals(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1))) {
+            archiveFormat = ArchiveFormat.TAR;
+            fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension.substring(0, currentDotIndex);
         } else {
-            archiveFormat = "tar".equals(fileNameWithoutCompressionExtension.substring(currentDotIndex + 1)) ? ArchiveFormat.TAR : null;
-            fileNameWithoutCompressionNorArchive = archiveFormat == null ? fileNameWithoutCompressionExtension : fileNameWithoutCompressionExtension.substring(0, currentDotIndex);
+            archiveFormat = null;
+            fileNameWithoutCompressionNorArchive = fileNameWithoutCompressionExtension;
         }
 
         // Last dot index
