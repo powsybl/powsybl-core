@@ -105,64 +105,51 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
                 network.getReportNodeContext().getReportNode()
         );
 
-        // copie de la liste des temporary limits établies
         TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
+        // création des repérages par index
+        Map.Entry<Integer, TemporaryLimit> lowerEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
+        Map.Entry<Integer, TemporaryLimit> higherEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
 
         // trouver la limite qu'on veut modifier et sa valeur
         TemporaryLimit identifiedLimit = getTemporaryLimit(acceptableDuration);
         if (identifiedLimit == null) {
             LOGGER.info("No temporary limit found for the given acceptable duration");
+            return (L) this;
         }
 
         double oldValue = identifiedLimit.getValue();
 
-        // vérifier que l'ancienne valeur est non nulle pour procéder au remplacement
-        if (!Double.isNaN(oldValue)) {
-            // création des repérages par index
-            Map.Entry<Integer, TemporaryLimit> lowerEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
-            Map.Entry<Integer, TemporaryLimit> higherEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
-
-            // verifier si lowerEntry n'est pas null
-            if (lowerEntry != null && higherEntry != null) {
-                // conditions pour la maj
-                if (lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
-                        && higherEntry.getValue().getAcceptableDuration() < acceptableDuration
-                        && lowerEntry.getValue().getValue() < temporaryLimitValue
-                        && higherEntry.getValue().getValue() > temporaryLimitValue) {
-                    identifiedLimit.setValue(temporaryLimitValue);
-                    network.invalidateValidationLevel();
-                    group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
-                } else {
-                    LOGGER.error("Temporary limit value is not valid");
-                }
-
-            // s'il n y a pas de valeur inférieure il faut vérifier la limite permanente
-            } else if (lowerEntry == null && higherEntry != null) {
-                // verifier si la limite permanente est inférieure à la limite qu'on essaie de définir
-                if (temporaryLimitValue > this.permanentLimit &&
-                    higherEntry.getValue().getValue() > temporaryLimitValue) {
-                    identifiedLimit.setValue(temporaryLimitValue);
-                    network.invalidateValidationLevel();
-                    group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
-                } else {
-                    LOGGER.error("Temporary limit should be greater than the permanent limit and smaller than the higher limit");
-                }
-
-            } else if (lowerEntry != null && higherEntry == null) {
-                if (lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
-                        && lowerEntry.getValue().getValue() < temporaryLimitValue) {
-                    identifiedLimit.setValue(temporaryLimitValue);
-                    network.invalidateValidationLevel();
-                    group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
-                } else {
-                    LOGGER.error("Temporary limit should be greater than the previous limit (previous limit value : {})", lowerEntry.getValue().getValue());
-                }
-            }
+        if (isTemporaryLimitVaLueValid(lowerEntry, higherEntry, acceptableDuration, temporaryLimitValue)) {
+            identifiedLimit.setValue(temporaryLimitValue);
+            network.invalidateValidationLevel();
+            group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
+            LOGGER.info("Temporary limit value changed from {} to {}", oldValue, temporaryLimitValue);
         } else {
-            LOGGER.info("Temporary limit value is not set");
+            LOGGER.info("Temporary limit value couldn't be changed because it is not valid");
+            return (L) this;
         }
 
         return (L) this;
+    }
+
+    protected boolean isTemporaryLimitVaLueValid(Map.Entry<Integer, TemporaryLimit> lowerEntry,
+                                               Map.Entry<Integer, TemporaryLimit> higherEntry,
+                                               int acceptableDuration,
+                                               double temporaryLimitValue) {
+
+        if (lowerEntry != null && higherEntry != null) {
+            return lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
+                    && higherEntry.getValue().getAcceptableDuration() < acceptableDuration
+                    && lowerEntry.getValue().getValue() < temporaryLimitValue
+                    && higherEntry.getValue().getValue() > temporaryLimitValue;
+        } else if (lowerEntry == null && higherEntry != null) {
+            return temporaryLimitValue > this.permanentLimit &&
+                    higherEntry.getValue().getValue() > temporaryLimitValue;
+        } else if (lowerEntry != null && higherEntry == null) {
+            return lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
+                    && lowerEntry.getValue().getValue() < temporaryLimitValue;
+        }
+        return false;
     }
 
     @Override
