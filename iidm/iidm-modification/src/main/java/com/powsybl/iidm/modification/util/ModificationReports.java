@@ -296,10 +296,11 @@ public final class ModificationReports {
                 .add();
     }
 
-    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel) {
+    public static void noConnectablePositionExtension(ReportNode reportNode, VoltageLevel voltageLevel, String connectableId) {
         reportNode.newReportNode()
-                .withMessageTemplate("noConnectablePositionExtensions", "No extensions found on voltageLevel ${voltageLevel}. The extension on the connectable is not created.")
+                .withMessageTemplate("noConnectablePositionExtensions", "No ConnectablePosition extension found on voltageLevel ${voltageLevel}. The ConnectablePosition extension is not created for new feeder ${connectableId}.")
                 .withUntypedValue("voltageLevel", voltageLevel.getId())
+                .withUntypedValue(CONNECTABLE_ID, connectableId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
