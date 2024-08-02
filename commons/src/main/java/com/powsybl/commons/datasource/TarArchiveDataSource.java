@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
 import org.apache.commons.compress.archivers.ArchiveEntry;
@@ -271,7 +272,7 @@ public class TarArchiveDataSource extends AbstractArchiveDataSource {
                         taos.putArchiveEntry(entry);
 
                         // Write the data in the entry
-                        taos.write(is.readAllBytes());
+                        ByteStreams.copy(is, taos);
 
                         // close new entry
                         taos.closeArchiveEntry();
