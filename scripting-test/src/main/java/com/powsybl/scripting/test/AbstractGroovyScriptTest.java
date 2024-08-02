@@ -11,7 +11,9 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
+import groovy.transform.ThreadInterrupt;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -41,6 +43,10 @@ public abstract class AbstractGroovyScriptTest {
                 binding.setVariable("out", writer);
 
                 CompilerConfiguration conf = new CompilerConfiguration();
+
+                // Add a check on thread interruption in every loop (for, while) in the script
+                conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class));
+
                 getExtensions().forEach(it -> it.load(binding, computationManager));
                 GroovyShell shell = new GroovyShell(binding, conf);
                 shell.evaluate(getCode());

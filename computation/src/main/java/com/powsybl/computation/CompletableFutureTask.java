@@ -49,7 +49,9 @@ public class CompletableFutureTask<R> extends CompletableFuture<R> implements Ru
             Thread.currentThread().interrupt();
             completeExceptionally(exc);
         } catch (Exception exc) {
-            completeExceptionally(exc.getCause());
+            if (exc.getCause() != null) {
+                completeExceptionally(exc.getCause());
+            }
         }
     }
 
