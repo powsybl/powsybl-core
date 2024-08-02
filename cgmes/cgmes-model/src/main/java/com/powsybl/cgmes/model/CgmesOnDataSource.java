@@ -38,8 +38,12 @@ public class CgmesOnDataSource {
         if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty()) {
             return false;
         } else if (EXTENSIONS.equals(dataSource.getDataExtension())) {
-            try (InputStream is = dataSource.newInputStream(null, EXTENSIONS)) {
-                return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
+            try {
+                if (dataSource.exists(null, EXTENSIONS)) {
+                    try (InputStream is = dataSource.newInputStream(null, EXTENSIONS)) {
+                        return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
+                    }
+                }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }

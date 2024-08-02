@@ -7,11 +7,17 @@
  */
 package com.powsybl.cgmes.model;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.datasource.*;
 import org.junit.jupiter.api.Test;
 
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,6 +37,30 @@ class CgmesOnDataSourceTest {
     private static void doTestExistsEmpty(String profile, String cimVersion, boolean expectedExists) {
         String filename = "empty_cim" + cimVersion + "_" + profile + ".xml";
         doTestExists(filename, cimVersion, expectedExists);
+    }
+
+    @Test
+    void testFileDoesNotExist() throws IOException {
+        Path testDir;
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            testDir = fileSystem.getPath("/tmp");
+            Files.createDirectories(testDir);
+            try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(testDir.resolve("foo.iidm.zip")))) {
+                try {
+                    ZipEntry e = new ZipEntry("foo.bar");
+                    out.putNextEntry(e);
+                    byte[] data = "Test String".getBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+//            Files.copy(Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource("foo.iidm.zip")).getFile()), testDir.resolve("foo.iidm.zip"));
+            ReadOnlyDataSource dataSource = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "test", "xml", null);
+            CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
+            assertFalse(cgmesOnDataSource.exists());
+        }
     }
 
     @Test
