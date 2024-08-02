@@ -24,7 +24,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class CgmesOnDataSource {
-    private static final String EXTENSIONS = "xml";
+    private static final String EXTENSION = "xml";
 
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
         this.dataSource = ds;
@@ -37,10 +37,10 @@ public class CgmesOnDataSource {
     private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) {
         if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty()) {
             return false;
-        } else if (EXTENSIONS.equals(dataSource.getDataExtension())) {
+        } else if (EXTENSION.equals(dataSource.getDataExtension())) {
             try {
-                if (dataSource.exists(null, EXTENSIONS)) {
-                    try (InputStream is = dataSource.newInputStream(null, EXTENSIONS)) {
+                if (dataSource.exists(null, EXTENSION)) {
+                    try (InputStream is = dataSource.newInputStream(null, EXTENSION)) {
                         return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
                     }
                 }
