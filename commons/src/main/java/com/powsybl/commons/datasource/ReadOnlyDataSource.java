@@ -18,6 +18,10 @@ public interface ReadOnlyDataSource {
 
     String getBaseName();
 
+    default String getDataExtension() {
+        return null;
+    }
+
     /**
      * Check if a file exists in the datasource. The file name will be constructed as:
      * {@code <basename><suffix>.<ext>}</p>
@@ -29,10 +33,17 @@ public interface ReadOnlyDataSource {
 
     /**
      * Check if a file exists in the datasource.
-     * @param fileName Name of the file (excluding the compression extension)
+     * @param fileName Name of the file
      * @return true if the file exists, else false
      */
     boolean exists(String fileName) throws IOException;
+
+    /**
+     * Check if the provided extension is a data extension for the datasource
+     * @param ext Extension to compare to the data extension of the datasource
+     * @return true if the datasource data extension is null, empty or equal to {@code ext}, else false
+     */
+    boolean isDataExtension(String ext);
 
     InputStream newInputStream(String suffix, String ext) throws IOException;
 

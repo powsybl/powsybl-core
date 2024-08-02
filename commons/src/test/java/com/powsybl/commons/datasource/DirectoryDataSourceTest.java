@@ -71,13 +71,15 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", CompressionFormat.GZIP, observer), CompressionFormat.GZIP, observer);
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", observer), null, observer);
-        checkDataSource(new DirectoryDataSource(testDir, "foo_bar"), null, null);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar"), null, null, null);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", observer), null, null, observer);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", "iidm", observer), "iidm", null, observer);
+        checkDataSource(new DirectoryDataSource(testDir, "foo_bar", "iidm", CompressionFormat.GZIP, observer), "iidm", CompressionFormat.GZIP, observer);
     }
 
-    private void checkDataSource(DirectoryDataSource dataSource, CompressionFormat compressionFormat, DataSourceObserver observer) {
+    private void checkDataSource(DirectoryDataSource dataSource, String dataExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
+        assertEquals(dataExtension, dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -90,14 +92,14 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new DirectoryDataSource(testDir, "foo", observer);
+        return new DirectoryDataSource(testDir, "foo", "iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo.iidm", null),
-            Arguments.of("foo", null),
-            Arguments.of("foo.v3", null)
+            Arguments.of("foo", "iidm", null),
+            Arguments.of("foo", "", null),
+            Arguments.of("foo", "v3", null)
         );
     }
 
@@ -110,13 +112,13 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.xz", "foo_bar.xz",
             "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz");
         return Stream.of(
-            Arguments.of("foo.iidm", null, DirectoryDataSource.class,
+            Arguments.of("foo", "iidm", null, DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", null, DirectoryDataSource.class,
+            Arguments.of("foo", "", null, DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo.v3", null, DirectoryDataSource.class,
+            Arguments.of("foo", "v3", null, DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );

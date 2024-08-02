@@ -36,12 +36,12 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar", observer), observer);
-        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar"), null);
+        checkDataSource(new Bzip2DirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
+        assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -55,19 +55,19 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new Bzip2DirectoryDataSource(testDir, "foo");
+        return new Bzip2DirectoryDataSource(testDir, "foo", null, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new Bzip2DirectoryDataSource(testDir, "foo", observer);
+        return new Bzip2DirectoryDataSource(testDir, "foo", "iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo.iidm", CompressionFormat.BZIP2),
-            Arguments.of("foo", CompressionFormat.BZIP2),
-            Arguments.of("foo.v3", CompressionFormat.BZIP2)
+            Arguments.of("foo", "iidm", CompressionFormat.BZIP2),
+            Arguments.of("foo", "", CompressionFormat.BZIP2),
+            Arguments.of("foo", "v3", CompressionFormat.BZIP2)
         );
     }
 
@@ -78,13 +78,13 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.xz", "foo_bar.xz", "foo_bar.iidm.zst", "foo_bar.zst", "foo_bar.iidm.gz", "foo_bar.gz");
         return Stream.of(
-            Arguments.of("foo.iidm", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+            Arguments.of("foo", "iidm", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+            Arguments.of("foo", "", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo.v3", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
+            Arguments.of("foo", "v3", CompressionFormat.BZIP2, Bzip2DirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );

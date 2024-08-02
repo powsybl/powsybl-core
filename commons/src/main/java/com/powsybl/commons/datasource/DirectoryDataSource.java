@@ -25,22 +25,25 @@ import java.util.stream.Stream;
 public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
     public DirectoryDataSource(Path directory, String baseName) {
-        this(directory, baseName, null, null);
+        this(directory, baseName, null, null, null);
     }
 
     public DirectoryDataSource(Path directory, String baseName,
                                DataSourceObserver observer) {
-        this(directory, baseName, null, observer);
+        this(directory, baseName, null, null, observer);
+    }
+
+    public DirectoryDataSource(Path directory, String baseName,
+                               String dataExtension,
+                               DataSourceObserver observer) {
+        this(directory, baseName, dataExtension, null, observer);
     }
 
     DirectoryDataSource(Path directory, String baseName,
+                        String dataExtension,
                         CompressionFormat compressionFormat,
                         DataSourceObserver observer) {
-        super(directory, baseName, compressionFormat, observer);
-    }
-
-    protected String getCompressionExt() {
-        return compressionFormat == null ? "" : "." + compressionFormat.getExtension();
+        super(directory, baseName, dataExtension, compressionFormat, observer);
     }
 
     /**
@@ -59,7 +62,8 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
     private Path getPath(String fileName) {
         Objects.requireNonNull(fileName);
-        return directory.resolve(fileName + getCompressionExt());
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName);
     }
 
     @Override
@@ -74,6 +78,11 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         return observer != null ? new ObservableOutputStream(os, path.toString(), observer) : os;
     }
 
+    /**
+     * Check if a file exists in the datasource.
+     * @param fileName Name of the file (excluding the compression extension)
+     * @return true if the file exists, else false
+     */
     @Override
     public boolean exists(String fileName) throws IOException {
         Path path = getPath(fileName);
@@ -104,7 +113,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
                 .map(Path::toString)
                 .filter(name -> name.startsWith(baseName))
                 // Return names after removing the compression extension
-                .map(name -> name.replace(getCompressionExt(), ""))
+                .map(name -> name.replace(getCompressionExtension(), ""))
                 .filter(s -> p.matcher(s).matches())
                 .collect(Collectors.toSet());
         }
