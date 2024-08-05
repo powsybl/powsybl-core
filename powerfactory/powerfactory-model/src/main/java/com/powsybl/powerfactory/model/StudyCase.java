@@ -18,6 +18,7 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -82,7 +83,7 @@ public class StudyCase extends AbstractPowerFactoryData {
                 context.elmNets = JsonUtil.parseLongArray(parser).stream()
                     .map(id -> context.index.getDataObjectById(id)
                         .orElseThrow(() -> new PowerFactoryException("ElmNet object " + id + " not found")))
-                    .toList();
+                    .collect(Collectors.toList());
                 yield true;
             }
             default -> false;

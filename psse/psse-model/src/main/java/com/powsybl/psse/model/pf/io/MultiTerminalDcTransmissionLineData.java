@@ -221,7 +221,9 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             if (outputStream != null) {
                 throw new PsseException("Unexpected outputStream. Should be null");
             }
-            List<PsseMultiTerminalDcMain> mainList = multiTerminalList.stream().map(PsseMultiTerminalDcTransmissionLine::getMain).toList();
+            List<PsseMultiTerminalDcMain> mainList = multiTerminalList.stream()
+                .map(PsseMultiTerminalDcTransmissionLine::getMain)
+                .collect(Collectors.toList());;
             new MultiTerminalDcMainData().write(mainList, context, null);
 
             List<PsseMultiTerminalDcConverterx> converterxList = new ArrayList<>();
