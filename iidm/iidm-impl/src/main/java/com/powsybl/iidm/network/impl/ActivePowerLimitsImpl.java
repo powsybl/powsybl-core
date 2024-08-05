@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ActivePowerLimits;
-import com.powsybl.iidm.network.Validable;
 
 import java.util.TreeMap;
 
@@ -17,8 +16,8 @@ import java.util.TreeMap;
  */
 class ActivePowerLimitsImpl extends AbstractLoadingLimits<ActivePowerLimitsImpl> implements ActivePowerLimits {
 
-    ActivePowerLimitsImpl(Validable validable, OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(validable, group, permanentLimit, temporaryLimits);
+    ActivePowerLimitsImpl(OperationalLimitsGroupImpl group, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(group, permanentLimit, temporaryLimits);
     }
 
     @Override

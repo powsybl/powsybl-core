@@ -8,7 +8,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +67,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         }
     }
 
-    AbstractLoadingLimits(Validable validable, OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
@@ -95,7 +94,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
     @Override
     public L setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue) {
 
-        // verif
+        // Checks
         NetworkImpl network = group.getNetwork();
         ValidationUtil.checkLoadingLimits(
                 group.getValidable(),
@@ -106,14 +105,14 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         );
 
         TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
-        // création des repérages par index
+        // Creation of index markers
         Map.Entry<Integer, TemporaryLimit> lowerEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
         Map.Entry<Integer, TemporaryLimit> higherEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
 
-        // trouver la limite qu'on veut modifier et sa valeur
+        // Identify the limit that needs to be modified
         TemporaryLimit identifiedLimit = getTemporaryLimit(acceptableDuration);
         if (identifiedLimit == null) {
-            LOGGER.info("No temporary limit found for the given acceptable duration");
+            LOGGER.warn("No temporary limit found for the given acceptable duration");
             return (L) this;
         }
 
@@ -125,7 +124,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
             group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
             LOGGER.info("Temporary limit value changed from {} to {}", oldValue, temporaryLimitValue);
         } else {
-            LOGGER.info("Temporary limit value couldn't be changed because it is not valid");
+            LOGGER.warn("Temporary limit value couldn't be changed because it is not valid");
             return (L) this;
         }
 
@@ -149,7 +148,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
             return lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
                     && lowerEntry.getValue().getValue() < temporaryLimitValue;
         }
-        return false;
+        return temporaryLimitValue > this.permanentLimit;
     }
 
     @Override

@@ -732,6 +732,11 @@ public abstract class AbstractCurrentLimitsTest {
 
         limits.setTemporaryLimitValue(5 * 60, 1750.0);
         assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+
+        // Test with an invalid value
+        limits.setTemporaryLimitValue(5 * 60, 1250.0);
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+
     }
 
 }
