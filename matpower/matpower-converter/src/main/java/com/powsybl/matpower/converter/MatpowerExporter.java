@@ -529,7 +529,7 @@ public class MatpowerExporter implements Exporter {
         for (Line l : network.getLines()) {
             Terminal t1 = l.getTerminal1();
             Terminal t2 = l.getTerminal2();
-            createMBranch(l.getId(), t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
+            createBranch(l.getId(), t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
                         createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(l, TwoSides.TWO)),
                                      t1.getVoltageLevel(), branch);
@@ -547,59 +547,47 @@ public class MatpowerExporter implements Exporter {
     private void createTransformer(TwoWindingsTransformer twt, MatpowerModel model, Context context) {
         Terminal t1 = twt.getTerminal1();
         Terminal t2 = twt.getTerminal2();
-        Bus bus1 = findBus(t1);
-        Bus bus2 = findBus(t2);
-        if (isExported(bus1, context) && isExported(bus2, context)) {
-            if (!bus1.getId().equals(bus2.getId())) {
-                VoltageLevel vl1 = t1.getVoltageLevel();
-                VoltageLevel vl2 = t2.getVoltageLevel();
-                MBranch mBranch = new MBranch();
-                mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
-                mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
-                mBranch.setStatus(getStatus(t1, t2));
-                double r = twt.getR();
-                double x = twt.getX();
-                double b = twt.getB();
-                double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
-                var rtc = twt.getRatioTapChanger();
-                if (rtc != null) {
-                    rho *= rtc.getCurrentStep().getRho();
-                    r *= 1 + rtc.getCurrentStep().getR() / 100;
-                    x *= 1 + rtc.getCurrentStep().getX() / 100;
-                    b *= 1 + rtc.getCurrentStep().getB() / 100;
-                }
-                var ptc = twt.getPhaseTapChanger();
-                if (ptc != null) {
-                    mBranch.setPhaseShiftAngle(-ptc.getCurrentStep().getAlpha());
-                    rho *= ptc.getCurrentStep().getRho();
-                    r *= 1 + ptc.getCurrentStep().getR() / 100;
-                    x *= 1 + ptc.getCurrentStep().getX() / 100;
-                    b *= 1 + ptc.getCurrentStep().getB() / 100;
-                }
-                mBranch.setRatio(1d / rho);
-                double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
-                double rpu = r / zb;
-                double xpu = x / zb;
-                setBranchRX(twt.getId(), mBranch, rpu, xpu);
-                mBranch.setB(b * zb);
-                createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(twt, TwoSides.TWO)),
-                    t1.getVoltageLevel(), mBranch);
-                model.addBranch(mBranch);
+        VoltageLevel vl1 = t1.getVoltageLevel();
+        VoltageLevel vl2 = t2.getVoltageLevel();
 
-                if (isAntenna(t1, t2)) {
-                    context.antennaIds.add(twt.getId());
-                }
-            } else {
-                LOGGER.warn("Skip branch between connected to same bus '{}' at both sides", bus1.getId());
-            }
+        double r = twt.getR();
+        double x = twt.getX();
+        double b = twt.getB();
+        double rho = (twt.getRatedU2() / vl2.getNominalV()) / (twt.getRatedU1() / vl1.getNominalV());
+        var rtc = twt.getRatioTapChanger();
+        if (rtc != null) {
+            rho *= rtc.getCurrentStep().getRho();
+            r *= 1 + rtc.getCurrentStep().getR() / 100;
+            x *= 1 + rtc.getCurrentStep().getX() / 100;
+            b *= 1 + rtc.getCurrentStep().getB() / 100;
         }
+        var ptc = twt.getPhaseTapChanger();
+        double phaseShiftAngle = 0.0;
+        if (ptc != null) {
+            phaseShiftAngle = -ptc.getCurrentStep().getAlpha();
+            rho *= ptc.getCurrentStep().getRho();
+            r *= 1 + ptc.getCurrentStep().getR() / 100;
+            x *= 1 + ptc.getCurrentStep().getX() / 100;
+            b *= 1 + ptc.getCurrentStep().getB() / 100;
+        }
+        double ratio = 1d / rho;
+        double zb = vl2.getNominalV() * vl2.getNominalV() / BASE_MVA;
+        double rpu = r / zb;
+        double xpu = x / zb;
+        double bpu = b * zb;
+
+        Optional<MBranch> optionalMBranch = createMBranch(twt.getId(), t1, t2, rpu, xpu, bpu, ratio, phaseShiftAngle, context);
+        optionalMBranch.ifPresent(mBranch -> {
+            createLimits(List.of(new FlowsLimitsHolderBranchAdapter(twt, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(twt, TwoSides.TWO)), t1.getVoltageLevel(), mBranch);
+            model.addBranch(mBranch);
+        });
     }
 
     private void createTieLines(Network network, MatpowerModel model, Context context) {
         for (TieLine l : network.getTieLines()) {
             Terminal t1 = l.getDanglingLine1().getTerminal();
             Terminal t2 = l.getDanglingLine2().getTerminal();
-            createMBranch(l.getId(), t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
+            createBranch(l.getId(), t1, t2, l.getR(), l.getX(), l.getB1(), l.getB2(), context)
                     .ifPresent(branch -> {
                         createLimits(List.of(new FlowsLimitsHolderBranchAdapter(l, TwoSides.ONE), new FlowsLimitsHolderBranchAdapter(l, TwoSides.TWO)),
                                      t1.getVoltageLevel(), branch);
@@ -608,25 +596,33 @@ public class MatpowerExporter implements Exporter {
         }
     }
 
-    private static Optional<MBranch> createMBranch(String id, Terminal t1, Terminal t2, double r, double x, double b1, double b2, Context context) {
+    private static Optional<MBranch> createBranch(String id, Terminal t1, Terminal t2, double r, double x, double b1, double b2, Context context) {
+        VoltageLevel vl1 = t1.getVoltageLevel();
+        VoltageLevel vl2 = t2.getVoltageLevel();
+
+        double rpu = impedanceToPerUnitForLine(r, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+        double xpu = impedanceToPerUnitForLine(x, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+        Complex ytr = impedanceToAdmittance(r, x);
+        double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b1, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
+        double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b2, vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
+
+        return createMBranch(id, t1, t2, rpu, xpu, b1pu + b2pu, 0.0, 0.0, context);
+    }
+
+    private static Optional<MBranch> createMBranch(String id, Terminal t1, Terminal t2, double rpu, double xpu, double bpu, double ratio, double phaseShiftAngle, Context context) {
         Bus bus1 = findBus(t1);
         Bus bus2 = findBus(t2);
         if (isExported(bus1, context) && isExported(bus2, context)) {
             if (!bus1.getId().equals(bus2.getId())) {
-                VoltageLevel vl1 = t1.getVoltageLevel();
-                VoltageLevel vl2 = t2.getVoltageLevel();
                 MBranch mBranch = new MBranch();
                 mBranch.setFrom(context.mBusesNumbersByIds.get(bus1.getId()));
                 mBranch.setTo(context.mBusesNumbersByIds.get(bus2.getId()));
                 mBranch.setStatus(getStatus(t1, t2));
 
-                double rpu = impedanceToPerUnitForLine(r, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                double xpu = impedanceToPerUnitForLine(x, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                Complex ytr = impedanceToAdmittance(r, x);
-                double b1pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b1, vl1.getNominalV(), vl2.getNominalV(), BASE_MVA);
-                double b2pu = admittanceEndToPerUnitForLine(ytr.getImaginary(), b2, vl2.getNominalV(), vl1.getNominalV(), BASE_MVA);
                 setBranchRX(id, mBranch, rpu, xpu);
-                mBranch.setB(b1pu + b2pu);
+                mBranch.setB(bpu);
+                mBranch.setRatio(ratio);
+                mBranch.setPhaseShiftAngle(phaseShiftAngle);
 
                 if (isAntenna(t1, t2)) {
                     context.antennaIds.add(id);
@@ -737,6 +733,7 @@ public class MatpowerExporter implements Exporter {
         setBranchRX(twt.getId() + "(leg " + leg.getSide().getNum() + ")", mBranch, rpu, xpu);
         mBranch.setB(b * zb);
         mBranch.setRatio(1d / rho);
+
         createLimits(List.of(leg), leg.getTerminal().getVoltageLevel(), mBranch);
         return mBranch;
     }
