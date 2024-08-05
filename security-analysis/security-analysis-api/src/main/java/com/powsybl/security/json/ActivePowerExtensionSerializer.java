@@ -60,17 +60,17 @@ public class ActivePowerExtensionSerializer implements ExtensionJsonSerializer<L
         double postContingencyValue = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("value")) {
+            if (parser.currentName().equals("value")) {
                 parser.nextToken();
                 value = parser.readValueAs(Double.class);
-            } else if (parser.getCurrentName().equals("preContingencyValue")) {
+            } else if (parser.currentName().equals("preContingencyValue")) {
                 parser.nextToken();
                 preContingencyValue = parser.readValueAs(Double.class);
-            } else if (parser.getCurrentName().equals("postContingencyValue")) {
+            } else if (parser.currentName().equals("postContingencyValue")) {
                 parser.nextToken();
                 postContingencyValue = parser.readValueAs(Double.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

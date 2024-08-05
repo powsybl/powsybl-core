@@ -34,7 +34,7 @@ class ShuntCompensatorContingencyTest {
         assertEquals(ContingencyElementType.SHUNT_COMPENSATOR, scContingency.getType());
 
         assertNotNull(scContingency.toModification());
-        assertTrue(scContingency.toModification() instanceof ShuntCompensatorTripping);
+        assertInstanceOf(ShuntCompensatorTripping.class, scContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new ShuntCompensatorContingency("sc1"), new ShuntCompensatorContingency("sc1"))

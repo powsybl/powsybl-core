@@ -86,29 +86,18 @@ public class UcteImporter implements Importer {
     }
 
     private static boolean isFictitious(UcteElement ucteElement) {
-        switch (ucteElement.getStatus()) {
-            case EQUIVALENT_ELEMENT_IN_OPERATION:
-            case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-                return true;
-            case REAL_ELEMENT_IN_OPERATION:
-            case REAL_ELEMENT_OUT_OF_OPERATION:
-            case BUSBAR_COUPLER_IN_OPERATION:
-            case BUSBAR_COUPLER_OUT_OF_OPERATION:
-                return false;
-            default:
-                throw new IllegalStateException(UNEXPECTED_UCTE_ELEMENT_STATUS + ucteElement.getStatus());
-        }
+        return switch (ucteElement.getStatus()) {
+            case EQUIVALENT_ELEMENT_IN_OPERATION, EQUIVALENT_ELEMENT_OUT_OF_OPERATION -> true;
+            case REAL_ELEMENT_IN_OPERATION, REAL_ELEMENT_OUT_OF_OPERATION, BUSBAR_COUPLER_IN_OPERATION,
+                 BUSBAR_COUPLER_OUT_OF_OPERATION -> false;
+        };
     }
 
     private static boolean isFictitious(UcteNode ucteNode) {
-        switch (ucteNode.getStatus()) {
-            case EQUIVALENT:
-                return true;
-            case REAL:
-                return false;
-            default:
-                throw new IllegalStateException("Unexpected UcteNodeStatus value: " + ucteNode.getStatus());
-        }
+        return switch (ucteNode.getStatus()) {
+            case EQUIVALENT -> true;
+            case REAL -> false;
+        };
     }
 
     /**
@@ -233,28 +222,13 @@ public class UcteImporter implements Importer {
 
         EnergySource energySource = EnergySource.OTHER;
         if (ucteNode.getPowerPlantType() != null) {
-            switch (ucteNode.getPowerPlantType()) {
-                case C:
-                case G:
-                case L:
-                case O:
-                    energySource = EnergySource.THERMAL;
-                    break;
-                case H:
-                    energySource = EnergySource.HYDRO;
-                    break;
-                case N:
-                    energySource = EnergySource.NUCLEAR;
-                    break;
-                case W:
-                    energySource = EnergySource.WIND;
-                    break;
-                case F:
-                    energySource = EnergySource.OTHER;
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected UctePowerPlantType value: " + ucteNode.getPowerPlantType());
-            }
+            energySource = switch (ucteNode.getPowerPlantType()) {
+                case C, G, L, O -> EnergySource.THERMAL;
+                case H -> EnergySource.HYDRO;
+                case N -> EnergySource.NUCLEAR;
+                case W -> EnergySource.WIND;
+                case F -> EnergySource.OTHER;
+            };
         }
 
         double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
@@ -572,7 +546,7 @@ public class UcteImporter implements Importer {
         double rho;
         double alpha;
         switch (ucteAngleRegulation.getType()) {
-            case ASYM:
+            case ASYM -> {
                 if (currentRatioTapChangerRho == null) {
                     rho = 1d / Math.hypot(dy, 1d + dx);
                     alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
@@ -582,9 +556,8 @@ public class UcteImporter implements Importer {
                     rho = 1d / Math.hypot(dyEq, 1d + dxEq) / currentRatioTapChangerRho; // the formula already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
                     alpha = Math.toDegrees(Math.atan2(dyEq, 1 + dxEq));
                 }
-                break;
-
-            case SYMM:
+            }
+            case SYMM -> {
                 double dyHalf = dy / 2d;
                 double coeff = 1d;
                 if (currentRatioTapChangerRho != null) {
@@ -594,10 +567,8 @@ public class UcteImporter implements Importer {
                 double dy22 = dyHalf * dyHalf;
                 alpha = gamma + Math.toDegrees(Math.atan2(dyHalf, 1d + dx)); // new alpha = defautAlpha/2 + gamma    in case there is a ratio tap changer
                 rho = Math.sqrt((1d + dy22) / (1d + dy22 * coeff * coeff));
-                break;
-
-            default:
-                throw new IllegalStateException("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
+            }
+            default -> throw new IllegalStateException("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
         }
         return Pair.of(rho, alpha);
     }
@@ -732,24 +703,11 @@ public class UcteImporter implements Importer {
     }
 
     private static boolean isConnected(UcteElement ucteElement) {
-        boolean connected;
-        switch (ucteElement.getStatus()) {
-            case REAL_ELEMENT_IN_OPERATION:
-            case EQUIVALENT_ELEMENT_IN_OPERATION:
-            case BUSBAR_COUPLER_IN_OPERATION:
-                connected = true;
-                break;
-
-            case REAL_ELEMENT_OUT_OF_OPERATION:
-            case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-            case BUSBAR_COUPLER_OUT_OF_OPERATION:
-                connected = false;
-                break;
-
-            default:
-                throw new IllegalStateException(UNEXPECTED_UCTE_ELEMENT_STATUS + ucteElement.getStatus());
-        }
-        return connected;
+        return switch (ucteElement.getStatus()) {
+            case REAL_ELEMENT_IN_OPERATION, EQUIVALENT_ELEMENT_IN_OPERATION, BUSBAR_COUPLER_IN_OPERATION -> true;
+            case REAL_ELEMENT_OUT_OF_OPERATION, EQUIVALENT_ELEMENT_OUT_OF_OPERATION, BUSBAR_COUPLER_OUT_OF_OPERATION ->
+                false;
+        };
     }
 
     private static void addTapChangers(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, TwoWindingsTransformer transformer,

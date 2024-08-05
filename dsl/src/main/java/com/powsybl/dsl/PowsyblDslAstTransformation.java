@@ -39,25 +39,24 @@ public class PowsyblDslAstTransformation extends AbstractPowsyblDslAstTransforma
             if (exp instanceof BinaryExpression binExpr) {
                 String op = binExpr.getOperation().getText();
                 switch (op) {
-                    case ">":
-                    case ">=":
-                    case "<":
-                    case "<=":
-                    case "==":
-                    case "!=":
+                    case ">", ">=", "<", "<=", "==", "!=" -> {
                         return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                                "compareTo2",
-                                new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
-                    case "&&":
+                            "compareTo2",
+                            new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
+                    }
+                    case "&&" -> {
                         return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                                "and2",
-                                new ArgumentListExpression(transform(binExpr.getRightExpression())));
-                    case "||":
+                            "and2",
+                            new ArgumentListExpression(transform(binExpr.getRightExpression())));
+                    }
+                    case "||" -> {
                         return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                                "or2",
-                                new ArgumentListExpression(transform(binExpr.getRightExpression())));
-                    default:
-                        break;
+                            "or2",
+                            new ArgumentListExpression(transform(binExpr.getRightExpression())));
+                    }
+                    default -> {
+                        // Do nothing
+                    }
                 }
             } else if (exp instanceof NotExpression notExpression) {
                 return new MethodCallExpression(transform(notExpression.getExpression()),

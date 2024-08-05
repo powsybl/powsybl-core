@@ -1146,7 +1146,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    class DanglingLinePair {
+    static class DanglingLinePair {
         String id;
         String name;
         String dl1Id;
