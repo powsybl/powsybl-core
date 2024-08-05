@@ -30,7 +30,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.identifiabl
  * try to disconnect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractDisconnection extends AbstractNetworkModification {
+public abstract class AbstractDisconnection extends AbstractSingleNetworkModification {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
     final String identifiableId;
     final Predicate<Switch> openableSwitches;

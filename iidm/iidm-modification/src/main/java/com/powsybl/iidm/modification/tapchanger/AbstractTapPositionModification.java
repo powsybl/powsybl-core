@@ -9,7 +9,7 @@ package com.powsybl.iidm.modification.tapchanger;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeSides;
@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public abstract class AbstractTapPositionModification extends AbstractNetworkModification {
+public abstract class AbstractTapPositionModification extends AbstractSingleNetworkModification {
     public static final String TRANSFORMER_STR = "Transformer '";
     private final String transformerId;
     private final int tapPosition;

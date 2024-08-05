@@ -32,7 +32,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  * try to connect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class ConnectableConnection extends AbstractNetworkModification {
+public class ConnectableConnection extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
     final String connectableId;

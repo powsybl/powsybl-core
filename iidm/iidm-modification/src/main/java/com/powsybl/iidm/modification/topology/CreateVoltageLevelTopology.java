@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import com.powsybl.iidm.network.util.DryRunUtils;
@@ -29,7 +29,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CreateVoltageLevelTopology extends AbstractNetworkModification {
+public class CreateVoltageLevelTopology extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateVoltageLevelTopology.class);
     private static final String NETWORK_MODIFICATION_NAME = "CreateVoltageLevelTopology";

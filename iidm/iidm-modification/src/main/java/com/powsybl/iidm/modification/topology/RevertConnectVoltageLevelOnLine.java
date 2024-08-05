@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
@@ -46,7 +46,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *                  (line)</pre>
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification {
+public class RevertConnectVoltageLevelOnLine extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertConnectVoltageLevelOnLine.class);
 

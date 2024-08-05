@@ -23,7 +23,7 @@ import java.util.Objects;
  *
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public class HvdcLineModification extends AbstractNetworkModification {
+public class HvdcLineModification extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(HvdcLineModification.class);
     private static final String NETWORK_MODIFICATION_NAME = "HvdcLineModification";

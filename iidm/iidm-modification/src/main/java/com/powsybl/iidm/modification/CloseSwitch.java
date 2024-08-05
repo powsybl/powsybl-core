@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class CloseSwitch extends AbstractNetworkModification {
+public class CloseSwitch extends AbstractSingleNetworkModification {
     private final String switchId;
 
     public CloseSwitch(String switchId) {

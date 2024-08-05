@@ -23,7 +23,7 @@ import java.util.Objects;
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public class ShuntCompensatorModification extends AbstractNetworkModification {
+public class ShuntCompensatorModification extends AbstractSingleNetworkModification {
 
     private final String shuntCompensatorId;
     private final Boolean connect;

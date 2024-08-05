@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractPhaseShifterModification extends AbstractNetworkModification {
+public abstract class AbstractPhaseShifterModification extends AbstractSingleNetworkModification {
 
     protected final String phaseShifterId;
     private static final String TRANSFORMER_NOT_FOUND = "Transformer '%s' not found";

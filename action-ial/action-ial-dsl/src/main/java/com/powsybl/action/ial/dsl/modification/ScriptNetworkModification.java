@@ -9,7 +9,7 @@ package com.powsybl.action.ial.dsl.modification;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.util.DryRunUtils;
@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ScriptNetworkModification extends AbstractNetworkModification {
+public class ScriptNetworkModification extends AbstractSingleNetworkModification {
 
     private final Closure<Void> script;
 

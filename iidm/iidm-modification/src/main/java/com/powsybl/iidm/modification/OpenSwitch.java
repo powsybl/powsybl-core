@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class OpenSwitch extends AbstractNetworkModification {
+public class OpenSwitch extends AbstractSingleNetworkModification {
 
     private final String switchId;
 

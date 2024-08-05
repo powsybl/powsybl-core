@@ -29,7 +29,7 @@ import static com.powsybl.iidm.network.util.TieLineUtil.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class ReplaceTieLinesByLines extends AbstractNetworkModification {
+public class ReplaceTieLinesByLines extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceTieLinesByLines.class);
 

@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public abstract class AbstractTripping extends AbstractNetworkModification implements Tripping {
+public abstract class AbstractTripping extends AbstractSingleNetworkModification implements Tripping {
 
     protected final String id;
 

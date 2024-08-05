@@ -20,7 +20,7 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public class GeneratorModification extends AbstractNetworkModification {
+public class GeneratorModification extends AbstractSingleNetworkModification {
 
     private final String generatorId;
     private final Modifs modifs;

@@ -19,7 +19,7 @@ import java.util.Objects;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class ThreeWindingsTransformerModification extends AbstractNetworkModification {
+public class ThreeWindingsTransformerModification extends AbstractSingleNetworkModification {
 
     private final String transformerId;
     private final Double ratedU0;

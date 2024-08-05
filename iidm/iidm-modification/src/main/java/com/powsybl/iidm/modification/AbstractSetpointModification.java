@@ -25,7 +25,7 @@ import java.util.OptionalDouble;
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public abstract class AbstractSetpointModification<T> extends AbstractNetworkModification {
+public abstract class AbstractSetpointModification<T> extends AbstractSingleNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSetpointModification.class);
 
     private final String elementId;

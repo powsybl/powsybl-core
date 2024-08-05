@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public final class ConnectGenerator extends AbstractNetworkModification {
+public final class ConnectGenerator extends AbstractSingleNetworkModification {
 
     private final String generatorId;
 

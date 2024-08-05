@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *             (mergedLineId)</pre>
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-public class RevertCreateLineOnLine extends AbstractNetworkModification {
+public class RevertCreateLineOnLine extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertCreateLineOnLine.class);
 

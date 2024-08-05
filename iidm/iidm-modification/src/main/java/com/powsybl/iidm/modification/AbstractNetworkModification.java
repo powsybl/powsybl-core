@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public abstract class AbstractNetworkModification implements NetworkModification {
+public abstract sealed class AbstractNetworkModification implements NetworkModification
+        permits AbstractSingleNetworkModification, NetworkModificationList {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
 
@@ -136,33 +137,10 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
+    public final boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                          ReportNode reportNode) {
         return apply(network, namingStrategy, throwException, computationManager, reportNode, false);
     }
-
-    //TODO It would be safer if this method was also final...
-    // But we need to override it for NetworkModificationList
-    // This should be achievable using "Sealed Classes".
-    @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                         ReportNode reportNode, boolean dryRun) {
-        if (dryRun) {
-            ReportNode reportNode1 = reportOnDryRunStart(network, reportNode);
-            try {
-                doApply(network, namingStrategy, true, computationManager, reportNode1, true);
-            } catch (Exception e) {
-                reportOnInconclusiveDryRun(reportNode1, getName(), e.getMessage());
-                return false;
-            }
-        } else {
-            doApply(network, namingStrategy, throwException, computationManager, reportNode, false);
-        }
-        return true;
-    }
-
-    public abstract void doApply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-            ReportNode reportNode, boolean dryRun);
 
     public abstract String getName();
 

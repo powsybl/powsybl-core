@@ -22,7 +22,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.notFoundBat
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public class BatteryModification extends AbstractNetworkModification {
+public class BatteryModification extends AbstractSingleNetworkModification {
 
     private final String batteryId;
     private final Double targetQ;

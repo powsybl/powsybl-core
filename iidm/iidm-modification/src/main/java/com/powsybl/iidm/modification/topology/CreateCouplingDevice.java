@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.util.DryRunUtils;
@@ -30,7 +30,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * that they must have the same sectionIndex, then no open disconnector is created.
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-public class CreateCouplingDevice extends AbstractNetworkModification {
+public class CreateCouplingDevice extends AbstractSingleNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateCouplingDevice.class);
 

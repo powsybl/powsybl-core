@@ -15,7 +15,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.*;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -59,7 +59,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SecurityAnalysisTest {
 
-    private static final class SecurityAnalysisModificationTest extends AbstractNetworkModification {
+    private static final class SecurityAnalysisModificationTest extends AbstractSingleNetworkModification {
         @Override
         public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
                             ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {

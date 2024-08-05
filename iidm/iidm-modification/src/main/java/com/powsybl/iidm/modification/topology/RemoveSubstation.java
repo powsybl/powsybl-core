@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -27,7 +27,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.removedSubs
 /**
  * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
-public class RemoveSubstation extends AbstractNetworkModification {
+public class RemoveSubstation extends AbstractSingleNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveSubstation.class);
 
     private final String substationId;

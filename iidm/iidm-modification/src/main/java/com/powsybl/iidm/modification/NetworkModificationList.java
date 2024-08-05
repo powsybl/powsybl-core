@@ -25,7 +25,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class NetworkModificationList extends AbstractNetworkModification {
+public non-sealed class NetworkModificationList extends AbstractNetworkModification {
 
     private final List<NetworkModification> modificationList;
 
@@ -45,13 +45,6 @@ public class NetworkModificationList extends AbstractNetworkModification {
         }
         modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
         return true;
-    }
-
-    @Override
-    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
-        // Should not be called
-        throw new IllegalStateException("Should not be called");
     }
 
     @Override
