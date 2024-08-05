@@ -54,6 +54,7 @@ class DataSourceBuilderTest {
         assertInstanceOf(Bzip2DirectoryDataSource.class, builder.withCompressionFormat(CompressionFormat.BZIP2).build());
 
         // Archive datasources
+        assertInstanceOf(TarArchiveDataSource.class, builder.withArchiveFormat(ArchiveFormat.TAR).build());
         assertInstanceOf(ZipArchiveDataSource.class, builder.withArchiveFormat(ArchiveFormat.ZIP).withCompressionFormat(null).build());
         assertInstanceOf(ZipArchiveDataSource.class, builder.withCompressionFormat(CompressionFormat.ZIP).build());
         assertInstanceOf(ZipArchiveDataSource.class, builder.withArchiveFormat(null).build());
@@ -96,9 +97,14 @@ class DataSourceBuilderTest {
             .withArchiveFileName("bar.zip")
             .withDataExtension(".baz");
 
+        // Wrong archive format
+        builder.withCompressionFormat(CompressionFormat.ZIP).withArchiveFormat(ArchiveFormat.TAR);
+        PowsyblException exception = assertThrows(PowsyblException.class, builder::build);
+        assertEquals("Incoherence between compression format ZIP and archive format TAR", exception.getMessage());
+
         // Wrong compression format
         builder.withCompressionFormat(CompressionFormat.GZIP).withArchiveFormat(ArchiveFormat.ZIP);
-        PowsyblException exception = assertThrows(PowsyblException.class, builder::build);
+        exception = assertThrows(PowsyblException.class, builder::build);
         assertEquals("Incoherence between compression format GZIP and archive format ZIP", exception.getMessage());
     }
 }

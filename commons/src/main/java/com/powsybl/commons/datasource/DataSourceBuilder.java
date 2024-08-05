@@ -69,6 +69,10 @@ class DataSourceBuilder {
         // Create the datasource
         if (compressionFormat == CompressionFormat.ZIP || archiveFormat == ArchiveFormat.ZIP) {
             return buildZip();
+        } else if (archiveFormat == ArchiveFormat.TAR) {
+            return archiveFileName == null ?
+                new TarArchiveDataSource(directory, baseName, dataExtension, compressionFormat, observer) :
+                new TarArchiveDataSource(directory, archiveFileName, baseName, dataExtension, compressionFormat, observer);
         } else if (compressionFormat == null) {
             return new DirectoryDataSource(directory, baseName, dataExtension, observer);
         } else {

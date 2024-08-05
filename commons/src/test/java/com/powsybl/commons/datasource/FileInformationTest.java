@@ -22,6 +22,7 @@ class FileInformationTest {
     void tests() {
         unitTest("dummy", "dummy", null, null, "");
         unitTest("dummy.iidm", "dummy", null, null, "iidm");
+        unitTest("dummy.tar.gz", "dummy", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
         unitTest("dummy.xml.xz", "dummy", CompressionFormat.XZ, null, "xml");
 
         // A zip file is a compressed archive
@@ -40,6 +41,8 @@ class FileInformationTest {
         unitTest(".dummy", ".dummy", null, null, "");
         unitTest(".iidm", ".iidm", null, null, "");
         unitTest(".zip", "", CompressionFormat.ZIP, ArchiveFormat.ZIP, "");
+        unitTest(".dummy.tar.gz", ".dummy", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
+        unitTest(".tar.gz", "", CompressionFormat.GZIP, ArchiveFormat.TAR, "");
         unitTest(".dummy.jiidm.zip", ".dummy", CompressionFormat.ZIP, ArchiveFormat.ZIP, "jiidm");
 
         PowsyblException exception = assertThrows(PowsyblException.class, () -> new FileInformation(""));
