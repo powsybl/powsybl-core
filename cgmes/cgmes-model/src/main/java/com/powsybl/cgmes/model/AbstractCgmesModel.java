@@ -114,11 +114,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             baseVoltages()
                 .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
         }
-        if (cachedBaseVoltages.containsKey(baseVoltageId)) {
-            return cachedBaseVoltages.get(baseVoltageId);
-        } else {
-            return Double.NaN;
-        }
+        return cachedBaseVoltages.getOrDefault(baseVoltageId, Double.NaN);
     }
 
     @Override

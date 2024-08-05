@@ -50,7 +50,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
         List<Extension<ShortCircuitAnalysisResult>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken();
                     version = parser.readValueAs(String.class);
@@ -60,7 +60,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         ShortCircuitAnalysisResult result = new ShortCircuitAnalysisResult(faultResults);

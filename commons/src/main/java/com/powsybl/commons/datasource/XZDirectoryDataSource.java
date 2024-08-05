@@ -16,19 +16,10 @@ import java.nio.file.Path;
 /**
  * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
-public class XZFileDataSource extends FileDataSource {
+public class XZDirectoryDataSource extends DirectoryDataSource {
 
-    public XZFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
-    }
-
-    public XZFileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
-    }
-
-    @Override
-    protected String getCompressionExt() {
-        return ".xz";
+    public XZDirectoryDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
+        super(directory, baseName, dataExtension, CompressionFormat.XZ, observer);
     }
 
     @Override
