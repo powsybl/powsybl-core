@@ -259,12 +259,11 @@ public class MatpowerExporter implements Exporter {
             Bus bus1 = findBus(twt.getLeg1().getTerminal());
             Bus bus2 = findBus(twt.getLeg2().getTerminal());
             Bus bus3 = findBus(twt.getLeg3().getTerminal());
-            if (isExported(bus1, context) && isExported(bus2, context) && isExported(bus3, context)
-                    && !isStarBusIsolated(twt.getLeg1().getTerminal(), twt.getLeg2().getTerminal(), twt.getLeg3().getTerminal())) {
+            if (isExported(bus1, context) && isExported(bus2, context) && isExported(bus3, context)) {
                 MBus mBus = new MBus();
                 mBus.setNumber(findBusNumber(twt.getId(), context));
                 mBus.setName(twt.getNameOrId());
-                mBus.setType(MBus.Type.PQ);
+                mBus.setType(findStarBusType(twt.getLeg1().getTerminal(), twt.getLeg2().getTerminal(), twt.getLeg3().getTerminal()));
                 mBus.setAreaNumber(AREA_NUMBER);
                 mBus.setLossZone(LOSS_ZONE);
                 mBus.setBaseVoltage(twt.getRatedU0());
@@ -281,6 +280,10 @@ public class MatpowerExporter implements Exporter {
                 model.addBus(mBus);
             }
         }
+    }
+
+    private static MBus.Type findStarBusType(Terminal t1, Terminal t2, Terminal t3) {
+        return isStarBusIsolated(t1, t2, t3) ? MBus.Type.ISOLATED : MBus.Type.PQ;
     }
 
     private static boolean isStarBusIsolated(Terminal t1, Terminal t2, Terminal t3) {
