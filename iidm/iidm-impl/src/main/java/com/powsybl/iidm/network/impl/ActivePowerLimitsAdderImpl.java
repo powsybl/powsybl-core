@@ -38,8 +38,4 @@ public class ActivePowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<Activ
         return limits;
     }
 
-    @Override
-    public ActivePowerLimitsAdder setTemporaryLimitValue(int acceptableDuration, double limit) {
-        return null;
-    }
 }

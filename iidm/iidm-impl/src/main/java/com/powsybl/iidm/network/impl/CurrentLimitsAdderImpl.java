@@ -42,8 +42,4 @@ public class CurrentLimitsAdderImpl extends AbstractLoadingLimitsAdder<CurrentLi
         return limits;
     }
 
-    @Override
-    public CurrentLimitsAdder setTemporaryLimitValue(int acceptableDuration, double limit) {
-        return null;
-    }
 }
