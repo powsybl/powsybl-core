@@ -22,9 +22,9 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -37,7 +37,7 @@ class GroovyCurvesSupplierTest {
     void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
-        Files.copy(getClass().getResourceAsStream("/curves.groovy"), fileSystem.getPath("/curves.groovy"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/curves.groovy")), fileSystem.getPath("/curves.groovy"));
     }
 
     @AfterEach
@@ -51,7 +51,7 @@ class GroovyCurvesSupplierTest {
 
         List<CurveGroovyExtension> extensions = GroovyExtension.find(CurveGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof DummyCurveGroovyExtension);
+        assertInstanceOf(DummyCurveGroovyExtension.class, extensions.get(0));
 
         CurvesSupplier supplier = new GroovyCurvesSupplier(fileSystem.getPath("/curves.groovy"), extensions);
 
@@ -64,7 +64,7 @@ class GroovyCurvesSupplierTest {
 
         List<CurveGroovyExtension> extensions = GroovyExtension.find(CurveGroovyExtension.class, "dummy");
         assertEquals(1, extensions.size());
-        assertTrue(extensions.get(0) instanceof DummyCurveGroovyExtension);
+        assertInstanceOf(DummyCurveGroovyExtension.class, extensions.get(0));
 
         CurvesSupplier supplier = new GroovyCurvesSupplier(getClass().getResourceAsStream("/curves.groovy"), extensions);
 
@@ -75,12 +75,12 @@ class GroovyCurvesSupplierTest {
         List<Curve> curves = supplier.get(network);
         assertEquals(2, curves.size());
 
-        assertTrue(curves.get(0) instanceof DummyCurve);
+        assertInstanceOf(DummyCurve.class, curves.get(0));
         DummyCurve curve1 = (DummyCurve) curves.get(0);
         assertEquals("id", curve1.getId());
         assertEquals("variable", curve1.getVariable());
 
-        assertTrue(curves.get(1) instanceof DummyCurve);
+        assertInstanceOf(DummyCurve.class, curves.get(1));
         DummyCurve curve2 = (DummyCurve) curves.get(1);
         assertEquals("LOAD", curve2.getId());
         assertEquals("p0", curve2.getVariable());

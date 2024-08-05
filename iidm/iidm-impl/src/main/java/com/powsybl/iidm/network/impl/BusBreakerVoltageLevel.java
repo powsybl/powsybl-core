@@ -202,24 +202,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             for (TerminalExt terminal : FluentIterable.from(busSet).transformAndConcat(ConfiguredBus::getConnectedTerminals)) {
                 AbstractConnectable connectable = terminal.getConnectable();
                 switch (connectable.getType()) {
-                    case LINE:
-                    case TWO_WINDINGS_TRANSFORMER:
-                    case THREE_WINDINGS_TRANSFORMER:
-                    case HVDC_CONVERTER_STATION:
-                    case DANGLING_LINE:
-                    case LOAD:
-                    case GENERATOR:
-                    case BATTERY:
-                    case SHUNT_COMPENSATOR:
-                    case STATIC_VAR_COMPENSATOR:
-                        feederCount++;
-                        break;
-                    case GROUND:
-                        break;
-
-                    case BUSBAR_SECTION: // must not happend in a bus/breaker topology
-                    default:
-                        throw new IllegalStateException();
+                    case LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION,
+                         DANGLING_LINE, LOAD, GENERATOR, BATTERY, SHUNT_COMPENSATOR, STATIC_VAR_COMPENSATOR -> feederCount++;
+                    case GROUND -> {
+                        // Do nothing
+                    }
+                    default -> throw new IllegalStateException();
                 }
             }
             return Networks.isBusValid(feederCount);

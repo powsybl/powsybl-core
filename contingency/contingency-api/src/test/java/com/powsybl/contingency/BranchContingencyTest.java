@@ -31,7 +31,7 @@ class BranchContingencyTest {
         assertEquals(ContingencyElementType.BRANCH, contingency.getType());
 
         assertNotNull(contingency.toModification());
-        assertTrue(contingency.toModification() instanceof BranchTripping);
+        assertInstanceOf(BranchTripping.class, contingency.toModification());
 
         contingency = new BranchContingency("id", "voltageLevelId");
         assertEquals("voltageLevelId", contingency.getVoltageLevelId());

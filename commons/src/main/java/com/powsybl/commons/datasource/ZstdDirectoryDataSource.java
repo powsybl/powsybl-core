@@ -16,19 +16,10 @@ import java.nio.file.Path;
 /**
  * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
  */
-public class ZstdFileDataSource extends FileDataSource {
+public class ZstdDirectoryDataSource extends DirectoryDataSource {
 
-    public ZstdFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        super(directory, baseName, observer);
-    }
-
-    public ZstdFileDataSource(Path directory, String baseName) {
-        super(directory, baseName);
-    }
-
-    @Override
-    protected String getCompressionExt() {
-        return ".zst";
+    public ZstdDirectoryDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
+        super(directory, baseName, dataExtension, CompressionFormat.ZSTD, observer);
     }
 
     @Override

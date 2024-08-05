@@ -144,18 +144,18 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
-                .newPhaseTapChanger()
-                .beginStep()
-                .setRho(1)
-                .setR(0.1)
-                .setX(1.)
-                .setB(0.)
-                .setG(0.)
-                .setAlpha(0)
-                .endStep()
-                .setTapPosition(0)
-                .setLowTapPosition(0)
-                .add();
+            .newPhaseTapChanger()
+            .beginStep()
+            .setRho(1)
+            .setR(0.1)
+            .setX(1.)
+            .setB(0.)
+            .setG(0.)
+            .setAlpha(0)
+            .endStep()
+            .setTapPosition(0)
+            .setLowTapPosition(0)
+            .add();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, new Properties(), dataSource);
@@ -195,10 +195,10 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         for (DanglingLine danglingLine : network.getDanglingLines()) {
             danglingLine.newCurrentLimits()
-                    .setPermanentLimit(100.0)
-                    .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
-                    .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
-                    .add();
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
+                .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
+                .add();
         }
 
         Properties properties = new Properties();

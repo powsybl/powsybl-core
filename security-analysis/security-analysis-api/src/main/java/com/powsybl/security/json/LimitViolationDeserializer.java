@@ -52,7 +52,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "subjectId":
                     subjectId = parser.nextTextValue();
                     break;
@@ -101,7 +101,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

@@ -37,7 +37,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
         String version = null;
         List<NetworkElementIdentifier> networkElementIdentifiers = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String test = parser.getCurrentName();
+            String test = parser.currentName();
             switch (test) {
                 case "version" -> {
                     version = parser.nextTextValue();
@@ -58,7 +58,7 @@ public class IdentifierContingencyListDeserializer extends StdDeserializer<Ident
                     parser.nextToken();
                     networkElementIdentifiers = JsonUtil.readList(deserializationContext, parser, NetworkElementIdentifier.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return new IdentifierContingencyList(name, networkElementIdentifiers);

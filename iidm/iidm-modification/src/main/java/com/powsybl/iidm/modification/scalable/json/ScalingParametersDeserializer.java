@@ -41,7 +41,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
     public ScalingParameters deserialize(JsonParser parser, DeserializationContext context, ScalingParameters parameters) throws IOException {
         String version = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken(); // do nothing
                     version = parser.getValueAsString();
@@ -72,7 +72,7 @@ public class ScalingParametersDeserializer extends StdDeserializer<ScalingParame
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: ignoredInjectionIds", version, "1.2");
                     parameters.setIgnoredInjectionIds(new HashSet<>(JsonUtil.parseStringArray(parser)));
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         return parameters;

@@ -17,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -74,7 +74,7 @@ class PsseExporterTest extends AbstractSerDeTest {
         Path file = fileSystem.getPath(pathName + fileName);
 
         Properties properties = null;
-        DataSource dataSource = new FileDataSource(path, baseName);
+        DataSource dataSource = new DirectoryDataSource(path, baseName);
         new PsseExporter().export(network, properties, dataSource);
 
         try (InputStream is = Files.newInputStream(file)) {

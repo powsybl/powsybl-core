@@ -7,8 +7,23 @@
  */
 package com.powsybl.shortcircuit;
 
+/**
+ * The type of short-circuit calculation, transient, sub-transient or steady-state.
+ */
 public enum StudyType {
+
+    /**
+     * The first stage of the short circuit, right when the fault occurs.
+     */
     SUB_TRANSIENT,
+
+    /**
+     * The second stage of the short circuit, before the system stabilizes.
+     */
     TRANSIENT,
+
+    /**
+     * The final stage of the short circuit, when all transient effects have disappeared.
+     */
     STEADY_STATE
 }

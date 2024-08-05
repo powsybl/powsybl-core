@@ -17,7 +17,6 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,17 +31,17 @@ class SubContingenciesProviderTest {
     void test() {
         ContingenciesProvider provider = n -> IntStream.range(1, 5)
                 .mapToObj(i -> new Contingency("contingency-" + i))
-                .collect(Collectors.toList());
+                .toList();
 
         Network network = Mockito.mock(Network.class);
 
         List<String> subList1 = new SubContingenciesProvider(provider, new Partition(1, 2))
                 .getContingencies(network)
-                .stream().map(Contingency::getId).collect(Collectors.toList());
+                .stream().map(Contingency::getId).toList();
 
         List<String> subList2 = new SubContingenciesProvider(provider, new Partition(2, 2))
                 .getContingencies(network)
-                .stream().map(Contingency::getId).collect(Collectors.toList());
+                .stream().map(Contingency::getId).toList();
 
         assertEquals(ImmutableList.of("contingency-1", "contingency-2"), subList1);
         assertEquals(ImmutableList.of("contingency-3", "contingency-4"), subList2);
@@ -56,7 +55,7 @@ class SubContingenciesProviderTest {
 
         List<String> subList1 = new SubContingenciesProvider(provider, new Partition(1, 1))
                 .getContingencies(network)
-                .stream().map(Contingency::getId).collect(Collectors.toList());
+                .stream().map(Contingency::getId).toList();
 
         assertEquals(Collections.emptyList(), subList1);
     }

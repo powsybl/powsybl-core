@@ -524,9 +524,9 @@ public class Comparison {
         // so we sort points by active power, then compare resulting lists point by point
         Comparator<Point> comparePoints = (p0, p1) -> Double.compare(p0.getP(), p1.getP());
         List<Point> e = expected.getPoints().stream().sorted(comparePoints)
-                .collect(Collectors.toList());
+                .toList();
         List<Point> a = actual.getPoints().stream().sorted(comparePoints)
-                .collect(Collectors.toList());
+                .toList();
         compare("reactiveCapabilityCurve.size", e.size(), a.size());
         for (int k = 0; k < e.size(); k++) {
             Point pe = e.get(k);
