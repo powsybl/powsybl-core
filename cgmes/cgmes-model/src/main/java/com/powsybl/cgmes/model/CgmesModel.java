@@ -228,6 +228,10 @@ public interface CgmesModel {
      */
     String voltageLevel(CgmesTerminal t, boolean nodeBreaker);
 
+    Optional<String> node(CgmesTerminal t, boolean nodeBreaker);
+
+    Optional<CgmesContainer> nodeContainer(String nodeId);
+
     CgmesContainer container(String containerId);
 
     double nominalVoltage(String baseVoltageId);

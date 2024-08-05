@@ -166,13 +166,13 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (insideBoundary() && context.config().convertBoundary()) {
             return context.network().getVoltageLevel(Context.boundaryVoltageLevelId(this.id));
         } else if (!insideBoundary()) {
-            String containerId = p.getId("ConnectivityNodeContainer");
+            String containerId = p.getId(CgmesNames.CONNECTIVITY_NODE_CONTAINER);
             String cgmesId = context.cgmes().container(containerId).voltageLevel();
             if (cgmesId == null) {
                 // A CGMES Voltage Level can not be obtained from the connectivity node container
                 // The connectivity node container is a cim:Line, and
                 // the conversion has created a fictitious voltage level in IIDM
-                cgmesId = Conversion.getFictitiousVoltageLevelForNodeInContainer(containerId, this.id);
+                cgmesId = Conversion.getFictitiousVoltageLevelForContainer(containerId, this.id, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
             }
             String iidm = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
             String iidmId = context.substationIdMapping().voltageLevelIidm(iidm);

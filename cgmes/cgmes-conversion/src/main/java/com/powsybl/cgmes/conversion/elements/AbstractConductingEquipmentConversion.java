@@ -12,10 +12,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
@@ -31,7 +28,7 @@ import java.util.Optional;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  *         <p>
  *         A ConductingEquipment has at least one Terminal. From the Terminal we
- *         get either its ConnectivityNode or its TopologicalNode, depending of
+ *         get either its ConnectivityNode or its TopologicalNode, depending on
  *         the conversion context
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
@@ -519,22 +516,29 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             } else {
                 // cgmesVoltageLevelId may be null if terminal is contained in a Line
                 // (happens in boundaries)
-                cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
+                cgmesVoltageLevelId = obtainCgmesVoltageLevelId(nodeId, context);
             }
             if (cgmesVoltageLevelId != null) {
                 String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
                 iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
-                // if terminal is contained in a Line Container, a fictitious voltage level is created,
-                // its ID is composed by its connectivity node ID + '_VL' sufix
-                voltageLevel = context.network().getVoltageLevel(nodeId + "_VL");
-                if (voltageLevel != null) {
-                    iidmVoltageLevelId = nodeId + "_VL";
-                } else {
-                    iidmVoltageLevelId = null;
+                iidmVoltageLevelId = null;
+                voltageLevel = null;
+            }
+        }
+
+        // if nodeId is contained in a Line Container, the fictitious voltage level that it is created must be considered
+        private static String obtainCgmesVoltageLevelId(String nodeId, Context context) {
+            String cgmesVoltageLevelId = null;
+            Optional<CgmesContainer> cgmesContainer = context.cgmes().nodeContainer(nodeId);
+            if (cgmesContainer.isPresent()) {
+                cgmesVoltageLevelId = cgmesContainer.get().voltageLevel();
+                if (cgmesVoltageLevelId == null) {
+                    cgmesVoltageLevelId = Conversion.getFictitiousVoltageLevelForContainer(cgmesContainer.get().id(), nodeId, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
                 }
             }
+            return cgmesVoltageLevelId;
         }
     }
 
