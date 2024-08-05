@@ -150,7 +150,14 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     /**
      * Set the maximal active power in MW.
      */
-    Generator setMaxP(double maxP);
+    default Generator setMaxP(double maxP) {
+        return setMaxP(maxP, false);
+    }
+
+    /**
+     * Set the maximal active power in MW.
+     */
+    Generator setMaxP(double maxP, boolean dryRun);
 
     /**
      * Get the minimal active power in MW.
@@ -160,7 +167,14 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     /**
      * Set the minimal active power in MW.
      */
-    Generator setMinP(double minP);
+    default Generator setMinP(double minP) {
+        return setMinP(minP, false);
+    }
+
+    /**
+     * Set the minimal active power in MW.
+     */
+    Generator setMinP(double minP, boolean dryRun);
 
     /**
      * Get the voltage regulator status.
@@ -176,7 +190,17 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
-    Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
+    default Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        return setVoltageRegulatorOn(voltageRegulatorOn, false);
+    }
+
+    /**
+     * Set the voltage regulator status.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Generator setVoltageRegulatorOn(boolean voltageRegulatorOn, boolean dryRun);
 
     /**
      * Get the terminal used for regulation.
@@ -200,7 +224,17 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
-    Generator setTargetV(double targetV);
+    default Generator setTargetV(double targetV) {
+        return setTargetV(targetV, false);
+    }
+
+    /**
+     * Set the voltage target in kV.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Generator setTargetV(double targetV, boolean dryRun);
 
     /**
      * Get the active power target in MW.
@@ -216,7 +250,17 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
-    Generator setTargetP(double targetP);
+    default Generator setTargetP(double targetP) {
+        return setTargetP(targetP, false);
+    }
+
+    /**
+     * Set the active power target in MW.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Generator setTargetP(double targetP, boolean dryRun);
 
     /**
      * Get the reactive power target in MVAR.
@@ -232,7 +276,17 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * Depends on the working variant.
      * @see VariantManager
      */
-    Generator setTargetQ(double targetQ);
+    default Generator setTargetQ(double targetQ) {
+        return setTargetQ(targetQ, false);
+    }
+
+    /**
+     * Set the reactive power target in MVAR.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    Generator setTargetQ(double targetQ, boolean dryRun);
 
     /**
      * Get the rated nominal power (apparent power rating) in MVA.

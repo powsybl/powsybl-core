@@ -19,7 +19,7 @@ import java.util.Objects;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class ThreeWindingsTransformerModification extends AbstractNetworkModification {
+public class ThreeWindingsTransformerModification extends AbstractSingleNetworkModification {
 
     private final String transformerId;
     private final Double ratedU0;
@@ -30,19 +30,34 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
         if (t3wt == null) {
             logOrThrow(throwException, "ThreeWindingsTransformer '" + transformerId + "' not found");
             return;
         }
         if (ratedU0 > 0) {
-            t3wt.getLeg1().setRatedU(calculateNewRatedU(t3wt.getLeg1().getRatedU(), t3wt.getRatedU0(), ratedU0));
-            t3wt.getLeg2().setRatedU(calculateNewRatedU(t3wt.getLeg2().getRatedU(), t3wt.getRatedU0(), ratedU0));
-            t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0));
-            t3wt.setRatedU0(ratedU0);
+            t3wt.getLeg1().setRatedU(calculateNewRatedU(t3wt.getLeg1().getRatedU(), t3wt.getRatedU0(), ratedU0), dryRun);
+            t3wt.getLeg2().setRatedU(calculateNewRatedU(t3wt.getLeg2().getRatedU(), t3wt.getRatedU0(), ratedU0), dryRun);
+            t3wt.getLeg3().setRatedU(calculateNewRatedU(t3wt.getLeg3().getRatedU(), t3wt.getRatedU0(), ratedU0), dryRun);
+            t3wt.setRatedU0(ratedU0, dryRun);
         }
+    }
+
+    @Override
+    public String getName() {
+        return "ThreeWindingsTransformerModification";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 
     private static double calculateNewRatedU(double ratedU, double ratedU0, double newRatedU0) {

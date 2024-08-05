@@ -44,14 +44,29 @@ public class DanglingLineModification extends AbstractLoadModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         DanglingLine danglingLine = network.getDanglingLine(getDanglingLineId());
         if (danglingLine == null) {
             logOrThrow(throwException, "DanglingLine '" + getDanglingLineId() + "' not found");
             return;
         }
-        getP0().ifPresent(value -> danglingLine.setP0((isRelativeValue() ? danglingLine.getP0() : 0) + value));
-        getQ0().ifPresent(value -> danglingLine.setQ0((isRelativeValue() ? danglingLine.getQ0() : 0) + value));
+        getP0().ifPresent(value -> danglingLine.setP0((isRelativeValue() ? danglingLine.getP0() : 0) + value, dryRun));
+        getQ0().ifPresent(value -> danglingLine.setQ0((isRelativeValue() ? danglingLine.getQ0() : 0) + value, dryRun));
+    }
+
+    @Override
+    public String getName() {
+        return "DanglingLineModification";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 }

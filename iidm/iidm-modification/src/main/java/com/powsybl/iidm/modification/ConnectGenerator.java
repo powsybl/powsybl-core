@@ -22,7 +22,7 @@ import java.util.Objects;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public final class ConnectGenerator extends AbstractNetworkModification {
+public final class ConnectGenerator extends AbstractSingleNetworkModification {
 
     private final String generatorId;
 
@@ -31,17 +31,32 @@ public final class ConnectGenerator extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             throw new PowsyblException("Generator '" + generatorId + "' not found");
         }
 
-        connect(g);
+        connect(g, dryRun);
     }
 
-    static void connect(Generator g) {
+    @Override
+    public String getName() {
+        return "ConnectGenerator";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
+    static void connect(Generator g, boolean dryRun) {
         Objects.requireNonNull(g);
 
         if (g.getTerminal().isConnected()) {
@@ -49,10 +64,10 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         }
 
         Terminal t = g.getTerminal();
-        t.connect();
+        t.connect(dryRun);
         if (g.isVoltageRegulatorOn()) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(), g.getId(), IdentifiableType.GENERATOR)
-                    .ifPresent(g::setTargetV);
+                    .ifPresent(targetV -> g.setTargetV(targetV, dryRun));
         }
     }
 }

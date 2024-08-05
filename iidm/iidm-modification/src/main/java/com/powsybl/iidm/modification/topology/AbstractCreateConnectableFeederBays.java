@@ -10,12 +10,13 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.util.ModificationLogs;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
 import com.powsybl.iidm.network.extensions.ConnectablePosition;
 import com.powsybl.iidm.network.extensions.ConnectablePositionAdder;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.apache.commons.lang3.Range;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModification {
+abstract class AbstractCreateConnectableFeederBays extends AbstractSingleNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractCreateConnectableFeederBays.class);
 
@@ -59,7 +60,11 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         // Set the connectable bus or node
         if (!setAdderConnectivity(network, reportNode, throwException)) {
             return;

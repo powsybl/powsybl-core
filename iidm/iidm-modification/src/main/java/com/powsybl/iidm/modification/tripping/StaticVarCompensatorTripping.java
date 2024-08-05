@@ -29,4 +29,9 @@ public class StaticVarCompensatorTripping extends AbstractInjectionTripping {
 
         return injection;
     }
+
+    @Override
+    public String getName() {
+        return "StaticVarCompensatorTripping";
+    }
 }

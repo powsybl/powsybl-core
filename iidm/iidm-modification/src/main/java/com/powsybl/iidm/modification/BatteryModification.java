@@ -15,12 +15,14 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundBatteryReport;
+
 /**
  * Simple {@link NetworkModification} for a battery.
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public class BatteryModification extends AbstractNetworkModification {
+public class BatteryModification extends AbstractSingleNetworkModification {
 
     private final String batteryId;
     private final Double targetQ;
@@ -33,19 +35,37 @@ public class BatteryModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Battery battery = network.getBattery(batteryId);
         if (battery == null) {
+            notFoundBatteryReport(reportNode, batteryId);
             logOrThrow(throwException, "Battery '" + batteryId + "' not found");
             return;
         }
-        if (targetP != null) {
-            battery.setTargetP(targetP);
+        if (!dryRun) {
+            if (targetP != null) {
+                battery.setTargetP(targetP);
+            }
+            if (targetQ != null) {
+                battery.setTargetQ(targetQ);
+            }
         }
-        if (targetQ != null) {
-            battery.setTargetQ(targetQ);
-        }
+    }
+
+    @Override
+    public String getName() {
+        return "BatteryModification";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 
     public String getBatteryId() {

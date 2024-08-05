@@ -29,4 +29,9 @@ public class BatteryTripping extends AbstractInjectionTripping {
 
         return injection;
     }
+
+    @Override
+    public String getName() {
+        return "BatteryTripping";
+    }
 }

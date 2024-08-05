@@ -10,7 +10,7 @@ package com.powsybl.iidm.modification.tripping;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -23,7 +23,7 @@ import java.util.Set;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public abstract class AbstractTripping extends AbstractNetworkModification implements Tripping {
+public abstract class AbstractTripping extends AbstractSingleNetworkModification implements Tripping {
 
     protected final String id;
 
@@ -36,15 +36,25 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Set<Switch> switchesToOpen = new HashSet<>();
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
         traverse(network, switchesToOpen, terminalsToDisconnect);
 
-        switchesToOpen.forEach(s -> s.setOpen(true));
-        terminalsToDisconnect.forEach(Terminal::disconnect);
+        switchesToOpen.forEach(s -> s.setOpen(true, dryRun));
+        terminalsToDisconnect.forEach(t -> t.disconnect(dryRun));
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 
     public void traverseDoubleSidedEquipment(String voltageLevelId, Terminal terminal1, Terminal terminal2, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals, String equipmentType) {

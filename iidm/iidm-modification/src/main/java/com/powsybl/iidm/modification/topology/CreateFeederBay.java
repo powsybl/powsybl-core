@@ -96,4 +96,9 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     protected ConnectablePositionAdder.FeederAdder<?> getFeederAdder(int side, ConnectablePositionAdder<?> connectablePositionAdder) {
         return connectablePositionAdder.newFeeder();
     }
+
+    @Override
+    public String getName() {
+        return "CreateFeederBay";
+    }
 }

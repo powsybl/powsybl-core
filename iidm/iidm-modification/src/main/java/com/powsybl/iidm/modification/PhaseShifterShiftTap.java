@@ -7,26 +7,23 @@
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import java.util.Objects;
 
 /**
  * @author Hamou AMROUN {@literal <hamou.amroun at rte-france.com>}
  */
-public class PhaseShifterShiftTap extends AbstractNetworkModification {
+public class PhaseShifterShiftTap extends AbstractPhaseShifterModification {
 
-    private final String phaseShifterId;
     private final int tapDelta;
 
     public PhaseShifterShiftTap(String phaseShifterId, int tapDelta) {
-        this.phaseShifterId = Objects.requireNonNull(phaseShifterId);
+        super(phaseShifterId);
         this.tapDelta = tapDelta;
     }
 
@@ -35,24 +32,32 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Objects.requireNonNull(network);
-        TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
-        if (phaseShifter == null) {
-            throw new PowsyblException("Transformer '" + phaseShifterId + "' not found");
-        }
-        PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
-        if (phaseTapChanger == null) {
-            throw new PowsyblException("Transformer '" + phaseShifterId + "' is not a phase shifter");
-        }
-        adjustTapPosition(phaseTapChanger);
-        phaseTapChanger.setRegulating(false);
-        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        PhaseTapChanger phaseTapChanger = getPhaseTapChanger(network);
+        adjustTapPosition(phaseTapChanger, dryRun);
+        phaseTapChanger.setRegulating(false, dryRun);
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP, dryRun);
     }
 
-    private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
+    @Override
+    public String getName() {
+        return "PhaseShifterShiftTap";
+    }
+
+    private void adjustTapPosition(PhaseTapChanger phaseTapChanger, boolean dryRun) {
         phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
-                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
+                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()), dryRun);
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 }

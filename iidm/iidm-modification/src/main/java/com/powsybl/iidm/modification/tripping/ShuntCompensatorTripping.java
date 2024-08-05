@@ -29,4 +29,9 @@ public class ShuntCompensatorTripping extends AbstractInjectionTripping {
 
         return injection;
     }
+
+    @Override
+    public String getName() {
+        return "ShuntCompensatorTripping";
+    }
 }

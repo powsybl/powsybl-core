@@ -46,4 +46,9 @@ public class HvdcLineTripping extends AbstractTripping {
 
         traverseDoubleSidedEquipment(voltageLevelId, terminal1, terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals, hvdcLine.getType().name());
     }
+
+    @Override
+    public String getName() {
+        return "HvdcLineTripping";
+    }
 }

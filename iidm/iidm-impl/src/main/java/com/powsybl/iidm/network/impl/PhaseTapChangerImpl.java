@@ -73,7 +73,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
-    public PhaseTapChangerImpl setRegulating(boolean regulating) {
+    public PhaseTapChangerImpl setRegulating(boolean regulating, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(),
                 n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
@@ -81,8 +81,8 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
                 regulating, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        n.invalidateValidationLevel();
-        return super.setRegulating(regulating);
+        n.invalidateValidationLevel(dryRun);
+        return super.setRegulating(regulating, dryRun);
     }
 
     @Override
@@ -91,14 +91,16 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
-    public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
+    public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(),
                 isRegulating(), getRegulationTerminal(), n, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         RegulationMode oldValue = this.regulationMode;
-        this.regulationMode = regulationMode;
-        n.invalidateValidationLevel();
-        notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+        if (!dryRun) {
+            this.regulationMode = regulationMode;
+            n.invalidateValidationLevel();
+            notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
+        }
         return this;
     }
 

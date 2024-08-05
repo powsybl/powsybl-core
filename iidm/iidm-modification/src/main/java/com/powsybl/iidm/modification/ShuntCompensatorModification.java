@@ -23,7 +23,7 @@ import java.util.Objects;
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public class ShuntCompensatorModification extends AbstractNetworkModification {
+public class ShuntCompensatorModification extends AbstractSingleNetworkModification {
 
     private final String shuntCompensatorId;
     private final Boolean connect;
@@ -36,8 +36,8 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
 
         if (shuntCompensator == null) {
@@ -48,21 +48,36 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         if (connect != null) {
             Terminal t = shuntCompensator.getTerminal();
             if (connect.booleanValue()) {
-                t.connect();
-                setTargetV(shuntCompensator);
+                t.connect(dryRun);
+                setTargetV(shuntCompensator, dryRun);
             } else {
-                t.disconnect();
+                t.disconnect(dryRun);
             }
         }
         if (sectionCount != null) {
-            shuntCompensator.setSectionCount(sectionCount);
+            shuntCompensator.setSectionCount(sectionCount, dryRun);
         }
     }
 
-    private static void setTargetV(ShuntCompensator shuntCompensator) {
+    @Override
+    public String getName() {
+        return "ShuntCompensatorModification";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
+    private static void setTargetV(ShuntCompensator shuntCompensator, boolean dryRun) {
         if (shuntCompensator.isVoltageRegulatorOn()) {
             VoltageRegulationUtils.getTargetVForRegulatingElement(shuntCompensator.getNetwork(), shuntCompensator.getRegulatingTerminal().getBusView().getBus(),
-                    shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR).ifPresent(shuntCompensator::setTargetV);
+                    shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR).ifPresent(v -> shuntCompensator.setTargetV(v, dryRun));
         }
     }
 

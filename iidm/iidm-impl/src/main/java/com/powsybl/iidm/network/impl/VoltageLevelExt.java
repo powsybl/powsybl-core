@@ -57,15 +57,21 @@ interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     boolean connect(TerminalExt terminal);
 
+    boolean connect(TerminalExt terminal, boolean dryRun);
+
     boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate);
+
+    boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate, boolean dryRun);
 
     boolean disconnect(TerminalExt terminal);
 
+    boolean disconnect(TerminalExt terminal, boolean dryRun);
+
     boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable);
 
-    default void invalidateCache() {
-        invalidateCache(false);
-    }
+    boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable, boolean dryRun);
+
+    void invalidateCache();
 
     void invalidateCache(boolean exceptBusBreakerView);
 

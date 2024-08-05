@@ -64,7 +64,10 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     }
 
     @Override
-    public void setOpen(boolean open) {
+    public void setOpen(boolean open, boolean dryRun) {
+        if (dryRun) {
+            return;
+        }
         NetworkImpl network = getNetwork();
         int index = network.getVariantIndex();
         boolean oldValue = this.open.get(index);

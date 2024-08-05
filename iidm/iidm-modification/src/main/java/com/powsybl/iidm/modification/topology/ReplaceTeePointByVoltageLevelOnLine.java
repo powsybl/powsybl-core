@@ -10,9 +10,10 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModification {
+public class ReplaceTeePointByVoltageLevelOnLine extends AbstractSingleNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReplaceTeePointByVoltageLevelOnLine.class);
 
@@ -59,6 +60,7 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
     private static final String LINE_NOT_FOUND_LOG_MESSAGE = "Line {} is not found";
     private static final String LINE_REMOVED_LOG_MESSAGE = "Line {} removed";
+    private static final String NETWORK_MODIFICATION_NAME = "CreateCouplingDevice";
 
     /**
      * Constructor.
@@ -119,8 +121,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         Line tpLine1 = getLineFromNetwork(network, teePointLine1Id, reportNode, throwException);
         if (tpLine1 == null) {
             return;
@@ -216,6 +221,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
 
         // remove tee point
         removeVoltageLevelAndSubstation(teePoint, reportNode);
+    }
+
+    @Override
+    public String getName() {
+        return "ReplaceTeePointByVoltageLevelOnLine";
     }
 
     private boolean createTopology(LineAdder newLine1Adder, LineAdder newLine2Adder, VoltageLevel tappedVoltageLevel, NamingStrategy namingStrategy, ReportNode reportNode, boolean throwException) {

@@ -22,7 +22,14 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     /**
      * Remove the connectable from the voltage level (dangling switches are kept).
      */
-    void remove();
+    default void remove() {
+        remove(false);
+    }
+
+    /**
+     * Remove the connectable from the voltage level (dangling switches are kept).
+     */
+    void remove(boolean dryRun);
 
     boolean connect();
 
@@ -30,9 +37,13 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
 
     boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
 
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean dryRun);
+
     boolean disconnect();
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable);
 
     boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean dryRun);
 }

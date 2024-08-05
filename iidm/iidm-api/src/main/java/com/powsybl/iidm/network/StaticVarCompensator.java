@@ -144,7 +144,18 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
      */
-    StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
+    default StaticVarCompensator setVoltageSetpoint(double voltageSetpoint) {
+        return setVoltageSetpoint(voltageSetpoint, false);
+    }
+
+    /**
+     * <p>Set the voltage setpoint in Kv.</p>
+     * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
+     * <p>Depends on the working variant.</p>
+     * @param voltageSetpoint the voltage setpoint
+     * @return this to allow method chaining
+     */
+    StaticVarCompensator setVoltageSetpoint(double voltageSetpoint, boolean dryRun);
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -161,7 +172,18 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
      */
-    StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
+    default StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        return setReactivePowerSetpoint(reactivePowerSetpoint, false);
+    }
+
+    /**
+     * <p>Set the reactive power setpoint in MVAR.</p>
+     * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
+     * <p>Depends on the working variant.</p>
+     * @param reactivePowerSetpoint the reactive power setpoint
+     * @return this to allow method chaining
+     */
+    StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint, boolean dryRun);
 
     /**
      * <p>Get the regulating mode.</p>

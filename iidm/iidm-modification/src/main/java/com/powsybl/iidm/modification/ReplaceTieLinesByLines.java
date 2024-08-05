@@ -29,12 +29,14 @@ import static com.powsybl.iidm.network.util.TieLineUtil.*;
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class ReplaceTieLinesByLines extends AbstractNetworkModification {
+public class ReplaceTieLinesByLines extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReplaceTieLinesByLines.class);
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Note: local dryRun is not possible (see isLocalDryRunPossible())
         for (TieLine tl : network.getTieLineStream().toList()) {
             DanglingLine dl1 = tl.getDanglingLine1();
             DanglingLine dl2 = tl.getDanglingLine2();
@@ -109,6 +111,11 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             removedTieLineAndAssociatedDanglingLines(reportNode, line.getId(), dl1Id, dl2Id, pairingKey);
             createdLineReport(reportNode, line.getId());
         }
+    }
+
+    @Override
+    public String getName() {
+        return "ReplaceTieLinesByLines";
     }
 
     private static void warningAboutExtensions(DanglingLine dl1, DanglingLine dl2, TieLine tl, ReportNode reportNode) {

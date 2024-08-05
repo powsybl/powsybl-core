@@ -10,8 +10,9 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.r
  *                  (line)</pre>
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification {
+public class RevertConnectVoltageLevelOnLine extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertConnectVoltageLevelOnLine.class);
 
@@ -80,8 +81,11 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         Line line1 = checkAndGetLine(network, line1Id, reportNode, throwException);
         Line line2 = checkAndGetLine(network, line2Id, reportNode, throwException);
         if (line1 == null || line2 == null) {
@@ -159,6 +163,11 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         // remove voltage level and substation in common, if necessary
         removeVoltageLevelAndSubstation(commonVl, reportNode);
+    }
+
+    @Override
+    public String getName() {
+        return "RevertConnectVoltageLevelOnLine";
     }
 
     public String getLine1Id() {

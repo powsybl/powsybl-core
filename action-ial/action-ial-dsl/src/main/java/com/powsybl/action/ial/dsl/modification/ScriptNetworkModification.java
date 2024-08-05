@@ -9,9 +9,10 @@ package com.powsybl.action.ial.dsl.modification;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import groovy.lang.Closure;
 
 import java.util.Objects;
@@ -19,7 +20,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class ScriptNetworkModification extends AbstractNetworkModification {
+public class ScriptNetworkModification extends AbstractSingleNetworkModification {
 
     private final Closure<Void> script;
 
@@ -32,8 +33,15 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
         script.call(network, computationManager);
+    }
+
+    @Override
+    public String getName() {
+        return "ScriptNetworkModification";
     }
 }

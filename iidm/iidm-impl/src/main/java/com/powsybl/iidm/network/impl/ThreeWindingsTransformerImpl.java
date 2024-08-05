@@ -116,11 +116,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return ratedU;
         }
 
-        public Leg setRatedU(double ratedU) {
+        public Leg setRatedU(double ratedU, boolean dryRun) {
             ValidationUtil.checkRatedU(this, ratedU, "");
             double oldValue = this.ratedU;
-            this.ratedU = ratedU;
-            transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, ratedU);
+            if (!dryRun) {
+                this.ratedU = ratedU;
+                transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, ratedU);
+            }
             return this;
         }
 
@@ -360,11 +362,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public ThreeWindingsTransformer setRatedU0(double ratedU0) {
+    public ThreeWindingsTransformer setRatedU0(double ratedU0, boolean dryRun) {
         ValidationUtil.checkRatedU(this, ratedU0, "");
-        double oldValue = this.ratedU0;
-        this.ratedU0 = ratedU0;
-        notifyUpdate("ratedU0", oldValue, ratedU0);
+        if (!dryRun) {
+            double oldValue = this.ratedU0;
+            this.ratedU0 = ratedU0;
+            notifyUpdate("ratedU0", oldValue, ratedU0);
+        }
         return this;
     }
 

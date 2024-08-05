@@ -65,4 +65,8 @@ public class BranchTripping extends AbstractTripping {
         return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + id + "'");
     }
 
+    @Override
+    public String getName() {
+        return "BranchTripping";
+    }
 }

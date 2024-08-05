@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.commons.ref.Ref;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -61,6 +62,31 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             .getOptionalModuleConfig("iidm")
             .map(moduleConfig -> moduleConfig.getIntProperty("node-index-limit", DEFAULT_NODE_INDEX_LIMIT))
             .orElse(DEFAULT_NODE_INDEX_LIMIT);
+    }
+
+    @Override
+    public boolean connect(TerminalExt terminal) {
+        return connect(terminal, false);
+    }
+
+    @Override
+    public boolean connect(TerminalExt terminal, Predicate<? super SwitchImpl> isTypeSwitchToOperate) {
+        return connect(terminal, isTypeSwitchToOperate, false);
+    }
+
+    @Override
+    public boolean disconnect(TerminalExt terminal) {
+        return disconnect(terminal, false);
+    }
+
+    @Override
+    public boolean disconnect(TerminalExt terminal, Predicate<? super SwitchImpl> isSwitchOpenable) {
+        return disconnect(terminal, isSwitchOpenable, false);
+    }
+
+    @Override
+    public void invalidateCache() {
+        invalidateCache(false);
     }
 
     @Override

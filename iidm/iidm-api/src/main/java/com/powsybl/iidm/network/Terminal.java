@@ -154,7 +154,9 @@ public interface Terminal {
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
-    boolean connect();
+    default boolean connect() {
+        return connect(false);
+    }
 
     /**
      * Try to connect the terminal.<br/>
@@ -162,7 +164,25 @@ public interface Terminal {
      * @return true if terminal has been connected, false otherwise
      * @see VariantManager
      */
-    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+    boolean connect(boolean dryRun);
+
+    /**
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    default boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+        return connect(isTypeSwitchToOperate, false);
+    }
+
+    /**
+     * Try to connect the terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean dryRun);
 
     /**
      * Disconnect the terminal.<br/>
@@ -170,7 +190,17 @@ public interface Terminal {
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
-    boolean disconnect();
+    default boolean disconnect() {
+        return disconnect(false);
+    }
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect(boolean dryRun);
 
     /**
      * Disconnect the terminal.<br/>
@@ -179,7 +209,18 @@ public interface Terminal {
      * @return true if terminal has been disconnected, false otherwise
      * @see VariantManager
      */
-    boolean disconnect(Predicate<Switch> isSwitchOpenable);
+    default boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+        return disconnect(isSwitchOpenable, false);
+    }
+
+    /**
+     * Disconnect the terminal.<br/>
+     * Depends on the working variant.
+     * @param isSwitchOpenable predicate telling if a switch is considered openable
+     * @return true if terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean dryRun);
 
     /**
      * Test if the terminal is connected.

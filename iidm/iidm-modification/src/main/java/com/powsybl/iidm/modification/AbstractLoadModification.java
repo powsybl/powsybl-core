@@ -13,7 +13,7 @@ import java.util.OptionalDouble;
 /**
  * @author Pauline JEAN-MARIE {@literal <pauline.jean-marie at artelys.com>}
  */
-public abstract class AbstractLoadModification extends AbstractNetworkModification {
+public abstract class AbstractLoadModification extends AbstractSingleNetworkModification {
     protected final Double p0;
     protected final Double q0;
     protected final boolean relativeValue;

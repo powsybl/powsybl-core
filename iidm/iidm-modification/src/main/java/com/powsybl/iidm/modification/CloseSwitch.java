@@ -19,7 +19,7 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-public class CloseSwitch extends AbstractNetworkModification {
+public class CloseSwitch extends AbstractSingleNetworkModification {
     private final String switchId;
 
     public CloseSwitch(String switchId) {
@@ -27,12 +27,27 @@ public class CloseSwitch extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Switch sw = network.getSwitch(switchId);
         if (sw == null) {
             throw new PowsyblException("Switch '" + switchId + "' not found");
         }
-        sw.setOpen(false);
+        sw.setOpen(false, dryRun);
+    }
+
+    @Override
+    public String getName() {
+        return "CloseSwitch";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 }

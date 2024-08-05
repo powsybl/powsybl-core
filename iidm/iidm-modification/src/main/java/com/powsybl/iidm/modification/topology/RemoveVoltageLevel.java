@@ -9,9 +9,10 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
 /**
  * @author Etienne Homer {@literal <etienne.homer at rte-france.com>}
  */
-public class RemoveVoltageLevel extends AbstractNetworkModification {
+public class RemoveVoltageLevel extends AbstractSingleNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveVoltageLevel.class);
 
     private final String voltageLevelId;
@@ -32,7 +33,11 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             LOGGER.error("Voltage level {} not found", voltageLevelId);
@@ -65,4 +70,8 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 
+    @Override
+    public String getName() {
+        return "RemoveVoltageLevel";
+    }
 }

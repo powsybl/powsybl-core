@@ -10,9 +10,10 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  *
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class CreateVoltageLevelTopology extends AbstractNetworkModification {
+public class CreateVoltageLevelTopology extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(CreateVoltageLevelTopology.class);
 
@@ -131,7 +132,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         //checks
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, throwException, reportNode)) {
             return;
@@ -168,6 +173,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reportNode, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
+    }
+
+    @Override
+    public String getName() {
+        return "CreateVoltageLevelTopology";
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {

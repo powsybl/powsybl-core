@@ -97,15 +97,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
+    public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkConvertersMode(this, convertersMode, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
-        this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("convertersMode", variantId, oldValue, convertersMode);
+        if (!dryRun) {
+            this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("convertersMode", variantId, oldValue, convertersMode);
+        }
         return this;
     }
 
@@ -157,15 +159,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     @Override
-    public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
+    public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint,
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
         int variantIndex = n.getVariantIndex();
-        double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
+        if (!dryRun) {
+            double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
+        }
         return this;
     }
 
@@ -237,39 +241,41 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public boolean connectConverterStations() {
-        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null);
+        return connectConverterStations(SwitchPredicates.IS_NONFICTIONAL_BREAKER, null, false);
     }
 
     @Override
     public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate) {
-        return connectConverterStations(isTypeSwitchToOperate, null);
+        return connectConverterStations(isTypeSwitchToOperate, null, false);
     }
 
     @Override
-    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side) {
+    public boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side, boolean dryRun) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isTypeSwitchToOperate,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
     @Override
     public boolean disconnectConverterStations() {
-        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null);
+        return disconnectConverterStations(SwitchPredicates.IS_CLOSED_BREAKER, null, false);
     }
 
     @Override
     public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable) {
-        return disconnectConverterStations(isSwitchOpenable, null);
+        return disconnectConverterStations(isSwitchOpenable, null, false);
     }
 
     @Override
-    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side) {
+    public boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side, boolean dryRun) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminalsOfConverterStations(side),
             isSwitchOpenable,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 

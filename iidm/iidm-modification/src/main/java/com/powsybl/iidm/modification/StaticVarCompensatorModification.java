@@ -27,13 +27,13 @@ public class StaticVarCompensatorModification extends AbstractSetpointModificati
     }
 
     @Override
-    protected void setVoltageSetpoint(StaticVarCompensator networkElement, Double voltageSetpoint) {
-        networkElement.setVoltageSetpoint(voltageSetpoint);
+    protected void setVoltageSetpoint(StaticVarCompensator networkElement, Double voltageSetpoint, boolean dryRun) {
+        networkElement.setVoltageSetpoint(voltageSetpoint, dryRun);
     }
 
     @Override
-    protected void setReactivePowerSetpoint(StaticVarCompensator networkElement, Double reactivePowerSetpoint) {
-        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint);
+    protected void setReactivePowerSetpoint(StaticVarCompensator networkElement, Double reactivePowerSetpoint, boolean dryRun) {
+        networkElement.setReactivePowerSetpoint(reactivePowerSetpoint, dryRun);
     }
 
     @Override
@@ -43,5 +43,10 @@ public class StaticVarCompensatorModification extends AbstractSetpointModificati
 
     public String getStaticVarCompensatorId() {
         return getElementId();
+    }
+
+    @Override
+    public String getName() {
+        return "StaticVarCompensatorModification";
     }
 }

@@ -84,7 +84,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public ShuntCompensatorImpl setSectionCount(int sectionCount) {
+    public ShuntCompensatorImpl setSectionCount(int sectionCount, boolean dryRun) {
         NetworkImpl n = getNetwork();
         ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), getNetwork().getMinValidationLevel(),
                 getNetwork().getReportNodeContext().getReportNode());
@@ -92,10 +92,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
         int variantIndex = n.getVariantIndex();
-        Integer oldValue = this.sectionCount.set(variantIndex, sectionCount);
-        String variantId = n.getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
+        if (!dryRun) {
+            Integer oldValue = this.sectionCount.set(variantIndex, sectionCount);
+            String variantId = n.getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
+        }
         return this;
     }
 
@@ -194,15 +196,17 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public ShuntCompensatorImpl setTargetV(double targetV) {
+    public ShuntCompensatorImpl setTargetV(double targetV, boolean dryRun) {
         NetworkImpl n = getNetwork();
         int variantIndex = network.get().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, regulatingPoint.isRegulating(variantIndex), targetV,
                 n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
-        double oldValue = this.targetV.set(variantIndex, targetV);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        n.invalidateValidationLevel();
-        notifyUpdate("targetV", variantId, oldValue, targetV);
+        if (!dryRun) {
+            double oldValue = this.targetV.set(variantIndex, targetV);
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            n.invalidateValidationLevel();
+            notifyUpdate("targetV", variantId, oldValue, targetV);
+        }
         return this;
     }
 
@@ -225,9 +229,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public void remove() {
-        regulatingPoint.remove();
-        super.remove();
+    public void remove(boolean dryRun) {
+        regulatingPoint.remove(dryRun);
+        super.remove(dryRun);
     }
 
     @Override

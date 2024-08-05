@@ -41,4 +41,9 @@ public class ThreeWindingsTransformerTripping extends AbstractTripping {
     protected PowsyblException createNotFoundException() {
         return new PowsyblException("ThreeWindingsTransformer '" + id + "' not found");
     }
+
+    @Override
+    public String getName() {
+        return "ThreeWindingsTransformerTripping";
+    }
 }

@@ -214,7 +214,16 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    DanglingLine setP0(double p0);
+    default DanglingLine setP0(double p0) {
+        return setP0(p0, false);
+    }
+
+    /**
+     * Set the constant active power in MW.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    DanglingLine setP0(double p0, boolean dryRun);
 
     /**
      * Get the constant reactive power in MW.
@@ -228,7 +237,16 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    DanglingLine setQ0(double q0);
+    default DanglingLine setQ0(double q0) {
+        return setQ0(q0, false);
+    }
+
+    /**
+     * Set the constant reactive power in MW.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    DanglingLine setQ0(double q0, boolean dryRun);
 
     /**
      * Get the series resistance in &#937;.

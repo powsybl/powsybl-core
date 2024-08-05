@@ -36,4 +36,9 @@ public class BusbarSectionTripping extends AbstractTripping {
 
         TrippingTopologyTraverser.traverse(busbarSection.getTerminal(), switchesToOpen, terminalsToDisconnect, traversedTerminals);
     }
+
+    @Override
+    public String getName() {
+        return "BusbarSectionTripping";
+    }
 }

@@ -8,7 +8,10 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
 import java.util.Set;
@@ -42,5 +45,10 @@ public class TieLineTripping extends AbstractTripping {
         Terminal terminal2 = tieLine.getDanglingLine2().getTerminal();
 
         traverseDoubleSidedEquipment(voltageLevelId, terminal1, terminal2, switchesToOpen, terminalsToDisconnect, traversedTerminals, tieLine.getType().name());
+    }
+
+    @Override
+    public String getName() {
+        return "TieLineTripping";
     }
 }

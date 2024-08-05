@@ -96,7 +96,16 @@ public interface Load extends Injection<Load> {
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    Load setP0(double p0);
+    default Load setP0(double p0) {
+        return setP0(p0, false);
+    }
+
+    /**
+     * Set the constant active power in MW.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    Load setP0(double p0, boolean dryRun);
 
     /**
      * Get the constant reactive power in MVar.
@@ -110,7 +119,16 @@ public interface Load extends Injection<Load> {
      * <p>Depends on the working variant.
      * @see VariantManager
      */
-    Load setQ0(double q0);
+    default Load setQ0(double q0) {
+        return setQ0(q0, false);
+    }
+
+    /**
+     * Set the constant reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    Load setQ0(double q0, boolean dryRun);
 
     @Override
     default IdentifiableType getType() {

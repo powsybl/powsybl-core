@@ -29,4 +29,9 @@ public class DanglingLineTripping extends AbstractInjectionTripping {
 
         return injection;
     }
+
+    @Override
+    public String getName() {
+        return "DanglingLineTripping";
+    }
 }

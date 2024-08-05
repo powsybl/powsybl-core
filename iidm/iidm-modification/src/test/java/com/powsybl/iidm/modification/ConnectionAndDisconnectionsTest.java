@@ -442,6 +442,81 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     }
 
     @Test
+    void testDryRunConnection() {
+        // Network creation
+        Network network = createNetwork();
+
+        // Connection - Passing dryRun
+        ConnectableConnection connection = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(true)
+            .withOnlyBreakersOperable(false)
+            .build();
+        assertTrue(connection.apply(network, true));
+
+        // Useful methods for dry run
+        assertFalse(connection.hasImpactOnNetwork());
+        assertTrue(connection.isLocalDryRunPossible());
+
+        // CloseSwitch - Failing dryRun
+        ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        ConnectableConnection connectionFailing = new ConnectableConnectionBuilder()
+            .withConnectableId("dummy")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        assertFalse(connectionFailing.apply(network, reportNodeCloseSwitch, true));
+        assertEquals("Dry-run failed for ConnectableConnection. The issue is: Identifiable 'dummy' not found",
+            reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
+        connectionFailing = new ConnectableConnectionBuilder()
+            .withConnectableId("L2")
+            .withFictitiousSwitchesOperable(false)
+            .withOnlyBreakersOperable(true)
+            .build();
+        assertFalse(connectionFailing.apply(network, reportNodeCloseSwitch, true));
+        assertEquals("Dry-run failed for ConnectableConnection. The issue is: Connection failed",
+            reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
+    }
+
+    @Test
+    void testDryRunDisconnection() {
+        // Network creation
+        Network network = createNetwork();
+
+        // Disconnection - Passing dryRun
+        UnplannedDisconnection unplannedDisconnection = new UnplannedDisconnectionBuilder()
+            .withConnectableId("L1")
+            .withFictitiousSwitchesOperable(true)
+            .build();
+        assertTrue(unplannedDisconnection.apply(network, true));
+
+        // Useful methods for dry run
+        assertFalse(unplannedDisconnection.hasImpactOnNetwork());
+        assertTrue(unplannedDisconnection.isLocalDryRunPossible());
+
+        // Disconnection - Failing dryRun
+        ReportNode reportNodeCloseSwitch = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        UnplannedDisconnection unplannedDisconnectionFailing = new UnplannedDisconnectionBuilder()
+            .withConnectableId("dummy")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        assertFalse(unplannedDisconnectionFailing.apply(network, reportNodeCloseSwitch, true));
+        assertEquals("Dry-run failed for AbstractDisconnection. The issue is: Identifiable 'dummy' not found",
+            reportNodeCloseSwitch.getChildren().get(0).getChildren().get(0).getMessage());
+        unplannedDisconnectionFailing = new UnplannedDisconnectionBuilder()
+            .withConnectableId("L1")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        assertFalse(unplannedDisconnectionFailing.apply(network, reportNodeCloseSwitch, true));
+        assertEquals("Dry-run failed for AbstractDisconnection. The issue is: Disconnection failed",
+            reportNodeCloseSwitch.getChildren().get(1).getChildren().get(0).getMessage());
+    }
+
+    @Test
     void testTieLine() {
         Network network = createNetwork();
 

@@ -10,8 +10,9 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import com.powsybl.math.graph.TraverseResult;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.util.Pair;
@@ -29,7 +30,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.*;
  * Note that determining the bay which corresponds to a connectable needs some computation and graph traversals.
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class RemoveFeederBay extends AbstractNetworkModification {
+public class RemoveFeederBay extends AbstractSingleNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveFeederBay.class);
 
@@ -44,7 +45,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (!checkConnectable(throwException, reportNode, connectable)) {
             return;
@@ -60,6 +65,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         connectable.remove();
         removedConnectableReport(reportNode, connectableId);
         LOGGER.info("Connectable {} removed", connectableId);
+    }
+
+    @Override
+    public String getName() {
+        return "RemoveFeederBay";
     }
 
     private Graph<Integer, Object> createGraphFromTerminal(Terminal terminal) {
@@ -220,19 +230,19 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
-        if (connectable instanceof BusbarSection) {
-            LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
-            removeFeederBayBusbarSectionReport(reportNode, connectableId);
-            if (throwException) {
-                throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
-            }
-            return false;
-        }
         if (connectable == null) {
             LOGGER.error("Connectable {} not found", connectableId);
             notFoundConnectableReport(reportNode, connectableId);
             if (throwException) {
                 throw new PowsyblException("Connectable not found: " + connectableId);
+            }
+            return false;
+        }
+        if (connectable instanceof BusbarSection) {
+            LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
+            removeFeederBayBusbarSectionReport(reportNode, connectableId);
+            if (throwException) {
+                throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
             }
             return false;
         }

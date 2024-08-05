@@ -55,11 +55,11 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     TopologyPoint getTopologyPoint();
 
-    void removeAsRegulationPoint();
+    void removeAsRegulationPoint(boolean dryRun);
 
-    void remove();
+    void remove(boolean dryRun);
 
     void setAsRegulatingPoint(RegulatingPoint rp);
 
-    void removeRegulatingPoint(RegulatingPoint rp);
+    void removeRegulatingPoint(RegulatingPoint rp, boolean dryRun);
 }

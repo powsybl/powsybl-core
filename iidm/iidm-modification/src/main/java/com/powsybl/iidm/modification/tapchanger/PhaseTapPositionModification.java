@@ -66,18 +66,18 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
 
     @Override
     protected void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
-                                               boolean throwException) {
-        apply(twoWindingsTransformer, throwException);
+                                               boolean throwException, boolean dryRun) {
+        apply(twoWindingsTransformer, throwException, dryRun);
     }
 
     @Override
     protected void applyThreeWindingsTransformer(Network network, ThreeWindingsTransformer threeWindingsTransformer,
-                                                 boolean throwException) {
+                                                 boolean throwException, boolean dryRun) {
         apply(getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, throwException),
-            throwException);
+                throwException, dryRun);
     }
 
-    public void apply(PhaseTapChangerHolder ptcHolder, boolean throwException) {
+    public void apply(PhaseTapChangerHolder ptcHolder, boolean throwException, boolean dryRun) {
         if (ptcHolder == null) {
             logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
             return;
@@ -88,9 +88,14 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
         }
         try {
             int newTapPosition = (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0) + getTapPosition();
-            ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
+            ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition, dryRun);
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
         }
+    }
+
+    @Override
+    public String getName() {
+        return "PhaseTapPositionModification";
     }
 }

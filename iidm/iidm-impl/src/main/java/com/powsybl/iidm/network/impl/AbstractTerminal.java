@@ -95,9 +95,11 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void removeAsRegulationPoint() {
-        regulated.forEach(RegulatingPoint::removeRegulatingTerminal);
-        regulated.clear();
+    public void removeAsRegulationPoint(boolean dryRun) {
+        regulated.forEach(r -> r.removeRegulatingTerminal(dryRun));
+        if (!dryRun) {
+            regulated.clear();
+        }
     }
 
     @Override
@@ -162,8 +164,8 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public boolean connect() {
-        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER);
+    public boolean connect(boolean dryRun) {
+        return connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER, dryRun);
     }
 
     /**
@@ -174,23 +176,23 @@ abstract class AbstractTerminal implements TerminalExt {
      * @see VariantManager
      */
     @Override
-    public boolean connect(Predicate<Switch> isTypeSwitchToOperate) {
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, boolean dryRun) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         boolean connectedBefore = isConnected();
-        connectable.notifyUpdate("beginConnect", variantId, connectedBefore, null);
-        boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate);
+        connectable.notifyUpdate("beginConnect", variantId, connectedBefore, null, dryRun);
+        boolean connected = voltageLevel.connect(this, isTypeSwitchToOperate, dryRun);
         boolean connectedAfter = isConnected();
-        connectable.notifyUpdate("endConnect", variantId, null, connectedAfter);
+        connectable.notifyUpdate("endConnect", variantId, null, connectedAfter, dryRun);
         return connected;
     }
 
     @Override
-    public boolean disconnect() {
-        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER);
+    public boolean disconnect(boolean dryRun) {
+        return disconnect(SwitchPredicates.IS_CLOSED_BREAKER, dryRun);
     }
 
     /**
@@ -201,17 +203,17 @@ abstract class AbstractTerminal implements TerminalExt {
      * @see VariantManager
      */
     @Override
-    public boolean disconnect(Predicate<Switch> isSwitchOpenable) {
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, boolean dryRun) {
         if (removed) {
             throw new PowsyblException(UNMODIFIABLE_REMOVED_EQUIPMENT + connectable.id);
         }
         int variantIndex = getVariantManagerHolder().getVariantIndex();
         String variantId = getVariantManagerHolder().getVariantManager().getVariantId(variantIndex);
         boolean disconnectedBefore = !isConnected();
-        connectable.notifyUpdate("beginDisconnect", variantId, disconnectedBefore, null);
-        boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable);
+        connectable.notifyUpdate("beginDisconnect", variantId, disconnectedBefore, null, dryRun);
+        boolean disconnected = voltageLevel.disconnect(this, isSwitchOpenable, dryRun);
         boolean disconnectedAfter = !isConnected();
-        connectable.notifyUpdate("endDisconnect", variantId, null, disconnectedAfter);
+        connectable.notifyUpdate("endDisconnect", variantId, null, disconnectedAfter, dryRun);
         return disconnected;
     }
 
@@ -245,8 +247,10 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void remove() {
-        removed = true;
+    public void remove(boolean dryRun) {
+        if (!dryRun) {
+            removed = true;
+        }
     }
 
     @Override
@@ -255,7 +259,9 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void removeRegulatingPoint(RegulatingPoint rp) {
-        regulated.remove(rp);
+    public void removeRegulatingPoint(RegulatingPoint rp, boolean dryRun) {
+        if (!dryRun) {
+            regulated.remove(rp);
+        }
     }
 }

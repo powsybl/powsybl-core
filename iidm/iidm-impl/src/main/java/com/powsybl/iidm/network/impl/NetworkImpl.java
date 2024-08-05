@@ -1258,7 +1258,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     void invalidateValidationLevel() {
-        if (minValidationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) < 0) {
+        invalidateValidationLevel(false);
+    }
+
+    void invalidateValidationLevel(boolean dryRun) {
+        if (!dryRun && minValidationLevel.compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) < 0) {
             validationLevel = null;
         }
     }

@@ -44,14 +44,29 @@ public class LoadModification extends AbstractLoadModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         Load load = network.getLoad(getLoadId());
         if (load == null) {
             logOrThrow(throwException, "Load '" + getLoadId() + "' not found");
             return;
         }
-        getP0().ifPresent(value -> load.setP0((isRelativeValue() ? load.getP0() : 0) + value));
-        getQ0().ifPresent(value -> load.setQ0((isRelativeValue() ? load.getQ0() : 0) + value));
+        getP0().ifPresent(value -> load.setP0((isRelativeValue() ? load.getP0() : 0) + value, dryRun));
+        getQ0().ifPresent(value -> load.setQ0((isRelativeValue() ? load.getQ0() : 0) + value, dryRun));
+    }
+
+    @Override
+    public String getName() {
+        return "LoadModification";
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 }

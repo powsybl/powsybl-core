@@ -25,7 +25,7 @@ import java.util.OptionalDouble;
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
-public abstract class AbstractSetpointModification<T> extends AbstractNetworkModification {
+public abstract class AbstractSetpointModification<T> extends AbstractSingleNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSetpointModification.class);
 
     private final String elementId;
@@ -42,8 +42,8 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
-                      ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         T networkElement = getNetworkElement(network, elementId);
 
         if (networkElement == null) {
@@ -51,18 +51,28 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
             return;
         }
         if (voltageSetpoint != null) {
-            setVoltageSetpoint(networkElement, voltageSetpoint);
+            setVoltageSetpoint(networkElement, voltageSetpoint, dryRun);
         }
         if (reactivePowerSetpoint != null) {
-            setReactivePowerSetpoint(networkElement, reactivePowerSetpoint);
+            setReactivePowerSetpoint(networkElement, reactivePowerSetpoint, dryRun);
         }
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 
     public abstract String getElementName();
 
-    protected abstract void setVoltageSetpoint(T networkElement, Double voltageSetpoint);
+    protected abstract void setVoltageSetpoint(T networkElement, Double voltageSetpoint, boolean dryRun);
 
-    protected abstract void setReactivePowerSetpoint(T networkElement, Double reactivePowerSetpoint);
+    protected abstract void setReactivePowerSetpoint(T networkElement, Double reactivePowerSetpoint, boolean dryRun);
 
     public abstract T getNetworkElement(Network network, String elementID);
 

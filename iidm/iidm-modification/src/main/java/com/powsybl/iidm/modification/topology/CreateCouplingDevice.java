@@ -10,9 +10,10 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  * that they must have the same sectionIndex, then no open disconnector is created.
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
-public class CreateCouplingDevice extends AbstractNetworkModification {
+public class CreateCouplingDevice extends AbstractSingleNetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CreateCouplingDevice.class);
 
@@ -74,7 +75,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
         if (failBbs(busOrBbs1, busOrBbs2, reportNode, throwException)) {
@@ -111,6 +116,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         }
         LOGGER.info("New coupling device was added to voltage level {} between {} and {}", voltageLevel1.getId(), busOrBbs1, busOrBbs2);
         newCouplingDeviceAddedReport(reportNode, voltageLevel1.getId(), busOrBbsId1, busOrBbsId2);
+    }
+
+    @Override
+    public String getName() {
+        return "CreateCouplingDevice";
     }
 
     /**

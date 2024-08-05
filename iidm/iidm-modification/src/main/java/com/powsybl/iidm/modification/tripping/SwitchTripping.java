@@ -8,7 +8,9 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 import java.util.Set;
@@ -32,5 +34,10 @@ public class SwitchTripping extends AbstractTripping {
         }
 
         switchesToOpen.add(aSwitch);
+    }
+
+    @Override
+    public String getName() {
+        return "SwitchTripping";
     }
 }

@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-class TestThreeWindingsTransformerModification {
+class ThreeWindingsTransformerModificationTest {
 
     private Network network;
     private ThreeWindingsTransformer t3wt;
@@ -71,5 +71,25 @@ class TestThreeWindingsTransformerModification {
         ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification(t3wt.getId(), 135.0);
         assertEquals(t3wt.getId(), t3wtModification.getTransformerId());
         assertEquals(135, t3wtModification.getRatedU0());
+    }
+
+    @Test
+    void testDryRun() {
+        // Passing dryRun
+        ThreeWindingsTransformerModification t3wtModification = new ThreeWindingsTransformerModification(t3wt.getId(), 135.0);
+        assertTrue(t3wtModification.apply(network, true));
+
+        // Useful methods for dry run
+        assertFalse(t3wtModification.hasImpactOnNetwork());
+        assertTrue(t3wtModification.isLocalDryRunPossible());
+
+        // Failing dryRun
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        ThreeWindingsTransformerModification modificationFailing = new ThreeWindingsTransformerModification("TWT_NOT_EXISTING", 135.0);
+        assertFalse(modificationFailing.apply(network, reportNode, true));
+        assertEquals("Dry-run failed for ThreeWindingsTransformerModification. The issue is: ThreeWindingsTransformer 'TWT_NOT_EXISTING' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }
 }

@@ -8,7 +8,10 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 import java.util.Set;
@@ -34,5 +37,10 @@ public class BusTripping extends AbstractTripping {
         for (Terminal t : bus.getConnectedTerminals()) {
             TrippingTopologyTraverser.traverse(t, switchesToOpen, terminalsToDisconnect, traversedTerminals);
         }
+    }
+
+    @Override
+    public String getName() {
+        return "BusTripping";
     }
 }

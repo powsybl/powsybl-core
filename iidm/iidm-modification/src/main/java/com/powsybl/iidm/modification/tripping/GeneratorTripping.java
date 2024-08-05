@@ -32,4 +32,9 @@ public class GeneratorTripping extends AbstractInjectionTripping {
 
         return injection;
     }
+
+    @Override
+    public String getName() {
+        return "GeneratorTripping";
+    }
 }

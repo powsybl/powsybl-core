@@ -33,4 +33,9 @@ public class TwoWindingsTransformerTripping extends BranchTripping {
     protected PowsyblException createNotConnectedException() {
         return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to the two windings transformer '" + id + "'");
     }
+
+    @Override
+    public String getName() {
+        return "TwoWindingsTransformerTripping";
+    }
 }

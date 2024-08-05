@@ -39,8 +39,26 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been connected, else {@code false}.
      */
-    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
+    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                       Predicate<Switch> isTypeSwitchToOperate, ReportNode reportNode) {
+        return connectAllTerminals(identifiable, terminals, isTypeSwitchToOperate, false, reportNode);
+    }
 
+    /**
+     * Connect the specified terminals. It will connect all the specified terminals or none if at least one cannot be
+     * connected.
+     * @param identifiable network element to connect. It can be a connectable, a tie line or an HVDC line
+     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
+     *                  underlying dangling lines (respectively converter stations)
+     * @param isTypeSwitchToOperate type of switches that can be operated
+     * @param dryRun is it a dry run? If {@code true}, no terminal will be effectively connected.
+     * @param reportNode report node
+     * @return {@code true} if all the specified terminals have been connected (or can be connected, when
+     * {@code dryRun} is {@code true}), else {@code false}.
+     */
+    static boolean connectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                       Predicate<Switch> isTypeSwitchToOperate, boolean dryRun, ReportNode reportNode) {
         // Booleans
         boolean isAlreadyConnected = true;
         boolean isNowConnected = true;
@@ -79,6 +97,11 @@ public final class ConnectDisconnectUtil {
             return false;
         }
 
+        // Exit if it's a dry run
+        if (dryRun) {
+            return true;
+        }
+
         // Connect all bus-breaker terminals
         for (Terminal terminal : terminals) {
             if (!terminal.isConnected()
@@ -104,7 +127,26 @@ public final class ConnectDisconnectUtil {
      * @param reportNode report node
      * @return {@code true} if all the specified terminals have been disconnected, else {@code false}.
      */
-    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals, Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
+    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                          Predicate<Switch> isSwitchOpenable, ReportNode reportNode) {
+        return disconnectAllTerminals(identifiable, terminals, isSwitchOpenable, false, reportNode);
+    }
+
+    /**
+     * Disconnect the specified terminals. It will disconnect all the specified terminals or none if at least one cannot
+     * be disconnected.
+     * @param identifiable network element to disconnect. It can be a connectable, a tie line or an HVDC line
+     * @param terminals list of the terminals that should be connected. For a connectable, it should be its own
+     *                  terminals, while for a tie line (respectively an HVDC line) it should be the terminals of the
+     *                  underlying dangling lines (respectively converter stations)
+     * @param isSwitchOpenable type of switches that can be operated
+     * @param dryRun is it a dry run? If {@code true}, no terminal will be effectively disconnected.
+     * @param reportNode report node
+     * @return {@code true} if all the specified terminals have been disconnected (or can be disconnected, when
+     * {@code dryRun} is {@code true}), else {@code false}.
+     */
+    static boolean disconnectAllTerminals(Identifiable<?> identifiable, List<? extends Terminal> terminals,
+                                          Predicate<Switch> isSwitchOpenable, boolean dryRun, ReportNode reportNode) {
         // Booleans
         boolean isAlreadyDisconnected = true;
         boolean isNowDisconnected = true;
@@ -138,6 +180,11 @@ public final class ConnectDisconnectUtil {
         // Exit if the connectable is already fully disconnected
         if (isAlreadyDisconnected) {
             return false;
+        }
+
+        // Exit if it's a dry run
+        if (dryRun) {
+            return true;
         }
 
         // Disconnect all bus-breaker terminals

@@ -10,10 +10,11 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +27,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.removedSubs
 /**
  * @author Maissa Souissi {@literal <maissa.souissi at rte-france.com>}
  */
-public class RemoveSubstation extends AbstractNetworkModification {
+public class RemoveSubstation extends AbstractSingleNetworkModification {
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoveSubstation.class);
 
     private final String substationId;
@@ -36,7 +37,11 @@ public class RemoveSubstation extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             LOGGER.error("Substation {} not found", substationId);
@@ -51,6 +56,11 @@ public class RemoveSubstation extends AbstractNetworkModification {
         substation.remove();
         removedSubstationReport(reportNode, substationId);
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);
+    }
+
+    @Override
+    public String getName() {
+        return "RemoveSubstation";
     }
 }
 

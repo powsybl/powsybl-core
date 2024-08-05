@@ -32,7 +32,7 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  * try to connect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class ConnectableConnection extends AbstractNetworkModification {
+public class ConnectableConnection extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
     final String connectableId;
@@ -62,7 +62,8 @@ public class ConnectableConnection extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
         // Get the connectable
         Identifiable<?> identifiable = network.getIdentifiable(connectableId);
 
@@ -73,19 +74,24 @@ public class ConnectableConnection extends AbstractNetworkModification {
         if (identifiable == null) {
             logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
         } else {
-            connectIdentifiable(identifiable, network, throwException, reportNode);
+            connectIdentifiable(identifiable, network, throwException, dryRun, reportNode);
         }
     }
 
-    private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, ReportNode reportNode) {
+    @Override
+    public String getName() {
+        return "ConnectableConnection";
+    }
+
+    private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, boolean dryRun, ReportNode reportNode) {
         boolean hasBeenConnected = false;
         try {
             if (identifiable instanceof Connectable<?> connectable) {
-                hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side);
+                hasBeenConnected = connectable.connect(isTypeSwitchToOperate, side, dryRun);
             } else if (identifiable instanceof TieLine tieLine) {
-                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = tieLine.connectDanglingLines(isTypeSwitchToOperate, side == null ? null : side.toTwoSides(), dryRun);
             } else if (identifiable instanceof HvdcLine hvdcLine) {
-                hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
+                hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides(), dryRun);
             } else {
                 logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", connectableId));
             }
@@ -99,5 +105,15 @@ public class ConnectableConnection extends AbstractNetworkModification {
             LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
         }
         connectableConnectionReport(reportNode, identifiable, hasBeenConnected, side);
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 }

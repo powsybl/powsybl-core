@@ -63,21 +63,25 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean dryRun) {
         NetworkImpl network = getNetwork();
 
-        network.getListeners().notifyBeforeRemoval(this);
+        if (!dryRun) {
+            network.getListeners().notifyBeforeRemoval(this);
+            network.getIndex().remove(this);
+        }
 
-        network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
-            terminal.removeAsRegulationPoint();
+            terminal.removeAsRegulationPoint(dryRun);
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal);
         }
 
-        network.getListeners().notifyAfterRemoval(id);
-        removed = true;
-        terminals.forEach(TerminalExt::remove);
+        if (!dryRun) {
+            network.getListeners().notifyAfterRemoval(id);
+            removed = true;
+        }
+        terminals.forEach(t -> t.remove(dryRun));
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -94,6 +98,18 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue, boolean dryRun) {
+        if (dryRun) {
+            getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+        }
+    }
+
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue, boolean dryRun) {
+        if (!dryRun) {
+            getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+        }
     }
 
     @Override
@@ -205,11 +221,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return connect(isTypeSwitchToOperate, side, false);
+    }
 
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean dryRun) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
@@ -225,10 +246,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return disconnect(isSwitchOpenable, side, false);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean dryRun) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminals(side),
             isSwitchOpenable,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 

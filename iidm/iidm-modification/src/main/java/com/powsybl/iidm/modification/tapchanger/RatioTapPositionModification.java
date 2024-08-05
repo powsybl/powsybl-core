@@ -39,18 +39,18 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
 
     @Override
     protected void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
-                                               boolean throwException) {
-        apply(twoWindingsTransformer, throwException);
+                                               boolean throwException, boolean dryRun) {
+        apply(twoWindingsTransformer, throwException, dryRun);
     }
 
     @Override
     protected void applyThreeWindingsTransformer(Network network, ThreeWindingsTransformer threeWindingsTransformer,
-                                                 boolean throwException) {
+                                                 boolean throwException, boolean dryRun) {
         apply(getLeg(threeWindingsTransformer, RatioTapChangerHolder::hasRatioTapChanger, throwException),
-            throwException);
+            throwException, dryRun);
     }
 
-    public void apply(RatioTapChangerHolder rtcHolder, boolean throwException) {
+    public void apply(RatioTapChangerHolder rtcHolder, boolean throwException, boolean dryRun) {
         if (rtcHolder == null) {
             logOrThrow(throwException, "Failed to apply : " + TRANSFORMER_STR + getTransformerId());
             return;
@@ -60,10 +60,14 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
             return;
         }
         try {
-            rtcHolder.getRatioTapChanger().setTapPosition(getTapPosition());
+            rtcHolder.getRatioTapChanger().setTapPosition(getTapPosition(), dryRun);
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
         }
     }
 
+    @Override
+    public String getName() {
+        return "RatioTapPositionModification";
+    }
 }

@@ -10,8 +10,9 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ import static com.powsybl.iidm.modification.topology.TopologyModificationUtils.*
  *             (mergedLineId)</pre>
  * @author Franck Lecuyer {@literal <franck.lecuyer at rte-france.com>}
  */
-public class RevertCreateLineOnLine extends AbstractNetworkModification {
+public class RevertCreateLineOnLine extends AbstractSingleNetworkModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(RevertCreateLineOnLine.class);
 
@@ -52,6 +53,7 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
     private static final String LINE_NOT_FOUND_REPORT_MESSAGE = "Line %s is not found";
     private static final String LINE_REMOVED_MESSAGE = "Line {} removed";
+    private static final String NETWORK_MODIFICATION_NAME = "RevertCreateLineOnLine";
 
     /**
      * Constructor.
@@ -104,8 +106,11 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, ReportNode reportNode) {
+    public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                        ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+        // Local dry run is not managed (see isLocalDryRunPossible())
+        DryRunUtils.assertNotDryRun(dryRun);
+
         Line lineToBeMerged1 = checkAndGetLine(network, lineToBeMerged1Id, reportNode, throwException);
         Line lineToBeMerged2 = checkAndGetLine(network, lineToBeMerged2Id, reportNode, throwException);
         Line lineToBeDeleted = checkAndGetLine(network, lineToBeDeletedId, reportNode, throwException);
@@ -180,6 +185,11 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
 
         // remove attached voltage level and attached substation, if necessary
         removeVoltageLevelAndSubstation(tappedVoltageLevel, reportNode);
+    }
+
+    @Override
+    public String getName() {
+        return "RevertCreateLineOnLine";
     }
 
     public String getLineToBeMerged1Id() {

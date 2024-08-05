@@ -15,12 +15,13 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.*;
-import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.AbstractSingleNetworkModification;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.util.DryRunUtils;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.action.SwitchAction;
@@ -57,13 +58,20 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class SecurityAnalysisTest {
 
-    private static final class SecurityAnalysisModificationTest extends AbstractNetworkModification {
+    private static final class SecurityAnalysisModificationTest extends AbstractSingleNetworkModification {
         @Override
-        public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+        public void doApply(Network network, NamingStrategy namingStrategy, boolean throwException,
+                            ComputationManager computationManager, ReportNode reportNode, boolean dryRun) {
+            DryRunUtils.assertNotDryRun(dryRun);
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
             network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
             ((Bus) network.getIdentifiable("NHV2")).setV(380.0).setAngle(-0.10);
+        }
+
+        @Override
+        public String getName() {
+            return "SecurityAnalysisModificationTest";
         }
     }
 
