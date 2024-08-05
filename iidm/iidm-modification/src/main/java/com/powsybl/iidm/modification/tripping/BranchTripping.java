@@ -8,6 +8,9 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
@@ -28,6 +31,8 @@ public class BranchTripping extends AbstractTripping {
 
     private final BiFunction<Network, String, Branch<?>> supplier;
 
+    private static final String NETWORK_MODIFICATION_NAME = "BranchTripping";
+
     public BranchTripping(String branchId) {
         this(branchId, null);
     }
@@ -40,6 +45,32 @@ public class BranchTripping extends AbstractTripping {
         super(branchId);
         this.voltageLevelId = voltageLevelId;
         this.supplier = supplier;
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        Branch<?> branch = supplier.apply(network, id);
+        if (branch == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                String.format("Branch %s not found", id));
+        }
+        if (voltageLevelId == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                "voltageLevelId should not be null");
+        }
+        if (branch != null && voltageLevelId != null
+            && !voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())
+            && !voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                NETWORK_MODIFICATION_NAME,
+                String.format("Branch %s is not connected to voltage level %s", id, voltageLevelId));
+        }
+        return dryRunConclusive;
     }
 
     protected String getVoltageLevelId() {

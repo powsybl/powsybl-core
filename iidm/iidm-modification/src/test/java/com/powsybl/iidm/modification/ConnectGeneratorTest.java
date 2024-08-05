@@ -7,14 +7,15 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -100,5 +101,53 @@ class ConnectGeneratorTest {
         new GeneratorModification(g2.getId(), modifs).apply(network);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
+    }
+
+    @Test
+    void testDryRunConnection() {
+        // Passing dryRun
+        ConnectGenerator connectGenerator = new ConnectGenerator(g2.getId());
+        assertTrue(connectGenerator.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(connectGenerator.hasImpactOnNetwork());
+        assertTrue(connectGenerator.isLocalDryRunPossible());
+
+        // Failing dryRun
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        ConnectGenerator connectGeneratorFailing = new ConnectGenerator("GEN_NOT_EXISTING");
+        assertFalse(connectGeneratorFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for ConnectGenerator. The issue is: Generator 'GEN_NOT_EXISTING' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+    }
+
+    @Test
+    void testDryRunModification() {
+        g3.setVoltageRegulatorOn(false);
+        g2.setVoltageRegulatorOn(false);
+        g2.setRegulatingTerminal(g3.getTerminal());
+        g2.setTargetV(Double.NaN);
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        modifs.setVoltageRegulatorOn(true); // no targetV provided!
+        modifs.setConnected(true);
+
+        // Passing dryRun
+        GeneratorModification generatorModification = new GeneratorModification(g2.getId(), modifs);
+        assertTrue(generatorModification.dryRun(network));
+
+        // Useful methods for dry run
+        assertFalse(generatorModification.hasImpactOnNetwork());
+        assertTrue(generatorModification.isLocalDryRunPossible());
+
+        // Failing dryRun
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        GeneratorModification connectGeneratorFailing = new GeneratorModification("GEN_NOT_EXISTING", modifs);
+        assertFalse(connectGeneratorFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for GeneratorModification. The issue is: Generator 'GEN_NOT_EXISTING' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
     }
 }

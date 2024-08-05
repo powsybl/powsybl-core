@@ -215,4 +215,48 @@ class CreateLineOnLineTest extends AbstractModificationTest {
                 .setB2(line.getB2())
                 .setG2(line.getG2());
     }
+
+    @Test
+    void testDryRun() {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder()
+            .withBusbarSectionOrBusId(BBS)
+            .withLine(line)
+            .withLineAdder(adder)
+            .build();
+        assertTrue(modification.dryRun(network));
+
+        // Useful methods for dry run
+        assertTrue(modification.hasImpactOnNetwork());
+        assertTrue(modification.isLocalDryRunPossible());
+
+        // Failing dry run
+        ReportNode reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        NetworkModification modificationFailing = new CreateLineOnLineBuilder()
+            .withBusbarSectionOrBusId("dummy")
+            .withLine(line)
+            .withLineAdder(adder)
+            .build();
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for AbstractLineConnectionModification. The issue is: Bus or busbar section 'dummy' not found",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+
+        // Failing dry run
+        reportNode = ReportNode.newRootReportNode()
+            .withMessageTemplate("", "")
+            .build();
+        modificationFailing = new CreateLineOnLineBuilder()
+            .withBusbarSectionOrBusId(BBS)
+            .withLine(line)
+            .withPositionPercent(Double.NaN)
+            .withLineAdder(adder)
+            .build();
+        assertFalse(modificationFailing.dryRun(network, reportNode));
+        assertEquals("Dry-run failed for AbstractLineConnectionModification. The issue is: Percent should not be undefined",
+            reportNode.getChildren().get(0).getChildren().get(0).getMessage());
+    }
 }

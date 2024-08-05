@@ -60,4 +60,23 @@ public interface NetworkModification {
      * in case of error.
      */
     void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
+
+    boolean dryRun(Network network);
+
+    boolean dryRun(Network network, ReportNode reportNode);
+
+    /**
+     * Test the application of the modification to the given network by checking prerequisites.
+     */
+    boolean dryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
+
+    /**
+     * Tells if a network modification may have an impact on another network modification that would be applied afterwards
+     */
+    boolean hasImpactOnNetwork();
+
+    /**
+     * Tells if all the prerequisites of the network modification can be checked in the local dry run
+     */
+    boolean isLocalDryRunPossible();
 }

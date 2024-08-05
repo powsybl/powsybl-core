@@ -41,6 +41,35 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         connect(g);
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        Generator g = network.getGenerator(generatorId);
+        if (g == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "ConnectGenerator",
+                "Generator '" + generatorId + "' not found");
+        } else if (g.getTerminal() == null) {
+            // TODO: can the generator's terminal be null here?
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "ConnectGenerator",
+                "Terminal for the generator '" + generatorId + "' is null");
+
+        }
+        return dryRunConclusive;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     static void connect(Generator g) {
         Objects.requireNonNull(g);
 

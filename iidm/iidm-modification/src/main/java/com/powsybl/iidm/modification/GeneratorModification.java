@@ -68,6 +68,27 @@ public class GeneratorModification extends AbstractNetworkModification {
         }
     }
 
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getGenerator(generatorId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "GeneratorModification",
+                "Generator '" + generatorId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     private void applyTargetP(Generator g, boolean skipOtherConnectionChange) {
         Double newTargetP;
         if (modifs.getTargetP() != null) {

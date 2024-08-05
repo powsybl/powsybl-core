@@ -54,4 +54,25 @@ public class DanglingLineModification extends AbstractLoadModification {
         getP0().ifPresent(value -> danglingLine.setP0((isRelativeValue() ? danglingLine.getP0() : 0) + value));
         getQ0().ifPresent(value -> danglingLine.setQ0((isRelativeValue() ? danglingLine.getQ0() : 0) + value));
     }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getDanglingLine(getDanglingLineId()) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "DanglingLineModification",
+                "Dangling line '" + getDanglingLineId() + "' not found");
+        }
+        return dryRunConclusive;
+    }
 }

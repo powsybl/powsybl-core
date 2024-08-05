@@ -7,11 +7,17 @@
  */
 package com.powsybl.iidm.modification;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.serde.NetworkSerDe;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -35,5 +41,92 @@ public class NetworkModificationList extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy,
+                          ComputationManager computationManager, ReportNode reportNode) {
+        if (!hasImpactOnNetwork() && isLocalDryRunPossible()) {
+            dryRunConclusive = getFlattenedModificationList().stream().allMatch(modification -> modification.dryRun(network, namingStrategy, computationManager, reportNode));
+            if (!dryRunConclusive) {
+                reportOnInconclusiveDryRun(reportNode,
+                    "NetworkModificationList",
+                    "At least one dry run on a network modification from the list failed");
+            }
+        } else {
+            dryRunConclusive = fullDryRun(network, namingStrategy, computationManager, reportNode);
+        }
+        return dryRunConclusive;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        List<NetworkModification> flatModificationList = getFlattenedModificationList();
+
+        // Empty list
+        if (flatModificationList.isEmpty()) {
+            return false;
+        }
+
+        // Check if any network modification from the list - except the last element - has an impact on the network
+        return flatModificationList.subList(0, flatModificationList.size() - 1)
+            .stream()
+            .anyMatch(NetworkModification::hasImpactOnNetwork);
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return modificationList.stream().allMatch(NetworkModification::isLocalDryRunPossible);
+    }
+
+    private List<NetworkModification> getFlattenedModificationList() {
+        List<NetworkModification> flatModificationList = new ArrayList<>();
+        modificationList.forEach(networkModification -> {
+            if (networkModification instanceof NetworkModificationList networkModificationList) {
+                flatModificationList.addAll(networkModificationList.getFlattenedModificationList());
+            } else {
+                flatModificationList.add(networkModification);
+            }
+        });
+        return flatModificationList;
+    }
+
+    public boolean fullDryRun(Network network) {
+        return fullDryRun(network, ReportNode.NO_OP);
+    }
+
+    public boolean fullDryRun(Network network, ReportNode reportNode) {
+        return fullDryRun(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode);
+    }
+
+    public boolean fullDryRun(Network network, NamingStrategy namingStrategy,
+                          ComputationManager computationManager, ReportNode reportNode) {
+        String templateKey = "networkModificationsDryRun";
+        String messageTemplate = "Dry-run: Checking if network modifications can be applied on network ${networkNameOrId}";
+        ReportNode dryRunReportNode = reportNode.newReportNode()
+                .withMessageTemplate(templateKey, messageTemplate)
+                .withUntypedValue("networkNameOrId", network.getNameOrId())
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+        try {
+            //TODO The following copy performs an XML export/import. It will be more performant to change it to the BIN format.
+            Network dryRunNetwork = NetworkSerDe.copy(network);
+            dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
+            apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
+        } catch (PowsyblException powsyblException) {
+            dryRunReportNode.newReportNode()
+                    .withMessageTemplate("networkModificationsDryRun-failure",
+                            "Dry-run failed. Error message is: ${dryRunError}")
+                    .withUntypedValue("dryRunError", powsyblException.getMessage())
+                    .withSeverity(TypedValue.INFO_SEVERITY)
+                    .add();
+            return false;
+        }
+        dryRunReportNode.newReportNode()
+                .withMessageTemplate("networkModificationsDryRun-success",
+                        "DRY-RUN: Network modifications can successfully be applied on network ${networkNameOrId}")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+        return true;
     }
 }

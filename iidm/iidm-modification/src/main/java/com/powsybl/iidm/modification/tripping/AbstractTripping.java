@@ -47,6 +47,16 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         terminalsToDisconnect.forEach(Terminal::disconnect);
     }
 
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
+
     public void traverseDoubleSidedEquipment(String voltageLevelId, Terminal terminal1, Terminal terminal2, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals, String equipmentType) {
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {

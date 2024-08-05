@@ -205,11 +205,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side) {
+        return connect(isTypeSwitchToOperate, side, false);
+    }
 
+    @Override
+    public boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side, boolean dryRun) {
         return ConnectDisconnectUtil.connectAllTerminals(
             this,
             getTerminals(side),
             isTypeSwitchToOperate,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 
@@ -225,10 +230,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side) {
+        return disconnect(isSwitchOpenable, side, false);
+    }
+
+    @Override
+    public boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side, boolean dryRun) {
         return ConnectDisconnectUtil.disconnectAllTerminals(
             this,
             getTerminals(side),
             isSwitchOpenable,
+            dryRun,
             getNetwork().getReportNodeContext().getReportNode());
     }
 

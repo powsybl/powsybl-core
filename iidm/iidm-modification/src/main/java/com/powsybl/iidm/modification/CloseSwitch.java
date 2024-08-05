@@ -35,4 +35,25 @@ public class CloseSwitch extends AbstractNetworkModification {
         }
         sw.setOpen(false);
     }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getSwitch(switchId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "CloseSwitch",
+                "Switch '" + switchId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
+    }
 }

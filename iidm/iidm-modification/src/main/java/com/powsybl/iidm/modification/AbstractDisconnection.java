@@ -8,6 +8,8 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,35 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         this.identifiableId = Objects.requireNonNull(identifiableId);
         this.openableSwitches = openableSwitches;
         this.side = side;
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        Connectable<?> connectable = network.getConnectable(identifiableId);
+        if (connectable == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "AbstractDisconnection",
+                "Identifiable '" + identifiableId + "' not found");
+        } else if (!connectable.disconnect(openableSwitches, side, true)) {
+            // TODO : differenciate the cases where the identifiable does not exist, where it is already disconnected, where it cannot be disconnected, etc.
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "AbstractDisconnection",
+                "Disconnection failed");
+        }
+        return dryRunConclusive;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        // TODO: see TODO in applyDryRun
+        return true;
     }
 
     public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {

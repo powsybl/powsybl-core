@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
 
+import static com.powsybl.iidm.modification.util.ModificationReports.notFoundBatteryReport;
+
 /**
  * Simple {@link NetworkModification} for a battery.
  *
@@ -37,6 +39,7 @@ public class BatteryModification extends AbstractNetworkModification {
                       ReportNode reportNode) {
         Battery battery = network.getBattery(batteryId);
         if (battery == null) {
+            notFoundBatteryReport(reportNode, batteryId);
             logOrThrow(throwException, "Battery '" + batteryId + "' not found");
             return;
         }
@@ -46,6 +49,27 @@ public class BatteryModification extends AbstractNetworkModification {
         if (targetQ != null) {
             battery.setTargetQ(targetQ);
         }
+    }
+
+    @Override
+    protected boolean applyDryRun(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        if (network.getBattery(batteryId) == null) {
+            dryRunConclusive = false;
+            reportOnInconclusiveDryRun(reportNode,
+                "BatteryModification",
+                "Battery '" + batteryId + "' not found");
+        }
+        return dryRunConclusive;
+    }
+
+    @Override
+    public boolean hasImpactOnNetwork() {
+        return false;
+    }
+
+    @Override
+    public boolean isLocalDryRunPossible() {
+        return true;
     }
 
     public String getBatteryId() {
