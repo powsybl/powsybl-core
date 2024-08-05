@@ -51,7 +51,7 @@ public class PostContingencyResultDeserializer extends AbstractContingencyResult
             if (found) {
                 return true;
             }
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "contingency":
                     parser.nextToken();
                     parsingContext.contingency = JsonUtil.readValue(deserializationContext, parser, Contingency.class);

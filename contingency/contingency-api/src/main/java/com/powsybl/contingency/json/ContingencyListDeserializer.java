@@ -27,8 +27,8 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
     @Override
     public ContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         parser.nextToken();
-        while (parser.getCurrentName() != null) {
-            if ("type".equals(parser.getCurrentName())) {
+        while (parser.currentName() != null) {
+            if ("type".equals(parser.currentName())) {
                 switch (parser.nextTextValue()) {
                     case "default" -> {
                         DefaultContingencyListDeserializer defaultContingencyListDeserializer = new DefaultContingencyListDeserializer();
@@ -66,7 +66,7 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         IdentifierContingencyListDeserializer identifierContingencyListDeserializer = new IdentifierContingencyListDeserializer();
                         return identifierContingencyListDeserializer.deserialize(parser, deserializationContext);
                     }
-                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
                 }
             }
             parser.nextToken();

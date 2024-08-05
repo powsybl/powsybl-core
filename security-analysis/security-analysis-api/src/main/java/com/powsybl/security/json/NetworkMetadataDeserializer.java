@@ -47,7 +47,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
         List<Extension<NetworkMetadata>> extensions = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "id":
                     id = parser.nextTextValue();
                     break;
@@ -70,7 +70,7 @@ public class NetworkMetadataDeserializer extends StdDeserializer<NetworkMetadata
                     break;
 
                 default:
-                    throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                    throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 

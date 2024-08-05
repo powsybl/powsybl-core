@@ -43,7 +43,7 @@ public abstract class AbstractMinMaxNodeCalc extends AbstractSingleChildNodeCalc
     }
 
     static void parseFieldName(JsonParser parser, JsonToken token, ParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         if ("value".equals(fieldName)) {
             parser.nextValue();
             context.value = parser.getValueAsDouble();
