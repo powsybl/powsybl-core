@@ -44,8 +44,8 @@ abstract class AbstractFileSystemDataSourceTest {
 
     protected abstract DataSource createDataSource(DataSourceObserver observer);
 
-    protected String getFileName(String baseName, CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName
+    protected String getFileName(String baseName, String dataExtension, CompressionFormat compressionFormat) {
+        return testDir + "/" + baseName + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension)
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
@@ -53,9 +53,9 @@ abstract class AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForWriteThenReadTest")
-    void writeThenReadTest(String baseName, CompressionFormat compressionFormat) throws IOException {
+    void writeThenReadTest(String baseName, String dataExtension, CompressionFormat compressionFormat) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, compressionFormat);
+        String fileName = getFileName(baseName, dataExtension, compressionFormat);
 
         // Create the files
         createFiles(fileName);
@@ -112,11 +112,11 @@ abstract class AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    void testClassAndListing(String baseName,
+    void testClassAndListing(String baseName, String dataExtension,
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Compute the full filename
-        String fileName = getFileName(baseName, compressionFormat);
+        String fileName = getFileName(baseName, dataExtension, compressionFormat);
 
         // Update the list of unlisted files
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
@@ -145,8 +145,9 @@ abstract class AbstractFileSystemDataSourceTest {
 
         // Checks
         assertInstanceOf(AbstractFileSystemDataSource.class, dataSourceWithObserver);
-        assertEquals("foo", dataSourceWithObserver.getBaseName());
         assertEquals(testDir, ((AbstractFileSystemDataSource) dataSourceWithObserver).getDirectory());
+        assertEquals("foo", dataSourceWithObserver.getBaseName());
+        assertEquals("iidm", dataSourceWithObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithObserver).getCompressionFormat());
         assertEquals(observer, ((AbstractFileSystemDataSource) dataSourceWithObserver).getObserver());
 
@@ -157,7 +158,28 @@ abstract class AbstractFileSystemDataSourceTest {
         assertInstanceOf(AbstractFileSystemDataSource.class, dataSourceWithoutObserver);
         assertEquals("foo", dataSourceWithoutObserver.getBaseName());
         assertEquals(testDir, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getDirectory());
+        assertEquals("foo", dataSourceWithoutObserver.getBaseName());
+        assertNull(dataSourceWithoutObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getCompressionFormat());
         assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getObserver());
+    }
+
+    @Test
+    void testExists() throws IOException {
+        // Observer
+        DataSourceObserver observer = new DefaultDataSourceObserver();
+
+        // Create the files
+        createFiles(getFileName("foo", "iidm", compressionFormat));
+
+        // Create the datasource
+        DataSource dataSourceWithObserver = createDataSource(observer);
+
+        // Checks
+        assertTrue(dataSourceWithObserver.exists(null, "iidm"));
+        assertTrue(dataSourceWithObserver.exists(null, "txt"));
+        assertTrue(dataSourceWithObserver.isDataExtension("iidm"));
+        assertFalse(dataSourceWithObserver.isDataExtension("txt"));
+
     }
 }
