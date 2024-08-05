@@ -14,7 +14,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -156,7 +156,7 @@ public abstract sealed class AbstractNetworkModification implements NetworkModif
 
     protected ReportNode reportOnDryRunStart(Network network, ReportNode reportNode) {
         String templateKey = "networkModificationDryRun";
-        String messageTemplate = "Dry-run: Checking if network modification '${networkModification}' can be applied on network '${networkNameOrId}'";
+        String messageTemplate = "Dry-run: Checking if network modification ${networkModification} can be applied on network '${networkNameOrId}'";
         return reportNode.newReportNode()
                 .withMessageTemplate(templateKey, messageTemplate)
                 .withUntypedValue("networkModification", getName())
@@ -165,47 +165,13 @@ public abstract sealed class AbstractNetworkModification implements NetworkModif
                 .add();
     }
 
-    protected static void reportOnInconclusiveDryRun(ReportNode reportNode, String networkModification, String cause) {
+    protected void reportOnInconclusiveDryRun(ReportNode reportNode, String cause) {
         reportNode.newReportNode()
-            .withMessageTemplate("networkModificationsDryRun-failure",
+            .withMessageTemplate("networkModificationDryRun-failure",
                 "Dry-run failed for ${networkModification}. The issue is: ${dryRunError}")
             .withUntypedValue("dryRunError", cause)
-            .withUntypedValue("networkModification", networkModification)
+            .withUntypedValue("networkModification", getName())
             .add();
-    }
-
-    protected static boolean checkVoltageLevel(Identifiable<?> identifiable, ReportNode reportNode, String networkModification, boolean dryRunConclusive) {
-        boolean localDryRunConclusive = dryRunConclusive;
-        VoltageLevel vl = null;
-        if (identifiable instanceof Bus bus) {
-            vl = bus.getVoltageLevel();
-        } else if (identifiable instanceof BusbarSection bbs) {
-            vl = bbs.getTerminal().getVoltageLevel();
-        } else {
-            localDryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                networkModification,
-                "Unexpected type of identifiable " + identifiable.getId() + ": " + identifiable.getType());
-        }
-        if (vl == null) {
-            localDryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                networkModification,
-                "Voltage level is null");
-        }
-        return localDryRunConclusive;
-    }
-
-    protected static boolean checkLine(Network network, String lineId, ReportNode reportNode, String networkModification, boolean dryRunConclusive) {
-        boolean localDryRunConclusive = dryRunConclusive;
-        Line line = network.getLine(lineId);
-        if (line == null) {
-            localDryRunConclusive = false;
-            reportOnInconclusiveDryRun(reportNode,
-                networkModification,
-                String.format("Line %s is not found", lineId));
-        }
-        return localDryRunConclusive;
     }
 
     /**

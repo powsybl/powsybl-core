@@ -25,7 +25,7 @@ public abstract non-sealed class AbstractSingleNetworkModification extends Abstr
             try {
                 doApply(network, namingStrategy, true, computationManager, reportNode1, true);
             } catch (Exception e) {
-                reportOnInconclusiveDryRun(reportNode1, getName(), e.getMessage());
+                reportOnInconclusiveDryRun(reportNode1, e.getMessage());
                 return false;
             }
         } else {

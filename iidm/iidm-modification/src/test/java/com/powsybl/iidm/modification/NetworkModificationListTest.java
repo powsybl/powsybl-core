@@ -81,7 +81,7 @@ class NetworkModificationListTest {
         reportNode.print(sw1);
         assertEquals("""
             + test reportNode
-               + Dry-run: Checking if network modifications can be applied on network sim1
+               + Dry-run: Checking if network modification NetworkModificaitonList can be applied on network 'sim1'
                   Connectable NHV1_NHV2_1 removed
                   Dry-run failed. Error message is: Branch 'NHV1_NHV2_1' not found
             """, TestUtil.normalizeLineSeparator(sw1.toString()));

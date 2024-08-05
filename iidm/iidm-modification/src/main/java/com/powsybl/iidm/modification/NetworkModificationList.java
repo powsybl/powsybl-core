@@ -43,7 +43,7 @@ public non-sealed class NetworkModificationList extends AbstractNetworkModificat
         if (dryRun) {
             return applyDryRun(network, namingStrategy, computationManager, reportNode);
         }
-        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
+        modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode, false));
         return true;
     }
 
@@ -59,7 +59,6 @@ public non-sealed class NetworkModificationList extends AbstractNetworkModificat
             dryRunConclusive = getFlattenedModificationList().stream().allMatch(modification -> modification.apply(network, namingStrategy, computationManager, reportNode, true));
             if (!dryRunConclusive) {
                 reportOnInconclusiveDryRun(reportNode,
-                    "NetworkModificationList",
                     "At least one dry run on a network modification from the list failed");
             }
         } else {
@@ -110,30 +109,19 @@ public non-sealed class NetworkModificationList extends AbstractNetworkModificat
 
     public boolean fullDryRun(Network network, NamingStrategy namingStrategy,
                           ComputationManager computationManager, ReportNode reportNode) {
-        String templateKey = "networkModificationsDryRun";
-        String messageTemplate = "Dry-run: Checking if network modifications can be applied on network ${networkNameOrId}";
-        ReportNode dryRunReportNode = reportNode.newReportNode()
-                .withMessageTemplate(templateKey, messageTemplate)
-                .withUntypedValue("networkNameOrId", network.getNameOrId())
-                .withSeverity(TypedValue.INFO_SEVERITY)
-                .add();
+        ReportNode dryRunReportNode = reportOnDryRunStart(network, reportNode);
         try {
             //TODO The following copy performs an XML export/import. It will be more performant to change it to the BIN format.
             Network dryRunNetwork = NetworkSerDe.copy(network);
             dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
-            apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
+            apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode, false);
         } catch (PowsyblException powsyblException) {
-            dryRunReportNode.newReportNode()
-                    .withMessageTemplate("networkModificationsDryRun-failure",
-                            "Dry-run failed. Error message is: ${dryRunError}")
-                    .withUntypedValue("dryRunError", powsyblException.getMessage())
-                    .withSeverity(TypedValue.INFO_SEVERITY)
-                    .add();
+            reportOnInconclusiveDryRun(dryRunReportNode, powsyblException.getMessage());
             return false;
         }
         dryRunReportNode.newReportNode()
-                .withMessageTemplate("networkModificationsDryRun-success",
-                        "DRY-RUN: Network modifications can successfully be applied on network ${networkNameOrId}")
+                .withMessageTemplate("networkModificationDryRun-success",
+                        "DRY-RUN: Network modifications can successfully be applied on network '${networkNameOrId}'")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         return true;
