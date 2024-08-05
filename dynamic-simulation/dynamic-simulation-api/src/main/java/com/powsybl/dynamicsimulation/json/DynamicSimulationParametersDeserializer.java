@@ -35,11 +35,11 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
 
     @Override
     public DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
-        DynamicSimulationParameters parameters) throws IOException {
+                                                   DynamicSimulationParameters parameters) throws IOException {
 
         List<Extension<DynamicSimulationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
 
                 case "version":
                     parser.nextToken();
@@ -61,7 +61,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

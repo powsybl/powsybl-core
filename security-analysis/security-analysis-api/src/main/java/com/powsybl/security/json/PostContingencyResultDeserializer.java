@@ -23,11 +23,11 @@ import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURC
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
-class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
+public class PostContingencyResultDeserializer extends AbstractContingencyResultDeserializer<PostContingencyResult> {
 
     protected static final String CONTEXT_NAME = "PostContingencyResult";
 
-    PostContingencyResultDeserializer() {
+    public PostContingencyResultDeserializer() {
         super(PostContingencyResult.class);
     }
 
@@ -51,7 +51,7 @@ class PostContingencyResultDeserializer extends AbstractContingencyResultDeseria
             if (found) {
                 return true;
             }
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "contingency":
                     parser.nextToken();
                     parsingContext.contingency = JsonUtil.readValue(deserializationContext, parser, Contingency.class);

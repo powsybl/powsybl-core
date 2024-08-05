@@ -20,7 +20,7 @@ class EmptyContingencyListProviderTest {
         ContingenciesProviderFactory factory = new EmptyContingencyListProviderFactory();
         ContingenciesProvider provider = factory.create();
 
-        assertTrue(provider instanceof EmptyContingencyListProvider);
+        assertInstanceOf(EmptyContingencyListProvider.class, provider);
         assertEquals(0, provider.getContingencies(null).size());
     }
 }

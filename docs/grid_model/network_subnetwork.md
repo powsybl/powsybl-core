@@ -18,10 +18,12 @@ To identify non-physical network components, one can use the fictitious property
 
 A network can contain several subnetworks.
 
+(validation-level)=
 ## Validation level
 
 The validation level can be set to `EQUIPMENT` or `STEADY_STATE_HYPOTHESIS`. A network at equipment level is a network with missing steady-state hypotheses. This occurs just after SCADA systems, before any state estimation. Once all steady-state hypotheses are filled, meaning that a load flow engine has all the data needed to perform a computation, the validation level switches to `STEADY_STATE_HYPOTHESIS`. For some processes, a minimal validation level of the network is required.
 
+(network)=
 ## Network
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Network.html)
 
@@ -39,6 +41,7 @@ The `SourceFormat` attribute is a required attribute that indicates the origin o
 
 **Available extensions**
 
+(substation)=
 ## Substation
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Substation.html)
 
@@ -57,7 +60,8 @@ All three attributes are optional.
 **Available extensions**
 - [ENTSO-E Area](extensions.md#entso-e-area)
 
-## Voltage Level
+(voltage-level)=
+## Voltage level
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.html)
 
 A voltage level contains equipment with the same nominal voltage. Two voltage levels may be connected through lines (when they belong to different substations) or through transformers (they must be located within the same substation).
@@ -85,7 +89,8 @@ PowSyBl provides an integrated topology processor that allows to automatically o
 
 The following diagram represents an example voltage level with two busbars separated by a circuit breaker, a transformer connected to one of them and three generators that can connect to any of the two busbars. The three topology levels are shown.
 
-![VoltageLevel](img/voltage-level.svg){width="100%" align=center}
+![VoltageLevel](img/voltage-level.svg){width="100%" align=center class="only-light"}
+![VoltageLevel](img/dark_mode/voltage-level.svg){width="100%" align=center class="only-dark"}
 
 When defining the model, the user has to specify how the different equipment connect to the network. If the voltage level is built at node/breaker level, the user has to specify a `Node` when adding equipment to the model. If the user is building using bus/breaker level, the `Bus` of the equipment must be specified. Using this information, the model creates a `Terminal` that will be used to manage the point of connection of the equipment to the network.
 
@@ -95,27 +100,79 @@ When defining the model, the user has to specify how the different equipment con
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Slack Terminal](extensions.md#slack-terminal)
 
+(area)=
+## Area
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Area.html)
+
+An Area is a geographical zone of a given type.
+
+An Area is composed of a collection of [voltage levels](#voltage-level), and a collection of area boundaries.
+Area boundaries can be terminals of equipments or `Boundary` objects from [dangling lines](#dangling-line).
+
+The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
+
+A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of different type.
+
+The area boundaries define how interchange are to be calculated for the area.  
+Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
+for DC part only (considering only DC boundaries) and in total (AC+DC).  
+Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
+
+For area types that are meant to be used for area interchange control, e.g. in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
+
+All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
+
+**Characteristics of an Area**
+
+| Attribute           | Unit | Description                                                    |
+|---------------------|------|----------------------------------------------------------------|
+| $AreaType$          |      | To specify the type of Area (eg. ControlArea, BiddingZone ...) |
+| $interchangeTarget$ | MW   | Target active power interchange                                |
+| $VoltageLevels$     |      | List of voltage levels of the area                             |
+| $AreaBoundaries$    |      | List of area boundaries of the area                            |
+
+**Characteristics of an AreaBoundary**
+
+An area boundary is modeled by an `AreaBoundary` instance.
+It is composed of either DanglingLine Boundary or a Terminal, and boolean telling if the area boundary
+is to be considered as AC or DC.
+
+The `Ac` flag is informative and is present to support the use case where boundaries are defined on AC components even though
+the boundary is related to an HVDC link. An example for this is a DanglingLine (which is an AC equipment) that may actually represent
+an HVDC interconnection that is not explicitly described in the network model. This information is used when computing area interchanges,
+which are then separated for AC and DC parts.
+
+| Attribute  | Unit | Description                                                                 |
+|------------|------|-----------------------------------------------------------------------------|
+| $Area$     |      | The area of this boundary                                                   |
+| $Boundary$ |      | Boundary of a DanglingLine (mutually exclusive with the Terminal attribute) |
+| $Terminal$ |      | Terminal of an equipment (mutually exclusive with the Boundary attribute)   |
+| $Ac$       |      | True if AreaBoundary is to be considered AC, false otherwise                |
+
+(generator)=
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
 
 A generator is an equipment that injects or consumes active power, and injects or consumes reactive power. It may be used as a controller to hold a voltage or reactive target somewhere in the network, not necessarily directly where it is connected. In that specific case, the voltage or reactive power control is remote.
 
-![GeneratorSignConvention](img/generator-sign-convention.svg){width="40%" align=center}
+![GeneratorSignConvention](img/generator-sign-convention.svg){width="50%" align=center class="only-light"}
+![GeneratorSignConvention](img/dark_mode/generator-sign-convention.svg){width="50%" align=center class="only-dark"}
 
 **Characteristics**
 
-| Attribute | Unit | Description                                                 |
-| --------- | ---- |-------------------------------------------------------------|
-| $MinP$ | MW | Minimum generator active power output                       |
-| $MaxP$ | MW | Maximum generator active power output                       |
-| $ReactiveLimits$ | MVar | Operational limits of the generator (P/Q/V diagram)         |
-| $RatedS$ | MVA | The rated nominal power                                     |
-| $TargetP$ | MW | The active power target                                     |
-| $TargetQ$ | MVAr | The reactive power target at local terminal                 |
-| $TargetV$ | kV | The voltage target at regulating terminal                   |
-| $RegulatingTerminal$ |  | Associated node or bus for which voltage is to be regulated |
-| $VoltageRegulatorOn$ |  | True if the generator regulates voltage                     |
-| $EnergySource$ |  | The energy source harnessed to turn the generator           |
+| Attribute            | Unit | Description                                                 |
+|----------------------|------|-------------------------------------------------------------|
+| $MinP$               | MW   | Minimum generator active power output                       |
+| $MaxP$               | MW   | Maximum generator active power output                       |
+| $ReactiveLimits$     | MVar | Operational limits of the generator (P/Q/V diagram)         |
+| $RatedS$             | MVA  | The rated nominal power                                     |
+| $TargetP$            | MW   | The active power target                                     |
+| $TargetQ$            | MVAr | The reactive power target at local terminal                 |
+| $TargetV$            | kV   | The voltage target at regulating terminal                   |
+| $RegulatingTerminal$ |      | Associated node or bus for which voltage is to be regulated |
+| $VoltageRegulatorOn$ |      | True if the generator regulates voltage                     |
+| $EnergySource$       |      | The energy source harnessed to turn the generator           |
+| $IsCondenser$        |      | True if the generator may behave as a condenser             |
 
 **Specifications**
 
@@ -124,6 +181,9 @@ The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power o
 The `VoltageRegulatorOn` attribute is required. It voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 
 Target values for generators (`TargetP` and `TargetQ`) follow the generator sign convention: a positive value means an injection into the bus. Positive values for `TargetP` and `TargetQ` mean negative values at the flow observed at the generator `Terminal`, as `Terminal` flow always follows load sign convention. The following diagram shows the sign convention of these quantities with an example.
+
+The `isCondenser` value corresponds for instance to generators which can control voltage even if their targetP is equal to zero.
+
 
 **Available extensions**
 
@@ -136,6 +196,7 @@ Target values for generators (`TargetP` and `TargetQ`) follow the generator sign
 - [Measurements](extensions.md#measurements)
 - [Remote Reactive Power Control](extensions.md#remote-reactive-power-control)
 
+(load)=
 ## Load
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Load.html)
 
@@ -189,6 +250,7 @@ In the grid model, loads comprise the following metadata:
 - [Load Detail](extensions.md#load-detail)
 - [Measurements](extensions.md#measurements)
 
+(battery)=
 ## Battery
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
 
@@ -212,12 +274,14 @@ A battery on the electric grid is an energy storage device that is either capabl
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
+(dangling-line)=
 ## Dangling line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
 
 A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection, in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
 
-![Dangling line model](img/danglingLine.svg){width="50%" align=center}
+![Dangling line model](img/dangling-line.svg){width="50%" align=center class="only-light"}
+![Dangling line model](img/dark_mode/dangling-line.svg){width="50%" align=center class="only-dark"}
 
 A generation part, at boundary side can also be modeled, with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal can not be set, it is necessary the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
 
@@ -271,7 +335,8 @@ are automatically computed using information from the terminal of the dangling l
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-## Shunt Compensator
+(shunt-compensator)=
+## Shunt compensator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ShuntCompensator.html)
 
 A shunt compensator represents a shunt capacitor or reactor or a set of switchable banks of shunt capacitors or reactors in the network. A section of a shunt compensator
@@ -345,7 +410,8 @@ $B$ and $G$ attributes can be equal zero, but the disconnected status of the non
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-## Static VAR Compensator
+(static-var-compensator)=
+## Static VAR compensator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/StaticVarCompensator.html)
 
 It may be controlled to hold a voltage or reactive setpoint somewhere in the network (not necessarily directly where it is connected).
@@ -393,12 +459,14 @@ In IIDM the static VAR compensator also comprises some metadata:
 - [Measurements](extensions.md#measurements)
 - [VoltagePerReactivePowerControl](extensions.md#voltage-per-reactive-power-control)
 
+(line)=
 ## Line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Line.html)
 
 AC transmission lines are modeled using a standard $\pi$ model with distributed parameters. A `Line` is a `Branch`, that models equipment with two terminals (or two sides). For the time being, a branch is an AC equipment.
 
-![Line model](img/line-model.svg){width="50%" align=center}
+![Line model](img/line-model.svg){width="50%" align=center class="only-light"}
+![Line model](img/dark_mode/line-model.svg){width="50%" align=center class="only-dark"}
 
 With series impedance $z$ and the shunt admittance on each side $y_1$ and $y_2$:
 
@@ -448,13 +516,14 @@ $$
 
 - [Connectable position](extensions.md#connectable-position)
 - [Branch Observability](extensions.md#branch-observability)
-- [Branch Status](extensions.md#branch-status)
+- [Operating Status](extensions.md#operating-status)
 - [CGMES Line Boundary Node](../grid_exchange_formats/cgmes/import.md#cgmes-line-boundary-node)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
 
-## Tie Line
+(tie-line)=
+## Tie line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TieLine.html)
 
 A tie line is an AC line sharing power between two neighbouring regional grids.
@@ -478,13 +547,15 @@ A tie line is not a connectable. It is just a container of two underlying dangli
 
 ## Transformers
 
+(two-windings-transformer)=
 ### Two windings transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
 
 A two windings power transformer is connected to two voltage levels (side 1 and side 2) that belong to a same substation.
 Two windings transformers are modeled with the following equivalent $\Pi$ model:
 
-![Power line model](img/two-windings-transformer-model.svg){width="50%" align=center}
+![Power line model](img/two-winding-transformer-model.svg){width="50%" align=center class="only-light"}
+![Power line model](img/dark_mode/two-winding-transformer-model.svg){width="50%" align=center class="only-dark"}
 
 With the series impedance $z$ and the shunt admittance $y$ and the voltage ratio $\rho$ and the angle difference $\alpha$ and potentially parameters from the current step of a [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer), we have:
 
@@ -538,7 +609,7 @@ $$
 **Available extensions**
 
 - [Branch Observability](extensions.md#branch-observability)
-- [Branch Status](extensions.md#branch-status)
+- [Operating Status](extensions.md#operating-status)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -546,6 +617,7 @@ $$
 - [Two-windings Transformer Phase Angle Clock](extensions.md#two-windings-transformer-phase-angle-clock)
 - [Two-windings Transformer To Be Estimated](extensions.md#two-windings-transformer-to-be-estimated)
 
+(three-windings-transformer)=
 ### Three windings transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
 
@@ -558,13 +630,14 @@ same substation. We usually have:
 A three windings transformer is modeled with three legs, where every leg model is electrically equivalent to a two windings transformer.
 For each leg, the network bus is at side 1 and the star bus is at side 2.
 
-![Line model](img/three-windings-transformer-model.svg){width="50%" align=center}
+![Line model](img/three-winding-transformer-model.svg){width="50%" align=center class="only-light"}
+![Line model](img/dark_mode/three-winding-transformer-model.svg){width="50%" align=center class="only-dark"}
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $RatedU0$ | kV | The rated voltage at the star bus |
+| Attribute | Unit | Description                       |
+|-----------|------|-----------------------------------|
+| $RatedU0$ | kV   | The rated voltage at the star bus |
 
 **Specifications**
 
@@ -573,7 +646,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 **Available extensions**
 
-- [Branch Status](extensions.md#branch-status)
+- [Operating Status](extensions.md#operating-status)
 - [Connectable position](extensions.md#connectable-position)
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
@@ -598,7 +671,8 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 - A leg can have [loading limits](./additional.md#loading-limits).
 
-## HVDC Line
+(hvdc-line)=
+## HVDC line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/HvdcLine.html)
 
 An HVDC line is connected to the DC side of two HVDC converter stations, either an [LCC station](#lcc-converter-station) or a [VSC station](#vsc-converter-station).
@@ -627,7 +701,8 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 - [HVDC Angle Droop Active Power Control](extensions.md#hvdc-angle-droop-active-power-control)
 - [HVDC Operator Active Power Range](extensions.md#hvdc-operator-active-power-range)
 
-## HVDC Converter Station
+(hvdc-converter-station)=
+## HVDC converter station
 
 An HVDC converter station converts electric power from high voltage alternating current (AC) to high-voltage direct current (HVDC), or vice versa.
 Electronic converters for HVDC are divided into two main categories: line-commutated converters (LCC) and voltage-sourced converters (VSC).
@@ -656,7 +731,8 @@ The positive loss factor `LossFactor` is used to model the losses during the con
 
   Note that at the terminal on the AC side, $Q$ is always positive: the converter station always consumes reactive power.
 
-### LCC Converter Station
+(lcc-converter-station)=
+### LCC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LccConverterStation.html)
 
 An LCC converter station is made with electronic switches that can only be turned on (thyristors). Below are some characteristics:
@@ -677,7 +753,8 @@ An LCC converter station is made with electronic switches that can only be turne
 
 - [Connectable position](extensions.md#connectable-position)
 
-### VSC Converter Station
+(vsc-converter-station)=
+### VSC converter station
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VscConverterStation.html)
 
 A VSC converter station is made with switching devices that can be turned both on and off (transistors). Below are some characteristics:
@@ -708,7 +785,8 @@ A VSC converter station is made with switching devices that can be turned both o
 
 - [Connectable position](extensions.md#connectable-position)
 
-## Busbar Section
+(busbar-section)=
+## Busbar section
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/BusbarSection.html)<br>
 A busbar section is a non impedant element used in a node/breaker substation topology to connect equipment.
@@ -725,7 +803,8 @@ A busbar section is a non impedant element used in a node/breaker substation top
 - [Injection Observability](extensions.md#injection-observability)
 - [Measurements](extensions.md#measurements)
 
-## Breaker/Switch
+(switch)=
+## Breaker/switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Switch.html)<br>
 
@@ -737,7 +816,8 @@ A busbar section is a non impedant element used in a node/breaker substation top
 
 - [Discrete Measurements](extensions.md#discrete-measurements)
 
-## Internal Connection
+(internal-connection)=
+## Internal connection
 
 **Internal connection**  
 An internal connection is a non-impedant connection between two components in a voltage level.

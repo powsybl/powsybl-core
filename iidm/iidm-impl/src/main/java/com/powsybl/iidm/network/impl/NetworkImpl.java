@@ -255,6 +255,46 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return Collections.unmodifiableCollection(index.getAll(AreaImpl.class));
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return index.getAll(AreaImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Area getArea(String id) {
+        return index.get(id, AreaImpl.class);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return index.getAll(AreaImpl.class).size();
+    }
+
+    @Override
     public SubstationAdder newSubstation() {
         return new SubstationAdderImpl(ref, subnetworkRef);
     }
@@ -978,6 +1018,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         checkMergeability(otherNetwork);
 
+        otherNetwork.getAreaStream().forEach(a -> {
+            AreaImpl area = (AreaImpl) a;
+            area.moveListener(otherNetwork, this);
+        });
+
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
@@ -1101,7 +1146,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    class DanglingLinePair {
+    static class DanglingLinePair {
         String id;
         String name;
         String dl1Id;

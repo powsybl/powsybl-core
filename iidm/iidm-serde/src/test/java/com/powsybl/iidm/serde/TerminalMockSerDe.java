@@ -47,6 +47,7 @@ public class TerminalMockSerDe extends AbstractVersionableNetworkExtensionSerDe<
                         .put(IidmVersion.V_1_10, ImmutableSortedSet.of("1.10"))
                         .put(IidmVersion.V_1_11, ImmutableSortedSet.of("1.11"))
                         .put(IidmVersion.V_1_12, ImmutableSortedSet.of("1.12"))
+                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of("1.13"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")
@@ -62,6 +63,7 @@ public class TerminalMockSerDe extends AbstractVersionableNetworkExtensionSerDe<
                         .put("1.10", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_10")
                         .put("1.11", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_11")
                         .put("1.12", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_12")
+                        .put("1.13", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_13")
                         .build());
     }
 
