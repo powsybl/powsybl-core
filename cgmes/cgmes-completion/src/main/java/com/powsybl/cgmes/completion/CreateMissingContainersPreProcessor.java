@@ -22,7 +22,7 @@ import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.datasource.ZipFileDataSource;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -132,7 +132,7 @@ public class CreateMissingContainersPreProcessor implements CgmesImportPreProces
         LOG.info("Missing voltage levels: {}", missingVoltageLevels);
         if (!missingVoltageLevels.isEmpty()) {
             buildZipFileWithFixes(cgmes, missingVoltageLevels, fixesFile, basename);
-            cgmes.read(new ZipFileDataSource(fixesFile), ReportNode.NO_OP);
+            cgmes.read(new ZipArchiveDataSource(fixesFile), ReportNode.NO_OP);
         }
         Set<String> missingVoltageLevelsAfterFix = findMissingVoltageLevels(cgmes);
         if (!missingVoltageLevelsAfterFix.isEmpty()) {

@@ -122,8 +122,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     /**
      * Append the chunk with the one given in argument, and return the result. "This" dataChunk and the one in argument remain unchanged.
      * The two chunks have to be successive, i.e : this.getOffset() + this.length() = otherChunk.getOffset()
-     * @param otherChunk : the chunk to append with this object. It has to be the same implementation as this object.
-     * @return
+     * @param otherChunk the chunk to append with this object. It has to be the same implementation as this object.
      */
     A append(A otherChunk);
 
@@ -131,7 +130,6 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
      * Serialize this data chunk to json.
      *
      * @param generator a json generator (jackson)
-     * @throws IOException in case of json writing error
      */
     void writeJson(JsonGenerator generator);
 
@@ -179,8 +177,8 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
         }
 
         private int offset = -1;
-        private List<DoubleDataChunk> doubleChunks;
-        private List<StringDataChunk> stringChunks;
+        private final List<DoubleDataChunk> doubleChunks;
+        private final List<StringDataChunk> stringChunks;
         private TDoubleArrayList doubleValues;
         private List<String> stringValues;
         private TIntArrayList stepLengths;
@@ -203,7 +201,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     }
 
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         switch (fieldName) {
             case "offset" -> {
                 context.offset = parser.nextIntValue(-1);
@@ -226,8 +224,8 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
         if (context.doubleValues != null && context.stringValues == null) {
             context.doubleChunks.add(new UncompressedDoubleDataChunk(context.offset, context.doubleValues.toArray()));
         } else if (context.stringValues != null && context.doubleValues == null) {
-            context.stringChunks.add(new UncompressedStringDataChunk(context.offset, context.stringValues.toArray(new String[context.stringValues.size()])));
-        } else if (context.stringValues != null && context.doubleValues != null) {
+            context.stringChunks.add(new UncompressedStringDataChunk(context.offset, context.stringValues.toArray(new String[0])));
+        } else if (context.stringValues != null) {
             throw new IllegalStateException("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
             throw new IllegalStateException("doubleValues and stringValues are not expected to be null at the same time");
@@ -243,12 +241,12 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             context.uncompressedLength = -1;
         } else if (context.stringValues != null && context.doubleValues == null) {
             context.stringChunks.add(new CompressedStringDataChunk(context.offset, context.uncompressedLength,
-                    context.stringValues.toArray(new String[context.stringValues.size()]),
+                    context.stringValues.toArray(new String[0]),
                     context.stepLengths.toArray()));
             context.stringValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;
-        } else if (context.stringValues != null && context.doubleValues != null) {
+        } else if (context.stringValues != null) {
             throw new IllegalStateException("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
             throw new IllegalStateException("doubleValues and stringValues are not expected to be null at the same time");

@@ -32,30 +32,30 @@ public class PropertyBags extends ArrayList<PropertyBag> {
 
     public List<String> pluck(String property) {
         return stream()
-                .map(r -> r.get(property))
-                .sorted(Comparator.nullsLast(String::compareTo))
-                .collect(Collectors.toList());
+            .map(r -> r.get(property))
+            .sorted(Comparator.nullsLast(String::compareTo))
+            .collect(Collectors.toList());
     }
 
     public List<String> pluckLocals(String property) {
         return stream()
-                .map(r -> r.getLocal(property))
-                .sorted(Comparator.nullsLast(String::compareTo))
-                .collect(Collectors.toList());
+            .map(r -> r.getLocal(property))
+            .sorted(Comparator.nullsLast(String::compareTo))
+            .collect(Collectors.toList());
     }
 
     public List<String> pluckIdentifiers(String property) {
         return stream()
-                .map(r -> r.getId(property))
-                .sorted(Comparator.nullsLast(String::compareTo))
-                .collect(Collectors.toList());
+            .map(r -> r.getId(property))
+            .sorted(Comparator.nullsLast(String::compareTo))
+            .collect(Collectors.toList());
     }
 
     public PropertyBags pivot(
-            String idProperty,
-            String keyProperty,
-            List<String> pivotPropertyNames,
-            String valueProperty) {
+        String idProperty,
+        String keyProperty,
+        List<String> pivotPropertyNames,
+        String valueProperty) {
         int estimatedNumObjects = size() / pivotPropertyNames.size();
         Map<String, PropertyBag> objects = new HashMap<>(estimatedNumObjects);
         List<String> propertyNames = new ArrayList<>(pivotPropertyNames.size() + 1);
@@ -76,10 +76,10 @@ public class PropertyBags extends ArrayList<PropertyBag> {
     }
 
     public PropertyBags pivotLocalNames(
-            String idProperty,
-            String keyProperty,
-            List<String> pivotPropertyLocalNames,
-            String valueProperty) {
+        String idProperty,
+        String keyProperty,
+        List<String> pivotPropertyLocalNames,
+        String valueProperty) {
         int estimatedNumObjects = size() / pivotPropertyLocalNames.size();
         Map<String, PropertyBag> objects = new HashMap<>(estimatedNumObjects);
         List<String> propertyNames = new ArrayList<>(pivotPropertyLocalNames.size() + 1);
@@ -118,11 +118,10 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         StringBuilder s = new StringBuilder(size() * 80);
         s.append(names.stream().collect(Collectors.joining(columnSeparator)));
         s.append(lineSeparator);
-        s.append(stream()
-                .map(r -> names.stream()
-                        .map(n -> r.containsKey(n) ? getValue.apply(r, n) : "N/A")
-                        .collect(Collectors.joining(columnSeparator)))
-                .collect(Collectors.joining(lineSeparator)));
+        s.append(stream().map(r -> names.stream()
+            .map(n -> r.containsKey(n) ? getValue.apply(r, n) : "N/A")
+            .collect(Collectors.joining(columnSeparator)))
+            .collect(Collectors.joining(lineSeparator)));
         return s.toString();
     }
 }

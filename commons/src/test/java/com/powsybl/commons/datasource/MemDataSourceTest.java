@@ -7,10 +7,12 @@
  */
 package com.powsybl.commons.datasource;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import com.google.common.io.ByteStreams;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,23 +22,15 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.google.common.io.ByteStreams;
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-abstract class AbstractDataSourceTest {
+class MemDataSourceTest {
 
     protected FileSystem fileSystem;
-
     protected Path testDir;
-
     private DataSource dataSource;
 
     @BeforeEach
@@ -52,19 +46,26 @@ abstract class AbstractDataSourceTest {
         fileSystem.close();
     }
 
-    protected String getBaseName() {
-        return "foo";
-    }
-
     protected boolean appendTest() {
         return true;
     }
 
-    protected abstract DataSource createDataSource();
+    protected String getBaseName() {
+        return ""; // because undefined in a memory impl datasource
+    }
+
+    protected DataSource createDataSource() {
+        return new MemDataSource();
+    }
 
     @Test
     void baseNameTest() {
         assertEquals(dataSource.getBaseName(), getBaseName());
+    }
+
+    @Test
+    void dataExtensionTest() {
+        assertNull(dataSource.getDataExtension());
     }
 
     private void writeThenReadTest(String suffix, String ext) throws IOException {
@@ -95,7 +96,7 @@ abstract class AbstractDataSourceTest {
         for (String name : dataSource.listNames(".*")) {
             assertTrue(dataSource.exists(name));
             try (InputStream is = dataSource.newInputStream(name)) {
-                // Ok, some content is available
+                assertNotNull(is);
             } catch (IOException x) {
                 fail(name);
             }
@@ -104,7 +105,7 @@ abstract class AbstractDataSourceTest {
         // check content is ok
         try (InputStream is = dataSource.newInputStream(suffix, ext)) {
             assertEquals("line1" + (appendTest() ? System.lineSeparator() + "line2" : ""),
-                    new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
+                new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
         }
         try (InputStream is = dataSource.newInputStream("dummy.txt")) {
             assertEquals("otherline1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
@@ -117,5 +118,4 @@ abstract class AbstractDataSourceTest {
         writeThenReadTest("_baz", "bar");
         writeThenReadTest("_baz", null);
     }
-
 }
