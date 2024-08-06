@@ -119,7 +119,7 @@ class GeneratorConverter extends AbstractConverter {
                 }
             }
         }
-        if (regulatingTerminal == null) {
+        if (regulatingTerminal == null && psseGenerator.getI() != psseGenerator.getIreg()) {
             String generatorId = getGeneratorId(psseGenerator.getI(), psseGenerator.getId());
             LOGGER.warn("Generator {}. Regulating terminal is not assigned as the bus is isolated", generatorId);
         }
