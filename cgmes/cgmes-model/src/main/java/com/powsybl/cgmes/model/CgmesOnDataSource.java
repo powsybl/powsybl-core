@@ -34,24 +34,18 @@ public class CgmesOnDataSource {
         return dataSource;
     }
 
-    private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) {
+    private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) throws IOException {
         if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty()) {
             return false;
-        } else if (EXTENSION.equals(dataSource.getDataExtension())) {
-            try {
-                if (dataSource.exists(null, EXTENSION)) {
-                    try (InputStream is = dataSource.newInputStream(null, EXTENSION)) {
-                        return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
-                    }
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+        } else if (EXTENSION.equals(dataSource.getDataExtension()) && dataSource.exists(null, EXTENSION)) {
+            try (InputStream is = dataSource.newInputStream(null, EXTENSION)) {
+                return isCim14 ? !existsNamespacesCim14(NamespaceReader.namespaces(is)) : !existsNamespaces(NamespaceReader.namespaces(is));
             }
         }
         return true;
     }
 
-    public boolean exists() {
+    public boolean exists() throws IOException {
         // Check that the main file is a CGMES file
         if (checkIfMainFileNotWithCgmesData(false)) {
             return false;
@@ -69,7 +63,7 @@ public class CgmesOnDataSource {
         return namespaces.contains(CIM_16_NAMESPACE) || namespaces.contains(CIM_100_NAMESPACE);
     }
 
-    public boolean existsCim14() {
+    public boolean existsCim14() throws IOException {
         // Check that the main file is a CGMES file
         if (checkIfMainFileNotWithCgmesData(true)) {
             return false;

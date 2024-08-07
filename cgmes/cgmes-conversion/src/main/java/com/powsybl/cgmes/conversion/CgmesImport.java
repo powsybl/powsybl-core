@@ -128,12 +128,16 @@ public class CgmesImport implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
-        if (cds.exists()) {
-            return true;
+        try {
+            if (cds.exists()) {
+                return true;
+            }
+            // If we are configured to support CIM14,
+            // check if there is this CIM14 data
+            return importCim14 && cds.existsCim14();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        // If we are configured to support CIM14,
-        // check if there is this CIM14 data
-        return importCim14 && cds.existsCim14();
     }
 
     @Override
