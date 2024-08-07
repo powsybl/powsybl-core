@@ -56,6 +56,7 @@ class CgmesOnDataSourceTest {
                     throw new RuntimeException(ex);
                 }
             }
+//            Files.copy(Path.of(Objects.requireNonNull(getClass().getClassLoader().getResource("foo.iidm.zip")).getFile()), testDir.resolve("foo.iidm.zip"));
             ReadOnlyDataSource dataSource = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "test", "xml", null);
             CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
             assertFalse(cgmesOnDataSource.exists());
