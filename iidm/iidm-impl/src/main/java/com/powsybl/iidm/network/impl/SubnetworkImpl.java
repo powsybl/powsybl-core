@@ -63,6 +63,10 @@ public class SubnetworkImpl extends AbstractNetwork {
         return rootNetworkRef;
     }
 
+    protected RefChain<SubnetworkImpl> getRef() {
+        return ref;
+    }
+
     @Override
     public final Collection<Network> getSubnetworks() {
         return Collections.emptyList();
@@ -908,6 +912,11 @@ public class SubnetworkImpl extends AbstractNetwork {
             case DANGLING_LINE -> isBoundary((DanglingLine) identifiable);
             default -> false;
         };
+    }
+
+    @Override
+    public void flatten() {
+        throw new UnsupportedOperationException("Subnetworks cannot be flatten.");
     }
 
     private boolean isBoundary(Branch<?> branch) {

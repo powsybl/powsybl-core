@@ -1196,6 +1196,27 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
     }
 
     @Override
+    public void flatten() {
+        if (subnetworks.isEmpty()) {
+            // Nothing to do
+            return;
+        }
+        subnetworks.values().forEach(subnetwork -> {
+            // The subnetwork ref chain should point to the current network's subnetworkRef.
+            // This way, all its network elements (using this ref chain) will have a reference to the current network
+            // if it is merged later.
+            subnetwork.getRef().setRef(this.subnetworkRef);
+            // Transfer the extensions and the properties from the subnetwork to the current network.
+            // Those which are already present in the current network are not transferred.
+            // TODO Should we apply a "better" policy?
+            transferExtensions(subnetwork, this, true);
+            transferProperties(subnetwork, this, true);
+            index.remove(subnetwork);
+        });
+        subnetworks.clear();
+    }
+
+    @Override
     public void addListener(NetworkListener listener) {
         listeners.add(listener);
     }
