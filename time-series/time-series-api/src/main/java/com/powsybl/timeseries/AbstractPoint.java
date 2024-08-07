@@ -7,8 +7,6 @@
  */
 package com.powsybl.timeseries;
 
-import java.util.Objects;
-
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
@@ -23,7 +21,7 @@ public abstract class AbstractPoint {
             throw new IllegalArgumentException("Bad index value " + index);
         }
         this.index = index;
-        this.time = Objects.requireNonNull(time);
+        this.time = time;
     }
 
     public int getIndex() {

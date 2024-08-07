@@ -54,7 +54,7 @@ class FeederResultDeserializer extends StdDeserializer<FeederResult> {
                     parser.nextToken();
                     side = JsonUtil.readValue(deserializationContext, parser, ThreeSides.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (current == null) {

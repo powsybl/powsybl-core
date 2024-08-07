@@ -25,7 +25,7 @@ class ThreeWindingsTransformerContingencyTest {
         assertEquals(ContingencyElementType.THREE_WINDINGS_TRANSFORMER, twt3Contingency.getType());
 
         assertNotNull(twt3Contingency.toModification());
-        assertTrue(twt3Contingency.toModification() instanceof ThreeWindingsTransformerTripping);
+        assertInstanceOf(ThreeWindingsTransformerTripping.class, twt3Contingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new ThreeWindingsTransformerContingency("foo"), new ThreeWindingsTransformerContingency("foo"))

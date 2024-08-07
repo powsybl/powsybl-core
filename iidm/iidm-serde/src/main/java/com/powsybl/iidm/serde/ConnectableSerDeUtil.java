@@ -65,17 +65,10 @@ public final class ConnectableSerDeUtil {
         }
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
-            case NODE_BREAKER:
-                writeNode(index, t, context);
-                break;
-            case BUS_BREAKER:
-                writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
-                break;
-            case BUS_BRANCH:
-                writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
-                break;
-            default:
-                throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
+            case NODE_BREAKER -> writeNode(index, t, context);
+            case BUS_BREAKER -> writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
+            case BUS_BRANCH -> writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
+            default -> throw new IllegalStateException("Unexpected TopologyLevel value: " + topologyLevel);
         }
     }
 
