@@ -9,34 +9,53 @@ package com.powsybl.cgmes.model;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 class CgmesOnDataSourceTest {
 
-    private static void doTestExists(String filename, String cimVersion, boolean expectedExists) throws IOException {
+    static Stream<Arguments> provideArguments() {
+        return Stream.of(
+                Arguments.of("EQ cim14", "empty_cim14_EQ.xml", "14", true),
+                Arguments.of("EQ cim16", "empty_cim16_EQ.xml", "16", true),
+                Arguments.of("SV cim14", "empty_cim14_SV.xml", "14", false),
+                Arguments.of("cim no rdf cim16", "validCim16InvalidContent_EQ.xml", "16", false),
+                Arguments.of("cim no rdf cim14", "validCim14InvalidContent_EQ.xml", "14", false),
+                Arguments.of("rdf no cim16", "validRdfInvalidContent_EQ.xml", "16", false),
+                Arguments.of("rdf no cim14", "validRdfInvalidContent_EQ.xml", "14", false),
+                Arguments.of("rdf cim16 not cim14" ,"empty_cim16_EQ.xml", "14", false),
+                Arguments.of("rdf cim14 not cim16" ,"empty_cim14_EQ.xml", "16", false)
+        );
+    }
+
+    @ParameterizedTest(name="{0}")
+    @MethodSource("provideArguments")
+    void testExists(String testName, String filename, String cimVersion, boolean expectedExists) throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
                 new ResourceSet("/", filename));
         CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
         boolean exists = "14".equals(cimVersion) ? cgmesOnDataSource.existsCim14() : cgmesOnDataSource.exists();
         assertEquals(expectedExists, exists);
-    }
-
-    private static void doTestExistsEmpty(String profile, String cimVersion, boolean expectedExists) throws IOException {
-        String filename = "empty_cim" + cimVersion + "_" + profile + ".xml";
-        doTestExists(filename, cimVersion, expectedExists);
     }
 
     @Test
@@ -60,50 +79,5 @@ class CgmesOnDataSourceTest {
             CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
             assertFalse(cgmesOnDataSource.exists());
         }
-    }
-
-    @Test
-    void testEQcim14() throws IOException {
-        doTestExistsEmpty("EQ", "14", true);
-    }
-
-    @Test
-    void testEQcim16() throws IOException {
-        doTestExistsEmpty("EQ", "16", true);
-    }
-
-    @Test
-    void testSVcim14() throws IOException {
-        doTestExistsEmpty("SV", "14", false);
-    }
-
-    @Test
-    void testCimNoRdfcim16() throws IOException {
-        doTestExists("validCim16InvalidContent_EQ.xml", "16", false);
-    }
-
-    @Test
-    void testCimNoRdfcim14() throws IOException {
-        doTestExists("validCim14InvalidContent_EQ.xml", "14", false);
-    }
-
-    @Test
-    void testRdfNoCim16() throws IOException {
-        doTestExists("validRdfInvalidContent_EQ.xml", "16", false);
-    }
-
-    @Test
-    void testRdfNoCim14() throws IOException {
-        doTestExists("validRdfInvalidContent_EQ.xml", "14", false);
-    }
-
-    @Test
-    void testRdfCim16NotExistsCim14() throws IOException {
-        doTestExists("empty_cim16_EQ.xml", "14", false);
-    }
-
-    @Test
-    void testRdfCim14NotExistsCim16() throws IOException {
-        doTestExists("empty_cim14_EQ.xml", "16", false);
     }
 }
