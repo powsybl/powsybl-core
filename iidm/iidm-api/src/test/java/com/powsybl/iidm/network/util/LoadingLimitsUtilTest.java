@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 import org.junit.jupiter.api.Test;
@@ -194,6 +195,11 @@ class LoadingLimitsUtilTest {
         @Override
         public String getOwnerId() {
             return this.ownerId;
+        }
+
+        @Override
+        public A copyFromCurrentLimits(CurrentLimits limit) {
+            return null;
         }
 
         @Override

@@ -187,4 +187,24 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     public String getOwnerId() {
         return ownerId;
     }
+
+    @Override
+    public A copyFromCurrentLimits(CurrentLimits limits) {
+        double permanentLimitCopy = limits.getPermanentLimit();
+        Collection<LoadingLimits.TemporaryLimit> temporaryLimitsCopy = limits.getTemporaryLimits();
+        int temporaryLimitsCopySize = temporaryLimitsCopy.size();
+        List<String> temporaryLimitsNames = temporaryLimits.values().stream().map(LoadingLimits.TemporaryLimit::getName).toList();
+        List<Integer> temporaryLimitsAcceptableDurations = temporaryLimits.values().stream().map(LoadingLimits.TemporaryLimit::getAcceptableDuration).toList();
+
+        setPermanentLimit(permanentLimitCopy);
+        for ( int i = 0; i < temporaryLimitsCopySize; i++ ) {
+            beginTemporaryLimit()
+                    .setName(temporaryLimitsNames.get(i))
+                    .setAcceptableDuration(temporaryLimitsAcceptableDurations.get(i))
+                    .setValue(getTemporaryLimitValue(temporaryLimitsNames.get(i)))
+            .endTemporaryLimit();
+        }
+
+        return (A) this;
+    }
 }

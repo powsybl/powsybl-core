@@ -697,4 +697,34 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals(0, limits.getPermanentLimit());
         assertEquals(0, limits.getTemporaryLimit(Integer.MAX_VALUE).getValue());
     }
+
+    @Test
+    public void testAdderByCopy() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+        CurrentLimits limit = line.getCurrentLimits1().get();
+        CurrentLimitsAdder adder2 = line.newCurrentLimits2()
+                .copyFromCurrentLimits(limit);
+        adder2.add();
+        System.out.println(limit.getPermanentLimit());
+        System.out.println(line.getCurrentLimits2().get().getTemporaryLimits());
+        assertEquals(limit, line.getCurrentLimits2().get());
+    }
 }
