@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.ValidationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,7 @@ import java.util.*;
  */
 abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
 
+    protected Validable validable;
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimits.class);
     protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
@@ -67,7 +70,8 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         }
     }
 
-    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+    AbstractLoadingLimits(Validable validable, OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this.validable = Objects.requireNonNull(validable);
         this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
@@ -93,60 +97,52 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
 
     @Override
     public L setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue) {
-
-        // Checks
-        NetworkImpl network = group.getNetwork();
-        ValidationUtil.checkLoadingLimits(
-                group.getValidable(),
-                getPermanentLimit(),
-                getTemporaryLimits(),
-                network.getMinValidationLevel(),
-                network.getReportNodeContext().getReportNode()
-        );
-
-        TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
-        // Creation of index markers
-        Map.Entry<Integer, TemporaryLimit> lowerEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
-        Map.Entry<Integer, TemporaryLimit> higherEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
+        if (temporaryLimitValue < 0 || Double.isNaN(temporaryLimitValue)) {
+            throw new ValidationException(validable, "Temporary limit value must be a non-negative double");
+        }
 
         // Identify the limit that needs to be modified
         TemporaryLimit identifiedLimit = getTemporaryLimit(acceptableDuration);
         if (identifiedLimit == null) {
-            LOGGER.warn("No temporary limit found for the given acceptable duration");
-            return (L) this;
+            throw new ValidationException(validable, "No temporary limit found for the given acceptable duration");
         }
+
+        TreeMap<Integer, TemporaryLimit> temporaryLimitTreeMap = new TreeMap<>(this.temporaryLimits);
+        // Creation of index markers
+        Map.Entry<Integer, TemporaryLimit> biggerDurationEntry = temporaryLimitTreeMap.lowerEntry(acceptableDuration);
+        Map.Entry<Integer, TemporaryLimit> smallerDurationEntry = temporaryLimitTreeMap.higherEntry(acceptableDuration);
 
         double oldValue = identifiedLimit.getValue();
 
-        if (isTemporaryLimitVaLueValid(lowerEntry, higherEntry, acceptableDuration, temporaryLimitValue)) {
-            identifiedLimit.setValue(temporaryLimitValue);
-            network.invalidateValidationLevel();
-            group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue);
+        if (isTemporaryLimitValueValid(biggerDurationEntry, smallerDurationEntry, acceptableDuration, temporaryLimitValue)) {
             LOGGER.info("Temporary limit value changed from {} to {}", oldValue, temporaryLimitValue);
         } else {
-            LOGGER.warn("Temporary limit value couldn't be changed because it is not valid");
-            return (L) this;
+            LOGGER.warn("Temporary limit value changed from {} to {}, but it is not valid", oldValue, temporaryLimitValue);
         }
+
+        identifiedLimit.setValue(temporaryLimitValue);
+        group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue, acceptableDuration);
 
         return (L) this;
     }
 
-    protected boolean isTemporaryLimitVaLueValid(Map.Entry<Integer, TemporaryLimit> lowerEntry,
-                                               Map.Entry<Integer, TemporaryLimit> higherEntry,
+    protected boolean isTemporaryLimitValueValid(Map.Entry<Integer, TemporaryLimit> biggerDurationEntry,
+                                               Map.Entry<Integer, TemporaryLimit> smallerDurationEntry,
                                                int acceptableDuration,
                                                double temporaryLimitValue) {
 
-        if (lowerEntry != null && higherEntry != null) {
-            return lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
-                    && higherEntry.getValue().getAcceptableDuration() < acceptableDuration
-                    && lowerEntry.getValue().getValue() < temporaryLimitValue
-                    && higherEntry.getValue().getValue() > temporaryLimitValue;
-        } else if (lowerEntry == null && higherEntry != null) {
+        if (biggerDurationEntry != null && smallerDurationEntry != null) {
+            return biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
+                    && smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration
+                    && biggerDurationEntry.getValue().getValue() < temporaryLimitValue
+                    && smallerDurationEntry.getValue().getValue() > temporaryLimitValue;
+        } else if (biggerDurationEntry == null && smallerDurationEntry != null) {
             return temporaryLimitValue > this.permanentLimit &&
-                    higherEntry.getValue().getValue() > temporaryLimitValue;
-        } else if (lowerEntry != null && higherEntry == null) {
-            return lowerEntry.getValue().getAcceptableDuration() > acceptableDuration
-                    && lowerEntry.getValue().getValue() < temporaryLimitValue;
+                    smallerDurationEntry.getValue().getValue() > temporaryLimitValue
+                    && smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration;
+        } else if (biggerDurationEntry != null) {
+            return biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
+                    && biggerDurationEntry.getValue().getValue() < temporaryLimitValue;
         }
         return temporaryLimitValue > this.permanentLimit;
     }
