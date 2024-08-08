@@ -68,14 +68,5 @@ public final class FileValidator {
             return false;
         }
     }
-
-    private static String readEquipmentType(CSVRecord firstRow, List<String> headers, OdreConfig odreConfig) {
-        String equipmentType = null;
-        int index = headers.indexOf(odreConfig.equipmentTypeColumn());
-        if (index != -1) {
-            equipmentType = firstRow.get(index);
-        }
-        return equipmentType;
-    }
 }
 
