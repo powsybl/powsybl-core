@@ -10,12 +10,12 @@ package com.powsybl.iidm.geodata.odre;
 import com.powsybl.iidm.geodata.elements.LineGeoData;
 import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.IOException;
+import java.io.Reader;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}

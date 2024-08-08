@@ -12,16 +12,13 @@ import org.apache.commons.csv.CSVParser;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Ahmed Bendaamer {@literal <ahmed.bendaamer at rte-france.com>}
@@ -29,11 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class FileValidatorTest extends AbstractOdreTest {
 
-    @ParameterizedTest
+    @ParameterizedTest(name = "{0}")
     @MethodSource("provideTestArguments")
-    void whenCallingValidate(String descr, String directory, OdreConfig config) throws URISyntaxException, IOException {
-        Path file = Paths.get(getClass()
-                .getClassLoader().getResource(directory + "substations.csv").toURI());
+    void whenCallingValidate(String testName, String directory, OdreConfig config) throws URISyntaxException, IOException {
         Path aerialLinesFile = Paths.get(getClass()
                 .getClassLoader().getResource(directory + "aerial-lines.csv").toURI());
         Path undergroundLinesFile = Paths.get(getClass()

@@ -7,21 +7,14 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
-import com.powsybl.iidm.geodata.utils.InputUtils;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author Ahmed Bendaamer {@literal <ahmed.bendaamer at rte-france.com>}

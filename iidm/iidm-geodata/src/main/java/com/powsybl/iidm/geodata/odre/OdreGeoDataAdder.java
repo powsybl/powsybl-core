@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Map;
 

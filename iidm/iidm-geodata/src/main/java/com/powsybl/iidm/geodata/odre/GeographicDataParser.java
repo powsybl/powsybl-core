@@ -134,7 +134,8 @@ public final class GeographicDataParser {
         }
     }
 
-    private static Map<String, LineGeoData> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine, Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
+    private static Map<String, LineGeoData> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine,
+                                                     Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
         Map<String, LineGeoData> lines = new HashMap<>();
 
         int linesWithOneConnectedSet = 0;
@@ -279,7 +280,8 @@ public final class GeographicDataParser {
         final double sub1pil2 = distanceCoordinate(geo1.getCoordinate(), lastCoordinate);
         final double sub2pil2 = distanceCoordinate(geo2.getCoordinate(), lastCoordinate);
         if ((sub1pil1 < sub2pil1) == (sub1pil2 < sub2pil2)) {
-            LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}", lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
+            LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}",
+                    lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
             return Pair.of("", "");
         }
         return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);

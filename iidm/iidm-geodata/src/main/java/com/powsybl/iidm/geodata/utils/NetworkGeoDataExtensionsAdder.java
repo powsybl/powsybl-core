@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.extensions.LinePositionAdder;
 import com.powsybl.iidm.network.extensions.SubstationPositionAdder;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * @author Hugo Kulesza {@literal <hugo.kulesza at rte-france.com>}
