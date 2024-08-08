@@ -46,6 +46,10 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
             return fictitious();
         }
 
+        @Override
+        public void setValue(double temporaryLimitValue) {
+        }
+
         public double getOriginalValue() {
             return originalValue();
         }
@@ -98,6 +102,11 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
 
     @Override
     public LoadingLimits setPermanentLimit(double permanentLimit) {
+        throw new UnsupportedOperationException("Unsupported operation for reduced loading limits.");
+    }
+
+    @Override
+    public LoadingLimits setTemporaryLimitValue(int acceptableDuration, double temporaryLimitValue) {
         throw new UnsupportedOperationException("Unsupported operation for reduced loading limits.");
     }
 
