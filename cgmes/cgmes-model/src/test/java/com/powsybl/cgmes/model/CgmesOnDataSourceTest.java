@@ -43,12 +43,12 @@ class CgmesOnDataSourceTest {
                 Arguments.of("cim no rdf cim14", "validCim14InvalidContent_EQ.xml", "14", false),
                 Arguments.of("rdf no cim16", "validRdfInvalidContent_EQ.xml", "16", false),
                 Arguments.of("rdf no cim14", "validRdfInvalidContent_EQ.xml", "14", false),
-                Arguments.of("rdf cim16 not cim14" ,"empty_cim16_EQ.xml", "14", false),
-                Arguments.of("rdf cim14 not cim16" ,"empty_cim14_EQ.xml", "16", false)
+                Arguments.of("rdf cim16 not cim14", "empty_cim16_EQ.xml", "14", false),
+                Arguments.of("rdf cim14 not cim16", "empty_cim14_EQ.xml", "16", false)
         );
     }
 
-    @ParameterizedTest(name="{0}")
+    @ParameterizedTest(name = "{0}")
     @MethodSource("provideArguments")
     void testExists(String testName, String filename, String cimVersion, boolean expectedExists) throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
