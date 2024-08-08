@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -80,14 +81,28 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param to the destination network
      */
     protected static void transferExtensions(Network from, Network to) {
+        transferExtensions(from, to, false);
+    }
+
+    /**
+     * Transfer the extensions of a network to another one.
+     * @param from the network whose extensions must be transferred
+     * @param to the destination network
+     * @param ignoreAlreadyPresent should an extension to transfer be ignored if already present in {@code to}?
+     */
+    protected static void transferExtensions(Network from, Network to, boolean ignoreAlreadyPresent) {
         // Only well-defined extensions (with an interface) are transferred
-        new ArrayList<>(from.getExtensions())
-                .forEach(e -> Arrays.stream(e.getClass().getInterfaces())
-                        .filter(c -> Objects.nonNull(from.getExtension(c)))
-                        .forEach(clazz -> {
-                            from.removeExtension((Class<? extends Extension<Network>>) clazz);
-                            to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
-                        }));
+        new ArrayList<Extension<?>>(from.getExtensions()).forEach(e -> {
+            Stream<Class<?>> stream = Arrays.stream(e.getClass().getInterfaces())
+                    .filter(c -> Objects.nonNull(from.getExtension(c)));
+            if (ignoreAlreadyPresent) {
+                stream = stream.filter(c -> to.getExtension(c) == null);
+            }
+            stream.forEach(clazz -> {
+                from.removeExtension((Class<? extends Extension<Network>>) clazz);
+                to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+            });
+        });
     }
 
     /**
@@ -96,7 +111,24 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param toNetwork the destination network
      */
     protected static void transferProperties(AbstractNetwork fromNetwork, AbstractNetwork toNetwork) {
-        fromNetwork.getProperties().forEach((key, value) -> toNetwork.setProperty(key.toString(), value.toString()));
+        transferProperties(fromNetwork, toNetwork, false);
+    }
+
+    /**
+     * Transfer the properties of a network to another one.
+     * @param fromNetwork the network whose properties must be transferred
+     * @param toNetwork the destination network
+     * @param ignoreAlreadyPresent should a property to transfer be ignored if already present in {@code toNetwork}?
+     */
+    protected static void transferProperties(AbstractNetwork fromNetwork, AbstractNetwork toNetwork, boolean ignoreAlreadyPresent) {
+        Stream<Map.Entry<Object, Object>> stream = fromNetwork.getProperties().entrySet().stream();
+        if (ignoreAlreadyPresent) {
+            stream = stream.filter(e -> !toNetwork.hasProperty(e.getKey().toString()));
+        }
+        stream.forEach(e -> {
+            toNetwork.setProperty(e.getKey().toString(), e.getValue().toString());
+            fromNetwork.removeProperty(e.getKey().toString());
+        });
     }
 
     abstract class AbstractBusBreakerViewImpl implements BusBreakerView {

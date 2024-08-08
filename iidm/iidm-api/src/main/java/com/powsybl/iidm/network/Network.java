@@ -1386,6 +1386,17 @@ public interface Network extends Container<Network> {
     boolean isBoundaryElement(Identifiable<?> identifiable);
 
     /**
+     * <p>Remove the subnetworks structure from the current network.</p>
+     * <ul>
+     *     <li>If the current network is a subnetwork of another network, this method throws a {@link UnsupportedOperationException}.</li>
+     *     <li>If the current network doesn't contains any subnetworks, the network is unchanged by this method.</li>
+     *     <li>If the current network contains one or several subnetworks, all the subnetworks' elements will be "moved"
+     *     into the current network and the subnetworks (thus emptied) will be removed.</li>
+     * </ul>
+     */
+    void flatten();
+
+    /**
      * <p>Add a listener on the network.</p>
      * @param listener the listener to add
      */
