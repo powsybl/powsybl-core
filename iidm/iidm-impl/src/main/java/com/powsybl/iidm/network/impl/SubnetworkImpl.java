@@ -33,6 +33,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     /**
      * Reference to the root network, hence the parent network in this implementation (only one level of subnetworks).
      * This is used to easily update the root network in all equipments when detaching this subnetwork.
+     * <p>This {@link RefChain} should reference the {@code ref} attribute of the root network in order for the {@link #flatten()}
+     * method to work.</p>
      */
     private final RefChain<NetworkImpl> rootNetworkRef;
 
