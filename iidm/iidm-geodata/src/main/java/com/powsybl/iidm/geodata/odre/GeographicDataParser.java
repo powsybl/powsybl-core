@@ -169,7 +169,7 @@ public final class GeographicDataParser {
                     }
                 } else {
                     linesWithTwoOrMoreConnectedSets++;
-                    List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets, graph);
+                    List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets);
 
                     if (coordinatesComponents.size() != connectedSets.size()) {
                         twoOrMoreConnectedSetsDiscarded++;
@@ -239,7 +239,7 @@ public final class GeographicDataParser {
         double l1 = getBranchLength(coordinatesComponent1);
         double l2 = getBranchLength(coordinatesComponent2);
 
-        if (100 * l2 / l1 < THRESHOLD) {
+        if (100 * Math.min(l1, l2) / Math.max(l1, l2) < THRESHOLD) {
             return l1 > l2 ? coordinatesComponent1 : coordinatesComponent2;
         }
 
@@ -285,8 +285,7 @@ public final class GeographicDataParser {
         return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
     }
 
-    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets,
-                                                                                   Graph<Coordinate, Object> graph) {
+    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets) {
         List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
         for (ConnectedSet connectedSet : connectedSets) {
             List<Coordinate> endsComponent = connectedSet.ends();
