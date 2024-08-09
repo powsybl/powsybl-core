@@ -826,3 +826,32 @@ An internal connection is a non-impedant connection between two components in a 
 <!--
 <span style="color:red"> TODO</span>
 -->
+
+(overload-management-system)=
+## Overload management systems
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/OverloadManagementSystem.html)<br>
+An overload management system is an automation system that makes network actions when a current limit condition is met.
+
+Overload management systems are defined as a list of Trippings pairing one action and one limit.
+
+**Overload management system Characteristics**
+
+| Attribute | Unit | Description |
+| --------- | ---- | ----------- |
+| $Substation$ | | The substation associated with the overload management system |
+| $MonitoredElementId$ | | The network element on which the limit will be monitored |
+| $MonitoredSide$ | | The side of the element that is monitored |
+
+**Tripping Characteristics**
+
+| Attribute | Unit | Description |
+| --------- | ---- | ----------- |
+| $Type$    |      | The type of tripping (e.g. BranchTripping, SwitchTripping, ...) |
+| $CurrentLimit$ | A | The current limit for which the action will be triggered |
+| $Key$ | | The tripping key |
+| $OpenAction$ | bool | Whether the tripping should be opened or closed |
+
+<!--
+<span style="color:red"> TODO</span>
+-->
