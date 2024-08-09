@@ -7,14 +7,13 @@
  */
 package com.powsybl.iidm.geodata.odre;
 
-import com.powsybl.iidm.geodata.elements.LineGeoData;
-import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.InputUtils;
+import com.powsybl.iidm.network.extensions.Coordinate;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Path;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,26 +24,17 @@ public class OdreGeoDataCsvLoader {
     protected OdreGeoDataCsvLoader() {
     }
 
-    public static Collection<SubstationGeoData> getSubstationsGeoData(Path path, OdreConfig odreConfig) throws IOException {
+    public static Map<String, Coordinate> getSubstationsCoordinates(Path path, OdreConfig odreConfig) throws IOException {
         try (Reader reader = InputUtils.toReader(path)) {
-            return GeographicDataParser.parseSubstations(reader, odreConfig).values();
+            return GeographicDataParser.parseSubstations(reader, odreConfig);
         }
     }
 
-    public static Collection<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
-                                                    Path substationPath, OdreConfig odreConfig) throws IOException {
-        try (Reader substationReader = InputUtils.toReader(substationPath)) {
-            return getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, GeographicDataParser.parseSubstations(substationReader, odreConfig), odreConfig);
-        }
-    }
-
-    public static Collection<LineGeoData> getLinesGeoData(Path aerialLinesFilePath, Path undergroundLinesFilePath,
-                                                          Map<String, SubstationGeoData> substations, OdreConfig odreConfig) throws IOException {
+    public static Map<String, List<Coordinate>> getLinesCoordinates(Path aerialLinesFilePath, Path undergroundLinesFilePath, OdreConfig odreConfig) throws IOException {
         try (Reader aerialReader = InputUtils.toReader(aerialLinesFilePath);
              Reader undergroundReader = InputUtils.toReader(undergroundLinesFilePath)) {
 
-            Map<String, LineGeoData> lineGeoDataMap = GeographicDataParser.parseLines(aerialReader, undergroundReader, substations, odreConfig);
-            return lineGeoDataMap.values();
+            return GeographicDataParser.parseLines(aerialReader, undergroundReader, odreConfig);
         }
     }
 }

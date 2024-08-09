@@ -9,8 +9,6 @@ package com.powsybl.iidm.geodata.odre;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.powsybl.iidm.geodata.elements.GeoShape;
-import com.powsybl.iidm.geodata.elements.LineGeoData;
-import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.geodata.utils.DistanceCalculator;
 import com.powsybl.iidm.geodata.utils.GeoShapeDeserializer;
 import com.powsybl.iidm.geodata.utils.LineGraph;
@@ -18,7 +16,6 @@ import com.powsybl.iidm.network.extensions.Coordinate;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jgrapht.Graph;
 import org.jgrapht.event.ConnectedComponentTraversalEvent;
 import org.jgrapht.event.TraversalListenerAdapter;
@@ -48,59 +45,31 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
-    public static Map<String, SubstationGeoData> parseSubstations(Reader reader, OdreConfig odreConfig) {
-        Map<String, SubstationGeoData> substations = new HashMap<>();
+    public static Map<String, Coordinate> parseSubstations(Reader reader, OdreConfig odreConfig) {
+        Map<String, Coordinate> substations = new LinkedHashMap<>();
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
-        int substationCount = 0;
         try {
             CSVParser records = CSVParser.parse(reader, FileValidator.CSV_FORMAT);
             if (FileValidator.validateSubstationsHeaders(records, odreConfig)) {
                 for (CSVRecord row : records) {
                     String id = row.get(odreConfig.substationIdColumn());
-                    double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
-                    double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
-                    SubstationGeoData substation = substations.get(id);
-                    if (substation == null) {
-                        SubstationGeoData substationGeoData = new SubstationGeoData(id, FileValidator.COUNTRY_FR, new Coordinate(lat, lon));
-                        substations.put(id, substationGeoData);
-                    }
-                    substationCount++;
+                    substations.computeIfAbsent(id, key -> {
+                        double lon = Double.parseDouble(row.get(odreConfig.substationLongitudeColumn()));
+                        double lat = Double.parseDouble(row.get(odreConfig.substationLatitudeColumn()));
+                        return new Coordinate(lat, lon);
+                    });
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
 
-        LOGGER.info("{} substations read  in {} ms", substationCount, stopWatch.getTime());
+        LOGGER.info("{} substations read  in {} ms", substations.size(), stopWatch.getTime());
         return substations;
     }
 
-    private static double distanceCoordinate(Coordinate coord1, Coordinate coord2) {
-        return DistanceCalculator.distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
-    }
-
-    public static Pair<String, String> substationOrder(Map<String, SubstationGeoData> substationGeoData, String lineId, List<Coordinate> coordinates) {
-        String substation1 = lineId.substring(0, 5).trim();
-        String substation2 = lineId.substring(8).trim();
-        SubstationGeoData geo1 = substationGeoData.get(substation1);
-        SubstationGeoData geo2 = substationGeoData.get(substation2);
-
-        if (geo1 == null && geo2 == null) {
-            LOGGER.warn("can't find any substation for {}", lineId);
-            return Pair.of("", "");
-        } else if (geo1 != null && geo2 != null) {
-            return findStartAndEndSubstationsOfLine(lineId, geo1, geo2, substation1, substation2,
-                    coordinates.get(0), coordinates.get(coordinates.size() - 1));
-        } else {
-            boolean isStart = distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(0)) < distanceCoordinate((geo1 != null ? geo1 : geo2).getCoordinate(), coordinates.get(coordinates.size() - 1));
-            String substation = geo1 != null ? substation1 : substation2;
-            return isStart ? Pair.of(substation, "") : Pair.of("", substation);
-        }
-    }
-
-    public static Map<String, LineGeoData> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader,
-                                                      Map<String, SubstationGeoData> stringSubstationGeoDataMap, OdreConfig odreConfig) {
+    public static Map<String, List<Coordinate>> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader, OdreConfig odreConfig) {
         try {
             StopWatch stopWatch = new StopWatch();
             stopWatch.start();
@@ -118,7 +87,7 @@ public final class GeographicDataParser {
             parseLine(coordinatesListsByLine, aerialLinesRecords, odreConfig);
             parseLine(coordinatesListsByLine, undergroundLinesRecords, odreConfig);
 
-            Map<String, LineGeoData> lines = fixLines(coordinatesListsByLine, stringSubstationGeoDataMap);
+            Map<String, List<Coordinate>> lines = fixLines(coordinatesListsByLine);
 
             LOGGER.info("{} lines read in {} ms", lines.size(), stopWatch.getTime());
 
@@ -134,9 +103,8 @@ public final class GeographicDataParser {
         }
     }
 
-    private static Map<String, LineGeoData> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine,
-                                                     Map<String, SubstationGeoData> stringSubstationGeoDataMap) {
-        Map<String, LineGeoData> lines = new HashMap<>();
+    private static Map<String, List<Coordinate>> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine) {
+        Map<String, List<Coordinate>> lines = new HashMap<>();
 
         int linesWithOneConnectedSet = 0;
         int linesWithTwoOrMoreConnectedSets = 0;
@@ -149,10 +117,7 @@ public final class GeographicDataParser {
 
             List<List<Coordinate>> coordinatesLists = e.getValue();
             if (coordinatesLists.size() == 1) {
-                List<Coordinate> coordinates = coordinatesLists.get(0);
-                Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
-                LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
-                lines.put(lineId, line);
+                lines.put(lineId, coordinatesLists.get(0));
             } else {
                 LineGraph<Coordinate, Object> graph = new LineGraph<>(Object.class);
                 coordinatesLists.forEach(graph::addVerticesAndEdges);
@@ -161,10 +126,7 @@ public final class GeographicDataParser {
                     linesWithOneConnectedSet++;
                     ConnectedSet connectedSet = connectedSets.get(0);
                     if (connectedSet.ends().size() == 2) {
-                        List<Coordinate> coordinates = connectedSet.list();
-                        Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, coordinates);
-                        LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), coordinates);
-                        lines.put(lineId, line);
+                        lines.put(lineId, connectedSet.list());
                     } else {
                         oneConnectedSetDiscarded++;
                     }
@@ -177,10 +139,7 @@ public final class GeographicDataParser {
                         continue;
                     }
 
-                    List<Coordinate> aggregatedCoordinates = aggregateCoordinates(coordinatesComponents);
-                    Pair<String, String> substations = substationOrder(stringSubstationGeoDataMap, lineId, aggregatedCoordinates);
-                    LineGeoData line = new LineGeoData(lineId, FileValidator.COUNTRY_FR, FileValidator.COUNTRY_FR, substations.getLeft(), substations.getRight(), aggregatedCoordinates);
-                    lines.put(lineId, line);
+                    lines.put(lineId, aggregateCoordinates(coordinatesComponents));
                 }
             }
         }
@@ -228,7 +187,7 @@ public final class GeographicDataParser {
     }
 
     private static double getBranchLength(List<Coordinate> coordinatesComponent) {
-        return distanceCoordinate(coordinatesComponent.get(0), coordinatesComponent.get(coordinatesComponent.size() - 1));
+        return DistanceCalculator.distance(coordinatesComponent.get(0), coordinatesComponent.get(coordinatesComponent.size() - 1));
     }
 
     private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
@@ -244,10 +203,10 @@ public final class GeographicDataParser {
             return l1 > l2 ? coordinatesComponent1 : coordinatesComponent2;
         }
 
-        double d1 = distanceCoordinate(coordinatesComponent1.get(0), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
-        double d2 = distanceCoordinate(coordinatesComponent1.get(0), coordinatesComponent2.get(0));
-        double d3 = distanceCoordinate(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
-        double d4 = distanceCoordinate(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(0));
+        double d1 = DistanceCalculator.distance(coordinatesComponent1.get(0), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
+        double d2 = DistanceCalculator.distance(coordinatesComponent1.get(0), coordinatesComponent2.get(0));
+        double d3 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(coordinatesComponent2.size() - 1));
+        double d4 = DistanceCalculator.distance(coordinatesComponent1.get(coordinatesComponent1.size() - 1), coordinatesComponent2.get(0));
 
         List<Double> distances = Arrays.asList(d1, d2, d3, d4);
         double min = min(distances);
@@ -270,21 +229,6 @@ public final class GeographicDataParser {
             aggregatedCoordinates.addAll(coordinatesComponent2);
         }
         return aggregatedCoordinates;
-    }
-
-    private static Pair<String, String> findStartAndEndSubstationsOfLine(String lineId, SubstationGeoData geo1, SubstationGeoData geo2,
-                                                                         String substation1, String substation2,
-                                                                         Coordinate firstCoordinate, Coordinate lastCoordinate) {
-        final double sub1pil1 = distanceCoordinate(geo1.getCoordinate(), firstCoordinate);
-        final double sub2pil1 = distanceCoordinate(geo2.getCoordinate(), firstCoordinate);
-        final double sub1pil2 = distanceCoordinate(geo1.getCoordinate(), lastCoordinate);
-        final double sub2pil2 = distanceCoordinate(geo2.getCoordinate(), lastCoordinate);
-        if ((sub1pil1 < sub2pil1) == (sub1pil2 < sub2pil2)) {
-            LOGGER.error("line {} for substations {} and {} has both first and last coordinate nearest to {}",
-                    lineId, substation1, substation2, sub1pil1 < sub2pil1 ? substation1 : substation2);
-            return Pair.of("", "");
-        }
-        return Pair.of(sub1pil1 < sub2pil1 ? substation1 : substation2, sub1pil1 < sub2pil1 ? substation2 : substation1);
     }
 
     private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets) {

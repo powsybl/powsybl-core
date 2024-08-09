@@ -79,13 +79,12 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
     @Override
     public void process(Network network, ComputationManager computationManager) throws IOException {
         if (Files.exists(substationsFilePath)) {
+            OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath, odreConfig);
             boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
             boolean undergroundLinesPresent = Files.exists(undergroundLinesFilePath);
             if (aerialLinesPresent && undergroundLinesPresent) {
-                OdreGeoDataAdder.fillNetworkGeoDataFromFiles(network, aerialLinesFilePath, undergroundLinesFilePath, substationsFilePath, odreConfig);
+                OdreGeoDataAdder.fillNetworkGeoDataFromFiles(network, aerialLinesFilePath, undergroundLinesFilePath, odreConfig);
             } else {
-                // Even if lines are missing we still fill substations geodata
-                OdreGeoDataAdder.fillNetworkSubstationsGeoDataFromFile(network, substationsFilePath, odreConfig);
                 String missingAerialFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
                 String missingFiles = missingAerialFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());
                 LOGGER.warn("Could not load lines geographical data, file(s) not found : {}", missingFiles);
