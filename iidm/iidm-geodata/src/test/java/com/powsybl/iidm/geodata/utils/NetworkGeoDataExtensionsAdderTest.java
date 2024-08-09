@@ -7,8 +7,6 @@
  */
 package com.powsybl.iidm.geodata.utils;
 
-import com.powsybl.iidm.geodata.elements.LineGeoData;
-import com.powsybl.iidm.geodata.elements.SubstationGeoData;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
@@ -20,6 +18,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillNetworkLinesGeoData;
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillNetworkSubstationsGeoData;
@@ -42,9 +41,7 @@ class NetworkGeoDataExtensionsAdderTest {
     void addSubstationsPosition() {
         Coordinate coord1 = new Coordinate(1, 2);
         Coordinate coord2 = new Coordinate(3, 4);
-        SubstationGeoData p1GeoData = new SubstationGeoData("P1", "FR", coord1);
-        SubstationGeoData p2GeoData = new SubstationGeoData("P2", "BE", coord2);
-        List<SubstationGeoData> substationsGeoData = List.of(p1GeoData, p2GeoData);
+        Map<String, Coordinate> substationsGeoData = Map.of("P1", coord1, "P2", coord2);
 
         fillNetworkSubstationsGeoData(network, substationsGeoData);
 
@@ -63,10 +60,9 @@ class NetworkGeoDataExtensionsAdderTest {
     void addLinesGeoData() {
         Coordinate coord1 = new Coordinate(1, 2);
         Coordinate coord2 = new Coordinate(3, 4);
-        LineGeoData position = new LineGeoData("NHV1_NHV2_2", "FR", "BE",
-                "P1", "P2", List.of(coord1, coord2));
+        var position = Map.of("NHV1_NHV2_2", List.of(coord1, coord2));
 
-        fillNetworkLinesGeoData(network, List.of(position));
+        fillNetworkLinesGeoData(network, position);
 
         Line line = network.getLine("NHV1_NHV2_2");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
