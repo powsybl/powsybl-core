@@ -182,7 +182,7 @@ public class PsseImporter implements Importer {
         nodeBreakerValidation.fill(psseModel, version);
 
         // build container to fit IIDM requirements
-        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext);
+        ContainersMapping containersMapping = defineContainersMapping(psseModel, busNumToPsseBus, perUnitContext, nodeBreakerValidation);
 
         // create buses
         NodeBreakerImport nodeBreakerImport = createBuses(psseModel, containersMapping, perUnitContext, network, nodeBreakerValidation);
@@ -235,7 +235,7 @@ public class PsseImporter implements Importer {
         return network;
     }
 
-    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext) {
+    private ContainersMapping defineContainersMapping(PssePowerFlowModel psseModel, Map<Integer, PsseBus> busNumToPsseBus, PerUnitContext perUnitContext, NodeBreakerValidation nodeBreakerValidation) {
         List<Edge> edges = new ArrayList<>();
         // only zeroImpedance Lines are necessary and they are not allowed, so nothing to do
 
@@ -255,6 +255,7 @@ public class PsseImporter implements Importer {
                 Edge::zeroImpedance,
                 Edge::transformer,
                 busNumber -> getNominalVFromBusNumber(busNumToPsseBus, busNumber, perUnitContext),
+                busNumber -> getPsseSubstationId(nodeBreakerValidation, busNumber),
                 AbstractConverter::getVoltageLevelId,
                 substationNums -> "S" + substationNums.stream().sorted().findFirst().orElseThrow(() -> new PsseException("Unexpected empty substationNums")));
     }
@@ -264,6 +265,10 @@ public class PsseImporter implements Importer {
             throw new PsseException("busId without PsseBus" + busNumber);
         }
         return VoltageLevelConverter.getNominalV(busNumToPsseBus.get(busNumber), perUnitContext.ignoreBaseVoltage());
+    }
+
+    private int getPsseSubstationId(NodeBreakerValidation nodeBreakerValidation, int busNumber) {
+        return nodeBreakerValidation.getSubstationIfOnlyOneExists(busNumber).map(psseSubstation -> psseSubstation.getRecord().getIs()).orElse(0);
     }
 
     private static NodeBreakerImport createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,

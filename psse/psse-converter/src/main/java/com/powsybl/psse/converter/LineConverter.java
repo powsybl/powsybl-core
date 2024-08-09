@@ -124,20 +124,16 @@ class LineConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new lines and antenna lines are exported as open
-    static void updateLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void updateLines(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
             Line line = network.getLine(lineId);
-            int busI = getTerminalBusI(line.getTerminal1(), contextExport);
-            int busJ = getTerminalBusI(line.getTerminal2(), contextExport);
 
             if (line == null) {
                 psseLine.setSt(0);
             } else {
                 psseLine.setSt(getStatus(line));
             }
-            psseLine.setI(busI);
-            psseLine.setJ(busJ);
         });
     }
 

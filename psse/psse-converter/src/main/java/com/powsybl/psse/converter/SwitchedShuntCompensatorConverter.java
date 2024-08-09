@@ -142,14 +142,6 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
     }
 
-    private static void setSwitchedShuntRegulatingBus(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion, int regulatingBus) {
-        if (psseVersion.major() == V35) {
-            switchedShunt.setSwreg(regulatingBus);
-        } else {
-            switchedShunt.setSwrem(regulatingBus);
-        }
-    }
-
     private static int defineSectionCount(double binit, List<ShuntBlock> shuntBlocks) {
         double maxDistance = Double.MAX_VALUE;
         int sectionCount = 0;
@@ -281,21 +273,17 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new switchedShunts
-    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
             String switchedShuntId = getSwitchedShuntId(psseSwitchedShunt.getI(), defineShuntId(psseSwitchedShunt, version));
             ShuntCompensator switchedShunt = network.getShuntCompensator(switchedShuntId);
-            int bus = getTerminalBusI(switchedShunt.getTerminal(), contextExport);
-            int regulatingBus = getRegulatingTerminalBusI(switchedShunt.getRegulatingTerminal(), bus, switchedShuntRegulatingBus(psseSwitchedShunt, version), contextExport);
             if (switchedShunt == null) {
                 psseSwitchedShunt.setStat(0);
             } else {
                 psseSwitchedShunt.setStat(getStatus(switchedShunt));
                 psseSwitchedShunt.setBinit(getQ(switchedShunt));
             }
-            psseSwitchedShunt.setI(bus);
-            setSwitchedShuntRegulatingBus(psseSwitchedShunt, version, regulatingBus);
         });
     }
 

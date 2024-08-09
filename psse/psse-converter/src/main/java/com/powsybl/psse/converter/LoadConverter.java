@@ -91,24 +91,22 @@ class LoadConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateLoads(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void updateLoads(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
             String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());
             Load load = network.getLoad(loadId);
             if (load == null) {
                 psseLoad.setStatus(0);
             } else {
-                updateLoad(load, psseLoad, contextExport);
+                updateLoad(load, psseLoad);
             }
         });
     }
 
-    private static void updateLoad(Load load, PsseLoad psseLoad, ContextExport contextExport) {
-        int bus = getTerminalBusI(load.getTerminal(), contextExport);
+    private static void updateLoad(Load load, PsseLoad psseLoad) {
         psseLoad.setStatus(getStatus(load.getTerminal()));
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));
-        psseLoad.setI(bus);
     }
 
     private static double getP(Load load) {

@@ -122,16 +122,15 @@ public class PsseExporter implements Exporter {
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
         ContextExport contextExport = VoltageLevelConverter.createContextExport(network, updatedPsseModel);
 
-        // Only after mapping all substations, the substation data can be updated
-        VoltageLevelConverter.updateSubstations(contextExport);
+        VoltageLevelConverter.updateSubstations(network, contextExport);
 
-        BusConverter.updateAndCreateBuses(network, updatedPsseModel, contextExport);
-        LoadConverter.updateLoads(network, updatedPsseModel, contextExport);
-        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel, contextExport);
-        GeneratorConverter.updateGenerators(network, updatedPsseModel, contextExport);
-        LineConverter.updateLines(network, updatedPsseModel, contextExport);
-        TransformerConverter.updateTransformers(network, updatedPsseModel, contextExport);
-        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
-        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel, contextExport);
+        BusConverter.updateBuses(network, updatedPsseModel, contextExport);
+        LoadConverter.updateLoads(network, updatedPsseModel);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel);
+        GeneratorConverter.updateGenerators(network, updatedPsseModel);
+        LineConverter.updateLines(network, updatedPsseModel);
+        TransformerConverter.updateTransformers(network, updatedPsseModel);
+        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel);
     }
 }

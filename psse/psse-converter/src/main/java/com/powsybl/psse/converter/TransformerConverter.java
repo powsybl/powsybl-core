@@ -863,17 +863,17 @@ class TransformerConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
-    static void updateTransformers(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void updateTransformers(Network network, PssePowerFlowModel psseModel) {
         psseModel.getTransformers().forEach(psseTransformer -> {
             if (isTwoWindingsTransformer(psseTransformer)) {
-                updateTwoWindingsTransformer(network, psseTransformer, contextExport);
+                updateTwoWindingsTransformer(network, psseTransformer);
             } else {
-                updateThreeWindingsTransformer(network, psseTransformer, contextExport);
+                updateThreeWindingsTransformer(network, psseTransformer);
             }
         });
     }
 
-    private static void updateTwoWindingsTransformer(Network network, PsseTransformer psseTransformer, ContextExport contextExport) {
+    private static void updateTwoWindingsTransformer(Network network, PsseTransformer psseTransformer) {
         String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
         TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer(transformerId);
         if (tw2t == null) {
@@ -884,23 +884,8 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
             psseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
 
-            int busI = getTerminalBusI(tw2t.getTerminal1(), contextExport);
-            int busJ = getTerminalBusI(tw2t.getTerminal2(), contextExport);
-            psseTransformer.setI(busI);
-            psseTransformer.setJ(busJ);
-            int regulatingBus = getRegulatingTerminalBusI(findRegulatingTerminal(tw2t), contextExport);
-            psseTransformer.getWinding1().setCont(regulatingBus);
-
             psseTransformer.setStat(getStatus(tw2t));
         }
-    }
-
-    private static Terminal findRegulatingTerminal(TwoWindingsTransformer tw2t) {
-        Terminal regulatingTerminal = tw2t.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
-        if (regulatingTerminal != null) {
-            return regulatingTerminal;
-        }
-        return tw2t.getOptionalPhaseTapChanger().map(PhaseTapChanger::getRegulationTerminal).orElse(null);
     }
 
     private static int getStatus(TwoWindingsTransformer tw2t) {
@@ -912,7 +897,7 @@ class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer, ContextExport contextExport) {
+    private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer) {
         String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
         ThreeWindingsTransformer tw3t = network.getThreeWindingsTransformer(transformerId);
         if (tw3t == null) {
@@ -933,30 +918,8 @@ class TransformerConverter extends AbstractConverter {
             psseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
             psseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
 
-            int busI = getTerminalBusI(tw3t.getLeg1().getTerminal(), contextExport);
-            int busJ = getTerminalBusI(tw3t.getLeg2().getTerminal(), contextExport);
-            int busK = getTerminalBusI(tw3t.getLeg3().getTerminal(), contextExport);
-            psseTransformer.setI(busI);
-            psseTransformer.setJ(busJ);
-            psseTransformer.setK(busK);
-
-            int regulatingBus1 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg1()), contextExport);
-            int regulatingBus2 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg2()), contextExport);
-            int regulatingBus3 = getRegulatingTerminalBusI(findRegulatingTerminal(tw3t.getLeg3()), contextExport);
-            psseTransformer.getWinding1().setCont(regulatingBus1);
-            psseTransformer.getWinding2().setCont(regulatingBus2);
-            psseTransformer.getWinding3().setCont(regulatingBus3);
-
             psseTransformer.setStat(getStatus(tw3t));
         }
-    }
-
-    private static Terminal findRegulatingTerminal(Leg leg) {
-        Terminal regulatingTerminal = leg.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
-        if (regulatingTerminal != null) {
-            return regulatingTerminal;
-        }
-        return leg.getOptionalPhaseTapChanger().map(PhaseTapChanger::getRegulationTerminal).orElse(null);
     }
 
     private static int getStatus(ThreeWindingsTransformer tw3t) {

@@ -64,11 +64,10 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new fixedShunts
-    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void updateFixedShunts(Network network, PssePowerFlowModel psseModel) {
         psseModel.getFixedShunts().forEach(psseFixedShunt -> {
             String fixedShuntId = getFixedShuntId(psseFixedShunt.getI(), psseFixedShunt.getId());
             ShuntCompensator fixedShunt = network.getShuntCompensator(fixedShuntId);
-            int bus = getTerminalBusI(fixedShunt.getTerminal(), contextExport);
 
             if (fixedShunt == null) {
                 psseFixedShunt.setStatus(0);
@@ -76,7 +75,6 @@ class FixedShuntCompensatorConverter extends AbstractConverter {
                 psseFixedShunt.setStatus(getStatus(fixedShunt));
                 psseFixedShunt.setBl(getQ(fixedShunt));
             }
-            psseFixedShunt.setI(bus);
         });
     }
 
