@@ -19,11 +19,13 @@ data location, data compression, etc.
 
 `ReadOnlyDataSource` is the most basic datasource interface available. As you can tell by the name, it only provides 
 reading features.
-It has two parameters: a base name (corresponding to the starting part of the files the user wants to consider in the 
-datasource) and a main extension (corresponding to the file extension to consider, compression aside).
+It has two parameters:
+- a base name (corresponding to the starting part of the files the user wants to consider in the 
+datasource),
+- a data extension (corresponding to the file extension to consider, compression aside).
 
 _**Example:**
-For a file named `foo.bar.xiidm.gz`, the base name would be `foo.bar` or `foo` while the main extension would be `xiidm`._
+For a file named `foo.bar.xiidm.gz`, the base name could be `foo.bar` for instance (or `foo` or `foo.b` or ...), while the data extension would be `xiidm`._
 
 The main methods `ReadOnlyDataSource` provides are:
 
