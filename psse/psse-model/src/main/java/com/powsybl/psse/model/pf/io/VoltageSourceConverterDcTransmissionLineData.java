@@ -54,12 +54,12 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
             List<String> mainRecords = new ArrayList<>();
             List<String> converterRecords = new ArrayList<>();
             if (!reader.isQRecordFound()) {
-                String line = reader.readRecordLine();
+                String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     mainRecords.add(line);
                     converterRecords.add(reader.readRecordLine());
                     converterRecords.add(reader.readRecordLine());
-                    line = reader.readRecordLine();
+                    line = reader.readUntilFindingARecordLineNotEmpty();
                 }
             }
 

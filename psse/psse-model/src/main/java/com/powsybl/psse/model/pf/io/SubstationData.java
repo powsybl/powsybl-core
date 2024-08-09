@@ -60,7 +60,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             List<PsseSubstation> substationList = new ArrayList<>();
 
             if (!reader.isQRecordFound()) {
-                String line = reader.readRecordLine();
+                String line = reader.readUntilFindingARecordLineNotEmpty();
                 while (!reader.endOfBlock(line)) {
                     PsseSubstationRecord srecord = recordData.readFromStrings(Collections.singletonList(line), context).get(0);
 
@@ -71,7 +71,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                     PsseSubstation substation = new PsseSubstation(srecord, nodeList, switchingDeviceList, equipmentTerminalList);
                     substationList.add(substation);
 
-                    line = reader.readRecordLine();
+                    line = reader.readUntilFindingARecordLineNotEmpty();
                 }
             }
 
@@ -84,7 +84,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
             List<String> equipmentTerminalTwoBusesRecords = new ArrayList<>();
             List<String> equipmentTerminalThreeBusesRecords = new ArrayList<>();
 
-            String line = reader.readRecordLine();
+            String line = reader.readUntilFindingARecordLineNotEmpty();
             while (!reader.endOfBlock(line)) {
                 PsseSubstationEquipmentTerminalCommonStart commonStart = commonStartData.readFromStrings(Collections.singletonList(line), context).get(0);
                 if (isOneBus(commonStart.getType())) {
@@ -96,7 +96,7 @@ class SubstationData extends AbstractRecordGroup<PsseSubstation> {
                 } else {
                     throw new PsseException("Unexpected equipment terminal type: " + commonStart.getType());
                 }
-                line = reader.readRecordLine();
+                line = reader.readUntilFindingARecordLineNotEmpty();
             }
 
             List<PsseSubstationEquipmentTerminal> equipmentTerminalList = new SubstationEquipmentTerminalDataOneBus().readFromStrings(equipmentTerminalOneBusRecords, context);
