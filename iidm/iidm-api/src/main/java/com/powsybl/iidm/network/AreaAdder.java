@@ -33,9 +33,9 @@ public interface AreaAdder extends IdentifiableAdder<Area, AreaAdder> {
     AreaAdder setAreaType(String areaType);
 
     /**
-     * Set the target AC Interchange of this area in MW, in load sign convention (negative is export, positive is import).
+     * Set the target interchange of this area in MW, in load sign convention (negative is export, positive is import).
      */
-    AreaAdder setAcInterchangeTarget(double acInterchangeTarget);
+    AreaAdder setInterchangeTarget(double interchangeTarget);
 
     /**
      * add a VoltageLevel to the Area

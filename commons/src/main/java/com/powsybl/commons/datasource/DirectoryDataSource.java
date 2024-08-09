@@ -20,47 +20,50 @@ import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class FileDataSource implements DataSource {
+public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
-    private static final String COMPRESSION_EXT = "";
-
-    private final Path directory;
-
-    private final String baseName;
-
-    private final DataSourceObserver observer;
-
-    public FileDataSource(Path directory, String baseName) {
-        this(directory, baseName, null);
+    public DirectoryDataSource(Path directory, String baseName) {
+        this(directory, baseName, null, null, null);
     }
 
-    public FileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this.directory = Objects.requireNonNull(directory);
-        this.baseName = Objects.requireNonNull(baseName);
-        this.observer = observer;
+    public DirectoryDataSource(Path directory, String baseName,
+                               DataSourceObserver observer) {
+        this(directory, baseName, null, null, observer);
     }
 
-    @Override
-    public String getBaseName() {
-        return baseName;
+    public DirectoryDataSource(Path directory, String baseName,
+                               String dataExtension,
+                               DataSourceObserver observer) {
+        this(directory, baseName, dataExtension, null, observer);
     }
 
-    protected String getCompressionExt() {
-        return COMPRESSION_EXT;
+    DirectoryDataSource(Path directory, String baseName,
+                        String dataExtension,
+                        CompressionFormat compressionFormat,
+                        DataSourceObserver observer) {
+        super(directory, baseName, dataExtension, compressionFormat, observer);
     }
 
+    /**
+     * @throws IOException Overriding classes may throw this exception
+     */
     protected InputStream getCompressedInputStream(InputStream is) throws IOException {
         return is;
     }
 
+    /**
+     * @throws IOException Overriding classes may throw this exception
+     */
     protected OutputStream getCompressedOutputStream(OutputStream os) throws IOException {
         return os;
     }
 
     private Path getPath(String fileName) {
         Objects.requireNonNull(fileName);
-        return directory.resolve(fileName + getCompressionExt());
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return directory.resolve(fileInformation.getCompressionFormat() == null ? fileName + getCompressionExtension() : fileName);
     }
 
     @Override
@@ -75,11 +78,11 @@ public class FileDataSource implements DataSource {
         return observer != null ? new ObservableOutputStream(os, path.toString(), observer) : os;
     }
 
-    @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
-    }
-
+    /**
+     * Check if a file exists in the datasource.
+     * @param fileName Name of the file (excluding the compression extension)
+     * @return true if the file exists, else false
+     */
     @Override
     public boolean exists(String fileName) throws IOException {
         Path path = getPath(fileName);
@@ -105,14 +108,14 @@ public class FileDataSource implements DataSource {
         int maxDepth = 1;
         try (Stream<Path> paths = Files.walk(directory, maxDepth)) {
             return paths
-                    .filter(Files::isRegularFile)
-                    .map(Path::getFileName)
-                    .map(Path::toString)
-                    .filter(name -> name.startsWith(baseName))
-                    // Return names after removing the compression extension
-                    .map(name -> name.replace(getCompressionExt(), ""))
-                    .filter(s -> p.matcher(s).matches())
-                    .collect(Collectors.toSet());
+                .filter(Files::isRegularFile)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .filter(name -> name.startsWith(baseName))
+                // Return names after removing the compression extension
+                .map(name -> name.replace(getCompressionExtension(), ""))
+                .filter(s -> p.matcher(s).matches())
+                .collect(Collectors.toSet());
         }
     }
 }

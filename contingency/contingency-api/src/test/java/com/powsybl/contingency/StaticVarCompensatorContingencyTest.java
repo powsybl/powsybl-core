@@ -34,7 +34,7 @@ class StaticVarCompensatorContingencyTest {
         assertEquals(ContingencyElementType.STATIC_VAR_COMPENSATOR, svcContingency.getType());
 
         assertNotNull(svcContingency.toModification());
-        assertTrue(svcContingency.toModification() instanceof StaticVarCompensatorTripping);
+        assertInstanceOf(StaticVarCompensatorTripping.class, svcContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new StaticVarCompensatorContingency("svc1"), new StaticVarCompensatorContingency("svc1"))

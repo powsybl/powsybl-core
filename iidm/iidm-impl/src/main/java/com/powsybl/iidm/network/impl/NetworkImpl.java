@@ -1018,6 +1018,11 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
 
         checkMergeability(otherNetwork);
 
+        otherNetwork.getAreaStream().forEach(a -> {
+            AreaImpl area = (AreaImpl) a;
+            area.moveListener(otherNetwork, this);
+        });
+
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
@@ -1141,7 +1146,7 @@ public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder
         }
     }
 
-    class DanglingLinePair {
+    static class DanglingLinePair {
         String id;
         String name;
         String dl1Id;

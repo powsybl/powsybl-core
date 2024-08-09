@@ -33,6 +33,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Objects;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -93,6 +94,10 @@ public abstract class AbstractToolTest {
         assertTrue(actual.contains(expected), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
     }
 
+    public void matchTextOrRegex(String expected, String actual) {
+        assertTrue(actual.equals(expected) || Pattern.compile(expected).matcher(actual).find());
+    }
+
     protected void assertCommandSuccessful(String[] args) {
         assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
     }
@@ -117,9 +122,32 @@ public abstract class AbstractToolTest {
         assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
     }
 
+    /**
+     * @deprecated use {@link AbstractToolTest#assertCommandMatchTextOrRegex} instead
+     */
+    @Deprecated(since = "6.4.0")
+    protected void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
+        assertCommandMatchTextOrRegex(args, expectedStatus, expectedOut, expectedErr);
+    }
+
+    protected void assertCommandMatchTextOrRegex(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
+        assertCommand(args, expectedStatus, expectedOut, expectedErr, this::matchTextOrRegex);
+    }
+
     private void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
+        int status = runCommand(args, bout, berr, tools, fileSystem);
+        assertEquals(expectedStatus, status);
+        if (expectedOut != null) {
+            assertMatches(expectedOut, bout, comparisonFunction);
+        }
+        if (expectedErr != null) {
+            assertMatches(expectedErr, berr, comparisonFunction);
+        }
+    }
+
+    public static int runCommand(String[] args, ByteArrayOutputStream bout, ByteArrayOutputStream berr, CommandLineTools tools, FileSystem fileSystem) {
         int status;
         try (PrintStream out = new PrintStream(bout);
              PrintStream err = new PrintStream(berr);
@@ -156,13 +184,7 @@ public abstract class AbstractToolTest {
                 }
             });
         }
-        assertEquals(expectedStatus, status);
-        if (expectedOut != null) {
-            assertMatches(expectedOut, bout, comparisonFunction);
-        }
-        if (expectedErr != null) {
-            assertMatches(expectedErr, berr, comparisonFunction);
-        }
+        return status;
     }
 
     @Test

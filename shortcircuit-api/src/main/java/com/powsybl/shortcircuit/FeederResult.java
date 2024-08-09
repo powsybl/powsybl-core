@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.TwoSides;
 import javax.annotation.Nullable;
 
 /**
+ * Interface to describe the contribution of a feeder to the short-circuit current after the analysis.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public interface FeederResult {

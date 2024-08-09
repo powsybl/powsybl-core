@@ -893,13 +893,11 @@ public class Conversion {
         }
 
         public Config setProfileForInitialValuesShuntSectionsTapPositions(String profileForInitialValuesShuntSectionsTapPositions) {
-            switch (Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions)) {
-                case "SSH":
-                case "SV":
-                    this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
-                    break;
-                default:
-                    throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
+            String forInitialValuesShuntSectionsTapPositions = Objects.requireNonNull(profileForInitialValuesShuntSectionsTapPositions);
+            if (forInitialValuesShuntSectionsTapPositions.equals("SSH") || forInitialValuesShuntSectionsTapPositions.equals("SV")) {
+                this.profileForInitialValuesShuntSectionsTapPositions = StateProfile.valueOf(profileForInitialValuesShuntSectionsTapPositions);
+            } else {
+                throw new CgmesModelException("Unexpected profile used for shunt sections / tap positions state hypothesis: " + profileForInitialValuesShuntSectionsTapPositions);
             }
             return this;
         }
