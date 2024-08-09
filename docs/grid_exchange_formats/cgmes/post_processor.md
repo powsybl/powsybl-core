@@ -3,7 +3,7 @@
 ## CgmesDLImportPostProcessor
 This post-processor loads the diagram layout (DL) profile contained in the CGMES file, if available, into the triplestore.
 The diagram layout profile contains the data which is necessary to represent a drawing of the diagram corresponding to the CGMES file.
-For instance, it contains the position of all equipments.
+For instance, it contains the position of all equipment.
 
 This post-processor is enabled by adding the name `cgmesDLImport` to the list associated to `iidm.import.cgmes.post-processors` property.
 

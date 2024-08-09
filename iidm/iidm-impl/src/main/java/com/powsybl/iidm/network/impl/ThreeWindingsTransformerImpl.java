@@ -230,7 +230,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return transformer.getId() + " " + getLegAttribute();
         }
 
-        public Identifiable getTransformer() {
+        public ThreeWindingsTransformer getTransformer() {
             return transformer;
         }
 
@@ -375,19 +375,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     @Override
     public Terminal getTerminal(ThreeSides side) {
-        switch (side) {
-            case ONE:
-                return getLeg1().getTerminal();
-
-            case TWO:
-                return getLeg2().getTerminal();
-
-            case THREE:
-                return getLeg3().getTerminal();
-
-            default:
-                throw new IllegalStateException();
-        }
+        return switch (side) {
+            case ONE -> getLeg1().getTerminal();
+            case TWO -> getLeg2().getTerminal();
+            case THREE -> getLeg3().getTerminal();
+        };
     }
 
     @Override

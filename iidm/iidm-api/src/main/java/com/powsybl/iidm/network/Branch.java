@@ -373,95 +373,65 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
     default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getCurrentLimits1();
-            case TWO:
-                return getCurrentLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getCurrentLimits1();
+            case TWO -> getCurrentLimits2();
+        };
     }
 
     default Optional<ActivePowerLimits> getActivePowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getActivePowerLimits1();
-            case TWO:
-                return getActivePowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getActivePowerLimits1();
+            case TWO -> getActivePowerLimits2();
+        };
     }
 
     default Optional<ApparentPowerLimits> getApparentPowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getApparentPowerLimits1();
-            case TWO:
-                return getApparentPowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getApparentPowerLimits1();
+            case TWO -> getApparentPowerLimits2();
+        };
     }
 
     default Optional<? extends LoadingLimits> getLimits(LimitType type, TwoSides side) {
-        switch (type) {
-            case CURRENT:
-                return getCurrentLimits(side);
-            case ACTIVE_POWER:
-                return getActivePowerLimits(side);
-            case APPARENT_POWER:
-                return getApparentPowerLimits(side);
-            default:
+        return switch (type) {
+            case CURRENT -> getCurrentLimits(side);
+            case ACTIVE_POWER -> getActivePowerLimits(side);
+            case APPARENT_POWER -> getApparentPowerLimits(side);
+            default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        };
     }
 
     default CurrentLimits getNullableCurrentLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getNullableCurrentLimits1();
-            case TWO:
-                return getNullableCurrentLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getNullableCurrentLimits1();
+            case TWO -> getNullableCurrentLimits2();
+        };
     }
 
     default ActivePowerLimits getNullableActivePowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getNullableActivePowerLimits1();
-            case TWO:
-                return getNullableActivePowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getNullableActivePowerLimits1();
+            case TWO -> getNullableActivePowerLimits2();
+        };
     }
 
     default ApparentPowerLimits getNullableApparentPowerLimits(TwoSides side) {
-        switch (side) {
-            case ONE:
-                return getNullableApparentPowerLimits1();
-            case TWO:
-                return getNullableApparentPowerLimits2();
-            default:
-                throw new UnsupportedOperationException(String.format("Side %s not supported", side.name()));
-        }
+        return switch (side) {
+            case ONE -> getNullableApparentPowerLimits1();
+            case TWO -> getNullableApparentPowerLimits2();
+        };
     }
 
     default LoadingLimits getNullableLimits(LimitType type, TwoSides side) {
-        switch (type) {
-            case CURRENT:
-                return getNullableCurrentLimits(side);
-            case ACTIVE_POWER:
-                return getNullableActivePowerLimits(side);
-            case APPARENT_POWER:
-                return getNullableApparentPowerLimits(side);
-            default:
+        return switch (type) {
+            case CURRENT -> getNullableCurrentLimits(side);
+            case ACTIVE_POWER -> getNullableActivePowerLimits(side);
+            case APPARENT_POWER -> getNullableApparentPowerLimits(side);
+            default ->
                 throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
-        }
+        };
     }
 
     /**

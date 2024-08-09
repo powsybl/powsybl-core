@@ -294,7 +294,7 @@ public abstract class AbstractDanglingLineTest {
                 .setMinQ(-500)
                 .add();
         assertNotNull(generation.getReactiveLimits());
-        assertTrue(generation.getReactiveLimits() instanceof MinMaxReactiveLimits);
+        assertInstanceOf(MinMaxReactiveLimits.class, generation.getReactiveLimits());
 
         // Test if new Generation is instantiate at each add
         DanglingLine dl2 = adder.setId(id + "_2").add();

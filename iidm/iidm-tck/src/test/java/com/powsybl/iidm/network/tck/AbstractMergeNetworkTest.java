@@ -414,12 +414,71 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void testMergeAndDetachWithDistinctAreas() {
+        addCommonSubstationsAndVoltageLevels();
+        Area n1TsoA = addArea(n1, "tsoA", "tso");
+        Area n2BzB = n2.newArea().setId("bzB").setName("bzB_Name").setAreaType("bz").setFictitious(true).setInterchangeTarget(100.).add();
+        n1TsoA.addVoltageLevel(n1.getVoltageLevel("vl1"));
+        n2BzB.addVoltageLevel(n2.getVoltageLevel("vl2"));
+
+        // Merge
+        Network merged = Network.merge(n1, n2);
+        checkAreas(merged, List.of("tsoA", "bzB"));
+        checkAreaTypes(merged, List.of("tso", "bz"));
+        final Area mergedBzB = merged.getArea("bzB");
+        assertNotNull(mergedBzB);
+        assertTrue(mergedBzB.isFictitious());
+        assertTrue(mergedBzB.getInterchangeTarget().isPresent());
+        assertEquals(100., mergedBzB.getInterchangeTarget().getAsDouble());
+
+        // Detach n1, and check its content
+        Network n1Detached = merged.getSubnetwork(n1.getId()).detach();
+        checkAreas(n1Detached, List.of("tsoA"));
+        checkAreaTypes(n1Detached, List.of("tso"));
+        // Detached elements were removed from merged network
+        checkAreas(merged, List.of("bzB"));
+        checkAreaTypes(merged, List.of("bz"));
+
+        // Detach n2, and check its content
+        Network n2Detached = merged.getSubnetwork(n2.getId()).detach();
+        checkAreas(n2Detached, List.of("bzB"));
+        checkAreaTypes(n2Detached, List.of("bz"));
+        final Area detachedBzB = n2Detached.getArea("bzB");
+        assertNotNull(detachedBzB);
+        assertTrue(detachedBzB.isFictitious());
+        assertTrue(detachedBzB.getInterchangeTarget().isPresent());
+        assertEquals(100., detachedBzB.getInterchangeTarget().getAsDouble());
+    }
+
+    @Test
     public void testNoEmptyAdditionalSubnetworkIsCreated() {
         Network merge = Network.merge(MERGE, n1, n2);
         assertEquals(2, merge.getSubnetworks().size());
         assertNull(merge.getSubnetwork(MERGE));
         assertNotNull(merge.getSubnetwork(N1));
         assertNotNull(merge.getSubnetwork(N2));
+    }
+
+    private static void checkAreas(final Network merged, final List<String> expectedAreaIds) {
+        assertEquals(expectedAreaIds.size(), merged.getAreaStream().count());
+        assertTrue(merged.getAreaStream().map(Area::getId).toList().containsAll(expectedAreaIds));
+        final List<String> expectedNames = expectedAreaIds.stream().map(id -> id + "_Name").toList();
+        assertTrue(merged.getAreaStream().map(Area::getNameOrId).toList().containsAll(expectedNames));
+    }
+
+    private static void checkAreaTypes(final Network merged, final List<String> expectedAreaTypeIds) {
+        assertEquals(expectedAreaTypeIds.size(), merged.getAreaTypeStream().count());
+        assertTrue(merged.getAreaTypeStream().toList().containsAll(expectedAreaTypeIds));
+    }
+
+    @Test
+    public void failMergeWithCommonAreaConflict() {
+        addArea(n1, "bza", "bz");
+        addArea(n2, "bza", "tso");
+
+        // Merge should fail, because area "bza" is present in both network but with different attribute values
+        PowsyblException e = assertThrows(PowsyblException.class, () -> Network.merge(n1, n2));
+        assertEquals("The following object(s) of type AreaImpl exist(s) in both networks: [bza]", e.getMessage());
     }
 
     @Test
@@ -465,6 +524,14 @@ public abstract class AbstractMergeNetworkTest {
         listenerCalled.setFalse();
         addSubstation(subnetwork2, "s7");
         assertTrue(listenerCalled.booleanValue());
+    }
+
+    private static Area addArea(Network network, String id, String areaType) {
+        return network.newArea()
+                      .setId(id)
+                      .setName(id + "_Name")
+                      .setAreaType(areaType)
+                      .add();
     }
 
     private void addSubstation(Network network, String substationId) {

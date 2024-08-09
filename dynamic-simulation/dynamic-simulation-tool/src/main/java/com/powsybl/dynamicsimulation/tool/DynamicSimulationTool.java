@@ -12,7 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.dynamicsimulation.*;
-import com.powsybl.dynamicsimulation.groovy.*;
+import com.powsybl.dynamicsimulation.groovy.DynamicSimulationSupplierFactory;
 import com.powsybl.dynamicsimulation.json.DynamicSimulationResultSerializer;
 import com.powsybl.dynamicsimulation.json.JsonDynamicSimulationParameters;
 import com.powsybl.iidm.network.ImportConfig;
@@ -25,7 +25,6 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.apache.commons.io.FilenameUtils;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -47,7 +46,6 @@ public class DynamicSimulationTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_LOG_FILE = "output-log-file";
-    private static final String GROOVY = "groovy";
 
     @Override
     public Command getCommand() {
@@ -136,18 +134,18 @@ public class DynamicSimulationTool implements Tool {
         DynamicSimulation.Runner runner = DynamicSimulation.find();
 
         Path dydFile = context.getFileSystem().getPath(line.getOptionValue(DYNAMIC_MODELS_FILE));
-        DynamicModelsSupplier dynamicModelsSupplier = createDynamicModelsSupplier(dydFile, runner.getName());
+        DynamicModelsSupplier dynamicModelsSupplier = DynamicSimulationSupplierFactory.createDynamicModelsSupplier(dydFile, runner.getName());
 
         EventModelsSupplier eventSupplier = EventModelsSupplier.empty();
         if (line.hasOption(EVENT_MODELS_FILE)) {
             Path eventFile = context.getFileSystem().getPath(line.getOptionValue(EVENT_MODELS_FILE));
-            eventSupplier = createEventModelsSupplier(eventFile, runner.getName());
+            eventSupplier = DynamicSimulationSupplierFactory.createEventModelsSupplier(eventFile, runner.getName());
         }
 
         CurvesSupplier curvesSupplier = CurvesSupplier.empty();
         if (line.hasOption(CURVES_FILE)) {
             Path curvesFile = context.getFileSystem().getPath(line.getOptionValue(CURVES_FILE));
-            curvesSupplier = createCurvesSupplier(curvesFile, runner.getName());
+            curvesSupplier = DynamicSimulationSupplierFactory.createCurvesSupplier(curvesFile, runner.getName());
         }
 
         DynamicSimulationParameters params = DynamicSimulationParameters.load();
@@ -171,33 +169,6 @@ public class DynamicSimulationTool implements Tool {
             exportResult(result, context, outputFile);
         } else {
             printResult(result, context);
-        }
-    }
-
-    private DynamicModelsSupplier createDynamicModelsSupplier(Path path, String providerName) {
-        String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals(GROOVY)) {
-            return new GroovyDynamicModelsSupplier(path, GroovyExtension.find(DynamicModelGroovyExtension.class, providerName));
-        } else {
-            throw new PowsyblException("Unsupported dynamic model format: " + extension);
-        }
-    }
-
-    private EventModelsSupplier createEventModelsSupplier(Path path, String providerName) {
-        String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals(GROOVY)) {
-            return new GroovyEventModelsSupplier(path, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
-        } else {
-            throw new PowsyblException("Unsupported events format: " + extension);
-        }
-    }
-
-    private CurvesSupplier createCurvesSupplier(Path path, String providerName) {
-        String extension = FilenameUtils.getExtension(path.toString());
-        if (extension.equals(GROOVY)) {
-            return new GroovyCurvesSupplier(path, GroovyExtension.find(CurveGroovyExtension.class, providerName));
-        } else {
-            throw new PowsyblException("Unsupported curves format: " + extension);
         }
     }
 

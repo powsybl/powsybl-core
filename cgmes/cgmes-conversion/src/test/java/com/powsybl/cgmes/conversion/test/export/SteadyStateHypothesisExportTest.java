@@ -7,6 +7,8 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.*;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -15,7 +17,7 @@ import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.xml.XmlUtil;
@@ -23,6 +25,11 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.network.ImportConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import com.powsybl.iidm.serde.NetworkSerDe;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +40,7 @@ import org.xmlunit.diff.DifferenceEvaluators;
 import javax.xml.stream.*;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -64,7 +72,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesMetadataModels);
-        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
+        assertTrue(test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -77,7 +85,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesMetadataModels);
-        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
+        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -89,7 +97,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         DifferenceEvaluator knownDiffsXiidm = DifferenceEvaluators.chain(
             DifferenceEvaluators.Default,
             ExportXmlCompare::ignoringCgmesMetadataModels);
-        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffsSsh, knownDiffsXiidm));
+        assertTrue(test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), knownDiffsSsh, knownDiffsXiidm));
     }
 
     @Test
@@ -98,7 +106,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringCgmesMetadataModels,
@@ -111,7 +119,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::sameScenarioTime,
                 ExportXmlCompare::ensuringIncreasedModelVersion,
                 ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringControlAreaNetInterchange,
@@ -119,7 +127,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringHvdcLinePmax)));
     }
 
-    private boolean test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
+    private boolean test(ReadOnlyDataSource dataSource, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         importParams.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), importParams);
@@ -129,7 +137,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSsh))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
-            context.getExportedSSHModel().setVersion(version);
             SteadyStateHypothesisExport.write(expected, writer, context);
         }
 
@@ -176,7 +183,7 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentShunt().dataSource();
         Network network = new CgmesImport().importData(ds, NetworkFactory.findDefault(), importParams);
 
-        String ssh = exportSshAsString(network, 2);
+        String ssh = exportSshAsString(network);
 
         // Equivalent shunts should not have entries in SSH
         String equivalentShuntId = "d771118f-36e9-4115-a128-cc3d9ce3e3da";
@@ -186,11 +193,10 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         assertFalse(sshLinearShuntCompensators.map.containsKey(equivalentShuntId));
     }
 
-    private static String exportSshAsString(Network network, int sshVersion) throws XMLStreamException {
+    private static String exportSshAsString(Network network) throws XMLStreamException {
         CgmesExportContext context = new CgmesExportContext(network);
         StringWriter stringWriter = new StringWriter();
         XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
-        context.getExportedSSHModel().setVersion(sshVersion);
         SteadyStateHypothesisExport.write(network, writer, context);
 
         return stringWriter.toString();
@@ -277,10 +283,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         SshExportedControlArea sshExportedControlArea = sshExportedControlAreas.iterator().next();
         assertEquals(473.9596, sshExportedControlArea.netInterchange, 1e-10);
         assertEquals(5, sshExportedControlArea.pTolerance, 1e-10);
-
-        // Check that SSH full model contains a reference to the original SSH that is superseding
-        String modelSupersedes = readSshModelSupersedes(outputPath.resolve("BE_SSH.xml"));
-        assertEquals("urn:uuid:1b092ff0-f8a0-49da-82d3-75eff5f1e820", modelSupersedes);
     }
 
     static class SshExportedControlArea {
@@ -324,30 +326,6 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         return sshExportedControlAreas;
     }
 
-    private static final String ATTR_RESOURCE = "resource";
-    private static final String MODEL_SUPERSEDES = "Model.Supersedes";
-
-    private static String readSshModelSupersedes(Path ssh) {
-        String modelSupersedes;
-        try (InputStream is = Files.newInputStream(ssh)) {
-            XMLStreamReader reader = XMLInputFactory.newInstance().createXMLStreamReader(is);
-            while (reader.hasNext()) {
-                int next = reader.next();
-                if (next == XMLStreamConstants.START_ELEMENT) {
-                    if (reader.getLocalName().equals(MODEL_SUPERSEDES)) {
-                        modelSupersedes = reader.getAttributeValue(CgmesNamespace.RDF_NAMESPACE, ATTR_RESOURCE);
-                        reader.close();
-                        return modelSupersedes;
-                    }
-                }
-            }
-            reader.close();
-        } catch (XMLStreamException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        return null;
-    }
-
     @Test
     void microGridCgmesExportPreservingOriginalClassesOfLoads() throws IOException, XMLStreamException {
         ReadOnlyDataSource ds = Cgmes3ModifiedCatalog.microGridBaseCaseAllTypesOfLoads().dataSource();
@@ -357,14 +335,15 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "microGridCgmesExportPreservingOriginalClassesOfLoads";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        Properties exportParams = new Properties();
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), importParams);
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
-        String actualSsh = exportSshAsString(actual, 5);
+        String actualSsh = exportSshAsString(actual);
 
         DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
                 ExportXmlCompare::ignoringFullModelDependentOn,
@@ -392,14 +371,15 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
         Path outputPath = tmpDir.resolve("temp.cgmesExport");
         Files.createDirectories(outputPath);
         String baseName = "miniGridCgmesExportPreservingOriginalClasses";
-        new CgmesExport().export(network, new Properties(), new FileDataSource(outputPath, baseName));
+        Properties exportParams = new Properties();
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(outputPath, baseName));
 
         // re-import after adding the original boundary files
         copyBoundary(outputPath, baseName, ds);
-        Network actual = new CgmesImport().importData(new FileDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
+        Network actual = new CgmesImport().importData(new DirectoryDataSource(outputPath, baseName), NetworkFactory.findDefault(), new Properties());
 
         InputStream expectedSsh = Repackager.newInputStream(ds, Repackager::ssh);
-        String actualSsh = exportSshAsString(actual, 5);
+        String actualSsh = exportSshAsString(actual);
 
         DifferenceEvaluator knownDiffsSsh = DifferenceEvaluators.chain(
                 ExportXmlCompare::ignoringFullModelDependentOn,
@@ -408,6 +388,400 @@ class SteadyStateHypothesisExportTest extends AbstractSerDeTest {
                 ExportXmlCompare::ignoringConformLoad,
                 ExportXmlCompare::ignoringChildLookupNull);
         assertTrue(ExportXmlCompare.compareSSH(expectedSsh, new ByteArrayInputStream(actualSsh.getBytes(StandardCharsets.UTF_8)), knownDiffsSsh));
+    }
+
+    @Test
+    void phaseTapChangerTapChangerControlSSHTest() throws IOException {
+        String exportFolder = "/test-pst-tcc";
+        String baseName = "testPstTcc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // PST with FIXED_TAP
+            network = PhaseShifterTestCaseFactory.createWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+
+            // PST local with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createLocalActivePowerWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+
+            // PST local with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createLocalCurrentLimiterWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+
+            // PST remote with CURRENT_LIMITER
+            network = PhaseShifterTestCaseFactory.createRemoteCurrentLimiterWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "none");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "none");
+
+            // PST remote with ACTIVE_POWER_CONTROL
+            network = PhaseShifterTestCaseFactory.createRemoteActivePowerWithTargetDeadband();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "false", "10", "200", "M");
+            network.getTwoWindingsTransformer("PS1").getPhaseTapChanger().setRegulating(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_PS1_PTC_RC", "true", "true", "10", "200", "M");
+        }
+    }
+
+    @Test
+    void ratioTapChangerTapChangerControlSSHTest() throws IOException {
+        String exportFolder = "/test-rtc-tcc";
+        String baseName = "testRtcTcc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // RTC without control
+            network = EurostagTutorialExample1Factory.createWithoutRtcControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "", "", "", "", "");
+
+            // RTC local with VOLTAGE
+            network = EurostagTutorialExample1Factory.create();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "158", "k");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "158", "k");
+
+            // RTC local with REACTIVE_POWER
+            network = EurostagTutorialExample1Factory.createWithReactiveTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "100", "M");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "100", "M");
+
+            // RTC remote with VOLTAGE
+            network = EurostagTutorialExample1Factory.createRemoteVoltageTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "158", "k");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "158", "k");
+
+            // RTC remote with REACTIVE_POWER
+            network = EurostagTutorialExample1Factory.createRemoteReactiveTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "true", "0", "100", "M");
+            network.getTwoWindingsTransformer("NHV2_NLOAD").getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NHV2_NLOAD_RTC_RC", "true", "false", "0", "100", "M");
+
+            // 3w without control
+            network = EurostagTutorialExample1Factory.createWith3wWithoutControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "", "", "", "", "");
+
+            // 3w with local voltage control
+            network = EurostagTutorialExample1Factory.createWith3wWithVoltageControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "158", "k");
+
+            // 3w with local reactive control
+            network = EurostagTutorialExample1Factory.create3wWithReactiveTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "100", "M");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "100", "M");
+
+            // 3w with remote voltage
+            network = EurostagTutorialExample1Factory.create3wRemoteVoltageTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "158", "k");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "158", "k");
+
+            // 3w with remote reactive
+            network = EurostagTutorialExample1Factory.create3wRemoteReactiveTcc();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "true", "0", "100", "M");
+            network.getThreeWindingsTransformer("NGEN_V2_NHV1").getLeg1().getRatioTapChanger().setRegulating(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithAttribute(ssh, "_NGEN_V2_NHV1_RTC_RC", "true", "false", "0", "100", "M");
+        }
+    }
+
+    @Test
+    void staticVarCompensatorRegulatingControlSSHTest() throws IOException {
+        String exportFolder = "/test-svc-rc";
+        String baseName = "testSvcRc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // SVC VOLTAGE
+            // Local
+            network = SvcTestCaseFactory.createLocalVoltageControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteVoltageControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "390", "k");
+
+            // SVC REACTIVE_POWER
+            // Local
+            network = SvcTestCaseFactory.createLocalReactiveControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteReactiveControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "true", "0", "350", "M");
+
+            // SVC OFF
+            // Local
+            network = SvcTestCaseFactory.createLocalOffNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_SVC2_RC");
+            network = SvcTestCaseFactory.createLocalOffReactiveTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            network = SvcTestCaseFactory.createLocalOffVoltageTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            network = SvcTestCaseFactory.createLocalOffBothTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+
+            // Remote
+            network = SvcTestCaseFactory.createRemoteOffNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "0", "k");
+            network = SvcTestCaseFactory.createRemoteOffReactiveTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "350", "M");
+            network = SvcTestCaseFactory.createRemoteOffVoltageTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+            network = SvcTestCaseFactory.createRemoteOffBothTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SVC2_RC", "false", "false", "0", "390", "k");
+        }
+    }
+
+    @Test
+    void shuntCompensatorRegulatingControlSSHTest() throws IOException {
+        String exportFolder = "/test-sc-rc";
+        String baseName = "testScRc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // SC linear
+            network = ShuntTestCaseFactory.create();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledLocalLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "0", "k");
+
+            // SC nonlinear
+            network = ShuntTestCaseFactory.createNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "true", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledRemoteNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createDisabledLocalNonLinear();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "200", "k");
+            testTcTccWithoutAttribute(ssh, "", "", "", "", "", "M");
+
+            network = ShuntTestCaseFactory.createLocalNonLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testTcTccWithoutAttribute(ssh, "_SHUNT_RC", "", "", "", "", "");
+
+            network = ShuntTestCaseFactory.createRemoteNonLinearNoTarget();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_SHUNT_RC", "true", "false", "5", "0", "k");
+        }
+    }
+
+    @Test
+    void generatorRegulatingControlSSHTest() throws IOException {
+        String exportFolder = "/test-gen-rc";
+        String baseName = "testGenRc";
+        Network network;
+        String ssh;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fs.getPath(exportFolder));
+            Properties exportParams = new Properties();
+            exportParams.put(CgmesExport.PROFILES, "SSH");
+
+            // Generator local voltage
+            network = EurostagTutorialExample1Factory.create();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+
+            // Generator remote voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteVoltageGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+
+            // Generator with local reactive
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
+
+            // Generator with remote reactive
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "200", "M");
+
+            // Generator with local reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithLocalReactiveAndVoltageGenerator();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+
+            // Generator with remote reactive and voltage
+            network = EurostagTutorialExample1Factory.createWithRemoteReactiveAndVoltageGenerators();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "200", "M");
+            network.getGenerator("GEN").getExtension(RemoteReactivePowerControl.class).setEnabled(false);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "24.5", "k");
+            network.getGenerator("GEN").setVoltageRegulatorOn(true);
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "true", "0", "24.5", "k");
+
+            // Generator without control
+            network = EurostagTutorialExample1Factory.createWithoutControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+
+            // Generator with remote terminal without control
+            network = EurostagTutorialExample1Factory.createRemoteWithoutControl();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRcWithAttribute(ssh, "_GEN_RC", "false", "false", "0", "0", "k");
+
+            // Generator without control capability
+            network = EurostagTutorialExample1Factory.create();
+            network.getGenerator("GEN").newMinMaxReactiveLimits().setMaxQ(0).setMinQ(0).add();
+            ssh = getSSH(network, baseName, tmpDir, exportParams);
+            testRcEqRCWithoutAttribute(ssh, "_GEN_RC");
+        }
+    }
+
+    private void testTcTccWithoutAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
+        assertFalse(ssh.contains("cim:TapChangerControl rdf:about=\"#" + rcID + "\""));
+        assertFalse(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
+        assertFalse(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
+        assertFalse(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
+        assertFalse(ssh.contains("<cim:RegulatingControl.targetValue>" + target + "</cim:RegulatingControl.targetValue>"));
+        assertFalse(ssh.contains("UnitMultiplier." + multiplier + "\""));
+    }
+
+    private void testTcTccWithAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
+        assertTrue(ssh.contains("cim:TapChangerControl rdf:about=\"#" + rcID + "\""));
+        assertTrue(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetValue>" + target + "</cim:RegulatingControl.targetValue>"));
+        assertTrue(ssh.contains("UnitMultiplier." + multiplier + "\""));
+    }
+
+    private void testRcEqRCWithoutAttribute(String ssh, String rcID) {
+        assertFalse(ssh.contains("cim:RegulatingControl rdf:about=\"#" + rcID + "\""));
+    }
+
+    private void testRcEqRcWithAttribute(String ssh, String rcID, String discrete, String enabled, String deadband, String target, String multiplier) {
+        assertTrue(ssh.contains("cim:RegulatingControl rdf:about=\"#" + rcID + "\""));
+        assertTrue(ssh.contains("<cim:RegulatingControl.discrete>" + discrete + "</cim:RegulatingControl.discrete>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.enabled>" + enabled + "</cim:RegulatingControl.enabled>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetDeadband>" + deadband + "</cim:RegulatingControl.targetDeadband>"));
+        assertTrue(ssh.contains("<cim:RegulatingControl.targetValue>" + target + "</cim:RegulatingControl.targetValue>"));
+        assertTrue(ssh.contains("UnitMultiplier." + multiplier + "\""));
+    }
+
+    private String getSSH(Network network, String baseName, Path tmpDir, Properties exportParams) throws IOException {
+        new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
+        return Files.readString(tmpDir.resolve(baseName + "_SSH.xml"));
     }
 
     private static void copyBoundary(Path outputFolder, String baseName, ReadOnlyDataSource originalDataSource) throws IOException {

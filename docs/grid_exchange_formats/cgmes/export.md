@@ -1,98 +1,284 @@
 # Export
 
-<span style="color: red">TODO</span>
+There are two main use-cases supported:
+ * Export IGM (Individual Grid Model) instance files. There is a single network and a unique CGMES modelling authority. 
+ * Export CGM (Common Grid Model) instance files. A network composed of multiple subnetworks, where each subnetwork is an IGM. 
 
-Please note that PowSyBl always exports CGMES networks as CGMES Node/Breaker networks without considering the topology 
+In both cases, the metadata model information in the exported files is built from metadata information read from the input files and stored in IIDM or received through parameters. 
+Information received through parameters takes precedence over information available from original metadata models.
+
+For a quick CGM export, the user may rely on the parameter **iidm.export.cgmes.cgm_export** to write in a single export multiple updated SSH files (one for each IGM) and a single SV for the whole common grid model. Specifics about this option are explained in the section [below](#cgm-common-grid-model-quick-export).
+If you need complete control over the exported files in a CGM scenario, you may prefer to iterate through the subnetworks and make multiple calls to the export function. This is described in detail in the section [below](#cgm-common-grid-model-manual-export).    
+
+Please note that when exporting equipment, PowSyBl always use the CGMES node/breaker level of detail, without considering the topology
 level of the PowSyBl network.
+
+The user can specify the profiles to be exported using the parameter **iidm.export.cgmes.profiles**. The list of currently supported export instance files are: EQ, SSH, SV, TP. 
+
+If the IIDM network has at least one voltage level with node/breaker topology level, and the SSH or SV is requested in the export, and the TP is not requested, an error will be logged, as there could be missing references in the SSH, SV files to Topological Nodes calculated automatically by IIDM that are not present in the output.
+
+If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
+* TP and SSH depend on EQ.
+* SV depends on TP and SSH.
+* EQ depends on EQ_BD (if present). EQ_BD is the profile for the boundary equipment definitions.
+* SV depends on TP_BD (if present). TP_BD is the profile for the boundary topology. Only for CGMES 2.4.
+
+The output filenames will follow the pattern `<baseName>_<profile>.xml`. The basename is determined from the parameters, or the basename of the export data source or the main network name. 
+
+## CGM (Common Grid Model) quick export
+
+When exporting a CGM, we need an IIDM network (CGM) that contains multiple subnetworks (one for each IGM). 
+Only the CGMES instance files corresponding to SSH and SV profiles are exported:
+an updated SSH file for every subnetwork (for every IGM) and a single SV file for the main network that represents the CGM.
+
+When exporting, it is verified that the main network and all subnetworks have the same scenario time (network case date). If they are different, an error is logged.
+
+If a version number is given as a parameter, it is used for the exported files. If not, the versions of the input CGM SV and IGM SSHs are obtained from their metadata, and their maximum value calculated. The output version is then set to 1 + this maximum value.
+
+The quick CGM export will always write updated SSH files for IGMs and a single SV for the CGM. The parameter for selecting which profiles to export is ignored in this kind of export.
+
+If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
+* Updated SSH for IGMs supersede the original ones.
+* Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP from IGMs.
+
+The filenames of the exported instance files will follow the pattern:
+* For the CGM SV: `<basename>_SV.xml`.
+* For the IGM SSHs: `<basename>_<IGM name>_SSH.xml`. The IGM name is built from the country code of the first substation or the IIDM name if no country is present.
+
+The basename is determined from the parameters, or the basename of the export data source or the main network name.
+
+As an example, you can export one of the test configurations that has been provided by ENTSO-E. It is available in the cgmes-conformity module of the powsybl-core repository. If you run the following code:
+
+```java
+Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+
+Properties exportParams = new Properties();
+exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
+exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+exportParams.put(CgmesExport.CGM_EXPORT, true);
+exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, true);
+exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "MAS1");
+
+cgmNetwork.write("CGMES", exportParams, new FileDataSource(Path.of("/exampleFolder"), "exampleBase"));
+```
+
+You will obtain the following files in your `exampleFolder`:
+
+```
+exampleBase_BE_SSH.xml
+exampleBase_NL_SSH.xml
+exampleBase_SV.xml
+```
+
+where the updated SSH files will supersede the original ones, and the SV will contain the correct dependencies of new SSH and original TPs.
+
+## CGM (Common Grid Model) manual export
+
+If you want to intervene in how the updated IGM SSH files or the CGM SV are exported, you can make multiple calls to the CGMES export function.
+
+You can use following code for reference:
+
+```java
+Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+
+// We decide which version we want to export
+int exportedVersion = 18;
+
+// Common export parameters
+Properties exportParams = new Properties();
+exportParams.put(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, true);
+exportParams.put(CgmesExport.NAMING_STRATEGY, "cgmes");
+// We do not want a quick CGM export
+exportParams.put(CgmesExport.CGM_EXPORT, false);
+exportParams.put(CgmesExport.UPDATE_DEPENDENCIES, false);
+
+Path outputPath = Path.of("/manualExampleFolder");
+String basename = "manualExampleBasename";
+
+// For each subnetwork, prepare the metadata for SSH and export it
+for (Network n : cgmNetwork.getSubnetworks()) {
+    String country = n.getSubstations().iterator().next().getCountry().orElseThrow().toString();
+    CgmesMetadataModel sshModel = n.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
+        sshModel.clearDependencies()
+                .addDependentOn("myDependency")
+                .addSupersedes("mySupersede")
+                .setVersion(exportedVersion)
+                .setModelingAuthoritySet("myModellingAuthority");
+        exportParams.put(CgmesExport.PROFILES, List.of("SSH"));
+    n.write("CGMES", exportParams, new FileDataSource(outputPath, basename + "_" + country));
+}
+
+// In the main network, CREATE the metadata for SV and export it
+cgmNetwork.newExtension(CgmesMetadataModelsAdder.class)
+    .newModel()
+        .setSubset(CgmesSubset.STATE_VARIABLES)
+        .addProfile("http://entsoe.eu/CIM/StateVariables/4/1")
+        .setId("mySvId")
+        .setVersion(exportedVersion)
+        .setModelingAuthoritySet("myModellinAuthority")
+        .addDependentOn("mySvDependency1")
+        .addDependentOn("mySvDependency2")
+    .add()
+    .add();
+exportParams.put(CgmesExport.PROFILES, List.of("SV"));
+cgmNetwork.write("CGMES", exportParams, new FileDataSource(outputPath, basename));
+```
+
+The file `manualExampleBasename_BE_SSH.xml` inside `/manualExampleFolder` will have the following contents for the metadata:
+
+```xml
+...
+<md:Model.description>CGMES Conformity Assessment ...</md:Model.description>
+<md:Model.version>18</md:Model.version>
+<md:Model.DependentOn rdf:resource="myDependency"/>
+<md:Model.Supersedes rdf:resource="mySupersede"/>
+<md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
+<md:Model.modelingAuthoritySet>myModellingAuthority</md:Model.modelingAuthoritySet>
+...
+```
+
+And the file `manualExampleBasename_SV.xml` will contain:
+
+```xml
+...
+<md:Model.version>18</md:Model.version>
+<md:Model.DependentOn rdf:resource="mySvDependency1"/>
+<md:Model.DependentOn rdf:resource="mySvDependency2"/>
+<md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
+<md:Model.modelingAuthoritySet>myModellinAuthority</md:Model.modelingAuthoritySet>
+...
+```
+
+Remember that, in addition to setting the info for metadata models in the IIDM extensions, you could also rely on parameters passed to the export methods.
 
 ## Conversion from PowSyBl grid model to CGMES
 
-The following sections describe in detail how each supported PowSyBl network model object is converted to CGMES network 
-components.
+The following sections describe in detail how each supported PowSyBl network model object is converted to CGMES network components.
 
 ### Battery
 
-PowSyBl [`Batteries`](../../grid_model/network_subnetwork.md#battery) are exported as CGMES `SynchronousMachine` with CGMES `HydroGeneratingUnits`.
+PowSyBl [`Battery`](../../grid_model/network_subnetwork.md#battery) is exported as `SynchronousMachine` with `HydroGeneratingUnit`.
 
 <span style="color: red">TODO details</span>
 
 ### BusbarSection
 
-PowSyBl [`BusbarSections`](../../grid_model/network_subnetwork.md#busbar-section) are exported as CGMES `BusbarSections`.
+PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section) is exported as CGMES `BusbarSection`.
 
 <span style="color: red">TODO details</span>
 
 ### DanglingLine
 
-PowSyBl [`DanglingLines`](../../grid_model/network_subnetwork.md#dangling-line) are exported as several CGMES network components.
-Each dangling line will be exported as one CGMES `EquivalentInjection` and one CGMES `ACLineSegment`.
+PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
+Each dangling line will be exported as one `EquivalentInjection` and one `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
 ### Generator
 
-PowSyBl [`Generators`](../../grid_model/network_subnetwork.md#generator) are exported as CGMES `SynchronousMachines`.
+PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
 
-<span style="color: red">TODO details</span>
+#### Regulating control
+
+If the network comes from a CIM-CGMES model and a generator has initially a `RegulatingControl`, it always has at export
+too. Otherwise, a `RegulatingControl` is always exported for generators, except if it has no regulating capabilities because
+$minQ = maxQ$.
+
+A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when a 
+generator has the extension [`RemoteReactivePowerControl`](../../grid_model/extensions.md#remote-reactive-power-control)
+with the `enabled` activated and the generator attribute `voltageRegulatorOn` set to `false`. In all other cases, a
+`RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
 ### HVDC line and HVDC converter stations
 
-A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) 
-are exported as a CGMES `DCLineSegment` and two CGMES `DCConverterUnits`.
+A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) are exported as a `DCLineSegment` with two `DCConverterUnits`.
 
 <span style="color: red">TODO details</span>
 
 ### Line
 
-PowSyBl [`Lines`](../../grid_model/network_subnetwork.md#line) are exported as CGMES `ACLineSegment`.
+PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
 ### Load
 
-PowSyBl [`Loads`](../../grid_model/network_subnetwork.md#load) are exported as CGMES `ConformLoads`, `NonConformLoads` or `EnergyConsumers` 
-depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
+PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
 <span style="color: red">TODO details</span>
 
 ### Shunt compensator
 
-PowSyBl [`ShuntCompensators`](../../grid_model/network_subnetwork.md#shunt-compensator) are exported as CGMES `LinearShuntCompensator` or 
-`NonlinearShuntCompensator` depending on their models.
+PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
 
-<span style="color: red">TODO details</span>
+#### Regulating control
+
+If the network comes from a CIM-CGMES model and a shunt compensator has initially a `RegulatingControl`, it always
+has at export too.
+
+A shunt compensator with local voltage control (i.e. the regulating terminal is the same of the terminal of connection)
+and no valid voltage target will not have any exported regulating control. In all other cases, a `RegulatingControl`
+is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
 ### StaticVarCompensator
 
-PowSyBl [`StaticVarCompensators`](../../grid_model/network_subnetwork.md#static-var-compensator) are exported as CGMES `StaticVarCompensators`.
+PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-var-compensator) is exported as `StaticVarCompensator`.
 
-<span style="color: red">TODO details</span>
+#### Regulating control
+
+If the network comes from a CIM-CGMES model and a static VAR compensator has initially a `RegulatingControl`, it always
+has at export too.
+
+A static VAR compensator which voltage control is local (i.e. the regulating terminal is the same of the terminal of
+connection) and no valid voltage or reactive power target will not have any exported regulating control.
+
+A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+the static VAR compensator mode is `REACTIVE_POWER`. A `RegulatingControl` is exported with `RegulatingControl.mode` set
+to `RegulatingControlModeKind.voltage` when the static VAR compensator mode is `VOLTAGE`. When the static VAR compensator
+is `OFF`, the exported regulating control mode will be reactive power only if the voltage target is not valid but the
+reactive power target is. Otherwise, the exported mode will be voltage.
 
 ### Substation
 
-PowSyBl [`Substations`](../../grid_model/network_subnetwork.md#substation) are exported as CGMES `Substations`.
+PowSyBl [`Substation`](../../grid_model/network_subnetwork.md#substation) is exported as `Substation`.
 
 <span style="color: red">TODO details</span>
 
 ### Switch
 
-PowSyBl [`Switches`](../../grid_model/network_subnetwork.md#breakerswitch) are exported as CGMES `Breakers`, `Disconnectors` or `LoadBreakSwitches` depending on its `SwitchKind`.
+PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is exported as CGMES `Breaker`, `Disconnector` or `LoadBreakSwitch` depending on its `SwitchKind`.
 
 <span style="color: red">TODO details</span>
 
 ### ThreeWindingsTransformer
 
-PowSyBl [`ThreeWindingsTransformers`](../../grid_model/network_subnetwork.md#three-windings-transformer) are exported as CGMES `PowerTransformers` with three CGMES `PowerTransformerEnds`.
-<span style="color: red">TODO details</span>
+PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-windings-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
+
+#### Tap changer control
+
+If the network comes from a CIM-CGMES model and the tap changer has initially a `TapChangerControl`, it always has at export
+too. Otherwise, a `TapChangerControl` is exported for the tap changer if it is considered as defined. A `RatioTapChanger`
+is considered as defined if it has a valid regulation value, a valid target deadband and a non-null regulating terminal.
+A `PhaseTapChanger` is considered as defined if it has a regulation mode different of `FIXED_TAP`, a valid regulation value,
+a valid target deadband, and a non-null regulating terminal.
+
+In a `RatioTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
+`RatioTapChanger` `regulationMode` is set to `REACTIVE_POWER`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage` when
+`RatioTapChanger` `regulationMode` is set to `VOLTAGE`.
+
+In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.activePower` when
+`PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow`
+when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
+
 ### TwoWindingsTransformer
 
-PowSyBl [`TwoWindingsTransformers`](../../grid_model/network_subnetwork.md#two-windings-transformer) are exported as CGMES `PowerTransformers` with two CGMES `PowerTransformerEnds`.
+PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-windings-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
-<span style="color: red">TODO details</span>
+Tap changer controls for two windings transformers are exported following the same rules explained in the previous section about three windings transformers. See [tap changer control](#tap-changer-control).
 
 ### Voltage level
 
-PowSybl [`VoltatgeLevels`](../../grid_model/network_subnetwork.md#voltage-level) are exported as CGMES `VoltageLevels`.
+PowSybl [`VoltatgeLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`.
 
 <span style="color: red">TODO details</span>
 
@@ -100,13 +286,15 @@ PowSybl [`VoltatgeLevels`](../../grid_model/network_subnetwork.md#voltage-level)
 
 ### Control areas
 
-PowSyBl [`ControlAreas`](../model/extensions.md#cim-cgmes-control-areas) are exported as CGMES `ControlAreas`.
+PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as several `ControlArea`.
 
 <span style="color: red">TODO details</span>
 
 ## Options
 
-These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
+
+Note that if you are exporting a network that does not come from CGMES, you can use the [`iidm.import.cgmes.boundary-location`](#options) property to define the location of the boundary files to use as reference.
 
 **iidm.export.cgmes.base-name**  
 Optional property that defines the base name of the exported files. Exported CGMES files' names will look like this:
@@ -121,10 +309,12 @@ By default, the base name is the network's name if it exists, or else the networ
 **iidm.export.cgmes.boundary-eq-id**  
 Optional property that defines the ID of the EQ-BD model if there is any.
 Its default value is `null`: we consider there is no EQ-BD model to consider.
+If this property is defined, then this ID will be written in the header of the exported EQ file.
 
 **iidm.export.cgmes.boundary-tp-id**  
 Optional property that defines the ID of the TP-BD model if there is any.
 Its default value is `null`: we consider there is no TP-BD model to consider.
+If this property is defined, then this ID will be written in the header of the exported SV file.
 
 **iidm.export.cgmes.cim-version**  
 Optional property that defines the CIM version number in which the user wants the CGMES files to be exported.
@@ -203,3 +393,9 @@ Its default value is 1.
 The business process in which the export takes place. This is used to generate unique UUIDs for the EQ, TP, SSH and SV file `FullModel`.
 Its default value is `1D`.
 
+**iidm.export.cgmes.cgm_export**
+Optional property to specify the export use-case: IGM (Individual Grid Model) or CGM (Common Grid Model).
+To export instance files of a CGM, set the value to `True`. The default value is `False` to export network as an IGM.
+
+**iidm.export.cgmes.update-dependencies**
+Optional property to determine if dependencies in the exported instance files should be managed automatically. The default value is `True`.

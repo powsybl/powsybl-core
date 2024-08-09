@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -54,7 +53,7 @@ class StudyCaseTest extends AbstractPowerFactoryTest {
         assertEquals(List.of(1.3f, 2.3f, 3.5f), objFoo.getFloatVectorAttributeValue("fv"));
         assertEquals(List.of(4L, 5L, 6943953495493593L), objFoo.getLongVectorAttributeValue("lv"));
         assertEquals(List.of(1.3949d, 2.34d, 3.1223d), objFoo.getDoubleVectorAttributeValue("dv"));
-        assertEquals(List.of(3L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).collect(Collectors.toList()));
+        assertEquals(List.of(3L), objFoo.getObjectVectorAttributeValue("ov").stream().map(DataObjectRef::getId).toList());
         assertEquals(List.of("AA", "BBB"), objFoo.getStringVectorAttributeValue("sv"));
     }
 

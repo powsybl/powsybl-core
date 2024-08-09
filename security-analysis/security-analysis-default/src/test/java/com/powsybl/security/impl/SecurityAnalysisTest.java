@@ -25,7 +25,6 @@ import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
 import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
@@ -48,7 +47,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -225,12 +223,11 @@ class SecurityAnalysisTest {
         // Testing all contingencies at once
         ContingenciesProvider contingenciesProvider = n -> n.getBranchStream()
             .map(b -> new Contingency(b.getId(), new BranchContingency(b.getId())))
-            .collect(Collectors.toList());
+            .toList();
 
         SecurityAnalysisParameters saParameters = new SecurityAnalysisParameters();
 
         LimitViolationFilter filter = new LimitViolationFilter();
-        LimitViolationDetector detector = new DefaultLimitViolationDetector();
 
         List<StateMonitor> monitors = new ArrayList<>();
         monitors.add(new StateMonitor(new ContingencyContext("NHV1_NHV2_1", ContingencyContextType.SPECIFIC),
@@ -241,7 +238,7 @@ class SecurityAnalysisTest {
         monitors.add(new StateMonitor(new ContingencyContext(null, ContingencyContextType.NONE),
                 Set.of("NHV1_NHV2_1", "NOT_EXISTING_BRANCH"), Set.of("VLHV1", "NOT_EXISTING_VOLTAGE_LEVEL"), Collections.singleton("NOT_EXISTING_T3W"))); // ignore IDs of non existing equipment
 
-        DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors, ReportNode.NO_OP);
+        DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, filter, computationManager, monitors, ReportNode.NO_OP);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
         Assertions.assertThat(result.getPreContingencyResult().getNetworkResult().getBusResults()).containsExactly(new BusResult("VLHV1", "VLHV1_0", 380.0, 0.0));

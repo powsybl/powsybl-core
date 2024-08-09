@@ -44,7 +44,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    SecurityAnalysisResultDeserializer() {
+    public SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
     }
 
@@ -58,7 +58,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         PreContingencyResult preContingencyResult = null;
         List<OperatorStrategyResult> operatorStrategyResults = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
@@ -96,7 +96,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         SecurityAnalysisResult result = null;

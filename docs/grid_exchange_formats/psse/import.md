@@ -8,7 +8,7 @@ The import module reads and converts a PSS®E power flow data file to the PowSyB
 First, input data is obtained by reading and parsing the input file and as result a PSS®E model is created in memory. This model can be viewed as a set of Java classes where each data block of the PSS®E model is associated with a specific Java class that describes all their attributes or data items. Then, some inconsistency checks are performed on this model. If the validation succeeds the PSS®E model is converted to a PowSyBl grid model.
 
 ## Options
-Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
+Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **psse.import.ignore-base-voltage**  
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.
@@ -165,7 +165,8 @@ The transformer is connected at both ends if the branch status (field `STAT` in 
 
 In PSS®E the transformer model allows to define a ratio and angle at the end `1` and only a fixed ratio at the end `2`. The transformer magnetizing admittance is modeled between the bus and the ratio of the end `1`. The PowSyBl grid model supports a ratioTapChanger and a phaseTapChanger at the end `1` and the magnetizing admittance is between the ratio and the transmission impedance.
 
-![TwoWindingsTransformerModels](img/two-windings-transformer-model.svg){width="100%" align=center}
+![TwoWindingsTransformerModels](img/two-winding-transformer-model.svg){width="100%" align=center class="only-light"}
+![TwoWindingsTransformerModels](img/dark_mode/two-winding-transformer-model.svg){width="100%" align=center class="only-dark"}
 
 To express the PSS®E electric attributes of the transformer in the PowSyBl grid model the following conversions are performed:
 
@@ -218,7 +219,8 @@ When a three windings transformer is modeled the two windings transformer steps 
 - Each winding can have a complex ratio and a `ratioTapChanger` or `phaseTapChanger` with its corresponding control, always at end `1`. The current PowSyBl version only supports one enabled control by three windings transformer so if there is more than one enabled only the first (winding `1`, winding `2`, winding `3`) is kept enabled, the rest are automatically disabled.
 - In three windings transformers the status attribute (field `STAT` in the _Transformer Data_ record) could be `0` that means all the windings disconnected, `1` for all windings connected, `2` for only the second winding disconnected, `3` for the third winding disconnected and `4` for the first winding disconnected.
 
-![ThreeWindingsTransformerModels](img/three-windings-transformer-model.svg){width="100%" align=center}
+![ThreeWindingsTransformerModels](img/three-winding-transformer-model.svg){width="100%" align=center class="only-light"}
+![ThreeWindingsTransformerModels](img/dark_mode/three-winding-transformer-model.svg){width="100%" align=center class="only-dark"}
 
 ### Slack bus
 

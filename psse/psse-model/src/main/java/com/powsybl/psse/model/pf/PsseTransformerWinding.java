@@ -82,40 +82,20 @@ public class PsseTransformerWinding extends PsseVersioned {
         return windv;
     }
 
-    public void setWindv(double windv) {
-        this.windv = windv;
-    }
-
     public double getNomv() {
         return nomv;
-    }
-
-    public void setNomv(double nomv) {
-        this.nomv = nomv;
     }
 
     public double getAng() {
         return ang;
     }
 
-    public void setAng(double ang) {
-        this.ang = ang;
-    }
-
     public int getCod() {
         return cod;
     }
 
-    public void setCod(int cod) {
-        this.cod = cod;
-    }
-
     public int getCont() {
         return cont;
-    }
-
-    public void setCont(int cont) {
-        this.cont = cont;
     }
 
     public int getNode() {
@@ -123,76 +103,96 @@ public class PsseTransformerWinding extends PsseVersioned {
         return node;
     }
 
-    public void setNode(int node) {
-        this.node = node;
-    }
-
     public double getRma() {
         return rma;
-    }
-
-    public void setRma(double rma) {
-        this.rma = rma;
     }
 
     public double getRmi() {
         return rmi;
     }
 
-    public void setRmi(double rmi) {
-        this.rmi = rmi;
-    }
-
     public double getVma() {
         return vma;
-    }
-
-    public void setVma(double vma) {
-        this.vma = vma;
     }
 
     public double getVmi() {
         return vmi;
     }
 
-    public void setVmi(double vmi) {
-        this.vmi = vmi;
-    }
-
     public int getNtp() {
         return ntp;
-    }
-
-    public void setNtp(int ntp) {
-        this.ntp = ntp;
     }
 
     public int getTab() {
         return tab;
     }
 
-    public void setTab(int tab) {
-        this.tab = tab;
-    }
-
     public double getCr() {
         return cr;
-    }
-
-    public void setCr(double cr) {
-        this.cr = cr;
     }
 
     public double getCx() {
         return cx;
     }
 
-    public void setCx(double cx) {
-        this.cx = cx;
-    }
-
     public double getCnxa() {
         return cnxa;
+    }
+
+    public void setWindv(double windv) {
+        this.windv = windv;
+    }
+
+    public void setNomv(double nomv) {
+        this.nomv = nomv;
+    }
+
+    public void setAng(double ang) {
+        this.ang = ang;
+    }
+
+    public void setCod(int cod) {
+        this.cod = cod;
+    }
+
+    public void setCont(int cont) {
+        this.cont = cont;
+    }
+
+    public void setNode(int node) {
+        this.node = node;
+    }
+
+    public void setRma(double rma) {
+        this.rma = rma;
+    }
+
+    public void setRmi(double rmi) {
+        this.rmi = rmi;
+    }
+
+    public void setVma(double vma) {
+        this.vma = vma;
+    }
+
+    public void setVmi(double vmi) {
+        this.vmi = vmi;
+    }
+
+    public void setNtp(int ntp) {
+        this.ntp = ntp;
+    }
+
+    public void setTab(int tab) {
+        this.tab = tab;
+    }
+
+    public void setCr(double cr) {
+        this.cr = cr;
+    }
+
+    public void setCx(double cx) {
+        this.cx = cx;
     }
 
     public void setCnxa(double cnxa) {

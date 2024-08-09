@@ -25,7 +25,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -43,7 +42,7 @@ class LoadFlowProviderTest {
     void testParametersExtension() throws IOException {
         LoadFlowProvider provider = new LoadFlowProviderMock();
         assertEquals(3, provider.getSpecificParameters().size());
-        assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).collect(Collectors.toList()));
+        assertEquals(List.of("parameterDouble", "parameterBoolean", "parameterString"), provider.getSpecificParameters().stream().map(Parameter::getName).toList());
         assertSame(DummyExtension.class, provider.getSpecificParametersClass().orElseThrow());
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
