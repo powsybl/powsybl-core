@@ -14,7 +14,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
-import static org.ejml.UtilEjml.isIdentical;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -702,6 +701,7 @@ public abstract class AbstractCurrentLimitsTest {
 
     @Test
     public void testAdderByCopy() {
+        // First limit
         Line line = createNetwork().getLine("L");
         CurrentLimitsAdder adder = line.newCurrentLimits1()
                 .setPermanentLimit(1000.)
@@ -723,11 +723,13 @@ public abstract class AbstractCurrentLimitsTest {
         adder.add();
         CurrentLimits limits1 = line.getCurrentLimits1().get();
 
+        // Second limit
         CurrentLimitsAdder adder2 = line.newCurrentLimits2()
                 .copyFromCurrentLimits(limits1);
         adder2.add();
         CurrentLimits limits2 = line.getCurrentLimits2().get();
 
+        // Check
         boolean areIdentical = limits1.getPermanentLimit() == limits2.getPermanentLimit();
 
         List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits().stream().toList();
@@ -740,7 +742,7 @@ public abstract class AbstractCurrentLimitsTest {
 
                 if (!limit1.getName().equals(limit2.getName()) ||
                         limit1.getAcceptableDuration() != limit2.getAcceptableDuration() ||
-                        limit1.getValue() != limit2.getValue()){
+                        limit1.getValue() != limit2.getValue()) {
                     areIdentical = false;
                     break;
                 }
@@ -749,6 +751,7 @@ public abstract class AbstractCurrentLimitsTest {
             areIdentical = false;
         }
 
+        // Tests
         assertTrue(areIdentical);
         assertNotNull(limits2);
     }
