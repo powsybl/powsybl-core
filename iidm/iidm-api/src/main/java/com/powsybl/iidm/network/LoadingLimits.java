@@ -84,8 +84,9 @@ public interface LoadingLimits extends OperationalLimits {
     double getTemporaryLimitValue(int acceptableDuration);
 
     /**
-     * Set the temporary limit value. Throws an exception when the given acceptable duration is not valid, changes the value but
-     * logs a warning when the new value is not valid.
+     * Set the temporary limit value.
+     * <p>Throws an exception when no temporary limit of the given acceptable duration is found,
+     * and changes the value but logs a warning when the new value is not valid.</p>
      * @param acceptableDuration the acceptable duration
      * @param temporaryLimitValue the temporary limit value
      * @return itself for method chaining
