@@ -11,8 +11,10 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
+import static org.ejml.UtilEjml.isIdentical;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -719,12 +721,37 @@ public abstract class AbstractCurrentLimitsTest {
                 .setValue(1600.0)
                 .endTemporaryLimit();
         adder.add();
-        CurrentLimits limit = line.getCurrentLimits1().get();
+        CurrentLimits limits1 = line.getCurrentLimits1().get();
+
         CurrentLimitsAdder adder2 = line.newCurrentLimits2()
-                .copyFromCurrentLimits(limit);
+                .copyFromCurrentLimits(limits1);
         adder2.add();
-        System.out.println(limit.getPermanentLimit());
-        System.out.println(line.getCurrentLimits2().get().getTemporaryLimits());
-        assertEquals(limit, line.getCurrentLimits2().get());
+        CurrentLimits limits2 = line.getCurrentLimits2().get();
+
+        boolean areIdentical = limits1.getPermanentLimit() == limits2.getPermanentLimit();
+
+        List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits().stream().toList();
+        List<LoadingLimits.TemporaryLimit> tempLimits2 = limits2.getTemporaryLimits().stream().toList();
+
+        if (areIdentical && tempLimits1.size() == tempLimits2.size()) {
+            for (int i = 0; i < tempLimits1.size(); i++) {
+                LoadingLimits.TemporaryLimit limit1 = tempLimits1.get(i);
+                LoadingLimits.TemporaryLimit limit2 = tempLimits2.get(i);
+
+                if (!limit1.getName().equals(limit2.getName()) ||
+                        limit1.getAcceptableDuration() != limit2.getAcceptableDuration() ||
+                        limit1.getValue() != limit2.getValue()){
+                    areIdentical = false;
+                    break;
+                }
+            }
+        } else {
+            areIdentical = false;
+        }
+
+        assertTrue(areIdentical);
+        assertNotNull(limits2);
     }
 }
+
+
