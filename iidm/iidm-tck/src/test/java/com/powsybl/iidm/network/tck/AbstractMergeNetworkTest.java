@@ -350,7 +350,7 @@ public abstract class AbstractMergeNetworkTest {
         Network merged = Network.merge(n1, n2);
         Network subnetwork1 = merged.getSubnetwork(N1);
         Exception e = assertThrows(UnsupportedOperationException.class, subnetwork1::flatten);
-        assertEquals("Subnetworks cannot be flatten.", e.getMessage());
+        assertEquals("Subnetworks cannot be flattened.", e.getMessage());
     }
 
     @Test

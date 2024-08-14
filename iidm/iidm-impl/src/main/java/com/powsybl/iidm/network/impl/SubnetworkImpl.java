@@ -916,7 +916,7 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     @Override
     public void flatten() {
-        throw new UnsupportedOperationException("Subnetworks cannot be flatten.");
+        throw new UnsupportedOperationException("Subnetworks cannot be flattened.");
     }
 
     private boolean isBoundary(Branch<?> branch) {
