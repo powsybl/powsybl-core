@@ -23,3 +23,38 @@ mpc = loadcase('case6515rte.m');
 savecase("case6515rte.mat", mpc);
 ```
 Note that the `loadcase` and `savecase` are functions provided by the Matpower toolbox.
+ 
+### Format Specifications
+
+In Matpower the grid is described in Bus/Branch topology where the fields of the struct are `baseMVA, bus, branch, gen,`
+and since version 4.1 a simple model for DC transmission lines is also included. The field `baseMVA` is a scalar and the 
+rest are all matrices where each row defines a single equipment and each column an attribute of the equipment.
+
+A constant power load can be defined at each bus by specifying the active and reactive power expressed in p.u. Also, the shunt
+elements (capacitors or inductors) are modeled as a constant impedance accumulated to the bus `Gs` and `Bs` attributes.
+
+All the transmission lines, transformers and phase shifters are modeled as branches by defining the transmission impedance,
+the total charging susceptance, the ratio and the phase shift angle. 
+
+A generator is modeled as a power injection at the bus where it is connected by defining a row in the gen data block. Finally, 
+DC line transmissions are modeled as two linked generators, where the generator located at the rectifier bus is extracting power
+from the AC network and the generator at the inverter bus is injecting the power to the AC network.
+
+### Conversion
+
+There is no equivalent voltage level or substation concept in the Matpower format, so substations and voltage levels are created 
+from the buses description and the topology. Two buses are in the same substation if they are connected by a transformer or a zero impedance line. 
+Two buses of the same substation are in the same voltage level if they are connected by a zero impedance line, or they have the same nominal voltage.
+
+The conversion process creates a BusBreaker bus for each bus row, a load if the attributes `Pd` and `Qd` are both not zero and, a shunt compensator
+with a linear model and only one block count when `Gs` and `Bs` are not zero.
+
+A generator with a voltage control is created for each row of the gen block data where the regulating control will be on if the 
+target voltage is valid.
+
+Each branch row is converted into a line or a two windings transformer based on the `ratio` and `angle` attributes. If the `ratio`
+is not zero it will be incorporated in the structural ratio by defining properly the ratedU of both ends. When the `angle` has a
+non-zero value a phaseTapChanger with only one step is needed. 
+
+Finally, each row of the DC line block data is converted into one Hvdc Line with voltage source converters. 
+
