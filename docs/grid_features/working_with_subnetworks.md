@@ -14,7 +14,7 @@ To manage this, PowSyBl has a concept of subnetwork:
 - Each network element has 2 methods to retrieve:
   - the main network: `Identifiable.getNetwork()`;
   - the network it is immediately in (the main network or a subnetwork): `Identifiable.getParentNetwork()`.
-- When a network element is in a subnetwork `s1`, it is retrievable (for instance by using `network.getIdentifiable(id)`) from the main network and `s1`, but not from the other subnetworks.
+- When a network element is in a subnetwork `s1`, it is retrievable (for instance by using `network.getIdentifiable(id)`) from the main network and from `s1`, but not from the other subnetworks.
 - When a network element is in the main network, it is not retrievable from the subnetworks.
 
 
@@ -46,8 +46,8 @@ There are some restrictions preventing some networks to be merged together. For 
 The IIDM format supports subnetworks (starting from version 1.11). So if you import an XIIDM (XML), a JIIDM (JSON) or a BIIDM (binary) file,
 it could contain subnetworks. In this case, your resulting network will also have subnetworks.
 
-You could also get a network containing subnetworks if you import a multi-country CGMES archive. The content for each country
-will be stored as a subnetwork.
+You could also get a network containing subnetworks if you import a multi-country CGMES archive or directory.
+The content for each country will be stored as a subnetwork.
 
 
 ## Creating a subnetwork via the API
@@ -97,4 +97,34 @@ if (!subnetwork.isDetachable()) {
 
 ## Flattening a network
 
-**TODO**
+In some particular occasion, the presence of subnetworks in your network may be an obstacle. For instance, it is not
+possible to merge networks if one of them has subnetworks. To circumvent this problem, you can "flatten" your network,
+i.e. remove its subnetworks' structure. During this operation, all the data contained in the subnetworks (`Identifiable`s,
+extensions, and properties) are transferred into the main network and the subnetworks (thus emptied) are removed from it.
+
+```java
+// n is a network with subnetworks
+n.flatten();
+// Now, n has no more subnetworks. Their content was transferred into n.
+```
+
+Networks can only have a maximum of one extension of a certain type, and it is also the case for subnetworks.
+But since several subnetworks of the same main network may have an extension of the same type, this may be problematic
+when flattening the main network: there is no extensions merging generic mechanism, so we cannot automatically keep
+all the extensions' content. The same problem may occur with properties since a network can only have one property of a certain name.
+
+To solve this problem, the following policy is applied. Subnetworks are integrated in the whole network following the same order they were merged.
+For each one, only the properties and the extensions which are not already present in the currently flattened network
+(i.e. same name for properties or same type for extensions) are transferred. If a duplicate is detected,
+this latter is not transferred and will remain in its original subnetwork at the end of the flattening operation.
+It is thus possible to retrieve potential duplicates and to handle them manually.
+
+For instance, if:
+- `n0` has 2 subnetworks `s1` and `s2` (merged in this order).
+- `s1` has the property `(key = val1)`.
+- `s2` has the property `(key = val2)`.
+
+After `n0.flatten()`:
+- `n0` will have the property `(key = val1)` (when "integrating" `s1`, no property of key `key` was found in `n0`).
+- `s1` will have no property (it was transferred to `n0`).
+- `s2` will have the property `(key = val2)` (the property was *not* transferred because the property `(key = val1)` was already in `n0`).
