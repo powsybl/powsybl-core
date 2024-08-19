@@ -128,12 +128,16 @@ public class CgmesImport implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
-        if (cds.exists()) {
-            return true;
+        try {
+            if (cds.exists()) {
+                return true;
+            }
+            // If we are configured to support CIM14,
+            // check if there is this CIM14 data
+            return IMPORT_CIM_14 && cds.existsCim14();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        // If we are configured to support CIM14,
-        // check if there is this CIM14 data
-        return importCim14 && cds.existsCim14();
     }
 
     @Override
@@ -187,6 +191,11 @@ public class CgmesImport implements Importer {
         @Override
         public boolean exists(String suffix, String ext) throws IOException {
             return ds.exists(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        }
+
+        @Override
+        public boolean isDataExtension(String ext) {
+            return ds.isDataExtension(ext);
         }
 
         @Override
@@ -725,5 +734,5 @@ public class CgmesImport implements Importer {
     // Parameters of importers are only passed to importData method,
     // but to decide if we are importers also for CIM 14 files
     // we must implement the exists method, that has not access to parameters
-    private boolean importCim14 = false;
+    private static final boolean IMPORT_CIM_14 = false;
 }

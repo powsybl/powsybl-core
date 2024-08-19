@@ -557,7 +557,7 @@ public class UcteImporter implements Importer {
         double rho;
         double alpha;
         switch (ucteAngleRegulation.getType()) {
-            case ASYM:
+            case ASYM -> {
                 if (currentRatioTapChangerRho == null) {
                     rho = 1d / Math.hypot(dy, 1d + dx);
                     alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
@@ -566,9 +566,8 @@ public class UcteImporter implements Importer {
                     rho = 1d / Math.hypot(dy, 1d + dxEq) / currentRatioTapChangerRho; // the formula already takes into account rhoInit, so we divide by rhoInit that will be carried by the ratio tap changer
                     alpha = Math.toDegrees(Math.atan2(dy, 1 + dxEq));
                 }
-                break;
-
-            case SYMM:
+            }
+            case SYMM -> {
                 double dyHalf = dy / 2d;
                 double coeff = 1d;
                 if (currentRatioTapChangerRho != null) {
@@ -578,10 +577,8 @@ public class UcteImporter implements Importer {
                 double dy22 = dyHalf * dyHalf;
                 alpha = gamma + Math.toDegrees(Math.atan2(dyHalf, 1d + dx)); // new alpha = defaultAlpha/2 + gamma    in case there is a ratio tap changer
                 rho = Math.sqrt((1d + dy22) / (1d + dy22 * coeff * coeff));
-                break;
-
-            default:
-                throw new IllegalStateException("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
+            }
+            default -> throw new IllegalStateException("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
         }
         return Pair.of(rho, alpha);
     }
@@ -917,7 +914,7 @@ public class UcteImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.isDataExtension(ext) && dataSource.exists(null, ext)) {
                 return ext;
             }
         }

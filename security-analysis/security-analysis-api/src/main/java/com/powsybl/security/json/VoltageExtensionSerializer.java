@@ -53,11 +53,11 @@ public class VoltageExtensionSerializer implements ExtensionJsonSerializer<Limit
         double value = Double.NaN;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            if (parser.getCurrentName().equals("preContingencyValue")) {
+            if (parser.currentName().equals("preContingencyValue")) {
                 parser.nextToken();
                 value = parser.readValueAs(Float.class);
             } else {
-                throw new PowsyblException("Unexpected field: " + parser.getCurrentName());
+                throw new PowsyblException("Unexpected field: " + parser.currentName());
             }
         }
 
