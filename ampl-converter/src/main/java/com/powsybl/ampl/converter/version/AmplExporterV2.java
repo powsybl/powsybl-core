@@ -109,7 +109,7 @@ public class AmplExporterV2 extends BasicAmplExporter {
         Bus b3 = AmplUtil.getBus(t3);
         int middleScNum;
         if (b1 != null) {
-            middleScNum = b1.getSynchronousComponent().getNum();;
+            middleScNum = b1.getSynchronousComponent().getNum();
         } else if (b2 != null) {
             middleScNum = b2.getSynchronousComponent().getNum();
         } else if (b3 != null) {

@@ -14,7 +14,6 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
-import org.w3c.dom.CDATASection;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -44,25 +43,6 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void test2() throws IOException {
-        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
-
-        MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
-        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V2_0, true);
-        exporter.export(network, amplExportConfig, dataSource);
-
-        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
-        assertEqualsToRef(dataSource, "_network_tct", "inputs/eurostag-tutorial-example1-tct.txt");
-        assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
-        assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
-        assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
-        assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
-        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
-        assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");
-    }
-
-    @Test
     void writeEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
@@ -79,6 +59,27 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
         assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+    }
+    @Test
+    void testEurostagV2() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V2_0, true);
+        exporter.export(network, amplExportConfig, dataSource);
+
+        // verify export is the same as for basic ampl exporter
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
+        assertEqualsToRef(dataSource, "_network_tct", "inputs/eurostag-tutorial-example1-tct.txt");
+        assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
+        assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
+        assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+
+        // verify synchronous component has been added to buses file
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses-v2.txt");
     }
 
     @Test
@@ -164,18 +165,18 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
-            .newPhaseTapChanger()
-            .beginStep()
-            .setRho(1)
-            .setR(0.1)
-            .setX(1.)
-            .setB(0.)
-            .setG(0.)
-            .setAlpha(0)
-            .endStep()
-            .setTapPosition(0)
-            .setLowTapPosition(0)
-            .add();
+                .newPhaseTapChanger()
+                .beginStep()
+                .setRho(1)
+                .setR(0.1)
+                .setX(1.)
+                .setB(0.)
+                .setG(0.)
+                .setAlpha(0)
+                .endStep()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .add();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, new Properties(), dataSource);
@@ -187,6 +188,42 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         assertEqualsToRef(dataSource, "_network_tct", "inputs/three-windings-transformers-tct.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/three-windings-transformers-limits.txt");
     }
+
+    @Test
+    void writeThreeWindingsTransformerV2() throws IOException {
+        Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
+        network.getThreeWindingsTransformer("3WT").getLeg1()
+                .newPhaseTapChanger()
+                .beginStep()
+                .setRho(1)
+                .setR(0.1)
+                .setX(1.)
+                .setB(0.)
+                .setG(0.)
+                .setAlpha(0)
+                .endStep()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .add();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "2.0");
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, properties, dataSource);
+
+        // verify export is the same as for basic ampl exporter
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/three-windings-transformers-branches.txt");
+        assertEqualsToRef(dataSource, "_network_rtc", "inputs/three-windings-transformers-rtc.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/three-windings-transformers-substations.txt");
+        assertEqualsToRef(dataSource, "_network_tct", "inputs/three-windings-transformers-tct.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/three-windings-transformers-limits.txt");
+
+        // verify synchronous component has been added to buses file
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/three-windings-transformers-buses-v2.txt");
+    }
+
+    // TODO : add TU to verify SC works with HVDC lines
 
     @Test
     void writeVsc() throws IOException {
@@ -215,10 +252,10 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         for (DanglingLine danglingLine : network.getDanglingLines()) {
             danglingLine.newCurrentLimits()
-                .setPermanentLimit(100.0)
-                .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
-                .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
-                .add();
+                    .setPermanentLimit(100.0)
+                    .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
+                    .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
+                    .add();
         }
 
         Properties properties = new Properties();
@@ -234,6 +271,33 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void writeTieLineV2() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        for (DanglingLine danglingLine : network.getDanglingLines()) {
+            danglingLine.newCurrentLimits()
+                    .setPermanentLimit(100.0)
+                    .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
+                    .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
+                    .add();
+        }
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.with-xnodes", "true");
+        properties.put("iidm.export.ampl.export-version", "2.0");
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, properties, dataSource);
+
+        // verify export is the same as for basic ampl exporter
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations-tl.txt");
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/eurostag-tutorial-example1-branches-tl.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits-tl.txt");
+
+        // verify synchronous component has been added to buses file
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses-tl-v2.txt");
+    }
+
+    @Test
     void writeDanglingLines() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
 
@@ -245,6 +309,25 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         assertEqualsToRef(dataSource, "_network_limits", "inputs/dangling-line-limits.txt");
         assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
         assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
+    }
+
+    @Test
+    void writeDanglingLinesV2() throws IOException {
+        Network network = DanglingLineNetworkFactory.create();
+
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "2.0");
+        export(network, properties, dataSource);
+
+        // verify export is the same as for basic ampl exporter
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/dangling-line-branches.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/dangling-line-limits.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
+
+        // verify synchronous component has been added to buses file
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/dangling-line-buses-v2.txt");
     }
 
     @Test
@@ -284,6 +367,18 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     }
 
     @Test
+    void writeHeadersWithVersion2() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "2.0");
+
+        export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_headers", "inputs/headers-v2.txt");
+    }
+
+    @Test
     void writeHeadersWithUnknownVersion() {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
@@ -292,7 +387,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         properties.put("iidm.export.ampl.export-version", "V1_0");
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
-        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0]"));
+        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0, 2.0]"));
 
     }
 
