@@ -10,6 +10,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
 import com.powsybl.ampl.converter.version.AmplColumnsExporter;
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
@@ -57,6 +58,8 @@ public class AmplNetworkWriter {
     private static class AmplExportContext {
 
         private int otherCcNum = Integer.MAX_VALUE;
+
+        private int otherScNum = Integer.MAX_VALUE;
 
         public final Set<String> busIdsToExport = new HashSet<>();
 
@@ -772,6 +775,9 @@ public class AmplNetworkWriter {
         writeLccConverterStations();
         writeHvdcLines();
         writeHeaders();
+        if (config.getVersion() == AmplExportVersion.V2_0) {
+            writeSlackBuses();
+        }
 
         addNetworkExtensions();
         exportExtensions();
@@ -783,5 +789,29 @@ public class AmplNetworkWriter {
         ) {
             columnsExporter.writeHeaderFile(writer);
         }
+    }
+
+    private void writeSlackBus() throws IOException {
+        try (Writer writer = new OutputStreamWriter(
+                dataSource.newOutputStream("_network_slack_buses", "txt", append), StandardCharsets.UTF_8);
+             TableFormatter formatter = new AmplDatTableFormatter(writer,
+                     getTableTitle("Slack buses"),
+                     AmplConstants.INVALID_FLOAT_VALUE,
+                     !append,
+                     AmplConstants.LOCALE,
+                     columnsExporter.getLccConverterStationsColumns())) {
+
+            for (HvdcConverterStation hvdcStation : getSortedIdentifiables(network.getHvdcConverterStationStream())) {
+                if (hvdcStation.getHvdcType().equals(HvdcType.LCC)) {
+                    LccConverterStation lccStation = (LccConverterStation) hvdcStation;
+                    columnsExporter.writeLccConverterStationToFormatter(formatter, lccStation);
+                    addExtensions(mapper.getInt(AmplSubset.LCC_CONVERTER_STATION, lccStation.getId()), lccStation);
+                }
+            }
+        }
+    }
+
+    private void writeSlackBuses() throws IOException {
+        // Need to know how to access slack bus
     }
 }

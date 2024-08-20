@@ -14,6 +14,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.CDATASection;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -40,6 +41,25 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         assertEquals("AMPL", exporter.getFormat());
         assertEquals("IIDM to AMPL converter", exporter.getComment());
         assertEquals(7, exporter.getParameters().size());
+    }
+
+    @Test
+    void test2() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.V2_0, true);
+        exporter.export(network, amplExportConfig, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
+        assertEqualsToRef(dataSource, "_network_tct", "inputs/eurostag-tutorial-example1-tct.txt");
+        assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
+        assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
+        assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");
     }
 
     @Test
