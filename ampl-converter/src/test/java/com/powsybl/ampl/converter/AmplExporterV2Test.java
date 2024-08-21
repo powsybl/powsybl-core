@@ -165,7 +165,7 @@ class AmplExporterV2Test {
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
         assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
 
-        // verify synchronous component are different for the two buses of the network
+        // verify synchronous components are different due to hvdc line
         assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/buses-vsc-test-case.txt");
     }
 
@@ -175,7 +175,7 @@ class AmplExporterV2Test {
 
         exporter.export(network, properties, dataSource);
 
-        // verify synchronous component are different for the two connected component
+        // verify synchronous components are different for the two connected component
         assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/two-connected-components-buses.txt");
     }
 

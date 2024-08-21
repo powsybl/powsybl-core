@@ -22,7 +22,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
 
 /**
  * Ampl exporter based on {@link BasicAmplExporter}, with synchronous
- * component added in the file ampl_network_buses.txt.
+ * component number added for the buses.
  *
  * @author Pierre Arvy {@literal <pierre.arvy at artelys.com>}
  */
