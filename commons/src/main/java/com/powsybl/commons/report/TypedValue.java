@@ -33,6 +33,9 @@ public class TypedValue {
     public static final String VOLTAGE_LEVEL = "VOLTAGE_LEVEL";
     public static final String FILENAME = "FILENAME";
     public static final String TIMESTAMP = "TIMESTAMP";
+    public static final String URN_UUID = "URN_UUID";
+    public static final String CGMES_SUBSET = "CGMES_SUBSET";
+    public static final String ID = "ID";
 
     public static final TypedValue TRACE_SEVERITY = new TypedValue("TRACE", TypedValue.SEVERITY);
     public static final TypedValue DEBUG_SEVERITY = new TypedValue("DEBUG", TypedValue.SEVERITY);

@@ -37,7 +37,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
         Fault.FaultType faultType = Fault.FaultType.THREE_PHASE;
         double proportionalLocation = Double.NaN;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "type" -> {
                     parser.nextToken();
                     type = Fault.Type.valueOf(parser.readValueAs(String.class));
@@ -70,7 +70,7 @@ public class FaultDeserializer extends StdDeserializer<Fault> {
                     parser.nextToken();
                     proportionalLocation = parser.readValueAs(Double.class);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (null == type) {

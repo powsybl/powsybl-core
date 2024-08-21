@@ -66,7 +66,6 @@ class ModelIdTest extends AbstractSerDeTest {
         network.newExtension(CgmesMetadataModelsAdder.class)
                 .newModel()
                     .setSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS)
-                    .setId("not-relevant")
                     .setDescription("not-relevant")
                     .setVersion(42)
                     .setModelingAuthoritySet("not-relevant")

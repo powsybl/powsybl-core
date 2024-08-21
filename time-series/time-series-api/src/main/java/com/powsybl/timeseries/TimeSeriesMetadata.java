@@ -97,7 +97,7 @@ public class TimeSeriesMetadata {
     }
 
     static void parseFieldName(JsonParser parser, JsonParsingContext context) throws IOException {
-        String fieldName = parser.getCurrentName();
+        String fieldName = parser.currentName();
         if (context.insideTags) {
             context.tags.put(fieldName, parser.nextTextValue());
         } else {

@@ -477,7 +477,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
             CgmesMetadataModel sshMetadata = network2
@@ -497,7 +497,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
             Network network2 = Network.read(new GenericReadOnlyDataSource(tmpDir.resolve("output.zip")), importParams);
             CgmesMetadataModel sshMetadata = network2.getExtension(CgmesMetadataModels.class).getModelForSubset(CgmesSubset.STEADY_STATE_HYPOTHESIS).orElseThrow();
@@ -519,7 +519,7 @@ class CgmesExportTest {
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), "output");
+            ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), "output");
             new CgmesExport().export(network, params, zip);
 
             // check network can be reimported and that ModelDescription still includes end-tag
@@ -561,7 +561,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             // It is enough to check that the MAS has been set correctly in the EQ instance file
             exportParams.put(CgmesExport.PROFILES, "EQ");
-            new CgmesExport(platformConfig).export(network, exportParams, new FileDataSource(tmpDir, network.getNameOrId()));
+            new CgmesExport(platformConfig).export(network, exportParams, new DirectoryDataSource(tmpDir, network.getNameOrId()));
 
             String eq = Files.readString(tmpDir.resolve(network.getNameOrId() + "_EQ.xml"));
             assertTrue(eq.contains("modelingAuthoritySet>http://www.elia.be/OperationalPlanning"));
@@ -625,7 +625,7 @@ class CgmesExportTest {
             Properties exportParams = new Properties();
             exportParams.put(CgmesExport.PROFILES, "EQ");
             // network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             String eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
 
             // Check that RC are exported properly
@@ -634,7 +634,7 @@ class CgmesExportTest {
             generatorRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
             generatorNoRcc.removeProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
 
-            // RC shouldn't be exported without targetV
+            // RC is exported without targetV, if reactive capability is, or it was imported
             double rccTargetV = generatorRcc.getTargetV();
             generatorRcc.setVoltageRegulatorOn(false);
             generatorRcc.setTargetV(Double.NaN);
@@ -642,19 +642,17 @@ class CgmesExportTest {
             double noRccTargetV = generatorNoRcc.getTargetV();
             generatorNoRcc.setVoltageRegulatorOn(false);
             generatorNoRcc.setTargetV(Double.NaN);
-
-            //network.write("CGMES", null, tmpDir.resolve(baseName));
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
 
             generatorRcc.setTargetV(rccTargetV);
             generatorRcc.setVoltageRegulatorOn(true);
             generatorNoRcc.setTargetV(noRccTargetV);
             generatorNoRcc.setVoltageRegulatorOn(true);
 
-            // RC shouldn't be exported when Qmin and Qmax are the same
+            // RC shouldn't be exported when Qmin and Qmax are the same, but it exists when it was already imported
             ReactiveCapabilityCurveAdder rccAdder = generatorRcc.newReactiveCapabilityCurve();
             ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) generatorRcc.getReactiveLimits();
             rcc.getPoints().forEach(point -> rccAdder.beginPoint().setP(point.getP()).setMaxQ(point.getMaxQ()).setMinQ(point.getMaxQ()).endPoint());
@@ -665,10 +663,10 @@ class CgmesExportTest {
             mmrlAdder.setMaxQ(mmrl.getMinQ());
             mmrlAdder.add();
 
-            new CgmesExport().export(network, exportParams, new FileDataSource(tmpDir, baseName));
+            new CgmesExport().export(network, exportParams, new DirectoryDataSource(tmpDir, baseName));
             eq = Files.readString(tmpDir.resolve(baseName + "_EQ.xml"));
-            assertFalse(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
-            assertFalse(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
+            assertTrue(eq.contains("3a3b27be-b18b-4385-b557-6735d733baf0_RC"));
+            assertTrue(eq.contains("550ebe0d-f2b2-48c1-991f-cebea43a21aa_RC"));
         }
     }
 

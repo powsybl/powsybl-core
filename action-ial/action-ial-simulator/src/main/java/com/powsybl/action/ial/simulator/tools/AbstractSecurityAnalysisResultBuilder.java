@@ -15,7 +15,6 @@ import com.powsybl.security.*;
 import com.powsybl.security.results.PostContingencyResult;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -90,7 +89,7 @@ public abstract class AbstractSecurityAnalysisResultBuilder extends DefaultLoadF
     @Override
     public void afterPostContingencyAnalysis() {
         onFinalStateResult(new SecurityAnalysisResult(preContingencyResult, preContingencyStatus,
-                postContingencyResults.entrySet().stream().map(Map.Entry::getValue).collect(Collectors.toList())));
+            new ArrayList<>(postContingencyResults.values())));
     }
 
     public abstract void onFinalStateResult(SecurityAnalysisResult result);

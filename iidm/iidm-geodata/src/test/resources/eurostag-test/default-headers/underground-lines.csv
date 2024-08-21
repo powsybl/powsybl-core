@@ -1,0 +1,2 @@
+﻿Type ouvrage;Code ligne 1;Nom ligne 1;Propriétaire ligne 1;Etat;TENSION;Nombre circuit;Source donnée;Code ligne 2;Nom ligne 2;Propriétaire ligne 2;Code ligne 3;Nom ligne 3;Propriétaire ligne 3;Code ligne 4;Nom ligne 4;Propriétaire ligne 4;Code ligne 5;Nom ligne 5;Propriétaire ligne 5;Geo Shape;Geo Point
+SOUTERRAIN;NHV1_NHV2_2;NHV1_NHV2_2;RTE;EN EXPLOITATION;400kV;1;RTE;;;;;;;;;;;;;"{""coordinates"": [[4, 4], [5, 5]], ""type"": ""LineString""}";4.5, 4.5
