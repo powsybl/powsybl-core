@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -154,7 +156,9 @@ class UcteImporterTest {
     void testImportLinesDifferentNominalvoltage() {
         ResourceDataSource dataSource = new ResourceDataSource("differentLinesVoltage", new ResourceSet("/", "differentLinesVoltage.uct"));
 
-        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null));
+        NetworkFactory networkFactory = NetworkFactory.findDefault();
+        Importer ucteImporter = new UcteImporter();
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class, () -> ucteImporter.importData(dataSource, networkFactory, null));
         assertTrue(e.getMessage().contains("with two different nominal voltages"));
     }
 
@@ -237,7 +241,9 @@ class UcteImporterTest {
     @Test
     void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
-        assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
+        NetworkFactory networkFactory = new NetworkFactoryImpl();
+        Importer ucteImporter = new UcteImporter();
+        assertThrows(UcteException.class, () -> ucteImporter.importData(dataSource, networkFactory, null));
     }
 
     @Test
@@ -289,6 +295,59 @@ class UcteImporterTest {
         UcteImporter importer = new UcteImporter();
         PowsyblException e = assertThrows(PowsyblException.class, () -> importer.importData(dataSource, networkFactory, null));
         assertEquals("Line between 2 X-nodes: 'XXNODE11' and 'XXNODE12'", e.getMessage());
+    }
+
+    @Test
+    void testCreateAreas() {
+        ResourceDataSource dataSource = new ResourceDataSource("uxTestGridForMerging", new ResourceSet("/", "uxTestGridForMerging.uct"));
+        Properties parameters = new Properties();
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        assertEquals(1, network.getAreaTypeCount());
+        assertEquals(List.of("ControlArea"), network.getAreaTypeStream().toList());
+        assertEquals(2, network.getAreaCount());
+        var frArea = network.getArea("FR");
+        var beArea = network.getArea("BE");
+        assertNotNull(frArea);
+        assertNotNull(beArea);
+        assertEquals(2, frArea.getAreaBoundaryStream().count());
+        assertNotNull(frArea.getAreaBoundary(network.getDanglingLine("FFFFFF11 XXXXXX11 1").getBoundary()));
+        assertNotNull(frArea.getAreaBoundary(network.getDanglingLine("FFFFFF11 XXXXXX12 1").getBoundary()));
+        assertEquals(2, beArea.getAreaBoundaryStream().count());
+        assertNotNull(beArea.getAreaBoundary(network.getDanglingLine("BBBBBB11 XXXXXX11 1").getBoundary()));
+        assertNotNull(beArea.getAreaBoundary(network.getDanglingLine("BBBBBB11 XXXXXX12 1").getBoundary()));
+        frArea.getAreaBoundaries().forEach(ab -> assertTrue(ab.isAc()));
+        beArea.getAreaBoundaries().forEach(ab -> assertTrue(ab.isAc()));
+
+        assertEquals(Set.of("FFFFFF1"), frArea.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toUnmodifiableSet()));
+        assertEquals(Set.of("BBBBBB1"), beArea.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toUnmodifiableSet()));
+    }
+
+    @Test
+    void testCreateAreasDcXnode() {
+        ResourceDataSource dataSource = new ResourceDataSource("uxTestGridForMerging", new ResourceSet("/", "uxTestGridForMerging.uct"));
+        Properties parameters = new Properties();
+        parameters.put("ucte.import.areas-dc-xnodes", "XXXXXX11");
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        var frArea = network.getArea("FR");
+        var beArea = network.getArea("BE");
+        var frDanglingLine1 = network.getDanglingLine("FFFFFF11 XXXXXX11 1");
+        var frDanglingLine2 = network.getDanglingLine("FFFFFF11 XXXXXX12 1");
+        var beDanglingLine1 = network.getDanglingLine("BBBBBB11 XXXXXX11 1");
+        var beDanglingLine2 = network.getDanglingLine("BBBBBB11 XXXXXX12 1");
+        assertFalse(frArea.getAreaBoundary(frDanglingLine1.getBoundary()).isAc());
+        assertTrue(frArea.getAreaBoundary(frDanglingLine2.getBoundary()).isAc());
+        assertFalse(beArea.getAreaBoundary(beDanglingLine1.getBoundary()).isAc());
+        assertTrue(beArea.getAreaBoundary(beDanglingLine2.getBoundary()).isAc());
+    }
+
+    @Test
+    void testDontCreateAreas() {
+        ResourceDataSource dataSource = new ResourceDataSource("uxTestGridForMerging", new ResourceSet("/", "uxTestGridForMerging.uct"));
+        Properties parameters = new Properties();
+        parameters.put("ucte.import.create-areas", "false");
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
+        assertEquals(0, network.getAreaTypeCount());
+        assertEquals(0, network.getAreaCount());
     }
 
     @Test
