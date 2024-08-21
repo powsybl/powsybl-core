@@ -23,7 +23,7 @@ import java.util.Properties;
 
 import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
-public class AmplExporterV2Test {
+class AmplExporterV2Test {
 
     Properties properties;
     MemDataSource dataSource;

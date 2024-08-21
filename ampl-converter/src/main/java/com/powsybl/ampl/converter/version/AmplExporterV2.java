@@ -28,7 +28,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class AmplExporterV2 extends BasicAmplExporter {
 
-    private static int otherScNum = Integer.MAX_VALUE;
+    private int otherScNum = Integer.MAX_VALUE;
 
     public AmplExporterV2(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper, int variantIndex, int faultNum, int actionNum) {
         super(config, network, mapper, variantIndex, faultNum, actionNum);
@@ -84,7 +84,7 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(id);
     }
 
-    private static int getThreeWindingsTransformerMiddleBusSCNum(ThreeWindingsTransformer twt) {
+    private int getThreeWindingsTransformerMiddleBusSCNum(ThreeWindingsTransformer twt) {
         Terminal t1 = twt.getLeg1().getTerminal();
         Terminal t2 = twt.getLeg2().getTerminal();
         Terminal t3 = twt.getLeg3().getTerminal();
@@ -134,7 +134,7 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(middleBusId);
     }
 
-    private static int getDanglingLineMiddleBusSCNum(DanglingLine dl) {
+    private int getDanglingLineMiddleBusSCNum(DanglingLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         return b != null ? b.getSynchronousComponent().getNum() : otherScNum--;
     }
@@ -169,7 +169,7 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(middleBusId);
     }
 
-    private static int getTieLineMiddleBusSCNum(TieLine tieLine) {
+    private int getTieLineMiddleBusSCNum(TieLine tieLine) {
         Terminal t1 = tieLine.getDanglingLine1().getTerminal();
         Terminal t2 = tieLine.getDanglingLine2().getTerminal();
         Bus b1 = AmplUtil.getBus(t1);
