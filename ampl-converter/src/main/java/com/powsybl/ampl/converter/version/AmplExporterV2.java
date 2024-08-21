@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2024, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
+ */
 package com.powsybl.ampl.converter.version;
 
 import com.powsybl.ampl.converter.*;
@@ -13,6 +20,12 @@ import java.util.List;
 
 import static com.powsybl.ampl.converter.AmplConstants.*;
 
+/**
+ * Ampl exporter based on {@link BasicAmplExporter}, with synchronous
+ * component added in the file ampl_network_buses.txt.
+ *
+ * @author Pierre Arvy {@literal <pierre.arvy at artelys.com>}
+ */
 public class AmplExporterV2 extends BasicAmplExporter {
 
     private static int otherScNum = Integer.MAX_VALUE;
@@ -71,6 +84,27 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(id);
     }
 
+    private static int getThreeWindingsTransformerMiddleBusSCNum(ThreeWindingsTransformer twt) {
+        Terminal t1 = twt.getLeg1().getTerminal();
+        Terminal t2 = twt.getLeg2().getTerminal();
+        Terminal t3 = twt.getLeg3().getTerminal();
+        Bus b1 = AmplUtil.getBus(t1);
+        Bus b2 = AmplUtil.getBus(t2);
+        Bus b3 = AmplUtil.getBus(t3);
+        int middleScNum;
+        if (b1 != null) {
+            middleScNum = b1.getSynchronousComponent().getNum();
+        } else if (b2 != null) {
+            middleScNum = b2.getSynchronousComponent().getNum();
+        } else if (b3 != null) {
+            middleScNum = b3.getSynchronousComponent().getNum();
+        } else {
+            middleScNum = otherScNum--;
+        }
+
+        return middleScNum;
+    }
+
     @Override
     public void writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(TableFormatter formatter,
                                                                            ThreeWindingsTransformer twt,
@@ -98,27 +132,6 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(faultNum)
                 .writeCell(actionNum)
                 .writeCell(middleBusId);
-    }
-
-    private static int getThreeWindingsTransformerMiddleBusSCNum(ThreeWindingsTransformer twt) {
-        Terminal t1 = twt.getLeg1().getTerminal();
-        Terminal t2 = twt.getLeg2().getTerminal();
-        Terminal t3 = twt.getLeg3().getTerminal();
-        Bus b1 = AmplUtil.getBus(t1);
-        Bus b2 = AmplUtil.getBus(t2);
-        Bus b3 = AmplUtil.getBus(t3);
-        int middleScNum;
-        if (b1 != null) {
-            middleScNum = b1.getSynchronousComponent().getNum();
-        } else if (b2 != null) {
-            middleScNum = b2.getSynchronousComponent().getNum();
-        } else if (b3 != null) {
-            middleScNum = b3.getSynchronousComponent().getNum();
-        } else {
-            middleScNum = otherScNum--;
-        }
-
-        return middleScNum;
     }
 
     private static int getDanglingLineMiddleBusComponentNum(DanglingLine dl) {
@@ -169,7 +182,6 @@ public class AmplExporterV2 extends BasicAmplExporter {
         } else {
             xNodeCcNum = otherScNum--;
         }
-
         return xNodeCcNum;
     }
 
@@ -193,14 +205,4 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(actionNum)
                 .writeCell(xNodeBusId);
     }
-
-//    @Override
-//    void writeSlackBusToFormatter(TableFormatter formatter, Bus slackBus) throws IOException {
-//        String id = slackBus.getId();
-//        int num = mapper.getInt(AmplSubset.BUS, id);
-//        formatter.writeCell(VARIANT)
-//                .writeCell(num)
-//                .writeCell(slackBus.get)
-//    }
-
 }
