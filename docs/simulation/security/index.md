@@ -6,14 +6,15 @@ configuration.md
 implementations.md
 contingency-dsl.md
 action-dsl.md
+limit-reductions.md
 ```
 
 The security analysis is a simulation that check violations on a network. These checks can be done on the base case or after a contingency, with or without remedial actions. A security analysis can monitor network states, in pre-contingency state, after a contingency and after a remedial action.
 
 There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipments, the violations can have different types:
-- Current, active power and apparent power: this kind of violations can be detected on a branch (line, two windings transformer, tie line) or on a three windings transformer, if the computed value is greater than its [permanent limit](../../grid_model/additional.md#loading-limits) or one of its [temporary limits](../../grid_model/additional.md#loading-limits).
-- Voltage: this kind of violations can be detected on a bus or a bus bar section, if the computed voltage is out of the low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
-- Voltage angle: this kind of violations can be detected if the voltage angle difference between the buses associated to two terminals is out of the low-high voltage angle limits defined in the network.
+- Current, active power and apparent power: this kind of violation can be detected on a branch (line, two windings transformer, tie line) or on a three windings transformer, if the computed value is greater than its [permanent limit](../../grid_model/additional.md#loading-limits) or one of its [temporary limits](../../grid_model/additional.md#loading-limits).
+- Voltage: this kind of violation can be detected on a bus or a bus bar section, if the computed voltage is out of the low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
+- Voltage angle: this kind of violation can be detected if the voltage angle difference between the buses associated to two terminals is out of the low-high voltage angle limits defined in the network.
 
 ## Inputs
 
@@ -66,6 +67,19 @@ A stateMonitor allows to get information about branch, bus and three-winding tra
 - If we want information about a branch after security analysis on contingency `c1`, the contingencyContext will contain the contingencyId `c1`, contextType `SPECIFIC` and the state monitor will contain the id of the branch.
 - If we want information about a branch in pre-contingency state, the contingencyContext will contain a null contingencyId, contextType `NONE` and the state monitor will contain the id of the branch.
 - If we want information about a branch in pre-contingency state and after security analysis on contingency `c1`, the contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the branch.
+
+### Limit reductions
+Limit reductions can be specified in order to detect when a specific limit is **almost** reached, without having to change artificially this limit.
+For instance, with a limit reduction set to 95% for a limit of 1,000MW, the security analysis will detect a limit violation for every current value greater than 950MW.
+
+Each limit reduction has its own criteria specifying for which limits and in which conditions it should be applied. These criteria can be:
+- the limit type (current, active power or apparent power);
+- the use case (for monitoring only or for actions);
+- the contingency context (pre-contingency, after a specific contingency or after all contingencies, ...);
+- the concerned network elements (by ids, countries and/or nominal voltages);
+- their limit characteristics (permanent or temporary + acceptable duration).
+
+You can find more details about limit reductions [here](./limit-reductions).
 
 ## Outputs
 
