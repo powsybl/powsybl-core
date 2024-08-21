@@ -134,7 +134,7 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(middleBusId);
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(DanglingLine dl) {
+    private static int getDanglingLineMiddleBusSCNum(DanglingLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         return b != null ? b.getSynchronousComponent().getNum() : otherScNum--;
     }
@@ -148,13 +148,13 @@ public class AmplExporterV2 extends BasicAmplExporter {
         String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
         int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
         int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
+        int middleScNum = getDanglingLineMiddleBusSCNum(dl);
         SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
                 TwoSides.ONE).otherSide(
                 dl, true);
         double nomV = t.getVoltageLevel().getNominalV();
         double v = sv.getU() / nomV;
         double theta = Math.toRadians(sv.getA());
-        int middleScNum = getDanglingLineMiddleBusComponentNum(dl);
         formatter.writeCell(variantIndex)
                 .writeCell(middleBusNum)
                 .writeCell(middleVlNum)
@@ -169,20 +169,20 @@ public class AmplExporterV2 extends BasicAmplExporter {
                 .writeCell(middleBusId);
     }
 
-    private static int getTieLineMiddleBusComponentNum(TieLine tieLine) {
+    private static int getTieLineMiddleBusSCNum(TieLine tieLine) {
         Terminal t1 = tieLine.getDanglingLine1().getTerminal();
         Terminal t2 = tieLine.getDanglingLine2().getTerminal();
         Bus b1 = AmplUtil.getBus(t1);
         Bus b2 = AmplUtil.getBus(t2);
-        int xNodeCcNum;
+        int xNodeScNum;
         if (b1 != null) {
-            xNodeCcNum = b1.getSynchronousComponent().getNum();
+            xNodeScNum = b1.getSynchronousComponent().getNum();
         } else if (b2 != null) {
-            xNodeCcNum = b2.getSynchronousComponent().getNum();
+            xNodeScNum = b2.getSynchronousComponent().getNum();
         } else {
-            xNodeCcNum = otherScNum--;
+            xNodeScNum = otherScNum--;
         }
-        return xNodeCcNum;
+        return xNodeScNum;
     }
 
     @Override
@@ -191,7 +191,7 @@ public class AmplExporterV2 extends BasicAmplExporter {
         String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
         int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
         int xNodeVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
-        int xNodeScNum = getTieLineMiddleBusComponentNum(tieLine);
+        int xNodeScNum = getTieLineMiddleBusSCNum(tieLine);
         formatter.writeCell(variantIndex)
                 .writeCell(xNodeBusNum)
                 .writeCell(xNodeVlNum)

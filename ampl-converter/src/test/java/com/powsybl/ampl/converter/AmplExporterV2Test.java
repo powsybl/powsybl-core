@@ -38,7 +38,7 @@ public class AmplExporterV2Test {
     }
 
     @Test
-    void testEurostagV2() throws IOException {
+    void testEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
         exporter.export(network, properties, dataSource);
@@ -57,7 +57,7 @@ public class AmplExporterV2Test {
     }
 
     @Test
-    void writeThreeWindingsTransformerV2() throws IOException {
+    void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
                 .newPhaseTapChanger()
@@ -82,8 +82,23 @@ public class AmplExporterV2Test {
         assertEqualsToRef(dataSource, "_network_tct", "inputs/three-windings-transformers-tct.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/three-windings-transformers-limits.txt");
 
-        // verify synchronous component has been added to buses file
+        // verify all buses are in the same synchronous component
         assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/three-windings-transformers-buses.txt");
+
+        // verify bus 1 is in different sc if leg 1 is disconnected
+        network.getThreeWindingsTransformer("3WT").getLeg1().getTerminal().disconnect();
+        exporter.export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/three-windings-transformers-1-leg-disconnected-buses.txt");
+
+        // verify bus 1 and 2 are in different sc if leg 1 and 2 are disconnected
+        network.getThreeWindingsTransformer("3WT").getLeg2().getTerminal().disconnect();
+        exporter.export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/three-windings-transformers-2-legs-disconnected-buses.txt");
+
+        // verify all buses are in different sc if 3wt is disconnected
+        network.getThreeWindingsTransformer("3WT").disconnect();
+        exporter.export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/three-windings-transformers-disconnected-buses.txt");
     }
 
     @Test
@@ -105,8 +120,18 @@ public class AmplExporterV2Test {
         assertEqualsToRef(dataSource, "_network_branches", "inputs/eurostag-tutorial-example1-branches-tl.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits-tl.txt");
 
-        // verify synchronous component has been added to buses file
+        // verify all buses in the same synchronous component
         assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/eurostag-tutorial-example1-buses-tl.txt");
+
+        // verify sc num stays the same if dangling line 1 is disconnected, as middle bus stays connected to main sc
+        network.getTieLine("NHV1_NHV2_1").getDanglingLine1().getTerminal().disconnect();
+        exporter.export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/eurostag-tutorial-example1-buses-tl.txt");
+
+        // verify sc num of middle bus is different if dangling lines 1 and 2 are disconnected
+        network.getTieLine("NHV1_NHV2_1").getDanglingLine2().getTerminal().disconnect();
+        exporter.export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/eurostag-tutorial-example1-buses-tl-disconnected.txt");
     }
 
     @Test
@@ -121,8 +146,13 @@ public class AmplExporterV2Test {
         assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
         assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
 
-        // verify synchronous component has been added to buses file
+        // verify sc num of middle bus
         assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/dangling-line-buses.txt");
+
+        // verify middle bus in different sc if dangling line bus is disconnected
+        network.getDanglingLine("DL").getTerminal().disconnect();
+        exporter.export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/v2/dangling-line-disconnected-buses.txt");
     }
 
     @Test
