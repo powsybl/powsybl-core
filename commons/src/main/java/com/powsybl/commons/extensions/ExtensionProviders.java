@@ -12,6 +12,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 public final class ExtensionProviders<T extends ExtensionProvider> {
 
     private final Map<String, T> providers;
+    private final Map<String, ExtensionProviderAlternative<T>> providerAlternatives;
 
     public static <T extends ExtensionProvider> ExtensionProviders<T> createProvider(Class<T> clazz) {
         return new ExtensionProviders<>(clazz);
@@ -33,9 +35,7 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
     }
 
     private ExtensionProviders(Class<T> clazz) {
-        Objects.requireNonNull(clazz);
-        providers = new ServiceLoaderCache<>(clazz).getServices().stream()
-                .collect(Collectors.toMap(T::getExtensionName, e -> e));
+        this(clazz, null, null);
     }
 
     private ExtensionProviders(Class<T> clazz, String categoryName) {
@@ -44,29 +44,65 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
 
     private ExtensionProviders(Class<T> clazz, String categoryName, Set<String> extensionNames) {
         Objects.requireNonNull(clazz);
-        Objects.requireNonNull(categoryName);
 
-        List<T> services = new ServiceLoaderCache<>(clazz).getServices();
-        providers = services.stream()
-                .filter(s -> s.getCategoryName().equals(categoryName) && (extensionNames == null || extensionNames.contains(s.getExtensionName())))
-                .collect(Collectors.toMap(T::getExtensionName, e -> e));
+        Stream<T> providersStream = new ServiceLoaderCache<>(clazz).getServices().stream();
+        if (categoryName != null) {
+            providersStream = providersStream.filter(s -> s.getCategoryName().equals(categoryName) &&
+                    (extensionNames == null || extensionNames.contains(s.getExtensionName())));
+        }
+        providers = providersStream.collect(Collectors.toMap(T::getExtensionName, e -> e));
+
+        Class<? extends ExtensionProviderAlternative> alternativeClass = getExtensionProviderAlternativeClass(clazz);
+        if (alternativeClass != null) {
+            Stream<? extends ExtensionProviderAlternative> providerAlternativeStream = new ServiceLoaderCache<>(alternativeClass).getServices().stream();
+            if (categoryName != null) {
+                providerAlternativeStream = providerAlternativeStream.filter(s -> s.getCategoryName().equals(categoryName) &&
+                        (extensionNames == null || extensionNames.contains(s.getExtensionName())));
+            }
+            providerAlternatives = providerAlternativeStream
+                    .collect(Collectors.toMap(ExtensionProviderAlternative::getExtensionName, e -> e));
+        } else {
+            providerAlternatives = Collections.emptyMap();
+        }
+    }
+
+    private Class<? extends ExtensionProviderAlternative> getExtensionProviderAlternativeClass(Class<T> clazz) {
+        if (clazz.equals(ExtensionSerDe.class)) {
+            return ExtensionSerDeAlternative.class;
+        }
+        return null;
     }
 
     public T findProvider(String name) {
+        return findProvider(name, null);
+    }
+
+    public T findProvider(String name, ExtensionProvidersOptions options) {
+        if (options != null && options.useAlternativeVersion(name)) {
+            ExtensionProviderAlternative<T> alternative = providerAlternatives.get(name);
+            if (alternative != null) {
+                return alternative.getProvider();
+            }
+        }
         return providers.get(name);
     }
 
     public T findProviderOrThrowException(String name) {
-        T serializer = findProvider(name);
-        if (serializer == null) {
+        return findProviderOrThrowException(name, null);
+    }
+
+    public T findProviderOrThrowException(String name, ExtensionProvidersOptions options) {
+        T provider = findProvider(name, options);
+        if (provider == null) {
             throw new PowsyblException("Provider not found for extension " + name);
         }
-
-        return serializer;
+        return provider;
     }
 
     public Collection<T> getProviders() {
-        return providers.values();
+        return providers.keySet().stream()
+                .map(this::findProvider)
+                .toList();
     }
 
     public <T> void addExtensions(Extendable<T> extendable, Collection<Extension<T>> extensions) {

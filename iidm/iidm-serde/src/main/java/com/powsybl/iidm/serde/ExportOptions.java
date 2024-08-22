@@ -9,6 +9,7 @@ package com.powsybl.iidm.serde;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.ExtensionProvidersOptions;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import static com.powsybl.iidm.serde.ExportOptions.IidmVersionIncompatibilityBeh
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public class ExportOptions extends AbstractOptions<ExportOptions> {
+public class ExportOptions extends AbstractOptions<ExportOptions> implements ExtensionProvidersOptions {
 
     public enum IidmVersionIncompatibilityBehavior {
         THROW_EXCEPTION,
@@ -31,6 +32,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
+
+    public static final String ALTERNATIVE_SUFFIX = "alternative-";
 
     private boolean withBranchSV = true;
 
@@ -225,7 +228,13 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      * If it has never been added, return an empty optional.
      */
     public Optional<String> getExtensionVersion(String extensionName) {
-        return Optional.ofNullable(extensionsVersions.get(extensionName));
+        return Optional.ofNullable(extensionsVersions.get(extensionName))
+                .map(v -> {
+                    if (v.startsWith(ALTERNATIVE_SUFFIX)) {
+                        return v.length() == ALTERNATIVE_SUFFIX.length() ? null : v.substring(ALTERNATIVE_SUFFIX.length());
+                    }
+                    return v;
+                });
     }
 
     public boolean isSorted() {
@@ -244,5 +253,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions setWithAutomationSystems(boolean withAutomationSystems) {
         this.withAutomationSystems = withAutomationSystems;
         return this;
+    }
+
+    @Override
+    public boolean useAlternativeVersion(String extensionName) {
+        String v = extensionsVersions.get(extensionName);
+        return v != null && v.startsWith(ALTERNATIVE_SUFFIX);
     }
 }

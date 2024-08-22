@@ -158,7 +158,7 @@ public final class NetworkSerDe {
             throw new IllegalStateException("Extension Serializer of " + extension.getName() + " should not be null");
         }
         String namespaceUri = getNamespaceUri(extensionSerDe, context.getOptions());
-        writer.writeStartNode(namespaceUri, extension.getName());
+        writer.writeStartNode(namespaceUri, extensionSerDe.getExtensionName());
         context.getExtensionVersion(extension.getName()).ifPresent(extensionSerDe::checkExtensionVersionSupported);
         extensionSerDe.write(extension, context);
         writer.writeEndNode();
@@ -167,8 +167,8 @@ public final class NetworkSerDe {
     private static ExtensionSerDe getExtensionSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
         if (options.withExtension(extension.getName())) {
             ExtensionSerDe extensionSerDe = options.isThrowExceptionIfExtensionNotFound()
-                    ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
-                    : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
+                    ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName(), options)
+                    : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName(), options);
             if (extensionSerDe == null) {
                 String message = "XmlSerializer for " + extension.getName() + " not found";
                 throwExceptionIfOption(options, message);
