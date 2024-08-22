@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 
 import static java.lang.Integer.MAX_VALUE;
 
@@ -89,7 +87,7 @@ public final class LoadingLimitsUtil {
       * @param adder the empty adder in which we initialize the new limits
       * @param limits the limits to copy
       */
-     public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
+    public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
         adder.setPermanentLimit(limits.getPermanentLimit());
         limits.getTemporaryLimits().forEach(limit ->
                 adder.beginTemporaryLimit()
