@@ -81,4 +81,15 @@ public final class LoadingLimitsUtil {
             adder.setPermanentLimit(fixedPermanentLimit);
         }
     }
+
+    public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
+        adder.setPermanentLimit(limits.getPermanentLimit());
+        limits.getTemporaryLimits().forEach(limit ->
+                adder.beginTemporaryLimit()
+                        .setName(limit.getName())
+                        .setAcceptableDuration(limit.getAcceptableDuration())
+                        .setValue(limit.getValue())
+                        .endTemporaryLimit());
+        return adder;
+    }
 }

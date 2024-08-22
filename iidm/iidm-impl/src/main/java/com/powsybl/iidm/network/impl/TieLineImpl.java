@@ -280,13 +280,28 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits) {
+        return danglingLine1.newCurrentLimits(currentLimits);
+    }
+
+    @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return danglingLine1.newActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits activePowerLimits) {
         return danglingLine1.newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return danglingLine1.newApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits limits) {
+        return danglingLine1.newApparentPowerLimits(limits);
     }
 
     @Override
@@ -335,13 +350,28 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
+    public CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
+        return danglingLine2.newCurrentLimits(currentLimits);
+    }
+
+    @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return danglingLine2.newActivePowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits limits) {
         return danglingLine2.newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return danglingLine2.newApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits limits) {
+        return danglingLine2.newApparentPowerLimits(limits);
     }
 
     @Override

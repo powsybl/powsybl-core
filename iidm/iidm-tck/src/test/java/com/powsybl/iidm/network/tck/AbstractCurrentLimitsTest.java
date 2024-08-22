@@ -724,8 +724,8 @@ public abstract class AbstractCurrentLimitsTest {
         CurrentLimits limits1 = line.getCurrentLimits1().get();
 
         // Second limit
-        CurrentLimitsAdder adder2 = line.newCurrentLimits2()
-                .copyFromCurrentLimits(limits1);
+        CurrentLimitsAdder adder2 = line.newCurrentLimits2(limits1);
+
         adder2.add();
         CurrentLimits limits2 = line.getCurrentLimits2().get();
 

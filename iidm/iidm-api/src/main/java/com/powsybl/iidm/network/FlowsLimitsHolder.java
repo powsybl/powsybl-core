@@ -10,6 +10,8 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
+
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -125,6 +127,11 @@ public interface FlowsLimitsHolder {
      */
     CurrentLimitsAdder newCurrentLimits();
 
+    default CurrentLimitsAdder newCurrentLimits(CurrentLimits limits) {
+        CurrentLimitsAdder adder = newCurrentLimits();
+        return initializeFromLoadingLimits(adder, limits);
+    }
+
     /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
@@ -134,6 +141,11 @@ public interface FlowsLimitsHolder {
      */
     ApparentPowerLimitsAdder newApparentPowerLimits();
 
+    default ApparentPowerLimitsAdder newApparentPowerLimits(ApparentPowerLimits limits) {
+        ApparentPowerLimitsAdder adder = newApparentPowerLimits();
+        return initializeFromLoadingLimits(adder, limits);
+    }
+
     /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
@@ -142,4 +154,9 @@ public interface FlowsLimitsHolder {
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup}.
      */
     ActivePowerLimitsAdder newActivePowerLimits();
+
+    default ActivePowerLimitsAdder newActivePowerLimits(ActivePowerLimits limits) {
+        ActivePowerLimitsAdder adder = newActivePowerLimits();
+        return initializeFromLoadingLimits(adder, limits);
+    }
 }

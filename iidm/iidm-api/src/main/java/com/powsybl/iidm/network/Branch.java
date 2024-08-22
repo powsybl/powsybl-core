@@ -226,6 +226,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     CurrentLimitsAdder newCurrentLimits1();
 
+    CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits);
+
     /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
@@ -235,6 +237,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     ActivePowerLimitsAdder newActivePowerLimits1();
 
+    ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits activePowerLimits);
+
     /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
@@ -243,6 +247,9 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.
      */
     ApparentPowerLimitsAdder newApparentPowerLimits1();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits apparentPowerLimits);
+
 
     /**
      * Get the collection of the defined {@link OperationalLimitsGroup} on side 2.
@@ -354,6 +361,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     CurrentLimitsAdder newCurrentLimits2();
 
+    CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits);
+
     /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
@@ -363,6 +372,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     ActivePowerLimitsAdder newActivePowerLimits2();
 
+    ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits activePowerLimits);
+
     /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
@@ -371,6 +382,8 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.
      */
     ApparentPowerLimitsAdder newApparentPowerLimits2();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits limits);
 
     default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         return switch (side) {

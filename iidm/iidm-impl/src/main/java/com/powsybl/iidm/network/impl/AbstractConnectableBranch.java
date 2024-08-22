@@ -103,13 +103,28 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
+    public CurrentLimitsAdder newCurrentLimits1(CurrentLimits limits) {
+        return getOperationalLimitsHolder1().newCurrentLimits(limits);
+    }
+
+    @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
         return getOperationalLimitsHolder1().newActivePowerLimits();
     }
 
     @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits limits) {
+        return getOperationalLimitsHolder1().newActivePowerLimits(limits);
+    }
+
+    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return getOperationalLimitsHolder1().newApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits limits) {
+        return getOperationalLimitsHolder1().newApparentPowerLimits(limits);
     }
 
     private FlowsLimitsHolder getOperationalLimitsHolder2() {
@@ -162,13 +177,28 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
+    public CurrentLimitsAdder newCurrentLimits2(CurrentLimits limits) {
+        return getOperationalLimitsHolder2().newCurrentLimits(limits);
+    }
+
+    @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return getOperationalLimitsHolder2().newActivePowerLimits();
     }
 
     @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits limits) {
+        return getOperationalLimitsHolder2().newActivePowerLimits(limits);
+    }
+
+    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return getOperationalLimitsHolder2().newApparentPowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits limits) {
+        return getOperationalLimitsHolder2().newApparentPowerLimits(limits);
     }
 
     @Override

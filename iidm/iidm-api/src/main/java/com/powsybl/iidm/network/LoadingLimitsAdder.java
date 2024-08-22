@@ -103,13 +103,6 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
     String getOwnerId();
 
     /**
-     * <p>Creates a limit that is the exactly same as the one given in parameters.</p>
-     * @param limits the loading limit getting copied.
-     * @return a new limit
-     */
-    A copyFromCurrentLimits(CurrentLimits limits);
-
-    /**
      * <p>Fix the limits to create if needed, especially the permanent limit when it is not defined (equals <code>Double.NaN</code>).</p>
      * @return the adder
      * @see LoadingLimitsAdder#fixLimits(double, LoadingLimitsUtil.LimitFixLogger)
