@@ -110,7 +110,17 @@ public abstract class AbstractApparentPowerLimitsTest {
         adder2.add();
         ApparentPowerLimits limits2 = line.getApparentPowerLimits2().get();
 
-        // Check
+        // Tests
+        assertTrue(areLimitsIdentical(limits1, limits2));
+        assertNotNull(limits2);
+
+        adder = line.newApparentPowerLimits1(limits2);
+        adder.add();
+
+        assertTrue(areLimitsIdentical(limits1, limits2));
+    }
+
+    public boolean areLimitsIdentical(LoadingLimits limits1, LoadingLimits limits2) {
         boolean areIdentical = limits1.getPermanentLimit() == limits2.getPermanentLimit();
 
         List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits().stream().toList();
@@ -132,8 +142,7 @@ public abstract class AbstractApparentPowerLimitsTest {
             areIdentical = false;
         }
 
-        // Tests
-        assertTrue(areIdentical);
-        assertNotNull(limits2);
+        return areIdentical;
     }
+
 }

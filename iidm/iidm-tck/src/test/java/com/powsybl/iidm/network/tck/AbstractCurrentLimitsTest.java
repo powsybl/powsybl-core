@@ -729,7 +729,16 @@ public abstract class AbstractCurrentLimitsTest {
         adder2.add();
         CurrentLimits limits2 = line.getCurrentLimits2().get();
 
-        // Check
+        assertTrue(areLimitsIdentical(limits1, limits2));
+        assertNotNull(limits2);
+
+        adder = line.newCurrentLimits1(limits2);
+        adder.add();
+
+        assertTrue(areLimitsIdentical(limits1, limits2));
+    }
+
+    public boolean areLimitsIdentical(LoadingLimits limits1, LoadingLimits limits2) {
         boolean areIdentical = limits1.getPermanentLimit() == limits2.getPermanentLimit();
 
         List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits().stream().toList();
@@ -751,9 +760,7 @@ public abstract class AbstractCurrentLimitsTest {
             areIdentical = false;
         }
 
-        // Tests
-        assertTrue(areIdentical);
-        assertNotNull(limits2);
+        return areIdentical;
     }
 }
 
