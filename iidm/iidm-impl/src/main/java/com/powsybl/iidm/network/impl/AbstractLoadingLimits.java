@@ -61,11 +61,6 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
         public boolean isFictitious() {
             return fictitious;
         }
-
-        @Override
-        public void setValue(double temporaryLimitValue) {
-            this.value = temporaryLimitValue;
-        }
     }
 
     AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
@@ -117,7 +112,9 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
             LOGGER.warn("{}Temporary limit value changed from {} to {}, but it is not valid", group.getValidable().getMessageHeader(), oldValue, temporaryLimitValue);
         }
 
-        identifiedLimit.setValue(temporaryLimitValue);
+        this.temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(identifiedLimit.getName(), temporaryLimitValue,
+                identifiedLimit.getAcceptableDuration(), identifiedLimit.isFictitious()));
+
         group.notifyTemporaryLimitValueUpdate(getLimitType(), oldValue, temporaryLimitValue, acceptableDuration);
 
         return (L) this;
@@ -128,20 +125,17 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> impleme
                                                int acceptableDuration,
                                                double temporaryLimitValue) {
 
-        if (biggerDurationEntry != null && smallerDurationEntry != null) {
-            return biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
-                    && smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration
-                    && biggerDurationEntry.getValue().getValue() < temporaryLimitValue
-                    && smallerDurationEntry.getValue().getValue() > temporaryLimitValue;
-        } else if (biggerDurationEntry == null && smallerDurationEntry != null) {
-            return temporaryLimitValue > this.permanentLimit &&
-                    smallerDurationEntry.getValue().getValue() > temporaryLimitValue
-                    && smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration;
-        } else if (biggerDurationEntry != null) {
-            return biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
+        boolean checkAgainstBigger = true;
+        boolean checkAgainstSmaller = true;
+        if (biggerDurationEntry != null) {
+            checkAgainstBigger = biggerDurationEntry.getValue().getAcceptableDuration() > acceptableDuration
                     && biggerDurationEntry.getValue().getValue() < temporaryLimitValue;
         }
-        return temporaryLimitValue > this.permanentLimit;
+        if (smallerDurationEntry != null) {
+            checkAgainstSmaller = smallerDurationEntry.getValue().getAcceptableDuration() < acceptableDuration
+                    && smallerDurationEntry.getValue().getValue() > temporaryLimitValue;
+        }
+        return temporaryLimitValue > this.permanentLimit && checkAgainstBigger && checkAgainstSmaller;
     }
 
     @Override

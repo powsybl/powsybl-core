@@ -45,7 +45,6 @@ public interface LoadingLimits extends OperationalLimits {
          */
         boolean isFictitious();
 
-        void setValue(double temporaryLimitValue);
     }
 
     /**
