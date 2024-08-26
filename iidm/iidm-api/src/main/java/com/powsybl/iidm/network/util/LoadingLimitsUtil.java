@@ -94,6 +94,7 @@ public final class LoadingLimitsUtil {
                         .setName(limit.getName())
                         .setAcceptableDuration(limit.getAcceptableDuration())
                         .setValue(limit.getValue())
+                        .setFictitious(limit.isFictitious())
                         .endTemporaryLimit());
         return adder;
     }

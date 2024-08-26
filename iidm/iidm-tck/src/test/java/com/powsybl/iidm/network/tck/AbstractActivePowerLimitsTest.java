@@ -11,14 +11,14 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-public abstract class AbstractActivePowerLimitsTest {
+public abstract class AbstractActivePowerLimitsTest extends AbstractIdenticalLimitsTest {
 
     private static Network createNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
@@ -108,40 +108,17 @@ public abstract class AbstractActivePowerLimitsTest {
         ActivePowerLimitsAdder adder2 = line.newActivePowerLimits2(limits1);
 
         adder2.add();
-        ActivePowerLimits limits2 = line.getActivePowerLimits2().get();
+
+        Optional<ActivePowerLimits> optionalLimits2 = line.getActivePowerLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        ActivePowerLimits limits2 = optionalLimits2.get();
 
         // Tests
         assertTrue(areLimitsIdentical(limits1, limits2));
-        assertNotNull(limits2);
 
         adder = line.newActivePowerLimits1(limits2);
         adder.add();
 
         assertTrue(areLimitsIdentical(limits1, limits2));
-    }
-
-    public boolean areLimitsIdentical(LoadingLimits limits1, LoadingLimits limits2) {
-        boolean areIdentical = limits1.getPermanentLimit() == limits2.getPermanentLimit();
-
-        List<LoadingLimits.TemporaryLimit> tempLimits1 = limits1.getTemporaryLimits().stream().toList();
-        List<LoadingLimits.TemporaryLimit> tempLimits2 = limits2.getTemporaryLimits().stream().toList();
-
-        if (areIdentical && tempLimits1.size() == tempLimits2.size()) {
-            for (int i = 0; i < tempLimits1.size(); i++) {
-                LoadingLimits.TemporaryLimit limit1 = tempLimits1.get(i);
-                LoadingLimits.TemporaryLimit limit2 = tempLimits2.get(i);
-
-                if (!limit1.getName().equals(limit2.getName()) ||
-                        limit1.getAcceptableDuration() != limit2.getAcceptableDuration() ||
-                        limit1.getValue() != limit2.getValue()) {
-                    areIdentical = false;
-                    break;
-                }
-            }
-        } else {
-            areIdentical = false;
-        }
-
-        return areIdentical;
     }
 }

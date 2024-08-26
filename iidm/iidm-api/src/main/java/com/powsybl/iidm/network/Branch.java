@@ -10,6 +10,8 @@ package com.powsybl.iidm.network;
 import java.util.Collection;
 import java.util.Optional;
 
+import static com.powsybl.iidm.network.util.LoadingLimitsUtil.initializeFromLoadingLimits;
+
 /**
  * An equipment with two terminals.
  *
@@ -226,7 +228,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     CurrentLimitsAdder newCurrentLimits1();
 
-    CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits);
+    default CurrentLimitsAdder newCurrentLimits1(CurrentLimits currentLimits) {
+        CurrentLimitsAdder currentLimitsAdder = newCurrentLimits1();
+        return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
 
     /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
@@ -237,7 +242,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     ActivePowerLimitsAdder newActivePowerLimits1();
 
-    ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits activePowerLimits);
+    default ActivePowerLimitsAdder newActivePowerLimits1(ActivePowerLimits activePowerLimits) {
+        ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits1();
+        return initializeFromLoadingLimits(activePowerLimitsAdder, activePowerLimits);
+    }
 
     /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 1.</p>
@@ -248,8 +256,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     ApparentPowerLimitsAdder newApparentPowerLimits1();
 
-    ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits apparentPowerLimits);
-
+    default ApparentPowerLimitsAdder newApparentPowerLimits1(ApparentPowerLimits apparentPowerLimits) {
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder = newApparentPowerLimits1();
+        return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);
+    }
 
     /**
      * Get the collection of the defined {@link OperationalLimitsGroup} on side 2.
@@ -361,7 +371,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     CurrentLimitsAdder newCurrentLimits2();
 
-    CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits);
+    default CurrentLimitsAdder newCurrentLimits2(CurrentLimits currentLimits) {
+        CurrentLimitsAdder currentLimitsAdder = newCurrentLimits2();
+        return initializeFromLoadingLimits(currentLimitsAdder, currentLimits);
+    }
 
     /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
@@ -372,7 +385,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     ActivePowerLimitsAdder newActivePowerLimits2();
 
-    ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits activePowerLimits);
+    default ActivePowerLimitsAdder newActivePowerLimits2(ActivePowerLimits activePowerLimits) {
+        ActivePowerLimitsAdder activePowerLimitsAdder = newActivePowerLimits2();
+        return initializeFromLoadingLimits(activePowerLimitsAdder, activePowerLimits);
+    }
 
     /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup} on side 2.</p>
@@ -383,7 +399,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
      */
     ApparentPowerLimitsAdder newApparentPowerLimits2();
 
-    ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits limits);
+    default ApparentPowerLimitsAdder newApparentPowerLimits2(ApparentPowerLimits apparentPowerLimits) {
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder = newApparentPowerLimits2();
+        return initializeFromLoadingLimits(apparentPowerLimitsAdder, apparentPowerLimits);
+    }
 
     default Optional<CurrentLimits> getCurrentLimits(TwoSides side) {
         return switch (side) {
