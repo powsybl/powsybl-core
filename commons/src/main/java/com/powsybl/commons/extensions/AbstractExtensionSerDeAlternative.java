@@ -7,7 +7,6 @@
  */
 package com.powsybl.commons.extensions;
 
-import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -32,7 +31,4 @@ public abstract class AbstractExtensionSerDeAlternative<T extends Extendable, E 
     public String getExtensionName() {
         return alternativeExtensionName;
     }
-
-    @Override
-    public abstract @Nonnull ExtensionSerDe<T, E> getProvider();
 }
