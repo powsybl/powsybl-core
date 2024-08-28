@@ -28,7 +28,7 @@ class AlternativeExtensionXmlTest extends AbstractIidmSerDeTest {
     // This test is the same as OperatingStatusXmlTest::test, but the extension is exported/imported
     // using the defined alternative (which is not versioned).
     @Test
-    void test() throws IOException {
+    void nonVersionedAlternativeTest() throws IOException {
         Network network = OperatingStatusXmlTest.createTestNetwork();
 
         // extend line
