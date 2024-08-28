@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2024, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+    SPDX-License-Identifier: MPL-2.0
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/legacy_active_power_control/1_1"
+           elementFormDefault="qualified">
+    <xs:element name="legacyActivePowerControl">
+        <xs:complexType>
+            <xs:attribute name="legacyParticipate" use="required" type="xs:boolean"/>
+            <xs:attribute name="legacyDroop" use="optional" type="xs:double"/>
+            <xs:attribute name="legacyParticipationFactor" use="optional" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
