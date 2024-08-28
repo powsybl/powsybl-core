@@ -831,9 +831,16 @@ An internal connection is a non-impedant connection between two components in a 
 ## Overload management systems
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/OverloadManagementSystem.html)<br>
-An overload management system is an automation system that makes network actions when a current limit condition is met.
+An overload management system is an automation system that monitors current on an equipment, and makes network actions when the current limit condition is met.
 
-Overload management systems are defined as a list of Trippings pairing one action and one limit.
+Overload management systems are defined as a list of Trippings.
+A tripping is the association of one network action and one current limit: when the limit is crossed, the corresponding action is applied.
+
+Supported network actions are:
+
+- Branch tripping,
+- Switch tripping,
+- Three-windings transformer tripping.
 
 **Overload management system Characteristics**
 
