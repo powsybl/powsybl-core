@@ -739,6 +739,49 @@ public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsT
 
         assertTrue(areLimitsIdentical(limits1, limits2));
     }
+
+    @Test
+    public void testSetTemporaryLimitValue() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+
+        Optional<CurrentLimits> optionalLimits = line.getCurrentLimits(TwoSides.ONE);
+        assertTrue(optionalLimits.isPresent());
+        CurrentLimits limits = optionalLimits.get();
+
+        limits.setTemporaryLimitValue(20 * 60, 1050.0);
+        assertEquals(1050.0, limits.getTemporaryLimit(20 * 60).getValue());
+
+        limits.setTemporaryLimitValue(10 * 60, 1450.0);
+        assertEquals(1450.0, limits.getTemporaryLimit(10 * 60).getValue());
+
+        limits.setTemporaryLimitValue(5 * 60, 1750.0);
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+
+        // Tests with invalid values
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+        limits.setTemporaryLimitValue(5 * 60, 1250.0);
+        assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(7 * 60, 1550.0));
+        assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, Double.NaN));
+        assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, -6.0));
+    }
 }
 
 
