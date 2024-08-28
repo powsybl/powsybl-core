@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractCurrentLimitsTest {
+public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsTest {
 
     private static Network createNetwork() {
         Network network = Network.create("test", "test");
@@ -699,6 +699,48 @@ public abstract class AbstractCurrentLimitsTest {
     }
 
     @Test
+    public void testAdderByCopy() {
+        // First limit
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+        CurrentLimits limits1 = line.getCurrentLimits1().get();
+
+        // Second limit
+        CurrentLimitsAdder adder2 = line.newCurrentLimits2(limits1);
+
+        adder2.add();
+
+        Optional<CurrentLimits> optionalLimits2 = line.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+
+        // Tests
+        assertTrue(areLimitsIdentical(limits1, limits2));
+
+        adder = line.newCurrentLimits1(limits2);
+        adder.add();
+
+        assertTrue(areLimitsIdentical(limits1, limits2));
+    }
+
+    @Test
     public void testSetTemporaryLimitValue() {
         Line line = createNetwork().getLine("L");
         CurrentLimitsAdder adder = line.newCurrentLimits1()
@@ -740,5 +782,6 @@ public abstract class AbstractCurrentLimitsTest {
         assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, Double.NaN));
         assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, -6.0));
     }
-
 }
+
+
