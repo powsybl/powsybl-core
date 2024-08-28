@@ -67,7 +67,7 @@ class AlternativeExtensionXmlTest extends AbstractIidmSerDeTest {
         generator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(generator, false, 3.0, 1.0));
 
         // No version is specified for the alternative: it should use the default version (v1.1)
-        var exportOptions = new ExportOptions().addExtensionVersion(ActivePowerControl.NAME, "alternative");
+        var exportOptions = new ExportOptions().addExtensionVersion(ActivePowerControl.NAME, ExportOptions.ALTERNATIVE_VERSION);
         Network network2 = allFormatsRoundTripTest(network, "/alternativeActivePowerControlV1_1.xml", IidmVersion.V_1_0, exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");
@@ -88,7 +88,9 @@ class AlternativeExtensionXmlTest extends AbstractIidmSerDeTest {
         generator.addExtension(ActivePowerControl.class, new ActivePowerControlImpl<>(generator, false, 3.0, 1.0));
 
         // Explicitly ask for version 1.0 of the alternative
-        var exportOptions = new ExportOptions().addExtensionVersion(ActivePowerControl.NAME, "alternative-1.0");
+        var exportOptions = new ExportOptions()
+                .addExtensionVersion("legacyActivePowerControl", "1.0")
+                .addExtensionVersion(ActivePowerControl.NAME, ExportOptions.ALTERNATIVE_VERSION);
         Network network2 = allFormatsRoundTripTest(network, "/alternativeActivePowerControlV1_0.xml", IidmVersion.V_1_0, exportOptions);
 
         Battery bat2 = network2.getBattery("BAT");

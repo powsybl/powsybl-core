@@ -9,7 +9,6 @@ package com.powsybl.iidm.serde.extensions.alternatives;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractAlternativeExtensionSerDe;
-import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.AlternativeExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;

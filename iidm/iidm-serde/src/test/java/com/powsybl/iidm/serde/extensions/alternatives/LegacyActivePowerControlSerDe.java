@@ -53,7 +53,7 @@ public class LegacyActivePowerControlSerDe<T extends Injection<T>>
         context.getWriter().writeBooleanAttribute("legacyParticipate", activePowerControl.isParticipate());
         context.getWriter().writeDoubleAttribute("legacyDroop", activePowerControl.getDroop());
         NetworkSerializerContext networkContext = (NetworkSerializerContext) context;
-        String extVersionStr = networkContext.getExtensionVersion(ActivePowerControl.NAME)
+        String extVersionStr = networkContext.getExtensionVersion(getExtensionName())
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
         if ("1.1".compareTo(extVersionStr) <= 0) {
             context.getWriter().writeDoubleAttribute("legacyParticipationFactor", activePowerControl.getParticipationFactor());
