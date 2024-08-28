@@ -7,16 +7,9 @@
  */
 package com.powsybl.commons.extensions;
 
-import javax.annotation.Nonnull;
-
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface ExtensionProviderAlternative<P extends ExtensionProvider> {
-    String getCategoryName();
-
-    String getExtensionName();
-
-    @Nonnull
-    P getProvider();
+public interface ExtensionProviderAlternative<T extends Extendable, E extends Extension<T>> extends ExtensionSerDe<T, E> {
+    String getOriginalExtensionName();
 }

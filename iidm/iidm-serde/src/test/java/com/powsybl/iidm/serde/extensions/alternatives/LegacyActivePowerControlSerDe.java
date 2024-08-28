@@ -10,6 +10,7 @@ package com.powsybl.iidm.serde.extensions.alternatives;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
+import com.powsybl.commons.extensions.AlternativeExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -19,7 +20,7 @@ import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.serde.IidmVersion;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
-import com.powsybl.iidm.serde.extensions.AbstractVersionableNetworkExtensionSerDe;
+import com.powsybl.iidm.serde.extensions.AbstractAlternativeVersionableNetworkExtensionSerDe;
 
 import java.io.InputStream;
 import java.util.List;
@@ -27,8 +28,9 @@ import java.util.List;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-@AutoService(ExtensionSerDe.class)
-public class LegacyActivePowerControlSerDe<T extends Injection<T>> extends AbstractVersionableNetworkExtensionSerDe<T, ActivePowerControl<T>> {
+@AutoService({AlternativeExtensionSerDe.class, ExtensionSerDe.class})
+public class LegacyActivePowerControlSerDe<T extends Injection<T>>
+        extends AbstractAlternativeVersionableNetworkExtensionSerDe<T, ActivePowerControl<T>> {
 
     public LegacyActivePowerControlSerDe() {
         super("legacyActivePowerControl", ActivePowerControl.class, "lapc",
@@ -39,6 +41,11 @@ public class LegacyActivePowerControlSerDe<T extends Injection<T>> extends Abstr
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/legacy_active_power_control/1_0")
                         .put("1.1", "http://www.powsybl.org/schema/iidm/ext/legacy_active_power_control/1_1")
                         .build());
+    }
+
+    @Override
+    public String getOriginalExtensionName() {
+        return ActivePowerControl.NAME;
     }
 
     @Override
@@ -81,4 +88,5 @@ public class LegacyActivePowerControlSerDe<T extends Injection<T>> extends Abstr
                 .withParticipationFactor(participationFactor)
                 .add();
     }
+
 }

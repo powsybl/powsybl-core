@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public final class ExtensionProviders<T extends ExtensionProvider> {
 
     private final Map<String, T> providers;
-    private final Map<String, ExtensionProviderAlternative<T>> providerAlternatives;
+    private final Map<String, T> alternativeProviders;
 
     public static <T extends ExtensionProvider> ExtensionProviders<T> createProvider(Class<T> clazz) {
         return new ExtensionProviders<>(clazz);
@@ -57,18 +57,18 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
             Stream<? extends ExtensionProviderAlternative> providerAlternativeStream = new ServiceLoaderCache<>(alternativeClass).getServices().stream();
             if (categoryName != null) {
                 providerAlternativeStream = providerAlternativeStream.filter(s -> s.getCategoryName().equals(categoryName) &&
-                        (extensionNames == null || extensionNames.contains(s.getExtensionName())));
+                        (extensionNames == null || extensionNames.contains(s.getOriginalExtensionName())));
             }
-            providerAlternatives = providerAlternativeStream
-                    .collect(Collectors.toMap(ExtensionProviderAlternative::getExtensionName, e -> e));
+            alternativeProviders = providerAlternativeStream
+                    .collect(Collectors.toMap(ExtensionProviderAlternative::getOriginalExtensionName, e -> (T) e));
         } else {
-            providerAlternatives = Collections.emptyMap();
+            alternativeProviders = Collections.emptyMap();
         }
     }
 
     private Class<? extends ExtensionProviderAlternative> getExtensionProviderAlternativeClass(Class<T> clazz) {
         if (clazz.equals(ExtensionSerDe.class)) {
-            return ExtensionSerDeAlternative.class;
+            return AlternativeExtensionSerDe.class;
         }
         return null;
     }
@@ -79,9 +79,9 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
 
     public T findProvider(String name, ExtensionProvidersOptions options) {
         if (options != null && options.useAlternativeVersion(name)) {
-            ExtensionProviderAlternative<T> alternative = providerAlternatives.get(name);
+            T alternative = alternativeProviders.get(name);
             if (alternative != null) {
-                return alternative.getProvider();
+                return alternative;
             }
         }
         return providers.get(name);

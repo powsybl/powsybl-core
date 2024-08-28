@@ -8,7 +8,9 @@
 package com.powsybl.iidm.serde.extensions.alternatives;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.extensions.AbstractAlternativeExtensionSerDe;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
+import com.powsybl.commons.extensions.AlternativeExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
@@ -19,13 +21,19 @@ import com.powsybl.iidm.network.extensions.OperatingStatusAdder;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-@AutoService(ExtensionSerDe.class)
-public class LegacyOperatingStatusSerDe<I extends Identifiable<I>> extends AbstractExtensionSerDe<I, OperatingStatus<I>> {
+@AutoService({AlternativeExtensionSerDe.class, ExtensionSerDe.class})
+public class LegacyOperatingStatusSerDe<I extends Identifiable<I>>
+        extends AbstractAlternativeExtensionSerDe<I, OperatingStatus<I>> {
 
     public LegacyOperatingStatusSerDe() {
         super("legacyOperatingStatus", "network", OperatingStatus.class,
                 "legacyOperatingStatus.xsd", "http://www.powsybl.org/schema/iidm/ext/legacy_operating_status/1_0",
                 "los");
+    }
+
+    @Override
+    public String getOriginalExtensionName() {
+        return OperatingStatus.NAME;
     }
 
     @Override
@@ -40,4 +48,5 @@ public class LegacyOperatingStatusSerDe<I extends Identifiable<I>> extends Abstr
         return adder.withStatus(status)
                 .add();
     }
+
 }

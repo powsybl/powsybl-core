@@ -10,5 +10,5 @@ package com.powsybl.commons.extensions;
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
-public interface ExtensionSerDeAlternative<T extends Extendable, E extends Extension<T>> extends ExtensionProviderAlternative<ExtensionSerDe<T, E>> {
+public interface AlternativeExtensionSerDe<T extends Extendable, E extends Extension<T>> extends ExtensionProviderAlternative<T, E>, ExtensionSerDe<T, E> {
 }
