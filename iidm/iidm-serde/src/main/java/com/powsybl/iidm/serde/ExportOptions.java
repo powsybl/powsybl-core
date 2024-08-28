@@ -33,7 +33,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> implements Ext
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
 
-    public static final String ALTERNATIVE_SUFFIX = "alternative-";
+    public static final String ALTERNATIVE_SUFFIX = "alternative";
 
     private boolean withBranchSV = true;
 
@@ -231,7 +231,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> implements Ext
         return Optional.ofNullable(extensionsVersions.get(extensionName))
                 .map(v -> {
                     if (v.startsWith(ALTERNATIVE_SUFFIX)) {
-                        return v.length() == ALTERNATIVE_SUFFIX.length() ? null : v.substring(ALTERNATIVE_SUFFIX.length());
+                        // If the version starts with "alternative", 2 cases:
+                        // - the version is exactly "alternative" => no version was specified for the alternative
+                        // - the version has extra-characters, it is striped from its prefix. Note that an additional character
+                        //   is also skipped. The version should be specified as "alternative_1.0" or "alternative-1.2" for instance.
+                        return v.length() == ALTERNATIVE_SUFFIX.length() ? null : v.substring(ALTERNATIVE_SUFFIX.length() + 1);
                     }
                     return v;
                 });

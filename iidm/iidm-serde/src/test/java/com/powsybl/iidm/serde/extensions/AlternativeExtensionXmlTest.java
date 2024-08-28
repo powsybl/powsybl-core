@@ -25,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
  */
 class AlternativeExtensionXmlTest extends AbstractIidmSerDeTest {
 
+    // This test is the same as OperatingStatusXmlTest::test, but the extension is exported/imported
+    // using the defined alternative (which is not versioned).
     @Test
     void test() throws IOException {
         Network network = OperatingStatusXmlTest.createTestNetwork();
@@ -36,7 +38,7 @@ class AlternativeExtensionXmlTest extends AbstractIidmSerDeTest {
                 OperatingStatus.Status.PLANNED_OUTAGE);
         line.addExtension(OperatingStatus.class, lineOperatingStatus);
 
-        var exportOptions = new ExportOptions().addExtensionVersion(OperatingStatus.NAME, "alternative-");
+        var exportOptions = new ExportOptions().addExtensionVersion(OperatingStatus.NAME, "alternative");
         Network network2 = allFormatsRoundTripTest(network, "/alternativeOperatingStatusRef.xml", exportOptions);
 
         Line line2 = network2.getLine("L");
