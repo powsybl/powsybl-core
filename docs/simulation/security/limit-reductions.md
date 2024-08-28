@@ -70,7 +70,7 @@ If no network elements is specified, the limit reduction applies to all of them.
 
 ### Limit duration criteria
 
-A duration criteria can be optionally specified. It contains:
+Duration criteria can be optionally specified. It contains:
 - a type among:
     - `PERMANENT`: corresponding to permanent limits only;
     - `TEMPORARY`: corresponding to temporary limits only.
