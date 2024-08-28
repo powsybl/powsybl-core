@@ -143,7 +143,7 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Create an adder to add a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ApparentPowerLimits} in the selected {@link OperationalLimitsGroup}.
      */
@@ -152,7 +152,7 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Create an adder to add a copy of the {@link ApparentPowerLimits} in parameters in the selected {@link OperationalLimitsGroup}. </p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ApparentPowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @param limits a set of existing apparent power limits.
      * @return an adder allowing to create a new {@link ApparentPowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.
@@ -165,7 +165,7 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Create an adder to add a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup}.</p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @return an adder allowing to create a new {@link ActivePowerLimits} in the selected {@link OperationalLimitsGroup}.
      */
@@ -174,7 +174,7 @@ public interface FlowsLimitsHolder {
     /**
      * <p>Create an adder to add a copy of the {@link ActivePowerLimits} in parameters in the selected {@link OperationalLimitsGroup}. </p>
      * <p>If there's no selected group, the adder will also create a new group with the default name and set it as selected.
-     * This operation is performed when the limits are created via {@link CurrentLimitsAdder#add()}, only if the limits to add
+     * This operation is performed when the limits are created via {@link ActivePowerLimitsAdder#add()}, only if the limits to add
      * are valid.</p>
      * @param limits a set of existing active power limits.
      * @return an adder allowing to create a new {@link ActivePowerLimits} initialized from the limits in parameters in the selected {@link OperationalLimitsGroup}.

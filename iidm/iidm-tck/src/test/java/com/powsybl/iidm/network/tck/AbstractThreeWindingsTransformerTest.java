@@ -1048,6 +1048,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
         ThreeWindingsTransformer transformer = transformerAdder.add();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
 
         CurrentLimitsAdder currentLimitsAdder1 = leg1.newCurrentLimits()
                 .setPermanentLimit(1000.)
@@ -1080,30 +1081,28 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         ActivePowerLimits activePowerLimits1 = leg1.getActivePowerLimits().get();
         ApparentPowerLimits apparentPowerLimits1 = leg1.getApparentPowerLimits().get();
 
-        CurrentLimitsAdder currentLimitsAdder2 = leg1.newCurrentLimits(currentLimits1);
+        CurrentLimitsAdder currentLimitsAdder2 = leg2.newCurrentLimits(currentLimits1);
         currentLimitsAdder2.add();
-        Optional<CurrentLimits> optionalCurrentLimits2 = leg1.getCurrentLimits();
+        Optional<CurrentLimits> optionalCurrentLimits2 = leg2.getCurrentLimits();
         assertTrue(optionalCurrentLimits2.isPresent());
         CurrentLimits currentLimits2 = optionalCurrentLimits2.get();
 
-        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg1.newActivePowerLimits(activePowerLimits1);
+        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.newActivePowerLimits(activePowerLimits1);
         activePowerLimitsAdder2.add();
-        Optional<ActivePowerLimits> optionalActivePowerLimits2 = leg1.getActivePowerLimits();
+        Optional<ActivePowerLimits> optionalActivePowerLimits2 = leg2.getActivePowerLimits();
         assertTrue(optionalActivePowerLimits2.isPresent());
         ActivePowerLimits activePowerLimits2 = optionalActivePowerLimits2.get();
 
-        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg1.newApparentPowerLimits(apparentPowerLimits1);
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.newApparentPowerLimits(apparentPowerLimits1);
         apparentPowerLimitsAdder2.add();
-        Optional<ApparentPowerLimits> optionalApparentPowerLimits2 = leg1.getApparentPowerLimits();
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits2 = leg2.getApparentPowerLimits();
         assertTrue(optionalApparentPowerLimits2.isPresent());
         ApparentPowerLimits apparentPowerLimits2 = optionalApparentPowerLimits2.get();
 
         // Tests
-
         assertTrue(areLimitsIdentical(currentLimits1, currentLimits2));
         assertTrue(areLimitsIdentical(activePowerLimits1, activePowerLimits2));
         assertTrue(areLimitsIdentical(apparentPowerLimits1, apparentPowerLimits2));
 
     }
-
 }
