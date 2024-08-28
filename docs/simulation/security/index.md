@@ -69,15 +69,15 @@ A stateMonitor allows to get information about branch, bus and three-winding tra
 - If we want information about a branch in pre-contingency state and after security analysis on contingency `c1`, the contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the branch.
 
 ### Limit reductions
-Limit reductions can be specified in order to detect when a specific limit is **almost** reached, without having to change artificially this limit.
-For instance, with a limit reduction set to 95% for a limit of 1,000MW, the security analysis will detect a limit violation for every current value greater than 950MW.
+Limit reductions can be specified in order to detect when a specific limit is **nearly** reached, without having to artificially modify the limit itself.
+For instance, with a limit reduction set to 95% for a limit of 1000 MW, the security analysis will flag a limit violation for any value exceeding 950 MW.
 
-Each limit reduction has its own criteria specifying for which limits and in which conditions it should be applied. These criteria can be:
-- the limit type (current, active power or apparent power);
-- the use case (for monitoring only or for actions);
-- the contingency context (pre-contingency, after a specific contingency or after all contingencies, ...);
-- the concerned network elements (by ids, countries and/or nominal voltages);
-- their limit characteristics (permanent or temporary + acceptable duration).
+Each limit reduction has its own criteria specifying for which limits and under what conditions it should be applied. These criteria can include:
+- the type of limit (current, active power or apparent power);
+- the use case (for monitoring only or also for applying remedial actions);
+- the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.);
+- the network elements targeted by the reduction (by ids, countries and/or nominal voltages);
+- which operational limits are affected by the reduction (permanent or temporary + acceptable duration).
 
 You can find more details about limit reductions [here](./limit-reductions).
 
