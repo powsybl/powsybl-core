@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.extensions;
 
+import javax.annotation.Nonnull;
 import java.util.Objects;
 
 /**
@@ -15,20 +16,26 @@ import java.util.Objects;
 public abstract class AbstractExtensionSerDeAlternative<T extends Extendable, E extends Extension<T>> implements ExtensionSerDeAlternative<T, E> {
 
     private final String alternativeExtensionName;
-    private final String categoryName;
+    private final ExtensionSerDe<T, E> provider;
 
-    protected AbstractExtensionSerDeAlternative(String alternativeExtensionName, String categoryName) {
+    protected AbstractExtensionSerDeAlternative(String alternativeExtensionName, ExtensionSerDe<T, E> provider) {
         this.alternativeExtensionName = Objects.requireNonNull(alternativeExtensionName);
-        this.categoryName = Objects.requireNonNull(categoryName);
+        this.provider = Objects.requireNonNull(provider);
     }
 
     @Override
     public String getCategoryName() {
-        return categoryName;
+        return provider.getCategoryName();
     }
 
     @Override
     public String getExtensionName() {
         return alternativeExtensionName;
+    }
+
+    @Nonnull
+    @Override
+    public ExtensionSerDe<T, E> getProvider() {
+        return provider;
     }
 }
