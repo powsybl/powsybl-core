@@ -15,11 +15,11 @@ import java.util.Objects;
  */
 public abstract class AbstractExtensionSerDeAlternative<T extends Extendable, E extends Extension<T>> implements ExtensionSerDeAlternative<T, E> {
 
-    private final String alternativeExtensionName;
+    private final String originalExtensionName;
     private final ExtensionSerDe<T, E> provider;
 
-    protected AbstractExtensionSerDeAlternative(String alternativeExtensionName, ExtensionSerDe<T, E> provider) {
-        this.alternativeExtensionName = Objects.requireNonNull(alternativeExtensionName);
+    protected AbstractExtensionSerDeAlternative(String originalExtensionName, ExtensionSerDe<T, E> provider) {
+        this.originalExtensionName = Objects.requireNonNull(originalExtensionName);
         this.provider = Objects.requireNonNull(provider);
     }
 
@@ -30,7 +30,7 @@ public abstract class AbstractExtensionSerDeAlternative<T extends Extendable, E 
 
     @Override
     public String getExtensionName() {
-        return alternativeExtensionName;
+        return originalExtensionName;
     }
 
     @Nonnull
