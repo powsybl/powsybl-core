@@ -89,7 +89,7 @@ Sometimes, it could be useful for a user to have its own logging configuration t
 The `iTools` script relies on a [plugin mechanism](): the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
 
 | Command                                                                     | Theme           | Description                                   |
-|-----------------------------------------------------------------------------| --------------- |-----------------------------------------------|
+|-----------------------------------------------------------------------------|-----------------|-----------------------------------------------|
 | [action-simulator](./action-simulator.md)                                   | Computation     | Run a security analysis with remedial actions |
 | [cim-anonymizer](cim_anonymizer.md)                                         | Data conversion | Anonymize CIM files                           |
 | [compare-security-analysis-results](./compare-security-analysis-results.md) | Computation     | Compare security analysis results             |

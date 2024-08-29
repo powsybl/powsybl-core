@@ -292,14 +292,14 @@ S_{Ci_{Load}}=P_{Load}+j.Q_{Load} \\
 \end{align}
 $$
 
-| Attribute | Type | Unit | Required | Default value | Description |
-| --------- | ---- | ---- | -------- | ------------- | ----------- |
-| deltaPa | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $P0$ and its reactive power setpoint $Q0$) |
-| deltaQa | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase A |
-| deltaPb | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase B |
-| deltaQb | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase B |
-| deltaPc | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase C |
-| deltaQc | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase C |
+| Attribute | Type   | Unit | Required | Default value | Description                                                                                                                                                                      |
+|-----------|--------|------|----------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| deltaPa   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $P0$ and its reactive power setpoint $Q0$) |
+| deltaQa   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase A                                                                                                                    |
+| deltaPb   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase B                                                                                                                      |
+| deltaQb   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase B                                                                                                                    |
+| deltaPc   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase C                                                                                                                      |
+| deltaQc   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase C                                                                                                                    |
 
 Here is how to add a load detail extension to a load:
 ```java

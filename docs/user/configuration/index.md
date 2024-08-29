@@ -61,13 +61,13 @@ module2:
 ### System's environment variables
 Configuration properties can also be overridden using system's environment variables. The module and the property are separated using two underscores. The table below gives examples on the way to declare environment variables for PowSyBl:
 
-| Environment variable | Module name | Property name |
-| -------------------- | ----------- | ------------- |
-| MODULE1__PROPERTY1=1 | module1 | property1 |
-| LOWER_HYPHEN__PROPERTY2=2 | lower-hyphen | property2 |
-| LOWER_CAMEL__PROPERTY3=3 | lowerCamel | property3 |
-| UPPER_CAMEL__PROPERTY4=4 | UpperCamel | property4 |
-| SNAKE_CASE__PROPERTY5=5 | snake_case | property5 |
+| Environment variable      | Module name  | Property name |
+|---------------------------|--------------|---------------|
+| MODULE1__PROPERTY1=1      | module1      | property1     |
+| LOWER_HYPHEN__PROPERTY2=2 | lower-hyphen | property2     |
+| LOWER_CAMEL__PROPERTY3=3  | lowerCamel   | property3     |
+| UPPER_CAMEL__PROPERTY4=4  | UpperCamel   | property4     |
+| SNAKE_CASE__PROPERTY5=5   | snake_case   | property5     |
 
 ## Modules list
 - [componentDefaultConfig](componentDefaultConfig.md)

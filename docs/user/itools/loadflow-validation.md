@@ -128,13 +128,13 @@ corresponding case states validated and written in the output files. Some remark
 - some combinations are not available, e.g., if you use the `compare-results` parameter, with the `COMPUTATION` value,
 you have to use the `run-computation` (or `load-flow`) parameter.
 
-| Number  | compare-results | run-computation | State 1 | State 2 (_postComp) |
-| ------- | ------- | ------- | ------- | ------- |
-| 1 | absent | absent | Case 1 after import | None |
-| 2 | absent | `loadflow`/`loadflowResultsCompletion` | Case 1 after import and computation | None |
-| 3 | `BASECASE` | absent | Case 1 after import | Case 2 after import |
-| 4 | `BASECASE` | `loadflow`/`loadflowResultsCompletion` | Case 1 after import and computation | Case 2 after import |
-| 5 | `COMPUTATION` | `loadflow`/`loadflowResultsCompletion` | Case 1 after import | Case 1 after import and computation |
+| Number | compare-results | run-computation                        | State 1                             | State 2 (_postComp)                 |
+|--------|-----------------|----------------------------------------|-------------------------------------|-------------------------------------|
+| 1      | absent          | absent                                 | Case 1 after import                 | None                                |
+| 2      | absent          | `loadflow`/`loadflowResultsCompletion` | Case 1 after import and computation | None                                |
+| 3      | `BASECASE`      | absent                                 | Case 1 after import                 | Case 2 after import                 |
+| 4      | `BASECASE`      | `loadflow`/`loadflowResultsCompletion` | Case 1 after import and computation | Case 2 after import                 |
+| 5      | `COMPUTATION`   | `loadflow`/`loadflowResultsCompletion` | Case 1 after import                 | Case 1 after import and computation |
 
 ## Parameters
 

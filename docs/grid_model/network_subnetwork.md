@@ -2,13 +2,13 @@
 
 In the following sections, the different network components are described in terms of their main attributes and electrotechnical representation. The attributes shared by all the network components are described in the next table:
 
-| Attribute | Description |
-| --------- | ----------- |
-| $Id$ | Unique Id assigned to each network component |
-| $Name$ | Human readable identifier (not necessary unique) |
-| $Fictitious$ | To identify non-physical network components |
-| $Aliases$ | Additional unique identifiers associated with each network component |
-| $Properties$ | To add additional data items to network components |
+| Attribute    | Description                                                          |
+|--------------|----------------------------------------------------------------------|
+| $Id$         | Unique Id assigned to each network component                         |
+| $Name$       | Human readable identifier (not necessary unique)                     |
+| $Fictitious$ | To identify non-physical network components                          |
+| $Aliases$    | Additional unique identifiers associated with each network component |
+| $Properties$ | To add additional data items to network components                   |
 
 All equipment and the network itself are identified by a unique identifier which is the only required attribute. They can have a human-readable name. Offers the possibility of adding additional unique identifiers to each component. An alias can be qualified to indicate what it corresponds to.
 
@@ -31,10 +31,10 @@ In the PowSyBl grid model, the Network contains [substations](#substation), whic
 
 **Characteristics**
 
-| Attribute | Description |
-| --------- | ----------- |
-| $SourceFormat$ | Source format of the imported network model |
-| $CaseDate$ | Date and time of the target network that is being modeled |
+| Attribute          | Description                                                             |
+|--------------------|-------------------------------------------------------------------------|
+| $SourceFormat$     | Source format of the imported network model                             |
+| $CaseDate$         | Date and time of the target network that is being modeled               |
 | $ForecastDistance$ | Number of minutes between the network generation date and the case date |
 
 The `SourceFormat` attribute is a required attribute that indicates the origin of the network model automatically set by the [importers](../grid_exchange_formats/index.md). If the case date and the forecast distance cannot be found in the case file, the network is considered as a snapshot: the case date is set to the current date, and the forecast distance is set to `0`.
@@ -49,11 +49,11 @@ A substation represents a specific geographical location with equipment grouped 
 
 **Characteristics**
 
-| Attribute | Description                                                         |
-| --------- |---------------------------------------------------------------------|
-| $Country$ | To specify in which country the substation is located               |
-| $GeographicalTags$ | They make it possible to accurately locate the substation  |
-| $TSO$ | To track to which Transmission System Operator the substation belongs |
+| Attribute          | Description                                                           |
+|--------------------|-----------------------------------------------------------------------|
+| $Country$          | To specify in which country the substation is located                 |
+| $GeographicalTags$ | They make it possible to accurately locate the substation             |
+| $TSO$              | To track to which Transmission System Operator the substation belongs |
 
 All three attributes are optional.
 
@@ -68,12 +68,12 @@ A voltage level contains equipment with the same nominal voltage. Two voltage le
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $NominalVoltage$ | kV | Nominal base voltage |
-| $LowVoltageLimit$ | kV | Low voltage limit magnitude |
-| $HighVoltageLimit$ | kV | High voltage limit magnitude |
-| $TopologyKind$ |  | Level of connectivity detail |
+| Attribute          | Unit | Description                  |
+|--------------------|------|------------------------------|
+| $NominalVoltage$   | kV   | Nominal base voltage         |
+| $LowVoltageLimit$  | kV   | Low voltage limit magnitude  |
+| $HighVoltageLimit$ | kV   | High voltage limit magnitude |
+| $TopologyKind$     |      | Level of connectivity detail |
 
 **Specifications**
 
@@ -204,10 +204,10 @@ A load is a passive equipment representing a delivery point that consumes or pro
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $P0$ | MW | The active power setpoint |
-| $Q0$ | MVar | The reactive power setpoint |
+| Attribute | Unit | Description                 |
+|-----------|------|-----------------------------|
+| $P0$      | MW   | The active power setpoint   |
+| $Q0$      | MVar | The reactive power setpoint |
 
 **Specifications**
 
@@ -258,12 +258,12 @@ A battery on the electric grid is an energy storage device that is either capabl
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $P0$ | MW | The Constant active power |
-| $Q0$ | MVar | The Constant reactive power |
-| $MinP$ | MW | The Minimal active power |
-| $MaxP$ | MW | The Maximum active power |
+| Attribute | Unit | Description                 |
+|-----------|------|-----------------------------|
+| $P0$      | MW   | The Constant active power   |
+| $Q0$      | MVar | The Constant reactive power |
+| $MinP$    | MW   | The Minimal active power    |
+| $MaxP$    | MW   | The Maximum active power    |
 
 **Available extensions**
 
@@ -291,26 +291,26 @@ Dangling lines are key objects for merging networks. Merging will be described s
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $P0$ | MW | The active power setpoint |
-| $Q0$ | MVar | The reactive power setpoint |
-| $R$ | $\Omega$ | The series resistance |
-| $X$ | $\Omega$ | The series reactance |
-| $G$ | S | The shunt conductance |
-| $B$ | S | The shunt susceptance |
+| Attribute | Unit     | Description                 |
+|-----------|----------|-----------------------------|
+| $P0$      | MW       | The active power setpoint   |
+| $Q0$      | MVar     | The reactive power setpoint |
+| $R$       | $\Omega$ | The series resistance       |
+| $X$       | $\Omega$ | The series reactance        |
+| $G$       | S        | The shunt conductance       |
+| $B$       | S        | The shunt susceptance       |
 
 Optional:
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $MinP$ | MW | Minimum generation part active power output |
-| $MaxP$ | MW | Maximum generation part active power output |
-| $ReactiveLimits$ | MVar | Operational limits of the generation part (P/Q/V diagram) |
-| $TargetP$ | MW | The active power target |
-| $TargetQ$ | MVAr | The reactive power target |
-| $TargetV$ | kV | The voltage target |
-| $VoltageRegulatorOn$ |  | True if the generation part regulates voltage |
+| Attribute            | Unit | Description                                               |
+|----------------------|------|-----------------------------------------------------------|
+| $MinP$               | MW   | Minimum generation part active power output               |
+| $MaxP$               | MW   | Maximum generation part active power output               |
+| $ReactiveLimits$     | MVar | Operational limits of the generation part (P/Q/V diagram) |
+| $TargetP$            | MW   | The active power target                                   |
+| $TargetQ$            | MVAr | The reactive power target                                 |
+| $TargetV$            | kV   | The voltage target                                        |
+| $VoltageRegulatorOn$ |      | True if the generation part regulates voltage             |
 
 **Specifications**
 
@@ -353,38 +353,38 @@ Shunt compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- |------------ |
-| $MaximumSectionCount$ | - | The maximum number of sections that may be switched on |
-| $SectionCount$ | - | The current number of sections that are switched on |
-| $B$ | S | The susceptance of the shunt compensator in its current state |
-| $G$ | S | The conductance of the shunt compensator in its current state |
-| $TargetV$ | kV | The voltage target |
-| $TargetDeadband$ | kV | The deadband used to avoid excessive update of controls |
-| $RegulatingTerminal$ | - | Associated node or bus for which voltage is to be regulated |
-| $VoltageRegulatorOn$ | - | True if the shunt compensator regulates voltage |
+| Attribute             | Unit | Description                                                   |
+|-----------------------|------|---------------------------------------------------------------|
+| $MaximumSectionCount$ | -    | The maximum number of sections that may be switched on        |
+| $SectionCount$        | -    | The current number of sections that are switched on           |
+| $B$                   | S    | The susceptance of the shunt compensator in its current state |
+| $G$                   | S    | The conductance of the shunt compensator in its current state |
+| $TargetV$             | kV   | The voltage target                                            |
+| $TargetDeadband$      | kV   | The deadband used to avoid excessive update of controls       |
+| $RegulatingTerminal$  | -    | Associated node or bus for which voltage is to be regulated   |
+| $VoltageRegulatorOn$  | -    | True if the shunt compensator regulates voltage               |
 
 - For Linear Shunt Compensators
 
-| Attribute | Unit | Description |
-| --------- | ---- |------------ |
-| $bPerSection$ | S | The Positive sequence shunt (charging) susceptance per section |
-| $gPerSection$ | S | The Positive sequence shunt (charging) conductance per section |
+| Attribute     | Unit | Description                                                    |
+|---------------|------|----------------------------------------------------------------|
+| $bPerSection$ | S    | The Positive sequence shunt (charging) susceptance per section |
+| $gPerSection$ | S    | The Positive sequence shunt (charging) conductance per section |
 
 We expect $bPerSection$ to be a non-zero value. The disconnected status of the linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero.
 
 - For Non-Linear Shunt Compensators
 
-| Attribute | Unit                | Description |
-| --------- |---------------------|------------ |
+| Attribute  | Unit                | Description                                           |
+|------------|---------------------|-------------------------------------------------------|
 | $Sections$ | [Section](#section) | The Partition of all the shunt compensator's sections |
 
 ### Section
 
-| Attribute | Unit | Description |
-| --------- | ---- |------------ |
-| $B$ | S | The accumulated positive sequence shunt (charging) susceptance of the section if this section and all the previous ones are activated |
-| $G$ | S | The accumulated positive sequence shunt (charging) conductance of the section if this section and all the previous ones are activated |
+| Attribute | Unit | Description                                                                                                                           |
+|-----------|------|---------------------------------------------------------------------------------------------------------------------------------------|
+| $B$       | S    | The accumulated positive sequence shunt (charging) susceptance of the section if this section and all the previous ones are activated |
+| $G$       | S    | The accumulated positive sequence shunt (charging) conductance of the section if this section and all the previous ones are activated |
 
 $B$ and $G$ attributes can be equal zero, but the disconnected status of the non-linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero. The section which $SectionCount$ equal to $1$ is the first effective section, and it would be more efficient to affect it a non-zero susceptance.
 
@@ -421,11 +421,11 @@ Static VAR compensators follow a passive-sign convention:
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $Bmin$ | S | The minimum susceptance |
-| $Bmax$ | S | The maximum susceptance |
-| $VoltageSetpoint$ | kV | The voltage setpoint |
+| Attribute               | Unit | Description                 |
+|-------------------------|------|-----------------------------|
+| $Bmin$                  | S    | The minimum susceptance     |
+| $Bmax$                  | S    | The maximum susceptance     |
+| $VoltageSetpoint$       | kV   | The voltage setpoint        |
 | $ReactivePowerSetpoint$ | MVar | The reactive power setpoint |
 
 **Specifications**
@@ -499,14 +499,14 @@ $$
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $R$ | $\Omega$ | The series resistance |
-| $X$ | $\Omega$ | The series reactance |
-| $G1$ | S | The first side shunt conductance |
-| $B1$ | S | The first side shunt susceptance |
-| $G2$ | S | The second side shunt conductance |
-| $B2$ | S | The second side shunt susceptance |
+| Attribute | Unit     | Description                       |
+|-----------|----------|-----------------------------------|
+| $R$       | $\Omega$ | The series resistance             |
+| $X$       | $\Omega$ | The series reactance              |
+| $G1$      | S        | The first side shunt conductance  |
+| $B1$      | S        | The first side shunt susceptance  |
+| $G2$      | S        | The second side shunt conductance |
+| $B2$      | S        | The second side shunt susceptance |
 
 **Metadata**
 
@@ -534,14 +534,14 @@ $G2$ (resp. $B2$) is equal to the second dangling line's $G2$ (resp. $B2$).
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $R$ | $\Omega$ | The series resistance |
-| $X$ | $\Omega$ | The series reactance |
-| $G1$ | S | The first side shunt conductance |
-| $B1$ | S | The first side shunt susceptance |
-| $G2$ | S | The second side shunt conductance |
-| $B2$ | S | The second side shunt susceptance |
+| Attribute | Unit     | Description                       |
+|-----------|----------|-----------------------------------|
+| $R$       | $\Omega$ | The series resistance             |
+| $X$       | $\Omega$ | The series reactance              |
+| $G1$      | S        | The first side shunt conductance  |
+| $B1$      | S        | The first side shunt susceptance  |
+| $G2$      | S        | The second side shunt conductance |
+| $B2$      | S        | The second side shunt susceptance |
 
 A tie line is not a connectable. It is just a container of two underlying dangling lines with the same pairing key. When connected together, each dangling line `P0` and `Q0` (and generation part if present) is ignored: only global tie line characteristics are used to compute flow. Removing a tie line leads to two free dangling lines, with an optional update of `P0` and `Q0` to match the flows in the global network context.
 
@@ -591,15 +591,15 @@ $$
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $R_{nom}$ | $\Omega$  | The nominal series resistance at the side 2 of the transformer |
-| $X_{nom}$ | $\Omega$ | The nominal series reactance at the side 2 of the transformer |
-| $G_{nom}$ | S | The nominal magnetizing conductance at the side 2 of the transformer |
-| $B_{nom}$ | S | The nominal magnetizing susceptance at the side 2 of the transformer |
-| $V_{1\ nom}$ | kV | The rated voltage at side 1 |
-| $V_{2\ nom}$ | kV | The rated voltage at side 2 |
-| $RatedS$ | MVA | The normal apparent power |
+| Attribute    | Unit     | Description                                                          |
+|--------------|----------|----------------------------------------------------------------------|
+| $R_{nom}$    | $\Omega$ | The nominal series resistance at the side 2 of the transformer       |
+| $X_{nom}$    | $\Omega$ | The nominal series reactance at the side 2 of the transformer        |
+| $G_{nom}$    | S        | The nominal magnetizing conductance at the side 2 of the transformer |
+| $B_{nom}$    | S        | The nominal magnetizing susceptance at the side 2 of the transformer |
+| $V_{1\ nom}$ | kV       | The rated voltage at side 1                                          |
+| $V_{2\ nom}$ | kV       | The rated voltage at side 2                                          |
+| $RatedS$     | MVA      | The normal apparent power                                            |
 
 **Specifications**
 
@@ -658,14 +658,14 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $R$ | $\Omega$ | The nominal series resistance specified at the voltage of the leg |
-| $X$ | $\Omega$ | The nominal series reactance specified at the voltage of the leg |
-| $G$ | S | The nominal magnetizing conductance specified at the voltage of the leg |
-| $B$ | S | The nominal magnetizing susceptance specified at the voltage of the leg |
-| $RatedU$ | kV | The rated voltage |
-| $RatedS$ | MVA | The normal apparent power |
+| Attribute | Unit     | Description                                                             |
+|-----------|----------|-------------------------------------------------------------------------|
+| $R$       | $\Omega$ | The nominal series resistance specified at the voltage of the leg       |
+| $X$       | $\Omega$ | The nominal series reactance specified at the voltage of the leg        |
+| $G$       | S        | The nominal magnetizing conductance specified at the voltage of the leg |
+| $B$       | S        | The nominal magnetizing susceptance specified at the voltage of the leg |
+| $RatedU$  | kV       | The rated voltage                                                       |
+| $RatedS$  | MVA      | The normal apparent power                                               |
 
 **Specifications**
 
@@ -679,12 +679,12 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $R$ | $\Omega$ | The resistance of the HVDC line |
-| $NominalV$ | kV | The nominal voltage |
-| $ActivePowerSetpoint$ | MW | The active power setpoint |
-| $MaxP$ | MW | The maximum active power |
+| Attribute             | Unit     | Description                     |
+|-----------------------|----------|---------------------------------|
+| $R$                   | $\Omega$ | The resistance of the HVDC line |
+| $NominalV$            | kV       | The nominal voltage             |
+| $ActivePowerSetpoint$ | MW       | The active power setpoint       |
+| $MaxP$                | MW       | The maximum active power        |
 
 **Specifications**
 
@@ -709,10 +709,10 @@ Electronic converters for HVDC are divided into two main categories: line-commut
 
 **Characteristics**
 
-| Attribute | Type | Unit | Required | Default value | Description |
-| --------- | ---- | ---- | -------- | ------------- | ----------- |
-| HvdcType | `HvdcType` | - | yes | - | The HVDC type |
-| LossFactor | float | % | yes | - | The loss factor |
+| Attribute  | Type       | Unit | Required | Default value | Description     |
+|------------|------------|------|----------|---------------|-----------------|
+| HvdcType   | `HvdcType` | -    | yes      | -             | The HVDC type   |
+| LossFactor | float      | %    | yes      | -             | The loss factor |
 
 The LossFactor should be greater than 0.
 
@@ -745,9 +745,9 @@ An LCC converter station is made with electronic switches that can only be turne
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $PowerFactor$ | % | Ratio between the active power $P$ and the apparent power $S$. |
+| Attribute     | Unit | Description                                                    |
+|---------------|------|----------------------------------------------------------------|
+| $PowerFactor$ | %    | Ratio between the active power $P$ and the apparent power $S$. |
 
 **Available extensions**
 
@@ -767,9 +767,9 @@ A VSC converter station is made with switching devices that can be turned both o
 
 **Characteristics**
 
-| Attribute | Unit | Description |
-| --------- | ---- | ----------- |
-| $VoltageSetpoint$ | kV | The voltage setpoint for regulation |
+| Attribute               | Unit | Description                                |
+|-------------------------|------|--------------------------------------------|
+| $VoltageSetpoint$       | kV   | The voltage setpoint for regulation        |
 | $ReactivePowerSetpoint$ | MVar | The reactive power setpoint for regulation |
 
 **Specifications**
