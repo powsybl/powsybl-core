@@ -481,10 +481,10 @@ station.newExtension(SubstationPositionAdder.class)
         .add();
 ```
 
-(three-windings-transformer-phase-angle-clock-extension)=
-## Three-windings transformer phase angle clock
+(three-winding-transformer-phase-angle-clock-extension)=
+## Three-winding transformer phase angle clock
 
-This extension is used to model the Vector Group of a three-winding transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three-winding transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three-winding transformer](network_subnetwork.md#three-windings-transformer).
+This extension is used to model the Vector Group of a three-winding transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three-winding transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three-winding transformer](network_subnetwork.md#three-winding-transformer).
 
 | Attribute           | Type       | Unit  | Required | Default value | Description                                   |
 |---------------------|------------|-------|----------|---------------|-----------------------------------------------|
@@ -500,7 +500,7 @@ transformer.newExtension(ThreeWindingsTransformerPhaseAngleClock.class)
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
-(three-windings-transformer-to-be-estimated-extension)=
+(three-winding-transformer-to-be-estimated-extension)=
 ## Three-windings transformer to be estimated
 
 This extension is used to indicate if a three-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
@@ -529,10 +529,10 @@ transformer.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
         .add();
 ```
 
-(two-windings-transformer-phase-angle-clock-extension)=
-## Two-windings transformer phase angle clock
+(two-winding-transformer-phase-angle-clock-extension)=
+## Two-winding transformer phase angle clock
 
-This extension is used to model the Vector Group of a two-winding transformer. The phase angle clock is modeled at side 2 of a two-winding transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two-winding transformer](network_subnetwork.md#two-windings-transformer).
+This extension is used to model the Vector Group of a two-winding transformer. The phase angle clock is modeled at side 2 of a two-winding transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two-winding transformer](network_subnetwork.md#two-winding-transformer).
 
 | Attribute       | Type       | Unit  | Required | Default value | Description                          |
 |-----------------|------------|-------|----------|---------------|--------------------------------------|
@@ -546,8 +546,8 @@ transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
 
 This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
 
-(two-windings-transformer-to-be-estimated-extension)=
-## Two-windings transformer to be estimated
+(two-winding-transformer-to-be-estimated-extension)=
+## Two-winding transformer to be estimated
 
 This extension is used to indicate if a two-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
 * A two-winding transformer has a ratio tap changer and/or a phase tap changer. Each tap changer can be estimated or not.

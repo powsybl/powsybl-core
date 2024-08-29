@@ -72,7 +72,7 @@ Some equipment has operational limits regarding the current, active power or app
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
 They may be set for [lines](./network_subnetwork.md#line),
-[dangling lines](./network_subnetwork.md#dangling-line), [two-winding transformers](./network_subnetwork.md#two-windings-transformer) and [three-winding transformers](./network_subnetwork.md#three-windings-transformer). The active power limits are in absolute value.
+[dangling lines](./network_subnetwork.md#dangling-line), [two-winding transformers](./network_subnetwork.md#two-winding-transformer) and [three-winding transformers](./network_subnetwork.md#three-windings-transformer). The active power limits are in absolute value.
 
 Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
@@ -151,7 +151,7 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
 ## Phase tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
 
-A phase tap changer can be added to either [two-winding transformers](./network_subnetwork.md#two-windings-transformer) or [three-winding transformers' legs](./network_subnetwork.md#three-windings-transformer-leg).
+A phase tap changer can be added to either [two-winding transformers](./network_subnetwork.md#two-winding-transformer) or [three-winding transformers' legs](./network_subnetwork.md#three-windings-transformer-leg).
 
 **Specifications**
 

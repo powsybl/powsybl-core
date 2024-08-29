@@ -152,7 +152,7 @@ The sum of the active load and generation (rep. reactive) is computed to initial
 The element name of the UCTE line is stored in the `elementName` property and the geographical name of the X-node is stored in the `geographicalName` property.
 
 ### Two-winding transformer conversion
-The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-windings-transformer).
+The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer).
 If the current limits are defined, a permanent limit is created only for the second side.
 The element name of the transformer is stored in the `elementName` property and the nominal power is stored in the `nominalPower` property.
 
