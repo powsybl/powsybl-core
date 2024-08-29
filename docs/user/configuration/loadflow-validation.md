@@ -32,7 +32,7 @@ The `ok-missing-values` property is an optional property that defines whether th
 **output-writer**  
 The `output-writer` property is an optional property that defines the output format. Currently, `CSV` and `CSV_MULTILINE` are supported. The default value of this property is set to `CSV_MULTILINE`.
 
-If this property is set to `CSV`, in the output files a line contains all values of a validated equipment. If the property is set to `CSV_MULTILINE`, in the output files the values of an equipment are split in multiple lines, one value for each line, see examples below:
+If this property is set to `CSV`, in the output files a line contains all values of validated equipment. If the property is set to `CSV_MULTILINE`, in the output files the equipment values are split in multiple lines, one value for each line, see examples below:
 
 **Example of output in CSV format:**
 ```
@@ -66,7 +66,7 @@ The `threshold` property is an optional property that defines the margin used fo
 **verbose:**  
 The `verbose` property is an optional property that defines whether the [loadflow-validation](../itools/loadflow-validation.md) command runs in verbose or quiet mode.
 
-If this property is set to `true`, the output files contain all the data of the validated equipments, otherwise they contain only the main data of the validated equipments.
+If this property is set to `true`, the output files contain all the data of the validated equipment; otherwise they contain only the main data of the validated equipments.
 
 ## Examples
 

@@ -14,7 +14,7 @@ $$\begin{equation}
 \end{equation}$$
 
 ## Branches
-Lines and two windings transformers are converted into classical PI models:
+Lines and two-winding transformers are converted into classical PI models:
 
 ```
     V1*exp(j*theta1)     rho1*exp(j*alpha1)             r+j*x              rho2*exp(j*alpha2)   V2*exp(j*theta2)
@@ -47,8 +47,8 @@ To be implemented, based on a conversion into 3 two-windings transformers.
 
 ### Active power
 There may be an imbalance between the sum of generator active power setpoints $\text{targetP}$ on one side and consumption
-and losses on the other side, after the load flow optimization process. Note that, if it is possible to modify the setpoints during the computation
-(for example if the results were computed by an Optimal Power Flow and not a Power Flow), there should be no imbalance left.
+and losses on the other side, after the load flow optimization process. Note that if it is possible to modify the setpoints during the computation
+(for example, if the results were computed by an Optimal Power Flow and not a Power Flow), there should be no imbalance left.
 
 In case of an imbalance between the sum of generator active power setpoints $\text{targetP}$ on one side and consumption
 and losses on the other side, the generation $P$ of some units has to be adjusted.
@@ -101,7 +101,7 @@ A shunt is expected to generate reactive power according to the number of activa
 $\left| Q + \text{#sections} * B  V^2 \right| < \epsilon$
 
 ## Static VAR Compensators
-Static VAR Compensators behave like generators producing 0 active power except that their reactive bounds are expressed
+Static VAR Compensators behave like generators producing zero active power except that their reactive bounds are expressed
 in susceptance, so that they are voltage dependent.
 
 $targetP = 0$ MW
@@ -123,7 +123,7 @@ To be done.
 
 ## Transformers with a ratio tap changer
 
-Transformers with a ratio tap changer have a tap with a finite discrete number of position that allows to change their transformer ratio.
+Transformers with a ratio tap changer have a tap with a finite discrete number of positions that allows to change their transformer ratio.
 Let's assume that the logic is based on deadband: if the deviation between the measurement
 and the setpoint is higher than the deadband width, the tap position is increased or decreased by one unit.
 

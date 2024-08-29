@@ -59,7 +59,7 @@ This option defines the path of the strategy to evaluate. This is a groovy scrip
 This option defines the list of contingencies to simulate. If this parameter is omitted, all the contingencies defined in the DSL file are simulated.
 
 `--export-after-each-round`  
-If this option is passed, a case file is exported after each round of the simulation. Otherwise, a single case file is exported at the end of the simulation (once there is no more violations or matching rules).
+If this option is passed, a case file is exported after each round of the simulation. Otherwise, a single case file is exported at the end of the simulation (once there are no more violations or matching rules).
 
 `--import-parameters`  
 This option defines the path of the importer's configuration file. It's possible to overload one or many parameters using the `-I property=value` syntax. The list of supported properties depends on the [input format](../../grid_exchange_formats/index.md).
@@ -71,19 +71,19 @@ This option defines the path to the folder in which the case files will be expor
 This option defines the format of the output case files. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help.
 
 `--output-compression-format`  
-This option defines the compression format of the case files. The list of supported formats are listed between brackets in the command help.
+This option defines the compression format of the case files. The list of supported formats is listed between brackets in the command help.
 
 `--output-file`  
 This option defines the path of the result file. If this option is omitted, the results are displayed in the console.
 
 `--output-format`  
-This option defines the format of the result file. This option is required if `--output-file` is used. The supported format are listed between brackets in the command help.
+This option defines the format of the result file. This option is required if `--output-file` is used. The supported formats are listed between brackets in the command help.
 
 `--verbose`  
 This option enables the verbose mode, to display more information during the simulation.
 
 ## Simulators
-Currently, the only simulator which is supported is the [load-flow based]() simulator. 
+Currently, the only simulator which is supported is the [load-flow-based]() simulator. 
 
 ## Parameters
 <span style="color: red">TODO</span>
@@ -127,7 +127,7 @@ action('load_shed_100') {
 ```
 
 
-The following example show the results of the simulation of the previous script:
+The following example shows the results of the simulation of the previous script:
 ```shell
 $> itools action-simulator --case-file $HOME/eurostag-tutorial.xiidm --dsl-file $HOME/actions.groovy
 Loading network '$HOME/eurostag-tutorial.xiidm'

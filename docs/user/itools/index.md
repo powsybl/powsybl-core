@@ -18,7 +18,7 @@ dynamic-security-analysis.md
 sensitivity-computation.md
 ```
 
-The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (MacOS is not supported yet).
+The `iTools` script provides a command-line interface to interact with PowSyBl, available under Linux and Windows (macOS is not supported yet).
 
 An `iTools` package is constituted of:
 - a `bin` directory containing the executable scripts and the binaries
@@ -66,7 +66,7 @@ java_xmx=8G
 The list of the deprecated properties is available [here]()
 
 ### Logging
-The `iTools` script uses [logback](https://logback.qos.ch/) as logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
+The `iTools` script uses [logback](https://logback.qos.ch/) as a logging framework. To configure the logging framework, edit the `<ITOOLS_HOME>/etc/logback-itools.xml` configuration file. Please refer to the [logback manual](https://logback.qos.ch/manual/index.html) for the available logging options.
 
 Sometimes, it could be useful for a user to have its own logging configuration to filter unexpected logs or to have more details for some features. The simplest way to proceed is to copy the global configuration file in the `<USER_HOME>/.itools` folder and then customize it.
 

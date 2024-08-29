@@ -1,6 +1,6 @@
 # Network and subnetwork
 
-In the following sections the different network components are described in terms of their main attributes and electrotechnical representation. The attributes shared by all the network components are described in the next table:
+In the following sections, the different network components are described in terms of their main attributes and electrotechnical representation. The attributes shared by all the network components are described in the next table:
 
 | Attribute | Description |
 | --------- | ----------- |
@@ -10,7 +10,7 @@ In the following sections the different network components are described in term
 | $Aliases$ | Additional unique identifiers associated with each network component |
 | $Properties$ | To add additional data items to network components |
 
-All equipment and the network itself are identified by a unique identifier which is the only required attribute. They can have a human-readable name. offer the possibility of adding additional unique identifiers to each component. An alias can be qualified to indicate what it corresponds to.
+All equipment and the network itself are identified by a unique identifier which is the only required attribute. They can have a human-readable name. Offers the possibility of adding additional unique identifiers to each component. An alias can be qualified to indicate what it corresponds to.
 
 Properties allow associating additional arbitrary data items under the general schema of pairs `<Key, Value>`.
 
@@ -92,7 +92,7 @@ The following diagram represents an example voltage level with two busbars separ
 ![VoltageLevel](img/voltage-level.svg){width="100%" align=center class="only-light"}
 ![VoltageLevel](img/dark_mode/voltage-level.svg){width="100%" align=center class="only-dark"}
 
-When defining the model, the user has to specify how the different equipment connect to the network. If the voltage level is built at node/breaker level, the user has to specify a `Node` when adding equipment to the model. If the user is building using bus/breaker level, the `Bus` of the equipment must be specified. Using this information, the model creates a `Terminal` that will be used to manage the point of connection of the equipment to the network.
+When defining the model, the user has to specify how the different pieces of equipment connect to the network. If the voltage level is built at node/breaker level, the user has to specify a `Node` when adding equipment to the model. If the user is building using bus/breaker level, the `Bus` of the equipment must be specified. Using this information, the model creates a `Terminal` that will be used to manage the point of connection of the equipment to the network.
 
 **Available extensions**
 
@@ -111,14 +111,14 @@ Area boundaries can be terminals of equipments or `Boundary` objects from [dangl
 
 The area type is used to distinguish between various area concepts of different granularity. For instance: control areas, bidding zones, countries...
 
-A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of different type.
+A [voltage level](#voltage-level) can belong to several areas, as long as all areas are of a different type.
 
-The area boundaries define how interchange are to be calculated for the area.  
+The area boundaries define how interchange is to be calculated for the area.  
 Area interchange is calculated by summing the active power flows across the area boundaries and can be obtained for AC part only (considering only AC boundaries),
 for DC part only (considering only DC boundaries) and in total (AC+DC).  
-Note that if the Area has no boundary explicitly defined, the interchange is considered 0 MW.
+Note that if the Area has no boundary explicitly defined, the interchange is considered 0MW.
 
-For area types that are meant to be used for area interchange control, e.g. in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
+For area types that are meant to be used for area interchange control, e.g., in Load Flow simulations, the interchange target of the area can be specified as an input for the simulation.
 
 All area interchange values use the load sign convention: positive values indicate that the area is importing, negative values that the area is exporting.
 
@@ -153,7 +153,7 @@ which are then separated for AC and DC parts.
 ## Generator
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Generator.html)
 
-A generator is an equipment that injects or consumes active power, and injects or consumes reactive power. It may be used as a controller to hold a voltage or reactive target somewhere in the network, not necessarily directly where it is connected. In that specific case, the voltage or reactive power control is remote.
+A generator is a piece of equipment that injects or consumes active power, and injects or consumes reactive power. It may be used as a controller to hold a voltage or reactive target somewhere in the network, not necessarily directly where it is connected. In that specific case, the voltage or reactive power control is remote.
 
 ![GeneratorSignConvention](img/generator-sign-convention.svg){width="50%" align=center class="only-light"}
 ![GeneratorSignConvention](img/dark_mode/generator-sign-convention.svg){width="50%" align=center class="only-dark"}
@@ -176,7 +176,7 @@ A generator is an equipment that injects or consumes active power, and injects o
 
 **Specifications**
 
-The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power output can not be greater than the maximum active power output. `TargetP` must be inside this active power limits. `RatedS` specifies the nameplate apparent power rating for the unit, it is optional and should be a positive value if it is defined. The [reactive limits](./additional.md#reactive-limits) of the generator are optional, if they are not given the generator is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as a [reactive capability curve](./additional.md#reactive-capability-curve).
+The values `MinP`, `MaxP` and `TargetP` are required. The minimum active power output cannot be greater than the maximum active power output. `TargetP` must be inside this active power limits. `RatedS` specifies the nameplate apparent power rating for the unit, it is optional and should be a positive value if it is defined. The [reactive limits](./additional.md#reactive-limits) of the generator are optional, if they are not given the generator is considered with unlimited reactive power. Reactive limits can be given as a pair of [min/max values](./additional.md#min-max-reactive-limits) or as a [reactive capability curve](./additional.md#reactive-capability-curve).
 
 The `VoltageRegulatorOn` attribute is required. It voltage regulation is enabled, then `TargetV` and `RegulatingTerminal` must also be defined. If the voltage regulation is disabled, then `TargetQ` is required. `EnergySource` is optional, it can be: `HYDRO`, `NUCLEAR`, `WIND`, `THERMAL`, `SOLAR` or `OTHER`.
 
@@ -254,7 +254,7 @@ In the grid model, loads comprise the following metadata:
 ## Battery
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Battery.html)
 
-A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the battery side and vice versa. The power flow is bidirectional and it is controlled via a power electronic converter.
+A battery on the electric grid is an energy storage device that is either capable of capturing energy from the grid or of injecting it into the grid. The electric energy on the grid side is thus transformed into chemical energy on the battery side and vice versa. The power flow is bidirectional, and it is controlled via a power electronic converter.
 
 **Characteristics**
 
@@ -278,12 +278,12 @@ A battery on the electric grid is an energy storage device that is either capabl
 ## Dangling line
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/DanglingLine.html)
 
-A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection, in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, were the other network fully described.
+A network may be connected to other networks for which a full description is not available or unwanted. In this case, a boundary line exists between the two networks. In the network of interest, that connection could be represented through a dangling line, which represents the part of that boundary line which is located in it. A dangling line is thus a passive or active component that aggregates a line chunk and a constant power injection in passive-sign convention. The active and reactive power set points are fixed: the injection represents the power flow that would occur through the connection, was the other network fully described.
 
 ![Dangling line model](img/dangling-line.svg){width="50%" align=center class="only-light"}
 ![Dangling line model](img/dark_mode/dangling-line.svg){width="50%" align=center class="only-dark"}
 
-A generation part, at boundary side can also be modeled, with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal can not be set, it is necessary the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
+A generation part, at boundary side can also be modeled with a constant active power injection and a constant reactive power injection if the generation part of the dangling line is out of voltage regulation or a voltage target if the regulation is enabled. This fictitious generator can only regulate voltage locally: the regulating terminal cannot be set, it is necessary for the boundary side of the dangling line. Limits are modeled through $MinP$ and $MaxP$ for active power limits and through [reactive limits](./additional.md#reactive-limits). This generation part is optional. The generation part of the dangling line follows the classical generator sign convention.
 
 Resulting flows at the dangling line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
@@ -318,10 +318,10 @@ Optional:
 - $R$, $X$, $G$ and $B$ correspond to a fraction of the original line and have to be consistent with the declared length of the
   dangling line.
 
-In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined besides the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line, for both UCTE or CIM-CGMES formats.
+In case the line is a boundary, a pairing key $pairingKey$ (in previous network versions $UcteXnodeCode$) is defined beside the characteristics of the table. It is a key to match two dangling lines and reconstruct the full boundary line for both UCTE or CIM-CGMES formats.
 
 A dangling line has a `Boundary` object that emulates a terminal located at boundary side. A dangling line is a connectable
-with a single terminal located on network side, but sometimes we need state variables such as active or reactive powers on
+with a single terminal located on the network side, but sometimes we need state variables such as active or reactive powers on
 the other side, voltage angle and voltage magnitude at fictitious boundary bus. Note that $P$, $Q$, $V$ and $Angle$ at boundary
 are automatically computed using information from the terminal of the dangling line.  
 
@@ -371,9 +371,9 @@ Shunt compensators follow a passive-sign convention:
 | $bPerSection$ | S | The Positive sequence shunt (charging) susceptance per section |
 | $gPerSection$ | S | The Positive sequence shunt (charging) conductance per section |
 
-We expect $bPerSection$ to be a non zero value. The disconnected status of the linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero.
+We expect $bPerSection$ to be a non-zero value. The disconnected status of the linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero.
 
-- For Non Linear Shunt Compensators
+- For Non-Linear Shunt Compensators
 
 | Attribute | Unit                | Description |
 | --------- |---------------------|------------ |
@@ -386,21 +386,21 @@ We expect $bPerSection$ to be a non zero value. The disconnected status of the l
 | $B$ | S | The accumulated positive sequence shunt (charging) susceptance of the section if this section and all the previous ones are activated |
 | $G$ | S | The accumulated positive sequence shunt (charging) conductance of the section if this section and all the previous ones are activated |
 
-$B$ and $G$ attributes can be equal zero, but the disconnected status of the non linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero. The section which $SectionCount$ equal to $1$ is the first effective section, and it would be more efficient to affect it a non zero susceptance.
+$B$ and $G$ attributes can be equal zero, but the disconnected status of the non-linear shunt compensator can be modeled by setting the $SectionCount$ attribute to zero. The section which $SectionCount$ equal to $1$ is the first effective section, and it would be more efficient to affect it a non-zero susceptance.
 
 **Specifications**
 
 - A section of a shunt compensator is an individual capacitor or reactor.
-  A value of bPerSection positive means it is modeling a capacitor, an equipment that injects reactive
+  A positive value of bPerSection means that it models a capacitor, a device that injects reactive
   power into the bus.
-  A value of bPerSection negative means a reactor, an equipment that can absorb excess reactive power
+  A negative value of bPerSection means a reactor, a device that can absorb excess reactive power
   from the network.
 - The current section count is expected to be greater than one and lesser or equal to the maximum section count.
 - Regulation for shunt compensators does not necessarily model automation, it can represent human actions on the network
-  e.g. an operator activating or deactivating a shunt compensator). However, it can of course be integrated on a power flow
+  e.g. an operator activating or deactivating a shunt compensator). However, it can be integrated on a power flow
   calculation or not, depending on what is wanted to be shown.
-- In case of a capacitor, the value for its Q will be negative.
-- In case of a reactor, the value for its Q will be positive.
+- In the case of a capacitor, the value for its Q will be negative.
+- In the case of a reactor, the value for its Q will be positive.
 
 **Available extensions**
 
@@ -430,13 +430,13 @@ Static VAR compensators follow a passive-sign convention:
 
 **Specifications**
 
-- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator are determined by:  
+- $Bmin$ and $Bmax$ are the susceptance bounds of the static VAR compensator. Reactive power output of a static VAR compensator is limited by the maximum and the minimum susceptance values. The min/max reactive power of a static VAR compensator is determined by:  
   
   $$Qmin = -Bmin \times V^2$$
 
   $$Qmax = -Bmax \times V^2$$
 
-  where $V$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrive the minimum and the maximum amouts of reactive power. Reactive limits can be handled in an approximative way using the nominal voltage of the connected bus.
+  where $V$ is the voltage of the bus that connects the static VAR compensator to the network. Even if the regulating terminal is remote, only the local voltage has to be considered to retrieve the minimum and the maximum amount of reactive power. Reactive limits can be handled in an approximate way using the nominal voltage of the connected bus.
 - The voltage setpoint is required when the regulation mode is set to `VOLTAGE`.
 - The reactive power setpoint is required when the regulation mode is set to `REACTIVE_POWER`.
 
@@ -447,7 +447,7 @@ In IIDM the static VAR compensator also comprises some metadata:
     - `VOLTAGE`
     - `REACTIVE_POWER`
     - `OFF`  
-      Note that it is different from the generators' regulation definition, which is only done through a boolean. `OFF` is equivalent to a disconnected equipment.
+      Note that it is different from the generator regulation definition, which is only done through a boolean. `OFF` is equivalent to a disconnected element.
 - The regulating terminal, which can be local or remote: it is the specific connection point on the network where the setpoint is measured.
 
 **Available extensions**
@@ -480,7 +480,7 @@ y_2 & = & g_2 +j. b_2
 \end{align*}
 $$
 
-The equations of the line, in complex notations, are as follow:
+The equations of the line, in complex notations, are as follows:
 
 $$
 \begin{align*}
@@ -548,16 +548,16 @@ A tie line is not a connectable. It is just a container of two underlying dangli
 ## Transformers
 
 (two-windings-transformer)=
-### Two windings transformer
+### Two winding transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
 
-A two windings power transformer is connected to two voltage levels (side 1 and side 2) that belong to a same substation.
-Two windings transformers are modeled with the following equivalent $\Pi$ model:
+A two-winding power transformer is connected to two voltage levels (side 1 and side 2) that belong to the same substation.
+Two winding transformers are modeled with the following equivalent $\Pi$ model:
 
 ![Power line model](img/two-winding-transformer-model.svg){width="50%" align=center class="only-light"}
 ![Power line model](img/dark_mode/two-winding-transformer-model.svg){width="50%" align=center class="only-dark"}
 
-With the series impedance $z$ and the shunt admittance $y$ and the voltage ratio $\rho$ and the angle difference $\alpha$ and potentially parameters from the current step of a [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer), we have:
+With the series impedance $z$ and the shunt admittance $y$ and the voltage ratio $\rho$ and the angle difference $\alpha$ and potential parameters from the current step of a [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer), we have:
 
 $$
 \begin{array}{lcl}
@@ -574,7 +574,7 @@ I_{0} & = & \dfrac{I_{1}}{\rho e^{-j\alpha}}\\
 \end{array}
 $$
 
-Using the above notation, the equations of the two windings transformer, in complex notations, are as follow:
+Using the above notation, the equations of the two-winding transformers, in complex notations, are as follows:
 
 $$
 \left(\begin{array}{c}
@@ -604,7 +604,7 @@ $$
 **Specifications**
 
 - A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated with a two windings power transformer.
-- For a two windings transformer, the normal apparent power shall be identical at both sides 1 and 2.
+- For a two-winding transformer, the normal apparent power shall be identical at both sides 1 and 2.
 
 **Available extensions**
 
@@ -621,13 +621,13 @@ $$
 ### Three windings transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
 
-A three windings power transformer is connected to three voltage levels (side 1, side 2 and side 3) that belong to the
+A three-winding power transformer is connected to three voltage levels (side 1, side 2 and side 3) that belong to the
 same substation. We usually have:
 - Side 1 as the primary side (side with the highest rated voltage)
 - Side 2 as the secondary side (side with the medium rated voltage)
 - Side 3 as the tertiary side (side with the lowest rated voltage)
 
-A three windings transformer is modeled with three legs, where every leg model is electrically equivalent to a two windings transformer.
+A three-winding transformer is modeled with three legs, where every leg model is electrically equivalent to a two-winding transformer.
 For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 ![Line model](img/three-winding-transformer-model.svg){width="50%" align=center class="only-light"}
@@ -688,7 +688,7 @@ An HVDC line is connected to the DC side of two HVDC converter stations, either 
 
 **Specifications**
 
-- The HVDC line operation depends on a converters mode, which indicates the flow direction. In the specification it is thus mandatory to define `ConvertersMode`, which can be:
+- The HVDC line operation depends on a converter mode, which indicates the flow direction. In the specification it is thus mandatory to define `ConvertersMode`, which can be:
     - `SIDE_1_RECTIFIER_SIDE_2_INVERTER`: the flow goes from side 1 to side 2
     - `SIDE_1_INVERTER_SIDE_2_RECTIFIER`: the flow goes from side 2 to side 1
 
@@ -718,7 +718,7 @@ The LossFactor should be greater than 0.
 
 **Specifications**
 
-The HVDC type, `LCC` or `VSC`, determines if the Converter Station is a LCC Converter Station or a VSC Converter Station.
+The HVDC type, `LCC` or `VSC`, determines if the Converter Station is an LCC Converter Station or a VSC Converter Station.
 
 The positive loss factor `LossFactor` is used to model the losses during the conversion. In case of:
 - A rectifier operation (conversion from AC to DC), we have
@@ -763,7 +763,7 @@ A VSC converter station is made with switching devices that can be turned both o
 - Current direction changes to change the power direction
 - Store energy capacitively
 - Use semiconductors which can turn on or off by control action
-- Turn-off is independant of external circuit
+- Turn-off is independent of external circuit
 
 **Characteristics**
 
@@ -776,10 +776,10 @@ A VSC converter station is made with switching devices that can be turned both o
 
 - The voltage setpoint (in kV) is required if the voltage regulator is on for the VSC station.
 - The reactive power setpoint (in MVar) is required if the voltage regulator is off for the VSC station. A positive value of $ReactivePowerSetpoint$ means an injection into the bus, thus a negative value at the corresponding terminal (which is in passive-sign convention).
-- A set of reactive limits can be associated to a VSC converter station. All the reactive limits modelings available in the library are described [here](./additional.md#reactive-limits).
+- A set of reactive limits can be associated to a VSC converter station. All the reactive limits modeling available in the library are described [here](./additional.md#reactive-limits).
 
 **Metadata**
-- The participation to regulation (through a boolean)
+- The participation in regulation (through a boolean)
 
 **Available extensions**
 

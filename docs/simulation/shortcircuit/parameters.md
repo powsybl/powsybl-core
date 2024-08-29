@@ -51,7 +51,7 @@ The default value is `TRANSIENT`. The transient and sub-transient reactance of t
 
 **sub-transient-coefficient**
 
-This property allows to define an optional coefficient, in case of a sub-transient study, to apply to the transient reactance of generators to get the sub-transient one:
+This property allows defining an optional coefficient, in case of a sub-transient study, to apply to the transient reactance of generators to get the sub-transient one:
 
 $X''_d = c \times X'_d$
 
@@ -75,7 +75,7 @@ The voltage drop is calculated as the ratio between the initial voltage magnitud
 
 **with-loads**
 
-This property indicates whether loads should be taken into account during the calculation. If `true`, the loads are modelled as an equivalent reactance and the equivalent reactance at the fault point will be lowered. If `false`, then they will be ignored.
+This property indicates whether loads should be taken into account during the calculation. If `true`, the loads are modelled as an equivalent reactance, and the equivalent reactance at the fault point will be lowered. If `false`, then they will be ignored.
 
 **with-shunt-compensators**
 

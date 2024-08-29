@@ -18,7 +18,7 @@ loadflow-validation.md
 security-analysis.md
 ```
 
-The configuration mechanism supports YAML and XML file formats. The framework looks inside all the folders specified to the [powsybl_config_dirs](../itools/index.md#configuration) property in the [itools.conf](../itools/index.md#configuration) file for configuration files. The framework uses the [powsybl_config_name](../itools/index.md#configuration) property as the basename of the configuration files. It looks for a YAML file first, then for a XML file. The XML file will be used only if the YAML configuration file has not been found.
+The configuration mechanism supports YAML and XML file formats. The framework looks inside all the folders specified to the [powsybl_config_dirs](../itools/index.md#configuration) property in the [itools.conf](../itools/index.md#configuration) file for configuration files. The framework uses the [powsybl_config_name](../itools/index.md#configuration) property as the basename of the configuration files. It looks for a YAML file first, then for an XML file. The XML file will be used only if the YAML configuration file has not been found.
 
 The configuration can also be configured using the system's environment variables. These variables should respect the
 following format: `MODULE_NAME__PROPERTY_NAME`. Note that these variables will overload the XML/YAML configuration files.
@@ -26,7 +26,7 @@ following format: `MODULE_NAME__PROPERTY_NAME`. Note that these variables will o
 The default configuration folder and the configuration file name can be configured in the `POWSYBL_HOME/etc/itools.conf`.
 
 ## Modules and properties
-The configuration file contains a list of modules, that can be required or optional. Each module contains one or
+The configuration file contains a list of modules that can be required or optional. Each module contains one or
 several properties. These properties can also be required or optional. Names in configuration files are case-sensitive.
 
 ### Example
@@ -59,7 +59,7 @@ module2:
 ```
 
 ### System's environment variables
-Configuration properties can also be overridden using system's environment variables. The module and the property are separated using two underscores. The table below give examples on the way to declare environment variables for PowSyBl:
+Configuration properties can also be overridden using system's environment variables. The module and the property are separated using two underscores. The table below gives examples on the way to declare environment variables for PowSyBl:
 
 | Environment variable | Module name | Property name |
 | -------------------- | ----------- | ------------- |

@@ -1,14 +1,14 @@
 # Action DSL
-The action DSL is a domain specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](index.md#operator-strategies). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
+The action DSL is a domain-specific language written in groovy for the creation of a strategy to solve violations, used in [security analyses with remedial actions](index.md#operator-strategies). This strategy is constituted of a set of [contingencies](contingency-dsl.md), a set of modification on the network called **actions**, and a set of rules to determine in which circumstances to apply the actions.
 
 ## Contingencies
-The contingencies are defined in the same way that is described in the [contingency DSL](contingency-dsl.md). Are supported:
-- N-1 contingencies that triggers a single equipment at a time
+The contingencies are defined in the same way described in the [contingency DSL](contingency-dsl.md). Are supported:
+- N-1 contingencies that trigger a single piece of equipment at a time
 - N-K contingencies that triggers multiple equipments at a time
-- busbar contingencies that triggers a [busbar section](../../grid_model/network_subnetwork.md#busbar-section), a N-K contingency that triggers all the equipments connected to that busbar section.
+- busbar contingencies that trigger a [busbar section](../../grid_model/network_subnetwork.md#busbar-section), a N-K contingency that triggers all the equipment connected to that busbar section.
 
 ## Actions
-The actions are modifications that could be made on the network to solve a security issue. It could be topology modification like opening or closing a switch, setpoints modification, tap position modification. PowSyBl provides a set of predefined actions, but this possibilities are infinite as you can create custom actions or groovy scripts.
+The actions are modifications that could be made on the network to solve a security issue. It could be topology modification like opening or closing a switch, setpoint modification, tap position modification. PowSyBl provides a set of predefined actions, but this possibility is infinite as you can create custom actions or groovy scripts.
 
 An action is constituted of:
 - a unique identifier to reference this action in the [rules](#rules)
@@ -26,7 +26,7 @@ action('actionID') {
 ```
 
 ### Opening / Closing a switch
-Topology changes are usually used to reduce the intensity on a AC branch. The following snippet shows how to create an action that opens the switch `SW1` and another one to close it.
+Topology changes are usually used to reduce the intensity on an AC branch. The following snippet shows how to create an action that opens the switch `SW1` and another one to close it.
 ```groovy
 action('open-switch-SW1') {
     description "Open switch SW1"
@@ -43,7 +43,7 @@ action('close-switch-SW1') {
 }
 ``` 
 
-Note that it's possible to open or close several switch at a time:
+Note that it's possible to open or close several switches at a time:
 ```groovy
 action('open-SW1-and-SW2') {
     tasks {
@@ -169,7 +169,7 @@ load-flow-based-phase-shifter-optimizer:
 ```
 
 ### Scripting
-The `script` task allow you to execute groovy code to modify the network. You can access to the network and the computation manager, using the `network` and `computationManager` variables. With this task, possibilities are unlimited as you have a complete access to the IIDM API.
+The `script` task allow you to execute groovy code to modify the network. You can access to the network and the computation manager, using the `network` and `computationManager` variables. With this task, possibilities are unlimited as you have complete access to the IIDM API.
 ```groovy
 action('custom-action') {
     description "Disconnect LOAD1 and LOAD2, open the coupler COUPLER and change the setpoints of LOAD3"
@@ -191,7 +191,7 @@ The rules are the most important in this DSL: they define the activation criteri
 - a unique identifier
 - an optional description to explain the purpose of the rule
 - an activation criteria
-- a list of actions to applied if the activation criteria is verified
+- a list of actions to be applied if the activation criteria is verified
 - an optional life count to limit the number of times a rule can be verified and its actions applied
 
 ### Activation criteria
@@ -205,13 +205,13 @@ rule('rule-ID') {
 }
 ```
 
-**Note:** The activation criteria is evaluated during the simulation. If you want to save the initial value of a network's variable, you should declare a global variable at the beginning of your script.
+**Note:** The activation criteria are evaluated during the simulation. If you want to save the initial value of a network's variable, you should declare a global variable at the beginning of your script.
 
 #### Network binding
-The network binding adds keywords in the DSL to get equipments by their IDs. At the moment, the following keywords are supported:
+The network binding adds keywords in the DSL to get equipment by their IDs. At the moment, the following keywords are supported:
 - `line`: to retrieve a [line](../../grid_model/network_subnetwork.md#line)
-- `transformer`: to retrieve a [two windings transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
-- `branch`: to retrieve a [line](../../grid_model/network_subnetwork.md#line), a [tie line](../../grid_model/network_subnetwork.md#tie-line) or a [two windings transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
+- `transformer`: to retrieve a [two-winding transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
+- `branch`: to retrieve a [line](../../grid_model/network_subnetwork.md#line), a [tie line](../../grid_model/network_subnetwork.md#tie-line) or a [two-winding transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
 - `generator`: to retrieve a [generator](../../grid_model/network_subnetwork.md#generator)
 - `load`: to retrieve a [load](../../grid_model/network_subnetwork.md#load)
 - `_switch` and `switch_` to retrieve a [switch](../../grid_model/network_subnetwork.md#breakerswitch)
@@ -222,7 +222,7 @@ The network binding adds keywords in the DSL to get equipments by their IDs. At 
 
 #### Predefined functions
 The following predefined functions are available and can be used in the `when` statement:
-- `actionTaken`: returns `true` if the given action has already be applied
+- `actionTaken`: returns `true` if the given action has already been applied
 - `contingencyOccured`: returns `true` if a contingency is currently simulated, and `false` if the N state is simulated
 - `loadingRank`: returns the rank of a given branch among a list of branches regarding their overload level
 - `mostLoaded`: returns the ID of the most loaded branch among a list of branches
@@ -274,7 +274,7 @@ action('change-tap-position') {
 rule('example3') {
     description "If LINE1 and LINE2 are overloaded then change the PST tap position"
     when allOverloaded(["LINE1", "LINE2"])
-    apply 'change-tap-postition'
+    apply 'change-tap-position'
 }
 ```
 

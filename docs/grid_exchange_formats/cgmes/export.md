@@ -10,7 +10,7 @@ Information received through parameters takes precedence over information availa
 For a quick CGM export, the user may rely on the parameter **iidm.export.cgmes.cgm_export** to write in a single export multiple updated SSH files (one for each IGM) and a single SV for the whole common grid model. Specifics about this option are explained in the section [below](#cgm-common-grid-model-quick-export).
 If you need complete control over the exported files in a CGM scenario, you may prefer to iterate through the subnetworks and make multiple calls to the export function. This is described in detail in the section [below](#cgm-common-grid-model-manual-export).    
 
-Please note that when exporting equipment, PowSyBl always use the CGMES node/breaker level of detail, without considering the topology
+Please note that when exporting equipment, PowSyBl always uses the CGMES node/breaker level of detail, without considering the topology
 level of the PowSyBl network.
 
 The user can specify the profiles to be exported using the parameter **iidm.export.cgmes.profiles**. The list of currently supported export instance files are: EQ, SSH, SV, TP. 
@@ -47,7 +47,7 @@ The filenames of the exported instance files will follow the pattern:
 
 The basename is determined from the parameters, or the basename of the export data source or the main network name.
 
-As an example, you can export one of the test configurations that has been provided by ENTSO-E. It is available in the cgmes-conformity module of the powsybl-core repository. If you run the following code:
+As an example, you can export one of the test configurations that have been provided by ENTSO-E. It is available in the cgmes-conformity module of the powsybl-core repository. If you run the following code:
 
 ```java
 Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
@@ -76,7 +76,7 @@ where the updated SSH files will supersede the original ones, and the SV will co
 
 If you want to intervene in how the updated IGM SSH files or the CGM SV are exported, you can make multiple calls to the CGMES export function.
 
-You can use following code for reference:
+You can use the following code for reference:
 
 ```java
 Network cgmNetwork = Network.read(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
@@ -145,7 +145,7 @@ And the file `manualExampleBasename_SV.xml` will contain:
 <md:Model.DependentOn rdf:resource="mySvDependency1"/>
 <md:Model.DependentOn rdf:resource="mySvDependency2"/>
 <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
-<md:Model.modelingAuthoritySet>myModellinAuthority</md:Model.modelingAuthoritySet>
+<md:Model.modelingAuthoritySet>myModelingAuthority</md:Model.modelingAuthoritySet>
 ...
 ```
 
@@ -213,10 +213,10 @@ PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compen
 
 #### Regulating control
 
-If the network comes from a CIM-CGMES model and a shunt compensator has initially a `RegulatingControl`, it always
-has at export too.
+If the network comes from a CIM-CGMES model and a shunt compensator initially has a `RegulatingControl`, it will always
+have one at export.
 
-A shunt compensator with local voltage control (i.e. the regulating terminal is the same of the terminal of connection)
+A shunt compensator with local voltage control (i.e., the regulating terminal is the same of the terminal of connection)
 and no valid voltage target will not have any exported regulating control. In all other cases, a `RegulatingControl`
 is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
@@ -226,10 +226,10 @@ PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-v
 
 #### Regulating control
 
-If the network comes from a CIM-CGMES model and a static VAR compensator has initially a `RegulatingControl`, it always
-has at export too.
+If the network comes from a CIM-CGMES model and a static VAR compensator initially has a `RegulatingControl`, it will always
+have one at export.
 
-A static VAR compensator which voltage control is local (i.e. the regulating terminal is the same of the terminal of
+A static VAR compensator which voltage control is local (i.e., the regulating terminal is the same of the terminal of
 connection) and no valid voltage or reactive power target will not have any exported regulating control.
 
 A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when
@@ -274,11 +274,11 @@ when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-windings-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
-Tap changer controls for two windings transformers are exported following the same rules explained in the previous section about three windings transformers. See [tap changer control](#tap-changer-control).
+Tap changer controls for two-winding transformers are exported following the same rules explained in the previous section about three-winding transformers. See [tap changer control](#tap-changer-control).
 
 ### Voltage level
 
-PowSybl [`VoltatgeLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`.
+PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`.
 
 <span style="color: red">TODO details</span>
 
@@ -362,7 +362,7 @@ Optional property defining whether the transformers should be exported with the 
 This property is set to `false` by default.
 
 **iidm.export.cgmes.export-load-flow-status**  
-Optional property that indicates whether the loadflow status (`converged` or `diverged`) should be
+Optional property that indicates whether the load flow status (`converged` or `diverged`) should be
 written for the `TopologicalIslands` in the SV file. If `true`, the status will be computed by checking, for every bus,
 if the voltage and angle are valid, and if the bus is respecting Kirchhoff's first law. For the latter, we check that
 the sums of active power and reactive power at the bus are higher than a threshold defined by the properties
