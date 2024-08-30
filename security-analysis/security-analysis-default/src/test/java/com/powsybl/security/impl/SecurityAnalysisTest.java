@@ -58,6 +58,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class SecurityAnalysisTest {
 
     private static final class SecurityAnalysisModificationTest extends AbstractNetworkModification {
+
+        @Override
+        public String getName() {
+            return "SecurityAnalysisModificationTest";
+        }
+
         @Override
         public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
             network.getLine("NHV1_NHV2_2").getTerminal1().disconnect();
