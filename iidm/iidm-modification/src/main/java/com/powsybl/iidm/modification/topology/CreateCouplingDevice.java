@@ -45,6 +45,11 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         this.switchPrefixId = switchPrefixId;
     }
 
+    @Override
+    public String getName() {
+        return "CreateCouplingDevice";
+    }
+
     public String getBusOrBbsId1() {
         return busOrBbsId1;
     }

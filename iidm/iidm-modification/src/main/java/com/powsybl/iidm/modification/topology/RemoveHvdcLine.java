@@ -39,6 +39,11 @@ public class RemoveHvdcLine extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "RemoveHvdcLine";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcLineId);
         if (hvdcLine != null) {

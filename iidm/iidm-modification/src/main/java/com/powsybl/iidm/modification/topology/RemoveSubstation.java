@@ -36,6 +36,11 @@ public class RemoveSubstation extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "RemoveSubstation";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {

@@ -30,6 +30,11 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
         this.tapDelta = tapDelta;
     }
 
+    @Override
+    public String getName() {
+        return "PhaseShifterShiftTap";
+    }
+
     public int getTapDelta() {
         return tapDelta;
     }

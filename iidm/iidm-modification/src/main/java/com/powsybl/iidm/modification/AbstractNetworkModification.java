@@ -27,8 +27,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
 
     @Override
-    public boolean apply(Network network) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
+    public void apply(Network network) {
+        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
@@ -37,8 +37,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, ComputationManager computationManager) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP);
+    public void apply(Network network, ComputationManager computationManager) {
+        apply(network, new DefaultNamingStrategy(), false, computationManager, ReportNode.NO_OP);
     }
 
     @Override
@@ -47,8 +47,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode);
+    public void apply(Network network, ComputationManager computationManager, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), false, computationManager, reportNode);
     }
 
     @Override
@@ -57,8 +57,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode);
+    public void apply(Network network, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), false, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
@@ -67,8 +67,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, boolean throwException, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode);
+    public void apply(Network network, boolean throwException, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), throwException, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
@@ -77,8 +77,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
-        return apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode);
+    public void apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
+        apply(network, new DefaultNamingStrategy(), throwException, computationManager, reportNode);
     }
 
     @Override
@@ -87,8 +87,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy) {
-        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
+    public void apply(Network network, NamingStrategy namingStrategy) {
+        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), ReportNode.NO_OP);
     }
 
     @Override
@@ -97,8 +97,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager) {
-        return apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP);
+    public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager) {
+        apply(network, namingStrategy, false, computationManager, ReportNode.NO_OP);
     }
 
     @Override
@@ -107,8 +107,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
-        return apply(network, namingStrategy, false, computationManager, reportNode);
+    public void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode) {
+        apply(network, namingStrategy, false, computationManager, reportNode);
     }
 
     @Override
@@ -117,8 +117,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
-        return apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode);
+    public void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode) {
+        apply(network, namingStrategy, false, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
@@ -127,8 +127,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
     }
 
     @Override
-    public boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode) {
-        return apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reportNode);
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode) {
+        apply(network, namingStrategy, throwException, LocalComputationManager.getDefault(), reportNode);
     }
 
     @Override
@@ -154,10 +154,10 @@ public abstract class AbstractNetworkModification implements NetworkModification
                     "DRY-RUN: Network modifications can successfully be applied on network '${networkNameOrId}'")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
-            return true;
         } else {
-            return apply(network, namingStrategy, throwException, computationManager, reportNode);
+            apply(network, namingStrategy, throwException, computationManager, reportNode);
         }
+        return true;
     }
 
     /**

@@ -86,6 +86,11 @@ public class ReplaceTeePointByVoltageLevelOnLine extends AbstractNetworkModifica
         this.newLine2Name = newLine2Name;
     }
 
+    @Override
+    public String getName() {
+        return "ReplaceTeePointByVoltageLevelOnLine";
+    }
+
     public String getTeePointLine1Id() {
         return teePointLine1Id;
     }

@@ -17,19 +17,19 @@ import com.powsybl.iidm.network.Network;
  */
 public interface NetworkModification {
 
-    boolean apply(Network network);
+    void apply(Network network);
 
     boolean apply(Network network, boolean dryRun);
 
-    boolean apply(Network network, ComputationManager computationManager);
+    void apply(Network network, ComputationManager computationManager);
 
     boolean apply(Network network, ComputationManager computationManager, boolean dryRun);
 
-    boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode);
+    void apply(Network network, ComputationManager computationManager, ReportNode reportNode);
 
     boolean apply(Network network, ComputationManager computationManager, ReportNode reportNode, boolean dryRun);
 
-    boolean apply(Network network, ReportNode reportNode);
+    void apply(Network network, ReportNode reportNode);
 
     boolean apply(Network network, ReportNode reportNode, boolean dryRun);
 
@@ -38,7 +38,7 @@ public interface NetworkModification {
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    boolean apply(Network network, boolean throwException, ReportNode reportNode);
+    void apply(Network network, boolean throwException, ReportNode reportNode);
 
     boolean apply(Network network, boolean throwException, ReportNode reportNode, boolean dryRun);
 
@@ -47,23 +47,23 @@ public interface NetworkModification {
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    boolean apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
+    void apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
 
     boolean apply(Network network, boolean throwException, ComputationManager computationManager, ReportNode reportNode, boolean dryRun);
 
-    boolean apply(Network network, NamingStrategy namingStrategy);
+    void apply(Network network, NamingStrategy namingStrategy);
 
     boolean apply(Network network, NamingStrategy namingStrategy, boolean dryRun);
 
-    boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager);
+    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager);
 
     boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, boolean dryRun);
 
-    boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
+    void apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode);
 
     boolean apply(Network network, NamingStrategy namingStrategy, ComputationManager computationManager, ReportNode reportNode, boolean dryRun);
 
-    boolean apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode);
+    void apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode);
 
     boolean apply(Network network, NamingStrategy namingStrategy, ReportNode reportNode, boolean dryRun);
 
@@ -72,7 +72,7 @@ public interface NetworkModification {
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode);
+    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an
@@ -86,7 +86,7 @@ public interface NetworkModification {
      * exception will be thrown. Otherwise, computation will continue but the injection will not be added to the network
      * in case of error.
      */
-    boolean apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
+    void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
 
     /**
      * Applies the modification to the given network. If throwException is set to true, then in case of error, an

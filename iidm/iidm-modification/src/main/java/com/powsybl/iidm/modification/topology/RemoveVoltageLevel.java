@@ -32,6 +32,11 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "RemoveVoltageLevel";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {

@@ -39,6 +39,11 @@ public class DanglingLineModification extends AbstractLoadModification {
         this(danglingLineId, false, targetP0, targetQ0);
     }
 
+    @Override
+    public String getName() {
+        return "DanglingLineModification";
+    }
+
     public String getDanglingLineId() {
         return danglingLineId;
     }

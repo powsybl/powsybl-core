@@ -67,6 +67,11 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
         this.lineName = lineName;
     }
 
+    @Override
+    public String getName() {
+        return "RevertConnectVoltageLevelOnLine";
+    }
+
     private static Line checkAndGetLine(Network network, String lineId, ReportNode reportNode, boolean throwException) {
         Line line = network.getLine(lineId);
         if (line == null) {

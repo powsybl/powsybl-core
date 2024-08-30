@@ -31,6 +31,11 @@ public final class ConnectGenerator extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "ConnectGenerator";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);

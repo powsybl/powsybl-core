@@ -57,6 +57,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.switchKinds = switchKinds;
     }
 
+    @Override
+    public String getName() {
+        return "CreateVoltageLevelTopology";
+    }
+
     private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode, boolean throwException) {
         if (count < min) {
             LOG.error("{} must be >= {}", type, min);

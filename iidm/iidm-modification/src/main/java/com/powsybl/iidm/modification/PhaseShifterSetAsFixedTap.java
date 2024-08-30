@@ -28,6 +28,11 @@ public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "PhaseShifterSetAsFixedTap";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         Objects.requireNonNull(network);

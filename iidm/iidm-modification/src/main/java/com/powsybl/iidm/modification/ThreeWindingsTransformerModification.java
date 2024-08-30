@@ -30,6 +30,11 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
     }
 
     @Override
+    public String getName() {
+        return "ThreeWindingsTransformerModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);

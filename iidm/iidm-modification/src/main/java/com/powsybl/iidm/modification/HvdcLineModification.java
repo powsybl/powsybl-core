@@ -45,6 +45,11 @@ public class HvdcLineModification extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "HvdcLineModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       ReportNode reportNode) {
         HvdcLine hvdcLine = network.getHvdcLine(hvdcId);

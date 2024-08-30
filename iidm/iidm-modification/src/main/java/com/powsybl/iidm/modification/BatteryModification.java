@@ -33,6 +33,11 @@ public class BatteryModification extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "BatteryModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager,
                       ReportNode reportNode) {
         Battery battery = network.getBattery(batteryId);

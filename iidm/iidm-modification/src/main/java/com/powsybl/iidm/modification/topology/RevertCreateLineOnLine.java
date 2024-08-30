@@ -66,6 +66,11 @@ public class RevertCreateLineOnLine extends AbstractNetworkModification {
         this.mergedLineName = mergedLineName;
     }
 
+    @Override
+    public String getName() {
+        return "RevertCreateLineOnLine";
+    }
+
     public RevertCreateLineOnLine setLineToBeMerged1Id(String lineToBeMerged1Id) {
         this.lineToBeMerged1Id = Objects.requireNonNull(lineToBeMerged1Id);
         return this;
