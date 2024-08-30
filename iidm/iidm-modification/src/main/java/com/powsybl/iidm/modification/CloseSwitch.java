@@ -35,4 +35,15 @@ public class CloseSwitch extends AbstractNetworkModification {
         }
         sw.setOpen(false);
     }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Switch sw = network.getSwitch(switchId);
+        if (sw == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (sw.isOpen()) {
+            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        }
+        return impact;
+    }
 }

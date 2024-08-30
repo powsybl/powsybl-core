@@ -93,4 +93,20 @@ public class HvdcLineModification extends AbstractNetworkModification {
             }
         }
     }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
+        if (hvdcLine == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
+            if (activePowerSetpoint != null && Math.abs(activePowerSetpoint - (Boolean.TRUE.equals(relativeValue) ? hvdcLine.getActivePowerSetpoint() : 0)) > EPSILON
+                || converterMode != null && converterMode != hvdcLine.getConvertersMode()
+                || hvdcAngleDroopActivePowerControl != null && (acEmulationEnabled != null || p0 != null || droop != null)) {
+                impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
+    }
 }

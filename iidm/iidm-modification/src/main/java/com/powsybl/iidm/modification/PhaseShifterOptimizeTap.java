@@ -31,4 +31,9 @@ public class PhaseShifterOptimizeTap extends AbstractNetworkModification {
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)
                 .findMaximalFlowTap(network, phaseShifterId);
     }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        return impact;
+    }
 }

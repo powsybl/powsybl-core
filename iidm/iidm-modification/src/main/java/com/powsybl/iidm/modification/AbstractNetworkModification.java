@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractNetworkModification implements NetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
+    protected NetworkModificationImpact impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+    protected static final double EPSILON = 1e-10;
 
     @Override
     public void apply(Network network) {

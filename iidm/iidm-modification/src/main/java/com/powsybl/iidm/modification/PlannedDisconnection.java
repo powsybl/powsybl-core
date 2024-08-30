@@ -10,8 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.SwitchPredicates;
 
 /**
@@ -40,5 +39,19 @@ public class PlannedDisconnection extends AbstractDisconnection {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         applyModification(network, true, throwException, reportNode);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
+        if (identifiable == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (identifiable instanceof Connectable<?> connectable && connectable.getTerminals().stream().noneMatch(Terminal::isConnected)
+            || identifiable instanceof TieLine tieLine && !tieLine.getTerminal1().isConnected() && !tieLine.getTerminal2().isConnected()
+            || identifiable instanceof HvdcLine hvdcLine && !hvdcLine.getConverterStation1().getTerminal().isConnected() && !hvdcLine.getConverterStation2().getTerminal().isConnected()) {
+            // TODO: Some cases are not covered since we don't check if the connection can really happen
+            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 }

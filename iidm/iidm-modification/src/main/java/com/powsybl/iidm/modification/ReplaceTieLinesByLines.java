@@ -130,4 +130,9 @@ public class ReplaceTieLinesByLines extends AbstractNetworkModification {
             lostTieLineExtensions(reportNode, extensions, tl.getId());
         }
     }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        return impact;
+    }
 }

@@ -208,4 +208,21 @@ public class GeneratorModification extends AbstractNetworkModification {
             this.ignoreCorrectiveOperations = ignoreCorrectiveOperations;
         }
     }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Generator g = network.getGenerator(generatorId);
+        if (g == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (modifs.getMinP() != null && Math.abs(modifs.getMinP() - g.getMinP()) > EPSILON
+            || modifs.getMaxP() != null && Math.abs(modifs.getMaxP() - g.getMaxP()) > EPSILON
+            || modifs.getTargetV() != null && Math.abs(modifs.getTargetV() - g.getTargetV()) > EPSILON
+            || modifs.getTargetQ() != null && Math.abs(modifs.getTargetQ() - g.getTargetQ()) > EPSILON
+            || modifs.getConnected() != null && modifs.getConnected() != g.getTerminal().isConnected()
+            || modifs.getVoltageRegulatorOn() != null && modifs.getVoltageRegulatorOn() != g.isVoltageRegulatorOn()) {
+            // TODO: last part of the apply case with getVoltageRegulatorOn is to add
+            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        }
+        return impact;
+    }
 }

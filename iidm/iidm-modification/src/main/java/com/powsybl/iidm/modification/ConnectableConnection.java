@@ -77,6 +77,17 @@ public class ConnectableConnection extends AbstractNetworkModification {
         }
     }
 
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Connectable<?> connectable = network.getConnectable(connectableId);
+        if (connectable == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (!connectable.connect(isTypeSwitchToOperate, side)) {
+            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        }
+        return impact;
+    }
+
     private void connectIdentifiable(Identifiable<?> identifiable, Network network, boolean throwException, ReportNode reportNode) {
         boolean hasBeenConnected = false;
         try {
