@@ -618,7 +618,7 @@ $$
 - [Two-windings Transformer To Be Estimated](extensions.md#two-windings-transformer-to-be-estimated)
 
 (three-winding-transformer)=
-### Three-winding transformers
+### Three-winding transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/ThreeWindingsTransformer.html)
 
 A three-winding power transformer is connected to three voltage levels (side 1, side 2 and side 3) that belong to the

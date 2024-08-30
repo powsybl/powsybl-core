@@ -180,8 +180,8 @@ PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is expor
 
 #### Regulating control
 
-If the network comes from a CIM-CGMES model and a generator has initially a `RegulatingControl`, it always has at export
-too. Otherwise, a `RegulatingControl` is always exported for generators, except if it has no regulating capabilities because
+If the network comes from a CIM-CGMES model and a generator initially has a `RegulatingControl`, it will still have one at export.
+Otherwise, a `RegulatingControl` is always exported for generators, except if it has no regulating capabilities because
 $minQ = maxQ$.
 
 A `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.reactivePower` when a 
@@ -213,7 +213,7 @@ PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compen
 
 #### Regulating control
 
-If the network comes from a CIM-CGMES model and a shunt compensator initially has a `RegulatingControl`, it will always
+If the network comes from a CIM-CGMES model and a shunt compensator initially has a `RegulatingControl`, it will still
 have one at export.
 
 A shunt compensator with local voltage control (i.e., the regulating terminal is the same of the terminal of connection)
@@ -226,7 +226,7 @@ PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-v
 
 #### Regulating control
 
-If the network comes from a CIM-CGMES model and a static VAR compensator initially has a `RegulatingControl`, it will always
+If the network comes from a CIM-CGMES model and a static VAR compensator initially has a `RegulatingControl`, it will still
 have one at export.
 
 A static VAR compensator which voltage control is local (i.e., the regulating terminal is the same of the terminal of
