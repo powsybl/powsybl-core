@@ -173,6 +173,10 @@ public abstract class AbstractNetworkModification implements NetworkModification
         }
     }
 
+    /**
+     * Returns the name of the network modification. That name corresponds to the type of network modification
+     * @return the name of the network modification
+     */
     public abstract String getName();
 
     protected ReportNode reportOnDryRunStart(Network network, ReportNode reportNode) {
