@@ -40,8 +40,8 @@ Thanks to Kirchhoff laws (see the [line](../grid_model/network_subnetwork.md#lin
 
 $(P_1^{calc}, Q_1^{calc}, P_2^{calc}, Q_2^{calc}) = f(\text{Voltages}, \text{Characteristics})$
 
-## Three-windings transformers
-To be implemented, based on a conversion into 3 two-windings transformers.
+## Three-winding transformers
+To be implemented, based on a conversion into 3 two-winding transformers.
 
 ## Generators
 

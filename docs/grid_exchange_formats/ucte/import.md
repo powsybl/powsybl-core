@@ -73,7 +73,7 @@ Notations:
 |                      $maxQ > 9999$                       |          $maxQ = 9999$           |
 |                      $minQ < -9999$                      |          $minQ = -9999$          |
 
-### Lines or two-windings transformers
+### Lines or two-winding transformers
 
 Notations:
 - $X$: reactance in $\Omega$

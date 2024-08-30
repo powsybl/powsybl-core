@@ -143,7 +143,7 @@ A set of current permanent limits is defined as `1000.0` * `rateMva` / (`sqrt(3.
 
 ### _Transformer Data_
 
-The _Transformer Data_ block defines two windings and three-winding transformers. Two winding transformers have four line records, while three-winding transformers have five line records. A `0` value in the field `K` of the _Transformer Data_ record first line is used to indicate that is a two-winding transformer, otherwise is considered a three-winding transformer.
+The _Transformer Data_ block defines two- and three-winding transformers. Two-winding transformers have four line records, while three-winding transformers have five line records. A `0` value in the field `K` of the _Transformer Data_ record first line is used to indicate that is a two-winding transformer, otherwise is considered a three-winding transformer.
 
 PSS@E two-winding transformer records are mapped to two-winding transformers in the PowSyBl grid model. They are associated with corresponding voltage levels inside the same substation and defined with the following attributes:
 
@@ -215,7 +215,7 @@ When a three-winding transformer is modeled, the two-winding transformer steps s
 
   `Z3 = 0.5 * (Z2-3 + Z3-1 - Z1-2)`
 
-- All the shunt admittances of the three-winding transformers in the PSS®E model are assigned to the winding `1`. There is not shunt admittance at windings `2` and `3`.
+- All the shunt admittances of the three-winding transformers in the PSS®E model are assigned to the winding `1`. There is no shunt admittance at windings `2` and `3`.
 - Each winding can have a complex ratio and a `ratioTapChanger` or `phaseTapChanger` with its corresponding control, always at end `1`. The current PowSyBl version only supports one enabled control by three-winding transformers so if there is more than one enabled only the first (winding `1`, winding `2`, winding `3`) is kept enabled, the rest are automatically disabled.
 - In three-winding transformers the status attribute (field `STAT` in the _Transformer Data_ record) could be `0` that means all the windings disconnected, `1` for all windings connected, `2` for only the second winding disconnected, `3` for the third winding disconnected and `4` for the first winding disconnected.
 

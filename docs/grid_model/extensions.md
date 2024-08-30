@@ -501,7 +501,7 @@ transformer.newExtension(ThreeWindingsTransformerPhaseAngleClock.class)
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
 (three-winding-transformer-to-be-estimated-extension)=
-## Three-windings transformer to be estimated
+## Three-winding transformer to be estimated
 
 This extension is used to indicate if a three-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
 * The three-winding transformer model offers the possibility to have up to 3 ratio tap changers and up to 3 phase tap changers. Each tap changer can be estimated or not.

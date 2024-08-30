@@ -9,7 +9,7 @@ Each limit reduction has its own criteria specifying for which limits and under 
 - the type of limit (current, active power or apparent power)
 - the use case: for monitoring only or also for applying remedial actions
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.)
-- the network elements targeted by the reduction (branches, three-windings transformers, ...), which can be described by the following criteria:
+- the network elements targeted by the reduction (branches, three-winding transformers, ...), which can be described by the following criteria:
     - a set of their ids;
     - their countries;
     - their nominal voltages.

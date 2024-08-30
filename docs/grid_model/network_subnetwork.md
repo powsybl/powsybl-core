@@ -547,8 +547,8 @@ A tie line is not a connectable. It is just a container of two underlying dangli
 
 ## Transformers
 
-(two-windings-transformer)=
-### Two winding transformer
+(two-winding-transformer)=
+### Two-winding transformer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/TwoWindingsTransformer.html)
 
 A two-winding power transformer is connected to two voltage levels (side 1 and side 2) that belong to the same substation.
@@ -603,7 +603,7 @@ $$
 
 **Specifications**
 
-- A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated with a two windings power transformer.
+- A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated with a two-winding power transformer.
 - For a two-winding transformer, the normal apparent power shall be identical at both sides 1 and 2.
 
 **Available extensions**
@@ -641,7 +641,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 
 **Specifications**
 
-- A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated to all three sides of a three windings power transformer.
+- A [ratio tap changer](./additional.md#ratio-tap-changer) and/or a [phase tap changer](./additional.md#phase-tap-changer) can be associated to all three sides of a three-winding power transformer.
   Only one tap changer (either ratio or phase tap changer) is allowed to be regulating on the equipment at a given time.
 
 **Available extensions**
@@ -654,7 +654,7 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 - [Three-windings Transformer Phase Angle Clock](extensions.md#three-windings-transformer-phase-angle-clock)
 - [Three-windings Transformer To Be Estimated](extensions.md#three-windings-transformer-to-be-estimated)
 
-#### Three windings transformer leg
+#### Three-winding transformer leg
 
 **Characteristics**
 

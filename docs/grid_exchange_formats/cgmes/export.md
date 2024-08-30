@@ -1,7 +1,7 @@
 # Export
 
 There are two main use-cases supported:
- * Export IGM (Individual Grid Model) instance files. There is a single network and a unique CGMES modelling authority. 
+ * Export IGM (Individual Grid Model) instance files. There is a single network and a unique CGMES modeling authority. 
  * Export CGM (Common Grid Model) instance files. A network composed of multiple subnetworks, where each subnetwork is an IGM. 
 
 In both cases, the metadata model information in the exported files is built from metadata information read from the input files and stored in IIDM or received through parameters. 
@@ -380,7 +380,7 @@ Optional property to specify if the total mismatch left after power flow calcula
 This property is set to `true` by default.
 
 **iidm.export.cgmes.sourcing-actor**  
-Optional property allowing to specify a custom sourcing actor. If a Boundary set with reference data is provided for the export through the parameter `iidm.import.cgmes.boundary-location`, the value of this property will be used to look for the modelling authority set and the geographical region to be used in the export.
+Optional property allowing to specify a custom sourcing actor. If a Boundary set with reference data is provided for the export through the parameter `iidm.import.cgmes.boundary-location`, the value of this property will be used to look for the modeling authority set and the geographical region to be used in the export.
 No default value is given.
 If this property is not given, the export process will still try to determine the sourcing actor from the IIDM network if it only contains one country.
 

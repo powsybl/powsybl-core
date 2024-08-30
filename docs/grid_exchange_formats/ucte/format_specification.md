@@ -4,9 +4,9 @@ The [UCTE-DEF](https://cimug.ucaiug.org/Groups/Model%20Exchange/UCTE-format.pdf)
 - Comments (C)
 - Nodes (N)
 - Lines (L)
-- Two windings transformers (T)
-- Two windings transformers regulation (RR)
-- Two windings transformers special description (TT)
+- Two-winding transformers (T)
+- Two-winding transformers regulation (RR)
+- Two-winding transformers special description (TT)
 - Exchange powers (E)
 
 Each block is introduced by a key line consisting of the two characters `##` and of the character given above in brackets. The end of a block is given by the next key line or the end of the file. The information of each block is written in lines, and the contents are separated by a blank (empty space).

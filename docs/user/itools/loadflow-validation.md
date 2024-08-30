@@ -178,8 +178,8 @@ check more leniently.
 In case the voltages are available but not the powers, the result completion feature of the PowSyBl validation
 can be used to recompute them using the validation equations (meaning that the branch validation tests will always be OK, so that it allows performing the bus validation tests).
 
-### Three-windings transformers
-<span style="color: red">To be implemented, based on a conversion into 3 two-windings transformers.</span>
+### Three-winding transformers
+<span style="color: red">To be implemented, based on a conversion into 3 two-winding transformers.</span>
 
 ### Generators
 

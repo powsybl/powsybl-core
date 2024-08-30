@@ -210,8 +210,8 @@ rule('rule-ID') {
 #### Network binding
 The network binding adds keywords in the DSL to get equipment by their IDs. At the moment, the following keywords are supported:
 - `line`: to retrieve a [line](../../grid_model/network_subnetwork.md#line)
-- `transformer`: to retrieve a [two-winding transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
-- `branch`: to retrieve a [line](../../grid_model/network_subnetwork.md#line), a [tie line](../../grid_model/network_subnetwork.md#tie-line) or a [two-winding transformer](../../grid_model/network_subnetwork.md#two-windings-transformer)
+- `transformer`: to retrieve a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer)
+- `branch`: to retrieve a [line](../../grid_model/network_subnetwork.md#line), a [tie line](../../grid_model/network_subnetwork.md#tie-line) or a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer)
 - `generator`: to retrieve a [generator](../../grid_model/network_subnetwork.md#generator)
 - `load`: to retrieve a [load](../../grid_model/network_subnetwork.md#load)
 - `_switch` and `switch_` to retrieve a [switch](../../grid_model/network_subnetwork.md#breakerswitch)
