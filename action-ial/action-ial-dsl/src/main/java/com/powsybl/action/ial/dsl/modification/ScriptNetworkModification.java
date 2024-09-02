@@ -10,6 +10,7 @@ package com.powsybl.action.ial.dsl.modification;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
 import groovy.lang.Closure;
@@ -35,5 +36,12 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         script.call(network, computationManager);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        // In doubt, let's say it has impact on the network
+        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        return impact;
     }
 }

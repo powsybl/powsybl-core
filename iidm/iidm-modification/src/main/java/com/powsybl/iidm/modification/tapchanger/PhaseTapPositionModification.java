@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification.tapchanger;
 
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -92,5 +93,28 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
+        if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (twoWindingsTransformer != null) {
+            if (!twoWindingsTransformer.hasPhaseTapChanger()) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            } else if (Math.abs(getTapPosition() - (isRelative ? twoWindingsTransformer.getPhaseTapChanger().getTapPosition() : 0)) > EPSILON){
+                impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+            }
+        } else {
+            PhaseTapChangerHolder ptcHolder = getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, false);
+            if (!ptcHolder.hasPhaseTapChanger()) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            } else if (Math.abs(getTapPosition() - (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0)) > EPSILON){
+                impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
     }
 }

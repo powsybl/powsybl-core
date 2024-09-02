@@ -57,6 +57,20 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         }
     }
 
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
+        if (identifiable == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (identifiable instanceof Connectable<?> connectable && connectable.getTerminals().stream().noneMatch(Terminal::isConnected)
+            || identifiable instanceof TieLine tieLine && !tieLine.getTerminal1().isConnected() && !tieLine.getTerminal2().isConnected()
+            || identifiable instanceof HvdcLine hvdcLine && !hvdcLine.getConverterStation1().getTerminal().isConnected() && !hvdcLine.getConverterStation2().getTerminal().isConnected()) {
+            // TODO: Some cases are not covered since we don't check if the connection can really happen
+            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        }
+        return impact;
+    }
+
     private void disconnectIdentifiable(Identifiable<?> identifiable, Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
         boolean hasBeenDisconnected;
         try {

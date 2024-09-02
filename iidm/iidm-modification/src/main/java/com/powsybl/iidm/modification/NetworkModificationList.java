@@ -11,10 +11,10 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -35,5 +35,19 @@ public class NetworkModificationList extends AbstractNetworkModification {
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        modificationList.forEach(modification -> {
+            // If a sub-modification cannot be applied, the whole modification cannot be applied too
+            if (impact != NetworkModificationImpact.CANNOT_BE_APPLIED) {
+                NetworkModificationImpact unitaryImpact = modification.hasImpactOnNetwork(network);
+                if (unitaryImpact == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK) {
+                    impact = unitaryImpact;
+                }
+            }
+        });
+        return impact;
     }
 }

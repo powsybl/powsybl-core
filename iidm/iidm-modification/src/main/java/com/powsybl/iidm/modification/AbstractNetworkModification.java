@@ -13,7 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,5 +92,17 @@ public abstract class AbstractNetworkModification implements NetworkModification
         } else {
             LOGGER.warn("Error while applying modification : {}", message);
         }
+    }
+
+    protected static boolean checkVoltageLevel(Identifiable<?> identifiable) {
+        VoltageLevel vl;
+        if (identifiable instanceof Bus bus) {
+            vl = bus.getVoltageLevel();
+        } else if (identifiable instanceof BusbarSection bbs) {
+            vl = bbs.getTerminal().getVoltageLevel();
+        } else {
+            return false;
+        }
+        return vl != null;
     }
 }

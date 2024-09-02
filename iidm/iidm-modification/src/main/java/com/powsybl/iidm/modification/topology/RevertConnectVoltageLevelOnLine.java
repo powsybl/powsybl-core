@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,6 +160,23 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
         // remove voltage level and substation in common, if necessary
         removeVoltageLevelAndSubstation(commonVl, reportNode);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        Line line1 = network.getLine(line1Id);
+        Line line2 = network.getLine(line2Id);
+        if (line1 == null || line2 == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            Set<String> vlIds = new HashSet<>();
+            vlIds.add(line1.getTerminal1().getVoltageLevel().getId());
+            vlIds.add(line1.getTerminal2().getVoltageLevel().getId());
+            vlIds.add(line2.getTerminal1().getVoltageLevel().getId());
+            vlIds.add(line2.getTerminal2().getVoltageLevel().getId());
+            impact = vlIds.size() == 3 ? NetworkModificationImpact.HAS_IMPACT_ON_NETWORK : NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 
     public String getLine1Id() {
