@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.powsybl.ampl.converter.AmplConstants.*;
@@ -29,6 +30,13 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class ExtendedAmplExporterV1 extends BasicAmplExporter {
+
+    private static final int SLACK_BUS_COLUMN_INDEX = 8;
+    private static final int TAP_CHANGER_R_COLUMN_INDEX = 4;
+    private static final int TAP_CHANGER_G_COLUMN_INDEX = 6;
+    private static final int TAP_CHANGER_B_COLUMN_INDEX = 7;
+    private static final int GENERATOR_V_REGUL_BUS_COLUMN_INDEX = 14;
+    private static final int STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX = 8;
 
     public ExtendedAmplExporterV1(AmplExportConfig config,
                                   Network network,
@@ -41,88 +49,36 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
 
     @Override
     public List<Column> getBusesColumns() {
-        super.getBusesColumns();
-
-        return List.of(new Column(VARIANT),
-            new Column(NUM),
-            new Column(SUBSTATION),
-            new Column("cc"),
-            new Column("v (pu)"),
-            new Column("theta (rad)"),
-            new Column("p (MW)"),
-            new Column("q (MVar)"),
-            new Column("slack bus"),
-            new Column(FAULT),
-            new Column(getConfig().getActionType().getLabel()),
-            new Column(ID));
+        List<Column> busesColumns = new ArrayList<>(super.getBusesColumns());
+        // add slack bus column
+        busesColumns.add(SLACK_BUS_COLUMN_INDEX, new Column("slack bus"));
+        return busesColumns;
     }
 
     @Override
     public List<Column> getTapChangerTableColumns() {
-        return List.of(new Column(VARIANT),
-            new Column(NUM),
-            new Column("tap"),
-            new Column("var ratio"),
-            new Column("r (pu)"),
-            new Column("x (pu)"),
-            new Column("g (pu)"),
-            new Column("b (pu)"),
-            new Column("angle (rad)"),
-            new Column(FAULT),
-            new Column(getConfig().getActionType().getLabel()));
+        List<Column> tapChangerTableColumns = new ArrayList<>(super.getTapChangerTableColumns());
+        // add r, g and b columns
+        tapChangerTableColumns.add(TAP_CHANGER_R_COLUMN_INDEX, new Column("r (pu)"));
+        tapChangerTableColumns.add(TAP_CHANGER_G_COLUMN_INDEX, new Column("g (pu)"));
+        tapChangerTableColumns.add(TAP_CHANGER_B_COLUMN_INDEX, new Column("b (pu)"));
+        return tapChangerTableColumns;
     }
 
     @Override
     public List<Column> getGeneratorsColumns() {
-        return List.of(
-            new Column(VARIANT),
-            new Column(NUM),
-            new Column(BUS),
-            new Column(CON_BUS),
-            new Column(SUBSTATION),
-            new Column(MINP),
-            new Column(MAXP),
-            new Column(MIN_Q_MAX_P),
-            new Column(MIN_Q0),
-            new Column(MIN_Q_MIN_P),
-            new Column(MAX_Q_MAX_P),
-            new Column(MAX_Q0),
-            new Column(MAX_Q_MIN_P),
-            new Column(V_REGUL),
-            new Column(V_REGUL_BUS),
-            new Column(TARGET_V),
-            new Column("targetP (MW)"),
-            new Column(TARGET_Q),
-            new Column(FAULT),
-            new Column(getConfig().getActionType().getLabel()),
-            new Column(ID),
-            new Column(DESCRIPTION),
-            new Column(ACTIVE_POWER),
-            new Column(REACTIVE_POWER)
-        );
+        List<Column> generatorsColumns = new ArrayList<>(super.getGeneratorsColumns());
+        // add column for voltage regulated bus
+        generatorsColumns.add(GENERATOR_V_REGUL_BUS_COLUMN_INDEX, new Column(V_REGUL_BUS));
+        return generatorsColumns;
     }
 
     @Override
     public List<Column> getStaticVarCompensatorColumns() {
-        return List.of(
-            new Column(VARIANT),
-            new Column(NUM),
-            new Column(BUS),
-            new Column(CON_BUS),
-            new Column(SUBSTATION),
-            new Column("minB (pu)"),
-            new Column("maxB (pu)"),
-            new Column(V_REGUL),
-            new Column(V_REGUL_BUS),
-            new Column(TARGET_V),
-            new Column(TARGET_Q),
-            new Column(FAULT),
-            new Column(getConfig().getActionType().getLabel()),
-            new Column(ID),
-            new Column(DESCRIPTION),
-            new Column(ACTIVE_POWER),
-            new Column(REACTIVE_POWER)
-        );
+        List<Column> svcColumns = new ArrayList<>(super.getStaticVarCompensatorColumns());
+        // add column for voltage regulated bus
+        svcColumns.add(STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX, new Column(V_REGUL_BUS));
+        return svcColumns;
     }
 
     @Override
