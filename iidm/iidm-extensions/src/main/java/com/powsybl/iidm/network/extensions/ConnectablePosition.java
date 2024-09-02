@@ -31,6 +31,7 @@ import java.util.Optional;
 public interface ConnectablePosition<C extends Connectable<C>> extends Extension<C> {
 
     String NAME = "position";
+    int DEFAULT_SIDE = -1;
 
     enum Direction {
         TOP,
@@ -46,17 +47,29 @@ public interface ConnectablePosition<C extends Connectable<C>> extends Extension
     interface Feeder {
         Optional<String> getName();
 
-        Feeder setName(String name);
+        default Feeder setName(String name) {
+            return setName(name, DEFAULT_SIDE);
+        }
+
+        Feeder setName(String name, int side);
 
         Optional<Integer> getOrder();
 
-        Feeder setOrder(int order);
+        default Feeder setOrder(int order) {
+            return setOrder(order, DEFAULT_SIDE);
+        }
+
+        Feeder setOrder(int order, int side);
 
         Feeder removeOrder();
 
         Direction getDirection();
 
-        Feeder setDirection(Direction direction);
+        default Feeder setDirection(Direction direction) {
+            return setDirection(direction, DEFAULT_SIDE);
+        }
+
+        Feeder setDirection(Direction direction, int side);
     }
 
     /**

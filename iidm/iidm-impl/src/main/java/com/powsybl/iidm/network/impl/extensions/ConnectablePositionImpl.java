@@ -53,6 +53,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
         @Override
         public Feeder setName(String name) {
+            return setName(name, DEFAULT_SIDE);
+        }
+
+        @Override
+        public Feeder setName(String name, int side) {
             this.name = name;
             return this;
         }
@@ -64,6 +69,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
         @Override
         public Feeder setOrder(int order) {
+            return setOrder(order, DEFAULT_SIDE);
+        }
+
+        @Override
+        public Feeder setOrder(int order, int side) {
             this.order = order;
             return this;
         }
@@ -81,6 +91,11 @@ public class ConnectablePositionImpl<C extends Connectable<C>> extends AbstractE
 
         @Override
         public Feeder setDirection(Direction direction) {
+            return setDirection(direction, DEFAULT_SIDE);
+        }
+
+        @Override
+        public Feeder setDirection(Direction direction, int side) {
             this.direction = Objects.requireNonNull(direction);
             return this;
         }
