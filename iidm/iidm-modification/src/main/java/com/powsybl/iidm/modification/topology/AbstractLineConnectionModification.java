@@ -131,9 +131,7 @@ abstract class AbstractLineConnectionModification<M extends AbstractLineConnecti
         Identifiable<?> identifiable = network.getIdentifiable(bbsOrBusId);
         if (!checkVoltageLevel(identifiable) || Double.isNaN(positionPercent)) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
         }
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         return impact;
     }
 

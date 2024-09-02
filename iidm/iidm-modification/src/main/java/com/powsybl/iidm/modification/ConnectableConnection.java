@@ -82,8 +82,8 @@ public class ConnectableConnection extends AbstractNetworkModification {
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (connectable == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (!connectable.connect(isTypeSwitchToOperate, side)) {
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        } else if (connectable.getTerminals().stream().allMatch(Terminal::isConnected)) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
     }

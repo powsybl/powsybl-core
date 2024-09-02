@@ -38,8 +38,6 @@ public abstract class AbstractLineDisconnectionModification<M extends AbstractLi
         if (line1Id == null || line2Id == null || lineToBeDeleted == null
             || TopologyModificationUtils.findTeePoint(line1Id, line2Id, lineToBeDeleted) == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else {
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         }
         return impact;
     }

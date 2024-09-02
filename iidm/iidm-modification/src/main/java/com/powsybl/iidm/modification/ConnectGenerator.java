@@ -43,8 +43,8 @@ public final class ConnectGenerator extends AbstractNetworkModification {
         Generator g = network.getGenerator(generatorId);
         if (g == null || g.getTerminal() == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (!g.getTerminal().isConnected()) {
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        } else if (g.getTerminal().isConnected()) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
     }

@@ -60,9 +60,9 @@ public class DanglingLineModification extends AbstractLoadModification {
         DanglingLine danglingLine = network.getDanglingLine(getDanglingLineId());
         if (danglingLine == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (p0 != null && Math.abs(p0 - (isRelativeValue() ? danglingLine.getP0() : 0)) > EPSILON
-            || q0 != null && Math.abs(q0 - (isRelativeValue() ? danglingLine.getQ0() : 0)) > EPSILON) {
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        } else if (p0 != null && Math.abs(p0 - (isRelativeValue() ? danglingLine.getP0() : 0)) < EPSILON
+            || q0 != null && Math.abs(q0 - (isRelativeValue() ? danglingLine.getQ0() : 0)) < EPSILON) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
     }

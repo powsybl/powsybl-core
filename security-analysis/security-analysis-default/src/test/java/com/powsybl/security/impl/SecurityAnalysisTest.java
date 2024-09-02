@@ -9,6 +9,7 @@ package com.powsybl.security.impl;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.action.SwitchAction;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
@@ -16,7 +17,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ComputationResourcesStatus;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
-import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -24,7 +24,6 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
-import com.powsybl.action.SwitchAction;
 import com.powsybl.security.condition.AnyViolationCondition;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
@@ -65,13 +64,6 @@ class SecurityAnalysisTest {
             network.getLine("NHV1_NHV2_2").getTerminal2().disconnect();
             network.getLine("NHV1_NHV2_1").getTerminal2().setP(600.0);
             ((Bus) network.getIdentifiable("NHV2")).setV(380.0).setAngle(-0.10);
-        }
-
-        @Override
-        public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-            // In doubt, let's say it has impact on the network
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
-            return impact;
         }
     }
 

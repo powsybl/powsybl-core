@@ -61,9 +61,9 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         if (shuntCompensator == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (connect != null && connect != shuntCompensator.getTerminal().isConnected()
-            || sectionCount != null && sectionCount != shuntCompensator.getSectionCount()) {
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        } else if ((connect == null || connect == shuntCompensator.getTerminal().isConnected())
+            && (sectionCount == null || sectionCount == shuntCompensator.getSectionCount())) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
     }

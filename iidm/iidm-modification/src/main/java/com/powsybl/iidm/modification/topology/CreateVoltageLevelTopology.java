@@ -175,17 +175,15 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, ReportNode.NO_OP)) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
+        } else {
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (voltageLevel == null ||
+                voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER &&
+                    (switchKinds.size() != sectionCount - 1 || switchKinds.contains(null)
+                        || switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER))) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            }
         }
-        VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
-        if (voltageLevel == null ||
-            voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER &&
-                (switchKinds.size() != sectionCount - 1 || switchKinds.contains(null)
-                    || switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER))) {
-            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
-        }
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         return impact;
     }
 

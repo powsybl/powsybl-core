@@ -39,15 +39,18 @@ public class NetworkModificationList extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        modificationList.forEach(modification -> {
-            // If a sub-modification cannot be applied, the whole modification cannot be applied too
-            if (impact != NetworkModificationImpact.CANNOT_BE_APPLIED) {
-                NetworkModificationImpact unitaryImpact = modification.hasImpactOnNetwork(network);
-                if (unitaryImpact == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK) {
-                    impact = unitaryImpact;
-                }
+        boolean hasImpact = false;
+        for (NetworkModification modification : modificationList) {
+            NetworkModificationImpact unitaryImpact = modification.hasImpactOnNetwork(network);
+            if (unitaryImpact == NetworkModificationImpact.CANNOT_BE_APPLIED) {
+                // If a sub-modification cannot be applied, the whole modification cannot be applied too
+                impact = unitaryImpact;
+                return impact;
+            } else if (hasImpact || unitaryImpact == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK)    {
+                hasImpact = true;
             }
-        });
+        }
+        impact = hasImpact ? NetworkModificationImpact.HAS_IMPACT_ON_NETWORK : NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         return impact;
     }
 }

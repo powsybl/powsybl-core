@@ -104,15 +104,15 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
         } else if (twoWindingsTransformer != null) {
             if (!twoWindingsTransformer.hasPhaseTapChanger()) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (Math.abs(getTapPosition() - (isRelative ? twoWindingsTransformer.getPhaseTapChanger().getTapPosition() : 0)) > EPSILON) {
-                impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+            } else if (Math.abs(getTapPosition() - (isRelative ? twoWindingsTransformer.getPhaseTapChanger().getTapPosition() : 0)) < EPSILON) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         } else {
             PhaseTapChangerHolder ptcHolder = getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, false);
             if (!ptcHolder.hasPhaseTapChanger()) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (Math.abs(getTapPosition() - (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0)) > EPSILON) {
-                impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+            } else if (Math.abs(getTapPosition() - (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0)) < EPSILON) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }
         return impact;

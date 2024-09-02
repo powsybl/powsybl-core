@@ -54,8 +54,8 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
         Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
         traverse(network, switchesToOpen, terminalsToDisconnect);
-        if (!switchesToOpen.isEmpty()) {
-            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        if (switchesToOpen.isEmpty()) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;
     }

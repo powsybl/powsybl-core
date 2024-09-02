@@ -97,7 +97,6 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
                 return impact;
             }
         }
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         return impact;
     }
 

@@ -68,9 +68,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         Connectable<?> connectable = network.getConnectable(connectableId);
         if (connectable == null || connectable instanceof BusbarSection) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
         }
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         return impact;
     }
 

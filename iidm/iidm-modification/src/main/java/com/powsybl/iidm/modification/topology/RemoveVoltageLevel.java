@@ -70,9 +70,7 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         if (network.getVoltageLevel(voltageLevelId) == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
         }
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         return impact;
     }
 }

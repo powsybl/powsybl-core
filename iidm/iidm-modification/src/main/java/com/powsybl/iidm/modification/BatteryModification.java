@@ -54,9 +54,9 @@ public class BatteryModification extends AbstractNetworkModification {
         if (battery == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else {
-            if (targetP != null && Math.abs(targetP - battery.getTargetP()) > EPSILON
-                || targetQ != null && Math.abs(targetQ - battery.getTargetQ()) > EPSILON) {
-                impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+            if (targetP != null && Math.abs(targetP - battery.getTargetP()) < EPSILON
+                || targetQ != null && Math.abs(targetQ - battery.getTargetQ()) < EPSILON) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }
         return impact;

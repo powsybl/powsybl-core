@@ -121,9 +121,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
         if (!checkVoltageLevel(busOrBbs1) || !checkVoltageLevel(busOrBbs2)
             || busOrBbsId1.equals(busOrBbsId2)) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            return impact;
         }
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
         return impact;
     }
 

@@ -37,11 +37,4 @@ public class ScriptNetworkModification extends AbstractNetworkModification {
                       ComputationManager computationManager, ReportNode reportNode) {
         script.call(network, computationManager);
     }
-
-    @Override
-    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        // In doubt, let's say it has impact on the network
-        impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
-        return impact;
-    }
 }
