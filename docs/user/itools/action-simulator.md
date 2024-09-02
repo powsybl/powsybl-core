@@ -71,7 +71,7 @@ This option defines the path to the folder in which the case files will be expor
 This option defines the format of the output case files. The list of [supported formats](../../grid_exchange_formats/index.md) are listed between brackets in the command help.
 
 `--output-compression-format`  
-This option defines the compression format of the case files. The list of supported formats is listed between brackets in the command help.
+This option defines the compression format of the case files. The list of supported formats is mentioned between brackets in the command help.
 
 `--output-file`  
 This option defines the path of the result file. If this option is omitted, the results are displayed in the console.

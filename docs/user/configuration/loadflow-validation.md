@@ -66,7 +66,7 @@ The `threshold` property is an optional property that defines the margin used fo
 **verbose:**  
 The `verbose` property is an optional property that defines whether the [loadflow-validation](../itools/loadflow-validation.md) command runs in verbose or quiet mode.
 
-If this property is set to `true`, the output files contain all the data of the validated equipment; otherwise they contain only the main data of the validated equipments.
+If this property is set to `true`, the output files contain all the data of the validated equipment; otherwise they contain only the main data of the validated equipment.
 
 ## Examples
 
