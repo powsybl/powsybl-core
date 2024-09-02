@@ -76,14 +76,14 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
         } else if (twoWindingsTransformer != null) {
             if (!twoWindingsTransformer.hasPhaseTapChanger()) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (Math.abs(getTapPosition() - twoWindingsTransformer.getPhaseTapChanger().getTapPosition()) > EPSILON){
+            } else if (Math.abs(getTapPosition() - twoWindingsTransformer.getPhaseTapChanger().getTapPosition()) > EPSILON) {
                 impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
             }
         } else {
             PhaseTapChangerHolder ptcHolder = getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, false);
             if (!ptcHolder.hasPhaseTapChanger()) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (Math.abs(getTapPosition() - ptcHolder.getPhaseTapChanger().getTapPosition()) > EPSILON){
+            } else if (Math.abs(getTapPosition() - ptcHolder.getPhaseTapChanger().getTapPosition()) > EPSILON) {
                 impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
             }
         }
