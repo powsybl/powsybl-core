@@ -232,13 +232,10 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
                                       RatioTapChanger rtc) throws IOException {
         int num = getMapper().getInt(AmplSubset.TAP_CHANGER_TABLE, id);
 
-        int lowTapPosition = rtc.getLowTapPosition();
-        for (int position = lowTapPosition; position <= rtc.getHighTapPosition(); position++) {
+        for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
             RatioTapChangerStep step = rtc.getStep(position);
-            writeTapChanger(formatter, zb2,
-                transformerZandY, num, rtc.getLowTapPosition(),
-                new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB()), position, step.getRho(),
-                0);
+            ImpedanceAndAdmittance stepCharacteristics = new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB());
+            writeTapChanger(formatter, num, position, rtc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), 0);
         }
     }
 
@@ -249,23 +246,20 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
 
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
             PhaseTapChangerStep step = ptc.getStep(position);
-            writeTapChanger(formatter, zb2,
-                transformerZandY, num, ptc.getLowTapPosition(),
-                new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB()), position, step.getRho(),
-                Math.toRadians(step.getAlpha()));
+            ImpedanceAndAdmittance stepCharacteristics = new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB());
+            writeTapChanger(formatter, num, position, ptc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha()));
         }
     }
 
-    private void writeTapChanger(TableFormatter formatter, double zb2, ImpedanceAndAdmittance transformer, int num,
-                                 int lowTapPosition, ImpedanceAndAdmittance step, int position, double rho,
-                                 double alpha) throws IOException {
+    private void writeTapChanger(TableFormatter formatter, int num, int stepPosition, int lowTapPosition, double zb2,
+                                 ImpedanceAndAdmittance transformer, ImpedanceAndAdmittance step, double rho, double alpha) throws IOException {
         double rNorm = transformer.r * (1 + step.r / 100) / zb2;
         double xNorm = transformer.x * (1 + step.x / 100) / zb2;
-        double gNorm = transformer.g * (1 + step.g / 100) / zb2;
-        double bNorm = transformer.b * (1 + step.b / 100) / zb2;
+        double gNorm = transformer.g * (1 + step.g / 100) * zb2;
+        double bNorm = transformer.b * (1 + step.b / 100) * zb2;
         formatter.writeCell(getVariantIndex())
             .writeCell(num)
-            .writeCell(position - lowTapPosition + 1)
+            .writeCell(stepPosition - lowTapPosition + 1)
             .writeCell(rho)
             .writeCell(rNorm)
             .writeCell(xNorm)
@@ -353,7 +347,6 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
             .writeCell(svc.getNameOrId())
             .writeCell(t.getP())
             .writeCell(t.getQ());
-
     }
 
 }
