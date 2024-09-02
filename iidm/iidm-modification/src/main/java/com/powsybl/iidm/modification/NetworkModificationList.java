@@ -46,7 +46,7 @@ public class NetworkModificationList extends AbstractNetworkModification {
                 // If a sub-modification cannot be applied, the whole modification cannot be applied too
                 impact = unitaryImpact;
                 return impact;
-            } else if (hasImpact || unitaryImpact == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK)    {
+            } else if (hasImpact || unitaryImpact == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK) {
                 hasImpact = true;
             }
         }
