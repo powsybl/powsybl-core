@@ -367,7 +367,7 @@ public final class JsonUtil {
 
     private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
                                                                                     SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
-        String extensionName = parser.getCurrentName();
+        String extensionName = parser.currentName();
         ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.getSerializer(extensionName);
         if (extensionJsonSerializer != null) {
             parser.nextToken();
@@ -513,7 +513,7 @@ public final class JsonUtil {
             }
             while (token != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     boolean found = fieldHandler.onField(fieldName);
                     if (!found) {
                         throw new PowsyblException("Unexpected field " + fieldName);

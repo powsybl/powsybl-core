@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -76,7 +75,7 @@ class DockerLocalCommandExecutorTest {
         List<String> lines = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<List<String>>() {
             @Override
             public List<CommandExecution> before(Path workingDir) throws IOException {
-                Files.write(workingDir.resolve("test.txt"), "hello".getBytes(StandardCharsets.UTF_8));
+                Files.writeString(workingDir.resolve("test.txt"), "hello");
                 return List.of(new CommandExecution(new SimpleCommandBuilder()
                         .id(COMMAND_ID)
                         .program("cat")

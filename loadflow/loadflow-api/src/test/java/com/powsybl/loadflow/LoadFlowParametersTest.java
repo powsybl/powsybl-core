@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import java.nio.file.FileSystem;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -123,7 +122,7 @@ class LoadFlowParametersTest {
         moduleConfig.setStringProperty("distributedSlack", Boolean.toString(dc));
         moduleConfig.setStringProperty("balanceType", balanceType.name());
         moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dc));
-        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).collect(Collectors.toList()));
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).toList());
         moduleConfig.setStringProperty("computedConnectedComponent", computedConnectedComponent.name());
         moduleConfig.setStringProperty("hvdcAcEmulation", Boolean.toString(hvdcAcEmulation));
 
@@ -327,8 +326,8 @@ class LoadFlowParametersTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
-        assertTrue(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummy-extension"));
+        assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -350,7 +349,7 @@ class LoadFlowParametersTest {
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
         assertFalse(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
-        assertFalse(parameters.getExtension(DummyExtension.class) instanceof DummyExtension);
+        assertNull(parameters.getExtension(DummyExtension.class));
     }
 
     @Test
@@ -358,7 +357,7 @@ class LoadFlowParametersTest {
         LoadFlowParameters parameters = LoadFlowParameters.load(platformConfig);
 
         assertEquals(1, parameters.getExtensions().size());
-        assertTrue(parameters.getExtensionByName("dummy-extension") instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName("dummy-extension"));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 }
