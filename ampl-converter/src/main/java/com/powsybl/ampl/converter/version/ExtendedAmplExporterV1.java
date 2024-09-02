@@ -17,6 +17,7 @@ import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ConnectedComponents;
+import com.powsybl.iidm.network.util.SV;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -92,17 +93,93 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
         double v = b.getV() / nomV;
         double theta = Math.toRadians(b.getAngle());
         formatter.writeCell(getVariantIndex())
-            .writeCell(num)
-            .writeCell(vlNum)
-            .writeCell(ccNum)
-            .writeCell(v)
-            .writeCell(theta)
-            .writeCell(b.getP())
-            .writeCell(b.getQ())
-            .writeCell(NetworkUtil.isSlackBus(b))
-            .writeCell(getFaultNum())
-            .writeCell(getActionNum())
-            .writeCell(id);
+                .writeCell(num)
+                .writeCell(vlNum)
+                .writeCell(ccNum)
+                .writeCell(v)
+                .writeCell(theta)
+                .writeCell(b.getP())
+                .writeCell(b.getQ())
+                .writeCell(NetworkUtil.isSlackBus(b))
+                .writeCell(getFaultNum())
+                .writeCell(getActionNum())
+                .writeCell(id);
+    }
+
+    @Override
+    public void writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(TableFormatter formatter,
+                                                                           ThreeWindingsTransformer twt,
+                                                                           int middleCcNum) throws IOException {
+        String middleBusId = AmplUtil.getThreeWindingsTransformerMiddleBusId(twt);
+        String middleVlId = AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt);
+        int middleBusNum = getMapper().getInt(AmplSubset.BUS, middleBusId);
+        int middleVlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
+
+        double v = twt.getProperty("v") == null ? Double.NaN :
+                Double.parseDouble(twt.getProperty("v")) / twt.getRatedU0();
+        double angle = twt.getProperty("angle") == null ? Double.NaN :
+                Math.toRadians(Double.parseDouble(twt.getProperty("angle")));
+
+        formatter.writeCell(getVariantIndex())
+                .writeCell(middleBusNum)
+                .writeCell(middleVlNum)
+                .writeCell(middleCcNum)
+                .writeCell(v)
+                .writeCell(angle)
+                .writeCell(0.0)
+                .writeCell(0.0)
+                .writeCell(false)
+                .writeCell(getFaultNum())
+                .writeCell(getActionNum())
+                .writeCell(middleBusId);
+    }
+
+    @Override
+    public void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, DanglingLine dl,
+                                                        int middleCcNum) throws IOException {
+        Terminal t = dl.getTerminal();
+        Bus b = AmplUtil.getBus(dl.getTerminal());
+        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
+        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
+        int middleBusNum = getMapper().getInt(AmplSubset.BUS, middleBusId);
+        int middleVlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
+        SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
+                TwoSides.ONE).otherSide(
+                dl, true);
+        double nomV = t.getVoltageLevel().getNominalV();
+        double v = sv.getU() / nomV;
+        double theta = Math.toRadians(sv.getA());
+        formatter.writeCell(getVariantIndex())
+                .writeCell(middleBusNum)
+                .writeCell(middleVlNum)
+                .writeCell(middleCcNum)
+                .writeCell(v)
+                .writeCell(theta)
+                .writeCell(0.0) // 0 MW injected at dangling line internal bus
+                .writeCell(0.0) // 0 MVar injected at dangling line internal bus
+                .writeCell(false)
+                .writeCell(getFaultNum())
+                .writeCell(getActionNum())
+                .writeCell(middleBusId);
+    }
+
+    @Override
+    public void writeTieLineMiddleBusesToFormatter(TableFormatter formatter, TieLine tieLine,
+                                                   int xNodeCcNum) throws IOException {
+        String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
+        int xNodeBusNum = getMapper().getInt(AmplSubset.BUS, xNodeBusId);
+        int xNodeVlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
+        formatter.writeCell(getVariantIndex())
+                .writeCell(xNodeBusNum)
+                .writeCell(xNodeVlNum)
+                .writeCell(xNodeCcNum)
+                .writeCell(Float.NaN)
+                .writeCell(Double.NaN)
+                .writeCell(0.0)
+                .writeCell(0.0)
+                .writeCell(getFaultNum())
+                .writeCell(getActionNum())
+                .writeCell(xNodeBusId);
     }
 
     @Override
