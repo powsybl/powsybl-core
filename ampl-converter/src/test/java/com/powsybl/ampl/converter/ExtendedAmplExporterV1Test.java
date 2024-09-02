@@ -56,7 +56,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         new AmplNetworkWriter(network, dataSource, v2Config).write();
 
         assertEqualsToRef(dataSource, "_network_buses",
-            "eurostag-tutorial-example1-buses.txt");
+            "inputs/extended_exporter/eurostag-tutorial-example1-buses.txt");
     }
 
     @Test
@@ -69,7 +69,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         MemDataSource dataSource = new MemDataSource();
         new AmplNetworkWriter(network, dataSource, v2Config).write();
         assertEqualsToRef(dataSource, "_network_tct",
-            "eurostag-tutorial-example1-tct.txt");
+            "inputs/extended_exporter/eurostag-tutorial-example1-tct.txt");
 
     }
 
@@ -82,7 +82,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         new AmplNetworkWriter(network, dataSource, v2Config).write();
 
         assertEqualsToRef(dataSource, "_network_generators",
-            "eurostag-tutorial-example1-generators-regulating-bus.txt");
+            "inputs/extended_exporter/eurostag-tutorial-example1-generators-regulating-bus.txt");
     }
 
     @Test
@@ -92,7 +92,8 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         MemDataSource dataSource = new MemDataSource();
         new AmplNetworkWriter(network, dataSource, v2Config).write();
 
-        assertEqualsToRef(dataSource, "_network_static_var_compensators", "svc-test-case-regulating-bus.txt");
+        assertEqualsToRef(dataSource, "_network_static_var_compensators",
+                "inputs/extended_exporter/svc-test-case-regulating-bus.txt");
     }
 
     @Test
@@ -101,6 +102,6 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         MemDataSource dataSource = new MemDataSource();
         new AmplNetworkWriter(network, dataSource, v2Config).write();
 
-        assertEqualsToRef(dataSource, "_headers", "headers.txt");
+        assertEqualsToRef(dataSource, "_headers", "inputs/extended_exporter/headers.txt");
     }
 }

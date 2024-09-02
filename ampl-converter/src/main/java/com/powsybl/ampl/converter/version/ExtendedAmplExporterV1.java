@@ -37,22 +37,12 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
         super(config, network, mapper, variantIndex, faultNum, actionNum);
     }
 
-    private static class ImpedanceAndAdmittance {
-        double r;
-        double x;
-        double g;
-        double b;
-
-        public ImpedanceAndAdmittance(double r, double x, double g, double b) {
-            this.r = r;
-            this.x = x;
-            this.g = g;
-            this.b = b;
-        }
-    }
+    private record ImpedanceAndAdmittance(double r, double x, double g, double b) { }
 
     @Override
     public List<Column> getBusesColumns() {
+        super.getBusesColumns();
+
         return List.of(new Column(VARIANT),
             new Column(NUM),
             new Column(SUBSTATION),

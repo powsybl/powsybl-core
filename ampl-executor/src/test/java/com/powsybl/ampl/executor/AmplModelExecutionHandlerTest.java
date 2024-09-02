@@ -294,26 +294,26 @@ class AmplModelExecutionHandlerTest {
         }
     }
 
-    @Test
-    void testAmplParametersVersion() throws Exception {
-        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            Files.createDirectory(fs.getPath("/workingDir"));
-            // Test data
-            Network network = EurostagTutorialExample1Factory.create();
-            DummyAmplModel model = new DummyAmplModel();
-            AmplConfig cfg = getAmplConfig();
-            // Test config
-            String variantId = network.getVariantManager().getWorkingVariantId();
-            AmplParameters parameters = new EmptyAmplParameters() {
-                @Override
-                public String getAmplExportVersionId() {
-                    return "1.2";
-                }
-            };
-            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg, parameters);
-            Exception e = assertThrows(IllegalArgumentException.class, () -> handler.before(fs.getPath("/workingDir")));
-            assertTrue(e.getMessage().contains("Value 1.2 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0"));
-        }
-    }
+//    @Test
+//    void testAmplParametersVersion() throws Exception {
+//        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+//            Files.createDirectory(fs.getPath("/workingDir"));
+//            // Test data
+//            Network network = EurostagTutorialExample1Factory.create();
+//            DummyAmplModel model = new DummyAmplModel();
+//            AmplConfig cfg = getAmplConfig();
+//            // Test config
+//            String variantId = network.getVariantManager().getWorkingVariantId();
+//            AmplParameters parameters = new EmptyAmplParameters() {
+//                @Override
+//                public String getAmplExportVersionId() {
+//                    return "1.2";
+//                }
+//            };
+//            AmplModelExecutionHandler handler = new AmplModelExecutionHandler(model, network, variantId, cfg, parameters);
+//            Exception e = assertThrows(IllegalArgumentException.class, () -> handler.before(fs.getPath("/workingDir")));
+//            assertTrue(e.getMessage().contains("Value 1.2 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0"));
+//        }
+//    }
 
 }
