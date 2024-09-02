@@ -177,6 +177,7 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
                 .writeCell(Double.NaN)
                 .writeCell(0.0)
                 .writeCell(0.0)
+                .writeCell(false)
                 .writeCell(getFaultNum())
                 .writeCell(getActionNum())
                 .writeCell(xNodeBusId);
