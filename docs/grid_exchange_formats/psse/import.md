@@ -7,12 +7,14 @@ The import module reads and converts a PSS®E power flow data file to the PowSyB
 
 First, input data is obtained by reading and parsing the input file, and as a result, a PSS®E model is created in memory. This model can be viewed as a set of Java classes where each data block of the PSS®E model is associated with a specific Java class that describes all their attributes or data items. Then, some inconsistency checks are performed on this model. If the validation succeeds, the PSS®E model is converted to a PowSyBl grid model.
 
+(psse-import-options)=
 ## Options
 Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
 
 **psse.import.ignore-base-voltage**  
 The `psse.import.ignore-base-voltage` property is an optional property that defines if the importer should ignore the base voltage information present in the PSS®E file. The default value is `false`.
 
+(psse-inconsistency-checks)=
 ## Inconsistency checks
 -<span style="color: red">TODO</span>
 
@@ -37,6 +39,7 @@ Every voltage level is assigned to its corresponding substation, with attributes
 The following sections describe in detail how each supported PSS®E data block is converted to PowSyBl network model objects.
 
 
+(psse-bus-data-conversion)=
 ### _Bus Data_
 
 There is a one-to-one correspondence between the records of the PSS®E _Bus Data_ block and the buses of the PowSyBl network model. For each record in the _Bus Data_ block a PowSyBl bus is created and assigned to its corresponding voltage level with the following attributes:
@@ -46,6 +49,7 @@ There is a one-to-one correspondence between the records of the PSS®E _Bus Data
 - **Angle** is copied from the PSS®E bus voltage phase angle, `VA`.
 
 
+(psse-load-data-conversion)=
 ### _Load Data_
 
 Every _Load Data_ record represents one load. Multiple loads are allowed at the same bus by specifying one _Load Data_ record with the same bus and different load identifiers. Each record defines a new load in the PowSyBl grid model associated with its corresponding voltage level and with the following attributes:
@@ -59,6 +63,7 @@ The load is connected to the ConnectableBus if load status (field `STATUS` in th
 PSS®E supports loads with three different characteristics: Constant Power, Constant Current and Constant Admittance. The current version only takes into consideration the Constant Power component, discarding the Constant Current component (fields `IP` and `IQ` in the _Load Data_ record) and the Constant Admittance component (fields `YP` and `YQ` in the _Load Data_ record).
 
 
+(psse-fixed-bus-shunt-data-conversion)=
 ### _Fixed Bus Shunt Data_
 
 Each _Fixed Bus Shunt Data_ record defines a PowSyBl shunt compensator with a linear model and a single section. It is possible to define multiple fixed shunts at the same bus. The PowSyBl shunt compensator is associated with its corresponding voltage level and has the following attributes:
@@ -73,6 +78,7 @@ Each _Fixed Bus Shunt Data_ record defines a PowSyBl shunt compensator with a li
 The shunt compensator is connected to the ConnectableBus if fixed shunt status (field `STATUS` in the _Fixed Bus Shunt Data_ record) is `1` (In-service).
 
 
+(psse-switched-shunt-data-conversion)=
 ### _Switched Shunt Data_
 
 In the PSS®E version 33, only one switched shunt element can be defined on each bus. Version 35 allows multiple switched shunts on the same bus, adding an alphanumeric switched shunt identifier.
@@ -103,6 +109,7 @@ When the adjustment method `ADJM` is `0`, the behaviour of the switched shunt ca
 
 If the adjustment method `ADJM` is `1`, the reactor and capacitor blocks can be specified at any order, and all the switching combinations are considered in PSS®E. Current conversion does not support building a separate section for each switching combination. To map the PSS@E shunt blocks/steps into PowSyBl sections, first the reactor and capacitor blocks are increasingly ordered by susceptance (field `BI` in the _Switched Shunt Data_ record) and then sections are created like in the previous adjustment considering that blocks are switched on following the sorted order.
 
+(psse-generator-data-conversion)=
 ### _Generator Data_
 
 Every _Generator Data_ single line record represents one generator. Multiple generators are allowed at a PSS®E bus by specifying the same bus and a different identifier. Each record defines a new generator in the PowSyBl grid model associated with its corresponding voltage level and with the following attributes:
@@ -120,7 +127,7 @@ Every _Generator Data_ single line record represents one generator. Multiple gen
 
 The generator is connected to the ConnectableBus if generator status (field `STAT` in the _Generator Data_ record) is `1` (In-service).
 
-
+(psse-branch-data-conversion)=
 ### _Non-Transformer Branch Data_
 
 In PSS®E each AC transmission line is represented as a non-transformer branch record and defines a new line in the PowSyBl grid model with the following attributes:
@@ -140,7 +147,7 @@ The line is connected at both ends if the branch status (field `ST` in the _Non-
 
 A set of current permanent limits is defined as `1000.0` * `rateMva` / (`sqrt(3.0)` * `vnom1`) at the end `1` and `1000.0` * `rateMva` / (`sqrt(3.0)` * `vnom2`) at the end `2` where `rateMva` is the first rating of the branch (field `RATEA` in version 33 of the _Non-Transformer Branch Data_ record and field `RATE1` in version 35) and `vnom1` and `vnom2` are the nominal voltages of the associated voltage levels.
 
-
+(psse-transformer-data-conversion)=
 ### _Transformer Data_
 
 The _Transformer Data_ block defines two- and three-winding transformers. Two-winding transformers have four line records, while three-winding transformers have five line records. A `0` value in the field `K` of the _Transformer Data_ record first line is used to indicate that is a two-winding transformer, otherwise is considered a three-winding transformer.
@@ -222,6 +229,7 @@ When a three-winding transformer is modeled, the two-winding transformer steps s
 ![ThreeWindingsTransformerModels](img/three-winding-transformer-model.svg){width="100%" align=center class="only-light"}
 ![ThreeWindingsTransformerModels](img/dark_mode/three-winding-transformer-model.svg){width="100%" align=center class="only-dark"}
 
+(psse-slack-bus-conversion)=
 ### Slack bus
 
 The buses defined as slack terminal are the buses with type code  `3` (field `IDE` in the _Bus Data_ record).

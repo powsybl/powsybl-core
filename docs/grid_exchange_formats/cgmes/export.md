@@ -25,6 +25,7 @@ If the dependencies have to be updated automatically (see parameter **iidm.expor
 
 The output filenames will follow the pattern `<baseName>_<profile>.xml`. The basename is determined from the parameters, or the basename of the export data source or the main network name. 
 
+(cgmes-cgm-quick-export)=
 ## CGM (Common Grid Model) quick export
 
 When exporting a CGM, we need an IIDM network (CGM) that contains multiple subnetworks (one for each IGM). 
@@ -72,6 +73,7 @@ exampleBase_SV.xml
 
 where the updated SSH files will supersede the original ones, and the SV will contain the correct dependencies of new SSH and original TPs.
 
+(cgmes-cgm-manual-export)=
 ## CGM (Common Grid Model) manual export
 
 If you want to intervene in how the updated IGM SSH files or the CGM SV are exported, you can make multiple calls to the CGMES export function.
@@ -155,18 +157,21 @@ Remember that, in addition to setting the info for metadata models in the IIDM e
 
 The following sections describe in detail how each supported PowSyBl network model object is converted to CGMES network components.
 
+(cgmes-battery-export)=
 ### Battery
 
 PowSyBl [`Battery`](../../grid_model/network_subnetwork.md#battery) is exported as `SynchronousMachine` with `HydroGeneratingUnit`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-busbar-section-export)=
 ### BusbarSection
 
 PowSyBl [`BusbarSection`](../../grid_model/network_subnetwork.md#busbar-section) is exported as CGMES `BusbarSection`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-dangling-line-export)=
 ### DanglingLine
 
 PowSyBl [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) is exported as several CGMES network objects.
@@ -174,6 +179,7 @@ Each dangling line will be exported as one `EquivalentInjection` and one `ACLine
 
 <span style="color: red">TODO details</span>
 
+(cgmes-generator-export)=
 ### Generator
 
 PowSyBl [`Generator`](../../grid_model/network_subnetwork.md#generator) is exported as CGMES `SynchronousMachine`.
@@ -189,24 +195,28 @@ generator has the extension [`RemoteReactivePowerControl`](../../grid_model/exte
 with the `enabled` activated and the generator attribute `voltageRegulatorOn` set to `false`. In all other cases, a
 `RegulatingControl` is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
+(cgmes-hvdc-export)=
 ### HVDC line and HVDC converter stations
 
 A PowSyBl [`HVDCLine`](../../grid_model/network_subnetwork.md#hvdc-line) and its two [`HVDCConverterStations`](../../grid_model/network_subnetwork.md#hvdc-converter-station) are exported as a `DCLineSegment` with two `DCConverterUnits`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-line-export)=
 ### Line
 
 PowSyBl [`Line`](../../grid_model/network_subnetwork.md#line) is exported as `ACLineSegment`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-load-export)=
 ### Load
 
 PowSyBl [`Load`](../../grid_model/network_subnetwork.md#load) is exported as `ConformLoad`, `NonConformLoad` or `EnergyConsumer` depending on the extension [`LoadDetail`](../../grid_model/extensions.md#load-detail).
 
 <span style="color: red">TODO details</span>
 
+(cgmes-shunt-compensator-export)=
 ### Shunt compensator
 
 PowSyBl [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator) is exported as `LinearShuntCompensator` or `NonlinearShuntCompensator` depending on their models.
@@ -220,6 +230,7 @@ A shunt compensator with local voltage control (i.e., the regulating terminal is
 and no valid voltage target will not have any exported regulating control. In all other cases, a `RegulatingControl`
 is exported with `RegulatingControl.mode` set to `RegulatingControlModeKind.voltage`.
 
+(cgmes-static-var-compensator-export)=
 ### StaticVarCompensator
 
 PowSyBl [`StaticVarCompensator`](../../grid_model/network_subnetwork.md#static-var-compensator) is exported as `StaticVarCompensator`.
@@ -238,18 +249,21 @@ to `RegulatingControlModeKind.voltage` when the static VAR compensator mode is `
 is `OFF`, the exported regulating control mode will be reactive power only if the voltage target is not valid but the
 reactive power target is. Otherwise, the exported mode will be voltage.
 
+(cgmes-substation-export)=
 ### Substation
 
 PowSyBl [`Substation`](../../grid_model/network_subnetwork.md#substation) is exported as `Substation`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-switch-export)=
 ### Switch
 
 PowSyBl [`Switch`](../../grid_model/network_subnetwork.md#breakerswitch) is exported as CGMES `Breaker`, `Disconnector` or `LoadBreakSwitch` depending on its `SwitchKind`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-three-winding-transformer-export)=
 ### ThreeWindingsTransformer
 
 PowSyBl [`ThreeWindingsTransformer`](../../grid_model/network_subnetwork.md#three-winding-transformer) is exported as `PowerTransformer` with three `PowerTransformerEnds`.
@@ -270,12 +284,14 @@ In a `PhaseTapChanger`, the `TapChangerControl` is exported with `RegulatingCont
 `PhaseTapChanger` `regulationMode` is set to `ACTIVE_POWER_CONTROL`, and with `RegulatingControl.mode` set to `RegulatingControlModeKind.currentFlow`
 when `PhaseTapChanger` `regulationMode` is set to `CURRENT_LIMITER`.
 
+(cgmes-two-winding-transformer-export)=
 ### TwoWindingsTransformer
 
 PowSyBl [`TwoWindingsTransformer`](../../grid_model/network_subnetwork.md#two-winding-transformer) is exported as `PowerTransformer` with two `PowerTransformerEnds`.
 
 Tap changer controls for two-winding transformers are exported following the same rules explained in the previous section about three-winding transformers. See [tap changer control](#tap-changer-control).
 
+(cgmes-voltage-level-export)=
 ### Voltage level
 
 PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) is exported as `VoltageLevel`.
@@ -284,12 +300,14 @@ PowSyBl [`VoltageLevel`](../../grid_model/network_subnetwork.md#voltage-level) i
 
 ## Extensions
 
+(cgmes-control-areas-export)=
 ### Control areas
 
 PowSyBl [`ControlAreas`](import.md#cgmes-control-areas) are exported as several `ControlArea`.
 
 <span style="color: red">TODO details</span>
 
+(cgmes-export-options)=
 ## Options
 
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.

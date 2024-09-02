@@ -7,6 +7,7 @@ The CIM-CGMES importer reads and converts a CIM-CGMES model to the PowSyBl grid 
 The data in input CIM/XML files uses RDF (Resource Description Framework) syntax. In RDF, data is described making statements about resources using triplet expressions: (subject, predicate, object).
 To describe the conversion from CGMES to PowSyBl, we first introduce some generic considerations about the level of detail of the model (node/breaker or bus/branch), the identity of the equipments and equipment containment in substations and voltage levels. After that, the conversion for every CGMES relevant class is explained. Consistency checks and validations performed during the conversion are mentioned in the corresponding sections.
 
+(cgmes-import-level-of-detail)=
 ## Levels of detail: node/breaker and bus/branch
 
 CGMES models defined at node/breaker level of detail will be mapped to PowSyBl node/breaker topology level. CGMES models defined at bus/branch level will be mapped to PowSyBl bus/breaker topology level.
@@ -23,12 +24,14 @@ Some equipment, like switches, lines or transformers, have more than one point o
 
 In PowSyBl, a `Node` can have zero or one terminal. In CGMES, the `ConnectivityNode` objects may have more than one associated terminal. To be able to represent this in PowSyBl, the conversion process will automatically create internal connections between the PowSyBl nodes that represent equipment connections and the nodes created to map `ConnectivityNode` objects.
 
+(cgmes-id-import)=
 ## Identity of model equipments
 
 Almost all the equipments of the PowSyBl grid model require a unique identifier `Id` and may optionally have a human-readable `Name`. Whenever possible, these attributes will be directly copied from original CGMES attributes.
 
 Terminals are used by CGMES and PowSyBl to define the points of connection of the equipment to the network. CGMES terminals have unique identifiers. PowSyBl does not allow terminals to have an associated identifier. Information about original CGMES terminal identifiers is stored in each PowSyBl object using aliases.
 
+(cgmes-substation-voltage-level-import)=
 ## Equipment containers: substations and voltage levels
 
 The PowSyBl grid model establishes the substation as a required container of voltage levels and transformers (two- and three-winding transformers and phase shifters). Voltage levels are the required container of the rest of the network equipment, except for the AC and DC transmission lines that establish connections between substations and are directly associated with the network model. All buses at the transformer ends should be kept in the same substation.
@@ -39,12 +42,14 @@ The CGMES model does not guarantee these hierarchical constraints, so the first 
 
 The following sections describe in detail how each supported CGMES network object is converted to PowSyBl network model objects.
 
+(cgmes-substation-import)=
 ### Substation
 
 For each substation (considering only the representative substation if they are connected by transformers) in the CGMES model a new substation is created in the PowSyBl grid model with the following attributes created as such:
 - `Country` It is obtained from the `regionName` property as a first option, from `subRegionName` as second option. Otherwise, is assigned to `null`.
 - `GeographicalTags` It is obtained from the `SubRegion` property.
 
+(cgmes-voltage-level-import)=
 ### VoltageLevel
 
 As for substations, for each voltage level (considering only the representative voltage level if they are connected by switches) in the CGMES model, a new voltage level is created in the PowSyBl grid model with the following attributes created as such:
@@ -53,6 +58,7 @@ As for substations, for each voltage level (considering only the representative 
 - `LowVoltageLimit` It is copied from the `lowVoltageLimit` property.
 - `HighVoltageLimit` It is copied from the `highVoltageLimit` property.
 
+(cgmes-connectivity-node-import)=
 ### ConnectivityNode
 
 If the CGMES model is a node/breaker model then `ConnectivityNode` objects are present in the CGMES input files, and for each of them a new `Node` is created in the corresponding PowSyBl voltage level. A `Node` in the PowSyBl model is an integer identifier that is unique by voltage level.
@@ -61,6 +67,7 @@ If the import option `iidm.import.cgmes.create-busbar-section-for-every-connecti
 - Identity attributes `Id` and `Name` are copied from the `ConnectivityNode`.
 - `Node` The same `Node` assigned to the mapped `ConnectivityNode`.
 
+(cgmes-topological-node-import)=
 ### TopologicalNode
 
 If the CGMES model is defined at bus/branch detail, then `TopologicalNode` objects are used in the conversion, and for each of them a `Bus` is created in the PowSyBl grid model inside the corresponding voltage level container, at the PowSyBl bus/breaker topology level. The created `Bus` has the following attributes:
@@ -68,6 +75,7 @@ If the CGMES model is defined at bus/branch detail, then `TopologicalNode` objec
 - `V` The voltage of the `TopologicalNode` is copied if it is valid (greater than `0`).
 - `Angle` The angle the `TopologicalNode` is copied if the previous voltage is valid.
 
+(cgmes-busbar-section-import)=
 ### BusbarSection
 
 Busbar sections can be created in PowSyBl grid model only at node/breaker level.
@@ -76,6 +84,7 @@ CGMES Busbar sections are mapped to PowSyBl busbar sections only if CGMES is nod
 - Identity attributes `Id` and `Name` are copied from the CGMES `BusbarSection`.
 - `Node` A new `Node` in the corresponding voltage level.
 
+(cgmes-energy-consumer-import)=
 ### EnergyConsumer
 
 Every `EnergyConsumer` in the CGMES model creates a new `Load` in PowSyBl. The attributes are created as such:
@@ -95,6 +104,7 @@ When the type is a non-conform load:
 - `withVariableActivePower` is set to `0`.
 - `withVariableReactivePower` is set to `0`.
 
+(cgmes-energy-source-import)=
 ### EnergySource
 
 An `EnergySource` is a generic equivalent for an energy supplier, with the injection given using load sign convention.
@@ -103,6 +113,7 @@ For each `EnergySource` object in the CGMES model a new PowSyBl `Load` is create
 - `P0`, `Q0` set from `SSH` or `SV` values depending on which are defined.
 - `LoadType` It will be `FICTITIOUS` if the `Id` of the `energySource` contains the pattern `fict`. Otherwise `UNDEFINED`.
 
+(cgmes-sv-injection-import)=
 ### SvInjection
 
 CGMES uses `SvInjection` objects to report mismatches on calculated buses: they record the calculated bus injection minus the sum of the terminal flows. According to the documentation, the values will thus follow generator sign convention: positive sign means injection into the bus. Note that all the reference cases used for development follow load sign convention to report these mismatches, so we have decided to follow this load sign convention as a first approach.
@@ -112,6 +123,7 @@ For each `SvInjection` in the CGMES network model a new PowSyBl `Load` with attr
 - `LoadType` is always set to `FICTITIOUS`.
 - `Fictitious` is set to `true`.
 
+(cgmes-equivalent-injection-import)=
 ### EquivalentInjection
 
 The mapping of an `EquivalentInjection` depends on its location relative to the boundary area.
@@ -128,6 +140,7 @@ Attributes of the PowSyBl generator or of the PowSyBl dangling line generation a
 - `VoltageRegulatorOn` It is assigned to `true` if both properties, `regulationCapability` and `regulationStatus` are `true` and the terminal is connected.
 - `EnergySource` is set to `OTHER`.
 
+(cgmes-ac-line-segment-import)=
 ### ACLineSegment
 
 `ACLineSegments`' mapping depends on its location relative to the boundary area.
@@ -170,6 +183,7 @@ If the `ACLineSegment` is mapped to a paired PowSyBl [`DanglingLine`](../../grid
 - `B2` is `0.0` is the dangling line is on side `TWO` of the Tie Line. If the dangling line is on side `ONE` of the Tie Line, it is copied from CGMES `bch`.
 - `PairingKey` is copied from the name of the `TopologicalNode` or the `ConnectivityNode` (respectively in `NODE-BREAKER` or `BUS-BRANCH`) inside boundaries
 
+(cgmes-equivalent-branch-import)=
 ### EquivalentBranch
 
 Equivalent branches mapping depends on its location relative to the boundary area.
@@ -203,6 +217,7 @@ If the `EquivalentBranch` is mapped to a PowSyBl [`DanglingLine`](../../grid_mod
 - `P0` is copied from CGMES `P` of the terminal at boundary side
 - `Q0` is copied from CGMES `Q` of the terminal at boundary side
 
+(cgmes-asynchronous-machine-import)=
 ### AsychronousMachine
 
 Asynchronous machines represent rotating machines whose shaft rotates asynchronously with the electrical field.
@@ -212,6 +227,7 @@ An `AsynchronousMachine` is mapped to a PowSyBl [`Load`](../../grid_model/networ
 - `P0`, `Q0` are set from CGMES values taken from `SSH` or `SV`data depending on which are defined. If there is no defined data, it is `0.0`.
 - `LoadType` is `FICTITIOUS` if the CGMES ID contains "fict". Otherwise, it is `UNDEFINED`.
 
+(cgmes-synchronous-machine-import)=
 ### SynchronousMachine
 
 Synchronous machines represent rotating machines whose shaft rotates synchronously with the electrical field.
@@ -236,6 +252,7 @@ A `SynchronousMachine` is mapped to a PowSyBl [`Generator`](../../grid_model/net
 
 <span style="color: red">TODO normalPF</span>
 
+(cgmes-equivalent-shunt-import)=
 ### EquivalentShunt
 
 An `EquivalentShunt` is mapped to a PowSyBl linear [`ShuntCompensator`](../../grid_model/network_subnetwork.md#shunt-compensator). A linear shunt compensator has banks or sections with equal admittance values.
@@ -244,6 +261,7 @@ Its attributes are created as described below:
 - `BPerSection` is copied from CGMES `b`
 - `MaximumSectionCount` is set to `1`
 
+(cgmes-external-network-injection-import)=
 ### ExternalNetworkInjection
 
 External network injections are injections representing the flows from an entire external network.
@@ -258,6 +276,7 @@ An `ExternalNetworkinjection` is mapped to a PowSyBl [`Generator`](../../grid_mo
 
 <span style="color: red">TODO regulation</span>
 
+(cgmes-linear-shunt-compensator-import)=
 ### LinearShuntCompensator
 
 Linear shunt compensators represent shunt compensators with banks or sections with equal admittance values.
@@ -270,6 +289,7 @@ The created PowSyBl shunt compensator is linear, and its attributes are defined 
 
 <span style="color: red">TODO regulation</span>
 
+(cgmes-nonlinear-shunt-compensator-import)=
 ### NonlinearShuntCompensator
 
 Non-linear shunt compensators represent shunt compensators with banks or section admittance values that differ.
@@ -283,9 +303,11 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 
 <span style="color: red">TODO regulation</span>
 
+(cgmes-operational_limit-import)=
 ### OperationalLimit
 <span style="color: red">TODO</span>
 
+(cgmes-power-transformer-import)=
 ### PowerTransformer
 
 Power transformers represent electrical devices consisting of two or more coupled windings, each represented by a `PowerTransformerEnd`. PowSyBl only supports `PowerTransformers` with two or three windings.
@@ -322,6 +344,7 @@ Please note that in this case, if `PowerTransformerEnds` are in different substa
 For more information about this conversion, please look at the classes [`InterpretedT3xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/elements/transformers/InterpretedT3xModel.java)
 and [`ConvertedT3xModel`](https://github.com/powsybl/powsybl-core/blob/main/cgmes/cgmes-conversion/src/main/java/com/powsybl/cgmes/conversion/elements/transformers/ConvertedT3xModel.java).
 
+(cgmes-series-compensator-import)=
 ### SeriesCompensator
 
 Series compensators represent series capacitors or reactors or AC transmission lines without charging susceptance.
@@ -334,6 +357,7 @@ If a `SeriesCompensator` has its ends inside different voltage levels, it is map
 - `X` is copied from CGMES `x`
 - `G1`, `G2`, `B1` and `B2` are set to `0`
 
+(cgmes-static-var-compensator-import)=
 ### StaticVarCompensator
 
 Static VAR compensators represent a facility for providing variable and controllable shunt reactive power.
@@ -346,6 +370,7 @@ A PowSyBl [`VoltagePerReactivePowerControl`](../../grid_model/extensions.md#volt
 
 <span style="color: red">TODO regulation</span>
 
+(cgmes-switch-import)=
 ### Switch (Switch, Breaker, Disconnector, LoadBreakSwitch, ProtectedSwitch, GroundDisconnector)
 
 Switches, breakers, disconnectors, load break switches, protected switches and ground disconnectors are
@@ -381,6 +406,7 @@ If the CGMES `Switch` is mapped to a PowSyBl [`DanglingLine`](../../grid_model/n
 
 The CIM-CGMES format contains more information than what the `iidm` grid model needs for calculation. The additional data that are needed to export a network in CIM-CGMES format are stored in several extensions.
 
+(cgmes-control-areas-import)=
 ### CGMES control areas
 
 This extension models all the control areas contained in the network as modeled in CIM-CGMES.
@@ -404,6 +430,7 @@ It is possible to retrieve a control area by its ID. It is also possible to iter
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
+(cgmes-dangling-line-boundary-node-import)=
 ### CGMES dangling line boundary node
 
 This extension is used to add some CIM-CGMES characteristics to dangling lines.
@@ -416,6 +443,7 @@ This extension is used to add some CIM-CGMES characteristics to dangling lines.
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
+(cgmes-line-boundary-node-import)=
 ### CGMES line boundary node
 
 This extension is used to add some CIM-CGMES characteristics to tie lines.
@@ -427,20 +455,25 @@ This extension is used to add some CIM-CGMES characteristics to tie lines.
 
 This extension is provided by the `com.powsybl:powsybl-cgmes-extensions` module.
 
+(cgmes-tap-changers-import)=
 ### CGMES Tap Changers
 
 <span style="color: red">TODO</span>
 
+(cgmes-metadata-model-import)=
 ### CGMES metadata model
 
 <span style="color: red">TODO</span>
 
+(cgmes-cim-characteristics-import)=
 ### CIM characteristics
 
 <span style="color: red">TODO</span>
 
+(cgmes-model-import)=
 ### CGMES model
 
+(cgmes-import-options)=
 ## Options
 
 These properties can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md) module.
