@@ -26,9 +26,14 @@ import java.util.List;
 import static com.powsybl.ampl.converter.AmplConstants.*;
 
 /**
- * 1st (V1) extension of BasicAmplExporter, associated with AMPL version 1.1 (exporter id)
+ * 1st (V1) extension of BasicAmplExporter, associated with AMPL version 1.1 (exporter id).
+ * The extension adds:
+ *  - A slack bus boolean in the bus table.
+ *  - R, G and B characteristics in tap tables.
+ *  - The regulated bus in generator and static var compensator tables.
  *
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
+ * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
 public class ExtendedAmplExporterV1 extends BasicAmplExporter {
 
