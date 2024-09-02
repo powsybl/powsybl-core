@@ -7,7 +7,6 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
