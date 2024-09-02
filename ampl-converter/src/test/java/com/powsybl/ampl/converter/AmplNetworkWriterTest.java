@@ -285,7 +285,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         properties.put("iidm.export.ampl.export-version", "1.1");
 
         export(network, properties, dataSource);
-        assertEqualsToRef(dataSource, "_headers", "inputs//extended_exporter/headers.txt");
+        assertEqualsToRef(dataSource, "_headers", "inputs/extended_exporter/headers.txt");
     }
 
     @Test

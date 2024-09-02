@@ -21,7 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 
 /**
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
@@ -32,7 +32,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
-            compareTxt(getClass().getResourceAsStream("/inputs/extended_exporter/" + refFileName), actual);
+            assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
         }
     }
 
