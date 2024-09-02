@@ -64,6 +64,6 @@ public enum AmplExportVersion {
     }
 
     public static AmplExportVersion defaultVersion() {
-        return V1_0;
+        return V1_1;
     }
 }

@@ -31,7 +31,6 @@ import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
  */
 class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
 
-    Properties properties;
     MemDataSource dataSource;
     AmplExporter exporter;
 
@@ -45,8 +44,6 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
-        properties = new Properties();
-        properties.put("iidm.export.ampl.export-version", "1.1");
         dataSource = new MemDataSource();
         exporter = new AmplExporter();
     }
@@ -55,7 +52,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     void testNoModifiedExports() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
         assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
@@ -72,7 +69,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         SlackTerminalAdder adder = vlGen.newExtension(SlackTerminalAdder.class);
         adder.withTerminal(bus.getConnectedTerminals().iterator().next()).add();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_buses",
             "inputs/extended_exporter/eurostag-tutorial-example1-buses.txt");
@@ -82,7 +79,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     void testSlackBusValue3wtMiddleBusExport() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         // verify slack bus has been added to buses file
         assertEqualsToRef(dataSource, "_network_buses",
@@ -93,7 +90,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     void testSlackBusValueDanglingLineMiddleBusExport() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         // verify slack bus has been added to buses file
         assertEqualsToRef(dataSource, "_network_buses",
@@ -104,6 +101,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     void testSlackBusValueTieLineMiddleBusExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
 
+        Properties properties = new Properties();
         properties.put("iidm.export.ampl.with-xnodes", "true");
         exporter.export(network, properties, dataSource);
 
@@ -119,7 +117,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformers().iterator().next();
         transformer.newRatioTapChanger();
         transformer.newPhaseTapChanger();
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
         // verify r, g and b values have been added to tap changer file
         assertEqualsToRef(dataSource, "_network_tct",
             "inputs/extended_exporter/eurostag-tutorial-example1-tct.txt");
@@ -142,7 +140,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
                 .setLowTapPosition(0)
                 .add();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         // verify r, g and b values have been added to tap changer file
         assertEqualsToRef(dataSource, "_network_tct",
@@ -166,7 +164,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
                 .setTargetQ(301.0)
                 .add();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_generators",
             "inputs/extended_exporter/eurostag-tutorial-example1-generators-regulating-bus.txt");
@@ -187,7 +185,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
                 .setRegulatingTerminal(network.getLoad("L2").getTerminal())
                 .add();
 
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_static_var_compensators",
                 "inputs/extended_exporter/svc-test-case-regulating-bus.txt");
@@ -196,7 +194,7 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     @Test
     void testVersion() throws IOException {
         Network network = Network.create("dummy_network", "test");
-        exporter.export(network, properties, dataSource);
+        exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_headers", "inputs/extended_exporter/headers.txt");
     }
