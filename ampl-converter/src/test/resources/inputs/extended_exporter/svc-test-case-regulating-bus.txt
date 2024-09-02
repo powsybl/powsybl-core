@@ -2,3 +2,4 @@
 #"variant" "num" "bus" "con. bus" "substation" "minB (pu)" "maxB (pu)" "v regul." "v regul. bus" "targetV (pu)" "targetQ (MVar)" "fault" "curative" "id" "description" "P (MW)" "Q (MVar)"
 1 1 2 2 2 0.288800 1.15520 false -1 1.02632 -99999.0 0 0 "SVC2" "SVC2" -99999.0 -99999.0
 1 2 2 2 2 0.288800 1.15520 true 2 1.02632 350.000 0 0 "SVC3" "SVC3" -99999.0 -99999.0
+1 3 1 1 1 0.288800 1.15520 true 2 1.02632 -99999.0 0 0 "SVC1" "SVC1" -99999.0 -99999.0
