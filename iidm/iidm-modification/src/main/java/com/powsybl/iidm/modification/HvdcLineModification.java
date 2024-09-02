@@ -96,6 +96,7 @@ public class HvdcLineModification extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
         if (hvdcLine == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

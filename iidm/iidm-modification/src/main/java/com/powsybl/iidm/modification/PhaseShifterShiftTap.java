@@ -58,6 +58,7 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
         if (phaseShifter == null || !phaseShifter.hasPhaseTapChanger()) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

@@ -57,6 +57,7 @@ public class LoadModification extends AbstractLoadModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Load load = network.getLoad(getLoadId());
         if (load == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

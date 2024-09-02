@@ -58,6 +58,7 @@ public class ShuntCompensatorModification extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         if (shuntCompensator == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

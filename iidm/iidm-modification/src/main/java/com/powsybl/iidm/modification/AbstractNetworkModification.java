@@ -23,8 +23,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractNetworkModification implements NetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
-    protected NetworkModificationImpact impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+    protected static final NetworkModificationImpact DEFAULT_IMPACT = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
     protected static final double EPSILON = 1e-10;
+
+    protected NetworkModificationImpact impact;
 
     @Override
     public void apply(Network network) {
@@ -96,7 +98,7 @@ public abstract class AbstractNetworkModification implements NetworkModification
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        return impact;
+        return DEFAULT_IMPACT;
     }
 
     protected static boolean checkVoltageLevel(Identifiable<?> identifiable) {

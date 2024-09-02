@@ -79,10 +79,13 @@ public class ConnectableConnection extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        Connectable<?> connectable = network.getConnectable(connectableId);
-        if (connectable == null) {
+        impact = DEFAULT_IMPACT;
+        Identifiable<?> identifiable = network.getIdentifiable(connectableId);
+        if (identifiable == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (connectable.getTerminals().stream().allMatch(Terminal::isConnected)) {
+        } else if (identifiable instanceof Connectable<?> connectable && connectable.getTerminals().stream().allMatch(Terminal::isConnected)
+            || identifiable instanceof TieLine tieLine && tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected()
+            || identifiable instanceof HvdcLine hvdcLine && hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().isConnected()) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;

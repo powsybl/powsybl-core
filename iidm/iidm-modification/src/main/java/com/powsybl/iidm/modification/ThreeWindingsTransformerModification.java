@@ -47,6 +47,7 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
         if (t3wt == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

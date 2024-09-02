@@ -164,6 +164,7 @@ public class RevertConnectVoltageLevelOnLine extends AbstractNetworkModification
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Line line1 = network.getLine(line1Id);
         Line line2 = network.getLine(line2Id);
         if (line1 == null || line2 == null) {

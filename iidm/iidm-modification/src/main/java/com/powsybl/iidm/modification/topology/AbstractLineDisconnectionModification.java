@@ -31,6 +31,7 @@ public abstract class AbstractLineDisconnectionModification<M extends AbstractLi
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Line line1Id = network.getLine(this.oldLine1Id);
         Line line2Id = network.getLine(this.oldLine2Id);
         Line lineToBeDeleted = network.getLine(lineToRemoveId);

@@ -56,6 +56,7 @@ public class RemoveSubstation extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         if (network.getSubstation(substationId) == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         }

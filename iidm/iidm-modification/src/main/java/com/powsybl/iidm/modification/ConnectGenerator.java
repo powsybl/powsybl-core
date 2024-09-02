@@ -40,6 +40,7 @@ public final class ConnectGenerator extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Generator g = network.getGenerator(generatorId);
         if (g == null || g.getTerminal() == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

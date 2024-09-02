@@ -116,6 +116,7 @@ public class CreateCouplingDevice extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Identifiable<?> busOrBbs1 = network.getIdentifiable(busOrBbsId1);
         Identifiable<?> busOrBbs2 = network.getIdentifiable(busOrBbsId2);
         if (!checkVoltageLevel(busOrBbs1) || !checkVoltageLevel(busOrBbs2)

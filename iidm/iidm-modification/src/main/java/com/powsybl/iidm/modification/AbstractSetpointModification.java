@@ -62,6 +62,7 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         T networkElement = getNetworkElement(network, elementId);
         if (networkElement == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

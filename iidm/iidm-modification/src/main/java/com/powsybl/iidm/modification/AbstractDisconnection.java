@@ -59,6 +59,7 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
         if (identifiable == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

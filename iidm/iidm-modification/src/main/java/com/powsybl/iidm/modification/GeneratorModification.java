@@ -211,6 +211,7 @@ public class GeneratorModification extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;

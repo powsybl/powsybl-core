@@ -173,6 +173,7 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, ReportNode.NO_OP)) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else {

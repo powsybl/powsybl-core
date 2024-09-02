@@ -79,6 +79,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         for (int side : sides) {
             // Get the busOrBusbarSection corresponding to the side parameter
             String busOrBusbarSectionId = getBusOrBusbarSectionId(side);

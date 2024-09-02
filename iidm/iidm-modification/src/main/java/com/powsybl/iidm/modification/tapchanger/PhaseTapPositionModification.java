@@ -97,6 +97,7 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
         if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
