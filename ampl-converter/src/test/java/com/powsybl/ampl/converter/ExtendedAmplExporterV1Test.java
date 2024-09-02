@@ -7,6 +7,7 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
@@ -52,6 +53,19 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
     }
 
     @Test
+    void testNoModifiedExports() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
+
+        exporter.export(network, properties, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
+        assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
+        assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+    }
+
+    @Test
     void testSlackBusExport() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         VoltageLevel vlGen = network.getVoltageLevel("VLLOAD");
@@ -72,7 +86,8 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         exporter.export(network, properties, dataSource);
 
         // verify slack bus has been added to buses file
-        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/three-windings-transformers-buses.txt");
+        assertEqualsToRef(dataSource, "_network_buses",
+                "inputs/extended_exporter/three-windings-transformers-buses.txt");
     }
 
     @Test
@@ -82,7 +97,8 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         exporter.export(network, properties, dataSource);
 
         // verify slack bus has been added to buses file
-        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/dangling-line-buses.txt");
+        assertEqualsToRef(dataSource, "_network_buses",
+                "inputs/extended_exporter/dangling-line-buses.txt");
     }
 
     @Test
@@ -93,7 +109,8 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
         exporter.export(network, properties, dataSource);
 
         // verify slack bus has been added to buses file
-        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl.txt");
+        assertEqualsToRef(dataSource, "_network_buses",
+                "inputs/extended_exporter/eurostag-tutorial-example1-buses-tl.txt");
     }
 
     @Test
@@ -128,13 +145,9 @@ class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
 
         exporter.export(network, properties, dataSource);
 
-        // verify export is the same as for basic ampl exporter
-        assertEqualsToRef(dataSource, "_network_branches", "inputs/three-windings-transformers-branches.txt");
-        assertEqualsToRef(dataSource, "_network_rtc", "inputs/three-windings-transformers-rtc.txt");
-        assertEqualsToRef(dataSource, "_network_limits", "inputs/three-windings-transformers-limits.txt");
-
         // verify r, g and b values have been added to tap changer file
-        assertEqualsToRef(dataSource, "_network_tct", "inputs/extended_exporter/three-windings-transformers-tct.txt");
+        assertEqualsToRef(dataSource, "_network_tct",
+                "inputs/extended_exporter/three-windings-transformers-tct.txt");
     }
 
     @Test
