@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.parameters;
 
@@ -136,5 +137,14 @@ class ParameterTest {
     void intParameterNullDefaultValueErrorTest() {
         PowsyblException e = assertThrows(PowsyblException.class, () -> new Parameter("i", ParameterType.INTEGER, "an integer", null));
         assertEquals("With Integer parameter you are not allowed to pass a null default value", e.getMessage());
+    }
+
+    @Test
+    void getCategoryKeyTest() {
+        Parameter param0 = new Parameter("p0", ParameterType.BOOLEAN, "param0", Boolean.FALSE);
+        Parameter param1 = new Parameter("p1", ParameterType.BOOLEAN, "another param", Boolean.FALSE,
+                ParameterScope.FUNCTIONAL, "Category");
+        assertNull(param0.getCategoryKey());
+        assertEquals("Category", param1.getCategoryKey());
     }
 }

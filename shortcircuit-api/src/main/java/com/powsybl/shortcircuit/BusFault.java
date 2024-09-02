@@ -3,12 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
 /**
- * Class to describe the characteristics of the fault to be simulated.
- * Used for elementary short-circuit calculation only.
+ * Class to describe the characteristics of a fault that occurs on a bus and that is to be simulated.
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */

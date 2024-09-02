@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -110,8 +111,7 @@ class TransformerConverter extends AbstractConverter {
         List<WindingType> windingTypeEnds = createWindingTypeEnds(vl1, vl2, vl3);
 
         double vn0 = 1.0;
-        double ratedU0 = vn0;
-        Rated3WModel rated3WModel = Rated3WModel.create(typTr3, ratedU0);
+        Rated3WModel rated3WModel = Rated3WModel.create(typTr3, vn0);
         RatedModel ratedModel1 = rated3WModel.getEnd(windingTypeEnds.get(0));
         RatedModel ratedModel2 = rated3WModel.getEnd(windingTypeEnds.get(1));
         RatedModel ratedModel3 = rated3WModel.getEnd(windingTypeEnds.get(2));
@@ -126,7 +126,7 @@ class TransformerConverter extends AbstractConverter {
 
         Substation substation = vl1.getSubstation().orElseThrow();
         ThreeWindingsTransformerAdder adder = substation.newThreeWindingsTransformer()
-            .setRatedU0(ratedU0)
+            .setRatedU0(vn0)
             .setEnsureIdUnicity(true)
             .setId(elmTr3.getLocName())
             .newLeg1()
@@ -177,8 +177,8 @@ class TransformerConverter extends AbstractConverter {
         Optional<PhaseAngleClockModel> pac3 = pac3WModel.getEnd(windingTypeEnds.get(2));
         if (pac2.isPresent() || pac3.isPresent()) {
             t3wt.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
-                .withPhaseAngleClockLeg2(pac2.isPresent() ? pac2.get().pac : 0)
-                .withPhaseAngleClockLeg3(pac3.isPresent() ? pac3.get().pac : 0).add();
+                .withPhaseAngleClockLeg2(pac2.map(model -> model.pac).orElse(0))
+                .withPhaseAngleClockLeg3(pac3.map(model -> model.pac).orElse(0)).add();
         }
     }
 
@@ -333,8 +333,8 @@ class TransformerConverter extends AbstractConverter {
 
         /**
          * Create a transformer model from measures.
-         *
-         * shortCircuitVoltage short circuit voltage in %
+         * <p>
+         * shortCircuitVoltage short-circuit voltage in %
          * copperLosses copper loss in KWh
          * openCircuitCurrent open circuit in %
          * coreLosses core (or iron) losses in KWh
@@ -344,7 +344,7 @@ class TransformerConverter extends AbstractConverter {
         static Complex createImpedanceFromMeasures(double shortCircuitVoltage, double copperLosses,
             double ratedApparentPower, double nominalVoltage) {
 
-            // calculate leakage impedance from short circuit measures
+            // calculate leakage impedance from short-circuit measurements
             double zpu = shortCircuitVoltage / 100;
             double rpu = copperLosses / (1000 * ratedApparentPower);
             double xpu = Math.sqrt(zpu * zpu - rpu * rpu) * Math.signum(shortCircuitVoltage);
@@ -813,16 +813,12 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static WindingType positionToWindingType(int position) {
-        switch (position) {
-            case 0:
-                return WindingType.HIGH;
-            case 1:
-                return WindingType.MEDIUM;
-            case 2:
-                return WindingType.LOW;
-            default:
-                throw new PowerFactoryException("Unexpected position: " + position);
-        }
+        return switch (position) {
+            case 0 -> WindingType.HIGH;
+            case 1 -> WindingType.MEDIUM;
+            case 2 -> WindingType.LOW;
+            default -> throw new PowerFactoryException("Unexpected position: " + position);
+        };
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransformerConverter.class);

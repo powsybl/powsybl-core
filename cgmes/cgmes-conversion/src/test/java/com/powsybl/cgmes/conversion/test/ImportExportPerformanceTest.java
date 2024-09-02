@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
@@ -16,7 +17,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.cgmes.model.test.Cim14SmallCasesCatalog;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -80,7 +81,7 @@ class ImportExportPerformanceTest {
         CgmesExport e = new CgmesExport();
         Path exportFolder = fs.getPath("impl-" + ts);
         Files.createDirectories(exportFolder);
-        DataSource exportDataSource = new FileDataSource(exportFolder, "");
+        DataSource exportDataSource = new DirectoryDataSource(exportFolder, "");
         Properties exportParameters = new Properties();
         exportParameters.put(CgmesExport.CIM_VERSION, "16");
         e.export(n, exportParameters, exportDataSource);

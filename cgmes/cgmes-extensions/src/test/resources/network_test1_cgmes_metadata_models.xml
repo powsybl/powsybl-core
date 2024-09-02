@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:cmm="http://www.powsybl.org/schema/iidm/ext/cgmes_metadata_models/1_0" id="network" caseDate="2020-09-07T15:44:10.209+02:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+    <iidm:substation id="substation1" country="FR" tso="TSO1" geographicalTags="region1">
+        <iidm:voltageLevel id="voltageLevel1" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology>
+                <iidm:busbarSection id="voltageLevel1BusbarSection1" node="0"/>
+                <iidm:busbarSection id="voltageLevel1BusbarSection2" node="1"/>
+                <iidm:switch id="voltageLevel1Breaker1" kind="BREAKER" retained="true" open="false" node1="0" node2="1"/>
+                <iidm:switch id="load1Disconnector1" kind="DISCONNECTOR" retained="false" open="false" node1="2" node2="3"/>
+                <iidm:switch id="load1Breaker1" kind="DISCONNECTOR" retained="false" open="false" node1="3" node2="0"/>
+                <iidm:switch id="generator1Disconnector1" kind="DISCONNECTOR" retained="false" open="false" node1="5" node2="6"/>
+                <iidm:switch id="generator1Breaker1" kind="DISCONNECTOR" retained="false" open="false" node1="6" node2="1"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="generator1" energySource="NUCLEAR" minP="200.0" maxP="900.0" voltageRegulatorOn="true" targetP="900.0" targetV="380.0" node="5">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="200.0" minQ="300.0" maxQ="500.0"/>
+                    <iidm:point p="900.0" minQ="300.0" maxQ="500.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
+            <iidm:load id="load1" loadType="UNDEFINED" p0="10.0" q0="3.0" node="2"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:extension id="network">
+        <cmm:cgmesMetadataModels>
+            <cmm:model id="eqId" subset="EQUIPMENT" description="EQ description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://equipment-core</cmm:profile>
+                <cmm:profile>http://equipment-operation</cmm:profile>
+                <cmm:dependentOnModel>eq-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>eq-dependency2</cmm:dependentOnModel>
+            </cmm:model>
+            <cmm:model id="svId" subset="STATE_VARIABLES" description="SV description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://state-variables</cmm:profile>
+                <cmm:dependentOnModel>sv-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>sv-dependency2</cmm:dependentOnModel>
+            </cmm:model>
+            <cmm:model id="sshId" subset="STEADY_STATE_HYPOTHESIS" description="SSH description" version="1" modelingAuthoritySet="http://powsybl.org">
+                <cmm:profile>http://steady-state-hypothesis</cmm:profile>
+                <cmm:dependentOnModel>ssh-dependency1</cmm:dependentOnModel>
+                <cmm:dependentOnModel>ssh-dependency2</cmm:dependentOnModel>
+                <cmm:supersedesModel>ssh-superseded1</cmm:supersedesModel>
+            </cmm:model>
+        </cmm:cgmesMetadataModels>
+    </iidm:extension>
+</iidm:network>

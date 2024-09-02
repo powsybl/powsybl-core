@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -17,7 +18,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,7 +45,7 @@ class RegularTimeSeriesIndexTest {
                                                Instant.parse("2015-01-01T00:30:00Z"),
                                                Instant.parse("2015-01-01T00:45:00Z"),
                                                Instant.parse("2015-01-01T01:00:00Z"));
-        assertEquals(instants, index.stream().collect(Collectors.toList()));
+        assertEquals(instants, index.stream().toList());
         assertEquals(instants, Lists.newArrayList(index.iterator()));
 
         // test to string
@@ -115,8 +115,8 @@ class RegularTimeSeriesIndexTest {
     @Test
     void testPointCountHuge() {
         // 1 data every 30 seconds for ~30years, ~30years+30s, ~30years+60s
-        assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 0 * 30 * 1000, 30 * 1000).getPointCount());
-        assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 1 * 30 * 1000, 30 * 1000).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000, 30 * 1000).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 30 * 1000, 30 * 1000).getPointCount());
         assertEquals(30 * 365 * 24 * 120 + 3, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 2 * 30 * 1000, 30 * 1000).getPointCount());
     }
 }

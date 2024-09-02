@@ -3,28 +3,29 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
 import com.powsybl.iidm.network.util.Networks;
+import org.junit.jupiter.api.Test;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import org.junit.jupiter.api.Test;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -118,7 +119,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Arrays.asList(network.getSwitch("generator1Disconnector1"), network.getSwitch("generator1Breaker1")),
             topology1.getSwitches(6));
         assertEquals(Arrays.asList(network.getSwitch("load1Disconnector1"), network.getSwitch("load1Breaker1")),
-            topology1.getSwitchStream(3).collect(Collectors.toList()));
+            topology1.getSwitchStream(3).toList());
         assertEquals(Collections.singletonList(network.getSwitch("load1Disconnector1")), topology1.getSwitches(2));
 
         assertEquals(5, Iterables.size(network.getSwitches()));
@@ -353,7 +354,7 @@ public abstract class AbstractNetworkTest {
         //Specific test on battery
         assertEquals(battery1, voltageLevel2.getConnectable("BAT", Battery.class));
         //Stream test
-        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
+        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).toList();
         assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(network.getBatteryStream()));
         assertEquals(network.getBatteryCount(), network.getBatteryStream().count());
         assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(network.getVoltageLevel(VLBAT).getBatteryStream()));
@@ -374,13 +375,13 @@ public abstract class AbstractNetworkTest {
         Network n = EurostagTutorialExample1Factory.create();
         assertEquals(6, n.getConnectableCount());
         assertNotNull(n.getConnectable("GEN"));
-        assertTrue(n.getConnectable("GEN") instanceof Generator);
+        assertInstanceOf(Generator.class, n.getConnectable("GEN"));
         assertEquals("GEN", n.getConnectable("GEN").getId());
     }
 
     @Test
     public void testStreams() {
-        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
+        Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).toList();
         Function<Stream<? extends Identifiable>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
 
         Network network = EurostagTutorialExample1Factory.create();
@@ -420,8 +421,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Arrays.asList("NHV1", "NHV1_bis"), mapper.apply(network.getVoltageLevel(VLHV1).getBusBreakerView().getBusStream()));
         assertEquals(Collections.singletonList("NHV2"), mapper.apply(network.getVoltageLevel(VLHV2).getBusBreakerView().getBusStream()));
         assertEquals(Collections.singletonList("NLOAD"), mapper.apply(network.getVoltageLevel(VLLOAD).getBusBreakerView().getBusStream()));
-
-        assertEquals(Arrays.asList(NHV1_NHV2_1, NHV1_NHV2_2, NGEN_NHV1, nhv1nhv1), mapper.apply(network.getVoltageLevel(VLHV1).getConnectableStream()));
+        assertThat(mapper.apply(network.getVoltageLevel(VLHV1).getConnectableStream())).containsExactlyInAnyOrder(NHV1_NHV2_1, NHV1_NHV2_2, NGEN_NHV1, nhv1nhv1);
         assertEquals(network.getVoltageLevel(VLHV1).getConnectableCount(), network.getVoltageLevel(VLHV1).getConnectableStream().count());
 
         assertEquals(Arrays.asList(NGEN_NHV1, NHV2_NLOAD, nhv1nhv1), mapper.apply(network.getTwoWindingsTransformerStream()));
@@ -466,7 +466,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(bus.getLoadStream()));
 
         // Connectables
-        assertEquals(Arrays.asList("LOAD", NHV1_NHV2_2, NGEN_NHV1, NHV1_NHV2_1, NHV2_NLOAD, "GEN", "NHV1_NHV1"), mapper.apply(network.getConnectableStream()));
+        assertThat(mapper.apply(network.getConnectableStream())).containsExactlyInAnyOrder("LOAD", NHV1_NHV2_2, NGEN_NHV1, NHV1_NHV2_1, NHV2_NLOAD, "GEN", "NHV1_NHV1");
         assertArrayEquals(Iterables.toArray(network.getConnectables(), Connectable.class), network.getConnectableStream().toArray());
         assertEquals(network.getConnectableCount(), network.getConnectableStream().count());
 
@@ -576,7 +576,8 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testCreate() {
         // check default implementation is used
-        Network.create("test", "test");
+        Network network = assertDoesNotThrow(() -> Network.create("test", "test"));
+        assertNotNull(network);
     }
 
     @Test
@@ -600,15 +601,17 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false));
 
-        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
-        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reporter));
-        List<ReporterModel> subReporters = reporter.getSubReporters();
-        assertEquals(1, subReporters.size());
-        ReporterModel subReporter = subReporters.get(0);
-        assertEquals("IIDMValidation", subReporter.getTaskKey());
-        assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
-        Collection<Report> reports = subReporter.getReports();
-        assertFalse(reports.isEmpty());
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportScadaNetwork", "Test reporting of SCADA network").build();
+        assertEquals(ValidationLevel.EQUIPMENT, network.runValidationChecks(false, reportNode));
+
+        List<ReportNode> children = reportNode.getChildren();
+        assertEquals(1, children.size());
+        ReportNode reportNodeChild = children.get(0);
+        assertEquals("IIDMValidation", reportNodeChild.getMessageKey());
+        assertEquals("Running validation checks on IIDM network scada", reportNodeChild.getMessage());
+
+        List<ReportNode> messageNodes = reportNodeChild.getChildren();
+        assertFalse(messageNodes.isEmpty());
 
         assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
 
@@ -625,5 +628,63 @@ public abstract class AbstractNetworkTest {
         } catch (ValidationException e) {
             // Ignore
         }
+    }
+
+    @Test
+    public void testPermanentLimitOnSelectedOperationalLimitsGroup() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        ValidationException e = assertThrows(ValidationException.class, () -> network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN));
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().setPermanentLimit(Double.NaN);
+        assertTrue(Double.isNaN(network.getLine("NHV1_NHV2_1").getCurrentLimits2().orElseThrow().getPermanentLimit()));
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    public void testPermanentLimitViaAdder() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        OperationalLimitsGroup unselectedGroup = network.getLine("NHV1_NHV2_1").newOperationalLimitsGroup1("unselectedGroup");
+        assertNotEquals("unselectedGroup", network.getLine("NHV1_NHV2_1").getSelectedOperationalLimitsGroupId1().orElseThrow());
+        CurrentLimitsAdder adder = unselectedGroup.newCurrentLimits()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(300)
+                .setValue(1000)
+                .endTemporaryLimit();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        adder.add();
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
+    }
+
+    @Test
+    public void testPermanentLimitOnUnselectedOperationalLimitsGroup() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+        OperationalLimitsGroup unselectedGroup = network.getLine("NHV1_NHV2_1").newOperationalLimitsGroup1("unselectedGroup");
+        assertNotEquals("unselectedGroup", network.getLine("NHV1_NHV2_1").getSelectedOperationalLimitsGroupId1().orElseThrow());
+        CurrentLimitsAdder adder = unselectedGroup.newCurrentLimits()
+                .setPermanentLimit(Double.NaN)
+                .beginTemporaryLimit()
+                    .setName("5'")
+                    .setAcceptableDuration(300)
+                    .setValue(1000)
+                .endTemporaryLimit();
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        CurrentLimits currentLimits = adder.setPermanentLimit(1000).add();
+        assertEquals(ValidationLevel.STEADY_STATE_HYPOTHESIS, network.getValidationLevel());
+
+        e = assertThrows(ValidationException.class, () -> currentLimits.setPermanentLimit(Double.NaN));
+        assertTrue(e.getMessage().contains("AC line 'NHV1_NHV2_1': permanent limit must be defined if temporary limits are present"));
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.EQUIPMENT);
+        currentLimits.setPermanentLimit(Double.NaN);
+        assertTrue(Double.isNaN(currentLimits.getPermanentLimit()));
+        assertEquals(ValidationLevel.EQUIPMENT, network.getValidationLevel());
     }
 }

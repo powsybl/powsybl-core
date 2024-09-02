@@ -2197,6 +2197,10 @@
 		<cim:VoltageLevel.Substation rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
 		<cim:VoltageLevel.BaseVoltage rdf:resource="#_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6"/>
 	</cim:VoltageLevel>
+	<cim:OperationalLimitSet rdf:ID="new_limit_set_1_terminal">
+		<cim:IdentifiedObject.name>_OLS_V_1000_terminal</cim:IdentifiedObject.name>
+		<cim:OperationalLimitSet.Terminal rdf:resource="#_800ada75-8c8c-4568-aec5-20f799e45f3c" />
+	</cim:OperationalLimitSet>
 	<cim:OperationalLimitSet rdf:ID="new_limit_set_1">
 		<cim:IdentifiedObject.name>_OLS_V_1000</cim:IdentifiedObject.name>
 		<cim:OperationalLimitSet.Equipment rdf:resource="#_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c" />
@@ -2225,6 +2229,12 @@
 		<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue"/>
 		<entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl"/>
 	</cim:OperationalLimitType>
+	<cim:VoltageLimit rdf:ID="new_voltage_limit_1_terminal">
+		<cim:IdentifiedObject.name>high_400</cim:IdentifiedObject.name>
+		<cim:OperationalLimit.OperationalLimitSet rdf:resource="#new_limit_set_1_terminal" />
+		<cim:OperationalLimit.OperationalLimitType rdf:resource="#high_voltage_limit_type" />
+		<cim:VoltageLimit.value>401.2</cim:VoltageLimit.value>
+	</cim:VoltageLimit>
 	<cim:VoltageLimit rdf:ID="new_voltage_limit_1">
 		<cim:IdentifiedObject.name>high_400</cim:IdentifiedObject.name>
 		<cim:OperationalLimit.OperationalLimitSet rdf:resource="#new_limit_set_1" />

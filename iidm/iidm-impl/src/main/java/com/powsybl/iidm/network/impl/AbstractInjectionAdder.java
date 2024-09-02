@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 
 /**
  *
@@ -19,6 +20,8 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
     private String bus;
 
     private String connectableBus;
+
+    protected VoltageLevelExt voltageLevel;
 
     public T setNode(int node) {
         this.node = node;
@@ -35,10 +38,17 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         return (T) this;
     }
 
-    protected abstract Ref<? extends VariantManagerHolder> getVariantManagerHolder();
+    @Override
+    protected NetworkImpl getNetwork() {
+        return voltageLevel.getNetwork();
+    }
+
+    protected Ref<NetworkImpl> getNetworkRef() {
+        return voltageLevel.getNetworkRef();
+    }
 
     protected TerminalExt checkAndGetTerminal() {
-        return new TerminalBuilder(getVariantManagerHolder(), this)
+        return new TerminalBuilder(getNetworkRef(), this, null)
                 .setNode(node)
                 .setBus(bus)
                 .setConnectableBus(connectableBus)

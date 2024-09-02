@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -10,9 +11,9 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
@@ -48,7 +49,7 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
         if (quality != null) {
             writer.writeStartNode(getNamespaceUri(), elementName);
             writer.writeDoubleAttribute(STANDARD_DEVIATION, quality.getStandardDeviation());
-            quality.isRedundant().ifPresent(redundant -> writer.writeBooleanAttribute(REDUNDANT, redundant));
+            writer.writeOptionalBooleanAttribute(REDUNDANT, quality.isRedundant().orElse(null));
             writer.writeEndNode();
         }
     }
@@ -62,7 +63,7 @@ public class InjectionObservabilitySerDe<T extends Injection<T>> extends Abstrac
 
         context.getReader().readChildNodes(elementName -> {
             var standardDeviation = context.getReader().readDoubleAttribute(STANDARD_DEVIATION);
-            var redundant = context.getReader().readBooleanAttribute(REDUNDANT, false);
+            boolean redundant = context.getReader().readOptionalBooleanAttribute(REDUNDANT).orElse(false);
             context.getReader().readEndNode();
             switch (elementName) {
                 case QUALITY_P -> adder.withStandardDeviationP(standardDeviation).withRedundantP(redundant);

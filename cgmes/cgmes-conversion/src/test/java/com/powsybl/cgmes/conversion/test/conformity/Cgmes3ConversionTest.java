@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test.conformity;
@@ -16,12 +17,14 @@ import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.GridModelReference;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -116,7 +119,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
@@ -199,7 +202,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
@@ -263,7 +266,7 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
     }
 
@@ -345,8 +348,29 @@ class Cgmes3ConversionTest {
 
         resetBusVoltageAndAngleBeforeComparison(network);
         resetTerminalPQofLoadsAndGeneratorsBeforeComparison(network);
-        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig().ignoreMissingMetadata()).compare();
         assertTrue(true);
+    }
+
+    @Test
+    void throwsUncheckedIOExceptionOnImport() {
+        CgmesImport importer = new CgmesImport();
+        IOException ioException = new IOException("Error");
+        ReadOnlyDataSource ds = new ReadOnlyMemDataSource() {
+            @Override
+            public String getDataExtension() {
+                return "xml"; // Should be equal to CgmesOnDataSource.EXTENSION
+            }
+
+            @Override
+            public boolean exists(String fileName) throws IOException {
+                throw ioException;
+            }
+        };
+        // When the dataSource throws an IOException during "exists" check,
+        // the exception should be propagated as an UncheckedIOException
+        UncheckedIOException exception = assertThrows(UncheckedIOException.class, () -> importer.exists(ds));
+        assertEquals(ioException, exception.getCause());
     }
 
     private Network networkModel(GridModelReference testGridModel, Conversion.Config config) {

@@ -3,16 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.json;
 
-import com.fasterxml.jackson.core.*;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonFactoryBuilder;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.google.common.base.Strings;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
@@ -27,6 +31,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -347,7 +352,7 @@ public final class JsonUtil {
         Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
-        if (parser.currentToken() != JsonToken.START_OBJECT) {
+        if (parser.currentToken() != com.fasterxml.jackson.core.JsonToken.START_OBJECT) {
             throw new PowsyblException("Error updating extensions, \"extensions\" field expected START_OBJECT, got "
                     + parser.currentToken());
         }
@@ -362,7 +367,7 @@ public final class JsonUtil {
 
     private static <T extends Extendable, E extends Extension<T>> E updateExtension(JsonParser parser, DeserializationContext context,
                                                                                     SerializerSupplier supplier, Set<String> extensionsNotFound, T extendable) throws IOException {
-        String extensionName = parser.getCurrentName();
+        String extensionName = parser.currentName();
         ExtensionJsonSerializer<T, E> extensionJsonSerializer = supplier.getSerializer(extensionName);
         if (extensionJsonSerializer != null) {
             parser.nextToken();
@@ -499,7 +504,7 @@ public final class JsonUtil {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(fieldHandler);
         try {
-            JsonToken token = parser.currentToken();
+            com.fasterxml.jackson.core.JsonToken token = parser.currentToken();
             if (!polymorphic && token != JsonToken.START_OBJECT) {
                 throw new PowsyblException("Start object token was expected instead got: " + token);
             }
@@ -508,7 +513,7 @@ public final class JsonUtil {
             }
             while (token != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
+                    String fieldName = parser.currentName();
                     boolean found = fieldHandler.onField(fieldName);
                     if (!found) {
                         throw new PowsyblException("Unexpected field " + fieldName);

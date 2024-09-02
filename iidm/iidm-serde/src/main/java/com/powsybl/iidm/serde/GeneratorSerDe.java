@@ -3,13 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
 
@@ -38,6 +37,8 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         context.getWriter().writeDoubleAttribute("targetP", g.getTargetP());
         context.getWriter().writeDoubleAttribute("targetV", g.getTargetV());
         context.getWriter().writeDoubleAttribute("targetQ", g.getTargetQ());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
+                context.getWriter().writeBooleanAttribute("isCondenser", g.isCondenser(), false));
         writeNodeOrBus(null, g.getTerminal(), context);
         writePQ(null, g.getTerminal(), context.getWriter());
     }
@@ -61,11 +62,13 @@ class GeneratorSerDe extends AbstractSimpleIdentifiableSerDe<Generator, Generato
         double minP = context.getReader().readDoubleAttribute("minP");
         double maxP = context.getReader().readDoubleAttribute("maxP");
         double ratedS = context.getReader().readDoubleAttribute("ratedS");
-        Boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
+        boolean voltageRegulatorOn = context.getReader().readBooleanAttribute("voltageRegulatorOn");
         double targetP = context.getReader().readDoubleAttribute("targetP");
         double targetV = context.getReader().readDoubleAttribute("targetV");
         double targetQ = context.getReader().readDoubleAttribute("targetQ");
-        readNodeOrBus(adder, context);
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () ->
+                adder.setCondenser(context.getReader().readBooleanAttribute("isCondenser", false)));
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)

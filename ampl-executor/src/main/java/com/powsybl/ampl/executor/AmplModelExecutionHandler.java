@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.executor;
 
 import com.powsybl.ampl.converter.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
@@ -96,14 +97,12 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     }
 
     private void exportNetworkAsAmpl(Path workingDir) {
-        DataSource networkExportDataSource = new FileDataSource(workingDir, this.model.getNetworkDataPrefix());
-        Properties prop = null;
-        String version = parameters.getAmplExportVersionId();
-        if (version != null) {
-            prop = new Properties();
-            prop.put(AmplExporter.EXPORT_VERSION, version);
+        DataSource networkExportDataSource = new DirectoryDataSource(workingDir, this.model.getNetworkDataPrefix());
+        if (parameters.getAmplExportConfig() != null) {
+            new AmplExporter().export(network, parameters.getAmplExportConfig(), networkExportDataSource);
+        } else {
+            new AmplExporter().export(network, new Properties(), networkExportDataSource);
         }
-        new AmplExporter().export(network, prop, networkExportDataSource);
     }
 
     /**
@@ -181,7 +180,7 @@ public class AmplModelExecutionHandler extends AbstractExecutionHandler<AmplResu
     @Override
     public AmplResults after(Path workingDir, ExecutionReport report) throws IOException {
         super.after(workingDir.toAbsolutePath(), report);
-        DataSource networkAmplResults = new FileDataSource(workingDir, this.model.getOutputFilePrefix());
+        DataSource networkAmplResults = new DirectoryDataSource(workingDir, this.model.getOutputFilePrefix());
         AmplNetworkReader reader = new AmplNetworkReader(networkAmplResults, this.network, this.model.getVariant(),
                 mapper, this.model.getNetworkUpdaterFactory(), this.model.getOutputFormat());
         Map<String, String> indicators = readIndicators(reader);

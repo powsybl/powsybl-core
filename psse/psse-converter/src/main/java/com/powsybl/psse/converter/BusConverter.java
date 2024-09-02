@@ -3,10 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
-import java.util.Collections;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.Bus;
@@ -38,20 +38,17 @@ class BusConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new buses
-    static void updateBuses(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+    static void updateBuses(Network network, PssePowerFlowModel psseModel) {
         psseModel.getBuses().forEach(psseBus -> {
-            updatePsseModel.addBuses(Collections.singletonList(psseBus));
-            PsseBus updatePsseBus = updatePsseModel.getBuses().get(updatePsseModel.getBuses().size() - 1);
-
-            String busId = AbstractConverter.getBusId(updatePsseBus.getI());
+            String busId = AbstractConverter.getBusId(psseBus.getI());
             Bus bus = network.getBusBreakerView().getBus(busId);
             if (bus == null) {
-                updatePsseBus.setVm(0.0);
-                updatePsseBus.setVa(0.0);
-                updatePsseBus.setIde(4);
+                psseBus.setVm(0.0);
+                psseBus.setVa(0.0);
+                psseBus.setIde(4);
             } else {
-                updatePsseBus.setVm(bus.getV() / bus.getVoltageLevel().getNominalV());
-                updatePsseBus.setVa(bus.getAngle());
+                psseBus.setVm(bus.getV() / bus.getVoltageLevel().getNominalV());
+                psseBus.setVa(bus.getAngle());
             }
         });
     }

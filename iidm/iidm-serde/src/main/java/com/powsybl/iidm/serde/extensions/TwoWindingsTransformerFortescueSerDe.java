@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -33,8 +34,8 @@ public class TwoWindingsTransformerFortescueSerDe extends AbstractExtensionSerDe
         context.getWriter().writeDoubleAttribute("rz", twtFortescue.getRz(), Double.NaN);
         context.getWriter().writeDoubleAttribute("xz", twtFortescue.getXz(), Double.NaN);
         context.getWriter().writeBooleanAttribute("freeFluxes", twtFortescue.isFreeFluxes());
-        context.getWriter().writeStringAttribute("connectionType1", twtFortescue.getConnectionType1().name());
-        context.getWriter().writeStringAttribute("connectionType2", twtFortescue.getConnectionType2().name());
+        context.getWriter().writeEnumAttribute("connectionType1", twtFortescue.getConnectionType1());
+        context.getWriter().writeEnumAttribute("connectionType2", twtFortescue.getConnectionType2());
         context.getWriter().writeDoubleAttribute("groundingR1", twtFortescue.getGroundingR1(), 0);
         context.getWriter().writeDoubleAttribute("groundingX1", twtFortescue.getGroundingX1(), 0);
         context.getWriter().writeDoubleAttribute("groundingR2", twtFortescue.getGroundingR2(), 0);

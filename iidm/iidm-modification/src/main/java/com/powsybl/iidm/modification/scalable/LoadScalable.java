@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.scalable;
 
@@ -108,12 +109,16 @@ class LoadScalable extends AbstractInjectionScalable {
         Objects.requireNonNull(n);
         Objects.requireNonNull(parameters);
 
+        if (parameters.getIgnoredInjectionIds().contains(id)) {
+            LOGGER.info("Scaling parameters' injections to be ignored contains load {}, discarded from scaling", id);
+            return 0;
+        }
+
         Load l = n.getLoad(id);
 
-        double done = 0;
         if (l == null) {
             LOGGER.warn("Load {} not found", id);
-            return done;
+            return 0;
         }
 
         Terminal t = l.getTerminal();
@@ -127,6 +132,10 @@ class LoadScalable extends AbstractInjectionScalable {
             }
         }
 
+        return shiftLoad(asked, parameters, l);
+    }
+
+    private double shiftLoad(double asked, ScalingParameters parameters, Load l) {
         double oldP0 = l.getP0();
         double oldQ0 = l.getQ0();
         if (oldP0 < minValue || oldP0 > maxValue) {
@@ -139,6 +148,7 @@ class LoadScalable extends AbstractInjectionScalable {
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
+        double done;
         if (parameters.getScalingConvention() == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);
@@ -150,7 +160,7 @@ class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
-        if (parameters.isConstantPowerFactor()) {
+        if (parameters.isConstantPowerFactor() && oldP0 != 0) {
             l.setQ0(l.getP0() * oldQ0 / oldP0);
             LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
                     l.getId(), oldQ0, l.getQ0());

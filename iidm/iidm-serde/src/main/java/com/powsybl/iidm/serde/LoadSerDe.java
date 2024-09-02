@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -53,14 +54,14 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
 
     private void writeModel(LoadModel model, NetworkSerializerContext context) {
         switch (model.getType()) {
-            case EXPONENTIAL:
+            case EXPONENTIAL -> {
                 ExponentialLoadModel expModel = (ExponentialLoadModel) model;
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), EXPONENTIAL_MODEL);
                 context.getWriter().writeDoubleAttribute("np", expModel.getNp());
                 context.getWriter().writeDoubleAttribute("nq", expModel.getNq());
                 context.getWriter().writeEndNode();
-                break;
-            case ZIP:
+            }
+            case ZIP -> {
                 ZipLoadModel zipModel = (ZipLoadModel) model;
                 context.getWriter().writeStartNode(context.getVersion().getNamespaceURI(context.isValid()), ZIP_MODEL);
                 context.getWriter().writeDoubleAttribute("c0p", zipModel.getC0p());
@@ -70,9 +71,8 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
                 context.getWriter().writeDoubleAttribute("c1q", zipModel.getC1q());
                 context.getWriter().writeDoubleAttribute("c2q", zipModel.getC2q());
                 context.getWriter().writeEndNode();
-                break;
-            default:
-                throw new PowsyblException("Unexpected load model type: " + model.getType());
+            }
+            default -> throw new PowsyblException("Unexpected load model type: " + model.getType());
         }
     }
 
@@ -82,11 +82,11 @@ class LoadSerDe extends AbstractComplexIdentifiableSerDe<Load, LoadAdder, Voltag
     }
 
     @Override
-    protected void readRootElementAttributes(LoadAdder adder, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
+    protected void readRootElementAttributes(LoadAdder adder, VoltageLevel parent, List<Consumer<Load>> toApply, NetworkDeserializerContext context) {
         LoadType loadType = context.getReader().readEnumAttribute("loadType", LoadType.class, LoadType.UNDEFINED);
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, parent.getTopologyKind());
         adder.setLoadType(loadType)
                 .setP0(p0)
                 .setQ0(q0);

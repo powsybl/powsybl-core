@@ -3,20 +3,24 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.impl;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.*;
+import com.powsybl.security.detectors.LimitViolationDetector;
+import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -29,6 +33,7 @@ import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -84,18 +89,23 @@ public class DefaultSecurityAnalysis {
     private final LimitViolationFilter violationFilter;
     private final List<SecurityAnalysisInterceptor> interceptors;
     private final StateMonitorIndex monitorIndex;
-    private final Reporter reporter;
+    private final ReportNode reportNode;
 
-    public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
+    public DefaultSecurityAnalysis(Network network, LimitViolationFilter filter, ComputationManager computationManager,
+                                   List<StateMonitor> monitors, ReportNode reportNode) {
+        this(network, null, filter, computationManager, monitors, reportNode);
+    }
+
+    public DefaultSecurityAnalysis(Network network, @Nullable LimitViolationDetector detector,
                                    LimitViolationFilter filter, ComputationManager computationManager,
-                                   List<StateMonitor> monitors, Reporter reporter) {
+                                   List<StateMonitor> monitors, ReportNode reportNode) {
         this.network = Objects.requireNonNull(network);
-        this.violationDetector = Objects.requireNonNull(detector);
+        this.violationDetector = detector;
         this.violationFilter = Objects.requireNonNull(filter);
         this.interceptors = new ArrayList<>();
         this.computationManager = Objects.requireNonNull(computationManager);
         this.monitorIndex = new StateMonitorIndex(monitors);
-        this.reporter = Objects.requireNonNull(reporter);
+        this.reportNode = Objects.requireNonNull(reportNode);
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
@@ -126,13 +136,13 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingVariantId);
 
         return LoadFlow
-            .runAsync(network, workingVariantId, computationManager, loadFlowParameters, reporter)
+            .runAsync(network, workingVariantId, computationManager, loadFlowParameters, reportNode)
             .thenCompose(loadFlowResult -> {
                 if (loadFlowResult.isOk()) {
                     return CompletableFuture
                         .runAsync(() -> {
                             network.getVariantManager().setWorkingVariant(workingVariantId);
-                            setPreContigencyOkAndCheckViolations(resultBuilder);
+                            setPreContingencyOkAndCheckViolations(resultBuilder);
                         }, computationManager.getExecutor())
                         .thenComposeAsync(aVoid ->
                                 submitAllLoadFlows(workingVariantId, contingenciesProvider, postContParameters, resultBuilder),
@@ -144,11 +154,11 @@ public class DefaultSecurityAnalysis {
             .thenApply(aVoid -> new SecurityAnalysisReport(resultBuilder.build()));
     }
 
-    private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
+    private void setPreContingencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder =
                 resultBuilder.preContingency()
                         .setStatus(LoadFlowResult.ComponentResult.Status.CONVERGED);
-        violationDetector.checkAll(network, builder::addViolation);
+        checkPreContingencyViolations(network, builder::addViolation);
         addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         builder.endPreContingency();
@@ -211,7 +221,7 @@ public class DefaultSecurityAnalysis {
                 applyContingency(workingVariantId, postContVariantId, contingency);
             }, computationManager.getExecutor())
             .thenCompose(aVoid ->
-                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters, reporter)
+                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters, reportNode)
             )
             .thenApplyAsync(lfResult -> {
                 setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, contingency, lfResult);
@@ -227,7 +237,7 @@ public class DefaultSecurityAnalysis {
                         .setStatus(lfResult.isOk() ? PostContingencyComputationStatus.CONVERGED : PostContingencyComputationStatus.FAILED)
                         .setConnectivityResult(new ConnectivityResult(0, 0, 0.0, 0.0, Collections.emptySet()));
         if (lfResult.isOk()) {
-            violationDetector.checkAll(contingency, network, builder::addViolation);
+            checkPostContingencyViolations(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
             StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitors().get(contingency.getId());
             if (stateMonitor != null) {
@@ -283,4 +293,20 @@ public class DefaultSecurityAnalysis {
                 threeWindingsTransformer.getLeg3().getTerminal().getP(), threeWindingsTransformer.getLeg3().getTerminal().getQ(), threeWindingsTransformer.getLeg3().getTerminal().getI());
     }
 
+    private void checkPreContingencyViolations(Network network, Consumer<LimitViolation> consumer) {
+        if (violationDetector != null) {
+            violationDetector.checkAll(network, consumer);
+        } else {
+            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), LimitsComputer.NO_MODIFICATIONS, consumer);
+        }
+    }
+
+    protected void checkPostContingencyViolations(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
+        if (violationDetector != null) {
+            violationDetector.checkAll(contingency, network, consumer);
+        } else {
+            // TODO: Take the contingency into account with full support of LimitReductions
+            LimitViolationDetection.checkAll(network, EnumSet.allOf(LoadingLimitType.class), LimitsComputer.NO_MODIFICATIONS, consumer);
+        }
+    }
 }

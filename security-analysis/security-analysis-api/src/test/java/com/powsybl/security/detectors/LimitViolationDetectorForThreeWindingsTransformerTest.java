@@ -12,7 +12,6 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolations;
 import org.junit.jupiter.api.BeforeEach;
@@ -175,7 +174,7 @@ class LimitViolationDetectorForThreeWindingsTransformerTest {
             }
 
             @Override
-            public void checkPermanentLimit(Branch<?> branch, TwoSides side, float limitReduction, double value, Consumer<LimitViolation> consumer, LimitType type) {
+            public void checkPermanentLimit(Branch<?> branch, TwoSides side, double limitReductionValue, double value, Consumer<LimitViolation> consumer, LimitType type) {
                 throw new UnsupportedOperationException("Not used in this test!");
 
             }

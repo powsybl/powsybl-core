@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -195,5 +196,26 @@ public class PsseNonTransformerBranch extends PsseVersioned {
 
     public PsseRates getRates() {
         return rates;
+    }
+
+    public PsseNonTransformerBranch copy() {
+        PsseNonTransformerBranch copy = new PsseNonTransformerBranch();
+        copy.i = this.i;
+        copy.j = this.j;
+        copy.ckt = this.ckt;
+        copy.r = this.r;
+        copy.x = this.x;
+        copy.b = this.b;
+        copy.rates = this.rates.copy();
+        copy.gi = this.gi;
+        copy.bi = this.bi;
+        copy.gj = this.gj;
+        copy.bj = this.bj;
+        copy.st = this.st;
+        copy.met = this.met;
+        copy.len = this.len;
+        copy.ownership = this.ownership;
+        copy.name = this.name;
+        return copy;
     }
 }

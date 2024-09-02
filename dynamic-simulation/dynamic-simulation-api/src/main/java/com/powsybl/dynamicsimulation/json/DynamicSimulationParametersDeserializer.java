@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.dynamicsimulation.json;
 
@@ -34,11 +35,11 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
 
     @Override
     public DynamicSimulationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext,
-        DynamicSimulationParameters parameters) throws IOException {
+                                                   DynamicSimulationParameters parameters) throws IOException {
 
         List<Extension<DynamicSimulationParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
 
                 case "version":
                     parser.nextToken();
@@ -60,7 +61,7 @@ public class DynamicSimulationParametersDeserializer extends StdDeserializer<Dyn
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

@@ -715,8 +715,33 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int num = mapper.getInt(AmplSubset.BRANCH, id);
         int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl1.getId());
         int vl2Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl2.getId());
-        double vb = vl1.getNominalV();
-        double zb = vb * vb / AmplConstants.SB;
+        double zSquare = l.getR() * l.getR() + l.getX() * l.getX();
+        double r;
+        double x;
+        double g1;
+        double g2;
+        double b1;
+        double b2;
+        if (zSquare == 0) {
+            r = 0;
+            x = 0;
+            g1 = 0;
+            g2 = 0;
+            b1 = 0;
+            b2 = 0;
+        } else {
+            double g = l.getR() / zSquare;
+            double b = -l.getX() / zSquare;
+            double vb1 = vl1.getNominalV();
+            double vb2 = vl2.getNominalV();
+            double zb = vb1 * vb2 / AmplConstants.SB;
+            r = l.getR() / zb;
+            x = l.getX() / zb;
+            g1 = (l.getG1() * vb1 * vb1 + g * vb1 * (vb1 - vb2)) / AmplConstants.SB;
+            g2 = (l.getG2() * vb2 * vb2 + g * vb2 * (vb2 - vb1)) / AmplConstants.SB;
+            b1 = (l.getB1() * vb1 * vb1 + b * vb1 * (vb1 - vb2)) / AmplConstants.SB;
+            b2 = (l.getB2() * vb2 * vb2 + b * vb2 * (vb2 - vb1)) / AmplConstants.SB;
+        }
 
         formatter.writeCell(variantIndex)
             .writeCell(num)
@@ -725,12 +750,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(-1)
             .writeCell(vl1Num)
             .writeCell(vl2Num)
-            .writeCell(l.getR() / zb)
-            .writeCell(l.getX() / zb)
-            .writeCell(l.getG1() * zb)
-            .writeCell(l.getG2() * zb)
-            .writeCell(l.getB1() * zb)
-            .writeCell(l.getB2() * zb)
+            .writeCell(r)
+            .writeCell(x)
+            .writeCell(g1)
+            .writeCell(g2)
+            .writeCell(b1)
+            .writeCell(b2)
             .writeCell(1f) // constant ratio
             .writeCell(-1) // no ratio tap changer
             .writeCell(-1) // no phase tap changer

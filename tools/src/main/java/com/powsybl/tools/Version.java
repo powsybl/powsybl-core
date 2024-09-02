@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools;
 
@@ -48,7 +49,7 @@ public interface Version {
                                  .writeCell(version.getMavenProjectVersion())
                                  .writeCell(version.getGitBranch())
                                  .writeCell(version.getGitVersion())
-                                 .writeCell(Instant.ofEpochSecond(version.getBuildTimestamp()).atZone(ZoneOffset.UTC).toString());
+                                 .writeCell(convertBuildTimestamp(version.getBuildTimestamp()));
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
@@ -58,6 +59,10 @@ public interface Version {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    static String convertBuildTimestamp(Long buildTimestamp) {
+        return Instant.ofEpochMilli(buildTimestamp).atZone(ZoneOffset.UTC).toString();
     }
 
     String getRepositoryName();

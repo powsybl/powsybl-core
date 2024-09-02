@@ -3,10 +3,10 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
-import java.util.Collections;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -120,19 +120,16 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new generators
-    static void updateGenerators(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+    static void updateGenerators(Network network, PssePowerFlowModel psseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
-            updatePsseModel.addGenerators(Collections.singletonList(psseGen));
-            PsseGenerator updatePsseGen = updatePsseModel.getGenerators().get(updatePsseModel.getGenerators().size() - 1);
-
-            String genId = getGeneratorId(getBusId(updatePsseGen.getI()), updatePsseGen.getId());
+            String genId = getGeneratorId(getBusId(psseGen.getI()), psseGen.getId());
             Generator gen = network.getGenerator(genId);
             if (gen == null) {
-                updatePsseGen.setStat(0);
+                psseGen.setStat(0);
             } else {
-                updatePsseGen.setStat(getStatus(gen));
-                updatePsseGen.setPg(getP(gen));
-                updatePsseGen.setQg(getQ(gen));
+                psseGen.setStat(getStatus(gen));
+                psseGen.setPg(getP(gen));
+                psseGen.setQg(getQ(gen));
             }
         });
     }

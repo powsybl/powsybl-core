@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.13"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/terminal_mock_no_serde/1_12"
+           elementFormDefault="qualified">
+    <xs:import namespace="http://www.powsybl.org/schema/iidm/1_13" schemaLocation="iidm_V1_13.xsd"/>
+    <xs:element name="terminalMockNoSerDe">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="terminal" type="iidm:TerminalRef"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

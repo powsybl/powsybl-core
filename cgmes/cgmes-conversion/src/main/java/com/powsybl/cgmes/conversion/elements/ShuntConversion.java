@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -81,9 +82,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         addAliasesAndProperties(shunt);
 
         PowerFlow f = powerFlowSV();
-        if (f.defined() && context.config().changeSignForShuntReactivePowerFlowInitialState()) {
-            f = new PowerFlow(-f.p(), -f.q());
-        }
         context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
     }

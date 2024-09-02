@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.util;
 
@@ -15,7 +16,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.EnumMap;
@@ -40,7 +41,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
         id2num = new EnumMap<>(clazz);
         counter = new EnumMap<>(clazz);
         for (S s : clazz.getEnumConstants()) {
-            id2num.put(s, HashBiMap.<String, Integer>create());
+            id2num.put(s, HashBiMap.create());
             counter.put(s, s.getInitialValue());
         }
     }
@@ -111,7 +112,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
     }
 
     public void dump(Path file) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(file, Charset.forName("UTF-8"))) {
+        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             dump(writer);
         }
     }
@@ -135,7 +136,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
     }
 
     public void load(Path file) throws IOException {
-        try (BufferedReader reader = Files.newBufferedReader(file, Charset.forName("UTF-8"))) {
+        try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             load(reader);
         }
     }
@@ -144,7 +145,7 @@ public class StringToIntMapper<S extends Enum<S> & IntCounter> {
         if (subset == null) {
             throw new IllegalArgumentException("subset is null");
         }
-        id2num.put(subset, HashBiMap.<String, Integer>create());
+        id2num.put(subset, HashBiMap.create());
         counter.put(subset, subset.getInitialValue());
     }
 

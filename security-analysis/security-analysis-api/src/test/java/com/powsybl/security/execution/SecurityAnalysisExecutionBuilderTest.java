@@ -3,31 +3,26 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.execution;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
-import com.powsybl.security.action.Action;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.distributed.ForwardedSecurityAnalysisExecution;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.strategy.OperatorStrategy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -71,7 +66,7 @@ class SecurityAnalysisExecutionBuilderTest {
     @Test
     void checkLocal() {
         SecurityAnalysisExecution execution = builder.build();
-        assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
+        assertInstanceOf(SecurityAnalysisExecutionImpl.class, execution);
 
         execution.execute(Mockito.mock(ComputationManager.class), input);
 
@@ -82,26 +77,26 @@ class SecurityAnalysisExecutionBuilderTest {
     @Test
     void checkForwarded() {
         builder.forward(true);
-        assertTrue(builder.build() instanceof ForwardedSecurityAnalysisExecution);
+        assertInstanceOf(ForwardedSecurityAnalysisExecution.class, builder.build());
     }
 
     @Test
     void checkDistributedForwarded() {
         builder.forward(true)
                 .distributed(12);
-        assertTrue(builder.build() instanceof ForwardedSecurityAnalysisExecution);
+        assertInstanceOf(ForwardedSecurityAnalysisExecution.class, builder.build());
     }
 
     @Test
     void checkDistributed() {
         builder.distributed(12);
-        assertTrue(builder.build() instanceof DistributedSecurityAnalysisExecution);
+        assertInstanceOf(DistributedSecurityAnalysisExecution.class, builder.build());
     }
 
     @Test
     void checkSubtaskHasOnly5Contingencies() {
         SecurityAnalysisExecution execution = builder.subTask(new Partition(1, 2)).build();
-        assertTrue(execution instanceof SecurityAnalysisExecutionImpl);
+        assertInstanceOf(SecurityAnalysisExecutionImpl.class, execution);
 
         execution.execute(Mockito.mock(ComputationManager.class), input);
 
@@ -111,8 +106,9 @@ class SecurityAnalysisExecutionBuilderTest {
 
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
+
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<OperatorStrategy> operatorStrategies, List<Action> actions, List<StateMonitor> monitors, Reporter reporter) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, ContingenciesProvider contingenciesProvider, SecurityAnalysisRunParameters runParameters) {
             actualProvider.set(contingenciesProvider);
             return null;
         }

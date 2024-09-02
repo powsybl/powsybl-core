@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
@@ -33,7 +34,7 @@ class BusbarSectionContingencyTest {
         assertEquals(ContingencyElementType.BUSBAR_SECTION, bbsContingency.getType());
 
         assertNotNull(bbsContingency.toModification());
-        assertTrue(bbsContingency.toModification() instanceof BusbarSectionTripping);
+        assertInstanceOf(BusbarSectionTripping.class, bbsContingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new BusbarSectionContingency("bbs1"), new BusbarSectionContingency("bbs1"))

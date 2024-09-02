@@ -3,14 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.TopologyPoint;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.math.graph.TraversalType;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -113,8 +115,8 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    NodeTerminal(Ref<? extends VariantManagerHolder> network, int node) {
-        super(network);
+    NodeTerminal(Ref<? extends VariantManagerHolder> network, ThreeSides side, int node) {
+        super(network, side);
         this.node = node;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         v = new TDoubleArrayList(variantArraySize);

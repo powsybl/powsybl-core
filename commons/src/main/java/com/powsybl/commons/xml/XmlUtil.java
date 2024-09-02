@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.xml;
 
@@ -19,6 +20,8 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.OptionalDouble;
+import java.util.OptionalInt;
 import java.util.function.Supplier;
 
 /**
@@ -60,23 +63,24 @@ public final class XmlUtil {
         int event;
         while ((event = reader.next()) != XMLStreamConstants.END_DOCUMENT) {
             switch (event) {
-                case XMLStreamConstants.START_ELEMENT:
+                case XMLStreamConstants.START_ELEMENT -> {
                     if (reader.getLocalName().equals(startElement)) {
                         return true;
                     } else {
                         // Skip the current element
                         skipSubElements(reader);
                     }
-                    break;
+                }
 
-                case XMLStreamConstants.END_ELEMENT:
+                case XMLStreamConstants.END_ELEMENT -> {
                     if (reader.getLocalName().equals(endElement)) {
                         return false;
                     }
-                    break;
+                }
 
-                default:
-                    break;
+                default -> {
+                    // Do nothing
+                }
             }
         }
         throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
@@ -112,6 +116,11 @@ public final class XmlUtil {
         return attributeValue != null ? Integer.valueOf(attributeValue) : null;
     }
 
+    public static OptionalInt readOptionalIntegerAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? OptionalInt.of(Integer.parseInt(attributeValue)) : OptionalInt.empty();
+    }
+
     public static int readIntAttribute(XMLStreamReader reader, String name, int defaultValue) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Integer.parseInt(attributeValue) : defaultValue;
@@ -130,6 +139,11 @@ public final class XmlUtil {
     public static double readDoubleAttribute(XMLStreamReader reader, String name, double defaultValue) {
         String attributeValue = reader.getAttributeValue(null, name);
         return attributeValue != null ? Double.parseDouble(attributeValue) : defaultValue;
+    }
+
+    public static OptionalDouble readOptionalDoubleAttribute(XMLStreamReader reader, String name) {
+        String attributeValue = reader.getAttributeValue(null, name);
+        return attributeValue != null ? OptionalDouble.of(Double.parseDouble(attributeValue)) : OptionalDouble.empty();
     }
 
     public static float readFloatAttribute(XMLStreamReader reader, String name, float defaultValue) {

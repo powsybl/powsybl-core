@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.tapchanger;
 
@@ -14,6 +15,8 @@ import java.util.Objects;
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  */
 public class PhaseTapPositionModification extends AbstractTapPositionModification {
+
+    private boolean isRelative = false;
 
     /**
      * Creates a PTC tap modification for two windings transformers, or three windings transformer with a single PTC.
@@ -34,6 +37,31 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
      */
     public PhaseTapPositionModification(String transformerId, int tapPosition, ThreeSides leg) {
         super(transformerId, tapPosition, Objects.requireNonNull(leg));
+    }
+
+    /**
+     * Creates a PTC tap modification for two windings transformers, or three windings transformer with a single PTC.
+     *
+     * @param transformerId the ID of the transformer, which holds the PTC
+     * @param tapPosition   the new tap position
+     * @param isRelative    is the new tap position relative to the previous one or absolute
+     */
+    public PhaseTapPositionModification(String transformerId, int tapPosition, boolean isRelative) {
+        super(transformerId, tapPosition, null);
+        this.isRelative = isRelative;
+    }
+
+    /**
+     * Creates a PTC tap modification for three windings transformers on the given leg.
+     *
+     * @param transformerId the ID of the three windings transformer, which holds the PTC
+     * @param tapPosition   the new tap position
+     * @param leg           defines on which leg of the three winding transformer the modification will be done.
+     * @param isRelative    is the new tap position relative to the previous one or absolute
+     */
+    public PhaseTapPositionModification(String transformerId, int tapPosition, ThreeSides leg, boolean isRelative) {
+        super(transformerId, tapPosition, Objects.requireNonNull(leg));
+        this.isRelative = isRelative;
     }
 
     @Override
@@ -59,7 +87,8 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
             return;
         }
         try {
-            ptcHolder.getPhaseTapChanger().setTapPosition(getTapPosition());
+            int newTapPosition = (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0) + getTapPosition();
+            ptcHolder.getPhaseTapChanger().setTapPosition(newTapPosition);
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
         }

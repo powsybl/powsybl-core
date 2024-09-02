@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ieeecdf.converter;
 
@@ -79,7 +80,7 @@ public class IeeeCdfImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            if (dataSource.exists(null, EXT)) {
+            if (dataSource.isDataExtension(EXT) && dataSource.exists(null, EXT)) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
                     String titleLine = reader.readLine();
                     if (titleLine != null) {

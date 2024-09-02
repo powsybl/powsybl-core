@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 
 /**
@@ -19,10 +20,10 @@ public interface ImportPostProcessor {
     String getName();
 
     default void process(Network network, ComputationManager computationManager) throws Exception {
-        process(network, computationManager, Reporter.NO_OP);
+        process(network, computationManager, ReportNode.NO_OP);
     }
 
-    default void process(Network network, ComputationManager computationManager, Reporter reporter) throws Exception {
+    default void process(Network network, ComputationManager computationManager, ReportNode reportNode) throws Exception {
         process(network, computationManager);
     }
 

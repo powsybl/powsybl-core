@@ -3,47 +3,28 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.TypedValue;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
+import com.powsybl.iidm.network.ValidationLevel;
+import com.powsybl.iidm.network.ValidationUtil;
 
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.List;
 
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RatioTapChangerAdderImpl.class);
-
-    private final RatioTapChangerParent parent;
-
-    private int lowTapPosition = 0;
-
-    private Integer tapPosition;
-
-    private final List<RatioTapChangerStepImpl> steps = new ArrayList<>();
+class RatioTapChangerAdderImpl extends AbstractTapChangerAdderImpl<RatioTapChangerAdderImpl, RatioTapChangerParent, RatioTapChanger, RatioTapChangerStepImpl> implements RatioTapChangerAdder {
 
     private boolean loadTapChangingCapabilities = false;
 
-    private boolean regulating = false;
-
     private RatioTapChanger.RegulationMode regulationMode = null;
 
-    private double regulationValue = Double.NaN;
-
-    private double targetDeadband = Double.NaN;
-
-    private TerminalExt regulationTerminal;
-
-    class StepAdderImpl implements StepAdder {
+    class StepAdderImpl implements RatioTapChangerAdder.StepAdder {
 
         private double rho = Double.NaN;
 
@@ -56,53 +37,39 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         private double b = 0.0;
 
         @Override
-        public StepAdder setRho(double rho) {
+        public RatioTapChangerAdder.StepAdder setRho(double rho) {
             this.rho = rho;
             return this;
         }
 
         @Override
-        public StepAdder setR(double r) {
+        public RatioTapChangerAdder.StepAdder setR(double r) {
             this.r = r;
             return this;
         }
 
         @Override
-        public StepAdder setX(double x) {
+        public RatioTapChangerAdder.StepAdder setX(double x) {
             this.x = x;
             return this;
         }
 
         @Override
-        public StepAdder setG(double g) {
+        public RatioTapChangerAdder.StepAdder setG(double g) {
             this.g = g;
             return this;
         }
 
         @Override
-        public StepAdder setB(double b) {
+        public RatioTapChangerAdder.StepAdder setB(double b) {
             this.b = b;
             return this;
         }
 
         @Override
         public RatioTapChangerAdder endStep() {
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(parent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(parent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(parent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(parent, "step b is not set");
-            }
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(steps.size(), rho, r, x, g, b);
+            step.validate(parent);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
         }
@@ -110,23 +77,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     RatioTapChangerAdderImpl(RatioTapChangerParent parent) {
-        this.parent = parent;
-    }
-
-    NetworkImpl getNetwork() {
-        return parent.getNetwork();
-    }
-
-    @Override
-    public RatioTapChangerAdder setLowTapPosition(int lowTapPosition) {
-        this.lowTapPosition = lowTapPosition;
-        return this;
-    }
-
-    @Override
-    public RatioTapChangerAdder setTapPosition(int tapPosition) {
-        this.tapPosition = tapPosition;
-        return this;
+        super(parent);
     }
 
     @Override
@@ -136,18 +87,11 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setRegulating(boolean regulating) {
-        this.regulating = regulating;
-        return this;
-    }
-
-    @Override
     public RatioTapChangerAdder setTargetV(double targetV) {
         if (!Double.isNaN(targetV)) {
             this.regulationMode = RatioTapChanger.RegulationMode.VOLTAGE;
         }
-        this.regulationValue = targetV;
-        return this;
+        return setRegulationValue(targetV);
     }
 
     @Override
@@ -157,72 +101,31 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setRegulationValue(double regulationValue) {
-        this.regulationValue = regulationValue;
-        return this;
-    }
-
-    @Override
-    public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
-        this.targetDeadband = targetDeadband;
-        return this;
-    }
-
-    @Override
-    public RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
-        this.regulationTerminal = (TerminalExt) regulationTerminal;
-        return this;
-    }
-
-    @Override
-    public StepAdder beginStep() {
+    public RatioTapChangerAdder.StepAdder beginStep() {
         return new StepAdderImpl();
     }
 
     @Override
-    public RatioTapChanger add() {
-        NetworkImpl network = getNetwork();
-        if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel());
-            network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
-        }
-        if (steps.isEmpty()) {
-            throw new ValidationException(parent, "ratio tap changer should have at least one step");
-        }
-        if (tapPosition != null) {
-            int highTapPosition = lowTapPosition + steps.size() - 1;
-            if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-                ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
-                        + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.getMinValidationLevel());
-                network.setValidationLevelIfGreaterThan(ValidationLevel.EQUIPMENT);
-            }
-        }
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
-                regulationMode, regulationValue, network, network.getMinValidationLevel()));
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
-                network.getMinValidationLevel()));
-        RatioTapChangerImpl tapChanger
-                = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
-
-        Set<TapChanger<?, ?>> tapChangers = new HashSet<>(parent.getAllTapChangers());
-        tapChangers.remove(parent.getRatioTapChanger());
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
-                network.getMinValidationLevel().compareTo(ValidationLevel.STEADY_STATE_HYPOTHESIS) >= 0));
-
-        if (parent.hasPhaseTapChanger()) {
-            LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
-            network.getReporterContext().getReporter().report(Report.builder()
-                    .withKey("validationWarning")
-                    .withDefaultMessage("${parent} has both Ratio and Phase Tap Changer.")
-                    .withValue("parent", parent.getMessageHeader())
-                    .withSeverity(TypedValue.WARN_SEVERITY)
-                    .build());
-        }
-
+    protected RatioTapChanger createTapChanger(RatioTapChangerParent parent, int lowTapPosition, List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, Integer tapPosition, boolean regulating, double regulationValue, double targetDeadband) {
+        RatioTapChangerImpl tapChanger = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
+                tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
     }
 
+    @Override
+    protected RatioTapChangerAdderImpl self() {
+        return this;
+    }
+
+    @Override
+    protected ValidationLevel checkTapChangerRegulation(RatioTapChangerParent parent, double regulationValue, boolean regulating, TerminalExt regulationTerminal) {
+        return ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
+                regulationMode, regulationValue, getNetwork(), getNetwork().getMinValidationLevel(), getNetwork().getReportNodeContext().getReportNode());
+    }
+
+    @Override
+    protected String getValidableType() {
+        return "ratio tap changer";
+    }
 }

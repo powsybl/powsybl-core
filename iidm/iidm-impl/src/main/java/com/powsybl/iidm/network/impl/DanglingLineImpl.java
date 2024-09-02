@@ -3,17 +3,19 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -76,7 +78,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetP(double targetP) {
             NetworkImpl n = danglingLine.getNetwork();
-            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel());
+            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP, n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             int variantIndex = danglingLine.network.get().getVariantIndex();
             double oldValue = this.targetP.set(variantIndex, targetP);
             String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
@@ -124,7 +126,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setTargetQ(double targetQ) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = n.getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ, n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ,
+                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             double oldValue = this.targetQ.set(variantIndex, targetQ);
             String variantId = n.getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -141,8 +144,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn,
-                    targetV.get(variantIndex), targetQ.get(variantIndex), n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, targetV.get(variantIndex), targetQ.get(variantIndex),
+                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             boolean oldValue = this.voltageRegulationOn.get(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -165,8 +168,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         public GenerationImpl setTargetV(double targetV) {
             NetworkImpl n = danglingLine.getNetwork();
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex),
-                    targetV, targetQ.get(variantIndex), n.getMinValidationLevel());
+            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV, targetQ.get(variantIndex),
+                    n.getMinValidationLevel(), n.getReportNodeContext().getReportNode());
             double oldValue = this.targetV.set(variantIndex, targetV);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             n.invalidateValidationLevel();
@@ -245,11 +248,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private final String pairingKey;
+    private String pairingKey;
 
     private final GenerationImpl generation;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
+    private final OperationalLimitsGroupsImpl operationalLimitsGroups;
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -273,7 +276,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.pairingKey = pairingKey;
-        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
+        this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
@@ -284,10 +287,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         network.get().getIndex().remove(this);
         id = newId;
         network.get().getIndex().checkAndAdd(this);
-    }
-
-    OperationalLimitsHolderImpl getLimitsHolder() {
-        return operationalLimitsHolder;
     }
 
     void setTieLine(TieLineImpl tieLine) {
@@ -420,58 +419,75 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    public DanglingLine setPairingKey(String pairingKey) {
+        if (this.isPaired()) {
+            throw new ValidationException(this, "pairing key cannot be set if dangling line is paired.");
+        } else {
+            String oldValue = this.pairingKey;
+            this.pairingKey = pairingKey;
+            notifyUpdate("pairing_key", oldValue, pairingKey);
+        }
+        return this;
+    }
+
+    @Override
     public Generation getGeneration() {
         return generation;
     }
 
     @Override
-    public Collection<OperationalLimits> getOperationalLimits() {
-        return operationalLimitsHolder.getOperationalLimits();
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
+        return operationalLimitsGroups.getOperationalLimitsGroups();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public Optional<String> getSelectedOperationalLimitsGroupId() {
+        return operationalLimitsGroups.getSelectedOperationalLimitsGroupId();
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits() {
-        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup(String id) {
+        return operationalLimitsGroups.getOperationalLimitsGroup(id);
     }
 
     @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup() {
+        return operationalLimitsGroups.getSelectedOperationalLimitsGroup();
     }
 
     @Override
-    public ActivePowerLimits getNullableActivePowerLimits() {
-        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    public OperationalLimitsGroup newOperationalLimitsGroup(String id) {
+        return operationalLimitsGroups.newOperationalLimitsGroup(id);
     }
 
     @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    public void setSelectedOperationalLimitsGroup(String id) {
+        operationalLimitsGroups.setSelectedOperationalLimitsGroup(id);
     }
 
     @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits() {
-        return operationalLimitsHolder.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    public void removeOperationalLimitsGroup(String id) {
+        operationalLimitsGroups.removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup() {
+        operationalLimitsGroups.cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return operationalLimitsHolder.newCurrentLimits();
+        return operationalLimitsGroups.newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits() {
-        return operationalLimitsHolder.newActivePowerLimits();
+        return operationalLimitsGroups.newActivePowerLimits();
     }
 
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return operationalLimitsHolder.newApparentPowerLimits();
+        return operationalLimitsGroups.newApparentPowerLimits();
     }
 
     @Override

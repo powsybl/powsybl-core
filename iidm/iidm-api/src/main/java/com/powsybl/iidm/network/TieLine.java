@@ -3,8 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import java.util.function.Predicate;
 
 /**
  * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two {@link DanglingLine}
@@ -127,6 +130,18 @@ public interface TieLine extends Branch<TieLine>, LineCharacteristics {
      * Remove the tie line with an update of underlying dangling lines to reflect the tie line flows.
      */
     void remove(boolean updateDanglingLines);
+
+    boolean connectDanglingLines();
+
+    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate);
+
+    boolean connectDanglingLines(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+
+    boolean disconnectDanglingLines();
+
+    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnectDanglingLines(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     Network getNetwork();
 }

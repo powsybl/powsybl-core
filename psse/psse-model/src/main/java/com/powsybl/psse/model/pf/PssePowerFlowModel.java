@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -217,6 +218,39 @@ public class PssePowerFlowModel {
 
     public List<PsseInductionMachine> getInductionMachines() {
         return Collections.unmodifiableList(inductionMachines);
+    }
+
+    public PssePowerFlowModel referenceAndCopyPssePowerFlowModel() {
+        PssePowerFlowModel newPsseModel = new PssePowerFlowModel(this.getCaseIdentification());
+        referencePermanentBlocks(this, newPsseModel);
+        copyModifiedBlocks(this, newPsseModel);
+        return newPsseModel;
+    }
+
+    private static void referencePermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
+        newPsseModel.addAreas(psseModel.getAreas());
+        newPsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
+        newPsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
+        newPsseModel.addTransformerImpedanceCorrections(psseModel.getTransformerImpedanceCorrections());
+        newPsseModel.addMultiTerminalDcTransmissionLines(psseModel.getMultiTerminalDcTransmissionLines());
+        newPsseModel.addLineGrouping(psseModel.getLineGrouping());
+        newPsseModel.addZones(psseModel.getZones());
+        newPsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
+        newPsseModel.addOwners(psseModel.getOwners());
+        newPsseModel.addFacts(psseModel.getFacts());
+        newPsseModel.addGneDevice(psseModel.getGneDevice());
+        newPsseModel.addInductionMachines(psseModel.getInductionMachines());
+    }
+
+    private static void copyModifiedBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel newPsseModel) {
+        psseModel.getBuses().forEach(psseBus -> newPsseModel.buses.add(psseBus.copy()));
+        psseModel.getLoads().forEach(psseLoad -> newPsseModel.loads.add(psseLoad.copy()));
+
+        psseModel.getFixedShunts().forEach(psseFixedShunt -> newPsseModel.fixedShunts.add(psseFixedShunt.copy()));
+        psseModel.getGenerators().forEach(psseGenerator -> newPsseModel.generators.add(psseGenerator.copy()));
+        psseModel.getNonTransformerBranches().forEach(nonTransformerBranch -> newPsseModel.nonTransformerBranches.add(nonTransformerBranch.copy()));
+        psseModel.getTransformers().forEach(psseTransformer -> newPsseModel.transformers.add(psseTransformer.copy()));
+        psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> newPsseModel.switchedShunts.add(psseSwitchedShunt.copy()));
     }
 
     private <T extends PsseVersioned> List<T> modelled(List<T> elements) {

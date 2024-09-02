@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.elements;
@@ -10,14 +11,19 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
 import org.apache.commons.math3.complex.Complex;
+
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
+
+    private DanglingLine danglingLine;
 
     public EquivalentBranchConversion(PropertyBag b, Context context) {
         super("EquivalentBranch", b, context);
@@ -66,12 +72,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
     }
 
     @Override
-    public BoundaryLine asBoundaryLine(String boundaryNode) {
-        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
-        double r = p.asDouble("r");
-        double x = p.asDouble("x");
-        boundaryLine.setParameters(r, x, 0.0, 0.0, 0.0, 0.0);
-        return boundaryLine;
+    public Optional<DanglingLine> getDanglingLine() {
+        return Optional.ofNullable(danglingLine);
     }
 
     private void convertEquivalentBranchAtBoundary(int boundarySide) {
@@ -88,7 +90,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
                     "This method should not be called, the mapping has already been performed in ::convert";
             throw new PowsyblException(message);
         }
-        convertToDanglingLine(boundarySide, r, x, gch, bch);
+        String eqInstance = p.get("graph");
+        danglingLine = convertToDanglingLine(eqInstance, boundarySide, r, x, gch, bch);
     }
 
     private void updateParametersForEquivalentBranchWithDifferentNominalVoltages() {

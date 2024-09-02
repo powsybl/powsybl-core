@@ -6,7 +6,11 @@ on:
       - 'main'
       - 'release-v**'
       - 'full-sonar-analysis-**'
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
   pull_request:
+
+permissions: {}
 
 jobs:
   build:
@@ -47,5 +51,4 @@ jobs:
           -Dsonar.organization=powsybl-ci-github
           -Dsonar.projectKey=com.powsybl:powsybl-core
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

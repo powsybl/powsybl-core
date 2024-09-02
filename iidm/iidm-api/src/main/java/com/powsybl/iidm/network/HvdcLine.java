@@ -3,8 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
+
+import java.util.function.Predicate;
 
 /**
  * A HVDC line connected to two HVDC converters on DC side.
@@ -202,6 +205,18 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Remove the HVDC line
      */
     void remove();
+
+    boolean connectConverterStations();
+
+    boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate);
+
+    boolean connectConverterStations(Predicate<Switch> isTypeSwitchToOperate, TwoSides side);
+
+    boolean disconnectConverterStations();
+
+    boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnectConverterStations(Predicate<Switch> isSwitchOpenable, TwoSides side);
 
     @Override
     default IdentifiableType getType() {

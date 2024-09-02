@@ -4,7 +4,7 @@
   "version" : "2",
   "buses" : [ {
     "number" : 1,
-    "type" : "PV",
+    "type" : "REF",
     "name" : "VLGEN_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -19,7 +19,7 @@
     "minimumVoltageMagnitude" : 0.0
   }, {
     "number" : 2,
-    "type" : "REF",
+    "type" : "PQ",
     "name" : "VLHV1_0",
     "realPowerDemand" : 0.0,
     "reactivePowerDemand" : 0.0,
@@ -119,7 +119,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -133,7 +133,7 @@
     "rateC" : 0.0,
     "ratio" : 0.0,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -147,7 +147,7 @@
     "rateC" : 0.0,
     "ratio" : 0.9500000000000001,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
   }, {
@@ -161,8 +161,9 @@
     "rateC" : 0.0,
     "ratio" : 0.9986679988158019,
     "phaseShiftAngle" : 0.0,
-    "status" : 1.0,
+    "status" : 1,
     "angMin" : 0.0,
     "angMax" : 0.0
-  } ]
+  } ],
+  "dcLines" : [ ]
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.model.pf;
 
@@ -364,6 +365,33 @@ public class PsseTransformer extends PsseVersioned {
         this.impedances = impedances;
     }
 
+    public PsseTransformer copy() {
+        PsseTransformer copy = new PsseTransformer();
+        copy.i = this.i;
+        copy.j = this.j;
+        copy.k = this.k;
+        copy.ckt = this.ckt;
+        copy.cw = this.cw;
+        copy.cz = this.cz;
+        copy.cm = this.cm;
+        copy.mag1 = this.mag1;
+        copy.mag2 = this.mag2;
+        copy.nmetr = this.nmetr;
+        copy.name = this.name;
+        copy.stat = this.stat;
+        copy.ownership = this.ownership;
+        copy.vecgrp = this.vecgrp;
+        copy.zcod = this.zcod;
+        copy.impedances = this.impedances.copy();
+        copy.winding1 = this.winding1.copy();
+        copy.winding1Rates = this.winding1Rates.copy();
+        copy.winding2 = this.winding2.copy();
+        copy.winding2Rates = this.winding2Rates.copy();
+        copy.winding3 = this.winding3.copy();
+        copy.winding3Rates = this.winding3Rates.copy();
+        return copy;
+    }
+
     public static class TransformerImpedances {
         @Parsed(field = {"r12", "r1_2"})
         private double r12 = 0;
@@ -405,5 +433,21 @@ public class PsseTransformer extends PsseVersioned {
         @NullString(nulls = {"null"})
         @Parsed
         private double anstar = 0;
+
+        public TransformerImpedances copy() {
+            TransformerImpedances copy = new TransformerImpedances();
+            copy.r12 = this.r12;
+            copy.x12 = this.x12;
+            copy.sbase12 = this.sbase12;
+            copy.r23 = this.r23;
+            copy.x23 = this.x23;
+            copy.sbase23 = this.sbase23;
+            copy.r31 = this.r31;
+            copy.x31 = this.x31;
+            copy.sbase31 = this.sbase31;
+            copy.vmstar = this.vmstar;
+            copy.anstar = this.anstar;
+            return copy;
+        }
     }
 }

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -54,7 +55,7 @@ public class TimeSeriesTable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TimeSeriesTable.class);
 
-    public class Correlation {
+    public static class Correlation {
 
         private final String timeSeriesName1;
         private final String timeSeriesName2;
@@ -85,7 +86,7 @@ public class TimeSeriesTable {
         }
     }
 
-    private class TimeSeriesNameMap {
+    private static class TimeSeriesNameMap {
 
         private final BiList<String> names = new BiList<>();
 
@@ -118,9 +119,9 @@ public class TimeSeriesTable {
         }
     }
 
-    private int fromVersion;
+    private final int fromVersion;
 
-    private int toVersion;
+    private final int toVersion;
 
     private List<TimeSeriesMetadata> timeSeriesMetadata;
 
@@ -253,7 +254,7 @@ public class TimeSeriesTable {
     }
 
     private long getTimeSeriesOffset(int version, int timeSeriesNum) {
-        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (version - fromVersion) * tableIndex.getPointCount();
+        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (long) (version - fromVersion) * tableIndex.getPointCount();
     }
 
     private int getStatisticsIndex(int version, int timeSeriesNum) {

@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.commons.ref.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
@@ -18,14 +19,14 @@ import java.util.Optional;
  */
 abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> extends AbstractConnectable<I> implements Branch<I> {
 
-    protected final OperationalLimitsHolderImpl operationalLimitsHolder1;
+    private final FlowsLimitsHolder operationalLimitsHolder1;
 
-    protected final OperationalLimitsHolderImpl operationalLimitsHolder2;
+    private final FlowsLimitsHolder operationalLimitsHolder2;
 
     AbstractConnectableBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
         super(network, id, name, fictitious);
-        operationalLimitsHolder1 = new OperationalLimitsHolderImpl(this, "limits1");
-        operationalLimitsHolder2 = new OperationalLimitsHolderImpl(this, "limits2");
+        operationalLimitsHolder1 = new OperationalLimitsGroupsImpl(this, "limits1");
+        operationalLimitsHolder2 = new OperationalLimitsGroupsImpl(this, "limits2");
     }
 
     @Override
@@ -52,104 +53,122 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
-    @Override
-    public Collection<OperationalLimits> getOperationalLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits();
+    private FlowsLimitsHolder getOperationalLimitsHolder1() {
+        return operationalLimitsHolder1;
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public Optional<String> getSelectedOperationalLimitsGroupId1() {
+        return getOperationalLimitsHolder1().getSelectedOperationalLimitsGroupId();
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits1() {
-        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
+        return getOperationalLimitsHolder1().getOperationalLimitsGroups();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsHolder1().getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup1() {
+        return getOperationalLimitsHolder1().getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup1(String id) {
+        return getOperationalLimitsHolder1().newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup1(String id) {
+        getOperationalLimitsHolder1().setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup1(String id) {
+        getOperationalLimitsHolder1().removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup1() {
+        getOperationalLimitsHolder1().cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return operationalLimitsHolder1.newCurrentLimits();
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits1() {
-        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        return operationalLimitsHolder1.newApparentPowerLimits();
-    }
-
-    @Override
-    public Collection<OperationalLimits> getOperationalLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits1() {
-        return operationalLimitsHolder1.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        return getOperationalLimitsHolder1().newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return operationalLimitsHolder1.newActivePowerLimits();
+        return getOperationalLimitsHolder1().newActivePowerLimits();
     }
 
     @Override
-    public Optional<CurrentLimits> getCurrentLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return getOperationalLimitsHolder1().newApparentPowerLimits();
+    }
+
+    private FlowsLimitsHolder getOperationalLimitsHolder2() {
+        return operationalLimitsHolder2;
     }
 
     @Override
-    public CurrentLimits getNullableCurrentLimits2() {
-        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    public Collection<OperationalLimitsGroup> getOperationalLimitsGroups2() {
+        return getOperationalLimitsHolder2().getOperationalLimitsGroups();
+    }
+
+    @Override
+    public Optional<String> getSelectedOperationalLimitsGroupId2() {
+        return getOperationalLimitsHolder2().getSelectedOperationalLimitsGroupId();
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsHolder2().getOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public Optional<OperationalLimitsGroup> getSelectedOperationalLimitsGroup2() {
+        return getOperationalLimitsHolder2().getSelectedOperationalLimitsGroup();
+    }
+
+    @Override
+    public OperationalLimitsGroup newOperationalLimitsGroup2(String id) {
+        return getOperationalLimitsHolder2().newOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void setSelectedOperationalLimitsGroup2(String id) {
+        getOperationalLimitsHolder2().setSelectedOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void removeOperationalLimitsGroup2(String id) {
+        getOperationalLimitsHolder2().removeOperationalLimitsGroup(id);
+    }
+
+    @Override
+    public void cancelSelectedOperationalLimitsGroup2() {
+        getOperationalLimitsHolder2().cancelSelectedOperationalLimitsGroup();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return operationalLimitsHolder2.newCurrentLimits();
-    }
-
-    @Override
-    public Optional<ApparentPowerLimits> getApparentPowerLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public ApparentPowerLimits getNullableApparentPowerLimits2() {
-        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        return operationalLimitsHolder2.newApparentPowerLimits();
-    }
-
-    @Override
-    public Optional<ActivePowerLimits> getActivePowerLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-    }
-
-    @Override
-    public ActivePowerLimits getNullableActivePowerLimits2() {
-        return operationalLimitsHolder2.getNullableOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        return getOperationalLimitsHolder2().newCurrentLimits();
     }
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return operationalLimitsHolder2.newActivePowerLimits();
+        return getOperationalLimitsHolder2().newActivePowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return getOperationalLimitsHolder2().newApparentPowerLimits();
     }
 
     @Override
@@ -167,22 +186,14 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getFromSide(side, this::getApparentPowerLimits1, this::getApparentPowerLimits2);
     }
 
-    OperationalLimitsHolderImpl getLimitsHolder1() {
-        return operationalLimitsHolder1;
-    }
-
-    OperationalLimitsHolderImpl getLimitsHolder2() {
-        return operationalLimitsHolder2;
-    }
-
     @Override
     public boolean isOverloaded() {
         return isOverloaded(1.0f);
     }
 
     @Override
-    public boolean isOverloaded(float limitReduction) {
-        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
+    public boolean isOverloaded(double limitReductionValue) {
+        return checkPermanentLimit1(limitReductionValue, LimitType.CURRENT) || checkPermanentLimit2(limitReductionValue, LimitType.CURRENT);
     }
 
     @Override
@@ -191,10 +202,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit(TwoSides side, float limitReduction, LimitType type) {
+    public boolean checkPermanentLimit(TwoSides side, double limitReductionValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkPermanentLimit1(limitReduction, type),
-            () -> checkPermanentLimit2(limitReduction, type));
+            () -> checkPermanentLimit1(limitReductionValue, type),
+            () -> checkPermanentLimit2(limitReductionValue, type));
     }
 
     @Override
@@ -203,8 +214,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    public boolean checkPermanentLimit1(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -213,8 +224,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public boolean checkPermanentLimit2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    public boolean checkPermanentLimit2(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
@@ -223,10 +234,10 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits(TwoSides side, float limitReduction, LimitType type) {
+    public Overload checkTemporaryLimits(TwoSides side, double limitReductionValue, LimitType type) {
         return BranchUtil.getFromSide(side,
-            () -> checkTemporaryLimits1(limitReduction, type),
-            () -> checkTemporaryLimits2(limitReduction, type));
+            () -> checkTemporaryLimits1(limitReductionValue, type),
+            () -> checkTemporaryLimits2(limitReductionValue, type));
     }
 
     @Override
@@ -235,8 +246,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
+    public Overload checkTemporaryLimits1(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.ONE, limitReductionValue, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
@@ -245,8 +256,8 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
     }
 
     @Override
-    public Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
-        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
+    public Overload checkTemporaryLimits2(double limitReductionValue, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, TwoSides.TWO, limitReductionValue, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override

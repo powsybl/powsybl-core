@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
@@ -31,11 +32,6 @@ public class DanglingLineData {
     public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
 
-        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
-        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
-        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
-        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
-
         double u1 = getV(danglingLine);
         double theta1 = getTheta(danglingLine);
 
@@ -44,6 +40,17 @@ public class DanglingLineData {
             boundaryBusTheta = Double.NaN;
             return;
         }
+
+        if (zeroImpedance(danglingLine)) {
+            boundaryBusU = u1;
+            boundaryBusTheta = theta1;
+            return;
+        }
+
+        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
+        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
+        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
+        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
@@ -73,12 +80,12 @@ public class DanglingLineData {
         boundaryBusTheta = vBoundaryBus.getArgument();
     }
 
-    private static double getV(DanglingLine danglingLine) {
+    static double getV(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected() ? danglingLine.getTerminal().getBusView().getBus().getV()
             : Double.NaN;
     }
 
-    private static double getTheta(DanglingLine danglingLine) {
+    static double getTheta(DanglingLine danglingLine) {
         return danglingLine.getTerminal().isConnected()
             ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
             : Double.NaN;
@@ -101,6 +108,11 @@ public class DanglingLineData {
 
     public double getBoundaryBusTheta() {
         return boundaryBusTheta;
+    }
+
+    public static boolean zeroImpedance(DanglingLine parent) {
+        // Simple way to deal with zero impedance dangling line.
+        return parent.getR() == 0.0 && parent.getX() == 0.0;
     }
 }
 

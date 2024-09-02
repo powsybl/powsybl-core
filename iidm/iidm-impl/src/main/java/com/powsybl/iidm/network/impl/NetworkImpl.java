@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -12,12 +13,12 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
-import com.powsybl.iidm.network.impl.util.RefChain;
-import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.commons.ref.RefChain;
+import com.powsybl.commons.ref.RefObj;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import org.slf4j.Logger;
@@ -35,7 +36,7 @@ import static com.powsybl.iidm.network.util.TieLineUtil.*;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
+public class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, MultiVariantObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -60,7 +61,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     private final VariantManagerImpl variantManager;
 
-    private AbstractReporterContext reporterContext;
+    private AbstractReportNodeContext reportNodeContext;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
@@ -125,7 +126,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     NetworkImpl(String id, String name, String sourceFormat) {
         super(id, name, sourceFormat);
         ref.setRef(new RefObj<>(this));
-        this.reporterContext = new SimpleReporterContext();
+        this.reportNodeContext = new SimpleReportNodeContext();
         variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
@@ -183,7 +184,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return getRef();
     }
 
-    NetworkListenerList getListeners() {
+    public NetworkListenerList getListeners() {
         return listeners;
     }
 
@@ -226,13 +227,13 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     }
 
     @Override
-    public void allowReporterContextMultiThreadAccess(boolean allow) {
-        this.reporterContext = Networks.allowReporterContextMultiThreadAccess(this.reporterContext, allow);
+    public void allowReportNodeContextMultiThreadAccess(boolean allow) {
+        this.reportNodeContext = Networks.allowReportNodeContextMultiThreadAccess(this.reportNodeContext, allow);
     }
 
     @Override
-    public ReporterContext getReporterContext() {
-        return this.reporterContext;
+    public ReportNodeContext getReportNodeContext() {
+        return this.reportNodeContext;
     }
 
     @Override
@@ -251,6 +252,46 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public int getCountryCount() {
         return getCountries().size();
+    }
+
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(ref, subnetworkRef);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return Collections.unmodifiableCollection(index.getAll(AreaImpl.class));
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return index.getAll(AreaImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public Area getArea(String id) {
+        return index.get(id, AreaImpl.class);
+    }
+
+    @Override
+    public int getAreaCount() {
+        return index.getAll(AreaImpl.class).size();
     }
 
     @Override
@@ -440,6 +481,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
         return index.get(id, ThreeWindingsTransformerImpl.class);
+    }
+
+    @Override
+    public Iterable<OverloadManagementSystem> getOverloadManagementSystems() {
+        return Collections.unmodifiableCollection(index.getAll(OverloadManagementSystemImpl.class));
+    }
+
+    @Override
+    public Stream<OverloadManagementSystem> getOverloadManagementSystemStream() {
+        return index.getAll(OverloadManagementSystemImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getOverloadManagementSystemCount() {
+        return index.getAll(OverloadManagementSystemImpl.class).size();
+    }
+
+    @Override
+    public OverloadManagementSystem getOverloadManagementSystem(String id) {
+        return index.get(id, OverloadManagementSystemImpl.class);
     }
 
     @Override
@@ -699,6 +760,26 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         return newHvdcLine(null);
     }
 
+    @Override
+    public Ground getGround(String id) {
+        return index.get(id, GroundImpl.class);
+    }
+
+    @Override
+    public Iterable<Ground> getGrounds() {
+        return Collections.unmodifiableCollection(index.getAll(GroundImpl.class));
+    }
+
+    @Override
+    public Stream<Ground> getGroundStream() {
+        return index.getAll(GroundImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getGroundCount() {
+        return index.getAll(GroundImpl.class).size();
+    }
+
     HvdcLineAdder newHvdcLine(String subnetwork) {
         return new HvdcLineAdderImpl(this, subnetwork);
     }
@@ -937,6 +1018,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
         checkMergeability(otherNetwork);
 
+        otherNetwork.getAreaStream().forEach(a -> {
+            AreaImpl area = (AreaImpl) a;
+            area.moveListener(otherNetwork, this);
+        });
+
         // try to find dangling lines couples
         List<DanglingLinePair> lines = new ArrayList<>();
         Map<String, List<DanglingLine>> dl1byPairingKey = new HashMap<>();
@@ -1005,6 +1091,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         SubnetworkImpl sn = new SubnetworkImpl(
                 original.ref, original.subnetworkRef, idSubNetwork, original.name, original.sourceFormat, original.getCaseDate());
         transferExtensions(original, sn);
+        transferProperties(original, sn);
         parent.subnetworks.put(idSubNetwork, sn);
         parent.index.checkAndAdd(sn);
     }
@@ -1028,6 +1115,11 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
                 ((DanglingLineImpl) dl2).replaceId(l.dl2Id + "_2");
                 l.dl1Id = dl1.getId();
                 l.dl2Id = dl2.getId();
+            } else if (l.dl1Id.compareTo(l.dl2Id) > 0) {
+                // Invert the ids to always have them in lexicographical order (to ensure reproducibility)
+                var tmp = l.dl1Id;
+                l.dl1Id = l.dl2Id;
+                l.dl2Id = tmp;
             }
         }
     }
@@ -1054,7 +1146,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
         }
     }
 
-    class DanglingLinePair {
+    static class DanglingLinePair {
         String id;
         String name;
         String dl1Id;
@@ -1120,21 +1212,24 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
 
     @Override
     public ValidationLevel runValidationChecks(boolean throwsException) {
-        return runValidationChecks(throwsException, Reporter.NO_OP);
+        return runValidationChecks(throwsException, ReportNode.NO_OP);
     }
 
     @Override
-    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
-        Reporter readReporter = Objects.requireNonNull(reporter).createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
+    public ValidationLevel runValidationChecks(boolean throwsException, ReportNode reportNode) {
+        ReportNode readReportNode = Objects.requireNonNull(reportNode).newReportNode()
+                .withMessageTemplate("IIDMValidation", "Running validation checks on IIDM network ${networkId}")
+                .withUntypedValue("networkId", id)
+                .add();
         validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
-                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReporter);
+                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReportNode);
         return validationLevel;
     }
 
     @Override
     public ValidationLevel getValidationLevel() {
         if (validationLevel == null) {
-            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, Reporter.NO_OP);
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, ReportNode.NO_OP);
         }
         return validationLevel;
     }
@@ -1143,7 +1238,7 @@ class NetworkImpl extends AbstractNetwork implements VariantManagerHolder, Multi
     public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
         Objects.requireNonNull(validationLevel);
         if (this.validationLevel == null) {
-            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, Reporter.NO_OP);
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, ReportNode.NO_OP);
         }
         if (this.validationLevel.compareTo(validationLevel) < 0) {
             throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);

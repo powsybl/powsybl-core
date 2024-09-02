@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion.test;
@@ -16,12 +17,11 @@ import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.GridModelReference;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ZipArchiveDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.serde.XMLExporter;
@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -164,44 +165,53 @@ public class ConversionTester {
         XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
-            xmlExporter.export(expected, null, new FileDataSource(path, "expected"));
+            xmlExporter.export(expected, null, new DirectoryDataSource(path, "expected"));
         }
         if (actual != null) {
-            xmlExporter.export(actual, null, new FileDataSource(path, "actual"));
+            xmlExporter.export(actual, null, new DirectoryDataSource(path, "actual"));
         }
     }
 
     private static void exportCgmes(String name, String impl, Network network) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl + "-");
-        new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
+        new CgmesExport().export(network, null, new DirectoryDataSource(path, "foo"));
+    }
+
+    private static String subsetFromName(String name) {
+        return Stream.of(CgmesSubset.values())
+                .filter(s -> s.isValidName(name))
+                .map(CgmesSubset::getIdentifier)
+                .findFirst()
+                .orElse("unknown");
     }
 
     private void testExportImportCgmes(Network network, ReadOnlyDataSource originalDs, FileSystem fs, CgmesImport i, Properties iparams,
                                        ComparisonConfig config) throws IOException {
 
+        // We copy everything from the original data source to the temporary destination with a normalized name
+        // And then export the requested instance files to the same temporary destination
+        // We will overwrite some of the files, with the expected content
+
+        // Create a temporary directory to store the exported files
         Path path = fs.getPath("temp-export-cgmes");
         Files.createDirectories(path);
-        String baseName = "bar";
-        new CgmesExport().export(network, exportParams, new FileDataSource(path, baseName));
+        String baseName = originalDs.getBaseName();
+        DataSource ds = new ZipArchiveDataSource(path, baseName);
 
-        DataSource ds = new FileDataSource(path, "bar");
-        String expected = originalDs.listNames(".*EQ.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain EQ profile"));
-        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_EQ.xml", false));
-             InputStream in = originalDs.newInputStream(expected)) {
-            ByteStreams.copy(in, out);
-        }
-        expected = originalDs.listNames(".*TP.*").stream().filter(name -> !name.contains("BD")).findFirst().orElseThrow(() -> new CgmesModelException("Should contain TP profile"));
-        try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + "_TP.xml", false));
-             InputStream in = originalDs.newInputStream(expected)) {
-            ByteStreams.copy(in, out);
-        }
-        for (String boundary : originalDs.listNames(".*BD.*")) {
-            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(baseName + boundary, false));
-                 InputStream in = originalDs.newInputStream(boundary)) {
+        // Copy the original files to the temporary destination, ensuring a normalized name
+        for (String name : new CgmesOnDataSource(originalDs).names()) {
+            String normalizedName = baseName + "_" + subsetFromName(name) + ".xml";
+            try (OutputStream out = new BufferedOutputStream(ds.newOutputStream(normalizedName, false));
+                 InputStream in = originalDs.newInputStream(name)) {
                 ByteStreams.copy(in, out);
             }
         }
+
+        // Export the requested instance files to the temporary destination, overwriting some of the original files
+        new CgmesExport().export(network, exportParams, ds);
+
+        // Import the exported files and compare with the original network
         Network actual = i.importData(ds, new NetworkFactoryImpl(), iparams);
         new Comparison(network, actual, config).compare();
     }

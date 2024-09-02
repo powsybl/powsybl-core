@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model.test;
@@ -110,7 +111,7 @@ public final class Cim14SmallCasesCatalog {
                 .acLineSegments("_GRID____-INF_____-1_AC")
                 .transformers("_GEN_____-GRID____-1_PT")
                 .transformerEnds("_GEN_____-GRID____-1_TW_EX", "_GEN_____-GRID____-1_TW_OR")
-                .synchronousMachines("_GEN______SM", "_INF______SM");
+                .synchronousMachinesGenerators("_GEN______SM", "_INF______SM");
     }
 
     private static CgmesModel expectedM7Buses() {
@@ -184,7 +185,7 @@ public final class Cim14SmallCasesCatalog {
                 .transformerEnds("_FP.AND11-FTDPRA11-1_TW_EX", "_FP.AND11-FTDPRA11-1_TW_OR")
                 .phaseTapChangers("_FP.AND11-FTDPRA11-1_PTC_OR")
                 .energyConsumers("_FP.ANC12_EC", "_FS.BIC11_EC", "_FTDPRC11_EC", "_FTILLC51_EC")
-                .synchronousMachines("_FSSV.T11_SM", "_FVALDT11_SM", "_FVERGT11_SM");
+                .synchronousMachinesGenerators("_FSSV.T11_SM", "_FVALDT11_SM", "_FVERGT11_SM");
     }
 
     private static CgmesModel expectedIeee14() {
@@ -269,7 +270,7 @@ public final class Cim14SmallCasesCatalog {
                         "_LOAD__14_EC", "_LOAD___2_EC", "_LOAD___3_EC", "_LOAD___4_EC",
                         "_LOAD___5_EC", "_LOAD___6_EC", "_LOAD___9_EC")
                 .shuntCompensators("_BANK___9_SC")
-                .synchronousMachines("_GEN____1_SM", "_GEN____2_SM", "_GEN____3_SM", "_GEN____6_SM",
+                .synchronousMachinesGenerators("_GEN____1_SM", "_GEN____2_SM", "_GEN____3_SM", "_GEN____6_SM",
                         "_GEN____8_SM");
     }
 
@@ -547,7 +548,7 @@ public final class Cim14SmallCasesCatalog {
                         "_N1022____SC", "_N1041____SC", "_N1043____SC", "_N1044____SC",
                         "_N1045____SC", "_N4012____SC", "_N4041____SC", "_N4043____SC",
                         "_N4046____SC", "_N4051____SC", "_N4071____SC")
-                .synchronousMachines(
+                .synchronousMachinesGenerators(
                         "_G10______SM", "_G11______SM", "_G12______SM", "_G13______SM",
                         "_G14______SM", "_G15______SM", "_G16______SM", "_G17______SM",
                         "_G18______SM", "_G19______SM", "_G1_______SM", "_G20______SM",

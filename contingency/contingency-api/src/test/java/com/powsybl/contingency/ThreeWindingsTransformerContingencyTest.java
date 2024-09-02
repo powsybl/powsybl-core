@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency;
 
@@ -24,7 +25,7 @@ class ThreeWindingsTransformerContingencyTest {
         assertEquals(ContingencyElementType.THREE_WINDINGS_TRANSFORMER, twt3Contingency.getType());
 
         assertNotNull(twt3Contingency.toModification());
-        assertTrue(twt3Contingency.toModification() instanceof ThreeWindingsTransformerTripping);
+        assertInstanceOf(ThreeWindingsTransformerTripping.class, twt3Contingency.toModification());
 
         new EqualsTester()
                 .addEqualityGroup(new ThreeWindingsTransformerContingency("foo"), new ThreeWindingsTransformerContingency("foo"))

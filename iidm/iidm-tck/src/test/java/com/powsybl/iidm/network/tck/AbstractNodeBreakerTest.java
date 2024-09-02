@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -354,6 +355,12 @@ public abstract class AbstractNodeBreakerTest {
 
         // check load is removed
         assertFalse(topo.getOptionalTerminal(4).isPresent());
+
+        // disconnect and reconnect the generator 1
+        g1.getTerminal().disconnect();
+        network.getSwitch("B_G1").setFictitious(true);
+        network.getSwitch("B1").setFictitious(true);
+        assertFalse(g1.getTerminal().connect(SwitchPredicates.IS_NONFICTIONAL_BREAKER));
     }
 
     @Test

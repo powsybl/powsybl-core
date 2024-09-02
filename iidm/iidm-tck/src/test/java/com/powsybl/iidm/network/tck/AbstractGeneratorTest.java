@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -69,19 +70,20 @@ public abstract class AbstractGeneratorTest {
         assertFalse(generator.isVoltageRegulatorOn());
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
+        assertFalse(generator.isCondenser());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
 
     @Test
     public void undefinedVoltageRegulatorOn() {
-        ValidationException e = assertThrows(ValidationException.class, () -> voltageLevel.newGenerator()
+        GeneratorAdder generatorAdder = voltageLevel.newGenerator()
                 .setId("GEN")
                 .setMaxP(Double.MAX_VALUE)
                 .setMinP(-Double.MAX_VALUE)
                 .setTargetP(30.0)
-                .setNode(1)
-                .add());
+                .setNode(1);
+        ValidationException e = assertThrows(ValidationException.class, generatorAdder::add);
         assertEquals("Generator 'GEN': voltage regulator status is not set", e.getMessage());
     }
 
@@ -107,20 +109,22 @@ public abstract class AbstractGeneratorTest {
     }
 
     /**
-     * This test goal is to check if targetP is allowed to be freely set outside of the bounds defined by minP and maxP.
+     * This test goal is to check if targetP is allowed to be freely set outside the bounds defined by minP and maxP.
      * <p>
-     * For a Battery it is expected that the current power is between this bounds but it is not mandatory for a Generator
+     * For a Battery it is expected that the current power is between these bounds, but it is not mandatory for a Generator</p>
      */
     @Test
     public void invalidPowerBounds() {
         // targetP < minP
         Generator invalidMinGenerator = createGenerator("invalid_min", EnergySource.HYDRO, 20.0, 10.0, 20.0,
                 0.0, 40.0, false, 20.0);
+        assertEquals(0.0, invalidMinGenerator.getTargetP(), 0.0);
         invalidMinGenerator.remove();
 
         // targetP > maxP
-        createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
+        Generator invalidMaxGenerator = createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
                 30.0, 40.0, false, 20.0);
+        assertEquals(30.0, invalidMaxGenerator.getTargetP(), 0.0);
 
     }
 
@@ -188,6 +192,7 @@ public abstract class AbstractGeneratorTest {
                 .setTargetQ(20.0)
                 .setNode(1)
                 .setTargetV(31.0)
+                .setCondenser(true)
                 .add();
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
@@ -200,6 +205,7 @@ public abstract class AbstractGeneratorTest {
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(20.0, generator.getTargetQ(), 0.0);
         assertEquals(31.0, generator.getTargetV(), 0.0);
+        assertTrue(generator.isCondenser());
     }
 
     @Test

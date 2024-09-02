@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -11,8 +12,8 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
+import com.powsybl.action.json.ActionJsonModule;
 import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -30,6 +31,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Massimo Ferraro {@literal <massimo.ferraro@techrain.it>}
@@ -42,7 +44,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     public static final String SOURCE_VERSION_ATTRIBUTE = "sourceVersionAttribute";
 
-    SecurityAnalysisResultDeserializer() {
+    public SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
     }
 
@@ -56,7 +58,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         PreContingencyResult preContingencyResult = null;
         List<OperatorStrategyResult> operatorStrategyResults = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
@@ -94,7 +96,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     break;
 
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         SecurityAnalysisResult result = null;
@@ -128,7 +130,8 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         Objects.requireNonNull(is);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SecurityAnalysisJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule())
+                .registerModule(new ActionJsonModule());
         try {
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
         } catch (IOException e) {

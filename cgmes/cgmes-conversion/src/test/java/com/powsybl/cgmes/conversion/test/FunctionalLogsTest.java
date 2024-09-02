@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test;
 
@@ -10,8 +11,7 @@ import com.powsybl.cgmes.conformity.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.model.GridModelReference;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Importers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.util.Map;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -62,16 +61,18 @@ class FunctionalLogsTest {
                 importReport(CgmesConformity1Catalog.miniNodeBreaker()));
     }
 
-    private ReporterModel importReport(GridModelReference testCase) {
-        ReporterModel reporter = new ReporterModel("testFunctionalLogs",
-                "Test importing ${name}", Map.of("name", new TypedValue(testCase.name(), TypedValue.UNTYPED)));
-        Importers.importData("CGMES", testCase.dataSource(), importParams, reporter);
-        return reporter;
+    private ReportNode importReport(GridModelReference testCase) {
+        ReportNode reportNode = ReportNode.newRootReportNode()
+                .withMessageTemplate("testFunctionalLogs", "Test importing ${name}")
+                .withUntypedValue("name", testCase.name())
+                .build();
+        Importers.importData("CGMES", testCase.dataSource(), importParams, reportNode);
+        return reportNode;
     }
 
-    private void checkResult(String resourceName, ReporterModel reporter) throws IOException {
+    private void checkResult(String resourceName, ReportNode reportNode) throws IOException {
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        reportNode.print(sw);
         try (InputStream is = getClass().getResourceAsStream(resourceName)) {
             String expected = new String(is.readAllBytes());
             assertEquals(expected, sw.toString());

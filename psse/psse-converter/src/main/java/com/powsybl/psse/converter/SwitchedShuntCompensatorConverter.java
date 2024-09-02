@@ -3,11 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -168,9 +168,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         double bAdd = 0.0;
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
         if (!psseReactorBlocks.isEmpty()) {
-            for (int i = 0; i < psseReactorBlocks.size(); i++) {
-                for (int j = 0; j < psseReactorBlocks.get(i).getN(); j++) {
-                    bAdd = bAdd + psseReactorBlocks.get(i).getB();
+            for (ShuntBlock psseReactorBlock : psseReactorBlocks) {
+                for (int j = 0; j < psseReactorBlock.getN(); j++) {
+                    bAdd = bAdd + psseReactorBlock.getB();
                     shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
                 }
             }
@@ -181,9 +181,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
 
         if (!psseCapacitorBlocks.isEmpty()) {
-            for (int i = 0; i < psseCapacitorBlocks.size(); i++) {
-                for (int j = 0; j < psseCapacitorBlocks.get(i).getN(); j++) {
-                    bAdd = bAdd + psseCapacitorBlocks.get(i).getB();
+            for (ShuntBlock psseCapacitorBlock : psseCapacitorBlocks) {
+                for (int j = 0; j < psseCapacitorBlock.getN(); j++) {
+                    bAdd = bAdd + psseCapacitorBlock.getB();
                     shuntBlocks.add(new ShuntBlock(1, 1, bAdd));
                 }
             }
@@ -267,19 +267,16 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new switchedShunts
-    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
-        PsseVersion version = PsseVersion.fromRevision(updatePsseModel.getCaseIdentification().getRev());
+    static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {
+        PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
-            updatePsseModel.addSwitchedShunts(Collections.singletonList(psseSwitchedShunt));
-            PsseSwitchedShunt updatePsseSwitchedShunt = updatePsseModel.getSwitchedShunts().get(updatePsseModel.getSwitchedShunts().size() - 1);
-
-            String switchedShuntId = getShuntId(getBusId(updatePsseSwitchedShunt.getI()), defineShuntId(updatePsseSwitchedShunt, version));
+            String switchedShuntId = getShuntId(getBusId(psseSwitchedShunt.getI()), defineShuntId(psseSwitchedShunt, version));
             ShuntCompensator switchedShunt = network.getShuntCompensator(switchedShuntId);
             if (switchedShunt == null) {
-                updatePsseSwitchedShunt.setStat(0);
+                psseSwitchedShunt.setStat(0);
             } else {
-                updatePsseSwitchedShunt.setStat(getStatus(switchedShunt));
-                updatePsseSwitchedShunt.setBinit(getQ(switchedShunt));
+                psseSwitchedShunt.setStat(getStatus(switchedShunt));
+                psseSwitchedShunt.setBinit(getQ(switchedShunt));
             }
         });
     }

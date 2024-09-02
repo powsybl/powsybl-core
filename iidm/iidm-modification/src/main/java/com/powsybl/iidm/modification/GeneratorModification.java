@@ -3,10 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification;
 
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.VoltageRegulationUtils;
@@ -31,7 +32,7 @@ public class GeneratorModification extends AbstractNetworkModification {
 
     @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
-                      ComputationManager computationManager, Reporter reporter) {
+                      ComputationManager computationManager, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             logOrThrow(throwException, "Generator '" + generatorId + "' not found");
@@ -62,10 +63,24 @@ public class GeneratorModification extends AbstractNetworkModification {
             }
             g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
         }
+        if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
+            applyTargetP(g, skipOtherConnectionChange);
+        }
+    }
+
+    private void applyTargetP(Generator g, boolean skipOtherConnectionChange) {
+        Double newTargetP;
         if (modifs.getTargetP() != null) {
-            setTargetPWithinBoundaries(g, modifs.getTargetP(), skipOtherConnectionChange);
+            newTargetP = modifs.getTargetP();
         } else if (modifs.getDeltaTargetP() != null) {
-            setTargetPWithinBoundaries(g, g.getTargetP() + modifs.getDeltaTargetP(), skipOtherConnectionChange);
+            newTargetP = g.getTargetP() + modifs.getDeltaTargetP();
+        } else {
+            return;
+        }
+        if (modifs.isIgnoreCorrectiveOperations()) {
+            g.setTargetP(newTargetP);
+        } else {
+            setTargetPWithinBoundaries(g, newTargetP, skipOtherConnectionChange);
         }
     }
 
@@ -105,6 +120,7 @@ public class GeneratorModification extends AbstractNetworkModification {
         private Double targetQ;
         private Boolean voltageRegulatorOn;
         private Boolean connected;
+        private boolean ignoreCorrectiveOperations;
 
         public Double getMinP() {
             return minP;
@@ -168,6 +184,28 @@ public class GeneratorModification extends AbstractNetworkModification {
 
         public void setConnected(Boolean connected) {
             this.connected = connected;
+        }
+
+        /**
+         * If false and a modification on target P is requested then, the generator is connected (if not before
+         * and if it is not contrary to another connected modification), and the target P is set within the generator
+         * boundaries (so even after a target P only modification, the generator can have a different connected state
+         * and its target P can be its min or max P and not the target P of the modification).
+         * If true the modification will simply apply the new target P.
+         */
+        public boolean isIgnoreCorrectiveOperations() {
+            return ignoreCorrectiveOperations;
+        }
+
+        /**
+         * If set to false and a modification on target P is requested then, the generator is connected (if not before
+         * and if it is not contrary to another connected modification), and the target P is set within the generator
+         * boundaries (so even after a target P only modification, the generator can have a different connected state
+         * and its target P can be its min or max P and not the target P of the modification).
+         * If set to true the modification will simply apply the new target P.
+         */
+        public void setIgnoreCorrectiveOperations(boolean ignoreCorrectiveOperations) {
+            this.ignoreCorrectiveOperations = ignoreCorrectiveOperations;
         }
     }
 }

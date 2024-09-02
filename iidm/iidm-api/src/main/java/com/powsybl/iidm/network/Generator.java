@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -240,6 +241,11 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     double getRatedS();
 
     Generator setRatedS(double ratedS);
+
+    /**
+     * Get whether the generator may behave as a condenser, for instance if it may control voltage even if its targetP is equal to zero.
+     */
+    boolean isCondenser();
 
     @Override
     default IdentifiableType getType() {

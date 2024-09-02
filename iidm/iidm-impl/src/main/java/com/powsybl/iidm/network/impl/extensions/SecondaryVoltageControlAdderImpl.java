@@ -8,10 +8,10 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.extensions.ControlZone;
+import com.powsybl.iidm.network.extensions.ControlZoneAdder;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControl;
-import com.powsybl.iidm.network.extensions.SecondaryVoltageControl.ControlZone;
 import com.powsybl.iidm.network.extensions.SecondaryVoltageControlAdder;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Network, SecondaryVoltageControl> implements SecondaryVoltageControlAdder {
+public class SecondaryVoltageControlAdderImpl extends AbstractIidmExtensionAdder<Network, SecondaryVoltageControl> implements SecondaryVoltageControlAdder {
 
     private final List<ControlZone> controlZones = new ArrayList<>();
 
@@ -34,10 +34,13 @@ public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Net
         return SecondaryVoltageControl.class;
     }
 
-    @Override
-    public SecondaryVoltageControlAdderImpl addControlZone(ControlZone controlZone) {
+    void addControlZone(ControlZoneImpl controlZone) {
         controlZones.add(Objects.requireNonNull(controlZone));
-        return this;
+    }
+
+    @Override
+    public ControlZoneAdder newControlZone() {
+        return new ControlZoneAdderImpl(this);
     }
 
     @Override
@@ -45,6 +48,10 @@ public class SecondaryVoltageControlAdderImpl extends AbstractExtensionAdder<Net
         if (controlZones.isEmpty()) {
             throw new PowsyblException("Empty control zone list");
         }
-        return new SecondaryVoltageControlImpl(network, controlZones);
+        var secondaryVoltageControl = new SecondaryVoltageControlImpl(network, controlZones);
+        for (var controlZone : controlZones) {
+            ((ControlZoneImpl) controlZone).setSecondaryVoltageControl(secondaryVoltageControl);
+        }
+        return secondaryVoltageControl;
     }
 }

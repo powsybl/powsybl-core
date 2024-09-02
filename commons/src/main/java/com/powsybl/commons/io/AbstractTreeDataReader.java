@@ -7,10 +7,21 @@
  */
 package com.powsybl.commons.io;
 
+import java.util.Map;
+
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public abstract class AbstractTreeDataReader implements TreeDataReader {
+
+    @Override
+    public TreeDataHeader readHeader() {
+        return new TreeDataHeader(readRootVersion(), readExtensionVersions());
+    }
+
+    protected abstract String readRootVersion();
+
+    protected abstract Map<String, String> readExtensionVersions();
 
     @Override
     public double readDoubleAttribute(String name) {

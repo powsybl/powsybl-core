@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -183,10 +184,7 @@ final class ContainersMappingHelper {
                         // All transformers are considered with impedance
                         edges.add(new Edge(elmTerms.get(0), elmTerms.get(1), true, false));
                         break;
-                    case "ElmLne":
-                        // All lines are considered with impedance, only zero impedance lines are necessary
-                        break;
-                    case "ElmZpu":
+                    case "ElmLne", "ElmZpu":
                         // All lines are considered with impedance, only zero impedance lines are necessary
                         break;
                     case "ElmCoup":

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -36,7 +37,7 @@ public final class SecurityAnalysisResultMerger {
 
     public static SecurityAnalysisResult merge(Collection<SecurityAnalysisResult> results) {
         Objects.requireNonNull(results);
-        return merge(results.toArray(new SecurityAnalysisResult[results.size()]));
+        return merge(results.toArray(new SecurityAnalysisResult[0]));
     }
 
     private SecurityAnalysisResultMerger() {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -62,8 +63,8 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
     private List<C> getSortedChunks() {
         return chunks.stream()
-                .sorted(Comparator.comparing(C::getOffset))
-                .collect(Collectors.toList());
+            .sorted(Comparator.comparing(C::getOffset))
+            .collect(Collectors.toList());
     }
 
     private List<C> getCheckedChunks(boolean fillGap) {
@@ -76,7 +77,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             // check chunk offset is included in index range
             if (chunk.getOffset() > pointCount - 1) {
                 throw new TimeSeriesException("Chunk offset " + chunk.getOffset() + " is out of index range [" + (pointCount - 1) +
-                        ", " + (i + chunk.getLength()) + "]");
+                    ", " + (i + chunk.getLength()) + "]");
             }
 
             // check chunk overlap
@@ -87,7 +88,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             // check all values are included in index range
             if (i + chunk.getLength() > pointCount) {
                 throw new TimeSeriesException("Chunk value at " + (i + chunk.getLength()) + " is out of index range [" +
-                        (pointCount - 1) + ", " + (i + chunk.getLength()) + "]");
+                    (pointCount - 1) + ", " + (i + chunk.getLength()) + "]");
             }
 
             // fill with NaN if there is a gap with previous chunk
@@ -139,24 +140,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         }
 
         if (chunkToSplit.getLength() > correctedChunkSize) {
-            // compute lower intersection index with new chunk size
-            int newChunkLowIndex = (int) Math.round(0.5f + (double) chunkToSplit.getOffset() / correctedChunkSize) * correctedChunkSize;
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("   At index {}", newChunkLowIndex);
-            }
-            DataChunk.Split<P, C> split = chunkToSplit.splitAt(newChunkLowIndex);
-            if (LOGGER.isTraceEnabled()) {
-                LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
-            }
-
-            if (usePreviousChunk) {
-                C mergedChunk = previousChunk.append(split.getChunk1());
-                splitChunks.remove(splitChunks.size() - 1);
-                splitChunks.add(mergedChunk);
-            } else {
-                splitChunks.add(split.getChunk1());
-            }
-            split(split.getChunk2(), splitChunks, newChunkSize);
+            splitChunk(chunkToSplit, previousChunk, splitChunks, newChunkSize, correctedChunkSize, usePreviousChunk);
         } else {
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   Too small...");
@@ -169,6 +153,27 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
                 splitChunks.add(chunkToSplit);
             }
         }
+    }
+
+    private void splitChunk(C chunkToSplit, C previousChunk, List<C> splitChunks, int newChunkSize, int correctedChunkSize, boolean usePreviousChunk) {
+        // compute lower intersection index with new chunk size
+        int newChunkLowIndex = (int) Math.round(0.5f + (double) chunkToSplit.getOffset() / correctedChunkSize) * correctedChunkSize;
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("   At index {}", newChunkLowIndex);
+        }
+        DataChunk.Split<P, C> split = chunkToSplit.splitAt(newChunkLowIndex);
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
+        }
+
+        if (usePreviousChunk) {
+            C mergedChunk = previousChunk.append(split.getChunk1());
+            splitChunks.remove(splitChunks.size() - 1);
+            splitChunks.add(mergedChunk);
+        } else {
+            splitChunks.add(split.getChunk1());
+        }
+        split(split.getChunk2(), splitChunks, newChunkSize);
     }
 
     public List<T> split(int newChunkSize) {

@@ -3,13 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
 import java.time.ZonedDateTime;
@@ -29,7 +30,7 @@ public interface CgmesModel {
 
     Properties getProperties();
 
-    default PropertyBags fullModel(String cgmesProfile) {
+    default PropertyBags fullModels() {
         return new PropertyBags();
     }
 
@@ -112,7 +113,22 @@ public interface CgmesModel {
 
     PropertyBags staticVarCompensators();
 
-    PropertyBags synchronousMachines();
+    /**
+     * @deprecated Synchronous machines can be generators or condensers, they are obtained separately.
+     * Use {@link #synchronousMachinesGenerators()} or {@link #synchronousMachinesCondensers()} instead.
+     */
+    @Deprecated(since = "6.3.0", forRemoval = true)
+    default PropertyBags synchronousMachines() {
+        return synchronousMachinesGenerators();
+    }
+
+    default PropertyBags synchronousMachinesGenerators() {
+        return new PropertyBags();
+    }
+
+    default PropertyBags synchronousMachinesCondensers() {
+        return new PropertyBags();
+    }
 
     PropertyBags equivalentInjections();
 
@@ -152,6 +168,10 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags grounds() {
+        return new PropertyBags();
+    }
+
     CgmesDcTerminal dcTerminal(String dcTerminalId);
 
     void clear(CgmesSubset subset);
@@ -180,11 +200,11 @@ public interface CgmesModel {
         throw new UnsupportedOperationException();
     }
 
-    void read(ReadOnlyDataSource ds, Reporter reporter);
+    void read(ReadOnlyDataSource ds, ReportNode reportNode);
 
-    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter);
+    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, ReportNode reportNode);
 
-    void read(InputStream is, String baseName, String contextName, Reporter reporter);
+    void read(InputStream is, String baseName, String contextName, ReportNode reportNode);
 
     // Helper mappings
 

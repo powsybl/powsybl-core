@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -24,6 +25,9 @@ import com.powsybl.commons.test.ComparisonUtils;
 import com.powsybl.shortcircuit.json.JsonShortCircuitParameters;
 import org.apache.commons.lang3.Range;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,6 +36,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -148,7 +154,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
 
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensions().contains(dummyExtension));
-        assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
+        assertInstanceOf(DummyExtension.class, parameters.getExtensionByName(DUMMY_EXTENSION_NAME));
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
@@ -192,8 +198,8 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         Path cfgFile = cfgDir.resolve("config.yml");
         Path voltageDataFile = cfgDir.resolve("voltage-ranges.json");
 
-        Files.copy(getClass().getResourceAsStream("/config.yml"), cfgFile);
-        Files.copy(getClass().getResourceAsStream("/voltage-ranges.json"), voltageDataFile);
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/config.yml")), cfgFile);
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/voltage-ranges.json")), voltageDataFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         ShortCircuitParameters parameters = ShortCircuitParameters.load(platformConfig);
         assertFalse(parameters.isWithLimitViolations());
@@ -240,7 +246,7 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         ShortCircuitParameters parameters = new ShortCircuitParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonShortCircuitParameters::write,
-                ComparisonUtils::compareTxt, "/ShortCircuitParametersWithExtension.json");
+                ComparisonUtils::assertTxtEquals, "/ShortCircuitParametersWithExtension.json");
     }
 
     @Test
@@ -296,10 +302,11 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testInvalidVersion12VoltageNotSupportedInVoltageRange() {
-        InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json");
-        UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
-        assertTrue(e.getMessage().contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3"));
+    void testInvalidVersion12VoltageNotSupportedInVoltageRange() throws IOException {
+        try (InputStream is = getClass().getResourceAsStream("/ShortCircuitParametersVersion12Invalid.json")) {
+            UncheckedIOException e = assertThrows(UncheckedIOException.class, () -> JsonShortCircuitParameters.read(is));
+            assertTrue(e.getMessage().contains("VoltageRange. Tag: voltage is not valid for version 1.2. Version should be >= 1.3"));
+        }
     }
 
     @Test
@@ -365,25 +372,33 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
         Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
         Path cfgFile = cfgDir.resolve("wrongConfig.yml");
 
-        Files.copy(getClass().getResourceAsStream("/wrongConfig.yml"), cfgFile);
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/wrongConfig.yml")), cfgFile);
         PlatformConfig platformConfig = new PlatformConfig(new YamlModuleConfigRepository(cfgFile), cfgDir);
         assertThrows(PowsyblException.class, () -> ShortCircuitParameters.load(platformConfig));
     }
 
-    @Test
-    void testReadButVoltageRangeMissing() {
-        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithoutVoltageRanges.json");
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
-                .read(stream));
-        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
+    private static Stream<Arguments> provideArguments() {
+        return Stream.of(
+            Arguments.of(
+                "/ShortCircuitParametersConfiguredWithoutVoltageRanges.json",
+                "Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing."),
+            Arguments.of(
+                "/ShortCircuitParametersConfiguredWithEmptyVoltageRanges.json",
+                "Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing."),
+            Arguments.of(
+                "/ShortCircuitParametersWithUnsortedOverlappingVoltageRanges.json",
+                "Voltage ranges for configured initial voltage profile are overlapping")
+            );
     }
 
-    @Test
-    void testReadButVoltageRangeEmpty() {
-        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersConfiguredWithEmptyVoltageRanges.json");
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
+    @ParameterizedTest
+    @MethodSource("provideArguments")
+    void testReadButVoltageRangeExceptions(String jsonFileName, String exceptionMessage) throws IOException {
+        try (InputStream stream = getClass().getResourceAsStream(jsonFileName)) {
+            PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
                 .read(stream));
-        assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
+            assertEquals(exceptionMessage, e0.getMessage());
+        }
     }
 
     @Test
@@ -415,14 +430,6 @@ class ShortCircuitParametersTest extends AbstractSerDeTest {
                 0, true, 1.2, true, true, true, true,
                 InitialVoltageProfileMode.NOMINAL, null));
         assertEquals("subTransientCoefficient > 1", e1.getMessage());
-    }
-
-    @Test
-    void testReadWithUnsortedRanges() {
-        InputStream stream = getClass().getResourceAsStream("/ShortCircuitParametersWithUnsortedOverlappingVoltageRanges.json");
-        PowsyblException e0 = assertThrows(PowsyblException.class, () -> JsonShortCircuitParameters
-                .read(stream));
-        assertEquals("Voltage ranges for configured initial voltage profile are overlapping", e0.getMessage());
     }
 
     @Test

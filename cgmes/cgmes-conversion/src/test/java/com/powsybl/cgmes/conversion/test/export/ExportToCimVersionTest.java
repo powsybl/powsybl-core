@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -20,6 +21,8 @@ import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -71,7 +74,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         String cimZipFilename = "ieee14_CIM100";
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, "100");
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
         new CgmesExport().export(network, params, zip);
 
         Properties importParams = new Properties();
@@ -80,6 +83,37 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
 
         CgmesModel cgmesModel100 = network100.getExtension(CgmesModelExtension.class).getCgmesModel();
         assertTrue(cgmesModel100.isNodeBreaker());
+    }
+
+    @Test
+    void testExportMasterResourceIdentifierOnlyForCim100OrGreater() throws IOException {
+        Network n = NetworkTest1Factory.create();
+
+        Properties params = new Properties();
+        params.put(CgmesExport.PROFILES, "EQ");
+        String basename = "network";
+        String eqFilename = basename + "_EQ.xml";
+        String version;
+        Path outputFolder;
+        String eqContent;
+        String mRIDTag = "<cim:IdentifiedObject.mRID>";
+
+        // The exported EQ for CGMES 2.4 (CIM 16) should not contain the mRID tag
+        version = "16";
+        outputFolder = tmpDir.resolve(version);
+        params.put(CgmesExport.CIM_VERSION, version);
+        Files.createDirectories(outputFolder);
+        n.write("CGMES", params, outputFolder.resolve(basename));
+        eqContent = Files.readString(outputFolder.resolve(eqFilename));
+        assertFalse(eqContent.contains(mRIDTag));
+
+        // The exported EQ for CGMES 3 (CIM 100) must contain the mRID tag
+        version = "100";
+        params.put(CgmesExport.CIM_VERSION, version);
+        Files.createDirectories(outputFolder);
+        n.write("CGMES", params, outputFolder.resolve(basename));
+        eqContent = Files.readString(outputFolder.resolve(eqFilename));
+        assertTrue(eqContent.contains("<cim:IdentifiedObject.mRID>"));
     }
 
     private static Network ieee14Cim14() {
@@ -93,7 +127,7 @@ class ExportToCimVersionTest extends AbstractSerDeTest {
         String cimZipFilename = name + "_CIM" + cimVersion;
         Properties params = new Properties();
         params.put(CgmesExport.CIM_VERSION, Integer.toString(cimVersion));
-        ZipFileDataSource zip = new ZipFileDataSource(tmpDir.resolve("."), cimZipFilename);
+        ZipArchiveDataSource zip = new ZipArchiveDataSource(tmpDir.resolve("."), cimZipFilename);
         new CgmesExport().export(network, params, zip);
 
         // Reimport and verify contents of Network

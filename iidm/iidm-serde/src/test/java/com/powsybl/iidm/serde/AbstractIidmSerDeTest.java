@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -103,6 +104,16 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     }
 
     /**
+     * Execute a round trip test on the test resource IIDM-XML file with a given file name for all IIDM versions
+     * equals or more recent than a given minimum IIDM version.
+     */
+    protected void allFormatsRoundTripFromVersionedXmlFromMinVersionTest(String file, IidmVersion minVersion) throws IOException {
+        allFormatsRoundTripFromVersionedXmlTest(file, Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
+                .toArray(IidmVersion[]::new));
+    }
+
+    /**
      * Execute a round trip test on the test resource IIDM-JSON file with a given file name for all IIDM versions
      * equals or more recent than a given minimum IIDM version <b>and</b> strictly older than the current IIDM version.
      */
@@ -125,6 +136,15 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     protected void testForAllPreviousVersions(IidmVersion maxVersion, Consumer<IidmVersion> test) {
         Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(maxVersion) < 0)
+                .forEach(test);
+    }
+
+    /**
+     * Execute a given test for all IIDM versions newer or equal than a given minimum IIDM version.
+     */
+    protected void testForAllVersionsSince(IidmVersion minVersion, Consumer<IidmVersion> test) {
+        Stream.of(IidmVersion.values())
+                .filter(v -> v.compareTo(minVersion) >= 0)
                 .forEach(test);
     }
 
@@ -190,6 +210,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      * </ul>
      * @param network the network to start with
      * @param filename the filename of the reference versioned file resource
+     * @param version the version to use for exporting and for the versioned filename
      * @return the Network read just before the end of the round trip
      */
     public Network allFormatsRoundTripTest(Network network, String filename, IidmVersion version) throws IOException {
@@ -250,8 +271,19 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         TreeDataFormat previousFormat = options.getFormat();
         options.setFormat(TreeDataFormat.JSON);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
+
+        Network network1;
         try (InputStream is = Files.newInputStream(path)) {
-            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
+            network1 = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        options.setFormat(TreeDataFormat.BIN);
+        anonymizer = NetworkSerDe.write(network1, options, path);
+
+        try (InputStream is = Files.newInputStream(path)) {
+            Network networkOutput = NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.BIN), anonymizer);
             options.setFormat(previousFormat);
             return networkOutput;
         } catch (IOException e) {

@@ -3,11 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Injection;
+
+import java.util.OptionalDouble;
 
 /**
  * @author Ghiles Abdellah {@literal <ghiles.abdellah at rte-france.com>}
@@ -53,4 +56,27 @@ public interface ActivePowerControl<I extends Injection<I>> extends Extension<I>
      */
     void setParticipationFactor(double participationFactor);
 
+    /**
+     * @return if present, provides the overridden value of minP to be used for active power control operations.
+     */
+    OptionalDouble getMinTargetP();
+
+    /**
+     * Sets the minimum value for targetP. The value must be in the [pmin,pmax] interval of the extended
+     * generator or battery.
+     * @param minTargetP  The overridden value of minP. A Nan value removes the override.
+     */
+    void setMinTargetP(double minTargetP);
+
+    /**
+     * @return if present, provides the overridden value of maxP to be used for active power control operations.
+     */
+    OptionalDouble getMaxTargetP();
+
+    /**
+     * Sets the maximum value for targetP. The value must be in the [pmin,pmax] interval of the extended
+     * generator or battery.
+     * @param maxTargetP The overridden value of maxP. A Nan value removes the override.
+     */
+    void setMaxTargetP(double maxTargetP);
 }

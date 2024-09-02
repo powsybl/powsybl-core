@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.sensitivity.json;
 
@@ -34,7 +35,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
         List<SensitivityAnalysisResult.SensitivityContingencyStatus> contingencyStatus = null;
         List<SensitivityFactor> factors = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     parser.nextToken(); // skip
                     version = parser.getValueAsString();
@@ -55,7 +56,7 @@ public class SensitivityAnalysisResultDeserializer extends StdDeserializer<Sensi
                     contingencyStatus = JsonUtil.readList(deserializationContext, parser, SensitivityAnalysisResult.SensitivityContingencyStatus.class);
                     break;
                 default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
 

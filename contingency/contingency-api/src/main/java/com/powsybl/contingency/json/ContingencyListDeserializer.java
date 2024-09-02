@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.contingency.json;
 
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.contingency.contingency.list.ContingencyList;
+import com.powsybl.contingency.contingency.list.IdentifierContingencyListDeserializer;
 
 import java.io.IOException;
 
@@ -25,8 +27,8 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
     @Override
     public ContingencyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         parser.nextToken();
-        while (parser.getCurrentName() != null) {
-            if ("type".equals(parser.getCurrentName())) {
+        while (parser.currentName() != null) {
+            if ("type".equals(parser.currentName())) {
                 switch (parser.nextTextValue()) {
                     case "default" -> {
                         DefaultContingencyListDeserializer defaultContingencyListDeserializer = new DefaultContingencyListDeserializer();
@@ -52,6 +54,10 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         ThreeWindingsTransformerCriterionContingencyListDeserializer threeWindingsTransformerCriterionContingencyListDeserializer = new ThreeWindingsTransformerCriterionContingencyListDeserializer();
                         return threeWindingsTransformerCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
                     }
+                    case "tieLineCriterion" -> {
+                        TieLineCriterionContingencyListDeserializer tieLineCriterionContingencyListDeserializer = new TieLineCriterionContingencyListDeserializer();
+                        return tieLineCriterionContingencyListDeserializer.deserialize(parser, deserializationContext);
+                    }
                     case "list" -> {
                         ListOfContingencyListsDeserializer listOfContingencyListsDeserializer = new ListOfContingencyListsDeserializer();
                         return listOfContingencyListsDeserializer.deserialize(parser, deserializationContext);
@@ -60,7 +66,7 @@ public class ContingencyListDeserializer extends StdDeserializer<ContingencyList
                         IdentifierContingencyListDeserializer identifierContingencyListDeserializer = new IdentifierContingencyListDeserializer();
                         return identifierContingencyListDeserializer.deserialize(parser, deserializationContext);
                     }
-                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
                 }
             }
             parser.nextToken();

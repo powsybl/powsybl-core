@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -278,6 +279,12 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      * where the line is a boundary, return null otherwise.
      */
     String getPairingKey();
+
+    /**
+     * Set a pairing key corresponding to this dangling line only if the dangling line is not paired,
+     * throw exception otherwise.
+     */
+    DanglingLine setPairingKey(String pairingKey);
 
     Boundary getBoundary();
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.datasource;
 
@@ -39,45 +40,44 @@ public interface DataSourceUtil {
     }
 
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        return createDataSource(directory, basename, null, compressionExtension, observer);
+    }
+
+    static DataSource createDataSource(Path directory, String basename, String dataExtension, CompressionFormat compressionFormat, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(basename);
 
-        if (compressionExtension == null) {
-            return new FileDataSource(directory, basename, observer);
-        } else {
-            switch (compressionExtension) {
-                case BZIP2:
-                    return new Bzip2FileDataSource(directory, basename, observer);
-                case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
-                case XZ:
-                    return new XZFileDataSource(directory, basename, observer);
-                case ZIP:
-                    return new ZipFileDataSource(directory, basename, observer);
-                case ZSTD:
-                    return new ZstdFileDataSource(directory, basename, observer);
-                default:
-                    throw new IllegalStateException("Unexpected CompressionFormat value: " + compressionExtension);
-            }
+        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
+            .withDirectory(directory)
+            .withBaseName(basename)
+            .withDataExtension(dataExtension)
+            .withCompressionFormat(compressionFormat)
+            .withObserver(observer);
+
+        // If a zip compression is asked
+        if (compressionFormat == CompressionFormat.ZIP) {
+            dataSourceBuilder.withArchiveFormat(ArchiveFormat.ZIP);
         }
+
+        return dataSourceBuilder.build();
     }
 
     static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileNameOrBaseName);
 
-        if (fileNameOrBaseName.endsWith(".zst")) {
-            return new ZstdFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
-        } else if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, fileNameOrBaseName, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
-        } else if (fileNameOrBaseName.endsWith(".xz")) {
-            return new XZFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
-        } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
-        } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
-        } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
-        }
+        // Get the file information
+        FileInformation fileInformation = new FileInformation(fileNameOrBaseName);
+
+        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
+            .withDirectory(directory)
+            .withArchiveFileName(fileNameOrBaseName)
+            .withBaseName(fileInformation.getBaseName())
+            .withDataExtension(fileInformation.getDataExtension())
+            .withCompressionFormat(fileInformation.getCompressionFormat())
+            .withArchiveFormat(fileInformation.getArchiveFormat())
+            .withObserver(observer);
+
+        return dataSourceBuilder.build();
     }
 }

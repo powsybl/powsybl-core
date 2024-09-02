@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.conversion.test.export;
 
@@ -30,6 +31,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 /**
  * @author Marcos de Miguel {@literal <demiguelm at aia.es>}
  */
@@ -37,29 +40,29 @@ class TopologyExportTest extends AbstractSerDeTest {
 
     @Test
     void smallGridHVDC() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerHvdcEqTp().dataSource());
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerHvdcEqTp().dataSource()));
     }
 
     @Test
     void smallGridBusBranch() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallBusBranchEqTp().dataSource());
+        assertTrue(test(CgmesConformity1Catalog.smallBusBranchEqTp().dataSource()));
     }
 
     @Test
     void smallGridNodeBreaker() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerEqTp().dataSource());
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerEqTp().dataSource()));
     }
 
     @Test
     void smallGridNodeBreakerSsh() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallNodeBreakerEqTpSsh().dataSource(), true);
+        assertTrue(test(CgmesConformity1Catalog.smallNodeBreakerEqTpSsh().dataSource(), true));
     }
 
-    private void test(ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
-        test(dataSource, false);
+    private boolean test(ReadOnlyDataSource dataSource) throws IOException, XMLStreamException {
+        return test(dataSource, false);
     }
 
-    private void test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
+    private boolean test(ReadOnlyDataSource dataSource, boolean importSsh) throws IOException, XMLStreamException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
 
@@ -99,12 +102,12 @@ class TopologyExportTest extends AbstractSerDeTest {
         exportOptions.setSorted(true);
         Path expectedPath = tmpDir.resolve("expected.xml");
         Path actualPath = tmpDir.resolve("actual.xml");
-        NetworkSerDe.write(expected, expectedPath);
-        NetworkSerDe.write(actual, actualPath);
+        NetworkSerDe.write(expected, exportOptions, expectedPath);
+        NetworkSerDe.write(actual, exportOptions, actualPath);
         NetworkSerDe.validate(actualPath);
 
         // Compare
-        ExportXmlCompare.compareNetworks(expectedPath, actualPath);
+        return ExportXmlCompare.compareNetworks(expectedPath, actualPath);
     }
 
     private void prepareNetworkForComparison(Network network) {

@@ -3,19 +3,18 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
-
 import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
@@ -110,7 +109,7 @@ class TimeSeriesTableTest {
     void testMillisCSV() {
         TimeSeriesIndex index = new RegularTimeSeriesIndex(0, 3, 1);
         TimeSeriesTable table = createTimeSeriesTable(index);
-        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS, false);
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
@@ -175,7 +174,7 @@ class TimeSeriesTableTest {
                             }
                             ts = new StringTimeSeries(metadata, new UncompressedStringDataChunk(0, values));
                         }
-                        table.load(1, Arrays.asList(ts));
+                        table.load(1, List.of(ts));
                     } finally {
                         cdl.countDown();
                     }
@@ -191,7 +190,7 @@ class TimeSeriesTableTest {
                 Stream.of(l.split(";"))
                 .skip(2) // date;version
                 .collect(Collectors.toList()))
-            .collect(Collectors.toList());
+            .toList();
         List<List<String>> expected = new ArrayList<>(timeSeriesLength);
         for (int j = 0; j < timeSeriesLength; j++) {
             List<String> line = new ArrayList<>(threadCount);

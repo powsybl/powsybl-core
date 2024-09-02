@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -30,7 +31,7 @@ import static com.powsybl.shortcircuit.ShortCircuitConstants.*;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
- * Generic parameters for short circuit-computations.
+ * Generic parameters for short-circuit computations.
  * May contain extensions for implementation-specific parameters.
  *
  * @author Boubakeur Brahimi
@@ -112,6 +113,10 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         }
     }
 
+    /**
+     * Whether limit violations should be returned after the calculation.
+     * They indicate whether the maximum or minimum allowable current has been reached.
+     */
     public boolean isWithLimitViolations() {
         return withLimitViolations;
     }
@@ -150,7 +155,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * The type of study: transient, subtransient or steady state.
+     * The type of study: transient, sub-transient or steady state.
      */
     public StudyType getStudyType() {
         return studyType;
@@ -195,7 +200,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
-    /** In case of a subtransient study, a multiplicative coefficient to obtain the subtransient reactance of the generators
+    /** In the case of a sub-transient study, a multiplicative coefficient to obtain the sub-transient reactance of the generators
      * from the transient reactance. By default, X''d = 0.7 * X'd.
      */
     public double getSubTransientCoefficient() {
@@ -266,7 +271,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
      * The initial voltage profile mode, it can be either:
      * - nominal: nominal voltages will be used
      * - configured: the voltage profile is given by the user, voltage ranges and associated coefficients should be given using {@link VoltageRange}
-     * - previous value: the voltage profile computed from the loadflow will be used
+     * - previous value: the voltage profile computed from the load flow will be used
      */
     public InitialVoltageProfileMode getInitialVoltageProfileMode() {
         return initialVoltageProfileMode;
@@ -292,7 +297,7 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
     }
 
     /**
-     * A boolean indicating if the functional logs in reporter should be detailed or aggregated.
+     * A boolean indicating if the functional logs in reportNode should be detailed or aggregated.
      */
     public boolean isDetailedReport() {
         return detailedReport;
@@ -303,6 +308,9 @@ public class ShortCircuitParameters extends AbstractExtendable<ShortCircuitParam
         return this;
     }
 
+    /**
+     * Validates the ShortCircuitParameters. If the initial voltage profile mode is set to CONFIGURED, then the voltage ranges should not be empty.
+     */
     public void validate() {
         if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRanges == null || voltageRanges.isEmpty())) {
             throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");

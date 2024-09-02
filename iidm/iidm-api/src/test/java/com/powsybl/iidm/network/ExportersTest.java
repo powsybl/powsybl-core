@@ -3,16 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.test.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.iidm.network.tools.ExporterMockWithReporter;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.TestUtil;
+import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -117,18 +117,19 @@ class ExportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    void exportWithReporter() throws Exception {
-        Exporter testExporter = new ExporterMockWithReporter();
+    void exportWithReportNode() throws Exception {
+        Exporter testExporter = new ExporterMockWithReportNode();
         DataSource dataSource = Exporters.createDataSource(path);
-        ReporterModel reporter = new ReporterModel("reportTest", "Testing exporter reporter");
-        testExporter.export(null, null, dataSource, reporter);
-        Optional<Report> report = reporter.getReports().stream().findFirst();
-        assertTrue(report.isPresent());
+        ReportNode rootReportNode = ReportNode.newRootReportNode().withMessageTemplate("reportTest", "Testing exporter reporting").build();
+        testExporter.export(null, null, dataSource, rootReportNode);
+        Optional<ReportNode> reportNode = rootReportNode.getChildren().stream().findFirst();
+        assertTrue(reportNode.isPresent());
+        assertInstanceOf(ReportNode.class, reportNode.get());
 
         StringWriter sw = new StringWriter();
-        reporter.export(sw);
+        rootReportNode.print(sw);
 
-        InputStream refStream = getClass().getResourceAsStream("/exportReporterTest.txt");
+        InputStream refStream = getClass().getResourceAsStream("/exportReportNodeTest.txt");
         String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
         String logExport = TestUtil.normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);

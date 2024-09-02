@@ -8,7 +8,7 @@
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
@@ -36,20 +36,20 @@ public class RemoveSubstation extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Substation substation = network.getSubstation(substationId);
         if (substation == null) {
             LOGGER.error("Substation {} not found", substationId);
-            notFoundSubstationReport(reporter, substationId);
+            notFoundSubstationReport(reportNode, substationId);
             if (throwException) {
                 throw new PowsyblException("Substation not found: " + substationId);
             }
             return;
         }
         List<String> vlIds = substation.getVoltageLevelStream().map(VoltageLevel::getId).toList();
-        vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, reporter));
+        vlIds.forEach(id -> new RemoveVoltageLevel(id).apply(network, true, reportNode));
         substation.remove();
-        removedSubstationReport(reporter, substationId);
+        removedSubstationReport(reportNode, substationId);
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);
     }
 }

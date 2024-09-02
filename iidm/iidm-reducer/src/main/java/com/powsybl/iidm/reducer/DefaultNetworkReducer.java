@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,6 +67,21 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         }
 
         observers.forEach(o -> o.lineRemoved(line));
+    }
+
+    @Override
+    protected void reduce(TieLine tieLine) {
+        Terminal terminal1 = tieLine.getTerminal1();
+        Terminal terminal2 = tieLine.getTerminal2();
+        VoltageLevel vl1 = terminal1.getVoltageLevel();
+        VoltageLevel vl2 = terminal2.getVoltageLevel();
+
+        // just remove the tie line if one of its voltage levels has to be removed
+        if (!test(vl1) || !test(vl2)) {
+            tieLine.remove();
+        }
+
+        observers.forEach(o -> o.tieLineRemoved(tieLine));
     }
 
     @Override
@@ -209,7 +226,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         if (station.getHvdcType() == HvdcConverterStation.HvdcType.VSC) {
             VscConverterStation vscStation = (VscConverterStation) station;
             if (vscStation.isVoltageRegulatorOn()) {
-                replaceHvdcLineByGenerator(hvdcLine, vl, terminal);
+                replaceHvdcLineByGenerator(hvdcLine, vl, terminal, vscStation);
             } else {
                 replaceHvdcLineByLoad(hvdcLine, vl, terminal);
             }
@@ -242,21 +259,23 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, load));
     }
 
-    private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal) {
+    private void replaceHvdcLineByGenerator(HvdcLine hvdcLine, VoltageLevel vl, Terminal terminal, VscConverterStation station) {
         double maxP = hvdcLine.getMaxP();
         GeneratorAdder genAdder = vl.newGenerator()
                 .setId(hvdcLine.getId())
                 .setName(hvdcLine.getOptionalName().orElse(null))
                 .setEnergySource(EnergySource.OTHER)
-                .setVoltageRegulatorOn(false)
+                .setVoltageRegulatorOn(true)
                 .setMaxP(maxP)
                 .setMinP(-maxP)
-                .setTargetP(checkP(terminal))
-                .setTargetQ(checkQ(terminal));
+                .setTargetP(-checkP(terminal))
+                .setTargetV(station.getVoltageSetpoint());
         fillNodeOrBus(genAdder, terminal);
 
         double p = terminal.getP();
         double q = terminal.getQ();
+        ReactiveLimits stationLimits = station.getReactiveLimits();
+
         HvdcConverterStation<?> converter1 = hvdcLine.getConverterStation1();
         HvdcConverterStation<?> converter2 = hvdcLine.getConverterStation2();
         hvdcLine.remove();
@@ -267,6 +286,30 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         generator.getTerminal()
                 .setP(p)
                 .setQ(q);
+
+        if (stationLimits != null) {
+            if (stationLimits.getKind() == ReactiveLimitsKind.MIN_MAX) {
+                MinMaxReactiveLimits minMaxLimits = (MinMaxReactiveLimits) stationLimits;
+                generator.newMinMaxReactiveLimits()
+                        .setMinQ(minMaxLimits.getMinQ())
+                        .setMaxQ(minMaxLimits.getMaxQ())
+                        .add();
+            } else if (stationLimits.getKind() == ReactiveLimitsKind.CURVE) {
+                ReactiveCapabilityCurve reactiveCurve = (ReactiveCapabilityCurve) stationLimits;
+                ReactiveCapabilityCurveAdder curveAdder = generator.newReactiveCapabilityCurve();
+                reactiveCurve.getPoints().forEach(point ->
+                    curveAdder.beginPoint()
+                            .setP(point.getP())
+                            .setMinQ(point.getMinQ())
+                            .setMaxQ(point.getMaxQ())
+                            .endPoint()
+                );
+                curveAdder.add();
+            }
+        }
+
+        generator.newExtension(ActivePowerControlAdder.class).withParticipate(false).add();
+
         observers.forEach(o -> o.hvdcLineReplaced(hvdcLine, generator));
     }
 

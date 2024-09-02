@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
@@ -16,10 +17,10 @@ import java.util.TreeMap;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends AbstractOperationalLimits implements LoadingLimits {
+abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> implements LoadingLimits {
 
+    protected final OperationalLimitsGroupImpl group;
     private double permanentLimit;
-
     private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
 
     static class TemporaryLimitImpl implements TemporaryLimit {
@@ -60,10 +61,11 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         }
     }
 
-    AbstractLoadingLimits(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
-        super(owner);
+    AbstractLoadingLimits(OperationalLimitsGroupImpl owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        this.group = Objects.requireNonNull(owner);
         this.permanentLimit = permanentLimit;
         this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
+        // The limits validation must be performed before calling this constructor (in the adders).
     }
 
     @Override
@@ -73,10 +75,13 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        NetworkImpl network = group.getNetwork();
+        ValidationUtil.checkPermanentLimit(group.getValidable(), permanentLimit, getTemporaryLimits(),
+                network.getMinValidationLevel(), network.getReportNodeContext().getReportNode());
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
-        owner.notifyUpdate(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);
+        network.invalidateValidationLevel();
+        group.notifyPermanentLimitUpdate(getLimitType(), oldValue, this.permanentLimit);
         return (L) this;
     }
 

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -280,28 +281,21 @@ public class SecurityAnalysisResultBuilder {
         }
     }
 
-    public class OperatorStrategyResultBuilder extends AbstractLimitViolationsResultBuilder<OperatorStrategyResultBuilder> {
+    public class OperatorStrategyResultBuilder {
 
         private final OperatorStrategy strategy;
 
-        private PostContingencyComputationStatus status = PostContingencyComputationStatus.CONVERGED;
+        private final List<OperatorStrategyResult.ConditionalActionsResult> conditionalActionsResult = new ArrayList<>();
+
+        SecurityAnalysisResultContext resultContext;
 
         OperatorStrategyResultBuilder(OperatorStrategy strategy, SecurityAnalysisResultContext resultContext) {
-            super(Objects.requireNonNull(resultContext));
             this.strategy = Objects.requireNonNull(strategy);
+            this.resultContext = resultContext;
         }
 
-        @Override
-        public OperatorStrategyResultBuilder addViolation(LimitViolation violation, SecurityAnalysisResultContext limitViolationContext) {
-            Objects.requireNonNull(limitViolationContext);
-            violations.add(Objects.requireNonNull(violation));
-            //TODO: call to interceptors
-            return this;
-        }
-
-        public OperatorStrategyResultBuilder setStatus(PostContingencyComputationStatus status) {
-            this.status = status;
-            return this;
+        public ConditionalActionsResultBuilder newConditionalActionsResult(String conditionalActionsId) {
+            return new ConditionalActionsResultBuilder(conditionalActionsId, resultContext);
         }
 
         /**
@@ -310,13 +304,48 @@ public class SecurityAnalysisResultBuilder {
          * @return the parent {@link SecurityAnalysisResultBuilder} instance.
          */
         public SecurityAnalysisResultBuilder endOperatorStrategy() {
-            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            LimitViolationsResult limitViolationsResult = new LimitViolationsResult(filteredViolations);
-            NetworkResult networkResult = new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);
-            OperatorStrategyResult res = new OperatorStrategyResult(strategy, status, limitViolationsResult, networkResult);
+            OperatorStrategyResult res = new OperatorStrategyResult(strategy, conditionalActionsResult);
             //TODO: call to interceptors
             operatorStrategyResults.add(res);
             return SecurityAnalysisResultBuilder.this;
+        }
+
+        public class ConditionalActionsResultBuilder extends AbstractLimitViolationsResultBuilder<ConditionalActionsResultBuilder> {
+
+            private final String conditionalActionsId;
+
+            private PostContingencyComputationStatus status = PostContingencyComputationStatus.CONVERGED;
+
+            ConditionalActionsResultBuilder(String conditionalActionsId, SecurityAnalysisResultContext resultContext) {
+                super(Objects.requireNonNull(resultContext));
+                this.conditionalActionsId = conditionalActionsId;
+            }
+
+            @Override
+            public ConditionalActionsResultBuilder addViolation(LimitViolation violation, SecurityAnalysisResultContext limitViolationContext) {
+                Objects.requireNonNull(limitViolationContext);
+                violations.add(Objects.requireNonNull(violation));
+                //TODO: call to interceptors
+                return this;
+            }
+
+            public ConditionalActionsResultBuilder setStatus(PostContingencyComputationStatus status) {
+                this.status = status;
+                return this;
+            }
+
+            /**
+             * Finalize the creation of the Conditional actions result instance
+             *
+             * @return the parent {@link SecurityAnalysisResultBuilder} instance.
+             */
+            public OperatorStrategyResultBuilder endConditionalActions() {
+                List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+                LimitViolationsResult limitViolationsResult = new LimitViolationsResult(filteredViolations);
+                NetworkResult networkResult = new NetworkResult(branchResults, busResults, threeWindingsTransformerResults);
+                conditionalActionsResult.add(new OperatorStrategyResult.ConditionalActionsResult(conditionalActionsId, status, limitViolationsResult, networkResult));
+                return OperatorStrategyResultBuilder.this;
+            }
         }
     }
 }

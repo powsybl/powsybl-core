@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
@@ -23,7 +24,6 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
-import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -118,17 +118,14 @@ class LineConverter extends AbstractConverter {
     }
 
     // At the moment we do not consider new lines and antenna lines are exported as open
-    static void updateLines(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+    static void updateLines(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
-            updatePsseModel.addNonTransformerBranches(Collections.singletonList(psseLine));
-            PsseNonTransformerBranch updatePsseLine = updatePsseModel.getNonTransformerBranches().get(updatePsseModel.getNonTransformerBranches().size() - 1);
-
-            String lineId = getLineId(updatePsseLine);
+            String lineId = getLineId(psseLine);
             Line line = network.getLine(lineId);
             if (line == null) {
-                updatePsseLine.setSt(0);
+                psseLine.setSt(0);
             } else {
-                updatePsseLine.setSt(getStatus(line));
+                psseLine.setSt(getStatus(line));
             }
         });
     }

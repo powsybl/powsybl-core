@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.reducer;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -14,6 +16,7 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
+import java.util.Iterator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -248,23 +251,35 @@ class DefaultNetworkReducerTest {
 
     @Test
     void testHvdcReplacement() {
+        testHvdcReplacementLcc();
+        testHvdcReplacementVscWithMinMaxReactiveLimits();
+        tetHvdcReplacementVscWithReactiveCapabilityCurve();
+    }
+
+    private static void testHvdcReplacementLcc() {
         NetworkReducerObserverImpl observerLcc = new NetworkReducerObserverImpl();
         Network networkLcc = HvdcTestNetwork.createLcc();
         assertEquals(0, networkLcc.getLoadCount());
         assertEquals(2, networkLcc.getHvdcConverterStationCount());
         NetworkReducer reducerLcc = NetworkReducer.builder()
-                    .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
-                    .withObservers(observerLcc)
-                    .build();
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerLcc)
+                .build();
         reducerLcc.reduce(networkLcc);
         assertEquals(0, networkLcc.getHvdcLineCount());
         assertEquals(1, observerLcc.getHvdcLineReplacedCount());
         assertEquals(1, observerLcc.getHvdcLineRemovedCount());
         assertEquals(1, networkLcc.getLoadCount());
         assertEquals(0, networkLcc.getHvdcConverterStationCount());
+    }
 
+    private static void testHvdcReplacementVscWithMinMaxReactiveLimits() {
         NetworkReducerObserverImpl observerVsc = new NetworkReducerObserverImpl();
         Network networkVsc = HvdcTestNetwork.createVsc();
+        VscConverterStation station = networkVsc.getVscConverterStation("C1");
+        double targetV = station.getVoltageSetpoint();
+        station.newMinMaxReactiveLimits().setMaxQ(200).setMinQ(-200).add();
+        double p = station.getTerminal().getP();
         assertEquals(0, networkVsc.getGeneratorCount());
         assertEquals(2, networkVsc.getHvdcConverterStationCount());
         NetworkReducer reducerVsc = NetworkReducer.builder()
@@ -279,7 +294,37 @@ class DefaultNetworkReducerTest {
         Generator gen = networkVsc.getGenerator("L");
         assertEquals(300, gen.getMaxP());
         assertEquals(-300, gen.getMinP());
+        assertEquals(-p, gen.getTargetP());
+        assertTrue(gen.isVoltageRegulatorOn());
+        assertEquals(targetV, gen.getTargetV());
+        assertEquals(200, gen.getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ());
+        assertFalse(gen.getExtension(ActivePowerControl.class).isParticipate());
+    }
 
+    private static void tetHvdcReplacementVscWithReactiveCapabilityCurve() {
+        NetworkReducerObserverImpl observerVsc2 = new NetworkReducerObserverImpl();
+        Network networkVsc2 = HvdcTestNetwork.createVsc();
+        VscConverterStation station2 = networkVsc2.getVscConverterStation("C1");
+        station2.newReactiveCapabilityCurve()
+                .beginPoint().setP(0.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .beginPoint().setP(100.0).setMinQ(-200).setMaxQ(200).endPoint()
+                .add();
+        NetworkReducer reducerVsc2 = NetworkReducer.builder()
+                .withNetworkPredicate(IdentifierNetworkPredicate.of("VL1"))
+                .withObservers(observerVsc2)
+                .build();
+        reducerVsc2.reduce(networkVsc2);
+        Generator gen2 = networkVsc2.getGenerator("L");
+        assertEquals(2, gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPointCount());
+        Iterator<ReactiveCapabilityCurve.Point> pointIt = gen2.getReactiveLimits(ReactiveCapabilityCurve.class).getPoints().iterator();
+        ReactiveCapabilityCurve.Point point = pointIt.next();
+        assertEquals(0.0, point.getP(), 0.001);
+        assertEquals(-200.0, point.getMinQ(), 0.001);
+        assertEquals(200.0, point.getMaxQ(), 0.001);
+        point = pointIt.next();
+        assertEquals(100.0, point.getP(), 0.001);
+        assertEquals(-200.0, point.getMinQ(), 0.001);
+        assertEquals(200.0, point.getMaxQ(), 0.001);
     }
 
     @Test

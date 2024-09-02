@@ -3,16 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -31,7 +30,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
-            compareTxt(getClass().getResourceAsStream("/" + refFileName), actual);
+            assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
         }
     }
 
@@ -40,7 +39,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         AmplExporter exporter = new AmplExporter();
         assertEquals("AMPL", exporter.getFormat());
         assertEquals("IIDM to AMPL converter", exporter.getComment());
-        assertEquals(6, exporter.getParameters().size());
+        assertEquals(7, exporter.getParameters().size());
     }
 
     @Test
@@ -49,7 +48,8 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
         MemDataSource dataSource = new MemDataSource();
         AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.defaultVersion(), true);
+        exporter.export(network, amplExportConfig, dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");
@@ -144,18 +144,18 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
         network.getThreeWindingsTransformer("3WT").getLeg1()
-                .newPhaseTapChanger()
-                .beginStep()
-                .setRho(1)
-                .setR(0.1)
-                .setX(1.)
-                .setB(0.)
-                .setG(0.)
-                .setAlpha(0)
-                .endStep()
-                .setTapPosition(0)
-                .setLowTapPosition(0)
-                .add();
+            .newPhaseTapChanger()
+            .beginStep()
+            .setRho(1)
+            .setR(0.1)
+            .setX(1.)
+            .setB(0.)
+            .setG(0.)
+            .setAlpha(0)
+            .endStep()
+            .setTapPosition(0)
+            .setLowTapPosition(0)
+            .add();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, new Properties(), dataSource);
@@ -195,10 +195,10 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         for (DanglingLine danglingLine : network.getDanglingLines()) {
             danglingLine.newCurrentLimits()
-                    .setPermanentLimit(100.0)
-                    .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
-                    .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
-                    .add();
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit().setName("20'").setValue(120.0).setAcceptableDuration(20 * 60).endTemporaryLimit()
+                .beginTemporaryLimit().setName("10'").setValue(140.0).setAcceptableDuration(10 * 60).endTemporaryLimit()
+                .add();
         }
 
         Properties properties = new Properties();
@@ -286,5 +286,29 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
 
         export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_headers", "inputs//extended_exporter/headers.txt");
+    }
+
+    @Test
+    void writeLineWithDifferentNominalVoltageAtEnds() throws IOException {
+        Network network = SvcTestCaseFactory.create();
+        network.getVoltageLevel("VL2").setNominalV(400);
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/line-with-different-nominal-voltage-at-ends-test-case.txt");
+    }
+
+    @Test
+    void writeZeroImpedanceLineWithDifferentNominalVoltageAtEnds() throws IOException {
+        Network network = SvcTestCaseFactory.create();
+        network.getVoltageLevel("VL2").setNominalV(400);
+        network.getLine("L1").setR(0)
+                                .setX(0);
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/zero-impedance-line-with-different-nominal-voltage-at-ends-test-case.txt");
     }
 }

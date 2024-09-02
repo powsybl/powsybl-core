@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.converter;
 
@@ -22,7 +23,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static com.powsybl.commons.test.ComparisonUtils.compareTxt;
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
@@ -59,7 +60,7 @@ class UcteExporterTest extends AbstractSerDeTest {
 
         try (InputStream actual = dataSource.newInputStream(null, "uct");
              InputStream expected = UcteExporterTest.class.getResourceAsStream(reference)) {
-            compareTxt(expected, actual, Arrays.asList(1, 2));
+            assertTxtEquals(expected, actual, Arrays.asList(1, 2));
         }
     }
 

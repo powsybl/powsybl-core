@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -13,17 +14,22 @@ import java.time.Duration;
 import java.util.List;
 
 /**
+ * Interface to describe the result of the short-circuit analysis for a given fault.
+ *
  * @author Coline Piloquet {@literal <coline.piloquet at rte-france.com>}
  */
 public interface FaultResult extends Extendable<FaultResult> {
 
+    /**
+     * The status of the computation.
+     */
     enum Status {
         /**
-         * The computation went ok and no error were returned
+         * The computation went ok and no error was returned
          */
         SUCCESS,
         /**
-         * Data useful to short circuit calculation is missing, typically the transient reactance of generators
+         * Data useful to short-circuit current calculation is missing, typically the transient reactance of generators
          */
         NO_SHORT_CIRCUIT_DATA,
         /**

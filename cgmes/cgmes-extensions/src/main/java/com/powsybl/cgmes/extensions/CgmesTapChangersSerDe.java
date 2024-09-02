@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
@@ -10,10 +11,10 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.io.TreeDataReader;
-import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataReader;
+import com.powsybl.commons.io.TreeDataWriter;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.serde.NetworkDeserializerContext;
 import com.powsybl.iidm.serde.NetworkSerializerContext;
@@ -50,11 +51,9 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
             writer.writeStringAttribute("id", tapChanger.getId());
             writer.writeStringAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             writer.writeStringAttribute("type", tapChanger.getType());
-            if (tapChanger.isHidden()) {
-                writer.writeBooleanAttribute("hidden", true);
-                writer.writeIntAttribute("step", tapChanger.getStep()
-                        .orElseThrow(() -> new PowsyblException("Step should be defined")));
-            }
+            writer.writeBooleanAttribute("hidden", tapChanger.isHidden(), false);
+            writer.writeOptionalIntAttribute("step",
+                    !tapChanger.isHidden() ? null : tapChanger.getStep().orElseThrow(() -> new PowsyblException("Step should be defined")));
             writer.writeStringAttribute("controlId", tapChanger.getControlId());
             writer.writeEndNode();
         }
@@ -75,10 +74,7 @@ public class CgmesTapChangersSerDe<C extends Connectable<C>> extends AbstractExt
                         .setType(reader.readStringAttribute("type"))
                         .setHiddenStatus(reader.readBooleanAttribute("hidden", false))
                         .setControlId(reader.readStringAttribute("controlId"));
-                Integer step = reader.readIntAttribute("step");
-                if (step != null) {
-                    adder.setStep(step);
-                }
+                reader.readOptionalIntAttribute("step").ifPresent(adder::setStep);
                 context.getReader().readEndNode();
                 adder.add();
             } else {

@@ -3,14 +3,14 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -122,11 +122,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             baseVoltages()
                 .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
         }
-        if (cachedBaseVoltages.containsKey(baseVoltageId)) {
-            return cachedBaseVoltages.get(baseVoltageId);
-        } else {
-            return Double.NaN;
-        }
+        return cachedBaseVoltages.getOrDefault(baseVoltageId, Double.NaN);
     }
 
     private CgmesContainer container(CgmesTerminal t, boolean nodeBreaker) {
@@ -243,29 +239,28 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, Reporter reporter) {
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary, ReportNode reportNode) {
         setBasename(CgmesModel.baseName(mainDataSource));
-        read(mainDataSource, reporter);
+        read(mainDataSource, reportNode);
         if (!hasBoundary() && alternativeDataSourceForBoundary != null) {
-            read(alternativeDataSourceForBoundary, reporter);
+            read(alternativeDataSourceForBoundary, reportNode);
         }
     }
 
     @Override
-    public void read(ReadOnlyDataSource ds, Reporter reporter) {
-        Objects.requireNonNull(reporter);
+    public void read(ReadOnlyDataSource ds, ReportNode reportNode) {
+        Objects.requireNonNull(reportNode);
         invalidateCaches();
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
-            reporter.report(Report.builder()
-                    .withKey("CGMESFileRead")
-                    .withDefaultMessage("Instance file ${instanceFile}")
+            reportNode.newReportNode()
+                    .withMessageTemplate("CGMESFileRead", "Instance file ${instanceFile}")
                     .withTypedValue("instanceFile", name, TypedValue.FILENAME)
                     .withSeverity(TypedValue.INFO_SEVERITY)
-                    .build());
+                    .add();
             try (InputStream is = cds.dataSource().newInputStream(name)) {
-                read(is, baseName, name, reporter);
+                read(is, baseName, name, reportNode);
             } catch (IOException e) {
                 String msg = String.format("Reading [%s]", name);
                 LOG.warn(msg);

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -29,7 +29,7 @@ class LimitViolationTest {
                 .map(v -> LimitViolationHelper.getCountry(v, n))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Test
@@ -61,7 +61,7 @@ class LimitViolationTest {
         List<Double> expectedVoltages = Arrays.asList(380.0, 380.0, 380.0, 380.0, 380.0);
         List<Double> voltages = violations.stream()
                 .map(v -> LimitViolationHelper.getNominalVoltage(v, network))
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(expectedVoltages, voltages);
     }
@@ -73,7 +73,7 @@ class LimitViolationTest {
         List<String> expectedVoltageLevelIds = Arrays.asList("VLHV1", "VLHV2", "VLHV1", "VLHV2", "VLHV1");
         List<String> voltages = violations.stream()
                 .map(v -> LimitViolationHelper.getVoltageLevelId(v, network))
-                .collect(Collectors.toList());
+                .toList();
 
         assertEquals(expectedVoltageLevelIds, voltages);
     }

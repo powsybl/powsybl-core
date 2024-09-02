@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.parameters;
 
@@ -31,16 +32,29 @@ public class Parameter {
 
     private final List<Object> possibleValues;
 
-    private ParameterScope scope;
+    private final ParameterScope scope;
+
+    private final String categoryKey;
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
-                     List<Object> possibleValues, ParameterScope scope) {
+                     List<Object> possibleValues, ParameterScope scope, String categoryKey) {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
         this.defaultValue = checkDefaultValue(type, defaultValue);
         this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
         this.scope = scope;
+        this.categoryKey = categoryKey;
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope) {
+        this(name, type, description, defaultValue, possibleValues, scope, null);
+    }
+
+    public Parameter(String name, ParameterType type, String description, Object defaultValue, ParameterScope scope,
+                     String categoryKey) {
+        this(name, type, description, defaultValue, null, scope, categoryKey);
     }
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
@@ -179,7 +193,7 @@ public class Parameter {
             }
         }
         // if none, use configured parameters
-        if (isPresent.test(value)) {
+        if (value != null && isPresent.test(value)) {
             return value;
         }
         return defaultValue;
@@ -221,5 +235,9 @@ public class Parameter {
 
     public ParameterScope getScope() {
         return scope;
+    }
+
+    public String getCategoryKey() {
+        return categoryKey;
     }
 }

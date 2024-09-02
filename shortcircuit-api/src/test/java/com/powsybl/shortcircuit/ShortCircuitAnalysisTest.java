@@ -3,13 +3,16 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
+import com.powsybl.iidm.network.TwoSides;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -117,16 +120,17 @@ class ShortCircuitAnalysisTest {
     }
 
     @Test
-    void testWithReporter() {
-        ReporterModel reporter = new ReporterModel("testReportShortCircuit", "Test mock short circuit");
-        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reporter);
+    void testWithReportNode() {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("testReportShortCircuit", "Test mock short circuit").build();
+        ShortCircuitAnalysisResult result = ShortCircuitAnalysis.run(network, faults, shortCircuitParameters, computationManager, faultParameters, reportNode);
         assertNotNull(result);
-        List<ReporterModel> subReporters = reporter.getSubReporters();
-        assertEquals(1, subReporters.size());
-        ReporterModel subReporter = subReporters.get(0);
-        assertEquals("MockShortCircuit", subReporter.getTaskKey());
-        assertEquals("Running mock short circuit", subReporter.getDefaultName());
-        assertTrue(subReporter.getReports().isEmpty());
+        List<ReportNode> children = reportNode.getChildren();
+        assertEquals(1, children.size());
+
+        ReportNode reportNodeChild = children.get(0);
+        assertEquals("MockShortCircuit", reportNodeChild.getMessageKey());
+        assertEquals("Running mock short circuit", reportNodeChild.getMessage());
+        assertTrue(reportNodeChild.getChildren().isEmpty());
     }
 
     @Test
@@ -149,5 +153,26 @@ class ShortCircuitAnalysisTest {
                 .setInitialVoltageProfileMode(InitialVoltageProfileMode.CONFIGURED);
         Exception e0 = assertThrows(PowsyblException.class, () -> ShortCircuitAnalysis.run(network, faults, invalidShortCircuitParameter, computationManager, faultParameters));
         assertEquals("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.", e0.getMessage());
+    }
+
+    @Test
+    void testWithFeederResultsWithoutSide() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(null);
+        MagnitudeFeederResult feederResult = (MagnitudeFeederResult) result.getFaultResult("id").getFeederResults().get(0);
+        assertNotNull(feederResult);
+        assertEquals("connectableId", feederResult.getConnectableId());
+        assertEquals(1, feederResult.getCurrent());
+        assertNull(feederResult.getSide());
+    }
+
+    @Test
+    void testWithFeederResultsWithSide() {
+        ShortCircuitAnalysisResult result = TestingResultFactory.createWithFeederResults(ThreeSides.ONE);
+        MagnitudeFeederResult feederResult = (MagnitudeFeederResult) result.getFaultResult("id").getFeederResults().get(0);
+        assertNotNull(feederResult);
+        assertEquals("connectableId", feederResult.getConnectableId());
+        assertEquals(1, feederResult.getCurrent());
+        assertEquals(ThreeSides.ONE, feederResult.getSide());
+        assertEquals(TwoSides.ONE, feederResult.getSideAsTwoSides());
     }
 }

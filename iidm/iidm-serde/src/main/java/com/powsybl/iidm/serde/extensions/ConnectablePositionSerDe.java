@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde.extensions;
 
@@ -22,7 +23,6 @@ import com.powsybl.iidm.serde.NetworkSerializerContext;
 
 import java.io.InputStream;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -49,6 +49,7 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
                         .put(IidmVersion.V_1_10, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmVersion.V_1_11, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .put(IidmVersion.V_1_12, ImmutableSortedSet.of(V_1_0, V_1_1))
+                        .put(IidmVersion.V_1_13, ImmutableSortedSet.of(V_1_0, V_1_1))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put(V_1_0, "http://www.itesla_project.eu/schema/iidm/ext/connectable_position/1_0")
@@ -67,14 +68,13 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
                 context.getWriter().writeStringAttribute("name", feeder.getName().orElse(connectableId));
                 break;
             case V_1_1:
-                feeder.getName().ifPresent(name -> context.getWriter().writeStringAttribute("name", name));
+                context.getWriter().writeStringAttribute("name", feeder.getName().orElse(null));
                 break;
             default:
                 throw new PowsyblException("Unsupported version (" + extVersionStr + ") for " + ConnectablePosition.NAME);
         }
-        Optional<Integer> oOrder = feeder.getOrder();
-        oOrder.ifPresent(integer -> context.getWriter().writeIntAttribute("order", integer));
-        context.getWriter().writeStringAttribute("direction", feeder.getDirection().name());
+        context.getWriter().writeOptionalIntAttribute("order", feeder.getOrder().orElse(null));
+        context.getWriter().writeEnumAttribute("direction", feeder.getDirection());
         context.getWriter().writeEndNode();
     }
 
@@ -98,8 +98,8 @@ public class ConnectablePositionSerDe<C extends Connectable<C>> extends Abstract
 
     private void readPosition(DeserializerContext context, ConnectablePositionAdder.FeederAdder<C> adder) {
         String name = context.getReader().readStringAttribute("name");
-        Optional.ofNullable(context.getReader().readIntAttribute("order")).
-                ifPresent(adder::withOrder);
+        context.getReader().readOptionalIntAttribute("order")
+                .ifPresent(adder::withOrder);
         ConnectablePosition.Direction direction = context.getReader().readEnumAttribute("direction", ConnectablePosition.Direction.class);
         context.getReader().readEndNode();
         if (name != null) {

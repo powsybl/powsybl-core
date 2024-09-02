@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
@@ -46,8 +47,10 @@ class ExportOptionsTest {
         ExportOptions options = new ExportOptions();
         options.setCharset(StandardCharsets.ISO_8859_1);
         options.setExtensions(extensionsList);
+        options.setWithAutomationSystems(false);
         assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
         assertEquals(StandardCharsets.ISO_8859_1, options.getCharset());
+        assertFalse(options.isWithAutomationSystems());
     }
 
     @Test
@@ -85,5 +88,6 @@ class ExportOptionsTest {
         assertEquals(IidmSerDeConstants.CURRENT_IIDM_VERSION, options.getVersion());
         assertEquals(THROW_EXCEPTION, options.getIidmVersionIncompatibilityBehavior());
         assertEquals(StandardCharsets.UTF_8, options.getCharset());
+        assertEquals(Boolean.TRUE, options.isWithAutomationSystems());
     }
 }

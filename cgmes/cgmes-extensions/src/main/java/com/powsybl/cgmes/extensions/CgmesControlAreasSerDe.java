@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.cgmes.extensions;
 
@@ -77,10 +78,7 @@ public class CgmesControlAreasSerDe extends AbstractExtensionSerDe<Network, Cgme
                     writer.writeStringAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getDanglingLine().getId()));
 
                     // TODO use TieLine Id and DanglingLine Id for reference instead of TieLine Id and Side
-                    TwoSides side = getSide(boundary);
-                    if (side != null) {
-                        writer.writeEnumAttribute("side", side);
-                    }
+                    writer.writeEnumAttribute("side", getSide(boundary));
                     writer.writeEndNode();
                 }
             }

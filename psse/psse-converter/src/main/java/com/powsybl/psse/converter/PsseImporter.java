@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.psse.converter;
 
@@ -82,7 +83,7 @@ public class PsseImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.isDataExtension(ext) && dataSource.exists(null, ext)) {
                 return ext;
             }
         }

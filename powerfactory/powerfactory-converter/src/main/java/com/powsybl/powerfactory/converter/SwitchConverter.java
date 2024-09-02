@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -108,18 +109,11 @@ class SwitchConverter extends AbstractConverter {
             SwitchKind switchKind;
 
             if (aUsage.isPresent()) {
-                switch (aUsage.get()) {
-                    case "cbk":
-                    case "swt":
-                        switchKind = SwitchKind.BREAKER;
-                        break;
-                    case "dct":
-                    case "sdc":
-                        switchKind = SwitchKind.DISCONNECTOR;
-                        break;
-                    default:
-                        throw new PowerFactoryException("Unknown switch type: " + aUsage);
-                }
+                switchKind = switch (aUsage.get()) {
+                    case "cbk", "swt" -> SwitchKind.BREAKER;
+                    case "dct", "sdc" -> SwitchKind.DISCONNECTOR;
+                    default -> throw new PowerFactoryException("Unknown switch type: " + aUsage);
+                };
             } else {
                 switchKind = SwitchKind.BREAKER;
             }

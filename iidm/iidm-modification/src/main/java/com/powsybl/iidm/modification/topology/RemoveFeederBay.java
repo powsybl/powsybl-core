@@ -3,11 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
@@ -43,9 +44,9 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     @Override
-    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, Reporter reporter) {
+    public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         Connectable<?> connectable = network.getConnectable(connectableId);
-        if (!checkConnectable(throwException, reporter, connectable)) {
+        if (!checkConnectable(throwException, reportNode, connectable)) {
             return;
         }
 
@@ -53,11 +54,11 @@ public class RemoveFeederBay extends AbstractNetworkModification {
             if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
                 Graph<Integer, Object> graph = createGraphFromTerminal(t);
                 int node = t.getNodeBreakerView().getNode();
-                cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, reporter);
+                cleanTopology(t.getVoltageLevel().getNodeBreakerView(), graph, node, reportNode);
             }
         }
         connectable.remove();
-        removedConnectableReport(reporter, connectableId);
+        removedConnectableReport(reportNode, connectableId);
         LOGGER.info("Connectable {} removed", connectableId);
     }
 
@@ -83,15 +84,15 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
      * fork node is encountered, for which special care is needed to clean the topology.
      */
-    private void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Reporter reporter) {
+    private void cleanTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, ReportNode reportNode) {
         Set<Object> edges = graph.edgesOf(node);
         if (edges.size() == 1) {
             Object edge = edges.iterator().next();
             Integer oppositeNode = getOppositeNode(graph, node, edge);
-            removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
-            cleanTopology(nbv, graph, oppositeNode, reporter);
+            removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
+            cleanTopology(nbv, graph, oppositeNode, reportNode);
         } else if (edges.size() > 1) {
-            cleanFork(nbv, graph, node, edges, reporter);
+            cleanFork(nbv, graph, node, edges, reportNode);
         }
     }
 
@@ -99,14 +100,14 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      * Starting from the given node, traverse the graph and remove all the switches and/or internal connections until a
      * fork node is encountered or a node on which a connectable is connected
      */
-    private void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Reporter reporter) {
+    private void cleanMixedTopology(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, ReportNode reportNode) {
         // Get the next edge and the opposite node
         Set<Object> edges = graph.edgesOf(node);
         Object edge = edges.iterator().next();
         Integer oppositeNode = getOppositeNode(graph, node, edge);
 
         // Remove the switch or internal connection on the current edge
-        removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
+        removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
 
         // List the connectables connected to the opposite node
         List<Connectable<?>> connectables = new ArrayList<>();
@@ -114,14 +115,14 @@ public class RemoveFeederBay extends AbstractNetworkModification {
 
         // If there is only one edge on the opposite node and no connectable, continue to remove the elements
         if (graph.edgesOf(oppositeNode).size() == 1 && connectables.isEmpty()) {
-            cleanMixedTopology(nbv, graph, oppositeNode, reporter);
+            cleanMixedTopology(nbv, graph, oppositeNode, reportNode);
         }
     }
 
     /**
      * Try to remove all edges of the given fork node
      */
-    private void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, Reporter reporter) {
+    private void cleanFork(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph, int node, Set<Object> edges, ReportNode reportNode) {
         List<Object> toBusesOnly = new ArrayList<>();
         List<Object> mixed = new ArrayList<>();
         for (Object edge : edges) {
@@ -133,7 +134,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
                 // the edge is only linked to other non-busbarSection connectables, no further cleaning can be done
                 // Note that connectables cannot be empty because of previous if
                 String otherConnectableId = connectables.stream().map(Connectable::getId).findFirst().orElse("none");
-                removeFeederBayAborted(reporter, connectableId, node, otherConnectableId);
+                removeFeederBayAborted(reportNode, connectableId, node, otherConnectableId);
                 LOGGER.info("Remove feeder bay of {} cannot go further node {}, as it is connected to {}", connectableId, node, otherConnectableId);
                 return;
             } else {
@@ -147,12 +148,12 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         // - or linked to busbarSections and connectables
         // The former ones can be removed:
         for (Object edge : toBusesOnly) {
-            removeAllSwitchesAndInternalConnections(nbv, graph, node, edge, reporter);
+            removeAllSwitchesAndInternalConnections(nbv, graph, node, edge, reportNode);
         }
         // We don't remove the latter ones if more than one, as this would break the connection between them
         if (mixed.size() == 1) {
             // If only one, we're cleaning the dangling switches and/or internal connections
-            cleanMixedTopology(nbv, graph, node, reporter);
+            cleanMixedTopology(nbv, graph, node, reportNode);
         }
     }
 
@@ -182,12 +183,12 @@ public class RemoveFeederBay extends AbstractNetworkModification {
      * Traverse the graph and remove all switches and internal connections until encountering a {@link BusbarSection}.
      */
     private void removeAllSwitchesAndInternalConnections(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
-                                                         int originNode, Object edge, Reporter reporter) {
+                                                         int originNode, Object edge, ReportNode reportNode) {
         Integer oppositeNode = getOppositeNode(graph, originNode, edge);
-        removeSwitchOrInternalConnection(nbv, graph, edge, reporter);
+        removeSwitchOrInternalConnection(nbv, graph, edge, reportNode);
         if (!isBusbarSection(nbv, oppositeNode)) {
             for (Object otherEdge : new ArrayList<>(graph.edgesOf(oppositeNode))) {
-                removeAllSwitchesAndInternalConnections(nbv, graph, oppositeNode, otherEdge, reporter);
+                removeAllSwitchesAndInternalConnections(nbv, graph, oppositeNode, otherEdge, reportNode);
             }
         }
     }
@@ -198,16 +199,16 @@ public class RemoveFeederBay extends AbstractNetworkModification {
     }
 
     private static void removeSwitchOrInternalConnection(VoltageLevel.NodeBreakerView nbv, Graph<Integer, Object> graph,
-                                                         Object edge, Reporter reporter) {
+                                                         Object edge, ReportNode reportNode) {
         if (edge instanceof Switch sw) {
             String switchId = sw.getId();
             nbv.removeSwitch(switchId);
-            removedSwitchReport(reporter, switchId);
+            removedSwitchReport(reportNode, switchId);
             LOGGER.info("Switch {} removed", switchId);
         } else {
             Pair<Integer, Integer> ic = (Pair<Integer, Integer>) edge;
             nbv.removeInternalConnections(ic.getFirst(), ic.getSecond());
-            removedInternalConnectionReport(reporter, ic.getFirst(), ic.getSecond());
+            removedInternalConnectionReport(reportNode, ic.getFirst(), ic.getSecond());
             LOGGER.info("Internal connection between {} and {} removed", ic.getFirst(), ic.getSecond());
         }
         graph.removeEdge(edge);
@@ -218,10 +219,10 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         return edgeSource == node ? graph.getEdgeTarget(e) : edgeSource;
     }
 
-    private boolean checkConnectable(boolean throwException, Reporter reporter, Connectable<?> connectable) {
+    private boolean checkConnectable(boolean throwException, ReportNode reportNode, Connectable<?> connectable) {
         if (connectable instanceof BusbarSection) {
             LOGGER.error("BusbarSection connectables are not allowed as RemoveFeederBay input: {}", connectableId);
-            removeFeederBayBusbarSectionReport(reporter, connectableId);
+            removeFeederBayBusbarSectionReport(reportNode, connectableId);
             if (throwException) {
                 throw new PowsyblException("BusbarSection connectables are not allowed as RemoveFeederBay input: " + connectableId);
             }
@@ -229,7 +230,7 @@ public class RemoveFeederBay extends AbstractNetworkModification {
         }
         if (connectable == null) {
             LOGGER.error("Connectable {} not found", connectableId);
-            notFoundConnectableReport(reporter, connectableId);
+            notFoundConnectableReport(reportNode, connectableId);
             if (throwException) {
                 throw new PowsyblException("Connectable not found: " + connectableId);
             }

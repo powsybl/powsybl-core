@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck;
 
@@ -32,7 +33,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         VoltageLevel vl = network.getVoltageLevel(S5_10K_V);
 
         assertEquals(6, vl.getNodeBreakerView().getInternalConnectionCount());
-        List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().collect(Collectors.toList());
+        List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().toList();
         int[] expecteds1 = new int[]{7, 6, 4, 5, 9, 8};
         int[] expecteds2 = new int[]{0, 3, 3, 2, 2, 1};
         assertEquals(expecteds1.length, expecteds2.length);
@@ -50,7 +51,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         assertEquals(9, (int) nodeIterator2.next());
         assertFalse(nodeIterator2.hasNext());
 
-        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().collect(Collectors.toList());
+        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().toList();
         assertEquals(Arrays.asList(6, 4), nodesInternallyConnectedTo3);
 
         // Find the first internal connection encountered

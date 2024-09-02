@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.converter;
 
@@ -50,6 +51,9 @@ public class MatpowerImporter implements Importer {
     private static final String SUBSTATION_PREFIX = "SUB";
     private static final String TRANSFORMER_PREFIX = "TWT";
     private static final String VOLTAGE_LEVEL_PREFIX = "VL";
+    private static final String CONVERTER_STATION_1_PREFIX = "CS1";
+    private static final String CONVERTER_STATION_2_PREFIX = "CS2";
+    private static final String HVDC_LINE_PREFIX = "HL";
 
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("matpower.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
@@ -138,20 +142,24 @@ public class MatpowerImporter implements Importer {
         }
 
         // set voltage limits
-        for (var e : voltageLimitsByVoltageLevelId.entrySet()) {
-            String voltageLevelId = e.getKey();
-            double lowVoltageLimit = e.getValue().getFirst();
-            double highVoltageLimit = e.getValue().getSecond();
+        setVoltageLimits(voltageLimitsByVoltageLevelId, network);
+    }
+
+    private static void setVoltageLimits(Map<String, Pair<Double, Double>> voltageLimitsByVoltageLevelId, Network network) {
+        for (var entry : voltageLimitsByVoltageLevelId.entrySet()) {
+            String voltageLevelId = entry.getKey();
+            double lowVoltageLimit = entry.getValue().getFirst();
+            double highVoltageLimit = entry.getValue().getSecond();
             VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
             if (!Double.isNaN(lowVoltageLimit) && !Double.isNaN(highVoltageLimit)) {
                 if (highVoltageLimit >= lowVoltageLimit) {
                     voltageLevel.setLowVoltageLimit(lowVoltageLimit)
-                            .setHighVoltageLimit(highVoltageLimit);
+                        .setHighVoltageLimit(highVoltageLimit);
                 } else {
                     LOGGER.warn("Invalid voltage limits [{}, {}] for voltage level {}",
-                            lowVoltageLimit, highVoltageLimit, voltageLevelId);
+                        lowVoltageLimit, highVoltageLimit, voltageLevelId);
                     voltageLevel.setLowVoltageLimit(highVoltageLimit)
-                            .setHighVoltageLimit(lowVoltageLimit);
+                        .setHighVoltageLimit(lowVoltageLimit);
                 }
             } else {
                 if (!Double.isNaN(lowVoltageLimit)) {
@@ -302,6 +310,10 @@ public class MatpowerImporter implements Importer {
         return Math.abs(branch.getStatus()) > 0;
     }
 
+    private static boolean isInService(MDcLine dcLine) {
+        return Math.abs(dcLine.getStatus()) > 0;
+    }
+
     private static boolean isInService(MGen generator) {
         return generator.getStatus() > 0;
     }
@@ -433,10 +445,78 @@ public class MatpowerImporter implements Importer {
         return shuntAdmittanceAtEnd * sBase / (nominalVoltageAtEnd * nominalVoltageAtEnd) - (1 - nominalVoltageAtOtherEnd / nominalVoltageAtEnd) * transmissionAdmittance;
     }
 
+    private static void createDcLines(MatpowerModel model, ContainersMapping containerMapping, Network network) {
+        for (MDcLine mDcLine : model.getDcLines()) {
+            String id = getId(HVDC_LINE_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            String bus1Id = getId(BUS_PREFIX, mDcLine.getFrom());
+            String bus2Id = getId(BUS_PREFIX, mDcLine.getTo());
+            String voltageLevel1Id = containerMapping.getVoltageLevelId(mDcLine.getFrom());
+            String voltageLevel2Id = containerMapping.getVoltageLevelId(mDcLine.getTo());
+            VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
+            VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
+            boolean isInService = isInService(mDcLine);
+            String connectedBus1Id = isInService ? bus1Id : null;
+            String connectedBus2Id = isInService ? bus2Id : null;
+            String csId1 = getId(CONVERTER_STATION_1_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            String csId2 = getId(CONVERTER_STATION_2_PREFIX, mDcLine.getFrom(), mDcLine.getTo());
+            double losses = mDcLine.getLoss0() + mDcLine.getLoss1() * mDcLine.getPf();
+            VscConverterStation vsc1 = voltageLevel1.newVscConverterStation()
+                    .setId(csId1)
+                    .setBus(connectedBus1Id)
+                    .setConnectableBus(bus1Id)
+                    .setVoltageRegulatorOn(true)
+                    .setVoltageSetpoint(mDcLine.getVf() * voltageLevel1.getNominalV())
+                    .setLossFactor((float) computeLossFactor1(mDcLine.getPf(), mDcLine.getLoss0())) // To guarantee the round-trip
+                    .add();
+            VscConverterStation vsc2 = voltageLevel2.newVscConverterStation()
+                    .setId(csId2)
+                    .setBus(connectedBus2Id)
+                    .setConnectableBus(bus2Id)
+                    .setVoltageRegulatorOn(true)
+                    .setVoltageSetpoint(mDcLine.getVt() * voltageLevel2.getNominalV())
+                    .setLossFactor((float) computeLossFactor2(mDcLine.getPf(), mDcLine.getLoss0(), losses - mDcLine.getLoss0()))
+                    .add();
+            network.newHvdcLine()
+                    .setId(id)
+                    .setConverterStationId1(csId1)
+                    .setConverterStationId2(csId2)
+                    .setR(0)
+                    .setConvertersMode(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)
+                    .setActivePowerSetpoint(mDcLine.getPf())
+                    .setNominalV(voltageLevel1.getNominalV())
+                    .setMaxP(mDcLine.getPmax())
+                    .add();
+
+            if (reactiveLimitsAreOk(mDcLine.getQminf(), mDcLine.getQmaxf())) {
+                vsc1.newMinMaxReactiveLimits().setMinQ(mDcLine.getQminf()).setMaxQ(mDcLine.getQmaxf()).add();
+            }
+            if (reactiveLimitsAreOk(mDcLine.getQmint(), mDcLine.getQmaxt())) {
+                vsc2.newMinMaxReactiveLimits().setMinQ(mDcLine.getQmint()).setMaxQ(mDcLine.getQmaxt()).add();
+            }
+        }
+    }
+
+    // IIDM Rectifier PDC/PAC1 = 1 - lossFactor1/100
+    // IIDM Inverter  PAC2/PDC = 1 - lossFactor2/100
+    // PAC1 = PDc + losses1
+    // PDc  = PAC2 + losses2
+    // Matpower Pf = Pt + l0 + l1*Pf
+    private static double computeLossFactor1(double pac1, double losses1) {
+        return pac1 != 0.0 ? losses1 * 100.0 / pac1 : 0.0;
+    }
+
+    private static double computeLossFactor2(double pac1, double losses1, double losses2) {
+        return (pac1 - losses1) != 0.0 ? losses2 * 100.0 / (pac1 - losses1) : 0.0;
+    }
+
+    private static boolean reactiveLimitsAreOk(double minQ, double maxQ) {
+        return Double.isFinite(minQ) && Double.isFinite(maxQ) && minQ <= maxQ;
+    }
+
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource.exists(null, MatpowerConstants.EXT);
+            return dataSource.isDataExtension(MatpowerConstants.EXT) && dataSource.exists(null, MatpowerConstants.EXT);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -506,6 +586,8 @@ public class MatpowerImporter implements Importer {
                 createBuses(model, containerMapping, network, context);
 
                 createBranches(model, containerMapping, network, context);
+
+                createDcLines(model, containerMapping, network);
 
                 for (Bus slackBus : context.getSlackBuses()) {
                     SlackTerminal.attach(slackBus);

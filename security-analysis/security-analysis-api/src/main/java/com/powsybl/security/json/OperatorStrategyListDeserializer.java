@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security.json;
 
@@ -35,7 +36,7 @@ public class OperatorStrategyListDeserializer extends StdDeserializer<OperatorSt
     public OperatorStrategyList deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         ParsingContext context = new ParsingContext();
         JsonUtil.parseObject(parser, fieldName -> {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version":
                     context.version = parser.nextTextValue();
                     return true;

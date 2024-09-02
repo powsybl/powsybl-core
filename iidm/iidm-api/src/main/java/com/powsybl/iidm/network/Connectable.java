@@ -3,10 +3,12 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * An equipment that is part of a substation topology.
@@ -21,4 +23,16 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
      * Remove the connectable from the voltage level (dangling switches are kept).
      */
     void remove();
+
+    boolean connect();
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate);
+
+    boolean connect(Predicate<Switch> isTypeSwitchToOperate, ThreeSides side);
+
+    boolean disconnect();
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable);
+
+    boolean disconnect(Predicate<Switch> isSwitchOpenable, ThreeSides side);
 }

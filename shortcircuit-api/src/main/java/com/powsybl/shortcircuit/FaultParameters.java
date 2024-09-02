@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit;
 
@@ -26,6 +27,8 @@ import java.util.Objects;
 import static com.powsybl.shortcircuit.VoltageRange.checkVoltageRange;
 
 /**
+ * Class to override general short-circuit analysis parameters and make them specific to a particular fault.
+ *
  * @author Thomas Adam {@literal <tadam at silicom.fr>}
  */
 public class FaultParameters {
@@ -240,6 +243,11 @@ public class FaultParameters {
         return JsonUtil.createObjectMapper().registerModule(new ShortCircuitAnalysisJsonModule());
     }
 
+    /**
+     * Writes a list of FaultParameters to a JSON file
+     * @param parameters the list of FaultParameters
+     * @param jsonFile the path to the JSON file
+     */
     public static void write(List<FaultParameters> parameters, Path jsonFile) {
         try (OutputStream out = Files.newOutputStream(jsonFile)) {
             createObjectMapper().writerWithDefaultPrettyPrinter().writeValue(out, parameters);
@@ -248,6 +256,11 @@ public class FaultParameters {
         }
     }
 
+    /**
+     * Reads a JSON file and creates the associated list of FaultParameters
+     * @param jsonFile the path to the JSON file
+     * @return a list of FaultParameters
+     */
     public static List<FaultParameters> read(Path jsonFile) {
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return createObjectMapper().readerForListOf(FaultParameters.class).readValue(is);
@@ -256,6 +269,9 @@ public class FaultParameters {
         }
     }
 
+    /**
+     * Method used to validate FaultParameters. The voltage ranges should be defined if the parameter initialVoltageProfileMode is set to CONFIGURED.
+     */
     public void validate() {
         if (initialVoltageProfileMode == InitialVoltageProfileMode.CONFIGURED && (voltageRanges == null || voltageRanges.isEmpty())) {
             throw new PowsyblException("Configured initial voltage profile but nominal voltage ranges with associated coefficients are missing.");

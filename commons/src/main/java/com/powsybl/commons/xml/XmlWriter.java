@@ -3,12 +3,13 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
-import com.powsybl.commons.io.TreeDataWriter;
+import com.powsybl.commons.io.AbstractTreeDataWriter;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.xml.stream.XMLStreamException;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public class XmlWriter implements TreeDataWriter {
+public class XmlWriter extends AbstractTreeDataWriter {
 
     private final XMLStreamWriter writer;
 
@@ -171,14 +172,18 @@ public class XmlWriter implements TreeDataWriter {
 
     @Override
     public void writeIntArrayAttribute(String name, Collection<Integer> values) {
-        writeStringAttribute(name, values.stream()
-                .map(i -> Integer.toString(i))
-                .collect(Collectors.joining(",")));
+        if (!values.isEmpty()) {
+            writeStringAttribute(name, values.stream()
+                    .map(i -> Integer.toString(i))
+                    .collect(Collectors.joining(",")));
+        }
     }
 
     @Override
     public void writeStringArrayAttribute(String name, Collection<String> values) {
-        writeStringAttribute(name, String.join(",", values));
+        if (!values.isEmpty()) {
+            writeStringAttribute(name, String.join(",", values));
+        }
     }
 
     @Override

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -30,6 +31,8 @@ public class MatpowerModel {
     private final Map<Integer, List<MGen>> generatorsByBusNum = new HashMap<>();
 
     private final List<MBranch> branches = new ArrayList<>();
+
+    private final List<MDcLine> dcLines = new ArrayList<>();
 
     @JsonCreator
     public MatpowerModel(@JsonProperty("caseName") String caseName) {
@@ -120,5 +123,14 @@ public class MatpowerModel {
     public void addBranch(MBranch branch) {
         Objects.requireNonNull(branch);
         branches.add(branch);
+    }
+
+    public List<MDcLine> getDcLines() {
+        return dcLines;
+    }
+
+    public void addDcLine(MDcLine dcLine) {
+        Objects.requireNonNull(dcLine);
+        dcLines.add(dcLine);
     }
 }

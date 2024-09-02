@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.shortcircuit.json;
 
@@ -43,7 +44,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
         String version = null;
         List<Extension<ShortCircuitParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "version" -> {
                     parser.nextToken();
                     version = parser.getValueAsString();
@@ -55,12 +56,12 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parameters.setWithLimitViolations(parser.readValueAs(Boolean.class));
                 }
                 case "withVoltageMap" -> {
-                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
+                    JsonUtil.assertLessThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                 }
                 case "withVoltageResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithVoltageResult(parser.readValueAs(Boolean.class));
                 }
@@ -77,47 +78,47 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parameters.setMinVoltageDropProportionalThreshold(parser.readValueAs(Double.class));
                 }
                 case "withFortescueResult" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.1");
                     parser.nextToken();
                     parameters.setWithFortescueResult(parser.readValueAs(Boolean.class));
                 }
                 case "subTransientCoefficient" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setSubTransientCoefficient(parser.readValueAs(Double.class));
                 }
                 case "withLoads" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithLoads(parser.readValueAs(Boolean.class));
                 }
                 case "withShuntCompensators" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithShuntCompensators(parser.readValueAs(Boolean.class));
                 }
                 case "withVSCConverterStations" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithVSCConverterStations(parser.readValueAs(Boolean.class));
                 }
                 case "withNeutralPosition" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setWithNeutralPosition(parser.readValueAs(Boolean.class));
                 }
                 case "initialVoltageProfileMode" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setInitialVoltageProfileMode(JsonUtil.readValue(deserializationContext, parser, InitialVoltageProfileMode.class));
                 }
                 case "voltageRanges" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.2");
                     parser.nextToken();
                     parameters.setVoltageRanges(JsonUtil.readList(deserializationContext, parser, VoltageRange.class));
                 }
                 case "detailedReport" -> {
-                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.getCurrentName(), version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, TAG + parser.currentName(), version, "1.3");
                     parser.nextToken();
                     parameters.setDetailedReport(parser.readValueAs(Boolean.class));
                 }
@@ -125,7 +126,7 @@ public class ShortCircuitParametersDeserializer extends StdDeserializer<ShortCir
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, getExtensionSerializers()::get, parameters);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         extensions.forEach(extension -> parameters.addExtension((Class) extension.getClass(), extension));

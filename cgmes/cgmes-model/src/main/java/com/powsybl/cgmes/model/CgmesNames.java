@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.model;
@@ -111,6 +112,7 @@ public final class CgmesNames {
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
     public static final String STATION_SUPPLY = "StationSupply";
     public static final String ASYNCHRONOUS_MACHINE = "AsynchronousMachine";
+    public static final String SYNCHRONOUS_MACHINE = "SynchronousMachine";
     public static final String ENERGY_SOURCE = "EnergySource";
     public static final String SV_INJECTION = "SvInjection";
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
@@ -124,6 +126,8 @@ public final class CgmesNames {
     public static final String IDENTIFIED_OBJECT_DESCRIPTION = "IdentifiedObject.description";
 
     public static final String EQUIVALENT_INJECTION = "EquivalentInjection";
+    public static final String EQUIVALENT_INJECTION_TERMINAL = "EquivalentInjectionTerminal";
+    public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
 
     private CgmesNames() {
     }

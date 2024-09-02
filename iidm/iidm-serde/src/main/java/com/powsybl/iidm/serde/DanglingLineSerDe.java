@@ -3,13 +3,20 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.serde;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLine.Generation;
+import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.serde.util.IidmSerDeUtil;
 
 import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static com.powsybl.iidm.serde.ConnectableSerDeUtil.*;
@@ -41,7 +48,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     }
 
     static void writeRootElementAttributesInternal(DanglingLine dl, Supplier<Terminal> terminalGetter, NetworkSerializerContext context) {
-        DanglingLine.Generation generation = dl.getGeneration();
+        Generation generation = dl.getGeneration();
         double[] p0 = new double[1];
         double[] q0 = new double[1];
         p0[0] = dl.getP0();
@@ -63,28 +70,29 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         context.getWriter().writeDoubleAttribute("x", dl.getX());
         context.getWriter().writeDoubleAttribute("g", dl.getG());
         context.getWriter().writeDoubleAttribute("b", dl.getB());
-        if (generation != null) {
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-                context.getWriter().writeBooleanAttribute("generationVoltageRegulationOn", generation.isVoltageRegulationOn());
-                context.getWriter().writeDoubleAttribute(GENERATION_MIN_P, generation.getMinP());
-                context.getWriter().writeDoubleAttribute(GENERATION_MAX_P, generation.getMaxP());
-                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_P, generation.getTargetP());
-                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_V, generation.getTargetV());
-                context.getWriter().writeDoubleAttribute(GENERATION_TARGET_Q, generation.getTargetQ());
-            });
-        }
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
+            context.getWriter().writeOptionalBooleanAttribute("generationVoltageRegulationOn", getOptionalValue(generation, Generation::isVoltageRegulationOn));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MIN_P, getOptionalValue(generation, Generation::getMinP));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_MAX_P, getOptionalValue(generation, Generation::getMaxP));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_P, getOptionalValue(generation, Generation::getTargetP));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_V, getOptionalValue(generation, Generation::getTargetV));
+            context.getWriter().writeOptionalDoubleAttribute(GENERATION_TARGET_Q, getOptionalValue(generation, Generation::getTargetQ));
+        });
         Terminal t = terminalGetter.get();
         writeNodeOrBus(null, t, context);
-        if (dl.getPairingKey() != null) {
-            IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context,
-                () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
-            );
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context,
-                () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
-            );
-        }
+        IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context,
+            () -> context.getWriter().writeStringAttribute("ucteXnodeCode", dl.getPairingKey())
+        );
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_11, context,
+            () -> context.getWriter().writeStringAttribute("pairingKey", dl.getPairingKey())
+        );
         writePQ(null, t, context.getWriter());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                writeSelectedGroupId(null, dl.getSelectedOperationalLimitsGroupId().orElse(null), context.getWriter()));
+    }
 
+    private static <T> T getOptionalValue(Generation generation, Function<Generation, T> valueGetter) {
+        return Optional.ofNullable(generation).map(valueGetter).orElse(null);
     }
 
     @Override
@@ -92,38 +100,17 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         return parent.newDanglingLine();
     }
 
-    static boolean hasValidGeneration(DanglingLine dl, NetworkSerializerContext context) {
-        if (dl.getGeneration() != null) {
-            return context.getVersion().compareTo(IidmVersion.V_1_3) > 0;
-        }
-        return false;
-    }
-
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkSerializerContext context) {
         if (dl.getGeneration() != null) {
             IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> ReactiveLimitsSerDe.INSTANCE.write(dl.getGeneration(), context));
         }
-        Optional<ActivePowerLimits> activePowerLimits = dl.getActivePowerLimits();
-        if (activePowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeActivePowerLimits(null, activePowerLimits.get(), context.getWriter(),
-                    context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<ApparentPowerLimits> apparentPowerLimits = dl.getApparentPowerLimits();
-        if (apparentPowerLimits.isPresent()) {
-            IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmVersion.V_1_5, context);
-            IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> writeApparentPowerLimits(null, apparentPowerLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
-        }
-        Optional<CurrentLimits> currentLimits = dl.getCurrentLimits();
-        if (currentLimits.isPresent()) {
-            writeCurrentLimits(null, currentLimits.get(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
-        }
+        writeLimits(context, null, ROOT_ELEMENT_NAME, dl.getSelectedOperationalLimitsGroup().orElse(null), dl.getOperationalLimitsGroups());
     }
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
-        readRootElementAttributesInternal(adder, context);
+        readRootElementAttributesInternal(adder, voltageLevel, context);
         IidmSerDeUtil.runUntilMaximumVersion(IidmVersion.V_1_10, context, () -> {
             String pairingKey = context.getReader().readStringAttribute("ucteXnodeCode");
             adder.setPairingKey(pairingKey);
@@ -134,10 +121,12 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         });
         DanglingLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->
+                readSelectedGroupId(null, dl::setSelectedOperationalLimitsGroup, context));
         return dl;
     }
 
-    public static void readRootElementAttributesInternal(DanglingLineAdder adder, NetworkDeserializerContext context) {
+    public static void readRootElementAttributesInternal(DanglingLineAdder adder, VoltageLevel voltageLevel, NetworkDeserializerContext context) {
         double p0 = context.getReader().readDoubleAttribute("p0");
         double q0 = context.getReader().readDoubleAttribute("q0");
         double r = context.getReader().readDoubleAttribute("r");
@@ -145,24 +134,24 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
         double g = context.getReader().readDoubleAttribute("g");
         double b = context.getReader().readDoubleAttribute("b");
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_3, context, () -> {
-            Boolean voltageRegulationOn = context.getReader().readBooleanAttribute("generationVoltageRegulationOn");
-            if (voltageRegulationOn != null) {
-                double minP = context.getReader().readDoubleAttribute(GENERATION_MIN_P);
-                double maxP = context.getReader().readDoubleAttribute(GENERATION_MAX_P);
-                double targetP = context.getReader().readDoubleAttribute(GENERATION_TARGET_P);
-                double targetV = context.getReader().readDoubleAttribute(GENERATION_TARGET_V);
-                double targetQ = context.getReader().readDoubleAttribute(GENERATION_TARGET_Q);
-                adder.newGeneration()
-                        .setMinP(minP)
-                        .setMaxP(maxP)
-                        .setVoltageRegulationOn(voltageRegulationOn)
-                        .setTargetP(targetP)
-                        .setTargetV(targetV)
-                        .setTargetQ(targetQ)
-                        .add();
+            Optional<Boolean> voltageRegulationOn = context.getReader().readOptionalBooleanAttribute("generationVoltageRegulationOn");
+            OptionalDouble minP = context.getReader().readOptionalDoubleAttribute(GENERATION_MIN_P);
+            OptionalDouble maxP = context.getReader().readOptionalDoubleAttribute(GENERATION_MAX_P);
+            OptionalDouble targetP = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_P);
+            OptionalDouble targetV = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_V);
+            OptionalDouble targetQ = context.getReader().readOptionalDoubleAttribute(GENERATION_TARGET_Q);
+            if (voltageRegulationOn.isPresent()) {
+                DanglingLineAdder.GenerationAdder generationAdder = adder.newGeneration()
+                        .setVoltageRegulationOn(voltageRegulationOn.get());
+                minP.ifPresent(generationAdder::setMinP);
+                maxP.ifPresent(generationAdder::setMaxP);
+                targetP.ifPresent(generationAdder::setTargetP);
+                targetV.ifPresent(generationAdder::setTargetV);
+                targetQ.ifPresent(generationAdder::setTargetQ);
+                generationAdder.add();
             }
         });
-        readNodeOrBus(adder, context);
+        readNodeOrBus(adder, context, voltageLevel.getTopologyKind());
         adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
@@ -175,15 +164,19 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
     protected void readSubElements(DanglingLine dl, NetworkDeserializerContext context) {
         context.getReader().readChildNodes(elementName -> {
             switch (elementName) {
+                case LIMITS_GROUP -> {
+                    IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, LIMITS_GROUP, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_12, context);
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () -> readLoadingLimitsGroups(dl, LIMITS_GROUP, context));
+                }
                 case ACTIVE_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.newActivePowerLimits(), context.getReader()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readActivePowerLimits(dl.newActivePowerLimits(), context));
                 }
                 case APPARENT_POWER_LIMITS -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_5, context);
-                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.newApparentPowerLimits(), context.getReader()));
+                    IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_5, context, () -> readApparentPowerLimits(dl.newApparentPowerLimits(), context));
                 }
-                case CURRENT_LIMITS -> readCurrentLimits(dl.newCurrentLimits(), context.getReader());
+                case CURRENT_LIMITS -> readCurrentLimits(dl.newCurrentLimits(), context);
                 case ReactiveLimitsSerDe.ELEM_REACTIVE_CAPABILITY_CURVE -> {
                     IidmSerDeUtil.assertMinimumVersion(ROOT_ELEMENT_NAME + ".generation", "reactiveLimits", IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_3, context);
                     ReactiveLimitsSerDe.INSTANCE.readReactiveCapabilityCurve(dl.getGeneration(), context);

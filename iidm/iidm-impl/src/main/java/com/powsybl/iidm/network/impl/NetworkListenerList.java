@@ -3,9 +3,11 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.NetworkListener;
 import org.slf4j.Logger;
@@ -19,7 +21,7 @@ import java.util.function.Supplier;
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-class NetworkListenerList {
+public class NetworkListenerList {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkListenerList.class);
 
@@ -33,19 +35,19 @@ class NetworkListenerList {
         listeners.remove(listener);
     }
 
-    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable<?> identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyListeners(identifiable, attribute.get(), oldValue, newValue);
+            notifyUpdateListeners(identifiable, attribute.get(), oldValue, newValue);
         }
     }
 
-    void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyListeners(identifiable, attribute, oldValue, newValue);
+            notifyUpdateListeners(identifiable, attribute, oldValue, newValue);
         }
     }
 
-    private void notifyListeners(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    private void notifyUpdateListeners(Identifiable<?> identifiable, String attribute, Object oldValue, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
                 listener.onUpdate(identifiable, attribute, oldValue, newValue);
@@ -55,19 +57,19 @@ class NetworkListenerList {
         }
     }
 
-    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable<?> identifiable, Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyListeners(identifiable, attribute.get(), variantId, oldValue, newValue);
+            notifyUpdateListeners(identifiable, attribute.get(), variantId, oldValue, newValue);
         }
     }
 
-    void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            notifyListeners(identifiable, attribute, variantId, oldValue, newValue);
+            notifyUpdateListeners(identifiable, attribute, variantId, oldValue, newValue);
         }
     }
 
-    private void notifyListeners(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+    private void notifyUpdateListeners(Identifiable<?> identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
                 listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);
@@ -77,21 +79,67 @@ class NetworkListenerList {
         }
     }
 
-    void notifyCreation(Identifiable identifiable) {
+    public void notifyExtensionCreation(Extension<?> extension) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onCreation(identifiable);
-            } catch (Throwable t) {
+                listener.onExtensionCreation(extension);
+            } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
         }
     }
 
-    void notifyBeforeRemoval(Identifiable identifiable) {
+    public void notifyExtensionBeforeRemoval(Extension<?> extension) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onExtensionBeforeRemoval(extension);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionAfterRemoval(Identifiable<?> identifiable, String extensionName) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onExtensionAfterRemoval(identifiable, extensionName);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    public void notifyExtensionUpdate(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            notifyExtensionUpdateListeners(extension, attribute, oldValue, newValue);
+        }
+    }
+
+    private void notifyExtensionUpdateListeners(Extension<?> extension, String attribute, Object oldValue, Object newValue) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onExtensionUpdate(extension, attribute, oldValue, newValue);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyCreation(Identifiable<?> identifiable) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onCreation(identifiable);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyBeforeRemoval(Identifiable<?> identifiable) {
         for (NetworkListener listener : listeners) {
             try {
                 listener.beforeRemoval(identifiable);
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
         }
@@ -101,7 +149,7 @@ class NetworkListenerList {
         for (NetworkListener listener : listeners) {
             try {
                 listener.afterRemoval(id);
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 LOGGER.error(t.toString(), t);
             }
         }
@@ -184,5 +232,4 @@ class NetworkListenerList {
             }
         }
     }
-
 }

@@ -4,6 +4,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network.io;
 
@@ -46,9 +47,7 @@ class UcteRecordWriter {
     private void resizeBuffer(int length) {
         int n = length - buffer.length();
         if (n > 0) {
-            for (int i = 0; i < n; i++) {
-                buffer.append(" ");
-            }
+            buffer.append(" ".repeat(n));
         }
     }
 

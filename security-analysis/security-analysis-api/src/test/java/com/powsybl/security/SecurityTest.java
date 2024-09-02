@@ -3,27 +3,25 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.security;
 
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TwoSides;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 import com.powsybl.security.results.PostContingencyResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -129,6 +127,34 @@ class SecurityTest {
 
         violations = Security.checkLimits(network, 1);
         assertViolations(violations);
+    }
+
+    @Test
+    void checkLimits05() {
+        Line line = network.getLine(EurostagTutorialExample1Factory.NHV1_NHV2_1);
+        line.getCurrentLimits1().ifPresent(l -> l.setPermanentLimit(2000));
+
+        List<LimitViolation> violations = Security.checkLimits(network);
+        assertTrue(getCurrentLimitViolationOnLine1Side1(violations).isEmpty());
+
+        violations = Security.checkLimits(network, 0.5);
+        assertViolation05(violations);
+
+        violations = Security.checkLimits(network, new SimpleLimitsComputer(0.5));
+        assertViolation05(violations);
+    }
+
+    private static Optional<LimitViolation> getCurrentLimitViolationOnLine1Side1(List<LimitViolation> violations) {
+        return violations.stream().filter(l -> EurostagTutorialExample1Factory.NHV1_NHV2_1.equals(l.getSubjectId()) &&
+                l.getSide() == ThreeSides.ONE && l.getLimitType() == LimitViolationType.CURRENT).findFirst();
+    }
+
+    private static void assertViolation05(List<LimitViolation> violations) {
+        Optional<LimitViolation> violation = getCurrentLimitViolationOnLine1Side1(violations);
+        assertTrue(violation.isPresent());
+        assertEquals(0.5, violation.get().getLimitReduction(), 0.001d);
+        assertEquals(2000, violation.get().getLimit(), 0.001d);
+        assertEquals(1192, violation.get().getValue(), 1d);
     }
 
     private static void assertViolationsForThreeWindingsTransformer(List<LimitViolation> violations) {

@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.ucte.network;
 
@@ -53,14 +54,14 @@ public enum UcteElementStatus {
     }
 
     public static UcteElementStatus fromCode(int code) {
-        switch (code) {
-            case 0: return REAL_ELEMENT_IN_OPERATION;
-            case 8: return REAL_ELEMENT_OUT_OF_OPERATION;
-            case 1: return EQUIVALENT_ELEMENT_IN_OPERATION;
-            case 9: return EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-            case 2: return BUSBAR_COUPLER_IN_OPERATION;
-            case 7: return BUSBAR_COUPLER_OUT_OF_OPERATION;
-            default: throw new IllegalArgumentException("Unknow element status code " + code);
-        }
+        return switch (code) {
+            case 0 -> REAL_ELEMENT_IN_OPERATION;
+            case 8 -> REAL_ELEMENT_OUT_OF_OPERATION;
+            case 1 -> EQUIVALENT_ELEMENT_IN_OPERATION;
+            case 9 -> EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
+            case 2 -> BUSBAR_COUPLER_IN_OPERATION;
+            case 7 -> BUSBAR_COUPLER_OUT_OF_OPERATION;
+            default -> throw new IllegalArgumentException("Unknow element status code " + code);
+        };
     }
 }

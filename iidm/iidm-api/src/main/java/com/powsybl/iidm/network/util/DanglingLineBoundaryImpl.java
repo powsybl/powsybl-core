@@ -3,12 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+
+import static com.powsybl.iidm.network.util.DanglingLineData.zeroImpedance;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -25,45 +28,61 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public double getV() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return danglingLineData.getBoundaryBusU();
         }
 
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+        if (zeroImpedance(parent)) {
+            return getV(b);
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+        }
     }
 
     @Override
     public double getAngle() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+        if (zeroImpedance(parent)) {
+            return getAngle(b);
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+        }
     }
 
     @Override
     public double getP() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             return -parent.getP0();
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+        if (zeroImpedance(parent)) {
+            return -t.getP();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+        }
     }
 
     @Override
     public double getQ() {
-        if (!parent.isPaired() && valid(parent.getP0(), parent.getQ0())) {
+        if (useHypothesis(parent)) {
             return -parent.getQ0();
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+        if (zeroImpedance(parent)) {
+            return -t.getQ();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+        }
     }
 
     @Override
@@ -86,5 +105,13 @@ public class DanglingLineBoundaryImpl implements Boundary {
 
     private static boolean valid(double p0, double q0) {
         return !Double.isNaN(p0) && !Double.isNaN(q0);
+    }
+
+    private static boolean useHypothesis(DanglingLine parent) {
+        // We prefer to use P0 and Q0 if the dangling line is not paired and P0 and Q0 are valid, but we cannot retrieve
+        // P, Q, angle and voltage at boundary if the dangling line has a generation part: a previous global load flow
+        // run is needed, especially if the generation is regulating voltage.
+        // This could be improved later.
+        return !parent.isPaired() && valid(parent.getP0(), parent.getQ0()) && parent.getGeneration() == null;
     }
 }

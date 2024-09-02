@@ -3,24 +3,29 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.contingency;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.Objects;
 
 /**
+ * A contingency context has several usages in security analysis and in sensitivity analysis.
+ * For a security analysis, it is a way to describe for which contingency we want some network results
+ * or for which contingency we want limit reductions to be applied. For a sensitivity analysis, it is a way
+ * to describe for which contingency we want to compute sensitivity factors.
+ * See {@link ContingencyContextType} for the type of context to use. In case of a SPECIFIC contingency context,
+ * the id of the contingency must be provided.
+ *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
- * <p>
- * provide the context to get information of the network after a security analysis
- * it contains a contingency's id and a context type. Context type defines
- * if we want the information in a pre-contingency state, a post-contingency state or both.
- * contingency's id is defined if informations are needed after
- * a specific contingency computation
  */
+@JsonPropertyOrder({"contextType", "contingencyId"})
 public class ContingencyContext {
 
     private static final ContingencyContext ALL = new ContingencyContext(null, ContingencyContextType.ALL);
@@ -37,7 +42,7 @@ public class ContingencyContext {
      */
     private final ContingencyContextType contextType;
 
-    public ContingencyContext(@JsonProperty("contingencyId") String contingencyId,
+    public ContingencyContext(@JsonProperty("contingencyId") @JsonInclude(JsonInclude.Include.NON_NULL) String contingencyId,
                               @JsonProperty("contextType") ContingencyContextType contingencyContextType) {
         this.contextType = Objects.requireNonNull(contingencyContextType);
         if (contingencyContextType == ContingencyContextType.SPECIFIC && contingencyId == null) {
@@ -102,6 +107,10 @@ public class ContingencyContext {
 
     public static ContingencyContext none() {
         return NONE;
+    }
+
+    public static ContingencyContext onlyContingencies() {
+        return ONLY_CONTINGENCIES;
     }
 
     public static ContingencyContext specificContingency(String contingencyId) {

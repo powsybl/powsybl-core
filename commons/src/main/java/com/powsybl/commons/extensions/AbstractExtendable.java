@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.commons.extensions;
 
@@ -43,15 +44,19 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
         return (E) extensionsByName.get(name);
     }
 
+    protected <E extends Extension<T>> void removeExtension(Class<E> type, E extension) {
+        extensions.remove(type);
+        extensionsByName.remove(extension.getName());
+        extension.setExtendable(null);
+    }
+
     @Override
     public <E extends Extension<T>> boolean removeExtension(Class<E> type) {
         boolean removed = false;
 
         E extension = getExtension(type);
         if (extension != null) {
-            extensions.remove(type);
-            extensionsByName.remove(extension.getName());
-            extension.setExtendable(null);
+            removeExtension(type, extension);
             removed = true;
         }
 

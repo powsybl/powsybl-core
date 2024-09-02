@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.powerfactory.converter;
 
@@ -70,12 +71,11 @@ class LineConverter extends AbstractConverter {
 
     private void createFromElmLneFromElmTow(DataObject elmTow, DataObject elmLne) {
         List<NodeRef> nodeRefs = checkNodes(elmLne, 2);
-        Optional<LineModel> lineModel = LineModel.createFromElmTow(elmTow, elmLne);
+        LineModel lineModel = LineModel.createFromElmTow(elmTow, elmLne);
 
         NodeRef end1 = nodeRefs.get(0);
         NodeRef end2 = nodeRefs.get(1);
-
-        createLine(end1, end2, elmLne.getLocName(), lineModel.get());
+        createLine(end1, end2, elmLne.getLocName(), lineModel);
     }
 
     private static final class LineModel {
@@ -146,8 +146,8 @@ class LineConverter extends AbstractConverter {
             return 0.0;
         }
 
-        private static Optional<LineModel> createFromElmTow(DataObject elmTow, DataObject elmLne) {
-            Float dline = elmLne.getFloatAttributeValue("dline");
+        private static LineModel createFromElmTow(DataObject elmTow, DataObject elmLne) {
+            float dline = elmLne.getFloatAttributeValue("dline");
             DataObject typTow = getTypeTow(elmTow);
 
             double r = typTow.getDoubleMatrixAttributeValue("R_c1").getEntry(0, 0) * dline;
@@ -155,7 +155,7 @@ class LineConverter extends AbstractConverter {
             double g = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("G_c1").getEntry(0, 0) * dline);
             double b = microSiemensToSiemens(typTow.getDoubleMatrixAttributeValue("B_c1").getEntry(0, 0) * dline);
 
-            return Optional.of(new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5));
+            return new LineModel(r, x, g * 0.5, b * 0.5, g * 0.5, b * 0.5);
         }
 
         private static DataObject getTypeTow(DataObject elmTow) {

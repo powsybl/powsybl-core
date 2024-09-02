@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.test;
 
@@ -180,6 +181,37 @@ public final class PhaseShifterTestCaseFactory {
         network.getTwoWindingsTransformer("PS1")
                 .getPhaseTapChanger()
                 .setTargetDeadband(10.0);
+        return network;
+    }
+
+    public static Network createLocalActivePowerWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        return network;
+    }
+
+    public static Network createLocalCurrentLimiterWithTargetDeadband() {
+        Network network = createWithTargetDeadband();
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
+        return network;
+    }
+
+    public static Network createRemoteActivePowerWithTargetDeadband() {
+        return createRemote(createLocalActivePowerWithTargetDeadband());
+    }
+
+    public static Network createRemoteCurrentLimiterWithTargetDeadband() {
+        return createRemote(createLocalCurrentLimiterWithTargetDeadband());
+    }
+
+    private static Network createRemote(Network network) {
+        network.getTwoWindingsTransformer("PS1")
+                .getPhaseTapChanger()
+                .setRegulationTerminal(network.getLoad("LD2").getTerminal());
         return network;
     }
 }

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_12" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="SwitchedShunt" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="SwitchedShunt" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -35,11 +35,15 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B7-L1 " loadType="UNDEFINED" p0="1.0" q0="1.0" bus="B7" connectableBus="B7"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-4-1 " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4">
-            <iidm:currentLimits1 permanentLimit="325240.65164348925"/>
-            <iidm:currentLimits2 permanentLimit="11708.663459165611"/>
+        <iidm:twoWindingsTransformer id="T-1-4-1 " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B4" connectableBus2="B4" voltageLevelId2="VL4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="325240.65164348925"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="11708.663459165611"/>
+            </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:threeWindingsTransformer id="T-4-2-7-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.144572" b1="-0.1079031826036656" ratedU1="500.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="18.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="16.0" ratedU0="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B2" connectableBus2="B2" voltageLevelId2="VL1" bus3="B7" connectableBus3="B7" voltageLevelId3="VL7">
+        <iidm:threeWindingsTransformer id="T-4-2-7-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.144572" b1="-0.1079031826036656" ratedU1="500.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="18.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="16.0" ratedU0="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B2" connectableBus2="B2" voltageLevelId2="VL1" bus3="B7" connectableBus3="B7" voltageLevelId3="VL7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT" selectedOperationalLimitsGroupId3="DEFAULT">
             <iidm:property name="v" value="0.98627"/>
             <iidm:property name="angle" value="-10.1187"/>
             <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
@@ -48,9 +52,15 @@
             <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0001250156269534"/>
             </iidm:ratioTapChanger3>
-            <iidm:currentLimits1 permanentLimit="116.62475437630441"/>
-            <iidm:currentLimits2 permanentLimit="6447.0780059508215"/>
-            <iidm:currentLimits3 permanentLimit="10861.401939129835"/>
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="116.62475437630441"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="6447.0780059508215"/>
+            </iidm:operationalLimitsGroup2>
+            <iidm:operationalLimitsGroup3 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="10861.401939129835"/>
+            </iidm:operationalLimitsGroup3>
         </iidm:threeWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S3">
@@ -79,7 +89,7 @@
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="2000.0" q0="100.0" bus="B5" connectableBus="B5"/>
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
+        <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" targetDeadband="2.700000000000003" loadTapChangingCapabilities="false" regulating="true" regulationMode="VOLTAGE" regulationValue="18.45">
                 <iidm:terminalRef id="B3-SwSH1"/>
                 <iidm:step r="0.0" x="0.0" g="-9.750000000000004" b="-9.750000000000004" rho="1.0526315789473684"/>
@@ -106,8 +116,12 @@
                 <iidm:step r="0.0" x="0.0" g="9.252267573696148" b="9.252267573696148" rho="0.9567198177676537"/>
                 <iidm:step r="0.0" x="0.0" g="10.250000000000004" b="10.250000000000004" rho="0.9523809523809523"/>
             </iidm:ratioTapChanger>
-            <iidm:currentLimits1 permanentLimit="320750.1495497921"/>
-            <iidm:currentLimits2 permanentLimit="11547.005383792517"/>
+            <iidm:operationalLimitsGroup1 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="320750.1495497921"/>
+            </iidm:operationalLimitsGroup1>
+            <iidm:operationalLimitsGroup2 id="DEFAULT">
+                <iidm:currentLimits permanentLimit="11547.005383792517"/>
+            </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S6">
@@ -122,13 +136,21 @@
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="10000.0" q0="2000.0" bus="B6" connectableBus="B6"/>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="L-4-5-1 " r="0.0" x="90.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
-        <iidm:currentLimits1 permanentLimit="12067.775326601559"/>
-        <iidm:currentLimits2 permanentLimit="12067.775326601559"/>
+    <iidm:line id="L-4-5-1 " r="0.0" x="90.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="12067.775326601559"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="12067.775326601559"/>
+        </iidm:operationalLimitsGroup2>
     </iidm:line>
-    <iidm:line id="L-5-6-1 " r="0.0" x="300.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6">
-        <iidm:currentLimits1 permanentLimit="12194.792385823277"/>
-        <iidm:currentLimits2 permanentLimit="12194.792385823277"/>
+    <iidm:line id="L-5-6-1 " r="0.0" x="300.0" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B6" connectableBus2="B6" voltageLevelId2="VL6" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:operationalLimitsGroup1 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="12194.792385823277"/>
+        </iidm:operationalLimitsGroup1>
+        <iidm:operationalLimitsGroup2 id="DEFAULT">
+            <iidm:currentLimits permanentLimit="12194.792385823277"/>
+        </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:extension id="VL6">
         <slt:slackTerminal id="B6-L1 "/>

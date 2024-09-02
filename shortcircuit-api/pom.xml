@@ -15,12 +15,12 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>6.2.0-SNAPSHOT</version>
+        <version>6.5.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-shortcircuit-api</artifactId>
     <name>Short-circuit API</name>
-    <description>An API to run three phase short-circuit calculations</description>
+    <description>An API to run three-phase short-circuit analysis</description>
 
     <build>
         <plugins>

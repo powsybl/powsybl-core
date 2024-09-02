@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.matpower.model;
 
@@ -29,48 +30,83 @@ public final class MatpowerWriter {
     }
 
     private static Struct fillMatStruct(Struct struct, MatpowerModel model, boolean withBusNames) {
-        List<MBus> buses = model.getBuses();
-        Matrix busesM = Mat5.newMatrix(buses.size(), 13);
-        Cell busesNames = null;
+
+        Matrix busesM = fillBusesMatrix(model.getBuses());
+        Cell busesNames = fillBusesNames(model.getBuses(), withBusNames);
+
+        Matrix gensM = fillGeneratorsMatrix(model.getGenerators());
+        Matrix branchesM = fillBranchesMatrix(model.getBranches());
+        Matrix dcLinesM = fillDcLinesMatrix(model.getDcLines());
+
+        struct.set("version", Mat5.newString(model.getVersion()))
+                .set("baseMVA", Mat5.newScalar(model.getBaseMva()))
+                .set("bus", busesM)
+                .set("gen", gensM)
+                .set("branch", branchesM);
+        if (dcLinesM != null) {
+            struct.set("dcline", dcLinesM);
+        }
+        if (busesNames != null) {
+            struct.set("bus_name", busesNames);
+        }
+        return struct;
+    }
+
+    private static Matrix fillBusesMatrix(List<MBus> buses) {
+        Matrix busesM = Mat5.newMatrix(buses.size(), MatpowerReader.MATPOWER_BUSES_COLUMNS);
+
         for (int row = 0; row < buses.size(); row++) {
             MBus bus = buses.get(row);
-            busesM.setDouble(row, 0, bus.getNumber());
-            busesM.setDouble(row, 1, bus.getType().getValue());
+            busesM.setInt(row, 0, bus.getNumber());
+            busesM.setInt(row, 1, bus.getType().getValue());
             busesM.setDouble(row, 2, bus.getRealPowerDemand());
             busesM.setDouble(row, 3, bus.getReactivePowerDemand());
             busesM.setDouble(row, 4, bus.getShuntConductance());
             busesM.setDouble(row, 5, bus.getShuntSusceptance());
-            busesM.setDouble(row, 6, bus.getAreaNumber());
+            busesM.setInt(row, 6, bus.getAreaNumber());
             busesM.setDouble(row, 7, bus.getVoltageMagnitude());
             busesM.setDouble(row, 8, bus.getVoltageAngle());
             busesM.setDouble(row, 9, bus.getBaseVoltage());
-            busesM.setDouble(row, 10, bus.getLossZone());
+            busesM.setInt(row, 10, bus.getLossZone());
             busesM.setDouble(row, 11, bus.getMaximumVoltageMagnitude());
             busesM.setDouble(row, 12, bus.getMinimumVoltageMagnitude());
-            if (withBusNames && bus.getName() != null) {
-                if (busesNames == null) {
-                    busesNames = Mat5.newCell(buses.size(), 1);
+        }
+        return busesM;
+    }
+
+    private static Cell fillBusesNames(List<MBus> buses, boolean withBusNames) {
+        Cell busesNames = null;
+        if (withBusNames) {
+            for (int row = 0; row < buses.size(); row++) {
+                MBus bus = buses.get(row);
+                if (bus.getName() != null) {
+                    if (busesNames == null) {
+                        busesNames = Mat5.newCell(buses.size(), 1);
+                    }
+                    char[] chars = bus.getName().toCharArray();
+                    Char mChar = Mat5.newChar(1, chars.length);
+                    for (int i = 0; i < chars.length; i++) {
+                        mChar.setChar(i, chars[i]);
+                    }
+                    busesNames.set(row, 0, mChar);
                 }
-                char[] chars = bus.getName().toCharArray();
-                Char mChar = Mat5.newChar(1, chars.length);
-                for (int i = 0; i < chars.length; i++) {
-                    mChar.setChar(i, chars[i]);
-                }
-                busesNames.set(row, 0, mChar);
             }
         }
+        return busesNames;
+    }
 
-        List<MGen> gens = model.getGenerators();
-        Matrix gensM = Mat5.newMatrix(gens.size(), 21);
+    private static Matrix fillGeneratorsMatrix(List<MGen> gens) {
+        Matrix gensM = Mat5.newMatrix(gens.size(), MatpowerReader.MATPOWER_GENERATORS_COLUMNS);
+
         for (int row = 0; row < gens.size(); row++) {
-            gensM.setDouble(row, 0, gens.get(row).getNumber());
+            gensM.setInt(row, 0, gens.get(row).getNumber());
             gensM.setDouble(row, 1, gens.get(row).getRealPowerOutput());
             gensM.setDouble(row, 2, gens.get(row).getReactivePowerOutput());
             gensM.setDouble(row, 3, gens.get(row).getMaximumReactivePowerOutput());
             gensM.setDouble(row, 4, gens.get(row).getMinimumReactivePowerOutput());
             gensM.setDouble(row, 5, gens.get(row).getVoltageMagnitudeSetpoint());
             gensM.setDouble(row, 6, gens.get(row).getTotalMbase());
-            gensM.setDouble(row, 7, gens.get(row).getStatus());
+            gensM.setInt(row, 7, gens.get(row).getStatus());
             gensM.setDouble(row, 8, gens.get(row).getMaximumRealPowerOutput());
             gensM.setDouble(row, 9, gens.get(row).getMinimumRealPowerOutput());
             gensM.setDouble(row, 10, gens.get(row).getPc1());
@@ -85,12 +121,15 @@ public final class MatpowerWriter {
             gensM.setDouble(row, 19, gens.get(row).getRampQ());
             gensM.setDouble(row, 20, gens.get(row).getApf());
         }
+        return gensM;
+    }
 
-        List<MBranch> branches = model.getBranches();
-        Matrix branchesM = Mat5.newMatrix(branches.size(), 13);
+    private static Matrix fillBranchesMatrix(List<MBranch> branches) {
+        Matrix branchesM = Mat5.newMatrix(branches.size(), MatpowerReader.MATPOWER_BRANCHES_COLUMNS);
+
         for (int row = 0; row < branches.size(); row++) {
-            branchesM.setDouble(row, 0, branches.get(row).getFrom());
-            branchesM.setDouble(row, 1, branches.get(row).getTo());
+            branchesM.setInt(row, 0, branches.get(row).getFrom());
+            branchesM.setInt(row, 1, branches.get(row).getTo());
             branchesM.setDouble(row, 2, branches.get(row).getR());
             branchesM.setDouble(row, 3, branches.get(row).getX());
             branchesM.setDouble(row, 4, branches.get(row).getB());
@@ -99,20 +138,40 @@ public final class MatpowerWriter {
             branchesM.setDouble(row, 7, branches.get(row).getRateC());
             branchesM.setDouble(row, 8, branches.get(row).getRatio());
             branchesM.setDouble(row, 9, branches.get(row).getPhaseShiftAngle());
-            branchesM.setDouble(row, 10, branches.get(row).getStatus());
+            branchesM.setInt(row, 10, branches.get(row).getStatus());
             branchesM.setDouble(row, 11, branches.get(row).getAngMin());
             branchesM.setDouble(row, 12, branches.get(row).getAngMax());
         }
+        return branchesM;
+    }
 
-        struct.set("version", Mat5.newString(model.getVersion()))
-                .set("baseMVA", Mat5.newScalar(model.getBaseMva()))
-                .set("bus", busesM)
-                .set("gen", gensM)
-                .set("branch", branchesM);
-        if (busesNames != null) {
-            struct.set("bus_name", busesNames);
+    private static Matrix fillDcLinesMatrix(List<MDcLine> dcLines) {
+        if (dcLines.isEmpty()) {
+            return null;
         }
-        return struct;
+
+        Matrix dcLinesM = Mat5.newMatrix(dcLines.size(), MatpowerReader.MATPOWER_DCLINES_COLUMNS);
+
+        for (int row = 0; row < dcLines.size(); row++) {
+            dcLinesM.setInt(row, 0, dcLines.get(row).getFrom());
+            dcLinesM.setInt(row, 1, dcLines.get(row).getTo());
+            dcLinesM.setInt(row, 2, dcLines.get(row).getStatus());
+            dcLinesM.setDouble(row, 3, dcLines.get(row).getPf());
+            dcLinesM.setDouble(row, 4, dcLines.get(row).getPt());
+            dcLinesM.setDouble(row, 5, dcLines.get(row).getQf());
+            dcLinesM.setDouble(row, 6, dcLines.get(row).getQt());
+            dcLinesM.setDouble(row, 7, dcLines.get(row).getVf());
+            dcLinesM.setDouble(row, 8, dcLines.get(row).getVt());
+            dcLinesM.setDouble(row, 9, dcLines.get(row).getPmin());
+            dcLinesM.setDouble(row, 10, dcLines.get(row).getPmax());
+            dcLinesM.setDouble(row, 11, dcLines.get(row).getQminf());
+            dcLinesM.setDouble(row, 12, dcLines.get(row).getQmaxf());
+            dcLinesM.setDouble(row, 13, dcLines.get(row).getQmint());
+            dcLinesM.setDouble(row, 14, dcLines.get(row).getQmaxt());
+            dcLinesM.setDouble(row, 15, dcLines.get(row).getLoss0());
+            dcLinesM.setDouble(row, 16, dcLines.get(row).getLoss1());
+        }
+        return dcLinesM;
     }
 
     public static void write(MatpowerModel model, OutputStream oStream, boolean withBusNames) throws IOException {

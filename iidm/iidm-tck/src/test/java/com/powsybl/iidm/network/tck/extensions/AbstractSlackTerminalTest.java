@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network.tck.extensions;
 
@@ -50,10 +51,6 @@ public abstract class AbstractSlackTerminalTest {
             .setQ0(50)
             .add();
 
-        Substation s1 = network.newSubstation()
-            .setId("S1")
-            .setCountry(Country.FR)
-            .add();
         VoltageLevel vl1 = s.newVoltageLevel()
             .setId("VL1")
             .setNominalV(400)
@@ -258,5 +255,33 @@ public abstract class AbstractSlackTerminalTest {
         assertNull(vlgen.getExtension(SlackTerminal.class));
         assertNull(vlhv1.getExtension(SlackTerminal.class));
 
+    }
+
+    @Test
+    public void testWithSubnetwork() {
+        Network network1 = createBusBreakerNetwork();
+        SlackTerminal.attach(network1.getBusBreakerView().getBus("B"));
+        Network network2 = EurostagTutorialExample1Factory.create();
+        SlackTerminal.attach(network2.getBusBreakerView().getBus("NHV1"));
+
+        Network merged = Network.merge(network1, network2);
+        network1 = merged.getSubnetwork("test");
+        network2 = merged.getSubnetwork("sim1");
+
+        // still there after merge
+        assertNotNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class));
+        assertNotNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class));
+
+        // we can reset everything (including subnetworks)
+        SlackTerminal.reset(merged);
+        assertNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class));
+        assertNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class));
+
+        // we can reset only a subnetwork
+        SlackTerminal.attach(network1.getBusBreakerView().getBus("B"));
+        SlackTerminal.attach(network2.getBusBreakerView().getBus("NHV1"));
+        SlackTerminal.reset(network1);
+        assertNull(merged.getVoltageLevel("VL").getExtension(SlackTerminal.class)); // reset
+        assertNotNull(merged.getVoltageLevel("VLHV1").getExtension(SlackTerminal.class)); // untouched
     }
 }

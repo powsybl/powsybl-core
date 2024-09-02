@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries.ast;
 
@@ -76,13 +77,12 @@ public final class NodeCalcVisitors {
         // already allocated.
         // The stack have a generic type of <Object> to allow to insert a null Object
         // because ArrayDeque doesn't allow nulls.
-        Deque<Object> resultsStack = preOrderStack;
         while (!postOrderStack.isEmpty()) {
             Object nodeWrapper = postOrderStack.pop();
-            R result = nodeWrapper != NULL ? ((NodeCalc) nodeWrapper).acceptHandle(visitor, arg, resultsStack) : null;
-            resultsStack.push(result == null ? NULL : result);
+            R result = nodeWrapper != NULL ? ((NodeCalc) nodeWrapper).acceptHandle(visitor, arg, preOrderStack) : null;
+            preOrderStack.push(result == null ? NULL : result);
         }
-        Object result = resultsStack.pop();
+        Object result = preOrderStack.pop();
         return result == NULL ? null : (R) result;
     }
 

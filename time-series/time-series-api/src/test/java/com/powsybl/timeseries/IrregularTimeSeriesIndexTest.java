@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.timeseries;
 
@@ -14,7 +15,6 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +36,7 @@ class IrregularTimeSeriesIndexTest {
         assertEquals(2, index.getPointCount());
 
         // test iterator and stream
-        assertEquals(instants, index.stream().collect(Collectors.toList()));
+        assertEquals(instants, index.stream().toList());
         assertEquals(instants, Lists.newArrayList(index.iterator()));
 
         // test to string
@@ -64,6 +64,6 @@ class IrregularTimeSeriesIndexTest {
 
     @Test
     void testContructorError() {
-        assertThrows(IllegalArgumentException.class, () -> IrregularTimeSeriesIndex.create());
+        assertThrows(IllegalArgumentException.class, IrregularTimeSeriesIndex::create);
     }
 }

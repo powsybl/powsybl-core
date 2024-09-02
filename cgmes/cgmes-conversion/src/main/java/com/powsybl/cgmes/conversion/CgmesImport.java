@@ -3,12 +3,15 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.naming.NamingStrategyFactory;
 import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
@@ -20,7 +23,7 @@ import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterScope;
 import com.powsybl.commons.parameters.ParameterType;
-import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
@@ -38,9 +41,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -65,6 +69,7 @@ public class CgmesImport implements Importer {
     }
 
     public CgmesImport(PlatformConfig platformConfig, List<CgmesImportPreProcessor> preProcessors, List<CgmesImportPostProcessor> postProcessors) {
+        this.platformConfig = platformConfig;
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
         this.preProcessors = Objects.requireNonNull(preProcessors).stream()
                 .collect(Collectors.toMap(CgmesImportPreProcessor::getName, e -> e));
@@ -123,12 +128,16 @@ public class CgmesImport implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource ds) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
-        if (cds.exists()) {
-            return true;
+        try {
+            if (cds.exists()) {
+                return true;
+            }
+            // If we are configured to support CIM14,
+            // check if there is this CIM14 data
+            return IMPORT_CIM_14 && cds.existsCim14();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        // If we are configured to support CIM14,
-        // check if there is this CIM14 data
-        return importCim14 && cds.existsCim14();
     }
 
     @Override
@@ -142,27 +151,27 @@ public class CgmesImport implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
+    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);
-        Objects.requireNonNull(reporter);
+        Objects.requireNonNull(reportNode);
         if (Parameter.readBoolean(getFormat(), p, IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER, defaultValueConfig)) {
             SubnetworkDefinedBy separatingBy = SubnetworkDefinedBy.valueOf(Parameter.readString(getFormat(),
                             p, IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER, defaultValueConfig));
             Set<ReadOnlyDataSource> dss = new MultipleGridModelChecker(ds).separate(separatingBy);
             if (dss.size() > 1) {
                 return Network.merge(dss.stream()
-                        .map(ds1 -> importData1(ds1, networkFactory, p, reporter))
+                        .map(ds1 -> importData1(ds1, networkFactory, p, reportNode))
                         .toArray(Network[]::new));
             }
         }
-        return importData1(ds, networkFactory, p, reporter);
+        return importData1(ds, networkFactory, p, reportNode);
     }
 
-    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
-        CgmesModel cgmes = readCgmes(ds, p, reporter);
-        Reporter conversionReporter = reporter.createSubReporter("CGMESConversion", "Importing CGMES file(s)");
-        return new Conversion(cgmes, config(ds, p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReporter);
+    private Network importData1(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
+        CgmesModel cgmes = readCgmes(ds, p, reportNode);
+        ReportNode conversionReportNode = reportNode.newReportNode().withMessageTemplate("CGMESConversion", "Importing CGMES file(s)").add();
+        return new Conversion(cgmes, config(p), activatedPreProcessors(p), activatedPostProcessors(p), networkFactory).convert(conversionReportNode);
     }
 
     static class FilteredReadOnlyDataSource implements ReadOnlyDataSource {
@@ -182,6 +191,11 @@ public class CgmesImport implements Importer {
         @Override
         public boolean exists(String suffix, String ext) throws IOException {
             return ds.exists(suffix, ext) && filter.test(DataSourceUtil.getFileName(getBaseName(), suffix, ext));
+        }
+
+        @Override
+        public boolean isDataExtension(String ext) {
+            return ds.isDataExtension(ext);
         }
 
         @Override
@@ -338,7 +352,7 @@ public class CgmesImport implements Importer {
         }
     }
 
-    public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, Reporter reporter) {
+    public CgmesModel readCgmes(ReadOnlyDataSource ds, Properties p, ReportNode reportNode) {
         TripleStoreOptions options = new TripleStoreOptions();
         String sourceForIidmIds = Parameter.readString(getFormat(), p, SOURCE_FOR_IIDM_ID_PARAMETER, defaultValueConfig);
         if (sourceForIidmIds.equalsIgnoreCase(SOURCE_FOR_IIDM_ID_MRID)) {
@@ -347,8 +361,8 @@ public class CgmesImport implements Importer {
             options.setRemoveInitialUnderscoreForIdentifiers(false);
         }
         options.decodeEscapedIdentifiers(Parameter.readBoolean(getFormat(), p, DECODE_ESCAPED_IDENTIFIERS_PARAMETER, defaultValueConfig));
-        Reporter tripleStoreReporter = reporter.createSubReporter("CGMESTriplestore", "Reading CGMES Triplestore");
-        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReporter, options);
+        ReportNode tripleStoreReportNode = reportNode.newReportNode().withMessageTemplate("CGMESTriplestore", "Reading CGMES Triplestore").add();
+        return CgmesModelFactory.create(ds, boundary(p), tripleStore(p), tripleStoreReportNode, options);
     }
 
     @Override
@@ -357,10 +371,8 @@ public class CgmesImport implements Importer {
         Objects.requireNonNull(to);
         try {
             CgmesOnDataSource fromCgmes = new CgmesOnDataSource(from);
-            // TODO map "from names" to "to names" using base names of data sources
-            for (String fromName : fromCgmes.names()) {
-                String toName = fromName;
-                copyStream(from, to, fromName, toName);
+            for (String name : fromCgmes.names()) {
+                copyStream(from, to, name, name);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -368,25 +380,47 @@ public class CgmesImport implements Importer {
     }
 
     private ReadOnlyDataSource boundary(Properties p) {
-        String loc = Parameter.readString(
+        String location = Parameter.readString(
                 getFormat(),
                 p,
                 boundaryLocationParameter,
                 defaultValueConfig);
-        if (loc == null) {
+        if (location == null) {
             return null;
         }
-        Path ploc = Path.of(loc);
-        if (!Files.exists(ploc)) {
-            LOGGER.warn("Location of boundaries does not exist {}. No attempt to load boundaries will be made", loc);
+        Path path = boundaryPath(location);
+        if (path == null) {
             return null;
         }
         // Check that the Data Source has valid CGMES names
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(ploc);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(path);
         if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
         return ds;
+    }
+
+    Path boundaryPath(String location) {
+        Path path = null;
+        // Check first if the location is present in the file system defined from the platform configuration
+        Optional<Path> configDir = this.platformConfig.getConfigDir();
+        if (configDir.isPresent()) {
+            FileSystem configFileSystem = configDir.get().getFileSystem();
+            if (configFileSystem != FileSystems.getDefault()) {
+                path = configFileSystem.getPath(location);
+                if (!Files.exists(path)) {
+                    LOGGER.warn("Location of boundaries ({}) not found in config file system. An attempt to load boundaries from the default file system will be made", location);
+                    path = null;
+                }
+            }
+        }
+        if (path == null) {
+            path = Path.of(location);
+            if (!Files.exists(path)) {
+                LOGGER.warn("Location of boundaries ({}) not found in default file system. No attempt to load boundaries will be made", location);
+            }
+        }
+        return path;
     }
 
     private String tripleStore(Properties p) {
@@ -397,20 +431,8 @@ public class CgmesImport implements Importer {
                 defaultValueConfig);
     }
 
-    private Conversion.Config config(ReadOnlyDataSource ds, Properties p) {
+    private Conversion.Config config(Properties p) {
         Conversion.Config config = new Conversion.Config()
-                .setAllowUnsupportedTapChangers(
-                        Parameter.readBoolean(
-                                getFormat(),
-                                p,
-                                ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
-                                defaultValueConfig))
-                .setChangeSignForShuntReactivePowerFlowInitialState(
-                        Parameter.readBoolean(
-                                getFormat(),
-                                p,
-                                CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-                                defaultValueConfig))
                 .setConvertBoundary(
                         Parameter.readBoolean(
                                 getFormat(),
@@ -482,14 +504,21 @@ public class CgmesImport implements Importer {
                                 getFormat(),
                                 p,
                                 DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
+                                defaultValueConfig))
+                .setMissingPermanentLimitPercentage(
+                        Parameter.readDouble(
+                                getFormat(),
+                                p,
+                                MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
                                 defaultValueConfig));
+
         String namingStrategy = Parameter.readString(getFormat(), p, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
-        String idMappingFilePath = Parameter.readString(getFormat(), p, ID_MAPPING_FILE_PATH_PARAMETER, defaultValueConfig);
-        if (idMappingFilePath == null) {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv"));
-        } else {
-            config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, ds, ds.getBaseName() + "_id_mapping.csv", Paths.get(idMappingFilePath)));
-        }
+
+        // Build the naming strategy with the default uuid namespace for creating name-based uuids
+        // In fact, when using a naming strategy for CGMES import we should not need an uuid namespace,
+        // because we won't be creating new UUIDs
+        UUID uuidNamespace = CgmesExportContext.DEFAULT_UUID_NAMESPACE;
+        config.setNamingStrategy(NamingStrategyFactory.create(namingStrategy, uuidNamespace));
         return config;
     }
 
@@ -534,9 +563,7 @@ public class CgmesImport implements Importer {
 
     private static final String FORMAT = "CGMES";
 
-    public static final String ALLOW_UNSUPPORTED_TAP_CHANGERS = "iidm.import.cgmes.allow-unsupported-tap-changers";
     public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
-    public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
     public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
     public static final String CREATE_ACTIVE_POWER_CONTROL_EXTENSION = "iidm.import.cgmes.create-active-power-control-extension";
@@ -544,7 +571,6 @@ public class CgmesImport implements Importer {
     public static final String CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE = "iidm.import.cgmes.create-fictitious-switches-for-disconnected-terminals-mode";
     public static final String DECODE_ESCAPED_IDENTIFIERS = "iidm.import.cgmes.decode-escaped-identifiers";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
-    public static final String ID_MAPPING_FILE_PATH = "iidm.import.cgmes.id-mapping-file-path";
     public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String NAMING_STRATEGY = "iidm.import.cgmes.naming-strategy";
     public static final String PRE_PROCESSORS = "iidm.import.cgmes.pre-processors";
@@ -556,23 +582,13 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-conversion-context-as-network-extension";
     public static final String IMPORT_NODE_BREAKER_AS_BUS_BREAKER = "iidm.import.cgmes.import-node-breaker-as-bus-breaker";
     public static final String DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED = "iidm.import.cgmes.disconnect-dangling-line-if-boundary-side-is-disconnected";
+    public static final String MISSING_PERMANENT_LIMIT_PERCENTAGE = "iidm.import.cgmes.missing-permanent-limit-percentage";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS = "iidm.import.cgmes.cgm-with-subnetworks";
     public static final String IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY = "iidm.import.cgmes.cgm-with-subnetworks-defined-by";
 
     public static final String SOURCE_FOR_IIDM_ID_MRID = "mRID";
     public static final String SOURCE_FOR_IIDM_ID_RDFID = "rdfID";
 
-    private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
-            ALLOW_UNSUPPORTED_TAP_CHANGERS,
-            ParameterType.BOOLEAN,
-            "Allow import of potentially unsupported tap changers",
-            Boolean.TRUE);
-    private static final Parameter CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER = new Parameter(
-            CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE,
-            ParameterType.BOOLEAN,
-            "Change the sign of the reactive power flow for shunt in initial state",
-            Boolean.FALSE)
-            .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
     private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(
             CONVERT_BOUNDARY,
             ParameterType.BOOLEAN,
@@ -595,20 +611,12 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Ensure IDs and aliases are unique",
             Boolean.FALSE);
-    private static final Parameter ID_MAPPING_FILE_PATH_PARAMETER = new Parameter(
-            ID_MAPPING_FILE_PATH,
-            ParameterType.STRING,
-            "Path of ID mapping file",
-            null,
-            null,
-            ParameterScope.TECHNICAL);
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(
             NAMING_STRATEGY,
             ParameterType.STRING,
-            "Configure what type of naming strategy you want to use for the provided ID mapping file",
+            "Configure what type of naming strategy you want to use",
             NamingStrategyFactory.IDENTITY,
-            new ArrayList<>(NamingStrategyFactory.LIST))
-            .addAdditionalNames("iidm.import.cgmes.id-mapping-file-naming-strategy");
+            new ArrayList<>(NamingStrategyFactory.LIST));
     private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
             IMPORT_CONTROL_AREAS,
             ParameterType.BOOLEAN,
@@ -638,7 +646,7 @@ public class CgmesImport implements Importer {
             CREATE_ACTIVE_POWER_CONTROL_EXTENSION,
             ParameterType.BOOLEAN,
             "Create active power control extension during import",
-            Boolean.FALSE);
+            Boolean.TRUE);
     private static final Parameter CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE_PARAMETER = new Parameter(
             CREATE_FICTITIOUS_SWITCHES_FOR_DISCONNECTED_TERMINALS_MODE,
             ParameterType.STRING,
@@ -684,14 +692,17 @@ public class CgmesImport implements Importer {
             SubnetworkDefinedBy.MODELING_AUTHORITY.name(),
             Arrays.stream(SubnetworkDefinedBy.values()).map(Enum::name).collect(Collectors.toList()));
 
+    public static final Parameter MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER = new Parameter(
+            MISSING_PERMANENT_LIMIT_PERCENTAGE,
+            ParameterType.DOUBLE,
+            "Percentage applied to lowest TATL limit to use as PATL when PATL is missing",
+            100.);
+
     private static final List<Parameter> STATIC_PARAMETERS = List.of(
-            ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
-            CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
-            ID_MAPPING_FILE_PATH_PARAMETER,
             NAMING_STRATEGY_PARAMETER,
             IMPORT_CONTROL_AREAS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
@@ -705,7 +716,8 @@ public class CgmesImport implements Importer {
             IMPORT_NODE_BREAKER_AS_BUS_BREAKER_PARAMETER,
             DISCONNECT_DANGLING_LINE_IF_BOUNDARY_SIDE_IS_DISCONNECTED_PARAMETER,
             IMPORT_CGM_WITH_SUBNETWORKS_PARAMETER,
-            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER);
+            IMPORT_CGM_WITH_SUBNETWORKS_DEFINED_BY_PARAMETER,
+            MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Parameter preProcessorsParameter;
@@ -714,11 +726,13 @@ public class CgmesImport implements Importer {
     private final Map<String, CgmesImportPreProcessor> preProcessors;
     private final ParameterDefaultValueConfig defaultValueConfig;
 
+    private final PlatformConfig platformConfig;
+
     private static final Logger LOGGER = LoggerFactory.getLogger(CgmesImport.class);
 
     // TODO Allow this property to be configurable
     // Parameters of importers are only passed to importData method,
     // but to decide if we are importers also for CIM 14 files
     // we must implement the exists method, that has not access to parameters
-    private boolean importCim14 = false;
+    private static final boolean IMPORT_CIM_14 = false;
 }

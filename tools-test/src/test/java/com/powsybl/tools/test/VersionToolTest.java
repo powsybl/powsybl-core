@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.tools.test;
 
@@ -31,11 +32,11 @@ class VersionToolTest extends AbstractToolTest {
     }
 
     @Test
-    void run() throws Exception {
-        assertCommand(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS, "",
+    void run() {
+        assertCommandErrorMatch(new String[] {}, CommandLineTools.COMMAND_NOT_FOUND_STATUS,
                 "Available commands are:" + System.lineSeparator() +
                 System.lineSeparator());
-        assertCommand(new String[] {"version"}, CommandLineTools.COMMAND_OK_STATUS, Version.getTableString(platformConfig) + System.lineSeparator(), "");
+        assertCommandSuccessful(new String[] {"version"}, Version.getTableString(platformConfig) + System.lineSeparator());
     }
 
 }

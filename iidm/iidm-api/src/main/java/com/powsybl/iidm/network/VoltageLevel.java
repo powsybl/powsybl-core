@@ -3,6 +3,7 @@
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * SPDX-License-Identifier: MPL-2.0
  */
 package com.powsybl.iidm.network;
 
@@ -143,6 +144,14 @@ import java.util.stream.Stream;
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
  *             <td style="border: 1px solid black">The kind of topology</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Areas</td>
+ *             <td style="border: 1px solid black">Set of Areas</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">List of Areas it belongs to (at most one area for each area type)</td>
  *         </tr>
  *     </tbody>
  * </table>
@@ -827,7 +836,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Switch getSwitch(String switchId);
 
         /**
-         * Get a builer to create a new switch.
+         * Get a builder to create a new switch.
          *
          * @throws com.powsybl.commons.PowsyblException if the topology kind is NODE_BREAKER
          */
@@ -895,6 +904,43 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     }
 
     Optional<Substation> getSubstation();
+
+    /**
+     * Get an iterable on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
+    Iterable<Area> getAreas();
+
+    /**
+     * Get a stream on all the Areas that this voltage level belongs to.
+     *
+     * @return all the areas
+     */
+    Stream<Area> getAreasStream();
+
+    /**
+     * Get the Area that this voltage level belongs to for a given area type.
+     *
+     * @param areaType the area type
+     * @return the optional area or empty if not found
+     */
+    Optional<Area> getArea(String areaType);
+
+    /**
+     * Add the voltage level to an area.
+     *
+     * @param area the area
+     * @throws PowsyblException if the area is in another network or if the voltage level already belongs to an area of the same type
+     */
+    void addArea(Area area);
+
+    /**
+     * Remove the voltage level from an area.
+     *
+     * @param area the area
+     */
+    void removeArea(Area area);
 
     default Substation getNullableSubstation() {
         return getSubstation().orElse(null);
@@ -1248,6 +1294,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return three windings transformer count connected to this voltage level
      */
     int getThreeWindingsTransformerCount();
+
+    /**
+     * Get a builder to create a new ground.
+     */
+    GroundAdder newGround();
+
+    /**
+     * Get grounds.
+     */
+    Iterable<Ground> getGrounds();
+
+    /**
+     * Get grounds.
+     */
+    Stream<Ground> getGroundStream();
+
+    /**
+     * Get ground count.
+     */
+    int getGroundCount();
 
     /**
      * Remove this voltage level from the network.
