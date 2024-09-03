@@ -93,7 +93,7 @@ V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\
 targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
 \end{align*}
 
-(loadflow-validation-laods)=
+(loadflow-validation-loads)=
 ## Loads
 To be implemented, with tests similar to generators with voltage regulation.
 
