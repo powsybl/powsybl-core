@@ -140,7 +140,9 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId);
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalBeTpBdId, originalNlTpBdId);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one
@@ -195,7 +197,9 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId);
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalBeTpBdId, originalNlTpBdId);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one
@@ -254,8 +258,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2022-03-04T05:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2022-03-04T05:30:00Z_1_1D__FM";
         String additionalDependency = "Additional dependency";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, additionalDependency);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId,
+                originalNlTpId, originalBeTpBdId, originalNlTpBdId, additionalDependency);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one
@@ -314,7 +321,9 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId);
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalBeTpBdId, originalNlTpBdId);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one
@@ -375,8 +384,11 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
+        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2022-03-04T05:30:00Z_1_1D__FM";
+        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2022-03-04T05:30:00Z_1_1D__FM";
         String additionalDependency = "Additional dependency";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, additionalDependency);
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId,
+                originalNlTpId, originalBeTpBdId, originalNlTpBdId, additionalDependency);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one
