@@ -254,9 +254,8 @@ class TapPositionModificationTest {
         NetworkModification modification7 = getNetworkModification(TapType.PHASE, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification7.hasImpactOnNetwork(threeWindingNetwork));
 
-        NetworkModification modification8 = getNetworkModification(TapType.RATIO, 0,  threeWindingTransformer.getId(), ThreeSides.ONE);
+        NetworkModification modification8 = getNetworkModification(TapType.RATIO, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification8.hasImpactOnNetwork(threeWindingNetwork));
-
 
         ThreeWindingsTransformer.Leg leg = threeWindingTransformer.getLeg1();
         leg.newPhaseTapChanger()
