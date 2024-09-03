@@ -85,10 +85,7 @@ abstract class AbstractCreateConnectableFeederBays extends AbstractNetworkModifi
             String busOrBusbarSectionId = getBusOrBusbarSectionId(side);
             Identifiable<?> busOrBusbarSection = network.getIdentifiable(busOrBusbarSectionId);
 
-            if (busOrBusbarSection == null) {
-                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-                return impact;
-            } else if (busOrBusbarSection instanceof BusbarSection) {
+            if (busOrBusbarSection instanceof BusbarSection) {
                 if (getPositionOrder(side) == null || getPositionOrder(side) < 0) {
                     impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
                     return impact;

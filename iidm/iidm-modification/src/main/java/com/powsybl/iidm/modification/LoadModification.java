@@ -61,8 +61,7 @@ public class LoadModification extends AbstractLoadModification {
         Load load = network.getLoad(getLoadId());
         if (load == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (p0 != null && Math.abs(p0 - (isRelativeValue() ? load.getP0() : 0)) < EPSILON
-            || q0 != null && Math.abs(q0 - (isRelativeValue() ? load.getQ0() : 0)) < EPSILON) {
+        } else if (compareValues(p0, load.getP0(), isRelativeValue()) && compareValues(q0, load.getQ0(), isRelativeValue())) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;

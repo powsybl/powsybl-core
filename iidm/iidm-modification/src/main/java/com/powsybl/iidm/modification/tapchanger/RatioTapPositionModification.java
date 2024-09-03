@@ -75,16 +75,16 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
         if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (twoWindingsTransformer != null) {
-            if (!twoWindingsTransformer.hasPhaseTapChanger()) {
+            if (!twoWindingsTransformer.hasRatioTapChanger()) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (Math.abs(getTapPosition() - twoWindingsTransformer.getPhaseTapChanger().getTapPosition()) < EPSILON) {
+            } else if (compareValues(getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition(), false)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         } else {
-            PhaseTapChangerHolder ptcHolder = getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, false);
-            if (!ptcHolder.hasPhaseTapChanger()) {
+            RatioTapChangerHolder rtcHolder = getLeg(threeWindingsTransformer, RatioTapChangerHolder::hasRatioTapChanger, false);
+            if (!rtcHolder.hasRatioTapChanger()) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (Math.abs(getTapPosition() - ptcHolder.getPhaseTapChanger().getTapPosition()) < EPSILON) {
+            } else if (compareValues(getTapPosition(), rtcHolder.getRatioTapChanger().getTapPosition(), false)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }

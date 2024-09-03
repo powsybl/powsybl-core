@@ -116,4 +116,25 @@ class ShuntCompensatorModificationTest {
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
     }
+
+    @Test
+    void testHasImpact() {
+        ShuntCompensatorModification modification1 = new ShuntCompensatorModification("SHUNT_NOT_EXISTING", false, null);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification2 = new ShuntCompensatorModification(shunt.getId(), false, null);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification3 = new ShuntCompensatorModification(shunt.getId(), true, 1);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification4 = new ShuntCompensatorModification(shunt.getId(), true, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification5 = new ShuntCompensatorModification(shunt.getId(), true, 0);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification6 = new ShuntCompensatorModification(shunt.getId(), null, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
+    }
 }
