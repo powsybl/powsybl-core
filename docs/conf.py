@@ -126,8 +126,11 @@ html_css_files = ['styles/styles.css']
 
 todo_include_todos = True
 
-# Links to external documentations : python 3 and pandas
+# Links to external documentations
 intersphinx_mapping = {
+    "powsyblopenloadflow": ("https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/", None),
+    "powsybldynawo": ("https://powsybl.readthedocs.io/projects/powsybl-dynawo/en/latest/", None),
+    "powsybldiagram": ("https://powsybl.readthedocs.io/projects/powsybl-diagram/latest/", None)
 }
 intersphinx_disabled_reftypes = ["*"]
 

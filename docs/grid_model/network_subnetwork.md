@@ -287,7 +287,7 @@ A generation part, at boundary side can also be modeled with a constant active p
 
 Resulting flows at the dangling line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
-Dangling lines are key objects for merging networks. Merging will be described soon [here](../features/merging.md).
+Dangling lines are key objects for merging networks. Merging will be described soon [here](TODO).
 
 **Characteristics**
 
