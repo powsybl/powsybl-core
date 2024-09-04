@@ -247,9 +247,10 @@ public class CgmesExport implements Exporter {
         // Updated SV model depends on updated SSH models and original TP and TP_BD models
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.updatedSsh.getId()).collect(Collectors.toSet()));
         updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTp.getId()).collect(Collectors.toSet()));
-        updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTpBd.getId()).collect(Collectors.toSet()));
         if (boundaryTpId != null) {
             updatedCgmSvModel.addDependentOn(boundaryTpId);
+        } else {
+            updatedCgmSvModel.addDependentOn(igmModels.stream().map(m -> m.originalTpBd.getId()).collect(Collectors.toSet()));
         }
     }
 

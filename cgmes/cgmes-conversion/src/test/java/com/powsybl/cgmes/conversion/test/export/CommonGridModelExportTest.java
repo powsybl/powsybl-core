@@ -201,8 +201,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_2_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        String commonTpBdId = "Common TP_BD model ID";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, commonTpBdId);
+        String originalTpBdId = "Common TP_BD model ID";
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalTpBdId);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -263,10 +263,10 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
-        String commonTpBdId = "Common TP_BD model ID";
+        String originalTpBdId = "Common TP_BD model ID";
         String additionalDependency = "Additional dependency";
         Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId,
-                originalNlTpId, commonTpBdId, additionalDependency);
+                originalNlTpId, originalTpBdId, additionalDependency);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -301,6 +301,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "Regional Coordination Center");
         exportParams.put(CgmesExport.MODEL_DESCRIPTION, "Common Grid Model export");
         exportParams.put(CgmesExport.MODEL_VERSION, "4");
+        exportParams.put(CgmesExport.BOUNDARY_TP_ID, "ENTSOE TP_BD model ID");
         String basename = "test_bare+properties";
         network.write("CGMES", exportParams, tmpDir.resolve(basename));
         String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
@@ -327,9 +328,8 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2021-02-03T04:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2021-02-03T04:30:00Z_1_1D__FM";
-        String originalBeTpBdId = "urn:uuid:Network_BE_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
-        String originalNlTpBdId = "urn:uuid:Network_NL_N_TOPOLOGY_BOUNDARY_2021-02-03T04:30:00Z_1_1D__FM";
-        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalBeTpBdId, originalNlTpBdId);
+        String originalTpBdId = "ENTSOE TP_BD model ID";
+        Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId, originalNlTpId, originalTpBdId);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
@@ -366,6 +366,7 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         exportParams.put(CgmesExport.MODELING_AUTHORITY_SET, "Regional Coordination Center");
         exportParams.put(CgmesExport.MODEL_DESCRIPTION, "Common Grid Model export");
         exportParams.put(CgmesExport.MODEL_VERSION, "4");
+        exportParams.put(CgmesExport.BOUNDARY_TP_ID, "ENTSOE TP_BD model ID");
         String basename = "test_bare+models+properties";
         network.write("CGMES", exportParams, tmpDir.resolve(basename));
         String updatedBeSshXml = Files.readString(tmpDir.resolve(basename + "_BE_SSH.xml"));
@@ -394,10 +395,10 @@ class CommonGridModelExportTest extends AbstractSerDeTest {
         String updatedNlSshId = "urn:uuid:Network_NL_N_STEADY_STATE_HYPOTHESIS_2022-03-04T05:30:00Z_4_1D__FM";
         String originalBeTpId = "urn:uuid:Network_BE_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
         String originalNlTpId = "urn:uuid:Network_NL_N_TOPOLOGY_2022-03-04T05:30:00Z_1_1D__FM";
-        String commonTpBdId = "Common TP_BD model ID";
+        String originalTpBdId = "ENTSOE TP_BD model ID";  // the parameter prevails on the extension
         String additionalDependency = "Additional dependency";
         Set<String> expectedDependencies = Set.of(updatedBeSshId, updatedNlSshId, originalBeTpId,
-                originalNlTpId, commonTpBdId, additionalDependency);
+                originalNlTpId, originalTpBdId, additionalDependency);
         assertEquals(expectedDependencies, getOccurrences(updatedCgmSvXml, REGEX_DEPENDENT_ON));
 
         // Each updated IGM SSH should supersede the original one and depend on the original EQ
