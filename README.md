@@ -32,7 +32,7 @@ By participating, you are expected to uphold this code. Please report unacceptab
 
 This document describes how to build the code of PowSyBl Core. If you just want to run PowSyBl demos, please visit
 https://www.powsybl.org/ where downloads will be available soon. If you want guidance on how to start building your own
-application based on PowSyBl, please visit the [tutorials](https://www.powsybl.org/pages/documentation/developer/tutorials/) page.
+application based on PowSyBl, please visit the [tutorials](TODO) page.
 
 The PowSyBl Core project is not a standalone project. Read on to learn how to modify the core code, be it for fun, for
 diagnosing bugs, for improving your understanding of the framework, or for preparing pull requests to suggest improvements!
