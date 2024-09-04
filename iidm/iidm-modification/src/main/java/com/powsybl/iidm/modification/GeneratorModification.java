@@ -57,15 +57,18 @@ public class GeneratorModification extends AbstractNetworkModification {
         }
         if (modifs.getVoltageRegulatorOn() != null) {
             if (Double.isNaN(g.getTargetV()) && modifs.getVoltageRegulatorOn().booleanValue()) {
-                double plausibleTargetV = VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
-                        g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
-                g.setTargetV(plausibleTargetV);
+                g.setTargetV(getPlausibleTargetV(g));
             }
             g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
         }
         if (modifs.getTargetP() != null || modifs.getDeltaTargetP() != null) {
             applyTargetP(g, skipOtherConnectionChange);
         }
+    }
+
+    private double getPlausibleTargetV(Generator g) {
+        return VoltageRegulationUtils.getTargetVForRegulatingElement(g.getNetwork(), g.getRegulatingTerminal().getBusView().getBus(),
+            g.getId(), IdentifiableType.GENERATOR).orElse(g.getRegulatingTerminal().getBusView().getBus().getV());
     }
 
     private void applyTargetP(Generator g, boolean skipOtherConnectionChange) {
@@ -215,13 +218,14 @@ public class GeneratorModification extends AbstractNetworkModification {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if ((modifs.getMinP() == null || Math.abs(modifs.getMinP() - g.getMinP()) < EPSILON)
-            && (modifs.getMaxP() == null || Math.abs(modifs.getMaxP() - g.getMaxP()) < EPSILON)
-            && (modifs.getTargetV() == null || Math.abs(modifs.getTargetV() - g.getTargetV()) < EPSILON)
-            && (modifs.getTargetQ() == null || Math.abs(modifs.getTargetQ() - g.getTargetQ()) < EPSILON)
+        } else if (compareValues(modifs.getMinP(), g.getMinP(), false)
+            && compareValues(modifs.getMaxP(), g.getMaxP(), false)
+            && compareValues(modifs.getTargetV(), g.getTargetV(), false)
+            && compareValues(modifs.getTargetQ(), g.getTargetQ(), false)
             && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
             && (modifs.getVoltageRegulatorOn() == null
-            || modifs.getVoltageRegulatorOn() == g.isVoltageRegulatorOn() && modifs.getVoltageRegulatorOn() && !Double.isNaN(g.getTargetV()))
+            || (!Double.isNaN(g.getTargetV()) || !modifs.getVoltageRegulatorOn() || compareValues(getPlausibleTargetV(g), g.getTargetV(), false))
+            && modifs.getVoltageRegulatorOn() == g.isVoltageRegulatorOn())
             && modifs.getTargetP() == null && modifs.getDeltaTargetP() == null) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }

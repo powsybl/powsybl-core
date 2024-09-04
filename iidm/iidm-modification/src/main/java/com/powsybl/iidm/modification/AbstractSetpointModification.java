@@ -66,11 +66,11 @@ public abstract class AbstractSetpointModification<T> extends AbstractNetworkMod
         T networkElement = getNetworkElement(network, elementId);
         if (networkElement == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (voltageSetpoint != null
-            && (networkElement instanceof StaticVarCompensator staticVarCompensator && Math.abs(voltageSetpoint - staticVarCompensator.getVoltageSetpoint()) < EPSILON
+        } else if ((voltageSetpoint == null
+            || networkElement instanceof StaticVarCompensator staticVarCompensator && Math.abs(voltageSetpoint - staticVarCompensator.getVoltageSetpoint()) < EPSILON
             || networkElement instanceof VscConverterStation vscConverterStation && Math.abs(voltageSetpoint - vscConverterStation.getVoltageSetpoint()) < EPSILON)
-            || reactivePowerSetpoint != null
-            && (networkElement instanceof StaticVarCompensator staticVarCompensator && Math.abs(reactivePowerSetpoint - staticVarCompensator.getReactivePowerSetpoint()) < EPSILON
+            && (reactivePowerSetpoint == null
+            || networkElement instanceof StaticVarCompensator staticVarCompensator && Math.abs(reactivePowerSetpoint - staticVarCompensator.getReactivePowerSetpoint()) < EPSILON
             || networkElement instanceof VscConverterStation vscConverterStation && Math.abs(reactivePowerSetpoint - vscConverterStation.getReactivePowerSetpoint()) < EPSILON)) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
