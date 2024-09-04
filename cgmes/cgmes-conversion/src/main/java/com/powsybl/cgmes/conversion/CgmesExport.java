@@ -107,12 +107,13 @@ public class CgmesExport implements Exporter {
     private void exportCGM(Network network, DataSource dataSource, CgmesExportContext context) {
         checkCgmConsistency(network, context);
 
-        // Initialize models for export. The original IGM TP and SSH don't get exported,
+        // Initialize models for export. The original IGM EQ, SSH, TP and TP_BD don't get exported,
         // but we need to init their models to retrieve their IDs when building the dependencies.
         Map<Network, IgmModelsForCgm> igmModels = new HashMap<>();
         for (Network subnetwork : network.getSubnetworks()) {
             IgmModelsForCgm igmModelsForCgm = new IgmModelsForCgm(
                     initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, true),
+                    initializeModelForExport(subnetwork, CgmesSubset.EQUIPMENT, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.STEADY_STATE_HYPOTHESIS, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY, context, false, false),
                     initializeModelForExport(subnetwork, CgmesSubset.TOPOLOGY_BOUNDARY, context, false, false)
@@ -229,16 +230,17 @@ public class CgmesExport implements Exporter {
 
     /**
      * Update cross dependencies between the subset models (including boundaries) through the dependentOn relationship.
-     * The IGMs updated SSH supersede the original ones.
+     * The IGMs updated SSH supersede the original ones and depend on the original EQ. Other dependencies are kept.
      * The CGM updated SV depends on the IGMs updated SSH and on the IGMs original TP and TP_BD.
      * @param igmModels For each IGM: the updated SSH model and the original SSH, TP and TP_BD models.
      * @param updatedCgmSvModel The SV model for the CGM.
      * @param boundaryTpId The model id for the TP_BD subset.
      */
     private void updateDependenciesCGM(Collection<IgmModelsForCgm> igmModels, CgmesMetadataModel updatedCgmSvModel, String boundaryTpId) {
+        // Each updated SSH model depends on the original EQ model
+        igmModels.forEach(m -> m.updatedSsh.addDependentOn(m.originalEq.getId()));
+
         // Each updated SSH model supersedes the original one
-        // Clear previous dependencies
-        igmModels.forEach(m -> m.updatedSsh.clearDependencies());
         igmModels.forEach(m -> m.updatedSsh.clearSupersedes());
         igmModels.forEach(m -> m.updatedSsh.addSupersedes(m.originalSsh.getId()));
 
@@ -499,12 +501,15 @@ public class CgmesExport implements Exporter {
      */
     private static class IgmModelsForCgm {
         CgmesMetadataModel updatedSsh;
+        CgmesMetadataModel originalEq;
         CgmesMetadataModel originalSsh;
         CgmesMetadataModel originalTp;
         CgmesMetadataModel originalTpBd;
 
-        public IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalSsh, CgmesMetadataModel originalTp, CgmesMetadataModel originalTpBd) {
+        public IgmModelsForCgm(CgmesMetadataModel updatedSsh, CgmesMetadataModel originalEq, CgmesMetadataModel originalSsh,
+                               CgmesMetadataModel originalTp, CgmesMetadataModel originalTpBd) {
             this.updatedSsh = updatedSsh;
+            this.originalEq = originalEq;
             this.originalSsh = originalSsh;
             this.originalTp = originalTp;
             this.originalTpBd = originalTpBd;
