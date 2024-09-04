@@ -51,12 +51,16 @@ public abstract class AbstractTripping extends AbstractNetworkModification imple
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         impact = DEFAULT_IMPACT;
-        Set<Switch> switchesToOpen = new HashSet<>();
-        Set<Terminal> terminalsToDisconnect = new HashSet<>();
+        if (network.getIdentifiable(id) == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            Set<Switch> switchesToOpen = new HashSet<>();
+            Set<Terminal> terminalsToDisconnect = new HashSet<>();
 
-        traverse(network, switchesToOpen, terminalsToDisconnect);
-        if (switchesToOpen.isEmpty()) {
-            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            traverse(network, switchesToOpen, terminalsToDisconnect);
+            if (switchesToOpen.isEmpty() && terminalsToDisconnect.isEmpty()) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
         }
         return impact;
     }
