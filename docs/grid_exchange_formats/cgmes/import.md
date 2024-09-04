@@ -519,7 +519,7 @@ Optional property that defines which naming strategy is used to transform CGMES 
 **iidm.import.cgmes.post-processors**  
 Optional property that defines all the CGMES post-processors which will be activated after import.
 By default, it is an empty list.
-One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](../../developer/repositories/powsybl-diagram.md) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
+One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](https://github.com/powsybl/powsybl-diagram) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
 
 **iidm.import.cgmes.powsybl-triplestore**  
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
