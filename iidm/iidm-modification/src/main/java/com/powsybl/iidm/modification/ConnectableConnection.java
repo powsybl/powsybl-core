@@ -81,7 +81,7 @@ public class ConnectableConnection extends AbstractNetworkModification {
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         impact = DEFAULT_IMPACT;
         Identifiable<?> identifiable = network.getIdentifiable(connectableId);
-        if (identifiable == null) {
+        if (!(identifiable instanceof Connectable<?> || identifiable instanceof TieLine || identifiable instanceof HvdcLine)) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (identifiable instanceof Connectable<?> connectable && connectable.getTerminals().stream().allMatch(Terminal::isConnected)
             || identifiable instanceof TieLine tieLine && tieLine.getTerminal1().isConnected() && tieLine.getTerminal2().isConnected()

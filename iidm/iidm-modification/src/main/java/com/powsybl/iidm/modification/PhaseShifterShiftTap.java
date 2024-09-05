@@ -66,9 +66,9 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
             PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
             int tapPosition = Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
                 phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition());
-            if (Math.abs(tapPosition - phaseShifter.getPhaseTapChanger().getTapPosition()) < EPSILON
-                && !phaseShifter.getPhaseTapChanger().isRegulating()
-                && phaseShifter.getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+            if (Math.abs(tapPosition - phaseTapChanger.getTapPosition()) < EPSILON
+                && !phaseTapChanger.isRegulating()
+                && phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }

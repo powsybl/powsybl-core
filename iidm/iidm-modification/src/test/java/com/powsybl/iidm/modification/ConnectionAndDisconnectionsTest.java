@@ -612,19 +612,43 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     @Test
     void testHasImpact() {
         Network network = createNetwork();
+
+        // Unknown element
         UnplannedDisconnection disconnection = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("ELEMENT_NOT_PRESENT")
             .withFictitiousSwitchesOperable(false)
             .build();
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, disconnection.hasImpactOnNetwork(network));
+        ConnectableConnection connectionUnknownElement = new ConnectableConnectionBuilder()
+            .withIdentifiableId("ELEMENT_NOT_PRESENT")
+            .withFictitiousSwitchesOperable(false)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, connectionUnknownElement.hasImpactOnNetwork(network));
 
-        PlannedDisconnection plannedDisconnection = new PlannedDisconnectionBuilder()
+        // Not a connectable, nor a TieLine nor a HvdcLine
+        UnplannedDisconnection voltageLevelDisconnection = new UnplannedDisconnectionBuilder()
+            .withIdentifiableId("VL1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, voltageLevelDisconnection.hasImpactOnNetwork(network));
+        ConnectableConnection connectionVoltageLevel = new ConnectableConnectionBuilder()
+            .withIdentifiableId("VL1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, connectionVoltageLevel.hasImpactOnNetwork(network));
+
+        // Connectable
+        PlannedDisconnection disconnectionConnectable = new PlannedDisconnectionBuilder()
             .withIdentifiableId("L1")
             .build();
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, plannedDisconnection.hasImpactOnNetwork(network));
-
-        plannedDisconnection.apply(network);
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, plannedDisconnection.hasImpactOnNetwork(network));
+        ConnectableConnection connectionConnectable = new ConnectableConnectionBuilder()
+            .withIdentifiableId("L1")
+            .build();
+        assertImpactOfConnectDisconnect(network,
+            connectionConnectable, NetworkModificationImpact.NO_IMPACT_ON_NETWORK,
+            disconnectionConnectable, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        disconnectionConnectable.apply(network);
+        assertImpactOfConnectDisconnect(network,
+            connectionConnectable, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionConnectable, NetworkModificationImpact.NO_IMPACT_ON_NETWORK);
 
         // Add tie line
         DanglingLine nhv1xnode1 = network.getVoltageLevel("VL2").newDanglingLine()
@@ -656,21 +680,35 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .add();
 
         // Connection
-        ConnectableConnection connection = new ConnectableConnectionBuilder()
+        ConnectableConnection connectionTieLine = new ConnectableConnectionBuilder()
             .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, connection.hasImpactOnNetwork(network));
-
         UnplannedDisconnection disconnectionTieLine = new UnplannedDisconnectionBuilder()
             .withIdentifiableId("NHV1_NHV2_1")
             .withFictitiousSwitchesOperable(true)
             .build();
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, disconnectionTieLine.hasImpactOnNetwork(network));
-        disconnectionTieLine.apply(network);
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, disconnectionTieLine.hasImpactOnNetwork(network));
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, connection.hasImpactOnNetwork(network));
+        // Both sides are connected
+        assertImpactOfConnectDisconnect(network,
+            connectionTieLine, NetworkModificationImpact.NO_IMPACT_ON_NETWORK,
+            disconnectionTieLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // One side is disconnected
+        network.getTieLine("NHV1_NHV2_1").getTerminal2().disconnect();
+        assertImpactOfConnectDisconnect(network,
+            connectionTieLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionTieLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // Only the other side is disconnected
+        network.getTieLine("NHV1_NHV2_1").getTerminal2().connect();
+        network.getTieLine("NHV1_NHV2_1").getTerminal1().disconnect();
+        assertImpactOfConnectDisconnect(network,
+            connectionTieLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionTieLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // Both sides are disconnected
+        network.getTieLine("NHV1_NHV2_1").getTerminal2().disconnect();
+        assertImpactOfConnectDisconnect(network,
+            connectionTieLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionTieLine, NetworkModificationImpact.NO_IMPACT_ON_NETWORK);
 
         // Hvdc line
         Network networkHvdc = HvdcTestNetwork.createLcc();
@@ -683,12 +721,32 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .withFictitiousSwitchesOperable(false)
             .withOnlyBreakersOperable(true)
             .build();
+        // Both sides are connected
+        assertImpactOfConnectDisconnect(networkHvdc,
+            connectionHvdcLine, NetworkModificationImpact.NO_IMPACT_ON_NETWORK,
+            disconnectionHvdcLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // One side is disconnected
+        networkHvdc.getHvdcLine("L").getConverterStation2().getTerminal().disconnect();
+        assertImpactOfConnectDisconnect(networkHvdc,
+            connectionHvdcLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionHvdcLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // Only the other side is disconnected
+        networkHvdc.getHvdcLine("L").getConverterStation1().getTerminal().disconnect();
+        networkHvdc.getHvdcLine("L").getConverterStation2().getTerminal().connect();
+        assertImpactOfConnectDisconnect(networkHvdc,
+            connectionHvdcLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionHvdcLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK);
+        // Both sides are disconnected
+        networkHvdc.getHvdcLine("L").getConverterStation2().getTerminal().disconnect();
+        assertImpactOfConnectDisconnect(networkHvdc,
+            connectionHvdcLine, NetworkModificationImpact.HAS_IMPACT_ON_NETWORK,
+            disconnectionHvdcLine, NetworkModificationImpact.NO_IMPACT_ON_NETWORK);
+    }
 
-        // Disconnection
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, connectionHvdcLine.hasImpactOnNetwork(networkHvdc));
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, disconnectionHvdcLine.hasImpactOnNetwork(networkHvdc));
-        disconnectionHvdcLine.apply(networkHvdc);
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, disconnectionHvdcLine.hasImpactOnNetwork(networkHvdc));
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, connectionHvdcLine.hasImpactOnNetwork(networkHvdc));
+    private void assertImpactOfConnectDisconnect(Network network,
+                                                 ConnectableConnection connection, NetworkModificationImpact connectionImpact,
+                                                 AbstractDisconnection disconnection, NetworkModificationImpact disconnectionImpact) {
+        assertEquals(connectionImpact, connection.hasImpactOnNetwork(network));
+        assertEquals(disconnectionImpact, disconnection.hasImpactOnNetwork(network));
     }
 }
