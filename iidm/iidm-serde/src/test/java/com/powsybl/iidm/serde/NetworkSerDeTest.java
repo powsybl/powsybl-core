@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtensionSerDe;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.DeserializerContext;
 import com.powsybl.commons.io.SerializerContext;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.*;
@@ -114,6 +115,21 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
         Path file2 = tmpDir.resolve("n2.xml");
         NetworkSerDe.write(network2, file2);
         assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+    }
+
+    @Test
+    void testCopyFormat() throws IOException {
+        Network network = createEurostagTutorialExample1();
+        Path file1 = tmpDir.resolve("n.xml");
+        NetworkSerDe.write(network, file1);
+        Network network2 = NetworkSerDe.copy(network);
+        Path file2 = tmpDir.resolve("n2.xml");
+        NetworkSerDe.write(network2, file2);
+        assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+        Network network3 = NetworkSerDe.copy(network, TreeDataFormat.BIN);
+        Path file3 = tmpDir.resolve("n3.xml");
+        NetworkSerDe.write(network3, file3);
+        assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file3));
     }
 
     @AutoService(ExtensionSerDe.class)

@@ -874,10 +874,36 @@ public final class NetworkSerDe {
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
+        return copy(network, networkFactory, executor, TreeDataFormat.XML);
+    }
+
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network the network to copy
+     * @param format the converter to use to export/import the network
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, TreeDataFormat format) {
+        return copy(network, NetworkFactory.findDefault(), format);
+    }
+
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network        the network to copy
+     * @param networkFactory the network factory to use for the copy
+     * @param format the converter to use to export/import the network
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, NetworkFactory networkFactory, TreeDataFormat format) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
+    }
+
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
-        TreeDataFormat format = TreeDataFormat.BIN;
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setFormat(format);
         ImportOptions importOptions = new ImportOptions();
