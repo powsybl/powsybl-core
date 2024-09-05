@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class BatteryModificationTest {
+class BatteryModificationTest {
 
     private Network network;
     private Battery battery;
