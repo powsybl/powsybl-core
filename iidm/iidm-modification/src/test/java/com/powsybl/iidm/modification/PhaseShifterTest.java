@@ -48,14 +48,14 @@ class PhaseShifterTest {
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        NetworkModification modification4 =  new PhaseShifterSetAsFixedTap("TWT", 32);
+        NetworkModification modification4 = new PhaseShifterSetAsFixedTap("TWT", 32);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getRatioTapChanger().setRegulating(false);
         twoWindingsTransformer.getPhaseTapChanger().setRegulationValue(225);
         twoWindingsTransformer.getPhaseTapChanger().setTargetDeadband(300);
         twoWindingsTransformer.getPhaseTapChanger().setRegulating(true);
-        NetworkModification modification5 =  new PhaseShifterSetAsFixedTap("TWT", 32);
+        NetworkModification modification5 = new PhaseShifterSetAsFixedTap("TWT", 32);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
     }
 
@@ -71,14 +71,14 @@ class PhaseShifterTest {
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        NetworkModification modification4 =  new PhaseShifterShiftTap("TWT", 1);
+        NetworkModification modification4 = new PhaseShifterShiftTap("TWT", 1);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getRatioTapChanger().setRegulating(false);
         twoWindingsTransformer.getPhaseTapChanger().setRegulationValue(225);
         twoWindingsTransformer.getPhaseTapChanger().setTargetDeadband(300);
         twoWindingsTransformer.getPhaseTapChanger().setRegulating(true);
-        NetworkModification modification5 =  new PhaseShifterShiftTap("TWT", 1);
+        NetworkModification modification5 = new PhaseShifterShiftTap("TWT", 1);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
     }
 
