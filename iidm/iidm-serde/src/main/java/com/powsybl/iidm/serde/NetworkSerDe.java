@@ -877,11 +877,16 @@ public final class NetworkSerDe {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
+        TreeDataFormat format = TreeDataFormat.BIN;
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setFormat(format);
+        ImportOptions importOptions = new ImportOptions();
+        importOptions.setFormat(format);
         PipedOutputStream pos = new PipedOutputStream();
         try (InputStream is = new PipedInputStream(pos)) {
             executor.execute(() -> {
                 try {
-                    write(network, pos);
+                    write(network, exportOptions, pos);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 } finally {
@@ -892,7 +897,7 @@ public final class NetworkSerDe {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory, ReportNode.NO_OP);
+            return read(is, importOptions, null, networkFactory, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
