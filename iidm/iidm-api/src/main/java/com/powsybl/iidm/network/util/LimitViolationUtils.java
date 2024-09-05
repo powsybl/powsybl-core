@@ -12,9 +12,7 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  *
@@ -84,16 +82,32 @@ public final class LimitViolationUtils {
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return null;
         }
-        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
+        List<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits()
+            .stream().sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getValue)
+                .thenComparing(LoadingLimits.TemporaryLimit::getAcceptableDuration, Comparator.reverseOrder())).toList();
         String previousLimitName = PERMANENT_LIMIT_NAME;
         double previousLimit = permanentLimit;
-        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
+        int previousAcceptableDuration = 0; // never mind initialisation it will be override with first loop
+        for (int c = 0; c < temporaryLimits.size(); c++) { // iterate in ascending order
+            LoadingLimits.TemporaryLimit tl = temporaryLimits.get(c);
             if (i >= previousLimit && i < tl.getValue()) {
-                return new OverloadImpl(tl, previousLimitName, previousLimit,
-                    limitsContainer.isDistinct() ? ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getTemporaryLimitReduction(tl.getAcceptableDuration()) : 1);
+                if (c == 0) {
+                    return new OverloadImpl(temporaryLimits.get(0), previousLimitName,
+                        limitsContainer.isDistinct() ?
+                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalPermanentLimit() : previousLimit,
+                        limitsContainer.isDistinct() ?
+                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : 1);
+                } else {
+                    return new OverloadImpl(tl, previousLimitName,
+                        limitsContainer.isDistinct() ?
+                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalTemporaryLimit(previousAcceptableDuration) : previousLimit,
+                        limitsContainer.isDistinct() ?
+                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getTemporaryLimitReduction(previousAcceptableDuration) : 1);
+                }
             }
             previousLimitName = tl.getName();
             previousLimit = tl.getValue();
+            previousAcceptableDuration = tl.getAcceptableDuration();
         }
         return null;
     }
