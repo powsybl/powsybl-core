@@ -213,8 +213,8 @@ class SecurityTest {
     private static void assertViolations(List<LimitViolation> violations) {
         assertEquals(5, violations.size());
         violations.forEach(violation -> {
-            assertTrue(Arrays.asList("VLHV1", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
-            if ("VLHV1".equals(violation.getSubjectId())) {
+            assertTrue(Arrays.asList("VLHV1_0", "NHV1_NHV2_1", "NHV1_NHV2_2").contains(violation.getSubjectId()));
+            if ("VLHV1_0".equals(violation.getSubjectId())) {
                 assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());
             } else {
                 assertEquals(LimitViolationType.CURRENT, violation.getLimitType());

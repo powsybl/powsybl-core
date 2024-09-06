@@ -26,6 +26,12 @@ public final class LimitViolationHelper {
         Objects.requireNonNull(limitViolation);
 
         Identifiable<?> identifiable = network.getIdentifiable(limitViolation.getSubjectId());
+        if (identifiable == null) {
+            Bus bus = network.getBusView().getBus(limitViolation.getSubjectId());
+            if (bus != null) {
+                return bus.getVoltageLevel();
+            }
+        }
         if (limitViolation.getLimitType() == LimitViolationType.LOW_VOLTAGE_ANGLE || limitViolation.getLimitType() == LimitViolationType.HIGH_VOLTAGE_ANGLE) {
             VoltageAngleLimit limit = network.getVoltageAngleLimit(limitViolation.getSubjectId());
             if (limit != null) {

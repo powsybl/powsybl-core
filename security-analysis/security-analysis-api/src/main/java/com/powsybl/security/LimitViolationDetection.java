@@ -206,12 +206,12 @@ public final class LimitViolationDetection {
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
+            consumer.accept(new LimitViolation(bus.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), 1., value));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
+            consumer.accept(new LimitViolation(bus.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
                     vl.getHighVoltageLimit(), 1., value));
         }
     }
