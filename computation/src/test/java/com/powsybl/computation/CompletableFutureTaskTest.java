@@ -63,8 +63,8 @@ class CompletableFutureTaskTest {
                     waitForDone = new CountDownLatch(1);
                     try {
                         command.run();
-                    } catch (Exception exception) {
-                        MyTestExecutorWithException.this.exception = exception;
+                    } catch (Exception e) {
+                        MyTestExecutorWithException.this.exception = e;
                     } finally {
                         waitForDone.countDown();
                     }
