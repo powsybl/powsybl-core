@@ -40,8 +40,37 @@ class CompletableFutureTaskTest {
                 Executors.newSingleThreadExecutor(),
                 Executors.newCachedThreadPool(),
                 Executors.newWorkStealingPool(),
+                new MyTestExecutorWithException(),
                 ForkJoinPool.commonPool()
         );
+    }
+
+    // Very basic, spawn a new thread
+    // and allow to wait for the end of the command
+    // just keep exception to be able to assert,
+    // you should only it to launch one command
+    // because it has just one latch and one exception
+    private static class MyTestExecutorWithException implements Executor {
+
+        Exception exception = null;
+        CountDownLatch waitForDone;
+
+        @Override
+        public void execute(Runnable command) {
+            (new Thread() {
+                @Override
+                public void run() {
+                    waitForDone = new CountDownLatch(1);
+                    try {
+                        command.run();
+                    } catch (Exception exception) {
+                        MyTestExecutorWithException.this.exception = exception;
+                    } finally {
+                        waitForDone.countDown();
+                    }
+                }
+            }).start();
+        }
     }
 
     @ParameterizedTest
@@ -125,6 +154,10 @@ class CompletableFutureTaskTest {
         //Second call to cancel should return false
         cancelled = task.cancel(true);
         assertFalse(cancelled);
+        if (executor instanceof MyTestExecutorWithException myTestExecutor) {
+            myTestExecutor.waitForDone.await();
+            assertNull(myTestExecutor.exception);
+        }
     }
 
     @ParameterizedTest
