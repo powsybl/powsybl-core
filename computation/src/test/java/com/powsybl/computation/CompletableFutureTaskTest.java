@@ -45,10 +45,10 @@ class CompletableFutureTaskTest {
         );
     }
 
-    // Very basic, spawn a new thread
-    // and allow to wait for the end of the command
-    // just keep exception to be able to assert,
-    // you should only it to launch one command
+    // Very basic executor that spawns a new thread
+    // and allows to wait for the end of the command.
+    // It just keeps an exception to be able to assert it.
+    // You should use it to launch only one command
     // because it has just one latch and one exception
     private static class MyTestExecutorWithException implements Executor {
 
