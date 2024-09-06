@@ -47,6 +47,17 @@ public class Parameter {
         this.categoryKey = categoryKey;
     }
 
+    public Parameter(List<String> names, ParameterType type, String description, Object defaultValue,
+                     List<Object> possibleValues, ParameterScope scope, String categoryKey) {
+        this.names.addAll(names);
+        this.type = Objects.requireNonNull(type);
+        this.description = Objects.requireNonNull(description);
+        this.defaultValue = checkDefaultValue(type, defaultValue);
+        this.possibleValues = checkPossibleValues(type, possibleValues, defaultValue);
+        this.scope = scope;
+        this.categoryKey = categoryKey;
+    }
+
     public Parameter(String name, ParameterType type, String description, Object defaultValue,
                      List<Object> possibleValues, ParameterScope scope) {
         this(name, type, description, defaultValue, possibleValues, scope, null);
@@ -101,7 +112,7 @@ public class Parameter {
         return possibleValues;
     }
 
-    private static Object checkDefaultValue(ParameterType type, Object defaultValue) {
+    static Object checkDefaultValue(ParameterType type, Object defaultValue) {
         checkValue(type.getTypeClass(), defaultValue);
         if (type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
