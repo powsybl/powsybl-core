@@ -101,4 +101,14 @@ class ConnectGeneratorTest {
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ConnectGenerator("ID");
+        assertEquals("ConnectGenerator", networkModification.getName());
+
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        networkModification = new GeneratorModification("ID", modifs);
+        assertEquals("GeneratorModification", networkModification.getName());
+    }
 }

@@ -116,4 +116,10 @@ class ShuntCompensatorModificationTest {
         Assertions.assertTrue(shunt.getTerminal().isConnected());
         Assertions.assertEquals(2.0, shunt.getTargetV(), 0.1);
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ShuntCompensatorModification("ID", true, 1);
+        assertEquals("ShuntCompensatorModification", networkModification.getName());
+    }
 }

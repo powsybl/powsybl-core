@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
@@ -96,5 +97,11 @@ class RemoveVoltageLevelTest extends AbstractModificationTest {
         NetworkModification modification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
         modification.apply(network);
         writeXmlTest(network, "/eurostag-remove-voltage-level-bb.xml");
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RemoveVoltageLevelBuilder().withVoltageLevelId("VLGEN").build();
+        assertEquals("RemoveVoltageLevel", networkModification.getName());
     }
 }

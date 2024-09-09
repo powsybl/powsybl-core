@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -87,5 +89,11 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         public String getName() {
             return "foo";
         }
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ReplaceTieLinesByLines();
+        assertEquals("ReplaceTieLinesByLines", networkModification.getName());
     }
 }

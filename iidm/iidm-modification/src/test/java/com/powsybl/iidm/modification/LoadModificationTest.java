@@ -45,4 +45,10 @@ class LoadModificationTest {
         modification.apply(network);
         assertEquals(580.0, load.getP0());
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new LoadModification("ID", 10., 10.);
+        assertEquals("LoadModification", networkModification.getName());
+    }
 }

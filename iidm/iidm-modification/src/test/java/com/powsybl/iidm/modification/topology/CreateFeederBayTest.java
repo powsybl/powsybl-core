@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPosition;
@@ -495,5 +496,21 @@ class CreateFeederBayTest extends AbstractModificationTest {
                 .build()
                 .apply(network, reportNode);
         testReportNode(reportNode, "/reportNode/create-load-NB-without-extensions-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LoadAdder loadAdder = network.getVoltageLevel("vl1").newLoad()
+            .setId("newLoad")
+            .setLoadType(LoadType.UNDEFINED)
+            .setP0(0)
+            .setQ0(0);
+        AbstractNetworkModification networkModification = new CreateFeederBayBuilder()
+            .withInjectionAdder(loadAdder)
+            .withBusOrBusbarSectionId("bbs4")
+            .withInjectionPositionOrder(115)
+            .build();
+        assertEquals("CreateFeederBay", networkModification.getName());
     }
 }

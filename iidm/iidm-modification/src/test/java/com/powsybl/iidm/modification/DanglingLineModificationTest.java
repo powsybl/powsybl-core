@@ -47,4 +47,10 @@ class DanglingLineModificationTest {
         modification.apply(network);
         assertEquals(6.0, danglingLine.getQ0());
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new DanglingLineModification("ID", 10., 10.);
+        assertEquals("DanglingLineModification", networkModification.getName());
+    }
 }

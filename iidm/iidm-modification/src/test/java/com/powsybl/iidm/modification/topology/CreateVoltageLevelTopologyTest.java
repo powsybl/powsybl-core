@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
@@ -220,6 +221,17 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
                 .build();
         modification.apply(network, LocalComputationManager.getDefault(), reportNode);
         testReportNode(reportNode, "/reportNode/create-voltage-level-topology-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId(VLTEST)
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+            .build();
+        assertEquals("CreateVoltageLevelTopology", networkModification.getName());
     }
 
 }

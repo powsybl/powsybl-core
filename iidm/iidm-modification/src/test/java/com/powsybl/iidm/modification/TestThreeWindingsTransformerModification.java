@@ -72,4 +72,10 @@ class TestThreeWindingsTransformerModification {
         assertEquals(t3wt.getId(), t3wtModification.getTransformerId());
         assertEquals(135, t3wtModification.getRatedU0());
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ThreeWindingsTransformerModification("ID", 10.);
+        assertEquals("ThreeWindingsTransformerModification", networkModification.getName());
+    }
 }

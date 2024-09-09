@@ -49,4 +49,13 @@ class SwitchModificationsTest {
     void testInvalidCloseSwitch() {
         assertThrows(RuntimeException.class, () -> new CloseSwitch("dummy").apply(network));
     }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new OpenSwitch("ID");
+        assertEquals("OpenSwitch", networkModification.getName());
+
+        networkModification = new CloseSwitch("ID");
+        assertEquals("CloseSwitch", networkModification.getName());
+    }
 }
