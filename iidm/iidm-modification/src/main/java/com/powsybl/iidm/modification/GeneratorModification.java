@@ -218,15 +218,16 @@ public class GeneratorModification extends AbstractNetworkModification {
         Generator g = network.getGenerator(generatorId);
         if (g == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (compareValues(modifs.getMinP(), g.getMinP(), false)
-            && compareValues(modifs.getMaxP(), g.getMaxP(), false)
-            && compareValues(modifs.getTargetV(), g.getTargetV(), false)
-            && compareValues(modifs.getTargetQ(), g.getTargetQ(), false)
+        } else if (areValuesEqual(modifs.getMinP(), g.getMinP(), false)
+            && areValuesEqual(modifs.getMaxP(), g.getMaxP(), false)
+            && areValuesEqual(modifs.getTargetV(), g.getTargetV(), false)
+            && areValuesEqual(modifs.getTargetQ(), g.getTargetQ(), false)
             && (modifs.getConnected() == null || modifs.getConnected() == g.getTerminal().isConnected())
             && (modifs.getVoltageRegulatorOn() == null
-            || (!Double.isNaN(g.getTargetV()) || !modifs.getVoltageRegulatorOn() || compareValues(getPlausibleTargetV(g), g.getTargetV(), false))
+            || (!Double.isNaN(g.getTargetV()) || !modifs.getVoltageRegulatorOn() || areValuesEqual(getPlausibleTargetV(g), g.getTargetV(), false))
             && modifs.getVoltageRegulatorOn() == g.isVoltageRegulatorOn())
-            && modifs.getTargetP() == null && modifs.getDeltaTargetP() == null) {
+            && areValuesEqual(modifs.getTargetP(), g.getTargetP(), false)
+            && areValuesEqual(modifs.getDeltaTargetP(), 0, false)) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;

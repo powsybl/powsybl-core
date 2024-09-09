@@ -136,5 +136,11 @@ class ShuntCompensatorModificationTest {
 
         ShuntCompensatorModification modification6 = new ShuntCompensatorModification(shunt.getId(), null, null);
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification7 = new ShuntCompensatorModification(shunt.getId(), true, -1);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification7.hasImpactOnNetwork(network));
+
+        ShuntCompensatorModification modification8 = new ShuntCompensatorModification(shunt.getId(), true, 10);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification8.hasImpactOnNetwork(network));
     }
 }

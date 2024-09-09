@@ -47,9 +47,11 @@ public class PhaseShifterSetAsFixedTap extends AbstractNetworkModification {
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
         impact = DEFAULT_IMPACT;
         TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
-        if (phaseShifter == null || !phaseShifter.hasPhaseTapChanger()) {
+        if (phaseShifter == null || !phaseShifter.hasPhaseTapChanger()
+            || tapPosition > phaseShifter.getPhaseTapChanger().getHighTapPosition()
+            || tapPosition < phaseShifter.getPhaseTapChanger().getLowTapPosition()) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (Math.abs(tapPosition - phaseShifter.getPhaseTapChanger().getTapPosition()) < EPSILON
+        } else if (areValuesEqual(tapPosition, phaseShifter.getPhaseTapChanger().getTapPosition(), false)
             && !phaseShifter.getPhaseTapChanger().isRegulating()
             && phaseShifter.getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;

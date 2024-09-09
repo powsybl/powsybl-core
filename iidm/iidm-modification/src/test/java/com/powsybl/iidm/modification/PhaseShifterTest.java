@@ -41,22 +41,28 @@ class PhaseShifterTest {
         NetworkModification modification1 = new PhaseShifterSetAsFixedTap("UNKNOWN_ID", 1);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
 
-        NetworkModification modification2 = new PhaseShifterSetAsFixedTap("TWT", 32);
-        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+        NetworkModification modification2 = new PhaseShifterSetAsFixedTap("TWT", 50);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
 
-        NetworkModification modification3 = new PhaseShifterSetAsFixedTap("TWT", 12);
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+        NetworkModification modification3 = new PhaseShifterSetAsFixedTap("TWT", -5);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new PhaseShifterSetAsFixedTap("TWT", 32);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        NetworkModification modification5 = new PhaseShifterSetAsFixedTap("TWT", 12);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getPhaseTapChanger().setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        NetworkModification modification4 = new PhaseShifterSetAsFixedTap("TWT", 32);
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+        NetworkModification modification6 = new PhaseShifterSetAsFixedTap("TWT", 32);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
 
         twoWindingsTransformer.getRatioTapChanger().setRegulating(false);
         twoWindingsTransformer.getPhaseTapChanger().setRegulationValue(225);
         twoWindingsTransformer.getPhaseTapChanger().setTargetDeadband(300);
         twoWindingsTransformer.getPhaseTapChanger().setRegulating(true);
-        NetworkModification modification5 = new PhaseShifterSetAsFixedTap("TWT", 32);
-        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+        NetworkModification modification7 = new PhaseShifterSetAsFixedTap("TWT", 32);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification7.hasImpactOnNetwork(network));
     }
 
     @Test

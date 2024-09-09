@@ -75,16 +75,22 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
         if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (twoWindingsTransformer != null) {
-            if (!twoWindingsTransformer.hasRatioTapChanger()) {
+            if (!twoWindingsTransformer.hasRatioTapChanger()
+                || isValueOutsideRange(getTapPosition(),
+                twoWindingsTransformer.getRatioTapChanger().getLowTapPosition(),
+                twoWindingsTransformer.getRatioTapChanger().getHighTapPosition())) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (compareValues(getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition(), false)) {
+            } else if (areValuesEqual(getTapPosition(), twoWindingsTransformer.getRatioTapChanger().getTapPosition(), false)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         } else {
             RatioTapChangerHolder rtcHolder = getLeg(threeWindingsTransformer, RatioTapChangerHolder::hasRatioTapChanger, false);
-            if (!rtcHolder.hasRatioTapChanger()) {
+            if (!rtcHolder.hasRatioTapChanger()
+                || isValueOutsideRange(getTapPosition(),
+                rtcHolder.getRatioTapChanger().getLowTapPosition(),
+                rtcHolder.getRatioTapChanger().getHighTapPosition())) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (compareValues(getTapPosition(), rtcHolder.getRatioTapChanger().getTapPosition(), false)) {
+            } else if (areValuesEqual(getTapPosition(), rtcHolder.getRatioTapChanger().getTapPosition(), false)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }

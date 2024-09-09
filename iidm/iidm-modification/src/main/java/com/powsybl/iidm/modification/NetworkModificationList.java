@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Network;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -39,18 +41,15 @@ public class NetworkModificationList extends AbstractNetworkModification {
 
     @Override
     public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        boolean hasImpact = false;
-        for (NetworkModification modification : modificationList) {
-            NetworkModificationImpact unitaryImpact = modification.hasImpactOnNetwork(network);
-            if (unitaryImpact == NetworkModificationImpact.CANNOT_BE_APPLIED) {
-                // If a sub-modification cannot be applied, the whole modification cannot be applied too
-                impact = unitaryImpact;
-                return impact;
-            } else if (hasImpact || unitaryImpact == NetworkModificationImpact.HAS_IMPACT_ON_NETWORK) {
-                hasImpact = true;
-            }
+
+        Set<NetworkModificationImpact> unitaryImpacts = modificationList.stream().map(m -> m.hasImpactOnNetwork(network)).collect(Collectors.toSet());
+        if (unitaryImpacts.contains(NetworkModificationImpact.CANNOT_BE_APPLIED)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (unitaryImpacts.contains(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK)) {
+            impact = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+        } else {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
-        impact = hasImpact ? NetworkModificationImpact.HAS_IMPACT_ON_NETWORK : NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         return impact;
     }
 }

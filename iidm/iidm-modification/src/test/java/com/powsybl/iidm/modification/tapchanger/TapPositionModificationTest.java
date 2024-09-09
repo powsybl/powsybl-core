@@ -292,13 +292,25 @@ class TapPositionModificationTest {
         NetworkModification modification9 = getNetworkModification(TapType.PHASE, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification9.hasImpactOnNetwork(threeWindingNetwork));
 
-        NetworkModification modification10 = getNetworkModification(TapType.RATIO, 0, threeWindingTransformer.getId(), ThreeSides.ONE);
+        NetworkModification modification10 = getNetworkModification(TapType.RATIO, 2, threeWindingTransformer.getId(), ThreeSides.TWO);
         assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification10.hasImpactOnNetwork(threeWindingNetwork));
 
-        NetworkModification modification11 = getNetworkModification(TapType.PHASE, 10, threeWindingTransformer.getId(), ThreeSides.ONE);
+        NetworkModification modification11 = getNetworkModification(TapType.PHASE, 1, threeWindingTransformer.getId(), ThreeSides.ONE);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification11.hasImpactOnNetwork(threeWindingNetwork));
 
-        NetworkModification modification12 = getNetworkModification(TapType.RATIO, 10, threeWindingTransformer.getId(), ThreeSides.ONE);
+        NetworkModification modification12 = getNetworkModification(TapType.RATIO, 1, threeWindingTransformer.getId(), ThreeSides.TWO);
         assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification12.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification13 = getNetworkModification(TapType.PHASE, 10, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification13.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification14 = getNetworkModification(TapType.RATIO, 10, threeWindingTransformer.getId(), ThreeSides.TWO);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification14.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification15 = getNetworkModification(TapType.PHASE, -1, threeWindingTransformer.getId(), ThreeSides.ONE);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification15.hasImpactOnNetwork(threeWindingNetwork));
+
+        NetworkModification modification16 = getNetworkModification(TapType.RATIO, -1, threeWindingTransformer.getId(), ThreeSides.TWO);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification16.hasImpactOnNetwork(threeWindingNetwork));
     }
 }

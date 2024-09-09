@@ -103,19 +103,33 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
         if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else if (twoWindingsTransformer != null) {
-            if (!twoWindingsTransformer.hasPhaseTapChanger()) {
+            if (cannotApplyModification(twoWindingsTransformer)) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (compareValues(getTapPosition(), twoWindingsTransformer.getPhaseTapChanger().getTapPosition(), isRelative)) {
+            } else if (areValuesEqual(getTapPosition(), twoWindingsTransformer.getPhaseTapChanger().getTapPosition(), isRelative)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         } else {
             PhaseTapChangerHolder ptcHolder = getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, false);
-            if (!ptcHolder.hasPhaseTapChanger()) {
+            if (cannotApplyModification(ptcHolder)) {
                 impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-            } else if (compareValues(getTapPosition(), ptcHolder.getPhaseTapChanger().getTapPosition(), isRelative)) {
+            } else if (areValuesEqual(getTapPosition(), ptcHolder.getPhaseTapChanger().getTapPosition(), isRelative)) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }
         return impact;
+    }
+
+    private boolean cannotApplyModification(TwoWindingsTransformer twoWindingsTransformer) {
+        return !twoWindingsTransformer.hasPhaseTapChanger()
+            || isValueOutsideRange(getTapPosition() + (isRelative ? twoWindingsTransformer.getPhaseTapChanger().getTapPosition() : 0),
+            twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
+            twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition());
+    }
+
+    private boolean cannotApplyModification(PhaseTapChangerHolder ptcHolder) {
+        return !ptcHolder.hasPhaseTapChanger()
+            || isValueOutsideRange(getTapPosition() + (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0),
+            ptcHolder.getPhaseTapChanger().getLowTapPosition(),
+            ptcHolder.getPhaseTapChanger().getHighTapPosition());
     }
 }

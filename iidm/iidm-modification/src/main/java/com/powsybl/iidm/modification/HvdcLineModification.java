@@ -102,9 +102,12 @@ public class HvdcLineModification extends AbstractNetworkModification {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
         } else {
             HvdcAngleDroopActivePowerControl hvdcAngleDroopActivePowerControl = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
-            if (compareValues(activePowerSetpoint, hvdcLine.getActivePowerSetpoint(), relativeValue != null && relativeValue)
+            if (areValuesEqual(activePowerSetpoint, hvdcLine.getActivePowerSetpoint(), relativeValue != null && relativeValue)
                 && (converterMode == null || converterMode == hvdcLine.getConvertersMode())
-                && (hvdcAngleDroopActivePowerControl == null || acEmulationEnabled == null && p0 == null && droop == null)) {
+                && (hvdcAngleDroopActivePowerControl == null ||
+                (acEmulationEnabled == null || acEmulationEnabled == hvdcAngleDroopActivePowerControl.isEnabled())
+                    && areValuesEqual(p0, hvdcAngleDroopActivePowerControl.getP0(), false)
+                    && areValuesEqual(droop, hvdcAngleDroopActivePowerControl.getDroop(), false))) {
                 impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
             }
         }

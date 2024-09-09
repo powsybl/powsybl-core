@@ -51,7 +51,7 @@ public class ThreeWindingsTransformerModification extends AbstractNetworkModific
         ThreeWindingsTransformer t3wt = network.getThreeWindingsTransformer(transformerId);
         if (t3wt == null) {
             impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (compareValues(ratedU0, t3wt.getRatedU0(), false)) {
+        } else if (areValuesEqual(ratedU0, t3wt.getRatedU0(), false)) {
             impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
         }
         return impact;

@@ -113,11 +113,15 @@ public abstract class AbstractNetworkModification implements NetworkModification
         return vl != null;
     }
 
-    protected boolean compareValues(Double newValue, double currentValue, boolean isRelativeValue) {
+    protected boolean areValuesEqual(Double newValue, double currentValue, boolean isRelativeValue) {
         return newValue == null || Math.abs(newValue - (isRelativeValue ? 0 : currentValue)) < EPSILON;
     }
 
-    protected boolean compareValues(Integer newValue, int currentValue, boolean isRelativeValue) {
+    protected boolean areValuesEqual(Integer newValue, int currentValue, boolean isRelativeValue) {
         return newValue == null || Math.abs(newValue - (isRelativeValue ? 0 : currentValue)) < EPSILON;
+    }
+
+    protected boolean isValueOutsideRange(Integer newValue, int minValue, int maxValue) {
+        return newValue == null || newValue < minValue || newValue > maxValue;
     }
 }
