@@ -62,7 +62,7 @@ public final class StateVariablesExport {
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, model, context);
                 writeTopologicalIslands(network, context, writer);
-                // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
+                // Note: unmapped topological nodes (node breaker) topological nodes are not written in topological islands
             }
 
             writeVoltagesForTopologicalNodes(network, context, writer);
