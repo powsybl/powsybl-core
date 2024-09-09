@@ -21,8 +21,7 @@ grid_exchange_formats/index
 grid_model/index.md
 grid_features/index.md
 simulation/index
-data/timeseries
-data/datasources
+data/index
 user/index.md
 ```
 

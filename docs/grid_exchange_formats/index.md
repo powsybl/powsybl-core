@@ -33,4 +33,5 @@ ieee/ieee.md
 matpower/index.md
 psse/index.md
 ampl/index.md
+going_further/index
 ```
