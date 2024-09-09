@@ -101,6 +101,10 @@ public final class StateVariablesExport {
             for (String tn : island.topologicalNodes) {
                 CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", tn, cimNamespace, writer, context);
             }
+            for (DanglingLine dl : network.getDanglingLines(DanglingLineFilter.ALL)) {
+                String topologicalNodeId = dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY);
+                CgmesExportUtil.writeReference("TopologicalIsland.TopologicalNodes", topologicalNodeId, cimNamespace, writer, context);
+            }
             writer.writeEndElement();
         }
     }
