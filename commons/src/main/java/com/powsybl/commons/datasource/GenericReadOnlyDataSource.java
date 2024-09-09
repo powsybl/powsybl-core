@@ -25,9 +25,9 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
         dataSources = new DataSource[] {
             new DirectoryDataSource(directory, baseName, dataExtension, observer),
             new ZstdDirectoryDataSource(directory, baseName, dataExtension, observer),
-            new ZipArchiveDataSource(directory),
+            new ZipArchiveDataSource(directory, observer),
             new ZipArchiveDataSource(directory, baseName, dataExtension, observer),
-            new TarArchiveDataSource(directory),
+            new TarArchiveDataSource(directory, observer),
             new XZDirectoryDataSource(directory, baseName, dataExtension, observer),
             new GzDirectoryDataSource(directory, baseName, dataExtension, observer),
             new Bzip2DirectoryDataSource(directory, baseName, dataExtension, observer)
