@@ -14,19 +14,16 @@ import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.RemoveFeederBay;
 import com.powsybl.iidm.modification.topology.RemoveFeederBayBuilder;
+import com.powsybl.iidm.modification.tripping.BranchTripping;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.modification.tripping.BranchTripping;
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -55,7 +52,7 @@ class NetworkModificationListTest {
     }
 
     @Test
-    void applicationSuccessTest() {
+    void applicationSuccessTest() throws IOException {
         String lineId = "NHV1_NHV2_1";
         assertTrue(network.getLine(lineId).getTerminal1().isConnected());
         assertTrue(network.getLine(lineId).getTerminal2().isConnected());
@@ -64,16 +61,26 @@ class NetworkModificationListTest {
         BranchTripping tripping = new BranchTripping(lineId, "VLHV1");
         RemoveFeederBay removal = new RemoveFeederBayBuilder().withConnectableId(lineId).build();
         NetworkModificationList task = new NetworkModificationList(tripping, tripping, removal);
-        boolean dryRunIsOk = Assertions.assertDoesNotThrow(() -> task.apply(network, new DefaultNamingStrategy(), true));
+        boolean dryRunIsOk = assertDoesNotThrow(() -> task.apply(network, new DefaultNamingStrategy(), true));
         assertTrue(dryRunIsOk);
         assertNotNull(network.getLine("NHV1_NHV2_1"));
         assertTrue(network.getLine("NHV1_NHV2_1").getTerminal1().isConnected());
-        assertTrue(task.apply(network, LocalComputationManager.getDefault(), true));
-        assertTrue(task.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), true));
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
-        assertTrue(task.apply(network, new DefaultNamingStrategy(), reportNode, true));
+        assertTrue(task.apply(network, LocalComputationManager.getDefault(), true));
+        assertTrue(task.apply(network, LocalComputationManager.getDefault(), reportNode, true));
         assertTrue(task.apply(network, false, reportNode, true));
+        assertTrue(task.apply(network, false, LocalComputationManager.getDefault(), reportNode, true));
+        assertTrue(task.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), true));
+        assertTrue(task.apply(network, new DefaultNamingStrategy(), LocalComputationManager.getDefault(), reportNode, true));
+        assertTrue(task.apply(network, new DefaultNamingStrategy(), reportNode, true));
         assertTrue(task.apply(network, new DefaultNamingStrategy(), false, reportNode, true));
+        StringWriter sw1 = new StringWriter();
+        reportNode.getChildren().get(reportNode.getChildren().size() - 1).print(sw1);
+        assertEquals("""
+            + Dry-run: Checking if network modification NetworkModificationList can be applied on network 'sim1'
+               Connectable NHV1_NHV2_1 removed
+               Dry-run: Network modifications can successfully be applied on network 'sim1'
+            """, TestUtil.normalizeLineSeparator(sw1.toString()));
     }
 
     @Test
@@ -88,7 +95,7 @@ class NetworkModificationListTest {
         NetworkModificationList task = new NetworkModificationList(removal, tripping);
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
-        boolean dryRunIsOk = Assertions.assertDoesNotThrow(() -> task.apply(network, reportNode, true));
+        boolean dryRunIsOk = assertDoesNotThrow(() -> task.apply(network, reportNode, true));
         // The full dry-run returns that a problem was encountered and that the full NetworkModificationList could not be performed.
         // No operation was applied on the network.
         assertFalse(dryRunIsOk);
@@ -105,7 +112,7 @@ class NetworkModificationListTest {
 
         // If we ignore the dry-run result and try to apply the NetworkModificationList, an exception is thrown and
         // the network is in an "unstable" state.
-        Assertions.assertThrows(PowsyblException.class, () -> task.apply(network, false), "Branch '" + lineId + "' not found");
+        assertThrows(PowsyblException.class, () -> task.apply(network, false), "Branch '" + lineId + "' not found");
         assertNull(network.getLine("NHV1_NHV2_1"));
     }
 }

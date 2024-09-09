@@ -151,7 +151,7 @@ public abstract class AbstractNetworkModification implements NetworkModification
             }
             dryRunReportNode.newReportNode()
                 .withMessageTemplate("networkModificationDryRun-success",
-                    "DRY-RUN: Network modifications can successfully be applied on network '${networkNameOrId}'")
+                    "Dry-run: Network modifications can successfully be applied on network '${networkNameOrId}'")
                 .withSeverity(TypedValue.INFO_SEVERITY)
                 .add();
         } else {
