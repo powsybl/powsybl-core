@@ -121,61 +121,14 @@ class GeneratorConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    static void updateAndCreateGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        Map<String, PsseGenerator> generatorsToPsseGenerator = new HashMap<>();
-        psseModel.getGenerators().forEach(psseGenerator -> generatorsToPsseGenerator.put(getGeneratorId(psseGenerator.getI(), psseGenerator.getId()), psseGenerator));
-
-        network.getGenerators().forEach(generator -> {
-            if (generatorsToPsseGenerator.containsKey(generator.getId())) {
-                updateGenerator(generator, generatorsToPsseGenerator.get(generator.getId()), contextExport);
-            } else {
-                psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, perUnitContext)));
-            }
-        });
+    static void createGenerators(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        network.getGenerators().forEach(generator -> psseModel.addGenerators(Collections.singletonList(createGenerator(generator, contextExport, perUnitContext))));
         psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
-    }
-
-    static void updateGenerator(Generator generator, PsseGenerator psseGenerator, ContextExport contextExport) {
-        int bus = getTerminalBusI(generator.getTerminal(), contextExport);
-        int regulatingBus = getRegulatingTerminalBusI(generator.getRegulatingTerminal(), bus, psseGenerator.getIreg(), contextExport);
-
-        psseGenerator.setI(bus);
-        psseGenerator.setStat(getStatus(generator));
-        psseGenerator.setPg(getP(generator));
-        psseGenerator.setQg(getQ(generator));
-
-        if (regulatingBusMustBeChanged(bus, regulatingBus, psseGenerator.getIreg())) {
-            psseGenerator.setIreg(regulatingBus);
-        }
     }
 
     // zero can be used for local regulation
     private static boolean regulatingBusMustBeChanged(int bus, int newRegulatingBus, int regulatingBus) {
         return !(bus == newRegulatingBus && regulatingBus == 0);
-    }
-
-    private static int getStatus(Generator gen) {
-        if (gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-    private static double getP(Generator gen) {
-        if (Double.isNaN(gen.getTerminal().getP())) {
-            return gen.getTargetP();
-        } else {
-            return -gen.getTerminal().getP();
-        }
-    }
-
-    private static double getQ(Generator gen) {
-        if (Double.isNaN(gen.getTerminal().getQ())) {
-            return gen.getTargetQ();
-        } else {
-            return -gen.getTerminal().getQ();
-        }
     }
 
     private static double getVoltageTarget(Generator gen) {
@@ -210,7 +163,7 @@ class GeneratorConverter extends AbstractConverter {
         int regulatingBus = getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport);
 
         psseGenerator.setI(busI);
-        psseGenerator.setId(contextExport.getEquipmentCkt(generator.getId(), IdentifiableType.GENERATOR, busI));
+        psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(generator.getId(), IdentifiableType.GENERATOR, busI));
         psseGenerator.setPg(getP(generator));
         psseGenerator.setQg(getQ(generator));
         psseGenerator.setQt(getMaxQ(generator));
@@ -245,6 +198,45 @@ class GeneratorConverter extends AbstractConverter {
         psseGenerator.setWpf(1.0);
 
         return psseGenerator;
+    }
+
+    static void updateGenerators(Network network, PssePowerFlowModel psseModel) {
+        psseModel.getGenerators().forEach(psseGen -> {
+            String genId = getGeneratorId(psseGen.getI(), psseGen.getId());
+            Generator gen = network.getGenerator(genId);
+
+            if (gen == null) {
+                psseGen.setStat(0);
+            } else {
+                psseGen.setStat(getStatus(gen));
+                psseGen.setPg(getP(gen));
+                psseGen.setQg(getQ(gen));
+            }
+        });
+    }
+
+    private static int getStatus(Generator gen) {
+        if (gen.getTerminal().isConnected() && gen.getTerminal().getBusBreakerView().getBus() != null) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private static double getP(Generator gen) {
+        if (Double.isNaN(gen.getTerminal().getP())) {
+            return gen.getTargetP();
+        } else {
+            return -gen.getTerminal().getP();
+        }
+    }
+
+    private static double getQ(Generator gen) {
+        if (Double.isNaN(gen.getTerminal().getQ())) {
+            return gen.getTargetQ();
+        } else {
+            return -gen.getTerminal().getQ();
+        }
     }
 
     private final PsseGenerator psseGenerator;

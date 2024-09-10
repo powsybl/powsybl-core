@@ -39,7 +39,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1" loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VL7" nominalV="110.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL7-8" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B7" name="Bus 7" v="149.4753227" angle="-8.57388999"/>
                 <iidm:bus id="B8" name="Bus 8" v="122.13161290000001" angle="-15.7635741"/>
@@ -62,7 +62,7 @@
                 <iidm:shuntLinearModel bPerSection="0.0475" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-4-7-1" r="0.0" x="25.30352" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7" bus2="B7" connectableBus2="B7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-4-7-1" r="0.0" x="25.30352" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7-8" bus2="B7" connectableBus2="B7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-4.3515999999999995" b="-4.3515999999999995" rho="1.0224948875255624"/>
             </iidm:ratioTapChanger>
@@ -73,7 +73,7 @@
                 <iidm:currentLimits permanentLimit="52481.13946933699"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-4-8-1" r="0.0" x="67.29778" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7" bus2="B8" connectableBus2="B8" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-4-8-1" r="0.0" x="67.29778" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL7-8" bus2="B8" connectableBus2="B8" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger regulating="true" lowTapPosition="0" tapPosition="0" targetDeadband="0.3999999999999986" loadTapChangingCapabilities="false" regulationMode="VOLTAGE" regulationValue="20.2">
                 <iidm:terminalRef id="B9-L1"/>
                 <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
@@ -95,7 +95,7 @@
                 <iidm:currentLimits permanentLimit="52481.13946933699"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:twoWindingsTransformer id="T-8-9-1" r="0.0" x="2.22472" g="0.0" b="0.0" ratedU1="110.0" ratedU2="20.0" voltageLevelId1="VL7" bus1="B8" connectableBus1="B8" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-8-9-1" r="0.0" x="2.22472" g="0.0" b="0.0" ratedU1="110.0" ratedU2="20.0" voltageLevelId1="VL7-8" bus1="B8" connectableBus1="B8" voltageLevelId2="VL9" bus2="B9" connectableBus2="B9" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="-6.1039000000000065" b="-6.1039000000000065" rho="1.0319917440660475"/>
             </iidm:ratioTapChanger>

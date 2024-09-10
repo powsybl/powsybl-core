@@ -39,6 +39,16 @@ final class NodeBreakerValidation {
         this.busControls = new HashMap<>();
     }
 
+    Optional<PsseSubstation> getSubstationIfOnlyOneExists(Set<Integer> buses) {
+        Set<PsseSubstation> psseSubstations = buses.stream()
+                .map(this::getSubstationIfOnlyOneExists)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+        return psseSubstations.size() == 1 ? Optional.of(psseSubstations.iterator().next()) : Optional.empty();
+    }
+
+    // nodeBreaker topology of a bus can only be defined in one substationData
     Optional<PsseSubstation> getSubstationIfOnlyOneExists(int bus) {
         if (busSubstations.containsKey(bus) && busSubstations.get(bus).size() == 1) {
             return Optional.of(busSubstations.get(bus).iterator().next());
@@ -141,75 +151,74 @@ final class NodeBreakerValidation {
         }
     }
 
-    boolean isNodeBreakerSubstationCoherent(Set<Integer> expectedBuses) {
+    // All the buses must be defined inside the same psseSubstation
+    // if two buses of the same voltageLevel are defined in different psseSubstations then the node numbers could be incoherent (can be overlapped)
+    boolean isNodeBreakerSubstationDataCoherent(Set<Integer> expectedBuses) {
         if (ignoreNodeBreakerTopology) {
             return false;
         }
         if (expectedBuses.isEmpty()) {
             return false;
         }
-        Set<PsseSubstation> expectedSubstations = expectedBuses.stream()
-                .map(this::getSubstationIfOnlyOneExists)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toSet());
-        if (expectedSubstations.size() != 1) {
-            return false;
-        }
-        PsseSubstation expectedSubstation = expectedSubstations.iterator().next();
-        if (!areControlsCoherent(expectedSubstation, expectedBuses)) {
-            return false;
-        }
-        Set<String> expectedEquipmentTerminals = expectedBuses.stream()
-                .flatMap(bus -> getEquipmentTerminals(bus).stream())
-                .collect(Collectors.toSet());
-        List<Set<Integer>> nodeComponents = obtainNodeComponents(expectedSubstation);
-
-        Set<Integer> actualBuses = new HashSet<>();
-        Set<String> actualEquipmentTerminals = new HashSet<>();
-        for (Set<Integer> nodeComponentSet : nodeComponents) {
-            Set<Integer> busComponentSet = expectedSubstation.getNodes().stream()
-                    .filter(n -> nodeComponentSet.contains(n.getNi()))
-                    .map(PsseSubstationNode::getI).collect(Collectors.toSet());
-            Set<String> equipmentTerminalComponent = expectedSubstation.getEquipmentTerminals().stream()
-                    .filter(eqt -> nodeComponentSet.contains(eqt.getNi()))
-                    .map(eqt -> getNodeBreakerEquipmentId(eqt.getType(), eqt.getI(), eqt.getJ(), eqt.getK(), eqt.getId())).collect(Collectors.toSet());
-
-            actualBuses.addAll(busComponentSet);
-            actualEquipmentTerminals.addAll(equipmentTerminalComponent);
-        }
-        if (expectedBuses.size() != actualBuses.size()) {
-            return false;
-        }
-        if (expectedEquipmentTerminals.size() != actualEquipmentTerminals.size()) {
-            return false;
-        }
-        return expectedBuses.containsAll(actualBuses) && expectedEquipmentTerminals.containsAll(actualEquipmentTerminals);
+        Optional<PsseSubstation> expectedPsseSubstation = getSubstationIfOnlyOneExists(expectedBuses);
+        return expectedPsseSubstation.filter(substation -> expectedBuses.stream().allMatch(bus -> isNodeBreakerSubstationDataCoherent(substation, bus))).isPresent();
     }
 
-    // All the nodes associated with controls must be inside the substation data
-    private boolean areControlsCoherent(PsseSubstation psseSubstation, Set<Integer> buses) {
-        Set<Integer> nodesSet = psseSubstation.getNodes().stream().map(PsseSubstationNode::getNi).collect(Collectors.toSet());
-        for (int bus : buses) {
-            List<NodeBreakerControl> controls = getControls(bus);
-            if (controls.stream().map(NodeBreakerControl::getNode).anyMatch(node -> !nodesSet.contains(node))) {
-                return false;
-            }
+    private boolean isNodeBreakerSubstationDataCoherent(PsseSubstation psseSubstation, int bus) {
+        Set<Integer> nodesSetByDefinition = psseSubstation.getNodes().stream().filter(psseNode -> psseNode.getI() == bus).map(PsseSubstationNode::getNi).collect(Collectors.toSet());
+        Set<Integer> nodesSetBySwitching = obtainNodeComponentBySwitching(psseSubstation, bus);
+        if (!isValidNodesSet(psseSubstation, bus, nodesSetByDefinition, nodesSetBySwitching)) {
+            return false;
         }
-        return true;
+        if (!areControlsCoherent(bus, nodesSetBySwitching)) {
+            return false;
+        }
+        List<String> equipmentTerminalsByPsseBlocks = getEquipmentTerminals(bus);
+        Set<String> equipmentTerminalByEquipmentTerminalData = psseSubstation.getEquipmentTerminals().stream()
+                .filter(eqt -> eqt.getI() == bus)
+                .map(eqt -> getNodeBreakerEquipmentId(eqt.getType(), eqt.getI(), eqt.getJ(), eqt.getK(), eqt.getId())).collect(Collectors.toSet());
+        Set<String> equipmentTerminalByNodeSet = psseSubstation.getEquipmentTerminals().stream()
+                .filter(eqt -> nodesSetBySwitching.contains(eqt.getNi()))
+                .map(eqt -> getNodeBreakerEquipmentId(eqt.getType(), eqt.getI(), eqt.getJ(), eqt.getK(), eqt.getId())).collect(Collectors.toSet());
+
+        return equipmentTerminalsByPsseBlocks.size() == equipmentTerminalByEquipmentTerminalData.size()
+                && equipmentTerminalsByPsseBlocks.size() == equipmentTerminalByNodeSet.size()
+                && equipmentTerminalByEquipmentTerminalData.containsAll(equipmentTerminalsByPsseBlocks)
+                && equipmentTerminalByEquipmentTerminalData.containsAll(equipmentTerminalByNodeSet);
     }
 
-    private static List<Set<Integer>> obtainNodeComponents(PsseSubstation psseSubstation) {
-        Set<Integer> nodesSet = psseSubstation.getNodes().stream().map(PsseSubstationNode::getNi).collect(Collectors.toSet());
+    // based on real cases and substation configurations created automatically by psse
+    // isolated nodes are discarded
+    // nodes are in the same component if they are connected by switches without considering their status (open / close)
+    private static Set<Integer> obtainNodeComponentBySwitching(PsseSubstation psseSubstation, int bus) {
+        Set<Integer> nodesSet = psseSubstation.getNodes().stream().filter(psseNode -> psseNode.getStatus() == 1).map(PsseSubstationNode::getNi).collect(Collectors.toSet());
 
         Graph<Integer, Pair<Integer, Integer>> sGraph = new Pseudograph<>(null, null, false);
         nodesSet.forEach(sGraph::addVertex);
-        psseSubstation.getSwitchingDevices().forEach(switchingDevice -> {
-            if (switchingDevice.getStatus() == 1) { // Only closed switches
-                sGraph.addEdge(switchingDevice.getNi(), switchingDevice.getNj(), Pair.of(switchingDevice.getNi(), switchingDevice.getNj()));
-            }
-        });
-        return new ConnectivityInspector<>(sGraph).connectedSets();
+        psseSubstation.getSwitchingDevices().forEach(switchingDevice -> sGraph.addEdge(switchingDevice.getNi(), switchingDevice.getNj(), Pair.of(switchingDevice.getNi(), switchingDevice.getNj())));
+
+        List<Set<Integer>> nodeComponents = new ConnectivityInspector<>(sGraph).connectedSets().stream().filter(nodeComponent -> nodeComponentAssociatedWithBus(psseSubstation, nodeComponent, bus)).toList();
+        return nodeComponents.size() == 1 ? nodeComponents.get(0) : new HashSet<>();
+    }
+
+    private static boolean nodeComponentAssociatedWithBus(PsseSubstation psseSubstation, Set<Integer> nodeComponent, int bus) {
+        return psseSubstation.getNodes().stream().anyMatch(psseNode -> psseNode.getI() == bus && nodeComponent.contains(psseNode.getNi()));
+    }
+
+    private static boolean isValidNodesSet(PsseSubstation psseSubstation, int bus, Set<Integer> nodesSetByDefinition, Set<Integer> nodesSetBySwitching) {
+        if (nodesSetBySwitching.isEmpty()) {
+            return false;
+        }
+        // nodesSetByDefinition must be equal to isolatedNodesSet + nodesSetBySwitching
+        Set<Integer> isolatedNodesSet = psseSubstation.getNodes().stream().filter(psseNode -> psseNode.getStatus() == 0 && psseNode.getI() == bus).map(PsseSubstationNode::getNi).collect(Collectors.toSet());
+        isolatedNodesSet.addAll(nodesSetBySwitching);
+        return isolatedNodesSet.size() == nodesSetByDefinition.size() && nodesSetByDefinition.containsAll(isolatedNodesSet);
+    }
+
+    // All the nodes associated with controls must be inside the nodesSetBySwitching
+    private boolean areControlsCoherent(int bus, Set<Integer> nodesSetBySwitching) {
+        List<NodeBreakerControl> controls = getControls(bus);
+        return controls.stream().map(NodeBreakerControl::getNode).allMatch(nodesSetBySwitching::contains);
     }
 
     private List<String> getEquipmentTerminals(int bus) {

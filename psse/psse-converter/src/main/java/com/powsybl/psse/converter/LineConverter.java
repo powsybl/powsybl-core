@@ -120,27 +120,23 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    static void updateAndCreateLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        Map<String, PsseNonTransformerBranch> linesToPsseNonTransformerBranch = new HashMap<>();
-        psseModel.getNonTransformerBranches().forEach(psseNonTransformerBranch -> linesToPsseNonTransformerBranch.put(getLineId(psseNonTransformerBranch.getI(), psseNonTransformerBranch.getJ(), psseNonTransformerBranch.getCkt()), psseNonTransformerBranch));
-
-        network.getLines().forEach(line -> {
-            if (linesToPsseNonTransformerBranch.containsKey(line.getId())) {
-                updateLine(line, linesToPsseNonTransformerBranch.get(line.getId()), contextExport);
-            } else {
-                psseModel.addNonTransformerBranches(Collections.singletonList(createLine(line, contextExport, perUnitContext)));
-            }
-        });
+    static void createLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+        network.getLines().forEach(line -> psseModel.addNonTransformerBranches(Collections.singletonList(createLine(line, contextExport, perUnitContext))));
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
 
-    static void updateLine(Line line, PsseNonTransformerBranch psseLine, ContextExport contextExport) {
-        int busI = getTerminalBusI(line.getTerminal1(), contextExport);
-        int busJ = getTerminalBusI(line.getTerminal2(), contextExport);
+    // antenna lines are exported as open
+    static void updateLines(Network network, PssePowerFlowModel psseModel) {
+        psseModel.getNonTransformerBranches().forEach(psseLine -> {
+            String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());
+            Line line = network.getLine(lineId);
 
-        psseLine.setSt(getStatus(line));
-        psseLine.setI(busI);
-        psseLine.setJ(busJ);
+            if (line == null) {
+                psseLine.setSt(0);
+            } else {
+                psseLine.setSt(getStatus(line));
+            }
+        });
     }
 
     private static int getStatus(Line line) {
@@ -181,7 +177,7 @@ class LineConverter extends AbstractConverter {
 
         psseLine.setI(busI);
         psseLine.setJ(busJ);
-        psseLine.setCkt(contextExport.getEquipmentCkt(line.getId(), IdentifiableType.LINE, busI, busJ));
+        psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(line.getId(), IdentifiableType.LINE, busI, busJ));
         psseLine.setR(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getR(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getX(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setB(0.0);

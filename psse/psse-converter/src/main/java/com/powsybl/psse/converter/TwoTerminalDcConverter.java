@@ -104,46 +104,13 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return 0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0)));
     }
 
-    static void updateAndCreateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        Map<String, PsseTwoTerminalDcTransmissionLine> hvdcLinesToPsseTwoTerminalDcTransmissionLine = new HashMap<>();
-        psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDcTransmissionLine -> hvdcLinesToPsseTwoTerminalDcTransmissionLine.put(getTwoTerminalDcId(psseTwoTerminalDcTransmissionLine.getName()), psseTwoTerminalDcTransmissionLine));
-
+    static void createTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
         network.getHvdcLines().forEach(hvdcLine -> {
             if (isTwoTerminalDcTransmissionLine(hvdcLine)) {
-                if (hvdcLinesToPsseTwoTerminalDcTransmissionLine.containsKey(hvdcLine.getId())) {
-                    updateTwoTerminalDcTransmissionLine(hvdcLine, hvdcLinesToPsseTwoTerminalDcTransmissionLine.get(hvdcLine.getId()), contextExport);
-                } else {
-                    psseModel.addTwoTerminalDcTransmissionLines(Collections.singletonList(createTwoTerminalDcTransmissionLine(hvdcLine, contextExport)));
-                }
+                psseModel.addTwoTerminalDcTransmissionLines(Collections.singletonList(createTwoTerminalDcTransmissionLine(hvdcLine, contextExport)));
             }
         });
         psseModel.replaceAllTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines().stream().sorted(Comparator.comparing(PsseTwoTerminalDcTransmissionLine::getName)).toList());
-    }
-
-    private static void updateTwoTerminalDcTransmissionLine(HvdcLine hvdcLine, PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContextExport contextExport) {
-        int busRectifier = getTerminalBusI(rectifierTerminal(hvdcLine), contextExport);
-        int busInverter = getTerminalBusI(inverterTerminal(hvdcLine), contextExport);
-
-        psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
-        psseTwoTerminalDc.getRectifier().setIp(busRectifier);
-        psseTwoTerminalDc.getInverter().setIp(busInverter);
-    }
-
-    private static Terminal rectifierTerminal(HvdcLine hvdcLine) {
-        return hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) ? hvdcLine.getConverterStation1().getTerminal() : hvdcLine.getConverterStation2().getTerminal();
-    }
-
-    private static Terminal inverterTerminal(HvdcLine hvdcLine) {
-        return hvdcLine.getConvertersMode().equals(ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER) ? hvdcLine.getConverterStation2().getTerminal() : hvdcLine.getConverterStation1().getTerminal();
-    }
-
-    private static int findControlMode(HvdcLine hvdcLine, int mdc) {
-        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus() != null
-                && hvdcLine.getConverterStation2().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus() != null) {
-            return mdc != 0 ? mdc : 1;
-        } else {
-            return 0;
-        }
     }
 
     private static PsseTwoTerminalDcTransmissionLine createTwoTerminalDcTransmissionLine(HvdcLine hvdcLine, ContextExport contextExport) {
@@ -210,6 +177,28 @@ class TwoTerminalDcConverter extends AbstractConverter {
         converter.setXcap(0.0);
 
         return converter;
+    }
+
+    static void updateTwoTerminalDcTransmissionLines(Network network, PssePowerFlowModel psseModel) {
+        psseModel.getTwoTerminalDcTransmissionLines().forEach(psseTwoTerminalDc -> {
+            String hvdcId = getTwoTerminalDcId(psseTwoTerminalDc.getName());
+            HvdcLine hvdcLine = network.getHvdcLine(hvdcId);
+
+            if (hvdcLine == null) {
+                psseTwoTerminalDc.setMdc(0);
+            } else {
+                psseTwoTerminalDc.setMdc(findControlMode(hvdcLine, psseTwoTerminalDc.getMdc()));
+            }
+        });
+    }
+
+    private static int findControlMode(HvdcLine hvdcLine, int mdc) {
+        if (hvdcLine.getConverterStation1().getTerminal().isConnected() && hvdcLine.getConverterStation1().getTerminal().getBusBreakerView().getBus() != null
+                && hvdcLine.getConverterStation2().getTerminal().isConnected() && hvdcLine.getConverterStation2().getTerminal().getBusBreakerView().getBus() != null) {
+            return mdc != 0 ? mdc : 1;
+        } else {
+            return 0;
+        }
     }
 
     private final PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc;

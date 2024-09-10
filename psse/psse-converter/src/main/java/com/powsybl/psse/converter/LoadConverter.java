@@ -91,26 +91,54 @@ class LoadConverter extends AbstractConverter {
         adder.add();
     }
 
-    static void updateAndCreateLoads(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
-        Map<String, PsseLoad> loadsToPsseLoad = new HashMap<>();
-        psseModel.getLoads().forEach(psseLoad -> loadsToPsseLoad.put(getLoadId(psseLoad.getI(), psseLoad.getId()), psseLoad));
-
-        network.getLoads().forEach(load -> {
-            if (loadsToPsseLoad.containsKey(load.getId())) {
-                updateLoad(load, loadsToPsseLoad.get(load.getId()), contextExport);
-            } else {
-                psseModel.addLoads(Collections.singletonList(createLoad(load, contextExport)));
-            }
-        });
+    static void createLoads(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        network.getLoads().forEach(load -> psseModel.addLoads(Collections.singletonList(createLoad(load, contextExport))));
         psseModel.replaceAllLoads(psseModel.getLoads().stream().sorted(Comparator.comparingInt(PsseLoad::getI).thenComparing(PsseLoad::getId)).toList());
     }
 
-    private static void updateLoad(Load load, PsseLoad psseLoad, ContextExport contextExport) {
-        int bus = getTerminalBusI(load.getTerminal(), contextExport);
+    private static PsseLoad createLoad(Load load, ContextExport contextExport) {
+        PsseLoad psseLoad = new PsseLoad();
+
+        int busI = getTerminalBusI(load.getTerminal(), contextExport);
+        psseLoad.setI(busI);
+        psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), IdentifiableType.LOAD, busI));
+        psseLoad.setStatus(getStatus(load.getTerminal()));
+        psseLoad.setArea(1);
+        psseLoad.setZone(1);
+        psseLoad.setPl(getP(load));
+        psseLoad.setQl(getQ(load));
+        psseLoad.setIp(0.0);
+        psseLoad.setIq(0.0);
+        psseLoad.setYp(0.0);
+        psseLoad.setYq(0.0);
+        psseLoad.setOwner(1);
+        psseLoad.setScale(1);
+        psseLoad.setIntrpt(0);
+        psseLoad.setDgenp(0.0);
+        psseLoad.setDgenq(0.0);
+        psseLoad.setDgenm(0);
+        String type = "";
+        psseLoad.setLoadtype(type.substring(0, Math.min(12, type.length())));
+
+        return psseLoad;
+    }
+
+    static void updateLoads(Network network, PssePowerFlowModel psseModel) {
+        psseModel.getLoads().forEach(psseLoad -> {
+            String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());
+            Load load = network.getLoad(loadId);
+            if (load == null) {
+                psseLoad.setStatus(0);
+            } else {
+                updateLoad(load, psseLoad);
+            }
+        });
+    }
+
+    private static void updateLoad(Load load, PsseLoad psseLoad) {
         psseLoad.setStatus(getStatus(load.getTerminal()));
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));
-        psseLoad.setI(bus);
     }
 
     private static double getP(Load load) {
@@ -127,33 +155,6 @@ class LoadConverter extends AbstractConverter {
         } else {
             return load.getTerminal().getQ();
         }
-    }
-
-    private static PsseLoad createLoad(Load load, ContextExport contextExport) {
-        PsseLoad psseLoad = new PsseLoad();
-
-        int busI = getTerminalBusI(load.getTerminal(), contextExport);
-        psseLoad.setI(busI);
-        psseLoad.setId(contextExport.getEquipmentCkt(load.getId(), IdentifiableType.LOAD, busI));
-        psseLoad.setStatus(getStatus(load.getTerminal()));
-        psseLoad.setArea(1);
-        psseLoad.setZone(1);
-        psseLoad.setPl(load.getP0());
-        psseLoad.setQl(load.getQ0());
-        psseLoad.setIp(0.0);
-        psseLoad.setIq(0.0);
-        psseLoad.setYp(0.0);
-        psseLoad.setYq(0.0);
-        psseLoad.setOwner(1);
-        psseLoad.setScale(1);
-        psseLoad.setIntrpt(0);
-        psseLoad.setDgenp(0.0);
-        psseLoad.setDgenq(0.0);
-        psseLoad.setDgenm(0);
-        String type = "";
-        psseLoad.setLoadtype(type.substring(0, Math.min(12, type.length())));
-
-        return psseLoad;
     }
 
     private final PsseLoad psseLoad;

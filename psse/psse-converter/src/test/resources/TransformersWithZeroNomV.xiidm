@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_13" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_5" id="TransformersWithZeroNomV" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E" minimumValidationLevel="STEADY_STATE_HYPOTHESIS">
     <iidm:substation id="S1">
-        <iidm:voltageLevel id="VL1" nominalV="18.0" topologyKind="BUS_BREAKER">
+        <iidm:voltageLevel id="VL1-2" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1" name="1           " v="18.72" angle="-6.5957"/>
                 <iidm:bus id="B2" name="2           " v="18.72" angle="-6.5957"/>
@@ -25,7 +25,7 @@
             </iidm:busBreakerTopology>
             <iidm:load id="B7-L1 " loadType="UNDEFINED" p0="1.0" q0="1.0" bus="B7" connectableBus="B7"/>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-1-4-1 " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL1" bus1="B1" connectableBus1="B1" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
+        <iidm:twoWindingsTransformer id="T-1-4-1 " r="0.0" x="16.025" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" voltageLevelId1="VL1-2" bus1="B1" connectableBus1="B1" voltageLevelId2="VL4" bus2="B4" connectableBus2="B4" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT">
             <iidm:operationalLimitsGroup1 id="DEFAULT">
                 <iidm:currentLimits permanentLimit="325240.65164348925"/>
             </iidm:operationalLimitsGroup1>
@@ -33,7 +33,7 @@
                 <iidm:currentLimits permanentLimit="11708.663459165611"/>
             </iidm:operationalLimitsGroup2>
         </iidm:twoWindingsTransformer>
-        <iidm:threeWindingsTransformer id="T-4-2-7-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.144572" b1="-0.1079031826036656" ratedU1="500.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="18.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="16.0" ratedU0="1.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL1" bus2="B2" connectableBus2="B2" voltageLevelId3="VL7" bus3="B7" connectableBus3="B7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT" selectedOperationalLimitsGroupId3="DEFAULT">
+        <iidm:threeWindingsTransformer id="T-4-2-7-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.144572" b1="-0.1079031826036656" ratedU1="500.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="18.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="16.0" ratedU0="1.0" voltageLevelId1="VL4" bus1="B4" connectableBus1="B4" voltageLevelId2="VL1-2" bus2="B2" connectableBus2="B2" voltageLevelId3="VL7" bus3="B7" connectableBus3="B7" selectedOperationalLimitsGroupId1="DEFAULT" selectedOperationalLimitsGroupId2="DEFAULT" selectedOperationalLimitsGroupId3="DEFAULT">
             <iidm:property name="v" value="0.98627"/>
             <iidm:property name="angle" value="-10.1187"/>
             <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">

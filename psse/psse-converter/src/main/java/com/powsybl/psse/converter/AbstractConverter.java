@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
@@ -69,7 +70,28 @@ public abstract class AbstractConverter {
     }
 
     static String getVoltageLevelId(Set<Integer> busNums) {
-        return "VL" + busNums.stream().min(Comparator.naturalOrder()).orElseThrow(() -> new PsseException("Unexpected empty busNums"));
+        if (busNums.isEmpty()) {
+            throw new PsseException("Unexpected empty busNums");
+        }
+        List<Integer> sortedBusNums = busNums.stream().sorted().toList();
+        String voltageLevelId = "VL" + sortedBusNums.get(0);
+        for (int i = 1; i < sortedBusNums.size(); i++) {
+            voltageLevelId = voltageLevelId.concat(String.format("-%d", sortedBusNums.get(i)));
+        }
+        return voltageLevelId;
+    }
+
+    static List<Integer> extractBusesFromVoltageLevelId(String voltageLevelId) {
+        List<Integer> buses = new ArrayList<>();
+        if (voltageLevelId.length() <= 2 || !voltageLevelId.startsWith("VL")) {
+            return buses;
+        }
+        List<String> busesText = Arrays.stream(voltageLevelId.substring(2).split("-")).toList();
+        if (!busesText.stream().allMatch(busText -> busText.matches("[1-9]\\d*"))) {
+            return buses;
+        }
+        busesText.forEach(busText -> buses.add(Integer.parseInt(busText)));
+        return buses;
     }
 
     static String getBusId(int busNum) {
@@ -77,7 +99,7 @@ public abstract class AbstractConverter {
     }
 
     static OptionalInt extractBusNumber(String configuredBusId) {
-        if (configuredBusId.length() <= 1) {
+        if (configuredBusId.length() <= 1 || !configuredBusId.startsWith("B")) {
             return OptionalInt.empty();
         }
         String busNumber = configuredBusId.substring(1);
@@ -128,16 +150,16 @@ public abstract class AbstractConverter {
     }
 
     static String getVscDcTransmissionLineId(String name) {
-        return "VscDcTransmissionLine-" + name;
+        return VSC_DC_TRANSMISSION_LINE_TAG + name;
     }
 
     public static String extractVscDcTransmissionLineName(String vscDcTransmissionLineId) {
-        String name = vscDcTransmissionLineId.replace("VscDcTransmissionLine-", "");
+        String name = vscDcTransmissionLineId.replace(VSC_DC_TRANSMISSION_LINE_TAG, "");
         return name.substring(0, Math.min(12, name.length()));
     }
 
-    static String getVscConverterId(Network network, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionine, PsseVoltageSourceConverter converter) {
-        return Identifiables.getUniqueId("VscConverter-" + converter.getIbus() + "-" + psseVscDcTransmissionine.getName(), id -> network.getVscConverterStation(id) != null);
+    static String getVscConverterId(Network network, PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine, PsseVoltageSourceConverter converter) {
+        return Identifiables.getUniqueId("VscConverter-" + converter.getIbus() + "-" + psseVscDcTransmissionLine.getName(), id -> network.getVscConverterStation(id) != null);
     }
 
     static String getSwitchId(String voltageLevelId, PsseSubstation.PsseSubstationSwitchingDevice switchingDevice) {
@@ -148,64 +170,8 @@ public abstract class AbstractConverter {
         return String.format("%s-Busbar-%d", voltageLevelId, node);
     }
 
-    public static Optional<String> extractCkt(String identifiableId, IdentifiableType identifiableType) {
-        switch (identifiableType) {
-            case SWITCH, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER -> {
-                return extractCkt(identifiableId, "-");
-            }
-            case LOAD -> {
-                return extractCkt(identifiableId, "-L");
-            }
-            case GENERATOR -> {
-                return extractCkt(identifiableId, "-G");
-            }
-            case SHUNT_COMPENSATOR -> {
-                Optional<String> ckt = extractCkt(identifiableId, FIXED_SHUNT_TAG);
-                return ckt.isPresent() ? ckt : extractCkt(identifiableId, SWITCHED_SHUNT_TAG);
-            }
-            case HVDC_LINE -> {
-                if (identifiableId.contains(TWO_TERMINAL_DC_TAG)) {
-                    return Optional.of(extractTwoTerminalDcName(identifiableId));
-                } else if (identifiableId.contains(VSC_DC_TRANSMISSION_LINE_TAG)) {
-                    return Optional.of(extractVscDcTransmissionLineName(identifiableId));
-                } else {
-                    return Optional.empty();
-                }
-            }
-            default -> throw new PsseException("unexpected identifiableType: " + identifiableType.name());
-        }
-    }
-
-    private static Optional<String> extractCkt(String identifiableId, String subString) {
-        int index = identifiableId.lastIndexOf(subString);
-        if (index != -1) {
-            return Optional.of(identifiableId.substring(index + subString.length()));
-        } else {
-            return Optional.empty();
-        }
-    }
-
-    static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus) {
-        return equipmentId + "." + bus;
-    }
-
-    static String getPsseEquipmentType(Identifiable<?> identifiable) {
-        return switch (identifiable.getType()) {
-            case LOAD -> PsseEquipmentType.PSSE_LOAD.getTextCode();
-            case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
-            case LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
-            case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
-            case THREE_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_THREE_WINDING.getTextCode();
-            case SHUNT_COMPENSATOR -> {
-                ShuntCompensator shunt = (ShuntCompensator) identifiable;
-                yield isFixedShunt(shunt) ? PsseEquipmentType.PSSE_FIXED_SHUNT.getTextCode() : PsseEquipmentType.PSSE_SWITCHED_SHUNT.getTextCode();
-            }
-            case HVDC_LINE -> {
-                HvdcLine hvdcLine = (HvdcLine) identifiable;
-                yield isTwoTerminalDcTransmissionLine(hvdcLine) ? PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE.getTextCode() : PsseEquipmentType.PSSE_VSC_DC_LINE.getTextCode();
-            }
-            default -> throw new PsseException("unexpected identifiableType: " + identifiable.getType().name());
-        };
+    static String getNodeId(VoltageLevel voltageLevel, int node) {
+        return voltageLevel.getId() + "-" + node;
     }
 
     static boolean isFixedShunt(ShuntCompensator shunt) {
@@ -247,43 +213,6 @@ public abstract class AbstractConverter {
         return equipmentListToBeExported.stream().sorted().toList();
     }
 
-    static List<Integer> getEquipmentNodes(VoltageLevel voltageLevel, String equipmentId) {
-        return getEquipmentTerminals(voltageLevel, equipmentId).stream().map(terminal -> terminal.getNodeBreakerView().getNode()).toList();
-    }
-
-    static List<Terminal> getEquipmentTerminals(VoltageLevel voltageLevel, String equipmentId) {
-        List<Terminal> terminals = new ArrayList<>();
-        Connectable<?> connectable = voltageLevel.getNetwork().getConnectable(equipmentId);
-        if (connectable != null) {
-            connectable.getTerminals().forEach(terminal -> addVoltageLevelTerminal(voltageLevel, terminal, terminals));
-        } else {
-            Identifiable<?> identifiable = voltageLevel.getNetwork().getIdentifiable(equipmentId);
-            if (identifiable != null && identifiable.getType().equals(IdentifiableType.HVDC_LINE)) {
-                HvdcLine hvdcLine = (HvdcLine) identifiable;
-                addVoltageLevelTerminal(voltageLevel, hvdcLine.getConverterStation1().getTerminal(), terminals);
-                addVoltageLevelTerminal(voltageLevel, hvdcLine.getConverterStation2().getTerminal(), terminals);
-            } else {
-                throw new PsseException("Unexpected identifiable: " + equipmentId);
-            }
-        }
-        return terminals;
-    }
-
-    static ThreeSides getTerminalSide(Terminal terminal) {
-        if (terminal.getConnectable().getType().equals(IdentifiableType.HVDC_CONVERTER_STATION)) {
-            HvdcConverterStation<?> converterStation = (HvdcConverterStation<?>) terminal.getConnectable();
-            return converterStation.equals(converterStation.getHvdcLine().getConverterStation1()) ? ThreeSides.ONE : ThreeSides.TWO;
-        } else {
-            return terminal.getSide();
-        }
-    }
-
-    private static void addVoltageLevelTerminal(VoltageLevel voltageLevel, Terminal terminal, List<Terminal> terminals) {
-        if (terminal != null && terminal.getVoltageLevel().equals(voltageLevel)) {
-            terminals.add(terminal);
-        }
-    }
-
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
             case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION ->
@@ -291,6 +220,28 @@ public abstract class AbstractConverter {
             case BUSBAR_SECTION, HVDC_LINE, SWITCH -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
         };
+    }
+
+    static List<Terminal> getEquipmentTerminals(VoltageLevel voltageLevel, String equipmentId) {
+        List<Terminal> terminals = new ArrayList<>();
+        Connectable<?> connectable = voltageLevel.getNetwork().getConnectable(equipmentId);
+        if (connectable != null) {
+            terminals.addAll(connectable.getTerminals());
+        } else {
+            Identifiable<?> identifiable = voltageLevel.getNetwork().getIdentifiable(equipmentId);
+            if (identifiable != null && identifiable.getType().equals(IdentifiableType.HVDC_LINE)) {
+                HvdcLine hvdcLine = (HvdcLine) identifiable;
+                terminals.add(hvdcLine.getConverterStation1().getTerminal());
+                terminals.add(hvdcLine.getConverterStation2().getTerminal());
+            } else {
+                throw new PsseException("Unexpected identifiable: " + equipmentId);
+            }
+        }
+        return terminals;
+    }
+
+    static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus) {
+        return equipmentId + "." + bus;
     }
 
     // EquipmentId must be independent of the bus order
@@ -329,6 +280,25 @@ public abstract class AbstractConverter {
         return equipmentType.getTextCode() + "." + bus1 + "." + bus2 + "." + bus3 + "." + id;
     }
 
+    static String getPsseEquipmentType(Identifiable<?> identifiable) {
+        return switch (identifiable.getType()) {
+            case LOAD -> PsseEquipmentType.PSSE_LOAD.getTextCode();
+            case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
+            case LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
+            case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
+            case THREE_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_THREE_WINDING.getTextCode();
+            case SHUNT_COMPENSATOR -> {
+                ShuntCompensator shunt = (ShuntCompensator) identifiable;
+                yield isFixedShunt(shunt) ? PsseEquipmentType.PSSE_FIXED_SHUNT.getTextCode() : PsseEquipmentType.PSSE_SWITCHED_SHUNT.getTextCode();
+            }
+            case HVDC_LINE -> {
+                HvdcLine hvdcLine = (HvdcLine) identifiable;
+                yield isTwoTerminalDcTransmissionLine(hvdcLine) ? PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE.getTextCode() : PsseEquipmentType.PSSE_VSC_DC_LINE.getTextCode();
+            }
+            default -> throw new PsseException("unexpected identifiableType: " + identifiable.getType().name());
+        };
+    }
+
     static Terminal findTerminalNode(Network network, String voltageLevelId, int node) {
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         return voltageLevel != null ? findTerminalNode(voltageLevel, node) : null;
@@ -339,17 +309,26 @@ public abstract class AbstractConverter {
                 .orElseGet(() -> Networks.getEquivalentTerminal(voltageLevel, node));
     }
 
-    static Bus getTerminalBus(Terminal terminal) {
+    static Bus findBusViewFromNode(VoltageLevel voltageLevel, int node) {
+        Terminal terminal = findTerminalNode(voltageLevel, node);
+        return terminal != null ? getTerminalBusView(terminal) : null;
+    }
+
+    static Bus getTerminalBusView(Terminal terminal) {
         return terminal.getBusView().getBus() != null ? terminal.getBusView().getBus() : terminal.getBusView().getConnectableBus();
     }
 
+    static int getTerminalNode(Terminal terminal) {
+        return exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel()) ? terminal.getNodeBreakerView().getNode() : 0;
+    }
+
     static int getTerminalBusI(Terminal terminal, ContextExport contextExport) {
-        if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+        if (exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel())) {
             int node = terminal.getNodeBreakerView().getNode();
-            return contextExport.getNodeBreakerExport().getNodeBusI(terminal.getVoltageLevel(), node).orElseThrow();
+            return contextExport.getLinkExport().getBusI(terminal.getVoltageLevel(), node).orElseThrow();
         } else {
-            Bus bus = getTerminalBus(terminal);
-            return contextExport.getBusBreakerExport().getBusBusI(bus.getId()).orElseThrow();
+            Bus bus = getTerminalBusView(terminal);
+            return contextExport.getLinkExport().getBusI(bus).orElseThrow();
         }
     }
 
@@ -357,8 +336,8 @@ public abstract class AbstractConverter {
         if (regulatingTerminal == null) {
             return 0;
         } else {
-            if (regulatingTerminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                return contextExport.getNodeBreakerExport().getSelectedNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode()).orElseThrow();
+            if (exportVoltageLevelAsNodeBreaker(regulatingTerminal.getVoltageLevel())) {
+                return contextExport.getFullExport().getRepresentativeNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode());
             } else {
                 return 0;
             }
@@ -380,6 +359,35 @@ public abstract class AbstractConverter {
 
     static int getStatus(Terminal terminal) {
         return terminal.isConnected() && terminal.getBusView().getBus() != null ? 1 : 0;
+    }
+
+    static int findBusViewBusType(VoltageLevel voltageLevel, Bus bus) {
+        if (!bus.isInMainConnectedComponent()) {
+            return 4;
+        }
+        SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
+        if (slackTerminal != null
+                && slackTerminal.getTerminal().getBusView().getBus() != null
+                && bus.getId().equals(slackTerminal.getTerminal().getBusView().getBus().getId())) {
+            return 3;
+        }
+        return bus.getGeneratorStream().anyMatch(AbstractConverter::withLocalRegulatingControl) ? 2 : 1;
+    }
+
+    private static boolean withLocalRegulatingControl(Generator generator) {
+        return generator.isVoltageRegulatorOn()
+                && generator.getTerminal().getBusView().getBus().equals(generator.getRegulatingTerminal().getBusView().getBus());
+    }
+
+    // node numbers in psse must be between 1 and 999
+    static boolean exportVoltageLevelAsNodeBreaker(VoltageLevel voltageLevel) {
+        return voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)
+                && voltageLevel.getNodeBreakerView().getSwitchCount() > 0
+                && maxNode(voltageLevel) <= 999;
+    }
+
+    private static int maxNode(VoltageLevel voltageLevel) {
+        return Arrays.stream(voltageLevel.getNodeBreakerView().getNodes()).max().orElse(0);
     }
 
     static Complex impedanceToEngineeringUnits(Complex impedance, double vnom, double sbase) {

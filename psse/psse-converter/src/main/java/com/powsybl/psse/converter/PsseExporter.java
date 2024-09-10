@@ -61,7 +61,8 @@ public class PsseExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
         PssePowerFlowModel updatePsseModel;
         Context context;
-        if (network.getExtension(PsseModelExtension.class) == null) {
+        boolean isFullExport = findFullExport(network);
+        if (isFullExport) {
             updatePsseModel = createPsseModel(network);
             context = PowerFlowDataFactory.createPsseContext();
         } else {
@@ -85,6 +86,10 @@ public class PsseExporter implements Exporter {
         } else {
             exportNotJson(context, updatePsseModel, version, dataSource);
         }
+    }
+
+    private static boolean findFullExport(Network network) {
+        return network.getExtension(PsseModelExtension.class) == null;
     }
 
     private void exportNotJson(Context context, PssePowerFlowModel updatePsseModel, PsseVersion version, DataSource dataSource) {
@@ -129,38 +134,38 @@ public class PsseExporter implements Exporter {
 
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel updatedPsseModel) {
         PerUnitContext perUnitContext = new PerUnitContext(updatedPsseModel.getCaseIdentification().getSbase());
-        ContextExport contextExport = createContextExport(network, updatedPsseModel);
+        ContextExport contextExport = createContextExport(network, updatedPsseModel, false);
 
-        VoltageLevelConverter.createAndUpdateSubstations(updatedPsseModel, contextExport);
+        VoltageLevelConverter.updateSubstations(network, contextExport);
 
-        BusConverter.updateAndCreateBuses(network, updatedPsseModel, contextExport);
-        LoadConverter.updateAndCreateLoads(network, updatedPsseModel, contextExport);
-        FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, updatedPsseModel, contextExport);
-        GeneratorConverter.updateAndCreateGenerators(network, updatedPsseModel, contextExport, perUnitContext);
-        LineConverter.updateAndCreateLines(network, updatedPsseModel, contextExport, perUnitContext);
-        TransformerConverter.updateAndCreateTransformers(network, updatedPsseModel, contextExport, perUnitContext);
-        TwoTerminalDcConverter.updateAndCreateTwoTerminalDcTransmissionLines(network, updatedPsseModel, contextExport);
-        VscDcTransmissionLineConverter.updateAndCreateVscDcTransmissionLines(network, updatedPsseModel, contextExport);
-        SwitchedShuntCompensatorConverter.updateAndCreateSwitchedShunts(network, updatedPsseModel, contextExport);
+        BusConverter.updateBuses(updatedPsseModel, contextExport);
+        LoadConverter.updateLoads(network, updatedPsseModel);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel);
+        GeneratorConverter.updateGenerators(network, updatedPsseModel);
+        LineConverter.updateLines(network, updatedPsseModel);
+        TransformerConverter.updateTransformers(network, updatedPsseModel);
+        TwoTerminalDcConverter.updateTwoTerminalDcTransmissionLines(network, updatedPsseModel);
+        VscDcTransmissionLineConverter.updateVscDcTransmissionLines(network, updatedPsseModel);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, updatedPsseModel);
     }
 
     private static PssePowerFlowModel createPsseModel(Network network) {
         PerUnitContext perUnitContext = new PerUnitContext(BASE_MVA);
         PsseCaseIdentification caseIdentification = createCaseIdentification(network, perUnitContext);
         PssePowerFlowModel psseModel = new PssePowerFlowModel(caseIdentification);
-        ContextExport contextExport = createContextExport(network, psseModel);
+        ContextExport contextExport = createContextExport(network, psseModel, true);
 
-        VoltageLevelConverter.createAndUpdateSubstations(psseModel, contextExport);
+        VoltageLevelConverter.createSubstations(network, psseModel, contextExport);
 
-        BusConverter.updateAndCreateBuses(network, psseModel, contextExport);
-        LoadConverter.updateAndCreateLoads(network, psseModel, contextExport);
-        FixedShuntCompensatorConverter.updateAndCreateFixedShunts(network, psseModel, contextExport);
-        GeneratorConverter.updateAndCreateGenerators(network, psseModel, contextExport, perUnitContext);
-        LineConverter.updateAndCreateLines(network, psseModel, contextExport, perUnitContext);
-        TransformerConverter.updateAndCreateTransformers(network, psseModel, contextExport, perUnitContext);
-        TwoTerminalDcConverter.updateAndCreateTwoTerminalDcTransmissionLines(network, psseModel, contextExport);
-        VscDcTransmissionLineConverter.updateAndCreateVscDcTransmissionLines(network, psseModel, contextExport);
-        SwitchedShuntCompensatorConverter.updateAndCreateSwitchedShunts(network, psseModel, contextExport);
+        BusConverter.createBuses(psseModel, contextExport);
+        LoadConverter.createLoads(network, psseModel, contextExport);
+        FixedShuntCompensatorConverter.createFixedShunts(network, psseModel, contextExport);
+        GeneratorConverter.createGenerators(network, psseModel, contextExport, perUnitContext);
+        LineConverter.createLines(network, psseModel, contextExport, perUnitContext);
+        TransformerConverter.createTransformers(network, psseModel, contextExport, perUnitContext);
+        TwoTerminalDcConverter.createTwoTerminalDcTransmissionLines(network, psseModel, contextExport);
+        VscDcTransmissionLineConverter.createVscDcTransmissionLines(network, psseModel, contextExport);
+        SwitchedShuntCompensatorConverter.createSwitchedShunts(network, psseModel, contextExport);
         return psseModel;
     }
 
