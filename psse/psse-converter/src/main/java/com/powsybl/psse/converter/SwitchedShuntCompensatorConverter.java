@@ -272,7 +272,6 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
     }
 
-    // At the moment we do not consider new switchedShunts
     static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {
         PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
         psseModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
@@ -287,17 +286,9 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         });
     }
 
-    private static int getStatus(ShuntCompensator switchedShunt) {
-        if (switchedShunt.getTerminal().isConnected() && switchedShunt.getTerminal().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
     private static double getQ(ShuntCompensator switchedShunt) {
         return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount()),
-            switchedShunt.getTerminal().getVoltageLevel().getNominalV());
+                switchedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 
     private final PsseSwitchedShunt psseSwitchedShunt;

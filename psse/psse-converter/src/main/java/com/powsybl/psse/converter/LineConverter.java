@@ -123,7 +123,6 @@ class LineConverter extends AbstractConverter {
         }
     }
 
-    // At the moment we do not consider new lines and antenna lines are exported as open
     static void updateLines(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
             String lineId = getLineId(psseLine.getI(), psseLine.getJ(), psseLine.getCkt());

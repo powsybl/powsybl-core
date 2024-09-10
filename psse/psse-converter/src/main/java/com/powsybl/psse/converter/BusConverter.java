@@ -43,28 +43,31 @@ class BusConverter extends AbstractConverter {
                 .setAngle(psseBus.getVa());
     }
 
-    static void updateBuses(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+    static void updateBuses(PssePowerFlowModel psseModel, ContextExport contextExport) {
         psseModel.getBuses().forEach(psseBus -> {
-            Optional<String> busViewBusId = contextExport.getBusViewBusId(psseBus.getI());
-            OptionalInt type = contextExport.getType(psseBus.getI());
-            if (busViewBusId.isPresent() && type.isPresent()) {
-                updatePsseBus(network, busViewBusId.get(), type.getAsInt(), psseBus);
+            Optional<Bus> busViewBus = contextExport.getLinkExport().getBusView(psseBus.getI());
+            if (busViewBus.isPresent()) {
+                updatePsseBus(busViewBus.get(), findBusType(busViewBus.get().getVoltageLevel(), busViewBus.get(), psseBus), psseBus);
             } else {
                 updateIsolatedPsseBus(psseBus);
             }
         });
     }
 
-    private static void updatePsseBus(Network network, String busViewBusId, int type, PsseBus psseBus) {
-        Bus bus = network.getBusView().getBus(busViewBusId);
-        if (bus == null) {
+    // type is preserved in the update of nodeBreaker topologies. Type is calculated internally by psse based on the status of switches
+    private static int findBusType(VoltageLevel voltageLevel, Bus busView, PsseBus psseBus) {
+        return exportVoltageLevelAsNodeBreaker(voltageLevel) ? psseBus.getIde() : findBusViewBusType(voltageLevel, busView);
+    }
+
+    private static void updatePsseBus(Bus busView, int type, PsseBus psseBus) {
+        if (busView == null) {
             updateIsolatedPsseBus(psseBus);
         } else {
             if (type == 4) {
                 updateIsolatedPsseBus(psseBus);
             } else {
-                psseBus.setVm(getVm(bus));
-                psseBus.setVa(getVa(bus));
+                psseBus.setVm(getVm(busView));
+                psseBus.setVa(getVa(busView));
                 psseBus.setIde(type);
             }
         }

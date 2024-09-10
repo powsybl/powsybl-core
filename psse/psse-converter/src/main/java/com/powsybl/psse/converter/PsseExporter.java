@@ -124,7 +124,7 @@ public class PsseExporter implements Exporter {
 
         VoltageLevelConverter.updateSubstations(network, contextExport);
 
-        BusConverter.updateBuses(network, updatedPsseModel, contextExport);
+        BusConverter.updateBuses(updatedPsseModel, contextExport);
         LoadConverter.updateLoads(network, updatedPsseModel);
         FixedShuntCompensatorConverter.updateFixedShunts(network, updatedPsseModel);
         GeneratorConverter.updateGenerators(network, updatedPsseModel);

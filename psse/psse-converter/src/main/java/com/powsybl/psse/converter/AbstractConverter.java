@@ -11,6 +11,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.psse.model.PsseException;
@@ -151,6 +152,14 @@ public abstract class AbstractConverter {
         return String.format("%s-Busbar-%d", voltageLevelId, node);
     }
 
+    static String getNodeId(VoltageLevel voltageLevel, int node) {
+        return voltageLevel.getId() + "-" + node;
+    }
+
+    static int getStatus(ShuntCompensator shuntCompensator) {
+        return shuntCompensator.getTerminal().isConnected() && shuntCompensator.getTerminal().getBusBreakerView().getBus() != null ? 1 : 0;
+    }
+
     static String getNodeBreakerEquipmentIdBus(String equipmentId, int bus) {
         return equipmentId + "." + bus;
     }
@@ -214,6 +223,28 @@ public abstract class AbstractConverter {
         return terminal.isConnected() && terminal.getBusView().getBus() != null ? 1 : 0;
     }
 
+    static int findBusViewBusType(VoltageLevel voltageLevel, Bus bus) {
+        if (!bus.isInMainConnectedComponent()) {
+            return 4;
+        }
+        SlackTerminal slackTerminal = voltageLevel.getExtension(SlackTerminal.class);
+        if (slackTerminal != null
+                && slackTerminal.getTerminal().getBusView().getBus() != null
+                && bus.getId().equals(slackTerminal.getTerminal().getBusView().getBus().getId())) {
+            return 3;
+        }
+        return bus.getGeneratorStream().anyMatch(AbstractConverter::withLocalRegulatingControl) ? 2 : 1;
+    }
+
+    private static boolean withLocalRegulatingControl(Generator generator) {
+        return generator.isVoltageRegulatorOn()
+                && generator.getTerminal().getBusView().getBus().equals(generator.getRegulatingTerminal().getBusView().getBus());
+    }
+
+    static boolean exportVoltageLevelAsNodeBreaker(VoltageLevel voltageLevel) {
+        return voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER);
+    }
+
     static Complex impedanceToEngineeringUnits(Complex impedance, double vnom, double sbase) {
         return impedance.multiply(vnom * vnom / sbase);
     }
@@ -256,6 +287,10 @@ public abstract class AbstractConverter {
 
     static double getVa(Bus bus) {
         return bus != null && Double.isFinite(bus.getAngle()) ? bus.getAngle() : 0.0;
+    }
+
+    static double currentInAmpsToMw(double current, double nominalV) {
+        return current * nominalV / 1000.0;
     }
 
     private final ContainersMapping containersMapping;

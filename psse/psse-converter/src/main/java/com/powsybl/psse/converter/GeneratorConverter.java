@@ -128,7 +128,6 @@ class GeneratorConverter extends AbstractConverter {
         return regulatingTerminal;
     }
 
-    // At the moment we do not consider new generators
     static void updateGenerators(Network network, PssePowerFlowModel psseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
             String genId = getGeneratorId(psseGen.getI(), psseGen.getId());

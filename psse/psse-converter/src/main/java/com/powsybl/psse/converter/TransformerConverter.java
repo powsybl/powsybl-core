@@ -875,66 +875,62 @@ class TransformerConverter extends AbstractConverter {
 
     private static void updateTwoWindingsTransformer(Network network, PsseTransformer psseTransformer) {
         String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getCkt());
-        TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer(transformerId);
-        if (tw2t == null) {
+        TwoWindingsTransformer t2w = network.getTwoWindingsTransformer(transformerId);
+        if (t2w == null) {
             psseTransformer.setStat(0);
         } else {
-            double baskv1 = tw2t.getTerminal1().getVoltageLevel().getNominalV();
-            double nomV1 = getNomV(psseTransformer.getWinding1(), tw2t.getTerminal1().getVoltageLevel());
-            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
-            psseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
+            double baskv1 = t2w.getTerminal1().getVoltageLevel().getNominalV();
+            double nomV1 = getNomV(psseTransformer.getWinding1(), t2w.getTerminal1().getVoltageLevel());
+            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+            psseTransformer.getWinding1().setAng(getAngle(t2w.getPhaseTapChanger()));
 
-            psseTransformer.setStat(getStatus(tw2t));
+            psseTransformer.setStat(getStatus(t2w));
         }
     }
 
-    private static int getStatus(TwoWindingsTransformer tw2t) {
-        if (tw2t.getTerminal1().isConnected() && tw2t.getTerminal1().getBusBreakerView().getBus() != null
-                && tw2t.getTerminal2().isConnected() && tw2t.getTerminal2().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
+    private static int getStatus(TwoWindingsTransformer t2w) {
+        return t2w.getTerminal1().isConnected() && t2w.getTerminal1().getBusBreakerView().getBus() != null
+                && t2w.getTerminal2().isConnected() && t2w.getTerminal2().getBusBreakerView().getBus() != null ? 1 : 0;
     }
 
     private static void updateThreeWindingsTransformer(Network network, PsseTransformer psseTransformer) {
         String transformerId = getTransformerId(psseTransformer.getI(), psseTransformer.getJ(), psseTransformer.getK(), psseTransformer.getCkt());
-        ThreeWindingsTransformer tw3t = network.getThreeWindingsTransformer(transformerId);
-        if (tw3t == null) {
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer(transformerId);
+        if (t3w == null) {
             psseTransformer.setStat(0);
         } else {
-            double baskv1 = tw3t.getLeg1().getTerminal().getVoltageLevel().getNominalV();
-            double nomV1 = getNomV(psseTransformer.getWinding1(), tw3t.getLeg1().getTerminal().getVoltageLevel());
-            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw3t.getLeg1().getRatioTapChanger(), tw3t.getLeg1().getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
-            psseTransformer.getWinding1().setAng(getAngle(tw3t.getLeg1().getPhaseTapChanger()));
+            double baskv1 = t3w.getLeg1().getTerminal().getVoltageLevel().getNominalV();
+            double nomV1 = getNomV(psseTransformer.getWinding1(), t3w.getLeg1().getTerminal().getVoltageLevel());
+            psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t3w.getLeg1().getRatioTapChanger(), t3w.getLeg1().getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
+            psseTransformer.getWinding1().setAng(getAngle(t3w.getLeg1().getPhaseTapChanger()));
 
-            double baskv2 = tw3t.getLeg2().getTerminal().getVoltageLevel().getNominalV();
-            double nomV2 = getNomV(psseTransformer.getWinding2(), tw3t.getLeg2().getTerminal().getVoltageLevel());
-            psseTransformer.getWinding2().setWindv(defineWindV(getRatio(tw3t.getLeg2().getRatioTapChanger(), tw3t.getLeg2().getPhaseTapChanger()), baskv2, nomV2, psseTransformer.getCw()));
-            psseTransformer.getWinding2().setAng(getAngle(tw3t.getLeg2().getPhaseTapChanger()));
+            double baskv2 = t3w.getLeg2().getTerminal().getVoltageLevel().getNominalV();
+            double nomV2 = getNomV(psseTransformer.getWinding2(), t3w.getLeg2().getTerminal().getVoltageLevel());
+            psseTransformer.getWinding2().setWindv(defineWindV(getRatio(t3w.getLeg2().getRatioTapChanger(), t3w.getLeg2().getPhaseTapChanger()), baskv2, nomV2, psseTransformer.getCw()));
+            psseTransformer.getWinding2().setAng(getAngle(t3w.getLeg2().getPhaseTapChanger()));
 
-            double baskv3 = tw3t.getLeg3().getTerminal().getVoltageLevel().getNominalV();
-            double nomV3 = getNomV(psseTransformer.getWinding3(), tw3t.getLeg3().getTerminal().getVoltageLevel());
-            psseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
-            psseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
+            double baskv3 = t3w.getLeg3().getTerminal().getVoltageLevel().getNominalV();
+            double nomV3 = getNomV(psseTransformer.getWinding3(), t3w.getLeg3().getTerminal().getVoltageLevel());
+            psseTransformer.getWinding3().setWindv(defineWindV(getRatio(t3w.getLeg3().getRatioTapChanger(), t3w.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
+            psseTransformer.getWinding3().setAng(getAngle(t3w.getLeg3().getPhaseTapChanger()));
 
-            psseTransformer.setStat(getStatus(tw3t));
+            psseTransformer.setStat(getStatus(t3w));
         }
     }
 
-    private static int getStatus(ThreeWindingsTransformer tw3t) {
-        if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg1().getTerminal().getBusBreakerView().getBus() != null
-                && tw3t.getLeg2().getTerminal().isConnected() && tw3t.getLeg2().getTerminal().getBusBreakerView().getBus() != null
-                && tw3t.getLeg3().getTerminal().isConnected() && tw3t.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
+    private static int getStatus(ThreeWindingsTransformer t3w) {
+        if (t3w.getLeg1().getTerminal().isConnected() && t3w.getLeg1().getTerminal().getBusBreakerView().getBus() != null
+                && t3w.getLeg2().getTerminal().isConnected() && t3w.getLeg2().getTerminal().getBusBreakerView().getBus() != null
+                && t3w.getLeg3().getTerminal().isConnected() && t3w.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
             return 1;
-        } else if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg1().getTerminal().getBusBreakerView().getBus() != null
-                && tw3t.getLeg2().getTerminal().isConnected() && tw3t.getLeg2().getTerminal().getBusBreakerView().getBus() != null) {
+        } else if (t3w.getLeg1().getTerminal().isConnected() && t3w.getLeg1().getTerminal().getBusBreakerView().getBus() != null
+                && t3w.getLeg2().getTerminal().isConnected() && t3w.getLeg2().getTerminal().getBusBreakerView().getBus() != null) {
             return 3;
-        } else if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg1().getTerminal().getBusBreakerView().getBus() != null
-                && tw3t.getLeg3().getTerminal().isConnected() && tw3t.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
+        } else if (t3w.getLeg1().getTerminal().isConnected() && t3w.getLeg1().getTerminal().getBusBreakerView().getBus() != null
+                && t3w.getLeg3().getTerminal().isConnected() && t3w.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
             return 2;
-        } else if (tw3t.getLeg2().getTerminal().isConnected() && tw3t.getLeg2().getTerminal().getBusBreakerView().getBus() != null
-                && tw3t.getLeg3().getTerminal().isConnected() && tw3t.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
+        } else if (t3w.getLeg2().getTerminal().isConnected() && t3w.getLeg2().getTerminal().getBusBreakerView().getBus() != null
+                && t3w.getLeg3().getTerminal().isConnected() && t3w.getLeg3().getTerminal().getBusBreakerView().getBus() != null) {
             return 4;
         } else {
             return 0;
@@ -942,26 +938,31 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static double getRatio(RatioTapChanger rtc, PhaseTapChanger ptc) {
-        double rho = 1.0;
-        if (rtc != null) {
-            rho = rho * rtc.getCurrentStep().getRho();
+        if (rtc != null && ptc != null) {
+            return getRatio(rtc) * getRatio(ptc);
+        } else if (rtc != null) {
+            return getRatio(rtc);
+        } else if (ptc != null) {
+            return getRatio(ptc);
+        } else {
+            return 1.0;
         }
-        if (ptc != null) {
-            rho = rho * ptc.getCurrentStep().getRho();
-        }
-        return 1.0 / rho;
+    }
+
+    private static double getRatio(RatioTapChanger rtc) {
+        return rtc != null ? 1.0 / rtc.getCurrentStep().getRho() : 1.0;
+    }
+
+    private static double getRatio(PhaseTapChanger ptc) {
+        return ptc != null ? 1.0 / ptc.getCurrentStep().getRho() : 1.0;
     }
 
     private static double getAngle(PhaseTapChanger ptc) {
-        double alpha = 0.0;
-        if (ptc != null) {
-            alpha = ptc.getCurrentStep().getAlpha();
-        }
-        // To avoid - 0.0
-        if (alpha != 0.0) {
-            return -alpha;
-        }
-        return alpha;
+        return ptc != null ? convertToAngle(ptc.getCurrentStep().getAlpha()) : 0.0;
+    }
+
+    private static double convertToAngle(double alpha) {
+        return alpha != 0.0 ? -alpha : alpha; // To avoid - 0.0
     }
 
     private final PsseTransformer psseTransformer;

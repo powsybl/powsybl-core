@@ -175,7 +175,7 @@ final class NodeBreakerValidation {
                 && equipmentTerminalByEquipmentTerminalData.containsAll(equipmentTerminalByNodeSet);
     }
 
-    // base on real cases and substation configurations created automatically by psse
+    // based on real cases and substation configurations created automatically by psse
     // isolated nodes are discarded
     // nodes are in the same component if they are connected by switches without considering their status (open / close)
     private static Set<Integer> obtainNodeComponentBySwitching(PsseSubstation psseSubstation, int bus) {
