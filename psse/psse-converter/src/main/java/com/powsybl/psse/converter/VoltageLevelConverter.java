@@ -230,7 +230,6 @@ class VoltageLevelConverter extends AbstractConverter {
             String busBreakerViewId = findBusBreakerViewBusId(bus.getId(), busViewBusBusBreakerViewBuses);
             int busI = findBusI(busBreakerViewId, contextExport);
             contextExport.getLinkExport().addBusViewBusIDoubleLink(bus, busI);
-            // TODO JAM contextExport.addBus(busI, bus, findBusViewBusType(voltageLevel, bus));
         });
     }
 
@@ -269,12 +268,9 @@ class VoltageLevelConverter extends AbstractConverter {
             int busI = findBusI(connectedSetBySwitches, psseSubstation, contextExport);
             Set<Bus> busViewBuses = findBusViewBuses(voltageLevel, connectedSetBySwitches);
             connectedSetBySwitches.forEach(node -> contextExport.getLinkExport().addNodeBusILink(voltageLevel, node, busI));
-            // JAM TODO connectedSetBySwitches.forEach(node -> contextExport.getNodeBreakerExport().addNode(voltageLevel, node, busI, findBusViewFromNode(voltageLevel, node)));
 
             Bus selectedBus = busViewBuses.stream().min(Comparator.comparingInt(busView -> findPriorityType(voltageLevel, busView))).orElseThrow();
             contextExport.getLinkExport().addBusViewBusIDoubleLink(selectedBus, busI);
-            // JAM TODO int type = findPsseBusType(voltageLevel, busI, selectedBus, contextExport);
-            // JAM TODO contextExport.addBus(busI, selectedBus, type);
         });
     }
 

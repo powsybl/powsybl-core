@@ -798,11 +798,8 @@ class TransformerConverter extends AbstractConverter {
         double vmax = winding.getVma() * vnom;
         double targetV = (vmin + vmax) * 0.5;
         double targetDeadBand = vmax - vmin;
+        boolean regulating = targetV > 0.0 && targetDeadBand >= 0.0;
 
-        boolean regulating = true;
-        if (targetV <= 0.0 || targetDeadBand < 0.0) {
-            regulating = false;
-        }
         if (regulating && regulatingForcedToOff) {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
@@ -829,10 +826,8 @@ class TransformerConverter extends AbstractConverter {
         double activePowerMax = winding.getVma();
         double targetValue = 0.5 * (activePowerMin + activePowerMax);
         double targetDeadBand = activePowerMax - activePowerMin;
-        boolean regulating = true;
-        if (targetDeadBand < 0.0) {
-            regulating = false;
-        }
+        boolean regulating = targetDeadBand >= 0.0;
+
         if (regulating && regulatingForcedToOff) {
             LOGGER.warn("Transformer {}. Regulating control forced to off. Only one control is supported", id);
             regulating = false;
@@ -995,46 +990,8 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static int getStatus(TwoWindingsTransformer t2w) {
-        if (t2w.getTerminal1().isConnected() && t2w.getTerminal1().getBusBreakerView().getBus() != null
-                && t2w.getTerminal2().isConnected() && t2w.getTerminal2().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
-    }
-
-    private static void updateThreeWindingsTransformer(ThreeWindingsTransformer t3w, PsseTransformer psseTransformer, ContextExport contextExport) {
-        double baskv1 = t3w.getLeg1().getTerminal().getVoltageLevel().getNominalV();
-        double nomV1 = getNomV(psseTransformer.getWinding1(), t3w.getLeg1().getTerminal().getVoltageLevel());
-        double baskv2 = t3w.getLeg2().getTerminal().getVoltageLevel().getNominalV();
-        double nomV2 = getNomV(psseTransformer.getWinding2(), t3w.getLeg2().getTerminal().getVoltageLevel());
-        double baskv3 = t3w.getLeg3().getTerminal().getVoltageLevel().getNominalV();
-        double nomV3 = getNomV(psseTransformer.getWinding3(), t3w.getLeg3().getTerminal().getVoltageLevel());
-
-        int busI = getTerminalBusI(t3w.getLeg1().getTerminal(), contextExport);
-        int busJ = getTerminalBusI(t3w.getLeg2().getTerminal(), contextExport);
-        int busK = getTerminalBusI(t3w.getLeg3().getTerminal(), contextExport);
-
-        int regulatingBus1 = getRegulatingTerminalBusI(findRegulatingTerminal(t3w.getLeg1(), psseTransformer.getWinding1().getCod()), contextExport);
-        int regulatingBus2 = getRegulatingTerminalBusI(findRegulatingTerminal(t3w.getLeg2(), psseTransformer.getWinding2().getCod()), contextExport);
-        int regulatingBus3 = getRegulatingTerminalBusI(findRegulatingTerminal(t3w.getLeg3(), psseTransformer.getWinding3().getCod()), contextExport);
-
-        psseTransformer.getWinding1().setWindv(defineWindV(getRatio(t3w.getLeg1().getRatioTapChanger(), t3w.getLeg1().getPhaseTapChanger()), baskv1, nomV1, psseTransformer.getCw()));
-        psseTransformer.getWinding1().setAng(getAngle(t3w.getLeg1().getPhaseTapChanger()));
-        psseTransformer.getWinding2().setWindv(defineWindV(getRatio(t3w.getLeg2().getRatioTapChanger(), t3w.getLeg2().getPhaseTapChanger()), baskv2, nomV2, psseTransformer.getCw()));
-        psseTransformer.getWinding2().setAng(getAngle(t3w.getLeg2().getPhaseTapChanger()));
-        psseTransformer.getWinding3().setWindv(defineWindV(getRatio(t3w.getLeg3().getRatioTapChanger(), t3w.getLeg3().getPhaseTapChanger()), baskv3, nomV3, psseTransformer.getCw()));
-        psseTransformer.getWinding3().setAng(getAngle(t3w.getLeg3().getPhaseTapChanger()));
-
-        psseTransformer.setI(busI);
-        psseTransformer.setJ(busJ);
-        psseTransformer.setK(busK);
-
-        psseTransformer.getWinding1().setCont(regulatingBus1);
-        psseTransformer.getWinding2().setCont(regulatingBus2);
-        psseTransformer.getWinding3().setCont(regulatingBus3);
-
-        psseTransformer.setStat(getStatus(t3w));
+        return t2w.getTerminal1().isConnected() && t2w.getTerminal1().getBusBreakerView().getBus() != null
+                && t2w.getTerminal2().isConnected() && t2w.getTerminal2().getBusBreakerView().getBus() != null ? 1 : 0;
     }
 
     private static PsseTransformer createThreeWindingsTransformer(ThreeWindingsTransformer t3w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
@@ -1089,13 +1046,6 @@ class TransformerConverter extends AbstractConverter {
         psseTransformer.setWinding3(findWinding(t3w.getLeg3(), t3w.getRatedU0(), contextExport), findRates(t3w.getLeg3()));
 
         return psseTransformer;
-    }
-
-    private static Terminal findRegulatingTerminal(Leg leg, int cod) {
-        if (isActivePowerControl(cod)) {
-            return leg.getOptionalPhaseTapChanger().map(PhaseTapChanger::getRegulationTerminal).orElse(null);
-        }
-        return leg.getOptionalRatioTapChanger().map(RatioTapChanger::getRegulationTerminal).orElse(null);
     }
 
     private static PsseTransformerWinding findWinding(Leg leg, double ratedU0, ContextExport contextExport) {

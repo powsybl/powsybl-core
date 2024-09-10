@@ -83,6 +83,7 @@ class GeneratorConverter extends AbstractConverter {
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetV = psseGenerator.getVs() * vnom;
         boolean voltageRegulatorOn = false;
+        // we consider < but psse accepts bus type 2 with Qmin == Qmax
         if (targetV > 0.0 && psseGenerator.getQb() < psseGenerator.getQt()) {
             voltageRegulatorOn = psseVoltageRegulatorOn;
         }

@@ -365,6 +365,10 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         return sections.size() > index ? 1 : 0;
     }
 
+    private static double getB(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
+        return sections.size() > index ? sections.get(index).getB() : 0.0;
+    }
+
     private static int getRemainderN(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
         return sections.size() > index ? sections.size() - index : 0;
     }
@@ -432,10 +436,6 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     private static double getQ(ShuntCompensator switchedShunt) {
         return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount()),
                 switchedShunt.getTerminal().getVoltageLevel().getNominalV());
-    }
-
-    private static double getB(List<ShuntCompensatorNonLinearModel.Section> sections, int index) {
-        return sections.size() > index ? sections.get(index).getB() : 0.0;
     }
 
     private final PsseSwitchedShunt psseSwitchedShunt;
