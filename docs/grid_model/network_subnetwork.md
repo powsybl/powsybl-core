@@ -807,10 +807,12 @@ A busbar section is a non impedant element used in a node/breaker substation top
 ## Breaker/switch
 
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/Switch.html)<br>
+A switch is a device designed to close or open one or more electric circuits. There are several types of switches:
+- breakers are capable of breaking currents under abnormal operating conditions (e.g. short-circuit);
+- load break switches are capable of breaking currents under normal operating conditions;
+- and disconnectors can only make or break negligible current.
 
-<!---
-<span style="color:red"> TODO</span>
--->
+A switch has an attribute to say if it is open or closed.
 
 **Available extensions**
 
@@ -819,9 +821,40 @@ A busbar section is a non impedant element used in a node/breaker substation top
 (internal-connection)=
 ## Internal connection
 
-**Internal connection**  
-An internal connection is a non-impedant connection between two components in a voltage level.
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/VoltageLevel.NodeBreakerView.InternalConnection.html)<br>
+An internal connection is a zero-impedance connection between two elements in a voltage level.
 
-<!--
-<span style="color:red"> TODO</span>
--->
+Contrary to the switch, the internal connection does not have any attribute to say of it is open or closed.
+
+(overload-management-system)=
+## Overload management systems
+
+[![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/OverloadManagementSystem.html)<br>
+An overload management system is an automation system that monitors current on a terminal, defined by an equipment and an optional side.
+Based on the measured values, various strategies (referred as 'trippings' in the model) can be implemented to reduce the current.
+In a given strategy, if the current exceeds a threshold, a switch can be opened or closed to resolve the violation.
+
+The switch open or close operation could be modeled using a switch ID, an association of a branch ID and a side,
+or an association of a three-windings transformer ID and a side.
+
+**Overload management system Characteristics**
+
+| Attribute | Unit | Description                                             |
+| --------- | ---- |---------------------------------------------------------|
+| $Substation$ | | The substation associated where the system is installed |
+| $MonitoredElementId$ | | The network element on which the limit will be monitored |
+| $MonitoredSide$ | | The side of the element that is monitored               |
+
+**Tripping Characteristics**
+
+The supported trippings are:
+- Branch tripping,
+- Switch tripping,
+- and three-windings transformer tripping.
+
+| Attribute | Unit | Description |
+| --------- | ---- | ----------- |
+| $Type$    |      | The type of tripping (e.g. BranchTripping, SwitchTripping, ...) |
+| $CurrentLimit$ | A | The current limit for which the action will be triggered |
+| $Key$ | | The tripping key |
+| $OpenAction$ | bool | Whether the tripping should be opened or closed |
