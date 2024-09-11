@@ -1,11 +1,11 @@
 # Import
 
 The import module reads and converts a PSS®E power flow data file to the PowSyBl grid model. The current implementation supports RAW format for versions 33 and 35 and RAWX format for version 35. The import process is performed in three steps:
-- Read input file.
+- Read the input file.
 - Validate input data.
 - Convert input data into PowSyBl grid model.
 
-First, input data is obtained by reading and parsing the input file and as result a PSS®E model is created in memory. This model can be viewed as a set of Java classes where each data block of the PSS®E model is associated with a specific Java class that describes all their attributes or data items. Then, some inconsistency checks are performed on this model. If the validation succeeds the PSS®E model is converted to a PowSyBl grid model.
+First, input data is obtained by reading and parsing the input file, and as a result, a PSS®E model is created in memory. This model can be viewed as a set of Java classes where each data block of the PSS®E model is associated with a specific Java class that describes all their attributes or data items. Then, some inconsistency checks are performed on this model. If the validation succeeds, the PSS®E model is converted to a PowSyBl grid model.
 
 ## Options
 Parameters for the import can be defined in the configuration file in the [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
@@ -20,13 +20,13 @@ The `psse.import.ignore-base-voltage` property is an optional property that defi
 
 A PSS®E file specifies a Bus/Branch network model where typically there is a bus for each voltage level inside a substation and where substation objects are not explicitly defined. Breakers and switches were traditionally modeled as zero impedance lines with special identifiers. Since version 35 PSS®E supports explicit definition of substation data and switching devices at both system and substation level. However, this information is optional and may not be present in the case.
 
-The PowSyBl grid model establishes the substation as a required container of voltage levels and equipments. The first step in the conversion process assigns a substation for each PSS®E bus, ensuring that all buses at transformer ends are kept in the same substation.
+The PowSyBl grid model establishes the substation as a required container of voltage levels and equipment. The first step in the conversion process assigns a substation for each PSS®E bus, ensuring that all buses at transformer ends are kept in the same substation.
 
 The current conversion does not use explicit PSS®E substation information. Instead, buses are grouped using zero impedance branches and transformers as connectors. A new voltage level is created for each group of buses connected by zero impedance branches, and a new substation is created for the voltage levels connected by transformers. Explicit substations will be supported in future versions, allowing to represent the internal connectivity.
 
-In the PowSyBl grid model all the network components are identified through a global and unique alphanumeric identifier (**Id**). Optionally, they may receive a name (**Name**).
+In the PowSyBl grid model, all the network components are identified through a global and unique alphanumeric identifier (**Id**). Optionally, they may receive a name (**Name**).
 
-For each substation the following attributes are defined:
+For each substation, the following attributes are defined:
 - **Id** following the pattern `S<n>` where `n` represents a consecutive integer number starting from 1.
 
 Every voltage level is assigned to its corresponding substation, with attributes:
@@ -61,13 +61,13 @@ PSS®E supports loads with three different characteristics: Constant Power, Cons
 
 ### _Fixed Bus Shunt Data_
 
-Each  _Fixed Bus Shunt Data_ record defines a PowSyBl shunt compensator with a linear model and a single section. It is possible to define multiple fixed shunts at the same bus. The PowSyBl shunt compensator is associated with its corresponding voltage level and has the following attributes:
+Each _Fixed Bus Shunt Data_ record defines a PowSyBl shunt compensator with a linear model and a single section. It is possible to define multiple fixed shunts at the same bus. The PowSyBl shunt compensator is associated with its corresponding voltage level and has the following attributes:
 
 - **Id** according to the pattern `<n>-SH<m>` where `n` represents the PSS®E bus number (field `I` in the _Fixed Bus Shunt Data_ record) and `m` is the PSS®E alphanumeric shunt identifier (field `ID` in the _Fixed Bus Shunt Data_ record).
 - **ConnectableBus** PowSyBl bus identifier assigned to the PSS®E bus number (field `I` in the _Fixed Bus Shunt Data_ record).
 - **SectionCount** Always `1`.
 - **gPerSection** Positive sequence shunt (charging) conductance per section. It is defined as `GL` / (`vnom` *`vnom`), where `GL` is the active component of shunt admittance to ground, entered in MW at one per unit voltage (field `GL` in the _Fixed Bus Shunt Data_ record) and `vnom` is the nominal voltage of the corresponding voltage level.
-- **bPerSection** Positive sequence shunt (charging) susceptance per section. It is defined as `BL` / (`vnom` *`vnom`), where `BL` is the reactive component of shunt admittance to ground, entered in MVAR at one per unit voltage (field `BL` in the _Fixed Bus Shunt Data_ record).
+- **bPerSection** Positive sequence shunt (charging) susceptance per section. It is defined as `BL` / (`vnom` *`vnom`), where `BL` is the reactive component of shunt admittance to ground, entered in MVAR at one per-unit voltage (field `BL` in the _Fixed Bus Shunt Data_ record).
 - **MaximumSectionCount** Always `1`.
 
 The shunt compensator is connected to the ConnectableBus if fixed shunt status (field `STATUS` in the _Fixed Bus Shunt Data_ record) is `1` (In-service).
@@ -75,7 +75,7 @@ The shunt compensator is connected to the ConnectableBus if fixed shunt status (
 
 ### _Switched Shunt Data_
 
-In the PSS®E version 33 only one switched shunt element can be defined at each bus. Version 35 allows multiple switched shunts at the same bus, adding an alphanumeric switched shunt identifier.
+In the PSS®E version 33, only one switched shunt element can be defined on each bus. Version 35 allows multiple switched shunts on the same bus, adding an alphanumeric switched shunt identifier.
 
 A switched shunt device may be a mix of reactors and capacitors; it is divided in blocks and steps: a block contains `n` steps of the same admittance. The steps and blocks can be adjusted to regulate a given magnitude: a voltage at a bus, a reactive power output or an admittance. Only voltage regulation is considered when mapping this equipment to PowSyBl.
 
@@ -88,7 +88,7 @@ Each switched shunt record defines a PowSyBl shunt compensator with a non-linear
 - **SectionCount** Defined as the section count (section index + 1) where section `B` is closer to the initial switched shunt admittance (field `BINIT` in the _Switched Shunt Data_ record).
 - **TargetV** Voltage setpoint defined as `0.5` * (`VSWLO` + `VSWHI`) * `vnom`, where `VSWLO` is the controlled voltage lower limit (field `VSWLO` in the _Switched Shunt Data_ record) and `VSWHI` is the controlled voltage upper limit (field `VSWHI` in the _Switched Shunt Data_ record).
 - **TargetDeadband** defined as (`VSWHI` - `VSWLO`) * `vnom`.
-- **RegulatingTerminal** Regulating terminal assigned to the bus where voltage is controlled by this switched shunt (field `SWREM` in version 33 or field `SWREG` in version 35, both in the _Switched Shunt Data_ record if they are not `0`. Otherwise field `I` in the _Switched Shunt Data_ record).
+- **RegulatingTerminal** Regulating terminal assigned to the bus where voltage is controlled by this switched shunt (field `SWREM` in version 33 or field `SWREG` in version 35, both in the _Switched Shunt Data_ record if they are not `0`. Otherwise, field `I` in the _Switched Shunt Data_ record).
 - **VoltageRegulatorOn** defined as `true` if the control mode is not `0` (field `MODSW` in the _Switched Shunt Data_ record) and `TargetV` is greater than `0.0`.
 
 The shunt compensator is connected to the ConnectableBus if switched shunt status (field `STAT` in the _Switched Shunt Data_ record) is `1` (In-service).
@@ -97,7 +97,7 @@ The sections of the PowSyBl shunt compensator non-linear model are defined accor
 
 The attributes of each section in the PowSyBl shunt compensator non-linear model are defined as:
 - **Section G** Positive sequence shunt (charging) conductance of this section. Always `0.0`.
-- **Section B** Positive sequence shunt (charging) susceptance of this section. It is defined as `B` / (`vnom` *`vnom`), where `B` is the reactive component of shunt admittance to ground, entered in MVAR at one per unit voltage assigned to this section and `vnom` is the nominal voltage of the corresponding voltage level.
+- **Section B** Positive sequence shunt (charging) susceptance of this section. It is defined as `B` / (`vnom` *`vnom`), where `B` is the reactive component of shunt admittance to ground, entered in MVAR at one per-unit voltage assigned to this section and `vnom` is the nominal voltage of the corresponding voltage level.
 
 When the adjustment method `ADJM` is `0`, the behaviour of the switched shunt can be mapped directly to the shunt compensator non-linear model with sections based on the switched shunt blocks/steps and its order in the PSS@E input record. A section is assigned to each step of the reactor and capacitor shunt blocks by accumulating the admittance of the corresponding steps that are in-service. Only the in-service switched shunt blocks are considered (field `SI` in version 35 of the _Switched Shunt Data_ record, always in-service in version 33). A section with 0.0 susceptance is added between sections assigned to reactor and capacitor blocks.
 
@@ -115,7 +115,7 @@ Every _Generator Data_ single line record represents one generator. Multiple gen
 - **MinQ** Minimum generator reactive power. It is copied from PSS®E field `QB`.
 - **MaxQ** Maximum generator reactive power. It is copied from PSS®E field `QT`.
 - **TargetV** Voltage setpoint defined as `VS` * `vnom`, where `VS` is the regulated voltage (field `VS` in the _Generator Data_ record) and `vnom` is the nominal voltage of the corresponding voltage level.
-- **RegulatingTerminal** Regulating terminal assigned to the bus where voltage is controlled by this generator (field `IREG` in the _Generator Data_ record if it is not `0`. Otherwise field `I` in the _Generator Data_ record).
+- **RegulatingTerminal** Regulating terminal assigned to the bus where voltage is controlled by this generator (field `IREG` in the _Generator Data_ record if it is not `0`. Otherwise, field `I` in the _Generator Data_ record).
 - **VoltageRegulatorOn** defined as `true` if the type code of the associated bus is `2` or `3` (field `IDE` in the _Bus Data_ record) and `TargetV` is greater than `0.0` and `MaxQ` is greater than `MinQ`.
 
 The generator is connected to the ConnectableBus if generator status (field `STAT` in the _Generator Data_ record) is `1` (In-service).
@@ -143,9 +143,9 @@ A set of current permanent limits is defined as `1000.0` * `rateMva` / (`sqrt(3.
 
 ### _Transformer Data_
 
-The _Transformer Data_ block defines two windings and three windings transformers. Two windings transformers have four line records, while three windings transformers have five line records. A `0` value in the field `K` of the _Transformer Data_ record first line is used to indicate that is a two windings transformer, otherwise is considered a three windings transformer.
+The _Transformer Data_ block defines two- and three-winding transformers. Two-winding transformers have four line records, while three-winding transformers have five line records. A `0` value in the field `K` of the _Transformer Data_ record first line is used to indicate that is a two-winding transformer, otherwise is considered a three-winding transformer.
 
-PSS@E two windings transformer records are mapped to two windings transformers in the PowSyBl grid model. They are associated with corresponding voltage levels inside the same substation and defined with the following attributes:
+PSS@E two-winding transformer records are mapped to two-winding transformers in the PowSyBl grid model. They are associated with corresponding voltage levels inside the same substation and defined with the following attributes:
 
 - **Id** according to the pattern `T-<n>-<m>-<p>` where `n` represents the PSS®E bus `1` number (field `I` in the _Transformer Data_ record), `m` represents the bus `2` number (field `J` in the _Transformer Data_ record) and `p` is the circuit identifier (field `CKT` in the _Transformer Data_ record).
 - **ConnectableBus1** PowSyBl bus identifier assigned to the PSS®E bus `1` number (field `I` in the _Transformer Data_ record).
@@ -158,7 +158,7 @@ PSS@E two windings transformer records are mapped to two windings transformers i
 - **X** Transmission reactance.
 - **G** Shunt conductance.
 - **B** Shunt susceptance.
-- **TapChanger** Could be a ratio tap changer o a phase tap changer.
+- **TapChanger** Could be a ratio tap changer or a phase tap changer.
 - **OperationalLimits** Current limits for both ends.
 
 The transformer is connected at both ends if the branch status (field `STAT` in the _Transformer Data_ record) is `1` (In-service)
@@ -168,11 +168,11 @@ In PSS®E the transformer model allows to define a ratio and angle at the end `1
 ![TwoWindingsTransformerModels](img/two-winding-transformer-model.svg){width="100%" align=center class="only-light"}
 ![TwoWindingsTransformerModels](img/dark_mode/two-winding-transformer-model.svg){width="100%" align=center class="only-dark"}
 
-To express the PSS®E electric attributes of the transformer in the PowSyBl grid model the following conversions are performed:
+To express the PSS®E electric attributes of the transformer in the PowSyBl grid model, the following conversions are performed:
 
-- The first step is to define the complex impedance between windings (`Z`) by using the resistance and reactance (fields `R1-2` and  `X1-2` in the _Transformer Data_ record), the winding base MVA (field `SBASE1-2` in the _Transformer Data_ record) and the system MVA base (field `SBASE` in the _Case Identification Data_ record) according to the code that defines the units in which the winding impedances `R1-2`, `X1-2` are specified (field `CZ` in the _Transformer Data_ record). Then the complex impedance (`Z`) is converted to engineering units using the nominal voltage of the voltage level at end `2` and the system MVA base. Finally it should be adjusted after fixing an ideal ratio at end `2` and moving the configured ratio to the end `1`. The obtained result is assigned to the transmission resistance and reactance of the PowSyBl transformer.
+- The first step is to define the complex impedance between windings (`Z`) by using the resistance and reactance (fields `R1-2` and  `X1-2` in the _Transformer Data_ record), the winding base MVA (field `SBASE1-2` in the _Transformer Data_ record) and the system MVA base (field `SBASE` in the _Case Identification Data_ record) according to the code that defines the units in which the winding impedances `R1-2`, `X1-2` are specified (field `CZ` in the _Transformer Data_ record). Then the complex impedance (`Z`) is converted to engineering units using the nominal voltage of the voltage level at end `2` and the system MVA base. Finally, it should be adjusted after fixing an ideal ratio at end `2` and moving the configured ratio to the end `1`. The obtained result is assigned to the transmission resistance and reactance of the PowSyBl transformer.
 
-- The complex shunt admittance `Ysh` is calculated using the transformer magnetizing admittance connected to ground at bus `1` (fields `MAG1` and  `MAG2` in the _Transformer Data_ record), the winding base MVA (field `SBASE1-2` in the _Transformer Data_ record), the system MVA base, the bus base voltage (field `BASKV` in the _Bus Data_ record) of the transformer bus `I` and the nominal (rated) winding `1` voltage base (field `NOMV1` in the _Transformer Data_ record) according to the magnetizing admittance code that defines the units in which `MAG1` and `MAG2` are specified (filed `CM` in the _Transformer Data_ record). The next step is to convert the complex `Ysh` to engineering units using the nominal voltage of the voltage level at end `2` and the system MVA base and finally the obtained value is assigned to the shunt conductance and susceptance of the PowSyBl transformer. The shunt conductance in the PowSyBl grid model is located after the ratio so is necessary to add a step correction by each different ratio in the tabular `tapChanger`.
+- The complex shunt admittance `Ysh` is calculated using the transformer magnetizing admittance connected to ground at bus `1` (fields `MAG1` and  `MAG2` in the _Transformer Data_ record), the winding base MVA (field `SBASE1-2` in the _Transformer Data_ record), the system MVA base, the bus base voltage (field `BASKV` in the _Bus Data_ record) of the transformer bus `I` and the nominal (rated) winding `1` voltage base (field `NOMV1` in the _Transformer Data_ record) according to the magnetizing admittance code that defines the units in which `MAG1` and `MAG2` are specified (filed `CM` in the _Transformer Data_ record). The next step is to convert the complex `Ysh` to engineering units using the nominal voltage of the voltage level at end `2` and the system MVA base and finally the obtained value is assigned to the shunt conductance and susceptance of the PowSyBl transformer. The shunt conductance in the PowSyBl grid model is located after the ratio, so is necessary to add a step correction by each different ratio in the tabular `tapChanger`.
 
 To define the `tapChanger` the first step is to calculate the complex ratio at end `1` and the ratio at end `2`. The ratio at end `1` is calculated using the winding ratio (field `WINDV1` in the _Transformer Data_ record), the nominal (rated) winding voltage base (field `NOMV1` in the _Transformer Data_ record) and the bus base voltage (field `BASKV` in the _Bus Data_ record) according to the code that defines the units in which the turns ratios are specified (field `CZ` in the _Transformer Data_ record). The angle at end `1` is copied from the winding phase shift angle (field `ANG1` in the _Transformer Data_ record). The ratio at end `2` is calculated in the same way as at end `1` but using the following fields (fields `WINDV2`, `NOMV1` in the _Transformer Data_ record) and the corresponding bus base voltage at bus `J`  (field `BASKV` in the _Bus Data_ record). <br>
 Then a `tapChanger` at end `1` is defined by fixing one of the components of the complex ratio at end `1` and moving the other in each step using the number of tap positions available (field `NTP1` in the _Transformer Data_ record) and the upper and lower limits (fields `RMA1`, `RMI1` in the _Transformer Data_ record). <br>
@@ -193,11 +193,11 @@ When the `tapChanger` is a `phaseTapChanger` and the transformer control mode (f
 - **RegulatingTerminal** Regulating terminal assigned to the bus where active power flow is controlled (field `CONT1` in the _Transformer Data_ record).
 - **RegulatingOn** defined as `true` if `TargetV` is greater than `0.0`.
 
-A set of current operational limits is defined for the two windings transformer as `1000.0` * `rateMva` / (`sqrt(3.0)` * `vnom1`) at the end `1` and `1000.0` * `rateMva` / (`sqrt(3.0)` * `vnom2`) at the end `2` where `rateMva` is the first rating of the transformer (field `RATA1` in version 33 of the _Transformer Data_ record and field `RATE11` in version 35) and `vnom1` and `vnom2` are the nominal voltage of the associated voltage levels.
+A set of current operational limits is defined for the two-winding transformer as `1000.0` * `rateMva` / (`sqrt(3.0)` * `vnom1`) at the end `1` and `1000.0` * `rateMva` / (`sqrt(3.0)` * `vnom2`) at the end `2` where `rateMva` is the first rating of the transformer (field `RATA1` in version 33 of the _Transformer Data_ record and field `RATE11` in version 35) and `vnom1` and `vnom2` are the nominal voltage of the associated voltage levels.
 
-When a three windings transformer is modeled the two windings transformer steps should be followed for each leg of the transformer taking into account the following considerations:
+When a three-winding transformer is modeled, the two-winding transformer steps should be followed for each leg of the transformer taking into account the following considerations:
 - The **Id** is defined according to the pattern `T-<n>-<m>-<o>-<p>` where `n` represents the PSS®E bus `1` number (field `I` in the _Transformer Data_ record), `m` represents the bus `2` number (field `J` in the _Transformer Data_ record), `o` represents the bus `3` number (field `K` in the _Transformer Data_ record) and `p` is the circuit identifier (field `CKT` in the _Transformer Data_ record).
-- The three windings transformer is modeled in PowSyBl as three two windings transformers connected to an fictitious bus defined with a nominal base voltage and rated voltage of `1.0 kV` (star configuration). <br>
+- The three-winding transformers are modeled in PowSyBl as three two-winding transformers connected to a fictitious bus defined with a nominal base voltage and rated voltage of `1.0 kV` (star configuration). <br>
 - In PSS®E the between windings transmission impedances `Z1-2`, `Z2-3` and `Z3-1` are specified in the input file. These impedances are generally supplied on a transformer data sheet or test report. The transmission impedances `Z1`, `Z2` and `Z3` of the star network equivalent model are related to them according to the following expressions (see [Modeling of Three-Winding Voltage Regulating Transformers for
   Positive Sequence Load Flow Analysis in PSS®E](https://static.dc.siemens.com/datapool/us/SmartGrid/docs/pti/2010July/PDFS/Modeling%20of%20Three%20Winding%20Voltage%20Regulating%20Transformers.pdf)):
 
@@ -215,9 +215,9 @@ When a three windings transformer is modeled the two windings transformer steps 
 
   `Z3 = 0.5 * (Z2-3 + Z3-1 - Z1-2)`
 
-- All the shunt admittances of the three windings transformer in the PSS®E model are assigned to the winding `1`. There is not shunt admittance at windings `2` and `3`.
-- Each winding can have a complex ratio and a `ratioTapChanger` or `phaseTapChanger` with its corresponding control, always at end `1`. The current PowSyBl version only supports one enabled control by three windings transformer so if there is more than one enabled only the first (winding `1`, winding `2`, winding `3`) is kept enabled, the rest are automatically disabled.
-- In three windings transformers the status attribute (field `STAT` in the _Transformer Data_ record) could be `0` that means all the windings disconnected, `1` for all windings connected, `2` for only the second winding disconnected, `3` for the third winding disconnected and `4` for the first winding disconnected.
+- All the shunt admittances of the three-winding transformers in the PSS®E model are assigned to the winding `1`. There is no shunt admittance at windings `2` and `3`.
+- Each winding can have a complex ratio and a `ratioTapChanger` or `phaseTapChanger` with its corresponding control, always at end `1`. The current PowSyBl version only supports one enabled control by three-winding transformers so if there is more than one enabled only the first (winding `1`, winding `2`, winding `3`) is kept enabled, the rest are automatically disabled.
+- In three-winding transformers the status attribute (field `STAT` in the _Transformer Data_ record) could be `0` that means all the windings disconnected, `1` for all windings connected, `2` for only the second winding disconnected, `3` for the third winding disconnected and `4` for the first winding disconnected.
 
 ![ThreeWindingsTransformerModels](img/three-winding-transformer-model.svg){width="100%" align=center class="only-light"}
 ![ThreeWindingsTransformerModels](img/dark_mode/three-winding-transformer-model.svg){width="100%" align=center class="only-dark"}

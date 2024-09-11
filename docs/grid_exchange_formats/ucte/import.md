@@ -5,7 +5,7 @@ Then, some inconsistency checks are performed on this model.
 Finally, the UCTE grid model is converted into an IIDM grid model.
 
 The UCTE parser provided by PowSyBl does not support the blocks `##TT` and `##E` providing respectively a special
-description of the two windings transformers and the scheduled active power exchange between countries.
+description of the two-winding transformers and the scheduled active power exchange between countries.
 Those blocks are ignored during the parsing step.
 
 
@@ -33,20 +33,20 @@ The default value is an empty list. For more details see further below about [ar
 
 ## Inconsistency checks
 
-Once the UCTE grid model is created in memory, a consistency check is performed on the different elements (nodes, lines, two windings transformers and regulations).
+Once the UCTE grid model is created in memory, a consistency check is performed on the different elements (nodes, lines, two-winding transformers and regulations).
 
 In the tables below, we summarize the inconsistency checks performed on the network for each type of equipment.
-For the sake of clarity we use notations that are made explicit before each table.
+For the sake of clarity, we use notations that are made explicit before each table.
 
 ### Nodes with active or reactive power generation
 
 Notations:
 - $P$: active power generation, in MW
 - $Q$: reactive power generation, in MVar
-- $minP$: minimum permissible active power generation, in MW
-- $maxP$: maximum permissible active power generation, in MW
-- $minQ$: minimum permissible reactive power generation, in MVar
-- $maxQ$: maximum permissible reactive power generation, in MVar
+- $minP$: minimum permissible active power generation in MW
+- $maxP$: maximum permissible active power generation in MW
+- $minQ$: minimum permissible reactive power generation in MVar
+- $maxQ$: maximum permissible reactive power generation in MVar
 - $Vreg$: voltage regulation, which can be enabled or disabled
 - $Vref$: voltage reference, in V
 
@@ -73,7 +73,7 @@ Notations:
 |                      $maxQ > 9999$                       |          $maxQ = 9999$           |
 |                      $minQ < -9999$                      |          $minQ = -9999$          |
 
-### Lines or two-windings transformers
+### Lines or two-winding transformers
 
 Notations:
 - $X$: reactance in $\Omega$
@@ -104,16 +104,16 @@ The UCTE file name is parsed to extract metadata required to initialize the IIDM
 
 ### Node conversion
 There is no equivalent [voltage level](../../grid_model/network_subnetwork.md#voltage-level) or [substation](../../grid_model/network_subnetwork.md#substation) concept in the UCTE-DEF format,
-so we have to create substations and voltage levels from the nodes description and the topology.
+so we have to create substations and voltage levels from the node description and the topology.
 Two nodes are in the same substation if they have the same geographical spot (the 1st-6th character of the node code)
-or are connected by a two windings transformer, a coupler or a low impedance line.
-Two nodes are in the same voltage level if their code only differ by the 8th character (busbars identifier).  
+or are connected by a two-winding transformer, a coupler or a low-impedance line.
+Two nodes are in the same voltage level if their code only differs by the eighth character (busbars identifier).  
 **Note:** We do not create a substation, a voltage level or a bus for X-nodes. They are converted to [dangling lines](../../grid_model/network_subnetwork.md#dangling-line).
 
 For nodes with a valid active or reactive load, a [load](../../grid_model/network_subnetwork.md#load) is created.
-It's ID is equal to the ID of the bus post-fixed by `_load`.
+Its ID is equal to the ID of the bus post-fixed by `_load`.
 The `P0` and `Q0` are equal to the active load and the reactive load of the UCTE node.
-For those with a valid generator, a [generator](../../grid_model/network_subnetwork.md#generator) is created.  It's ID is equal to the ID of the bus post-fixed by `_generator`.
+For those with a valid generator, a [generator](../../grid_model/network_subnetwork.md#generator) is created. Its ID is equal to the ID of the bus post-fixed by `_generator`.
 The power plant type is converted to an [energy source]() value (see the mapping table below for the matching).
 
 **Mapping table for power plant types:**
@@ -140,10 +140,10 @@ as properties:
 - the order code is stored in the `orderCode` property
 - the element name is stored in the `elementName` property
 
-The lines connected between two real nodes are converted into a [AC line](../../grid_model/network_subnetwork.md#line), except if its impedance is too small (e.g. smaller than `0.05`).
+The lines connected between two real nodes are converted into an [AC line](../../grid_model/network_subnetwork.md#line), except if its impedance is too small (e.g. smaller than `0.05`).
 In that particular case, the line is considered as a busbar coupler, and a [switch](../../grid_model/network_subnetwork.md#breakerswitch) is created.
-The susceptance of the UCTE line is splitted in two, to initialize `B1` and `B2` with equal values.
-If the current limits is defined, a permanent limit is created for both ends of the line.
+The susceptance of the UCTE line is split in two, to initialize `B1` and `B2` with equal values.
+If the current limits are defined, a permanent limit is created for both ends of the line.
 The element name of the UCTE line is stored in the `elementName` property.
 
 The lines connected between a read node and an X-node are converted into a [dangling line](../../grid_model/network_subnetwork.md#dangling-line).
@@ -151,13 +151,13 @@ In IIDM, a dangling line is a line segment connected to a constant load.
 The sum of the active load and generation (rep. reactive) is computed to initialize the `P0` (resp. `Q0`) of the dangling line.
 The element name of the UCTE line is stored in the `elementName` property and the geographical name of the X-node is stored in the `geographicalName` property.
 
-### Two windings transformer conversion
-The two windings transformers connected between two real nodes are converted into a [two windings transformer](../../grid_model/network_subnetwork.md#two-windings-transformer).
-If the current limits is defined, a permanent limit is created only for the second side.
+### Two-winding transformer conversion
+The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer).
+If the current limits are defined, a permanent limit is created only for the second side.
 The element name of the transformer is stored in the `elementName` property and the nominal power is stored in the `nominalPower` property.
 
-If a two windings transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created,
-with a single bus called an Y-node. This new voltage level is created in the same substation than the real node.
+If a two-winding transformer is connected between a real node and an X-node, a fictitious intermediate voltage level is created,
+with a single bus called a Y-node. This new voltage level is created in the same substation as the real node.
 The transformer is created between the real node and the new Y-node, and the X-node is converted into a dangling line.
 The only difference with a classic X-node conversion, is that the electrical characteristic are hold by the transformer and set to `0` for the dangling line,
 except for the reactance that is set to $0.05\space\Omega$.
@@ -211,8 +211,8 @@ Each country present results in the creation of an Area in the IIDM model with:
 - Area **Boundaries**: all DanglingLines in the Country
 
 By default, all Area Boundaries are flagged as AC, because the UCTE-DEF format does not have any HVDC explicit description.
-In order to specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the 
+To specify which boundaries should be considered as DC in the conversion, you may supply a list of X-nodes IDs in the 
 [`ucte.import.areas-dc-xnodes` option](#ucteimportareas-dc-xnodes).
 
-**Note:** Creating areas for German sub-regions / TSOs is not supported today (D2, D4, D7, D8).
+**Note:** Creating areas for German subregions / TSOs is not supported today (D2, D4, D7, D8).
 Let us know if you have this use case by entering an issue in our GitHub. We also welcome contributions.
