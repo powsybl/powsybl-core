@@ -90,8 +90,9 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-extensions</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>
