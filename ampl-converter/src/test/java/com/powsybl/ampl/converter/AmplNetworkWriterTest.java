@@ -259,7 +259,6 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
 
-        Properties properties = new Properties();
         properties.put("iidm.export.ampl.export-version", "1.0");
 
         export(network, properties, dataSource);
@@ -271,7 +270,6 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
 
-        Properties properties = new Properties();
         properties.put("iidm.export.ampl.export-version", "V1_0");
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
@@ -284,7 +282,6 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
 
-        Properties properties = new Properties();
         properties.put("iidm.export.ampl.export-version", "1.1");
 
         export(network, properties, dataSource);
