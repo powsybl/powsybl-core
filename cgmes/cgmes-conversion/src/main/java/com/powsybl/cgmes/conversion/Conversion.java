@@ -219,6 +219,7 @@ public class Conversion {
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
+        setSelectedOperationalLimitGroup(context);
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
@@ -266,6 +267,22 @@ public class Conversion {
 
         importedCgmesNetworkReport(context.getReportNode(), network.getId());
         return network;
+    }
+
+    private void setSelectedOperationalLimitGroup(Context context) {
+        Set<FlowsLimitsHolder> limitsHolders = new HashSet<>();
+        context.network().getBranchStream().forEach(b -> limitsHolders.add(b.getOperationalLimitsHolder1()));
+        context.network().getBranchStream().forEach(b -> limitsHolders.add(b.getOperationalLimitsHolder2()));
+        context.network().getDanglingLineStream().forEach(dl -> limitsHolders.add(dl.getOperationalLimitsHolder()));
+        context.network().getThreeWindingsTransformerStream().forEach(tw3 -> tw3.getLegStream().forEach(leg -> limitsHolders.add(leg.getOperationalLimitsHolder())));
+
+        for (FlowsLimitsHolder limitsHolder : limitsHolders) {
+            if (limitsHolder.getOperationalLimitsGroups().size() == 1) {
+                limitsHolder.setSelectedOperationalLimitsGroup(limitsHolder.getOperationalLimitsGroups().iterator().next().getId());
+            } else {
+                // TODO
+            }
+        }
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {

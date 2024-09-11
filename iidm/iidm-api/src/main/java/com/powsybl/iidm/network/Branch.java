@@ -118,6 +118,10 @@ public interface Branch<I extends Branch<I>> extends Identifiable<I> {
 
     TwoSides getSide(Terminal terminal);
 
+    FlowsLimitsHolder getOperationalLimitsHolder1();
+
+    FlowsLimitsHolder getOperationalLimitsHolder2();
+
     /**
      * Get the collection of the defined {@link OperationalLimitsGroup} on side 1.
      * @return the {@link OperationalLimitsGroup} s on side 1.

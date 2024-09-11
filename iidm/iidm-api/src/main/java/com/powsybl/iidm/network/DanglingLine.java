@@ -200,6 +200,8 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
         Generation setTargetV(double targetV);
     }
 
+    FlowsLimitsHolder getOperationalLimitsHolder();
+
     boolean isPaired();
 
     /**

@@ -27,13 +27,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String OPERATIONAL_LIMIT = "Operational limit";
     private static final String OPERATIONAL_LIMIT_TYPE_NAME = "operationalLimitTypeName";
     private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
-
+    private static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
     private static final String PERMANENT_LIMIT = "Permanent Limit";
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super("OperationalLimit", l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
+        String limitSet = p.getLocal(OPERATIONAL_LIMIT_SET);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
@@ -43,11 +44,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }
             if (terminal != null) {
-                createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
+                createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, limitSet, terminal.getConnectable());
             } else if (equipmentId != null) {
                 // The equipment may be a Branch, a Dangling line, a Switch ...
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
-                createLimitsAdder(-1, limitSubclass, identifiable);
+                createLimitsAdder(-1, limitSubclass, limitSet, identifiable);
             }
         } else if (limitSubclass.equals("VoltageLimit")) {
             if (terminalId != null) {
@@ -73,89 +74,122 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(String limitSubClass, FlowsLimitsHolder holder) {
+    /**
+     * Get the LoadingLimitsAdder supplier for the given FlowsLimitsHolder and limit set + subclass.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSet The set containing the OperationalLimit.
+     * @param holder The equipment to which the OperationalLimit applies.
+     * @return The appropriate LoadingLimitsAdder supplier.
+     */
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(String limitSubClass, String limitSet, FlowsLimitsHolder holder) {
+        OperationalLimitsGroup limitsGroup = holder.getOperationalLimitsGroup(limitSet).orElseGet(() -> holder.newOperationalLimitsGroup(limitSet));
+        return getLoadingLimitAdderSupplier(limitsGroup, limitSubClass);
+    }
+
+    /**
+     * Get the LoadingLimitsAdder supplier for the side 1 of the given branch and limit set + subclass.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSet The set containing the OperationalLimit.
+     * @param b The branch to which the OperationalLimit applies on side 1.
+     * @return The appropriate LoadingLimitsAdder supplier.
+     */
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder1Supplier(String limitSubClass, String limitSet, Branch<?> b) {
+        OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSet).orElseGet(() -> b.newOperationalLimitsGroup1(limitSet));
+        return getLoadingLimitAdderSupplier(limitsGroup, limitSubClass);
+    }
+
+    /**
+     * Get the LoadingLimitsAdder supplier for the side 2 of the given branch and limit set + subclass.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSet The set containing the OperationalLimit.
+     * @param b The branch to which the OperationalLimit applies on side 2.
+     * @return The appropriate LoadingLimitsAdder supplier.
+     */
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder2Supplier(String limitSubClass, String limitSet, Branch<?> b) {
+        OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSet).orElseGet(() -> b.newOperationalLimitsGroup2(limitSet));
+        return getLoadingLimitAdderSupplier(limitsGroup, limitSubClass);
+    }
+
+    /**
+     * Get the LoadingLimitsAdder supplier for the given limits group and subclass.
+     * @param limitsGroup The limit group instance for which the adder is called.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @return The appropriate LoadingLimitsAdder supplier.
+     */
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(OperationalLimitsGroup limitsGroup, String limitSubClass) {
         if (limitSubClass == null) {
-            return holder::newCurrentLimits;
+            return limitsGroup::newCurrentLimits;
         }
         switch (limitSubClass) {
             case ACTIVE_POWER_LIMIT:
-                return holder::newActivePowerLimits;
+                return limitsGroup::newActivePowerLimits;
             case APPARENT_POWER_LIMIT:
-                return holder::newApparentPowerLimits;
+                return limitsGroup::newApparentPowerLimits;
             case CURRENT_LIMIT:
-                return holder::newCurrentLimits;
+                return limitsGroup::newCurrentLimits;
             default:
                 throw new IllegalStateException();
         }
     }
 
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder1Supplier(String limitSubClass, Branch<?> b) {
-        if (limitSubClass == null) {
-            return b::newCurrentLimits1;
-        }
-        switch (limitSubClass) {
-            case ACTIVE_POWER_LIMIT:
-                return b::newActivePowerLimits1;
-            case APPARENT_POWER_LIMIT:
-                return b::newApparentPowerLimits1;
-            case CURRENT_LIMIT:
-                return b::newCurrentLimits1;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder2Supplier(String limitSubClass, Branch<?> b) {
-        if (limitSubClass == null) {
-            return b::newCurrentLimits2;
-        }
-        switch (limitSubClass) {
-            case ACTIVE_POWER_LIMIT:
-                return b::newActivePowerLimits2;
-            case APPARENT_POWER_LIMIT:
-                return b::newApparentPowerLimits2;
-            case CURRENT_LIMIT:
-                return b::newCurrentLimits2;
-            default:
-                throw new IllegalStateException();
-        }
-    }
-
-    private void createLimitsAdder(int terminalNumber, String limitSubClass, Branch<?> b) {
+    /**
+     * Create the LoadingLimitsAdder for the given branch + side and the given limit set + subclass.
+     * @param terminalNumber The side of the branch to which the OperationalLimit applies.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSet The set containing the OperationalLimit.
+     * @param b The branch to which the OperationalLimit applies.
+     */
+    private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSet, Branch<?> b) {
         if (terminalNumber == 1) {
-            Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder1Supplier = getLoadingLimitAdder1Supplier(limitSubClass, b);
-            loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1_" + limitSubClass, loadingLimitAdder1Supplier);
+            loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1_" + limitSubClass + "_" + limitSet,
+                    getLoadingLimitAdder1Supplier(limitSubClass, limitSet, b));
         } else if (terminalNumber == 2) {
-            Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder2Supplier = getLoadingLimitAdder2Supplier(limitSubClass, b);
-            loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2_" + limitSubClass, loadingLimitAdder2Supplier);
+            loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2_" + limitSubClass + "_" + limitSet,
+                    getLoadingLimitAdder2Supplier(limitSubClass, limitSet, b));
         } else {
             notAssigned(b);
         }
     }
 
-    private void createLimitsAdder(int terminalNumber, String limitSubClass, ThreeWindingsTransformer twt) {
+    /**
+     * Create the LoadingLimitsAdder for the given 3w-transformer + side and the given limit set + subclass.
+     * @param terminalNumber The side of the transformer to which the OperationalLimit applies.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSet The set containing the OperationalLimit.
+     * @param twt The 3w-transformer to which the OperationalLimit applies.
+     */
+    private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSet, ThreeWindingsTransformer twt) {
         if (terminalNumber == 1) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass,
-                    getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg1()));
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass + "_" + limitSet,
+                    getLoadingLimitAdderSupplier(limitSubClass, limitSet, twt.getLeg1()));
         } else if (terminalNumber == 2) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass,
-                    getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg2()));
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass + "_" + limitSet,
+                    getLoadingLimitAdderSupplier(limitSubClass, limitSet, twt.getLeg2()));
         } else if (terminalNumber == 3) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass,
-                    getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg3()));
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass + "_" + limitSet,
+                    getLoadingLimitAdderSupplier(limitSubClass, limitSet, twt.getLeg3()));
         } else {
             notAssigned(twt);
         }
     }
 
-    private void createLimitsAdder(int terminalNumber, String limitSubClass, Identifiable<?> identifiable) {
+    /**
+     * Create LoadingLimitsAdder(s) as per the given inputs.
+     * If the inputs are inconsistent, no limit adder is created.
+     * @param terminalNumber The side of the equipment to which the OperationalLimit applies.
+     * @param limitSubClass The subclass of the OperationalLimit.
+     * @param limitSet The set containing the OperationalLimit.
+     * @param identifiable The equipment to which the OperationalLimit applies.
+     */
+    private void createLimitsAdder(int terminalNumber, String limitSubClass, String limitSet, Identifiable<?> identifiable) {
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
-                loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1", getLoadingLimitAdder1Supplier(limitSubClass, b));
-                loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2", getLoadingLimitAdder2Supplier(limitSubClass, b));
+                // Limits appliy to the whole equipment == to both sides
+                createLimitsAdder(1, limitSubClass, limitSet, b);
+                createLimitsAdder(2, limitSubClass, limitSet, b);
             } else {
-                createLimitsAdder(terminalNumber, limitSubClass, b);
+                createLimitsAdder(terminalNumber, limitSubClass, limitSet, b);
             }
         } else if (identifiable instanceof TwoWindingsTransformer) {
             Branch<?> b = (Branch<?>) identifiable;
@@ -163,17 +197,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 context.ignored(limitSubClass, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
                 notAssigned(b);
             } else {
-                createLimitsAdder(terminalNumber, limitSubClass, b);
+                createLimitsAdder(terminalNumber, limitSubClass, limitSet, b);
             }
         } else if (identifiable instanceof DanglingLine danglingLine) {
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass,
-                    getLoadingLimitAdderSupplier(limitSubClass, danglingLine));
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass + "_" + limitSet,
+                    getLoadingLimitAdderSupplier(limitSubClass, limitSet, danglingLine));
         } else if (identifiable instanceof ThreeWindingsTransformer twt) {
             if (terminalNumber == -1) {
                 context.ignored(limitSubClass, "Defined for Equipment ThreeWindingsTransformer. Should be defined for one Terminal of Three");
                 notAssigned(twt);
             } else {
-                createLimitsAdder(terminalNumber, limitSubClass, twt);
+                createLimitsAdder(terminalNumber, limitSubClass, limitSet, twt);
             }
         } else if (identifiable instanceof Switch) {
             Switch aswitch = context.network().getSwitch(equipmentId);
