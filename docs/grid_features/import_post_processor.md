@@ -38,7 +38,7 @@ println "Network " + network.getId() + " (" + network.getSourceFormat()+ ") is i
 ```
 
 ## LoadFlow post-processor
-Mathematically speaking, a [load flow](../simulation/loadflow/index) result is fully defined by the complex voltages at each node. The consequence is that most load flow algorithms converge very fast if they are initialized with voltages. As a result, it happens that load flow results include only voltages and not flows on branches. This post-processors computes the flows given the voltages. The equations (Kirchhoff law) used are the same as the one used in the [load flow validation](../user/itools/loadflow-validation.md#load-flow-results-validation) to compute $P_1^{\text{calc}}$, $Q_1^{\text{calc}}$, $P_2^{\text{calc}}$, $Q_2^{\text{calc}}$ for branches and $P_3^{\text{calc}}$, $Q_3^{\text{calc}}$ in addition for three-windings transformers.
+Mathematically speaking, a [load flow](../simulation/loadflow/index) result is fully defined by the complex voltages at each node. The consequence is that most load flow algorithms converge very fast if they are initialized with voltages. As a result, it happens that load flow results include only voltages and not flows on branches. This post-processors computes the flows given the voltages. The equations (Kirchhoff law) used are the same as the one used in the [load flow validation](../user/itools/loadflow-validation.md#load-flow-results-validation) to compute $P_1^{\text{calc}}$, $Q_1^{\text{calc}}$, $P_2^{\text{calc}}$, $Q_2^{\text{calc}}$ for branches and $P_3^{\text{calc}}$, $Q_3^{\text{calc}}$ in addition for three-winding transformers.
 
 To use this post-processor, add the `com.powsybl:powsybl-loadflow-results-completion` to your classpath and enable it setting the `postProcessors` property of the `import` module.
 
@@ -56,7 +56,7 @@ import:
 </import>
 ```
 
-**Note:** This post-processor rely on the [load flow results completion]() module.
+**Note:** This post-processor relies on the [load flow results completion]() module.
 
 ## Geographical data import post-processor
 
@@ -72,7 +72,7 @@ Using the links in the table below, you can obtain the RTE data CSV files, to be
 | Aerial lines         | [https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-aeriennes-rte-nv/export/)       |
 | Underground lines    | [https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/](https://odre.opendatasoft.com/explore/dataset/lignes-souterraines-rte-nv/export/) |
 
-<span style="font-size:0.75em;">(To download these files, you should first accept the usage conditions of the ODRÉ website, which can be found - in French only - at the bottom of the pages, and the Etalab Open License v2.0, available in English [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf).)</span>
+<span style="font-size:0.75em;">(To download these files, you should first accept the usage conditions of the ODRÉ website, which can be found—in French only—at the bottom of the pages, and the Etalab Open License v2.0, available in English [here](https://www.etalab.gouv.fr/wp-content/uploads/2018/11/open-licence.pdf).)</span>
 
 <br/>
 
