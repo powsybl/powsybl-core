@@ -18,6 +18,7 @@ Below are two exports from the same network:
 - one XML export (XIIDM exchange format)
 - one JSON export (JIIDM exchange format)
 
+(xiidm)=
 ## XIIDM
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -64,6 +65,7 @@ Below are two exports from the same network:
 </iidm:network>
 ```
 
+(jiidm)=
 ## JIIDM
 ```json
 {

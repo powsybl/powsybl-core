@@ -42,6 +42,7 @@ Available commands are:
 `--config-name`  
 Use this option to overload the default base name for the configuration file. It overrides the [powsybl_config_name](#powsybl_config_name) property defined in the `itools.conf` file.
 
+(itools-configuration)=
 ### Configuration
 The `iTools` script reads its configuration from the `<ITOOLS_PREFIX>/etc/itools.conf` [property file](https://en.wikipedia.org/wiki/.properties). The properties defined in this file are used to configure the Java Virtual Machine.
 
@@ -85,6 +86,7 @@ Sometimes, it could be useful for a user to have its own logging configuration t
 </configuration>
 ```
 
+(itools-available-commands)=
 ## Available commands
 The `iTools` script relies on a [plugin mechanism](): the commands are discovered at runtime and depend on the jars present in the `share/java` folder.
 

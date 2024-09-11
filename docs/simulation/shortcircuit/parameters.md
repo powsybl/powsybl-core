@@ -129,7 +129,7 @@ Here is an example of this JSON file:
 ]
 ````
 
-
+(shortcircuit-fault-parameters)=
 ## FaultParameters
 
 It is possible to override parameters for each fault by creating an instance of `com.powsybl.shortcircuit.FaultParameters`. This object will take the fault to which it applies and all the parameters

@@ -8,7 +8,7 @@ The UCTE parser provided by PowSyBl does not support the blocks `##TT` and `##E`
 description of the two-winding transformers and the scheduled active power exchange between countries.
 Those blocks are ignored during the parsing step.
 
-
+(ucte-import-options)=
 ## Options
 Parameters for the import can be defined in the configuration file in the
 [import-export-parameters-default-value](../../user/configuration/import-export-parameters-default-value.md#import-export-parameters-default-value) module.
@@ -31,6 +31,7 @@ considered as [area](../../grid_model/network_subnetwork.md#area) DC boundaries.
 
 The default value is an empty list. For more details see further below about [area conversion](#area-conversion).
 
+(ucte-inconsistency-checks)=
 ## Inconsistency checks
 
 Once the UCTE grid model is created in memory, a consistency check is performed on the different elements (nodes, lines, two-winding transformers and regulations).
@@ -102,6 +103,7 @@ Notations:
 ## From UCTE to IIDM
 The UCTE file name is parsed to extract metadata required to initialize the IIDM network, such as its ID, the case date and the forecast distance.
 
+(ucte-node-conversion)=
 ### Node conversion
 There is no equivalent [voltage level](../../grid_model/network_subnetwork.md#voltage-level) or [substation](../../grid_model/network_subnetwork.md#substation) concept in the UCTE-DEF format,
 so we have to create substations and voltage levels from the node description and the topology.
@@ -132,6 +134,7 @@ The power plant type is converted to an [energy source]() value (see the mapping
 The list of the power plant types is more detailed than the list of available [energy source]() types in IIDM,
 so we add the `powerPlantType` property to each generator to keep the initial value.
 
+(ucte-line-conversion)=
 ### Line conversion
 The busbar couplers connecting two real nodes are converted into a [switch](../../grid_model/network_subnetwork.md#breakerswitch). This switch is open or closed depending
 on the status of the coupler. In the UCTE-DEF format, the coupler can have extra information not supported in IIDM we keep
@@ -151,6 +154,7 @@ In IIDM, a dangling line is a line segment connected to a constant load.
 The sum of the active load and generation (rep. reactive) is computed to initialize the `P0` (resp. `Q0`) of the dangling line.
 The element name of the UCTE line is stored in the `elementName` property and the geographical name of the X-node is stored in the `geographicalName` property.
 
+(ucte-two-winding-transformer-conversion)=
 ### Two-winding transformer conversion
 The two-winding transformers connected between two real nodes are converted into a [two-winding transformer](../../grid_model/network_subnetwork.md#two-winding-transformer).
 If the current limits are defined, a permanent limit is created only for the second side.
@@ -164,13 +168,14 @@ except for the reactance that is set to $0.05\space\Omega$.
 
 **TODO**: insert a schema
 
-
+(ucte-phase-regulation-conversion)=
 #### Phase regulation
 If a phase regulation is defined for a transformer, it is converted into a [ratio tap changer](../../grid_model/additional.md#ratio-tap-changer).
 If the voltage setpoint is defined, the ratio tap changer will regulate the voltage to this setpoint.
 The regulating terminal is assigned to the first side of the transformer.
 The &rho; of each step is calculated according to the following formula: $\rho = 1 / (1 + i * \delta U / 100)$.
 
+(ucte-angle-regulation-conversion)=
 #### Angle regulation
 If an angle regulation is defined for a transformer, it is converted into a [phase tap changer](../../grid_model/additional.md#phase-tap-changer), with a `FIXED_TAP` regulation mode.
 &rho; and &alpha; of each step are calculated according to the following formulas:
@@ -198,6 +203,7 @@ $$
 
 **Note:** The sign of $\alpha$ is changed because the phase tap changer is on side 2 in UCTE-DEF, and on side 1 in IIDM.
 
+(ucte-area-conversion)=
 ### Area conversion
 
 When the [`ucte.import.create-areas` option](#ucteimportcreate-areas) is set to `true` (default), the importer will create

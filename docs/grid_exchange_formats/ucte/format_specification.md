@@ -13,6 +13,7 @@ Each block is introduced by a key line consisting of the two characters `##` and
 
 The grid is described in Bus/Branch topology, and only a few types of equipment are supported (nodal injections, AC line, two-winding transformer). Fictitious nodes are located at the electric middle of each tie line. The defined X-nodes are binding for all users.
 
+(ucte-file-name-convention)=
 ## File name convention
 The UCTE-DEF format use the following file name convention: `<yyyymmdd>_<HHMM>_<TY><w>_<cc><v>.uct` with:
 - `yyyymmdd`: year, month and day
