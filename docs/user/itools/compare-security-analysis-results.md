@@ -9,13 +9,13 @@ This tool compares for the pre-contingency state and for all the post-contingenc
 - the values of the constraints violations
   
 Two security analysis results are considered equivalent if all the following conditions are satisfied:
-- for all the pre-contingency and post-contingency states, the corresponding (i.e. related to the same state) outcome of the load flow computation is the same
-- for all the constraints violations, the difference of value of a corresponding (i.e. related to the same contingency
+- for all the pre-contingency and post-contingency states, the corresponding (i.e., related to the same state) outcome of the load flow computation is the same
+- for all the constraint violations, the difference of value of a corresponding (i.e., related to the same contingency
 and equipment) violation is less than a predefined threshold
-- if a constraints violation is contained in just one result, the violation is less than a predefined threshold
+- if a constraint violation is contained in just one result, the violation is less than a predefined threshold
 - if a contingency is contained in just one result, all the post-contingency violations are less than a predefined threshold
   
-The comparison process can optionally output in a CSV file all the compared values (pre and post-contingency load flow computation outcomes, and related constraints violations), with a corresponding comparison result (`equivalent`,`different`). See example below.
+The comparison process can optionally output in a CSV file all the compared values (pre- and post-contingency load flow computation outcomes, and related constraints violations), with a corresponding comparison result (`equivalent`,`different`). See example below.
 
 ```
 Contingency;StatusResult1;StatusResult2;Equipment;End;ViolationType;ViolationNameResult1;ValueResult1;LimitResult1;ViolationNameResult2;ValueResult2;LimitResult2;ActionsResult1;ActionsResult2;Comparison
