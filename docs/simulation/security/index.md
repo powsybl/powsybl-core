@@ -9,10 +9,10 @@ action-dsl.md
 limit-reductions.md
 ```
 
-The security analysis is a simulation that check violations on a network. These checks can be done on the base case or after a contingency, with or without remedial actions. A security analysis can monitor network states, in pre-contingency state, after a contingency and after a remedial action.
+The security analysis is a simulation that checks violations on a network. These checks can be done on the base case or after a contingency, with or without remedial actions. A security analysis can monitor network states, in pre-contingency state, after a contingency and after a remedial action.
 
-There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipments, the violations can have different types:
-- Current, active power and apparent power: this kind of violation can be detected on a branch (line, two windings transformer, tie line) or on a three windings transformer, if the computed value is greater than its [permanent limit](../../grid_model/additional.md#loading-limits) or one of its [temporary limits](../../grid_model/additional.md#loading-limits).
+There is a violation if the computed value is greater than the maximum allowed value. Depending on the equipment, the violations can have different types:
+- Current, active power and apparent power: this kind of violation can be detected on a branch (line, two-winding transformer, tie line) or on a three-winding transformer, if the computed value is greater than its [permanent limit](../../grid_model/additional.md#loading-limits) or one of its [temporary limits](../../grid_model/additional.md#loading-limits).
 - Voltage: this kind of violation can be detected on a bus or a bus bar section, if the computed voltage is out of the low-high voltage limits of a [voltage level](../../grid_model/network_subnetwork.md#voltage-level).
 - Voltage angle: this kind of violation can be detected if the voltage angle difference between the buses associated to two terminals is out of the low-high voltage angle limits defined in the network.
 
@@ -48,7 +48,7 @@ Remedial actions are actions that are applied when limit violations occur. Suppo
 
 Remedial actions can be *preventive* or *curative*:
 - preventive: these actions are implemented before the violation occurs, for example if the flow of a monitored line is between `90%` and `100%`. Use contingency context `NONE` for that.
-- curative: these actions are implemented after a violation occurs, for example if the flow of the monitored line is greater than `100%`.
+- curative: these actions are implemented after a violation occurs, for example, if the flow of the monitored line is greater than `100%`.
 
 ### Conditions
 Actions are applied if a condition is met. The conditions can be diversified and extended in the future:
@@ -63,7 +63,7 @@ An operator strategy is applied in pre-contingency or after a contingency, depen
 An operator strategy groups a condition and a list of remedial actions.
 
 ### State monitors
-A stateMonitor allows to get information about branch, bus and three-winding transformers on the network after a security analysis computation. Contingency context allows to specify if the information asked are about pre-contingency state or post-contingency state with a contingency id or both. For example:
+A stateMonitor allows getting information about branch, bus and three-winding transformers on the network after a security analysis computation. Contingency context allows to specify if the information asked are about pre-contingency state or post-contingency state with a contingency id or both. For example:
 - If we want information about a branch after security analysis on contingency `c1`, the contingencyContext will contain the contingencyId `c1`, contextType `SPECIFIC` and the state monitor will contain the id of the branch.
 - If we want information about a branch in pre-contingency state, the contingencyContext will contain a null contingencyId, contextType `NONE` and the state monitor will contain the id of the branch.
 - If we want information about a branch in pre-contingency state and after security analysis on contingency `c1`, the contingencyContext will contain contingencyId `c1`, contextType `ALL` and the state monitor will contain the id of the branch.
@@ -84,7 +84,7 @@ You can find more details about limit reductions [here](./limit-reductions).
 ## Outputs
 
 ### Pre-contingency results
-The violations are detected on the network at state N, meaning before a contingency occurred. This determines a reference for the simulation. For each violation, we get the ID of the overloaded equipment, the limit type (`CURRENT`, `ACTIVE_POWER`, `APPARENT_POWER`, `LOW_VOLTAGE` or `HIGH_VOLTAGE`, `LOW_VOLTAGE_ANGLE` or `HIGH_VOLTAGE_ANGLE`), the acceptable value and the computed value. For branches and three windings transformers, we also have the side where the violation has been detected.
+The violations are detected on the network at state N, meaning before a contingency occurred. This determines a reference for the simulation. For each violation, we get the ID of the overloaded equipment, the limit type (`CURRENT`, `ACTIVE_POWER`, `APPARENT_POWER`, `LOW_VOLTAGE` or `HIGH_VOLTAGE`, `LOW_VOLTAGE_ANGLE` or `HIGH_VOLTAGE_ANGLE`), the acceptable value and the computed value. For branches and three-winding transformers, we also have the side where the violation has been detected.
 
 The pre-contingency results also contain the network results based on given state monitors. A network result groups branch results, bus results and three-winding transformer results. All elementary results are fully extendable.
 
