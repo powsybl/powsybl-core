@@ -14,7 +14,7 @@ The sensitivity analysis module is dedicated to computing the linearized impact 
 
 A sensitivity value is the numerical estimation of the partial derivative of the observed function with respect to the variable of impact.
 The sensitivity analysis can also be seen as the computation of partial derivatives on the network model.
-For example, it may be used to know, among a group of selected lines, which are the most impacted by a change in a generator production or a change of tap on a phase tap changer. The user story about [RSC capacity calculation](https://www.powsybl.org/pages/documentation/user/user-stories/capacity_calculation_rsc.html) provides an example of application of the sensitivity analysis.
+For example, it may be used to know among a group of selected lines, which are the most impacted by a change in a generator production or a change of tap on a phase tap changer. The user story about [RSC capacity calculation](https://www.powsybl.org/pages/documentation/user/user-stories/capacity_calculation_rsc.html) provides an example of application of the sensitivity analysis.
 
 (sensitivity-analysis-inputs)=
 ## Inputs
@@ -25,10 +25,10 @@ The first input for the sensitivity analysis module is an IIDM network.
 (sensitivity-factors)=
 ### Sensitivity factors
 Aside from providing an input network, it is necessary to specify which equipments are going to be studied:
-- what impacted equipments are selected to be monitored (lines for example)
+- what impacted equipment is selected to be monitored (lines, for example)
 - according to a change on which equipment (a generator's production or a group of generator's production, or the tap position of a phase tap changer, etc.)
 
-It is also necessary to specify which quantity is being observed: the active power or the current on the monitored equipments, the voltage at a bus.
+It is also necessary to specify which quantity is being observed: the active power or the current on the monitored equipment, the voltage of a bus.
 
 This set of information constitutes the sensitivity factors (`SensitivityFactor`). These factors correspond to the definition
 of the expected partial derivatives to be extracted from the input network.
@@ -41,19 +41,19 @@ A standard sensitivity analysis input thus comprises a list of sensitivity facto
 A sensitivity variable represents a change on an equipment or on a group of equipments. The supported variable types are:
 - Use `INJECTION_ACTIVE_POWER` to model a change on active production of a generator or on a group of generators, on the active consumption of a load or on a group of loads or on GLSK (for Generation and Load Shift keys) that describes a linear combination of active power injection shifts on generators and loads. The variable increase is in MW.
 - Use `INJECTION_REACTIVE_POWER` to model a change on reactive production of a generator or on the reactive consumption of a load. The variable increase is in MVar.
-- Use `TRANSFORMER_PHASE` to model the change of the tap position of a phase tap changer of a two windings transformer. The increase is in degree.
-- Use `BUS_TARGET_VOLTAGE` to model an increase of the voltage target of a generator, a static var compensator, a two or three windings transformer, a shunt compensator or a VSC converter station. The increase is in KV.
+- Use `TRANSFORMER_PHASE` to model the change of the tap position of a phase tap changer of a two-winding transformer. The increase is in degree.
+- Use `BUS_TARGET_VOLTAGE` to model an increase of the voltage target of a generator, a static var compensator, a two or three-winding transformer, a shunt compensator or a VSC converter station. The increase is in KV.
 - Use `HVDC_LINE_ACTIVE_POWER` to model the change of the active power set point of an HVDC line. The increase is in MW.
-- Use `TRANSFORMER_PHASE_1`, `TRANSFORMER_PHASE_2` or `TRANSFORMER_PHASE_3` to model the change of the tap position of a phase tap changer of a three windings transformer that contains several phase tap changers.
+- Use `TRANSFORMER_PHASE_1`, `TRANSFORMER_PHASE_2` or `TRANSFORMER_PHASE_3` to model the change of the tap position of a phase tap changer of a three-winding transformer that contains several phase tap changers.
 
 The supported sensitivity function types, related to the equipment to monitor, are:
-- Use `BRANCH_ACTIVE_POWER_1` and `BRANCH_ACTIVE_POWER_2` if you want to monitor the active power in MW of a network branch (lines, two windings transformer, dangling lines, etc.). Use 1 for side 1 and 2 for side 2. In case of a three windings transformer, use `BRANCH_ACTIVE_POWER_3` to monitor the active power in MW of the leg 3 (network side).
-- Use `BRANCH_REACTIVE_POWER_1` and `BRANCH_REACTIVE_POWER_2` if you want to monitor the reactive power in MVar of a network branch (lines, two-winding transformer, dangling lines, etc.). Use 1 for side 1 and 2 for side 2. In case of a three-winding transformer, use `BRANCH_REACTIVE_POWER_3` to monitor the reactive power in MVar of the leg 3 (network side).
-- Use `BRANCH_CURRENT_1` and `BRANCH_CURRENT_2` if you want to monitor the current in A of a network branch (lines, two windings transformer, dangling lines, etc.). Use 1 for side 1 and use 2 for side 2. In case of a three windings transformer, use `BRANCH_CURRENT_3` to monitor the current in A of the leg 3 (network side).
+- Use `BRANCH_ACTIVE_POWER_1` and `BRANCH_ACTIVE_POWER_2` if you want to monitor the active power in MW of a network branch (lines, two-winding transformer, dangling lines, etc.). Use 1 for side 1 and 2 for side 2. In case of a three-winding transformer, use `BRANCH_ACTIVE_POWER_3` to monitor the active power in MW of leg 3 (network side).
+- Use `BRANCH_REACTIVE_POWER_1` and `BRANCH_REACTIVE_POWER_2` if you want to monitor the reactive power in MVar of a network branch (lines, two-winding transformer, dangling lines, etc.). Use 1 for side 1 and 2 for side 2. In case of a three-winding transformer, use `BRANCH_REACTIVE_POWER_3` to monitor the reactive power in MVar of leg 3 (network side).
+- Use `BRANCH_CURRENT_1` and `BRANCH_CURRENT_2` if you want to monitor the current in A of a network branch (lines, two-winding transformer, dangling lines, etc.). Use 1 for side 1 and use 2 for side 2. In case of a three-winding transformer, use `BRANCH_CURRENT_3` to monitor the current in A of leg 3 (network side).
 - `BUS_VOLTAGE` if you want to monitor the voltage in KV of a specific network bus.
 - `BUS_REACTIVE_POWER` if you want to monitor the reactive power injection in MVar of a specific network bus.
 
-A sensitivity variable can group some equipments and has to be modeled as a variable set. In a `SensitivityVariableSet`, we have a list of individual variables, each one with a weight (called `WeightedSensitivityVariable`). We use variable sets to model what it commonly called GLSK.
+A sensitivity variable can group some equipment and has to be modeled as a variable set. In a `SensitivityVariableSet`, we have a list of individual variables, each one with a weight (called `WeightedSensitivityVariable`). We use variable sets to model what it commonly called GLSK.
 
 #### How to provide the sensitivity factors input
 
@@ -79,7 +79,7 @@ The sensitivity factors may be created directly through Java code, or be provide
 
 ### Contingencies
 The sensitivity analysis may also take, optionally, a list of contingencies as an input. When contingencies are provided, the sensitivity values
-shall be calculated on the network at state N, but also after the application of each contingency. The contingencies are provided in the same way than for the [security analysis](../security/index.md/). This then constitutes a systematic sensitivity analysis.
+shall be calculated on the network at state N, but also after the application of each contingency. The contingencies are provided in the same way as for the [security analysis](../security/index.md/). This then constitutes a systematic sensitivity analysis.
 
 ```json
 {
@@ -96,7 +96,7 @@ shall be calculated on the network at state N, but also after the application of
 }
 ```
 
-At the moment the only available sensitivity simulator officially compatible with PowSyBl is the one available through OpenLoadFlow. In this case, the network is provided only once in state N, and then all the calculations are done successively by modifying the Jacobian matrix directly in the solver based on the contingencies input. The network is thus loaded only once, which improves performance.
+At the moment, the only available sensitivity simulator officially compatible with PowSyBl is the one available through OpenLoadFlow. In this case, the network is provided only once in state N, and then all the calculations are done successively by modifying the Jacobian matrix directly in the solver based on the contingency input. The network is thus loaded only once, which improves performance.
 
 (sensitivity-analysis-outputs)=
 ## Outputs
