@@ -83,7 +83,7 @@ public class OdreGeoDataAdderPostProcessor implements ImportPostProcessor {
             boolean aerialLinesPresent = Files.exists(aerialLinesFilePath);
             boolean undergroundLinesPresent = Files.exists(undergroundLinesFilePath);
             if (aerialLinesPresent && undergroundLinesPresent) {
-                OdreGeoDataAdder.fillNetworkGeoDataFromFiles(network, aerialLinesFilePath, undergroundLinesFilePath, odreConfig);
+                OdreGeoDataAdder.fillNetworkLinesGeoDataFromFiles(network, aerialLinesFilePath, undergroundLinesFilePath, odreConfig);
             } else {
                 String missingAerialFiles = aerialLinesPresent ? "" : aerialLinesFilePath + " ";
                 String missingFiles = missingAerialFiles.concat(undergroundLinesPresent ? "" : undergroundLinesFilePath.toString());

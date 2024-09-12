@@ -27,7 +27,7 @@ public class OdreGeoDataAdder {
         fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsCoordinates(path, odreConfig));
     }
 
-    public static void fillNetworkGeoDataFromFiles(Network network, Path aerialLinesFilePath, Path undergroundLinesFilePath, OdreConfig odreConfig) throws IOException {
+    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath, Path undergroundLinesFilePath, OdreConfig odreConfig) throws IOException {
         fillNetworkLinesGeoData(network, OdreGeoDataCsvLoader.getLinesCoordinates(aerialLinesFilePath, undergroundLinesFilePath, odreConfig));
     }
 }
