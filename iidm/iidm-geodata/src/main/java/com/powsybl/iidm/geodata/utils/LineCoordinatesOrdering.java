@@ -61,11 +61,11 @@ public final class LineCoordinatesOrdering {
             LOGGER.warn("line {} has both first and last coordinate nearest to {}",
                     lineId, substation1lineStart < substation2lineStart ? TwoSides.ONE : TwoSides.TWO);
             // reverse the list if line end closer to substation1 than line start
-            return substation1lineStart < substation1lineEnd ? lineCoordinates : Lists.reverse(lineCoordinates);
+            return substation1lineStart <= substation1lineEnd ? lineCoordinates : Lists.reverse(lineCoordinates);
         }
-        // main case: the line start is closer to one substation, the line end is closed to the other substation
-        // reverse the list if the start is close to the second substation
-        return substation1lineStart < substation2lineStart ? lineCoordinates : Lists.reverse(lineCoordinates);
+        // main case: the line start is closer to one substation, the line end is closer to the other substation
+        // reverse the list if the start is closer to the second substation
+        return substation1lineStart <= substation2lineStart ? lineCoordinates : Lists.reverse(lineCoordinates);
     }
 
     private static List<Coordinate> orderCoordinates(Coordinate substation, Coordinate coordA, Coordinate coordB, List<Coordinate> coordinates) {
