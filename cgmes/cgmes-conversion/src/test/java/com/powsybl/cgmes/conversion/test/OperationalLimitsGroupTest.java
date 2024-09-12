@@ -9,27 +9,49 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.OperationalLimitsGroup;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.Collection;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
+ * @author Romain Courtier {@literal <romain.courtier at rte-france.com>}
  */
 
 class OperationalLimitsGroupTest extends AbstractSerDeTest {
 
     @Test
     void multipleLimitsGroupsOnLineTest() {
+        // Retrieve line
         Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
         Line line = network.getLine("Line");
-        Collection<OperationalLimitsGroup> limitsGroups = line.getOperationalLimitsGroups1();
-        assertEquals(3, limitsGroups.size());
+
+        // There are 4 CGMES OperationalLimitSets on side 1 merged into 3 IIDM OperationalLimitsGroup
+        FlowsLimitsHolder holder1 = line.getOperationalLimitsHolder1();
+        FlowsLimitsHolder holder2 = line.getOperationalLimitsHolder2();
+        assertEquals(3, holder1.getOperationalLimitsGroups().size());
+        assertEquals(0, holder2.getOperationalLimitsGroups().size());
+
+        // The CGMES winter current and active power limits have been merged into the same limits group
+        // since their OperationalLimitSet name are equals
+        Optional<OperationalLimitsGroup> winterLimits = holder1.getOperationalLimitsGroup("WINTER");
+        assertTrue(winterLimits.isPresent());
+        assertTrue(winterLimits.get().getCurrentLimits().isPresent());
+        assertTrue(winterLimits.get().getActivePowerLimits().isPresent());
+
+        // The CGMES spring current limits and summer active power limits have different limits group
+        // since their OperationalLimitSet name are distinct
+        Optional<OperationalLimitsGroup> springLimits = holder1.getOperationalLimitsGroup("SPRING");
+        assertTrue(springLimits.isPresent());
+        assertTrue(springLimits.get().getCurrentLimits().isPresent());
+        assertTrue(springLimits.get().getActivePowerLimits().isEmpty());
+
+        Optional<OperationalLimitsGroup> summerLimits = holder1.getOperationalLimitsGroup("SUMMER");
+        assertTrue(summerLimits.isPresent());
+        assertTrue(summerLimits.get().getCurrentLimits().isEmpty());
+        assertTrue(summerLimits.get().getActivePowerLimits().isPresent());
     }
 
 }

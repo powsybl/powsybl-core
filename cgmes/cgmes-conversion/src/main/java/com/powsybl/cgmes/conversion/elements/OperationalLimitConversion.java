@@ -28,13 +28,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String OPERATIONAL_LIMIT_TYPE_NAME = "operationalLimitTypeName";
     private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
     private static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
+    private static final String OPERATIONAL_LIMIT_SET_NAME = "limitSetName";
     private static final String PERMANENT_LIMIT = "Permanent Limit";
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super("OperationalLimit", l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        String limitSet = p.getLocal(OPERATIONAL_LIMIT_SET);
+        String limitSet = p.getLocal(OPERATIONAL_LIMIT_SET_NAME) != null ? p.getLocal(OPERATIONAL_LIMIT_SET_NAME) : p.getLocal(OPERATIONAL_LIMIT_SET);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
@@ -81,7 +82,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param holder The equipment to which the OperationalLimit applies.
      * @return The appropriate LoadingLimitsAdder supplier.
      */
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(String limitSubClass, String limitSet, FlowsLimitsHolder holder) {
+    private Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(String limitSubClass, String limitSet, FlowsLimitsHolder holder) {
         OperationalLimitsGroup limitsGroup = holder.getOperationalLimitsGroup(limitSet).orElseGet(() -> holder.newOperationalLimitsGroup(limitSet));
         return getLoadingLimitAdderSupplier(limitsGroup, limitSubClass);
     }
@@ -93,7 +94,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param b The branch to which the OperationalLimit applies on side 1.
      * @return The appropriate LoadingLimitsAdder supplier.
      */
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder1Supplier(String limitSubClass, String limitSet, Branch<?> b) {
+    private Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder1Supplier(String limitSubClass, String limitSet, Branch<?> b) {
         OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSet).orElseGet(() -> b.newOperationalLimitsGroup1(limitSet));
         return getLoadingLimitAdderSupplier(limitsGroup, limitSubClass);
     }
@@ -105,7 +106,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param b The branch to which the OperationalLimit applies on side 2.
      * @return The appropriate LoadingLimitsAdder supplier.
      */
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder2Supplier(String limitSubClass, String limitSet, Branch<?> b) {
+    private Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder2Supplier(String limitSubClass, String limitSet, Branch<?> b) {
         OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSet).orElseGet(() -> b.newOperationalLimitsGroup2(limitSet));
         return getLoadingLimitAdderSupplier(limitsGroup, limitSubClass);
     }
@@ -116,7 +117,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
      * @param limitSubClass The subclass of the OperationalLimit.
      * @return The appropriate LoadingLimitsAdder supplier.
      */
-    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(OperationalLimitsGroup limitsGroup, String limitSubClass) {
+    private Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(OperationalLimitsGroup limitsGroup, String limitSubClass) {
         if (limitSubClass == null) {
             return limitsGroup::newCurrentLimits;
         }
