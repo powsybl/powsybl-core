@@ -380,9 +380,9 @@ WHERE
     OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
+    OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?limitSetName }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
-    OPTIONAL { ?OperationalLimitSet cim:IdentifiedObject.name ?limitSetName }
     OPTIONAL { GRAPH ?graph2 {
         ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
         ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
