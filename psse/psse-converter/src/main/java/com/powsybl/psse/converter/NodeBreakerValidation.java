@@ -116,6 +116,16 @@ final class NodeBreakerValidation {
                 busControls.computeIfAbsent(psseVscDcTransmissionLine.getConverter2().getVsreg(), k -> new ArrayList<>()).add(new NodeBreakerControl(idConverter2, psseVscDcTransmissionLine.getConverter2().getNreg()));
             }
         });
+        pssePowerFlowModel.getFacts().forEach(psseFactsDevice -> {
+            String id = getNodeBreakerEquipmentId(PSSE_FACTS_DEVICE, psseFactsDevice.getI(), psseFactsDevice.getJ(), psseFactsDevice.getName());
+            busEquipmentTerminals.computeIfAbsent(psseFactsDevice.getI(), k -> new ArrayList<>()).add(id);
+            if (psseFactsDevice.getJ() != 0) {
+                busEquipmentTerminals.computeIfAbsent(psseFactsDevice.getJ(), k -> new ArrayList<>()).add(id);
+            }
+            if (psseFactsDevice.getFcreg() != 0) {
+                busControls.computeIfAbsent(psseFactsDevice.getFcreg(), k -> new ArrayList<>()).add(new NodeBreakerControl(id, psseFactsDevice.getNreg()));
+            }
+        });
         pssePowerFlowModel.getSwitchedShunts().forEach(psseSwitchedShunt -> {
             String id = getNodeBreakerEquipmentId(PSSE_SWITCHED_SHUNT, psseSwitchedShunt.getI(), psseSwitchedShunt.getId());
             busEquipmentTerminals.computeIfAbsent(psseSwitchedShunt.getI(), k -> new ArrayList<>()).add(id);

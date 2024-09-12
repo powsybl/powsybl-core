@@ -63,6 +63,9 @@
             <iidm:shunt id="B9-SH 0" sectionCount="1" voltageRegulatorOn="false" bus="B9" connectableBus="B9">
                 <iidm:shuntLinearModel bPerSection="9.976895610165932E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
+            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_0" name="FACTS_DVCE_0" bMin="-0.001312749422390254" bMax="0.001312749422390254" voltageSetpoint="140.07" reactivePowerSetpoint="40.0" regulationMode="VOLTAGE" bus="B7" connectableBus="B7">
+                <iidm:regulatingTerminal id="L-7-8-1 " side="ONE"/>
+            </iidm:staticVarCompensator>
             <iidm:vscConverterStation id="VscConverter-7-VDCLINE1" voltageRegulatorOn="false" lossFactor="0.047824007" voltageSetpoint="138.0" reactivePowerSetpoint="68.6949779823824" bus="B7" connectableBus="B7">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
                 <iidm:regulatingTerminal id="L-7-8-1 " side="ONE"/>
@@ -99,6 +102,9 @@
             </iidm:generator>
             <iidm:load id="B5-L1 " loadType="UNDEFINED" p0="7.6" q0="1.6" bus="B5" connectableBus="B5"/>
             <iidm:load id="B6-L1 " loadType="UNDEFINED" p0="11.2" q0="7.5" bus="B6" connectableBus="B6"/>
+            <iidm:staticVarCompensator id="FactsDevice-FACTS_DVCE_1" name="FACTS_DVCE_1" bMin="-0.002625498844780508" bMax="0.002625498844780508" voltageSetpoint="140.07" reactivePowerSetpoint="0.0" regulationMode="VOLTAGE" bus="B5" connectableBus="B5">
+                <iidm:regulatingTerminal id="B5-L1 "/>
+            </iidm:staticVarCompensator>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-5-6-1 " r="0.0" x="47.994688800000006" g="0.0" b="0.0" ratedU1="138.0" ratedU2="138.0" voltageLevelId1="VL5-6" bus1="B5" connectableBus1="B5" voltageLevelId2="VL5-6" bus2="B6" connectableBus2="B6">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
@@ -192,6 +198,6 @@
     <iidm:hvdcLine id="VscDcTransmissionLine-VDCLINE1" name="VDCLINE1" r="0.71" nominalV="138.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="209.0" maxP="400.0" converterStation1="VscConverter-7-VDCLINE1" converterStation2="VscConverter-9-VDCLINE1"/>
     <iidm:hvdcLine id="VscDcTransmissionLine-VDCLINE2" name="VDCLINE2" r="0.35" nominalV="138.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="250.0" converterStation1="VscConverter-11-VDCLINE2" converterStation2="VscConverter-13-VDCLINE2"/>
     <iidm:extension id="VL1">
-        <slt:slackTerminal id="B1-SwSH1"/>
+        <slt:slackTerminal id="B1-G1 "/>
     </iidm:extension>
 </iidm:network>

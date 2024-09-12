@@ -234,6 +234,11 @@ public class PssePowerFlowModel {
         this.facts.addAll(modelled(facts));
     }
 
+    public void replaceAllFacts(List<PsseFacts> factsDevices) {
+        this.facts.clear();
+        this.facts.addAll(factsDevices);
+    }
+
     public List<PsseFacts> getFacts() {
         return Collections.unmodifiableList(facts);
     }

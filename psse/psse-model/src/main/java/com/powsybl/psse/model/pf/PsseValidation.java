@@ -74,6 +74,7 @@ public class PsseValidation {
         validateTwoTerminalDcTransmissionLines(model.getTwoTerminalDcTransmissionLines(), buses);
         validateVscDcTransmissionLines(model.getVoltageSourceConverterDcTransmissionLines(), buses, psseVersion);
 
+        validateFactsDevices(model.getFacts(), buses, psseVersion);
         validateSwitchedShunts(model.getSwitchedShunts(), buses, psseVersion);
     }
 
@@ -343,11 +344,11 @@ public class PsseValidation {
         Map<String, Integer> twoTerminalDcNames = new HashMap<>();
         for (PsseTwoTerminalDcTransmissionLine twoTerminalDc : twoTerminalDcTransmissionLines) {
             if (!buses.containsKey(twoTerminalDc.getRectifier().getIp())) {
-                warnings.add(String.format("TwoTerminalDcTransmissionLine: Unexpected rectifier Ip: %d", twoTerminalDc.getRectifier().getIp()));
+                warnings.add(String.format("TwoTerminalDcTransmissionLine: %s Unexpected rectifier Ip: %d", twoTerminalDc.getName(), twoTerminalDc.getRectifier().getIp()));
                 validCase = false;
             }
             if (!buses.containsKey(twoTerminalDc.getInverter().getIp())) {
-                warnings.add(String.format("TwoTerminalDcTransmissionLine: Unexpected inverter Ip: %d", twoTerminalDc.getInverter().getIp()));
+                warnings.add(String.format("TwoTerminalDcTransmissionLine: %s Unexpected inverter Ip: %d", twoTerminalDc.getName(), twoTerminalDc.getInverter().getIp()));
                 validCase = false;
             }
             twoTerminalDcNames.put(twoTerminalDc.getName(), twoTerminalDcNames.getOrDefault(twoTerminalDc.getName(), 0) + 1);
@@ -363,19 +364,19 @@ public class PsseValidation {
         Map<String, Integer> vscDcTransmissionLinesNames = new HashMap<>();
         for (PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine : vscDcTransmissionLines) {
             if (!buses.containsKey(vscDcTransmissionLine.getConverter1().getIbus())) {
-                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter1 Ibus: %d", vscDcTransmissionLine.getConverter1().getIbus()));
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter1 Ibus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLine.getConverter1().getIbus()));
                 validCase = false;
             }
             if (!buses.containsKey(vscDcTransmissionLine.getConverter2().getIbus())) {
-                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter2 Ibus: %d", vscDcTransmissionLine.getConverter2().getIbus()));
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter2 Ibus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLine.getConverter2().getIbus()));
                 validCase = false;
             }
             if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion))) {
-                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter1 Vsreg bus: %d", vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion)));
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter1 Vsreg bus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter1(), psseVersion)));
                 validCase = false;
             }
             if (vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion) != 0 && !buses.containsKey(vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion))) {
-                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: Unexpected converter2 Vsreg bus: %d", vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion)));
+                warnings.add(String.format("VoltageSourceConverterDcTransmissionLine: %s Unexpected converter2 Vsreg bus: %d", vscDcTransmissionLine.getName(), vscDcTransmissionLineRegulatingBus(vscDcTransmissionLine.getConverter2(), psseVersion)));
                 validCase = false;
             }
             vscDcTransmissionLinesNames.put(vscDcTransmissionLine.getName(), vscDcTransmissionLinesNames.getOrDefault(vscDcTransmissionLine.getName(), 0) + 1);
@@ -392,6 +393,38 @@ public class PsseValidation {
             return converter.getVsreg();
         } else {
             return converter.getRemot();
+        }
+    }
+
+    private void validateFactsDevices(List<PsseFacts> factsDevices, Map<Integer, List<Integer>> buses, PsseVersion psseVersion) {
+        Map<String, Integer> factsDevicesNames = new HashMap<>();
+
+        // Only bus I is validated as only statcom facts devices are considered
+        for (PsseFacts factsDevice : factsDevices) {
+            if (!buses.containsKey(factsDevice.getI())) {
+                warnings.add(String.format("FactsDevice: %s Unexpected I: %d", factsDevice.getName(), factsDevice.getI()));
+                validCase = false;
+            }
+            int regulatingBus = factsDeviceRegulatingBus(factsDevice, psseVersion);
+            if (regulatingBus != 0 && !buses.containsKey(regulatingBus)) {
+                warnings.add(String.format("FactsDevice: %s Unexpected remot/fcreg: %d", factsDevice.getName(), regulatingBus));
+                validCase = false;
+            }
+            factsDevicesNames.put(factsDevice.getName(), factsDevicesNames.getOrDefault(factsDevice.getName(), 0) + 1);
+        }
+
+        List<String> duplicatedNames = factsDevicesNames.keySet().stream().filter(key -> factsDevicesNames.get(key) > 1).toList();
+        if (!duplicatedNames.isEmpty()) {
+            duplicatedNames.forEach(name -> warnings.add(String.format("FactsDevices: This name %s is not unique", name)));
+            validCase = false;
+        }
+    }
+
+    private static int factsDeviceRegulatingBus(PsseFacts factsDevice, PsseVersion psseVersion) {
+        if (psseVersion.major() == V35) {
+            return factsDevice.getFcreg();
+        } else {
+            return factsDevice.getRemot();
         }
     }
 
@@ -420,9 +453,9 @@ public class PsseValidation {
             addSwitchedShuntBusesMap(busesSwitchedShunts, switchedShunt, psseVersion);
         }
 
-        Map<String, List<String>> duplicatedBusesFixedShunts = getDuplicates(busesSwitchedShunts);
-        if (!duplicatedBusesFixedShunts.isEmpty()) {
-            duplicatedBusesFixedShunts.forEach((key, value) -> warnings.add(multipleSwitchedShuntString(key, value, psseVersion)));
+        Map<String, List<String>> duplicatedBusesSwitchedShunts = getDuplicates(busesSwitchedShunts);
+        if (!duplicatedBusesSwitchedShunts.isEmpty()) {
+            duplicatedBusesSwitchedShunts.forEach((key, value) -> warnings.add(multipleSwitchedShuntString(key, value, psseVersion)));
             validCase = false;
         }
     }

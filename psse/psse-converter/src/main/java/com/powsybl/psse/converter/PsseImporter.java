@@ -57,7 +57,7 @@ public class PsseImporter implements Importer {
             Boolean.FALSE);
     private static final Parameter IGNORE_NODE_BREAKER_TOPOLOGY_PARAMETER = new Parameter("psse.import.ignore-node-breaker-topology",
             ParameterType.BOOLEAN,
-            "Ignore the node breaker topolgy specified in the substation data of the file",
+            "Ignore the node breaker topology specified in the substation data of the file",
             Boolean.FALSE);
 
     @Override
@@ -197,11 +197,6 @@ public class PsseImporter implements Importer {
             new FixedShuntCompensatorConverter(psseShunt, containersMapping, network, nodeBreakerImport).create();
         }
 
-        // Create switched shunts
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).create();
-        }
-
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
             new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).create();
         }
@@ -214,21 +209,27 @@ public class PsseImporter implements Importer {
             new TransformerConverter(psseTfo, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version, nodeBreakerImport).create();
         }
 
-        for (PsseTwoTerminalDcTransmissionLine psseTwoTerminaDc : psseModel.getTwoTerminalDcTransmissionLines()) {
-            new TwoTerminalDcConverter(psseTwoTerminaDc, containersMapping, network, nodeBreakerImport).create();
+        for (PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc : psseModel.getTwoTerminalDcTransmissionLines()) {
+            new TwoTerminalDcConverter(psseTwoTerminalDc, containersMapping, network, nodeBreakerImport).create();
         }
 
         for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
             new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).create();
         }
 
+        for (PsseFacts psseFactsDevice : psseModel.getFacts()) {
+            new FactsDeviceConverter(psseFactsDevice, containersMapping, network, version, nodeBreakerImport).create();
+        }
+
+        // Create switched shunts
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).create();
+        }
+
         // Attach a slack bus
         new SlackConverter(psseModel.getBuses(), containersMapping, network, nodeBreakerImport).create();
 
         // Add controls
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).addControl();
-        }
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
             new GeneratorConverter(psseGen, containersMapping, network, nodeBreakerImport).addControl(busNumToPsseBus.get(psseGen.getI()));
         }
@@ -237,6 +238,12 @@ public class PsseImporter implements Importer {
         }
         for (PsseVoltageSourceConverterDcTransmissionLine psseVscDcTransmissionLine : psseModel.getVoltageSourceConverterDcTransmissionLines()) {
             new VscDcTransmissionLineConverter(psseVscDcTransmissionLine, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
+        for (PsseFacts psseFactsDevice : psseModel.getFacts()) {
+            new FactsDeviceConverter(psseFactsDevice, containersMapping, network, version, nodeBreakerImport).addControl();
+        }
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version, nodeBreakerImport).addControl();
         }
         return network;
     }

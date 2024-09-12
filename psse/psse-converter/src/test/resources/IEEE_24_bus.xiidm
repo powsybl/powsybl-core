@@ -512,6 +512,6 @@
         </iidm:operationalLimitsGroup2>
     </iidm:line>
     <iidm:extension id="VL1">
-        <slt:slackTerminal id="B1-SwSH1"/>
+        <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>
 </iidm:network>

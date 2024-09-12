@@ -39,6 +39,9 @@ public class PsseFixDuplicateIds {
         if (version.getMajorNumber() >= 35) {
             fixDuplicatedIds(model.getSwitchedShunts(), sh -> sh.getI() + "-" + sh.getId(), this::switchedShuntFixer);
         }
+        fixDuplicatedIds(model.getTwoTerminalDcTransmissionLines(), PsseTwoTerminalDcTransmissionLine::getName, this::twoTerminalDcTransmissionLineFixer);
+        fixDuplicatedIds(model.getVoltageSourceConverterDcTransmissionLines(), PsseVoltageSourceConverterDcTransmissionLine::getName, this::vscDcTransmissionLineFixer);
+        fixDuplicatedIds(model.getFacts(), PsseFacts::getName, this::factsDeviceFixer);
     }
 
     private String sortedBuses(int... buses) {
@@ -70,6 +73,16 @@ public class PsseFixDuplicateIds {
         // The id is only two characters long, and we try to preserve the first character
         // We avoid setting a 0 as first character because PSSE may interpret them as not valid
         String first = id.isEmpty() ? "1" : id.substring(0, 1);
+        return buildCandidate(id, first, usedIds);
+    }
+
+    private String buildFixedName(String name, Set<String> usedNames) {
+        // name is upto twelve characters long
+        String first = name.length() == 12 ? name.substring(0, 11) : name;
+        return buildCandidate(name, first, usedNames);
+    }
+
+    private String buildCandidate(String id, String first, Set<String> usedIds) {
         for (char second = '0'; second <= '9'; second++) {
             String candidate = first + second;
             if (usedIds.contains(candidate)) {
@@ -137,12 +150,46 @@ public class PsseFixDuplicateIds {
         return fixedId;
     }
 
+    private String twoTerminalDcTransmissionLineFixer(PsseTwoTerminalDcTransmissionLine twoTerminalDcTransmissionLine, Set<String> usedIds) {
+        String name = twoTerminalDcTransmissionLine.getName();
+        String fixedName = buildFixedName(name, usedIds);
+        twoTerminalDcTransmissionLine.setName(fixedName);
+        warn("TwoTerminalDcTransmissionLine", name, fixedName);
+        return fixedName;
+    }
+
+    private String vscDcTransmissionLineFixer(PsseVoltageSourceConverterDcTransmissionLine vscDcTransmissionLine, Set<String> usedIds) {
+        String name = vscDcTransmissionLine.getName();
+        String fixedName = buildFixedName(name, usedIds);
+        vscDcTransmissionLine.setName(fixedName);
+        warn("VoltageSourceConverterDcTransmissionLine", name, fixedName);
+        return fixedName;
+    }
+
+    private String factsDeviceFixer(PsseFacts factsDevice, Set<String> usedIds) {
+        String name = factsDevice.getName();
+        String fixedName = buildFixedName(name, usedIds);
+        factsDevice.setName(fixedName);
+        warn("FactsDevice", name, fixedName);
+        return fixedName;
+    }
+
     private void warn(String type, int i, String id, String fixedId) {
         if (LOGGER.isWarnEnabled()) {
             if (id.equals(fixedId)) {
                 LOGGER.warn("Unable to fix {} Id: I {} ID '{}'", type, i, id);
             } else {
                 LOGGER.warn("{} Id fixed: I {} ID '{}'. Fixed ID '{}'", type, i, id, fixedId);
+            }
+        }
+    }
+
+    private void warn(String type, String name, String fixedName) {
+        if (LOGGER.isWarnEnabled()) {
+            if (name.equals(fixedName)) {
+                LOGGER.warn("Unable to fix {} Name: {}", type, name);
+            } else {
+                LOGGER.warn("{} name fixed: Name '{}'. Fixed Name '{}'", type, name, fixedName);
             }
         }
     }

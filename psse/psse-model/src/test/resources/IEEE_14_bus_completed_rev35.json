@@ -2095,7 +2095,7 @@
   } ],
   "facts" : [ {
     "name" : "FACTS_DVCE_1",
-    "i" : 153,
+    "i" : 5,
     "j" : 0,
     "mode" : 1,
     "pdes" : 0.0,
@@ -2114,12 +2114,12 @@
     "set2" : 0.0,
     "vsref" : 0.0,
     "mname" : "",
-    "fcreg" : 153,
+    "fcreg" : 5,
     "nreg" : 0
   }, {
     "name" : "FACTS_DVCE_2",
-    "i" : 153,
-    "j" : 155,
+    "i" : 7,
+    "j" : 0,
     "mode" : 1,
     "pdes" : 350.0,
     "qdes" : 40.0,
@@ -2137,7 +2137,7 @@
     "set2" : 0.0,
     "vsref" : 0.0,
     "mname" : "",
-    "fcreg" : 153,
+    "fcreg" : 7,
     "nreg" : 0
   } ],
   "switchedShunts" : [ ],

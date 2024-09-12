@@ -170,6 +170,10 @@ public abstract class AbstractConverter {
         return String.format("%s-Busbar-%d", voltageLevelId, node);
     }
 
+    static String getFactsDeviceId(String name) {
+        return "FactsDevice-" + name;
+    }
+
     static String getNodeId(VoltageLevel voltageLevel, int node) {
         return voltageLevel.getId() + "-" + node;
     }
@@ -215,7 +219,7 @@ public abstract class AbstractConverter {
 
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
-            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION ->
+            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR ->
                     true;
             case BUSBAR_SECTION, HVDC_LINE, SWITCH -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
@@ -295,6 +299,7 @@ public abstract class AbstractConverter {
                 HvdcLine hvdcLine = (HvdcLine) identifiable;
                 yield isTwoTerminalDcTransmissionLine(hvdcLine) ? PsseEquipmentType.PSSE_TWO_TERMINAL_DC_LINE.getTextCode() : PsseEquipmentType.PSSE_VSC_DC_LINE.getTextCode();
             }
+            case STATIC_VAR_COMPENSATOR -> PsseEquipmentType.PSSE_FACTS_DEVICE.getTextCode();
             default -> throw new PsseException("unexpected identifiableType: " + identifiable.getType().name());
         };
     }
