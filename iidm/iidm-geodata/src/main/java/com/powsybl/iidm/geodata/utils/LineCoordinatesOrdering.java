@@ -40,7 +40,7 @@ public final class LineCoordinatesOrdering {
             if (s2.isPresent()) {
                 return orderCoordinates(s1.get(), s2.get(), firstCoordinate, lastCoordinate, lineCoordinates, line.getId());
             } else {
-                return orderCoordinates(s1.get(), lastCoordinate, firstCoordinate, lineCoordinates);
+                return orderCoordinates(s1.get(), firstCoordinate, lastCoordinate, lineCoordinates);
             }
         } else {
             if (s2.isPresent()) {
