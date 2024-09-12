@@ -130,7 +130,8 @@ todo_include_todos = True
 intersphinx_mapping = {
     "powsyblopenloadflow": ("https://powsybl.readthedocs.io/projects/powsybl-open-loadflow/en/latest/", None),
     "powsybldynawo": ("https://powsybl.readthedocs.io/projects/powsybl-dynawo/en/latest/", None),
-    "powsybldiagram": ("https://powsybl.readthedocs.io/projects/powsybl-diagram/latest/", None)
+    "powsybldiagram": ("https://powsybl.readthedocs.io/projects/powsybl-diagram/latest/", None),
+    "powsybltutorials": ("https://powsybl.readthedocs.io/projects/powsybl-tutorials/en/latest/", None)
 }
 intersphinx_disabled_reftypes = ["*"]
 

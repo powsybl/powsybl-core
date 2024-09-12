@@ -46,4 +46,4 @@ The following power flow implementations are supported:
 
 ## Going further
 - [Run a power flow through an iTools command](../../user/itools/loadflow.md): Learn how to perform a power flow calculation from the command line
-- [Load flow tutorial](TODO)
+- [Load flow tutorial](inv:powsybltutorials:*:*#loadflow)
