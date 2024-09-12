@@ -45,6 +45,10 @@ public final class GeographicDataParser {
     private static final Logger LOGGER = LoggerFactory.getLogger(GeographicDataParser.class);
     private static final int THRESHOLD = 5;
 
+    /**
+     * Parse the substations CSV data contained in the given reader, using the given odreConfig for column names.
+     * @return the map of substation coordinates indexed by the substation id
+     */
     public static Map<String, Coordinate> parseSubstations(Reader reader, OdreConfig odreConfig) {
         Map<String, Coordinate> substations = new LinkedHashMap<>();
         StopWatch stopWatch = new StopWatch();
@@ -69,6 +73,13 @@ public final class GeographicDataParser {
         return substations;
     }
 
+    /**
+     * Parse the lines CSV data contained in the given readers, using the given odreConfig for column names and line types.
+     * @param aerialLinesReader the reader containing the aerial lines CSV data
+     * @param undergroundLinesReader the reader containing the underground lines CSV data
+     * @param odreConfig the config used for column names and line types
+     * @return the map of line coordinates indexed by the line id
+     */
     public static Map<String, List<Coordinate>> parseLines(Reader aerialLinesReader, Reader undergroundLinesReader, OdreConfig odreConfig) {
         try {
             StopWatch stopWatch = new StopWatch();
@@ -103,6 +114,12 @@ public final class GeographicDataParser {
         }
     }
 
+    /**
+     * "Fixing" the lines coordinates data: this method tries to calculate a single list when there are several list for
+     * a given line, which often occurs in the ODRE data.
+     * @param coordinatesListsByLine the map of all the lists of coordinates, indexed by the line id
+     * @return the map of the "fixed" line coordinates, indexed by the line id
+     */
     private static Map<String, List<Coordinate>> fixLines(Map<String, List<List<Coordinate>>> coordinatesListsByLine) {
         Map<String, List<Coordinate>> lines = new HashMap<>();
 
@@ -117,8 +134,11 @@ public final class GeographicDataParser {
 
             List<List<Coordinate>> coordinatesLists = e.getValue();
             if (coordinatesLists.size() == 1) {
+                // Easy case: only one list
                 lines.put(lineId, coordinatesLists.get(0));
             } else {
+                // We want to calculate a single list: we construct a graph based on the coordinates, adding a vertex
+                // for each coordinate, and adding an edge between two consecutive coordinates
                 LineGraph<Coordinate, Object> graph = new LineGraph<>(Object.class);
                 coordinatesLists.forEach(graph::addVerticesAndEdges);
                 List<ConnectedSet> connectedSets = getConnectedSets(graph);
@@ -126,15 +146,20 @@ public final class GeographicDataParser {
                     linesWithOneConnectedSet++;
                     ConnectedSet connectedSet = connectedSets.get(0);
                     if (connectedSet.ends().size() == 2) {
+                        // Only one connected set and two ends: this is a single line
                         lines.put(lineId, connectedSet.list());
                     } else {
+                        // Only one connected set and more than two ends: there are forks in the lines
                         oneConnectedSetDiscarded++;
                     }
                 } else {
-                    linesWithTwoOrMoreConnectedSets++;
-                    List<List<Coordinate>> coordinatesComponents = fillMultipleConnectedSetsCoordinatesList(connectedSets);
 
-                    if (coordinatesComponents.size() != connectedSets.size()) {
+                    // there are several connected sets: we try to order them to have a single line
+                    linesWithTwoOrMoreConnectedSets++;
+                    List<List<Coordinate>> coordinatesComponents = createMultipleConnectedSetsCoordinatesList(connectedSets);
+
+                    if (coordinatesComponents.size() != connectedSets.size() || coordinatesComponents.size() > 2) {
+                        // This happens if there is a fork in one of the connected components or if there are more than 2 connected components
                         twoOrMoreConnectedSetsDiscarded++;
                         continue;
                     }
@@ -148,6 +173,10 @@ public final class GeographicDataParser {
         return lines;
     }
 
+    /**
+     * Compute the connected sets for the given graph. The corresponding list of coordinates and list of extremities
+     * for each connected component is computed at the same time.
+     */
     private static List<ConnectedSet> getConnectedSets(Graph<Coordinate, Object> graph) {
         List<ConnectedSet> connectedSets = new ArrayList<>();
         Set<Coordinate> vertexSet = graph.vertexSet();
@@ -165,6 +194,10 @@ public final class GeographicDataParser {
         return connectedSets;
     }
 
+    /**
+     * Parsing the CSV lines data which is given by the CSVParser, using the given odreConfig for column names and line types.
+     * The resulting coordinates are put in the given map.
+     */
     private static void parseLine(Map<String, List<List<Coordinate>>> coordinateListsByLine, CSVParser csvParser, OdreConfig odreConfig) throws JsonProcessingException {
         Map<String, String> idsColumnNames = odreConfig.idsColumnNames();
         for (CSVRecord row : csvParser) {
@@ -186,10 +219,16 @@ public final class GeographicDataParser {
         }
     }
 
+    /**
+     * Calculate the distance between the first and the last coordinates of the given list
+     */
     private static double getBranchLength(List<Coordinate> coordinatesComponent) {
         return DistanceCalculator.distance(coordinatesComponent.get(0), coordinatesComponent.get(coordinatesComponent.size() - 1));
     }
 
+    /**
+     * Aggregate coordinates of two connected components into one single list by trying to find which extremity connect to which other extremity
+     */
     private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
         List<Coordinate> aggregatedCoordinates;
 
@@ -231,7 +270,10 @@ public final class GeographicDataParser {
         return aggregatedCoordinates;
     }
 
-    private static List<List<Coordinate>> fillMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets) {
+    /**
+     * Constructing the list of coordinates of each connected component, filtering out the connected sets which have more than two ends (or zero)
+     */
+    private static List<List<Coordinate>> createMultipleConnectedSetsCoordinatesList(List<ConnectedSet> connectedSets) {
         List<List<Coordinate>> coordinatesComponents = new ArrayList<>();
         for (ConnectedSet connectedSet : connectedSets) {
             List<Coordinate> endsComponent = connectedSet.ends();
