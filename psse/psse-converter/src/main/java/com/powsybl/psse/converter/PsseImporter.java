@@ -57,7 +57,7 @@ public class PsseImporter implements Importer {
             Boolean.FALSE);
     private static final Parameter IGNORE_NODE_BREAKER_TOPOLOGY_PARAMETER = new Parameter("psse.import.ignore-node-breaker-topology",
             ParameterType.BOOLEAN,
-            "Ignore the node breaker topolgy specified in the substation data of the file",
+            "Ignore the node breaker topology specified in the substation data of the file",
             Boolean.FALSE);
 
     @Override
