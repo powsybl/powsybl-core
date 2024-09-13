@@ -4,8 +4,8 @@
 ## Principles
 
 Datasources are Java-objects used to facilitate I/O operations around PowSyBl.
-It allows users to read and write files. It is for example used by Importers during Network imports when using 
-`Network.read()` methods.
+It allows users to read and write files. It is for example used under the hood by Importers to access the filesystem
+during Network imports when using `Network.read()` methods.
 
 
 ## Types of datasources
@@ -20,12 +20,13 @@ data location, data compression, etc.
 `ReadOnlyDataSource` is the most basic datasource interface available. As you can tell by the name, it only provides 
 reading features.
 It has two parameters:
-- a base name (corresponding to the starting part of the files the user wants to consider in the 
-datasource),
-- a data extension (corresponding to the file extension to consider, compression aside).
+- a base name (corresponding to the common prefix in the names of multiple related files the user wants to 
+consider in the datasource),
+- (optionally) a data extension, mainly used to disambiguate identically named data of different type. 
+Note: this does not apply to compression extensions.
 
 _**Example:**
-For a file named `foo.bar.xiidm.gz`, the base name could be `foo.bar` for instance (or `foo` or `foo.b` or ...), while the data extension would be `xiidm`._
+For a file named `europe.west.xiidm.gz`, the base name could be `europe.west` for instance (or `europe` or `europe.w` or ...), while the data extension would be `xiidm`._
 
 The main methods `ReadOnlyDataSource` provides are:
 
@@ -37,10 +38,10 @@ The methods with `String suffix, String ext` as parameters look for a file which
 `<basename><suffix>.<ext>`.
 
 The classes inheriting directly `ReadOnlyDataSource` are:
-- `ResourceDataSource`: datasource based on a list of resources
+- `ResourceDataSource`: datasource based on a list of java classpath resources
 - `ReadOnlyMemDataSource`: datasource where data is stored in a `Map<filename, data as bytes>` in memory
 - `MultipleReadOnlyDataSource`: datasource grouping multiple user-defined datasources
-- `GenericReadOnlyDataSource`: datasource built by creating new datasources of multiple types
+- `GenericReadOnlyDataSource`: datasource used to read data from any known compressed format
 
 (writabledatasources)=
 ### DataSource
@@ -50,12 +51,14 @@ The `DataSource` interface extends `ReadOnlyDataSource` by adding writing featur
 Those methods allow the user to write in a new file (if `append==false`) or at the end of an existing one (if 
 `append==true`).
 
-This interface also provides two methods to create a datasource from a file path (`fromPath(Path file)`) or from a
-directory and a file name (`fromPath(Path directory, String fileNameOrBaseName)`)
+This interface also provides two static convenience methods (`fromPath(Path file)` and
+`fromPath(Path directory, String fileNameOrBaseName)`) for the different use cases like writing data to the local
+filesystem, and ensuring that the target folder already exists.
 
 Two classes implement the `DataSource` interface:
 - `MemDataSource`: extension of `ReadOnlyMemDataSource` implementing the writing features of `DataSource`
-- `AbstractFileSystemDataSource`: datasource based on files present in the file system, either directly or in an archive
+- `AbstractFileSystemDataSource`: abstract class used to define datasources based on files present in the file system,
+either directly or in an archive.
 
 (directorydatasources)=
 ### Directory DataSource
@@ -69,16 +72,17 @@ BZIP2, GZIP, XZ and ZSTD. Each one of those compression format has a correspondi
 `ZstdDirectoryDataSource`.
 
 `DirectoryDataSource` integrates the notions of base name and data extension:
-- The base name is used to facilitate the access to files that all start with the same String. For example, `foo` would
-be a good base name if your files are `foo.xiidm`, `foo_bar.xiidm`, `foo_mapping.csv`, etc.
+- The base name is used to facilitate the access to files that all start with the same String. For example, `network` would
+be a good base name if your files are `network.xiidm`, `network_reduced.xiidm`, `network_mapping.csv`, etc.
 - The data extension is the last extension of your files, excluding the compression extension if they have one.
 It usually corresponds to the data format extension: `csv`, `xml`, `json`, `xiidm`, etc. This extension is mainly used
-to identify the files to use in the datasource, for example when importing networks using the Importers implemented in
-powsybl. 
+to disambiguate the files to use in the datasource, for example when you have files that differ only by the data
+extension (e.g. `network.xiidm` and `network.xml` in the same folder representing two different networks). 
 
-Even if `DirectoryDataSource` integrates the notions of base name and data extension, you still have the possibility to
-use files that do not correspond to the base name and data extension by directly providing their names, excluding the
-compression extension.
+Even if `DirectoryDataSource` integrates the notions of base name and data extension in the methods with
+`(String suffix, String ext)` as parameters, you still have the possibility to use files that do not correspond to the 
+base name and data extension by using the methods with `(String filename)` as parameter, excluding the compression 
+extension if there is one.
 
 (archivedatasources)=
 ### Archive DataSource
@@ -86,16 +90,16 @@ compression extension.
 `AbstractArchiveDataSource` are datasources based on files located in a specific archive, in the file system. As of today,
 two classes implements `AbstractArchiveDataSource`: `ZipArchiveDataSource` and `TarArchiveDataSource`
 
-While the files located in the archive **may not** be compressed, the archive file itself can be, depending on the
-archive format:
+While the files located in the archive **have to be uncompressed**, the archive file itself can be compressed, depending
+on the archive format:
 - A Zip archive is also already compressed so the compression format for `ZipArchiveDataSource` is always ZIP.
-- A Tar archive can be compressed by any compression format, excluding ZIP (since it would create a Zip archive containing
-the Tar archive): BZIP2, GZIP, XZ or ZSTD. It can also not be compressed.
+- A Tar archive can be compressed by: BZIP2, GZIP, XZ or ZSTD. It can also not be compressed.
 
 Just like `DirectoryDataSource`, the archive datasources integrate the notions of base name and data extension. If not
 given as a parameter in the datasource constructor, the archive file name is even defined using the base name and the
 data extension, as `<directory>/<basename>.<dataExtension>.<archiveExtension>.<compressionExtension>` with the 
-compression extension being optional depending on the archive format.
+compression extension being optional depending on the archive format. For example `network.xiidm.zip` contains
+`network.xiidm`.
 
 
 ## Example
@@ -104,11 +108,11 @@ Let's consider a directory containing the following files:
 
 ```
 directory              
-├── foo              
-├── foo.bar         
-├── foo.xiidm.gz    
-├── foo.v3.xiidm.gz
-├── foo.gz         
+├── network              
+├── network.south         
+├── network.xiidm.gz    
+├── network.v3.xiidm.gz
+├── network.gz         
 └── toto.xiidm.gz  
 ```
 
@@ -116,20 +120,20 @@ A datasource on this directory could be used this way:
 
 ```java
 // Creation of a directory datasource with compression
-GzDirectoryDataSource datasource = new GzDirectoryDataSource(testDir, "foo", "xiidm", observer);
+GzDirectoryDataSource datasource = new GzDirectoryDataSource(testDir, "network", "xiidm", observer);
 
 // Check if some files exist in the datasource by using the `exists(String fileName)` method
 // Since the datasource uses Gzip compression, ".gz" is added to the provided fileName parameter
 datasource.exists("test.toto") // Returns false: the file "test.toto.gz" does not exist in the directory
-datasource.exists("foo.bar") // Returns false: the file "foo.bar.gz" does not exist
-datasource.exists("foo.xiidm") // Returns true: the file "foo.xiidm.gz" exists
+datasource.exists("network.south") // Returns false: the file "network.south.gz" does not exist
+datasource.exists("network.xiidm") // Returns true: the file "network.xiidm.gz" exists
 
 // Check if some files exist in the datasource by using the `exists(String fileName)` method
-datasource.exists("_bar", "baz") // Returns false: the file "foo_bar.baz.gz" does not exist in the directory
-datasource.exists(null, "xiidm") // Returns true: the file "foo.xiidm.gz" exists in the directory
-datasource.exists(null, null) // Returns true: the file "foo.gz" exists in the directory
+datasource.exists("_south", "reduced") // Returns false: the file "network_south.reduced.gz" does not exist in the directory
+datasource.exists(null, "xiidm") // Returns true: the file "network.xiidm.gz" exists in the directory
+datasource.exists(null, null) // Returns true: the file "network.gz" exists in the directory
 
-// We can create some a new file "foo_test.txt.gz" and write "line1" inside
+// We can create some a new file "network_test.txt.gz" and write "line1" inside
 try (OutputStream os = dataSource.newOutputStream("_test", "txt", false)) {
     os.write("line1".getBytes(StandardCharsets.UTF_8));
 }
@@ -145,5 +149,5 @@ try (InputStream is = dataSource.newInputStream("_test", "txt")) {
 }
 
 // List the files in the datasource
-Set<String> files = datasource.listNames(".*") // returns a set containing: "foo", "foo.bar", "foo.xiidm", "foo.v3.xiidm", "foo_test.txt"
+Set<String> files = datasource.listNames(".*") // returns a set containing: "network", "network.south", "network.xiidm", "network.v3.xiidm", "network_test.txt"
 ```
