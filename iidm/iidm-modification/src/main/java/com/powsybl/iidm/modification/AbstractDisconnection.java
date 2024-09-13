@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.identifiableDisconnectionReport;
@@ -30,16 +29,13 @@ import static com.powsybl.iidm.modification.util.ModificationReports.identifiabl
  * try to disconnect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public abstract class AbstractDisconnection extends AbstractNetworkModification {
+public abstract class AbstractDisconnection extends AbstractConnectDisconnectModification {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractDisconnection.class);
-    final String identifiableId;
     final Predicate<Switch> openableSwitches;
-    final ThreeSides side;
 
     AbstractDisconnection(String identifiableId, Predicate<Switch> openableSwitches, ThreeSides side) {
-        this.identifiableId = Objects.requireNonNull(identifiableId);
+        super(identifiableId, side, false);
         this.openableSwitches = openableSwitches;
-        this.side = side;
     }
 
     public void applyModification(Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
@@ -55,20 +51,6 @@ public abstract class AbstractDisconnection extends AbstractNetworkModification 
         } else {
             disconnectIdentifiable(identifiable, network, isPlanned, throwException, reportNode);
         }
-    }
-
-    @Override
-    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
-        impact = DEFAULT_IMPACT;
-        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
-        if (!(identifiable instanceof Connectable<?> || identifiable instanceof TieLine || identifiable instanceof HvdcLine)) {
-            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
-        } else if (identifiable instanceof Connectable<?> connectable && connectable.getTerminals().stream().noneMatch(Terminal::isConnected)
-            || identifiable instanceof TieLine tieLine && !tieLine.getTerminal1().isConnected() && !tieLine.getTerminal2().isConnected()
-            || identifiable instanceof HvdcLine hvdcLine && !hvdcLine.getConverterStation1().getTerminal().isConnected() && !hvdcLine.getConverterStation2().getTerminal().isConnected()) {
-            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
-        }
-        return impact;
     }
 
     private void disconnectIdentifiable(Identifiable<?> identifiable, Network network, boolean isPlanned, boolean throwException, ReportNode reportNode) {
