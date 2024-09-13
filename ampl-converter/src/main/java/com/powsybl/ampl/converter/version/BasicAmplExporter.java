@@ -614,17 +614,24 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double nomV = vl.getNominalV();
         double v = b.getV() / nomV;
         double theta = Math.toRadians(b.getAngle());
+        writeCellsForBusesColumns(formatter, b, new CellParametersForBusesColumns(num, vlNum, ccNum, v, theta, id));
+    }
+
+    protected record CellParametersForBusesColumns(int num, int vlNum, int ccNum, double v, double theta, String id) {}
+
+    protected void writeCellsForBusesColumns(TableFormatter formatter, Bus b,
+                                             CellParametersForBusesColumns cellParameters) throws IOException {
         formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(vlNum)
-            .writeCell(ccNum)
-            .writeCell(v)
-            .writeCell(theta)
+            .writeCell(cellParameters.num)
+            .writeCell(cellParameters.vlNum)
+            .writeCell(cellParameters.ccNum)
+            .writeCell(cellParameters.v)
+            .writeCell(cellParameters.theta)
             .writeCell(b.getP())
             .writeCell(b.getQ())
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(id);
+            .writeCell(cellParameters.id);
     }
 
     @Override
@@ -641,17 +648,29 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double angle = twt.getProperty("angle") == null ? Double.NaN :
             Math.toRadians(Double.parseDouble(twt.getProperty("angle")));
 
+        writeCellsForThreeWindingsTranformersMiddleBusesColumns(formatter, twt, middleCcNum,
+            new CellParametersForThreeWindingsTranformersMiddleBusesColumns(middleBusNum, middleVlNum, v, angle, middleBusId));
+    }
+
+    protected record CellParametersForThreeWindingsTranformersMiddleBusesColumns(int middleBusNum, int middleVlNum,
+                                                                                 double v, double angle,
+                                                                                 String middleBusId) {}
+
+    protected void writeCellsForThreeWindingsTranformersMiddleBusesColumns(TableFormatter formatter,
+                                                                           ThreeWindingsTransformer twt,
+                                                                           int middleCcNum,
+                                                                           CellParametersForThreeWindingsTranformersMiddleBusesColumns cellParameters) throws IOException {
         formatter.writeCell(variantIndex)
-            .writeCell(middleBusNum)
-            .writeCell(middleVlNum)
+            .writeCell(cellParameters.middleBusNum)
+            .writeCell(cellParameters.middleVlNum)
             .writeCell(middleCcNum)
-            .writeCell(v)
-            .writeCell(angle)
+            .writeCell(cellParameters.v)
+            .writeCell(cellParameters.angle)
             .writeCell(0.0)
             .writeCell(0.0)
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(middleBusId);
+            .writeCell(cellParameters.middleBusId);
     }
 
     @Override
@@ -669,17 +688,27 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double nomV = t.getVoltageLevel().getNominalV();
         double v = sv.getU() / nomV;
         double theta = Math.toRadians(sv.getA());
+        writeCellsForDanglingLineMiddleBuses(formatter, dl, middleCcNum,
+            new CellParametersForDanglingLineMiddleBuses(middleBusNum, middleVlNum, v, theta, middleBusId));
+    }
+
+    protected record CellParametersForDanglingLineMiddleBuses(int middleBusNum, int middleVlNum, double v, double theta,
+                                                              String middleBusId) {}
+
+    protected void writeCellsForDanglingLineMiddleBuses(TableFormatter formatter, DanglingLine dl,
+                                                        int middleCcNum,
+                                                        CellParametersForDanglingLineMiddleBuses cellParameters) throws IOException {
         formatter.writeCell(variantIndex)
-            .writeCell(middleBusNum)
-            .writeCell(middleVlNum)
+            .writeCell(cellParameters.middleBusNum())
+            .writeCell(cellParameters.middleVlNum())
             .writeCell(middleCcNum)
-            .writeCell(v)
-            .writeCell(theta)
+            .writeCell(cellParameters.v())
+            .writeCell(cellParameters.theta())
             .writeCell(0.0) // 0 MW injected at dangling line internal bus
             .writeCell(0.0) // 0 MVar injected at dangling line internal bus
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(middleBusId);
+            .writeCell(cellParameters.middleBusId());
     }
 
     @Override
@@ -688,9 +717,18 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
         int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
         int xNodeVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
+        writeCellsForTieLineMiddleBuses(formatter, tieLine, xNodeCcNum,
+            new CellParametersForTieLineMiddleBuses(xNodeBusNum, xNodeVlNum, xNodeBusId));
+    }
+
+    protected record CellParametersForTieLineMiddleBuses(int xNodeBusNum, int xNodeVlNum, String xNodeBusId) {}
+
+    protected void writeCellsForTieLineMiddleBuses(TableFormatter formatter, TieLine tieLine,
+                                                   int xNodeCcNum,
+                                                   CellParametersForTieLineMiddleBuses cellParameters) throws IOException {
         formatter.writeCell(variantIndex)
-            .writeCell(xNodeBusNum)
-            .writeCell(xNodeVlNum)
+            .writeCell(cellParameters.xNodeBusNum)
+            .writeCell(cellParameters.xNodeVlNum)
             .writeCell(xNodeCcNum)
             .writeCell(Float.NaN)
             .writeCell(Double.NaN)
@@ -698,7 +736,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(0.0)
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(xNodeBusId);
+            .writeCell(cellParameters.xNodeBusId);
     }
 
     @Override
@@ -1209,30 +1247,39 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double minP = gen.getMinP();
         double maxP = gen.getMaxP();
         double vb = gen.getRegulatingTerminal().getVoltageLevel().getNominalV();
+        writeCellsForGenerator(formatter, gen,
+            new CellParametersForGenerator(num, vlNum, busNum, conBusNum, minP, maxP, vb, id, t));
+    }
 
+    protected record CellParametersForGenerator(int num, int vlNum, int busNum, int conBusNum,
+                                                double minP, double maxP, double vb,
+                                                String id, Terminal t) {}
+
+    protected void writeCellsForGenerator(TableFormatter formatter, Generator gen,
+                                          CellParametersForGenerator cellParameters) throws IOException {
         formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(minP)
-            .writeCell(maxP)
-            .writeCell(gen.getReactiveLimits().getMinQ(maxP))
+            .writeCell(cellParameters.num)
+            .writeCell(cellParameters.busNum)
+            .writeCell(cellParameters.conBusNum != -1 ? cellParameters.conBusNum : cellParameters.busNum)
+            .writeCell(cellParameters.vlNum)
+            .writeCell(cellParameters.minP)
+            .writeCell(cellParameters.maxP)
+            .writeCell(gen.getReactiveLimits().getMinQ(cellParameters.maxP))
             .writeCell(gen.getReactiveLimits().getMinQ(0))
-            .writeCell(gen.getReactiveLimits().getMinQ(minP))
-            .writeCell(gen.getReactiveLimits().getMaxQ(maxP))
+            .writeCell(gen.getReactiveLimits().getMinQ(cellParameters.minP))
+            .writeCell(gen.getReactiveLimits().getMaxQ(cellParameters.maxP))
             .writeCell(gen.getReactiveLimits().getMaxQ(0))
-            .writeCell(gen.getReactiveLimits().getMaxQ(minP))
+            .writeCell(gen.getReactiveLimits().getMaxQ(cellParameters.minP))
             .writeCell(gen.isVoltageRegulatorOn())
-            .writeCell(gen.getTargetV() / vb)
+            .writeCell(gen.getTargetV() / cellParameters.vb)
             .writeCell(gen.getTargetP())
             .writeCell(gen.getTargetQ())
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(id)
+            .writeCell(cellParameters.id)
             .writeCell(gen.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+            .writeCell(cellParameters.t.getP())
+            .writeCell(cellParameters.t.getQ());
     }
 
     @Override
@@ -1286,23 +1333,32 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double zb = vb * vb / AmplConstants.SB; // Base impedance
 
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
+        writeCellsForStaticVarCompensator(formatter, svc,
+            new CellParametersForStaticVarCompensator(num, vlNum, busNum, conBusNum, vb, zb, vlSet, id, t));
+    }
+
+    protected record CellParametersForStaticVarCompensator(int num, int vlNum, int busNum, int conBusNum,
+                                                double vb, double zb, double vlSet,
+                                                String id, Terminal t) {}
+
+    protected void writeCellsForStaticVarCompensator(TableFormatter formatter, StaticVarCompensator svc,
+                                                     CellParametersForStaticVarCompensator cellParameters) throws IOException {
         formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum)
-            .writeCell(vlNum)
-            .writeCell(svc.getBmin() * zb)
-            .writeCell(svc.getBmax() * zb)
+            .writeCell(cellParameters.num)
+            .writeCell(cellParameters.busNum)
+            .writeCell(cellParameters.conBusNum)
+            .writeCell(cellParameters.vlNum)
+            .writeCell(svc.getBmin() * cellParameters.zb)
+            .writeCell(svc.getBmax() * cellParameters.zb)
             .writeCell(svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
-            .writeCell(vlSet / vb)
+            .writeCell(cellParameters.vlSet / cellParameters.vb)
             .writeCell(svc.getReactivePowerSetpoint())
             .writeCell(faultNum)
             .writeCell(actionNum)
-            .writeCell(id)
+            .writeCell(cellParameters.id)
             .writeCell(svc.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
-
+            .writeCell(cellParameters.t.getP())
+            .writeCell(cellParameters.t.getQ());
     }
 
     @Override
