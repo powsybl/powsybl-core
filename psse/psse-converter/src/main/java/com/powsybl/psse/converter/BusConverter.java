@@ -51,27 +51,41 @@ class BusConverter extends AbstractConverter {
             // bus and type is always present when a psseBus is created
             Bus busViewBus = contextExport.getLinkExport().getBusView(busI).orElseThrow();
             int type = findBusViewBusType(busViewBus.getVoltageLevel(), busViewBus);
-            psseModel.addBuses(Collections.singletonList(createNewBus(busViewBus, busI, type)));
+            psseModel.addBuses(Collections.singletonList(createBus(busViewBus, busI, type)));
         });
         psseModel.replaceAllBuses(psseModel.getBuses().stream().sorted(Comparator.comparingInt(PsseBus::getI)).toList());
     }
 
-    private static PsseBus createNewBus(Bus bus, int busI, int type) {
-        PsseBus psseBus = new PsseBus();
+    private static PsseBus createBus(Bus bus, int busI, int type) {
+        PsseBus psseBus = createDefaultBus();
         psseBus.setI(busI);
         psseBus.setName(fixBusName(bus.getNameOrId()));
         psseBus.setBaskv(bus.getVoltageLevel().getNominalV());
         psseBus.setIde(type);
-        psseBus.setArea(1);
-        psseBus.setZone(1);
-        psseBus.setOwner(1);
         psseBus.setVm(getVm(bus));
         psseBus.setVa(getVa(bus));
         psseBus.setNvhi(getHighVm(bus));
         psseBus.setNvlo(getLowVm(bus));
         psseBus.setEvhi(getHighVm(bus));
         psseBus.setEvlo(getLowVm(bus));
+        return psseBus;
+    }
 
+    private static PsseBus createDefaultBus() {
+        PsseBus psseBus = new PsseBus();
+        psseBus.setI(0);
+        psseBus.setName("");
+        psseBus.setBaskv(0.0);
+        psseBus.setIde(1);
+        psseBus.setArea(1);
+        psseBus.setZone(1);
+        psseBus.setOwner(1);
+        psseBus.setVm(1.0);
+        psseBus.setVa(0.0);
+        psseBus.setNvhi(1.1);
+        psseBus.setNvlo(0.9);
+        psseBus.setEvhi(1.1);
+        psseBus.setEvlo(0.9);
         return psseBus;
     }
 

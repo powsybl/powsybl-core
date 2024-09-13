@@ -97,16 +97,26 @@ class LoadConverter extends AbstractConverter {
     }
 
     private static PsseLoad createLoad(Load load, ContextExport contextExport) {
-        PsseLoad psseLoad = new PsseLoad();
+        PsseLoad psseLoad = createDefaultLoad();
 
         int busI = getTerminalBusI(load.getTerminal(), contextExport);
         psseLoad.setI(busI);
         psseLoad.setId(contextExport.getFullExport().getEquipmentCkt(load.getId(), IdentifiableType.LOAD, busI));
         psseLoad.setStatus(getStatus(load.getTerminal()));
-        psseLoad.setArea(1);
-        psseLoad.setZone(1);
         psseLoad.setPl(getP(load));
         psseLoad.setQl(getQ(load));
+        return psseLoad;
+    }
+
+    private static PsseLoad createDefaultLoad() {
+        PsseLoad psseLoad = new PsseLoad();
+        psseLoad.setI(0);
+        psseLoad.setId("1");
+        psseLoad.setStatus(1);
+        psseLoad.setArea(1);
+        psseLoad.setZone(1);
+        psseLoad.setPl(0.0);
+        psseLoad.setQl(0.0);
         psseLoad.setIp(0.0);
         psseLoad.setIq(0.0);
         psseLoad.setYp(0.0);
@@ -117,9 +127,7 @@ class LoadConverter extends AbstractConverter {
         psseLoad.setDgenp(0.0);
         psseLoad.setDgenq(0.0);
         psseLoad.setDgenm(0);
-        String type = "";
-        psseLoad.setLoadtype(type.substring(0, Math.min(12, type.length())));
-
+        psseLoad.setLoadtype("");
         return psseLoad;
     }
 

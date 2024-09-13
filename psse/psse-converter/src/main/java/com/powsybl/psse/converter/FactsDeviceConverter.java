@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseFacts;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ class FactsDeviceConverter extends AbstractConverter {
     }
 
     void create() {
-        if (psseFactsDevice.getJ() == 0) {
+        if (isStatCom(psseFactsDevice)) {
             createStatCom();
         }
     }
@@ -122,6 +123,70 @@ class FactsDeviceConverter extends AbstractConverter {
         } else {
             return factsDevice.getRemot();
         }
+    }
+
+    static void createFactsDevices(Network network, PssePowerFlowModel psseModel, ContextExport contextExport) {
+        network.getStaticVarCompensators().forEach(staticVarCompensator -> psseModel.addFacts(Collections.singletonList(createFactsDevice(staticVarCompensator, contextExport))));
+        psseModel.replaceAllFacts(psseModel.getFacts().stream().sorted(Comparator.comparing(PsseFacts::getName)).toList());
+    }
+
+    private static PsseFacts createFactsDevice(StaticVarCompensator staticVarCompensator, ContextExport contextExport) {
+        PsseFacts psseFactsDevice = createDefaultFactsDevice();
+
+        return psseFactsDevice;
+    }
+
+    private static PsseFacts createDefaultFactsDevice() {
+        PsseFacts psseFactsDevice = new PsseFacts();
+        psseFactsDevice.setName("");
+        psseFactsDevice.setI(0);
+        psseFactsDevice.setJ(0);
+        psseFactsDevice.setMode(1);
+        psseFactsDevice.setPdes(0.0);
+        psseFactsDevice.setQdes(0.0);
+        psseFactsDevice.setVset(1.0);
+        psseFactsDevice.setShmx(9999.0);
+        psseFactsDevice.setTrmx(9999.0);
+        psseFactsDevice.setVtmn(0.9);
+        psseFactsDevice.setVtmx(1.1);
+        psseFactsDevice.setVsmx(1.0);
+        psseFactsDevice.setImx(0.0);
+        psseFactsDevice.setLinx(0.05);
+        psseFactsDevice.setRmpct(100.0);
+        psseFactsDevice.setOwner(1);
+        psseFactsDevice.setSet1(0.0);
+        psseFactsDevice.setSet2(0.0);
+        psseFactsDevice.setFcreg(0);
+        psseFactsDevice.setNreg(0);
+        psseFactsDevice.setMname("");
+        return psseFactsDevice;
+    }
+
+    static void updateFactsDevices(Network network, PssePowerFlowModel psseModel) {
+        PsseVersion version = PsseVersion.fromRevision(psseModel.getCaseIdentification().getRev());
+        psseModel.getFacts().forEach(psseFactsDevice -> {
+            String factsDeviceName = getFactsDeviceId(psseFactsDevice.getName());
+            StaticVarCompensator staticVarCompensator = network.getStaticVarCompensator(factsDeviceName);
+            if (staticVarCompensator == null && isStatCom(psseFactsDevice)) {
+                psseFactsDevice.setMode(0);
+            } else {
+                psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()));
+                findTargetQ(staticVarCompensator).ifPresent(psseFactsDevice::setQdes);
+                findTargetV(staticVarCompensator).ifPresent(psseFactsDevice::setVset);
+            }
+        });
+    }
+
+    private static OptionalDouble findTargetQ(StaticVarCompensator staticVarCompensator) {
+        return Double.isFinite(staticVarCompensator.getReactivePowerSetpoint()) ? OptionalDouble.of(staticVarCompensator.getReactivePowerSetpoint()) : OptionalDouble.empty();
+    }
+
+    private static OptionalDouble findTargetV(StaticVarCompensator staticVarCompensator) {
+        return staticVarCompensator.getRegulatingTerminal() != null ? OptionalDouble.of(staticVarCompensator.getVoltageSetpoint() / staticVarCompensator.getRegulatingTerminal().getVoltageLevel().getNominalV()) : OptionalDouble.empty();
+    }
+
+    private static boolean isStatCom(PsseFacts psseFactsDevice) {
+        return psseFactsDevice.getJ() == 0;
     }
 
     private final PsseFacts psseFactsDevice;

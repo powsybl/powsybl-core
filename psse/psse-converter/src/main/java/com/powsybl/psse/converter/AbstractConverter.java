@@ -511,7 +511,7 @@ public abstract class AbstractConverter {
         return sortedRates.size() > index ? sortedRates.get(index) : 0.0;
     }
 
-    static PsseRates findDefaultRates() {
+    static PsseRates createDefaultRates() {
         PsseRates windingRates = new PsseRates();
         windingRates.setRate1(0.0);
         windingRates.setRate2(0.0);
@@ -528,16 +528,16 @@ public abstract class AbstractConverter {
         return windingRates;
     }
 
-    static PsseOwnership findDefaultOwnership() {
+    static PsseOwnership createDefaultOwnership() {
         PsseOwnership psseOwnership = new PsseOwnership();
         psseOwnership.setO1(1);
         psseOwnership.setF1(1.0);
         psseOwnership.setO2(0);
-        psseOwnership.setF2(0.0);
+        psseOwnership.setF2(1.0);
         psseOwnership.setO3(0);
-        psseOwnership.setF3(0.0);
+        psseOwnership.setF3(1.0);
         psseOwnership.setO4(0);
-        psseOwnership.setF4(0.0);
+        psseOwnership.setF4(1.0);
         return psseOwnership;
     }
 

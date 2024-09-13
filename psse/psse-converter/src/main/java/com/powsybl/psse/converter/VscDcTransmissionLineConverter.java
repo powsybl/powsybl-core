@@ -239,15 +239,15 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         vscDcTransmissionLine.setName(extractVscDcTransmissionLineName(hvdcLine.getId()));
         vscDcTransmissionLine.setMdc(findControlMode(hvdcLine));
         vscDcTransmissionLine.setRdc(hvdcLine.getR());
-        vscDcTransmissionLine.setOwnership(findDefaultOwnership());
+        vscDcTransmissionLine.setOwnership(createDefaultOwnership());
 
-        vscDcTransmissionLine.setConverter1(findConverter((VscConverterStation) hvdcLine.getConverterStation1(), version, contextExport));
-        vscDcTransmissionLine.setConverter2(findConverter((VscConverterStation) hvdcLine.getConverterStation2(), version, contextExport));
+        vscDcTransmissionLine.setConverter1(createConverter((VscConverterStation) hvdcLine.getConverterStation1(), version, contextExport));
+        vscDcTransmissionLine.setConverter2(createConverter((VscConverterStation) hvdcLine.getConverterStation2(), version, contextExport));
         return vscDcTransmissionLine;
     }
 
-    private static PsseVoltageSourceConverter findConverter(VscConverterStation vscConverter, PsseVersion version, ContextExport contextExport) {
-        PsseVoltageSourceConverter psseConverter = findDefaultConverter();
+    private static PsseVoltageSourceConverter createConverter(VscConverterStation vscConverter, PsseVersion version, ContextExport contextExport) {
+        PsseVoltageSourceConverter psseConverter = createDefaultConverter();
         int busI = getTerminalBusI(vscConverter.getTerminal(), contextExport);
         int regulatingBus = getRegulatingTerminalBusI(vscConverter.getRegulatingTerminal(), busI, vscDcTransmissionLineRegulatingBus(psseConverter, version), contextExport);
         double converterTargetP = HvdcUtils.getConverterStationTargetP(vscConverter);
@@ -292,7 +292,7 @@ class VscDcTransmissionLineConverter extends AbstractConverter {
         return Double.isNaN(minQ) ? -9999.0 : minQ;
     }
 
-    private static PsseVoltageSourceConverter findDefaultConverter() {
+    private static PsseVoltageSourceConverter createDefaultConverter() {
         PsseVoltageSourceConverter converter = new PsseVoltageSourceConverter();
         converter.setIbus(0);
         converter.setType(1);

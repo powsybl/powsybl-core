@@ -145,7 +145,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
     }
 
     private static PsseTwoTerminalDcConverter findConverter(LccConverterStation lccConverter, ContextExport contextExport) {
-        PsseTwoTerminalDcConverter converter = findDefaultConverter();
+        PsseTwoTerminalDcConverter converter = createDefaultConverter();
         converter.setIp(getTerminalBusI(lccConverter.getTerminal(), contextExport));
         converter.setAnmx(getAmnx(lccConverter.getPowerFactor()));
         return converter;
@@ -155,7 +155,7 @@ class TwoTerminalDcConverter extends AbstractConverter {
         return Math.toDegrees(Math.acos(powerFactor * 2.0 - Math.cos(Math.toRadians(60.0))));
     }
 
-    private static PsseTwoTerminalDcConverter findDefaultConverter() {
+    private static PsseTwoTerminalDcConverter createDefaultConverter() {
         PsseTwoTerminalDcConverter converter = new PsseTwoTerminalDcConverter();
         converter.setIp(0);
         converter.setNb(0);
@@ -175,7 +175,6 @@ class TwoTerminalDcConverter extends AbstractConverter {
         converter.setIt(0);
         converter.setId("1");
         converter.setXcap(0.0);
-
         return converter;
     }
 

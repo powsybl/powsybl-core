@@ -10,7 +10,6 @@ package com.powsybl.psse.converter;
 import java.util.*;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.psse.model.pf.PsseOwnership;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -158,7 +157,7 @@ class GeneratorConverter extends AbstractConverter {
     }
 
     static PsseGenerator createGenerator(Generator generator, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        PsseGenerator psseGenerator = new PsseGenerator();
+        PsseGenerator psseGenerator = createDefaultGenerator();
 
         int busI = getTerminalBusI(generator.getTerminal(), contextExport);
         int regulatingBus = getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport);
@@ -175,29 +174,37 @@ class GeneratorConverter extends AbstractConverter {
         }
         psseGenerator.setNreg(getRegulatingTerminalNode(generator.getRegulatingTerminal(), contextExport));
         psseGenerator.setMbase(perUnitContext.sBase());
+        psseGenerator.setStat(getStatus(generator));
+        psseGenerator.setPt(getMaxP(generator));
+        psseGenerator.setPb(getMinP(generator));
+        return psseGenerator;
+    }
+
+    private static PsseGenerator createDefaultGenerator() {
+        PsseGenerator psseGenerator = new PsseGenerator();
+        psseGenerator.setI(0);
+        psseGenerator.setId("1");
+        psseGenerator.setPg(0.0);
+        psseGenerator.setQg(0.0);
+        psseGenerator.setQt(9999.0);
+        psseGenerator.setQb(-9999.0);
+        psseGenerator.setVs(1.0);
+        psseGenerator.setIreg(0);
+        psseGenerator.setNreg(0);
+        psseGenerator.setMbase(100.0);
         psseGenerator.setZr(0.0);
         psseGenerator.setZx(1.0);
         psseGenerator.setRt(0.0);
         psseGenerator.setXt(0.0);
         psseGenerator.setGtap(1.0);
-        psseGenerator.setStat(getStatus(generator));
+        psseGenerator.setStat(1);
         psseGenerator.setRmpct(100.0);
-        psseGenerator.setPt(getMaxP(generator));
-        psseGenerator.setPb(getMinP(generator));
+        psseGenerator.setPt(9999.0);
+        psseGenerator.setPb(-9999.0);
         psseGenerator.setBaslod(0);
-        PsseOwnership psseOwnership = new PsseOwnership();
-        psseOwnership.setO1(1);
-        psseOwnership.setF1(1.0);
-        psseOwnership.setO2(0);
-        psseOwnership.setF2(1.0);
-        psseOwnership.setO3(0);
-        psseOwnership.setF3(1.0);
-        psseOwnership.setO4(0);
-        psseOwnership.setF4(1.0);
-        psseGenerator.setOwnership(psseOwnership);
+        psseGenerator.setOwnership(createDefaultOwnership());
         psseGenerator.setWmod(0);
         psseGenerator.setWpf(1.0);
-
         return psseGenerator;
     }
 

@@ -283,21 +283,18 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     static PsseSwitchedShunt createSwitchedShunt(ShuntCompensator shuntCompensator, PsseVersion version, ContextExport contextExport) {
-        PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
+        PsseSwitchedShunt psseSwitchedShunt = createDefaultSwitchedShunt();
 
         int busI = getTerminalBusI(shuntCompensator.getTerminal(), contextExport);
         int regulatingBus = getRegulatingTerminalBusI(shuntCompensator.getRegulatingTerminal(), busI, switchedShuntRegulatingBus(psseSwitchedShunt, version), contextExport);
         psseSwitchedShunt.setI(busI);
         psseSwitchedShunt.setId(contextExport.getFullExport().getEquipmentCkt(shuntCompensator.getId(), IdentifiableType.SHUNT_COMPENSATOR, busI));
         psseSwitchedShunt.setModsw(getModsw(shuntCompensator));
-        psseSwitchedShunt.setAdjm(0);
         psseSwitchedShunt.setStat(getStatus(shuntCompensator));
         psseSwitchedShunt.setVswhi(getVswhi(shuntCompensator));
         psseSwitchedShunt.setVswlo(getVswlo(shuntCompensator));
         psseSwitchedShunt.setSwreg(regulatingBus);
         psseSwitchedShunt.setNreg(getRegulatingTerminalNode(shuntCompensator.getRegulatingTerminal(), contextExport));
-        psseSwitchedShunt.setRmpct(100.0);
-        psseSwitchedShunt.setRmidnt(" ");
         psseSwitchedShunt.setBinit(shuntAdmittanceToPower(shuntCompensator.getB(), shuntCompensator.getTerminal().getVoltageLevel().getNominalV()));
 
         setShuntBlocks(shuntCompensator, psseSwitchedShunt);
@@ -336,7 +333,6 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static void setShuntBlocksForLinearModel(ShuntCompensatorLinearModel linearModel, int maximumSectionCount, double nominalV, PsseSwitchedShunt psseSwitchedShunt) {
-        setDefaultShuntBlocks(psseSwitchedShunt);
         psseSwitchedShunt.setN1(maximumSectionCount);
         psseSwitchedShunt.setB1(shuntAdmittanceToPower(linearModel.getBPerSection(), nominalV));
     }
@@ -385,38 +381,46 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
         return remainderB / n;
     }
 
-    private static void setDefaultShuntBlocks(PsseSwitchedShunt psseSwitchedShunt) {
+    private static PsseSwitchedShunt createDefaultSwitchedShunt() {
+        PsseSwitchedShunt psseSwitchedShunt = new PsseSwitchedShunt();
+        psseSwitchedShunt.setI(0);
+        psseSwitchedShunt.setId("1");
+        psseSwitchedShunt.setModsw(1);
+        psseSwitchedShunt.setAdjm(0);
+        psseSwitchedShunt.setStat(1);
+        psseSwitchedShunt.setVswhi(1.0);
+        psseSwitchedShunt.setVswlo(1.0);
+        psseSwitchedShunt.setSwreg(0);
+        psseSwitchedShunt.setNreg(0);
+        psseSwitchedShunt.setRmpct(100.0);
+        psseSwitchedShunt.setRmidnt("");
+        psseSwitchedShunt.setBinit(0.0);
+
         psseSwitchedShunt.setS1(1);
         psseSwitchedShunt.setN1(0);
         psseSwitchedShunt.setB1(0.0);
-
         psseSwitchedShunt.setS2(1);
         psseSwitchedShunt.setN2(0);
         psseSwitchedShunt.setB2(0.0);
-
         psseSwitchedShunt.setS3(1);
         psseSwitchedShunt.setN3(0);
         psseSwitchedShunt.setB3(0.0);
-
         psseSwitchedShunt.setS4(1);
         psseSwitchedShunt.setN4(0);
         psseSwitchedShunt.setB4(0.0);
-
         psseSwitchedShunt.setS5(1);
         psseSwitchedShunt.setN5(0);
         psseSwitchedShunt.setB5(0.0);
-
         psseSwitchedShunt.setS6(1);
         psseSwitchedShunt.setN6(0);
         psseSwitchedShunt.setB6(0.0);
-
         psseSwitchedShunt.setS7(1);
         psseSwitchedShunt.setN7(0);
         psseSwitchedShunt.setB7(0.0);
-
         psseSwitchedShunt.setS8(1);
         psseSwitchedShunt.setN8(0);
         psseSwitchedShunt.setB8(0.0);
+        return psseSwitchedShunt;
     }
 
     static void updateSwitchedShunts(Network network, PssePowerFlowModel psseModel) {

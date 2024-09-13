@@ -873,7 +873,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static PsseTransformer createTwoWindingsTransformer(TwoWindingsTransformer t2w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        PsseTransformer psseTransformer = new PsseTransformer();
+        PsseTransformer psseTransformer = createDefaultTransformer();
 
         int busI = getTerminalBusI(t2w.getTerminal1(), contextExport);
         int busJ = getTerminalBusI(t2w.getTerminal2(), contextExport);
@@ -881,65 +881,33 @@ class TransformerConverter extends AbstractConverter {
 
         psseTransformer.setI(busI);
         psseTransformer.setJ(busJ);
-        psseTransformer.setK(0);
         psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t2w.getId(), IdentifiableType.TWO_WINDINGS_TRANSFORMER, busI, busJ));
-        psseTransformer.setCw(1);
-        psseTransformer.setCz(1);
-        psseTransformer.setCm(1);
         psseTransformer.setMag1(ysh.getReal());
         psseTransformer.setMag2(ysh.getImaginary());
-        psseTransformer.setNmetr(2);
         psseTransformer.setName(t2w.getNameOrId().substring(0, Math.min(40, t2w.getNameOrId().length())));
         psseTransformer.setStat(getStatus(t2w));
-        psseTransformer.setOwnership(findDefaultOwnership());
-        psseTransformer.setVecgrp("            ");
-        psseTransformer.setZcod(0);
 
         Complex z = impedanceToPerUnit(new Complex(getR(t2w), getX(t2w)), t2w.getTerminal2().getVoltageLevel().getNominalV(), perUnitContext.sBase());
-        PsseTransformer.TransformerImpedances impedances = new PsseTransformer.TransformerImpedances();
-        psseTransformer.setImpedances(impedances);
         psseTransformer.setR12(z.getReal());
         psseTransformer.setX12(z.getImaginary());
         psseTransformer.setSbase12(perUnitContext.sBase());
-        psseTransformer.setR23(0.0);
-        psseTransformer.setX23(0.0);
-        psseTransformer.setSbase23(0.0);
-        psseTransformer.setR31(0.0);
-        psseTransformer.setX31(0.0);
-        psseTransformer.setSbase31(0.0);
-        psseTransformer.setVmstar(0.0);
-        psseTransformer.setAnstar(0.0);
 
-        psseTransformer.setWinding1(findWinding(t2w, contextExport), findRates(t2w));
-
-        PsseTransformerWinding winding2 = new PsseTransformerWinding();
-        winding2.setWindv(1.0);
-        winding2.setNomv(0.0);
-        psseTransformer.setWinding2(winding2, new PsseRates());
-        psseTransformer.setWinding3(new PsseTransformerWinding(), new PsseRates());
+        psseTransformer.setWinding1(createWinding(t2w, contextExport), createRates(t2w));
 
         return psseTransformer;
     }
 
-    private static PsseTransformerWinding findWinding(TwoWindingsTransformer t2w, ContextExport contextExport) {
-        PsseTransformerWinding winding = new PsseTransformerWinding();
+    private static PsseTransformerWinding createWinding(TwoWindingsTransformer t2w, ContextExport contextExport) {
+        PsseTransformerWinding winding = createDefaultWinding();
         RatioR ratioR = findRatioData(t2w.getRatioTapChanger(), t2w.getPhaseTapChanger(), getRatio0(t2w), contextExport);
         winding.setWindv(ratioR.windv);
-        winding.setNomv(0.0);
         winding.setAng(ratioR.ang);
         winding.setCod(ratioR.cod);
         winding.setCont(ratioR.cont);
         winding.setNode(ratioR.node);
         winding.setRma(ratioR.rma);
         winding.setRmi(ratioR.rmi);
-        winding.setVma(1.1);
-        winding.setVmi(0.9);
         winding.setNtp(ratioR.ntp);
-        winding.setTab(0);
-        winding.setCr(0.0);
-        winding.setCx(0.0);
-        winding.setCnxa(0.0);
-
         return winding;
     }
 
@@ -971,8 +939,8 @@ class TransformerConverter extends AbstractConverter {
                 t2w.getOptionalPhaseTapChanger().map(ptc -> ptc.getCurrentStep().getB()).orElse(0d));
     }
 
-    private static PsseRates findRates(TwoWindingsTransformer t2w) {
-        PsseRates windingRates = findDefaultRates();
+    private static PsseRates createRates(TwoWindingsTransformer t2w) {
+        PsseRates windingRates = createDefaultRates();
         if (t2w.getApparentPowerLimits1().isPresent()) {
             setSortedRatesToPsseRates(getSortedRates(t2w.getApparentPowerLimits1().get()), windingRates);
         } else if (t2w.getApparentPowerLimits2().isPresent()) {
@@ -995,7 +963,7 @@ class TransformerConverter extends AbstractConverter {
     }
 
     private static PsseTransformer createThreeWindingsTransformer(ThreeWindingsTransformer t3w, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        PsseTransformer psseTransformer = new PsseTransformer();
+        PsseTransformer psseTransformer = createDefaultTransformer();
 
         int busI = getTerminalBusI(t3w.getLeg1().getTerminal(), contextExport);
         int busJ = getTerminalBusI(t3w.getLeg2().getTerminal(), contextExport);
@@ -1006,17 +974,11 @@ class TransformerConverter extends AbstractConverter {
         psseTransformer.setJ(busJ);
         psseTransformer.setK(busK);
         psseTransformer.setCkt(contextExport.getFullExport().getEquipmentCkt(t3w.getId(), IdentifiableType.THREE_WINDINGS_TRANSFORMER, busI, busJ, busK));
-        psseTransformer.setCw(1);
-        psseTransformer.setCz(1);
-        psseTransformer.setCm(1);
         psseTransformer.setMag1(ysh.getReal());
         psseTransformer.setMag2(ysh.getImaginary());
-        psseTransformer.setNmetr(2);
         psseTransformer.setName(t3w.getNameOrId().substring(0, Math.min(40, t3w.getNameOrId().length())));
         psseTransformer.setStat(getStatus(t3w));
-        psseTransformer.setOwnership(findDefaultOwnership());
-        psseTransformer.setVecgrp("            ");
-        psseTransformer.setZcod(0);
+        psseTransformer.setOwnership(createDefaultOwnership());
 
         Complex z1 = new Complex(getR(t3w.getLeg1()), getX(t3w.getLeg1()));
         Complex z2 = new Complex(getR(t3w.getLeg2()), getX(t3w.getLeg2()));
@@ -1025,8 +987,6 @@ class TransformerConverter extends AbstractConverter {
         Complex z12 = impedanceToPerUnit(z1.add(z2), t3w.getRatedU0(), perUnitContext.sBase());
         Complex z23 = impedanceToPerUnit(z2.add(z3), t3w.getRatedU0(), perUnitContext.sBase());
         Complex z31 = impedanceToPerUnit(z3.add(z1), t3w.getRatedU0(), perUnitContext.sBase());
-        PsseTransformer.TransformerImpedances impedances = new PsseTransformer.TransformerImpedances();
-        psseTransformer.setImpedances(impedances);
         psseTransformer.setR12(z12.getReal());
         psseTransformer.setX12(z12.getImaginary());
         psseTransformer.setSbase12(perUnitContext.sBase());
@@ -1036,37 +996,25 @@ class TransformerConverter extends AbstractConverter {
         psseTransformer.setR31(z31.getReal());
         psseTransformer.setX31(z31.getImaginary());
         psseTransformer.setSbase31(perUnitContext.sBase());
-        psseTransformer.setVmstar(0.0);
-        psseTransformer.setAnstar(0.0);
 
-        psseTransformer.setOwnership(findDefaultOwnership());
-
-        psseTransformer.setWinding1(findWinding(t3w.getLeg1(), t3w.getRatedU0(), contextExport), findRates(t3w.getLeg1()));
-        psseTransformer.setWinding2(findWinding(t3w.getLeg2(), t3w.getRatedU0(), contextExport), findRates(t3w.getLeg2()));
-        psseTransformer.setWinding3(findWinding(t3w.getLeg3(), t3w.getRatedU0(), contextExport), findRates(t3w.getLeg3()));
+        psseTransformer.setWinding1(createWinding(t3w.getLeg1(), t3w.getRatedU0(), contextExport), createRates(t3w.getLeg1()));
+        psseTransformer.setWinding2(createWinding(t3w.getLeg2(), t3w.getRatedU0(), contextExport), createRates(t3w.getLeg2()));
+        psseTransformer.setWinding3(createWinding(t3w.getLeg3(), t3w.getRatedU0(), contextExport), createRates(t3w.getLeg3()));
 
         return psseTransformer;
     }
 
-    private static PsseTransformerWinding findWinding(Leg leg, double ratedU0, ContextExport contextExport) {
-        PsseTransformerWinding winding = new PsseTransformerWinding();
+    private static PsseTransformerWinding createWinding(Leg leg, double ratedU0, ContextExport contextExport) {
+        PsseTransformerWinding winding = createDefaultWinding();
         RatioR ratioR = findRatioData(leg.getRatioTapChanger(), leg.getPhaseTapChanger(), getRatio0(leg, ratedU0), contextExport);
         winding.setWindv(ratioR.windv);
-        winding.setNomv(0.0);
         winding.setAng(ratioR.ang);
         winding.setCod(ratioR.cod);
         winding.setCont(ratioR.cont);
         winding.setNode(ratioR.node);
         winding.setRma(ratioR.rma);
         winding.setRmi(ratioR.rmi);
-        winding.setVma(1.1);
-        winding.setVmi(0.9);
         winding.setNtp(ratioR.ntp);
-        winding.setTab(0);
-        winding.setCr(0.0);
-        winding.setCx(0.0);
-        winding.setCnxa(0.0);
-
         return winding;
     }
 
@@ -1102,8 +1050,8 @@ class TransformerConverter extends AbstractConverter {
         return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
     }
 
-    private static PsseRates findRates(Leg leg) {
-        PsseRates windingRates = findDefaultRates();
+    private static PsseRates createRates(Leg leg) {
+        PsseRates windingRates = createDefaultRates();
         if (leg.getApparentPowerLimits().isPresent()) {
             setSortedRatesToPsseRates(getSortedRates(leg.getApparentPowerLimits().get()), windingRates);
         } else if (leg.getCurrentLimits().isPresent()) {
@@ -1174,6 +1122,65 @@ class TransformerConverter extends AbstractConverter {
     private static int getSteps(PhaseTapChanger ptc) {
         int steps = ptc.getHighTapPosition() - ptc.getLowTapPosition();
         return ptc.getLowTapPosition() < 0 ? steps : steps + 1;
+    }
+
+    private static PsseTransformer createDefaultTransformer() {
+        PsseTransformer psseTransformer = new PsseTransformer();
+        psseTransformer.setI(0);
+        psseTransformer.setJ(0);
+        psseTransformer.setK(0);
+        psseTransformer.setCkt("1");
+        psseTransformer.setCw(1);
+        psseTransformer.setCz(1);
+        psseTransformer.setCm(1);
+        psseTransformer.setMag1(0.0);
+        psseTransformer.setMag2(0.0);
+        psseTransformer.setNmetr(2);
+        psseTransformer.setName("");
+        psseTransformer.setStat(1);
+        psseTransformer.setOwnership(createDefaultOwnership());
+        psseTransformer.setVecgrp("            ");
+        psseTransformer.setZcod(0);
+        createDefaultTransformerImpedances(psseTransformer);
+        psseTransformer.setWinding1(createDefaultWinding(), createDefaultRates());
+        psseTransformer.setWinding2(createDefaultWinding(), createDefaultRates());
+        psseTransformer.setWinding3(createDefaultWinding(), createDefaultRates());
+        return psseTransformer;
+    }
+
+    private static void createDefaultTransformerImpedances(PsseTransformer psseTransformer) {
+        psseTransformer.setImpedances(new PsseTransformer.TransformerImpedances());
+        psseTransformer.setR12(0.0);
+        psseTransformer.setX12(0.0);
+        psseTransformer.setSbase12(0.0);
+        psseTransformer.setR23(0.0);
+        psseTransformer.setX23(0.0);
+        psseTransformer.setSbase23(0.0);
+        psseTransformer.setR31(0.0);
+        psseTransformer.setX31(0.0);
+        psseTransformer.setSbase31(0.0);
+        psseTransformer.setVmstar(0.0);
+        psseTransformer.setAnstar(0.0);
+    }
+
+    private static PsseTransformerWinding createDefaultWinding() {
+        PsseTransformerWinding winding = new PsseTransformerWinding();
+        winding.setWindv(1.0);
+        winding.setNomv(0.0);
+        winding.setAng(0.0);
+        winding.setCod(0);
+        winding.setCont(0);
+        winding.setNode(0);
+        winding.setRma(1.1);
+        winding.setRmi(0.9);
+        winding.setVma(1.1);
+        winding.setVmi(0.9);
+        winding.setNtp(33);
+        winding.setTab(0);
+        winding.setCr(0.0);
+        winding.setCx(0.0);
+        winding.setCnxa(0.0);
+        return winding;
     }
 
     // antenna twoWindingsTransformers are exported as open
