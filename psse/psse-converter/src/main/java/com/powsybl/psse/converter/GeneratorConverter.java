@@ -126,11 +126,6 @@ class GeneratorConverter extends AbstractConverter {
         psseModel.replaceAllGenerators(psseModel.getGenerators().stream().sorted(Comparator.comparingInt(PsseGenerator::getI).thenComparing(PsseGenerator::getId)).toList());
     }
 
-    // zero can be used for local regulation
-    private static boolean regulatingBusMustBeChanged(int bus, int newRegulatingBus, int regulatingBus) {
-        return !(bus == newRegulatingBus && regulatingBus == 0);
-    }
-
     private static double getVoltageTarget(Generator gen) {
         if (Double.isNaN(gen.getTargetV())) {
             return 1.0;
@@ -160,7 +155,6 @@ class GeneratorConverter extends AbstractConverter {
         PsseGenerator psseGenerator = createDefaultGenerator();
 
         int busI = getTerminalBusI(generator.getTerminal(), contextExport);
-        int regulatingBus = getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport);
 
         psseGenerator.setI(busI);
         psseGenerator.setId(contextExport.getFullExport().getEquipmentCkt(generator.getId(), IdentifiableType.GENERATOR, busI));
@@ -169,9 +163,7 @@ class GeneratorConverter extends AbstractConverter {
         psseGenerator.setQt(getMaxQ(generator));
         psseGenerator.setQb(getMinQ(generator));
         psseGenerator.setVs(getVoltageTarget(generator));
-        if (regulatingBusMustBeChanged(busI, regulatingBus, psseGenerator.getIreg())) {
-            psseGenerator.setIreg(regulatingBus);
-        }
+        psseGenerator.setIreg(getRegulatingTerminalBusI(generator.getRegulatingTerminal(), busI, psseGenerator.getIreg(), contextExport));
         psseGenerator.setNreg(getRegulatingTerminalNode(generator.getRegulatingTerminal(), contextExport));
         psseGenerator.setMbase(perUnitContext.sBase());
         psseGenerator.setStat(getStatus(generator));

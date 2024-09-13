@@ -132,7 +132,18 @@ class FactsDeviceConverter extends AbstractConverter {
 
     private static PsseFacts createFactsDevice(StaticVarCompensator staticVarCompensator, ContextExport contextExport) {
         PsseFacts psseFactsDevice = createDefaultFactsDevice();
+        int busI = getTerminalBusI(staticVarCompensator.getTerminal(), contextExport);
+        double maxReactivePower = shuntAdmittanceToPower(staticVarCompensator.getBmax(), staticVarCompensator.getTerminal().getVoltageLevel().getNominalV());
 
+        psseFactsDevice.setName(extractFactsDeviceName(staticVarCompensator.getId()));
+        psseFactsDevice.setI(busI);
+        psseFactsDevice.setMode(getStatus(staticVarCompensator.getTerminal()));
+        findTargetQ(staticVarCompensator).ifPresent(psseFactsDevice::setQdes);
+        findTargetV(staticVarCompensator).ifPresent(psseFactsDevice::setVset);
+        psseFactsDevice.setShmx(maxReactivePower);
+
+        psseFactsDevice.setFcreg(getRegulatingTerminalBusI(staticVarCompensator.getRegulatingTerminal(), busI, psseFactsDevice.getFcreg(), contextExport));
+        psseFactsDevice.setNreg(getRegulatingTerminalNode(staticVarCompensator.getRegulatingTerminal(), contextExport));
         return psseFactsDevice;
     }
 

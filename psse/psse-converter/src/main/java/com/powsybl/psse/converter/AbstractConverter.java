@@ -30,6 +30,7 @@ public abstract class AbstractConverter {
     private static final String SWITCHED_SHUNT_TAG = "-SwSH";
     private static final String TWO_TERMINAL_DC_TAG = "TwoTerminalDc-";
     private static final String VSC_DC_TRANSMISSION_LINE_TAG = "VscDcTransmissionLine-";
+    private static final String FACTS_DEVICE_TAG = "FactsDevice-";
 
     enum PsseEquipmentType {
         PSSE_LOAD("L"),
@@ -171,7 +172,12 @@ public abstract class AbstractConverter {
     }
 
     static String getFactsDeviceId(String name) {
-        return "FactsDevice-" + name;
+        return FACTS_DEVICE_TAG + name;
+    }
+
+    public static String extractFactsDeviceName(String factsDeviceId) {
+        String name = factsDeviceId.replace(FACTS_DEVICE_TAG, "");
+        return name.substring(0, Math.min(12, name.length()));
     }
 
     static String getNodeId(VoltageLevel voltageLevel, int node) {
@@ -349,6 +355,7 @@ public abstract class AbstractConverter {
         }
     }
 
+    // zero can be used for local regulation
     static int getRegulatingTerminalBusI(Terminal regulatingTerminal, int busI, int previousRegulatingBusI, ContextExport contextExport) {
         int regulatingBusI = getRegulatingTerminalBusI(regulatingTerminal, contextExport);
         return busI == regulatingBusI && previousRegulatingBusI == 0 ? previousRegulatingBusI : regulatingBusI;
