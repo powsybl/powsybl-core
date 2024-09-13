@@ -185,6 +185,12 @@ class CommandLineToolsTest extends AbstractToolTest {
     @Test
     void testRegexOutput() {
         // Matches a regex
+        assertCommandSuccessfulRegex(new String[] {"tool3"}, "^[a-z0-9-]+$");
+        assertCommandErrorRegex(new String[] {"tool2"}, CommandLineTools.EXECUTION_ERROR_STATUS, "\\.[a-zA-Z]+Exception:");
+
+        //TODO remove ?
+
+        // Matches a regex
         assertCommandMatchTextOrRegex(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
 
         // Matches a regex - deprecated method
@@ -223,6 +229,7 @@ class CommandLineToolsTest extends AbstractToolTest {
 
         // command success
         assertCommandSuccessful(new String[] {"tool1", "--option1", "file.txt"}, "result1");
+        assertCommandSuccessfulMatch(new String[] {"tool1", "--option1", "file.txt"}, "res");
 
         // command failure
         assertCommandErrorMatch(new String[] {"tool2"}, "com.powsybl.commons.PowsyblException: error2");

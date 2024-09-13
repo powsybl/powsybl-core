@@ -94,6 +94,10 @@ public abstract class AbstractToolTest {
         assertTrue(actual.contains(expected), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
     }
 
+    public static void matchRegex(String expected, String actual) {
+        assertTrue(Pattern.compile(expected).matcher(actual).find());
+    }
+
     public void matchTextOrRegex(String expected, String actual) {
         assertTrue(actual.equals(expected) || Pattern.compile(expected).matcher(actual).find());
     }
@@ -110,6 +114,10 @@ public abstract class AbstractToolTest {
         assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
     }
 
+    protected void assertCommandSuccessfulRegex(String[] args, String outRegexPattern) {
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, outRegexPattern, "", AbstractToolTest::matchRegex);
+    }
+
     protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
         assertCommand(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
     }
@@ -120,6 +128,10 @@ public abstract class AbstractToolTest {
 
     protected void assertCommandErrorMatch(String[] args, String expectedErr) {
         assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
+    }
+
+    protected void assertCommandErrorRegex(String[] args, int expectedStatus, String errRegexPattern) {
+        assertCommand(args, expectedStatus, null, errRegexPattern, AbstractToolTest::matchRegex);
     }
 
     /**
