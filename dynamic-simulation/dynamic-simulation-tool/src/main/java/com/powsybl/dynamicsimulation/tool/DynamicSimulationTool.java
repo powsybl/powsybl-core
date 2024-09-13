@@ -142,10 +142,10 @@ public class DynamicSimulationTool implements Tool {
             eventSupplier = DynamicSimulationSupplierFactory.createEventModelsSupplier(eventFile, runner.getName());
         }
 
-        CurvesSupplier curvesSupplier = CurvesSupplier.empty();
+        OutputVariablesSupplier outputVariablesSupplier = OutputVariablesSupplier.empty();
         if (line.hasOption(CURVES_FILE)) {
             Path curvesFile = context.getFileSystem().getPath(line.getOptionValue(CURVES_FILE));
-            curvesSupplier = DynamicSimulationSupplierFactory.createCurvesSupplier(curvesFile, runner.getName());
+            outputVariablesSupplier = DynamicSimulationSupplierFactory.createCurvesSupplier(curvesFile, runner.getName());
         }
 
         DynamicSimulationParameters params = DynamicSimulationParameters.load();
@@ -155,7 +155,7 @@ public class DynamicSimulationTool implements Tool {
         }
 
         ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("dynamicSimulationTool", "Dynamic Simulation Tool").build();
-        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, curvesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
+        DynamicSimulationResult result = runner.run(network, dynamicModelsSupplier, eventSupplier, outputVariablesSupplier, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), params, reportNode);
 
         Path outputLogFile = line.hasOption(OUTPUT_LOG_FILE) ? context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_FILE)) : null;
         if (outputLogFile != null) {

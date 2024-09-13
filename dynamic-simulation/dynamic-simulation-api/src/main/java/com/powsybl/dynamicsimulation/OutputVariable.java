@@ -11,5 +11,13 @@ package com.powsybl.dynamicsimulation;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public interface Curve {
+public interface OutputVariable {
+
+    enum OutputType {
+        CURVE,
+        /** Final state value **/
+        FSV
+    }
+
+    OutputType getOutputType();
 }

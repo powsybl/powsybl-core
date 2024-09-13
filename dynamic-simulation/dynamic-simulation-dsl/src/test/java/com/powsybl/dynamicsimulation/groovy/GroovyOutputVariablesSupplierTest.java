@@ -10,8 +10,8 @@ package com.powsybl.dynamicsimulation.groovy;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.dynamicsimulation.Curve;
-import com.powsybl.dynamicsimulation.CurvesSupplier;
+import com.powsybl.dynamicsimulation.OutputVariable;
+import com.powsybl.dynamicsimulation.OutputVariablesSupplier;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.AfterEach;
@@ -29,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class GroovyCurvesSupplierTest {
+class GroovyOutputVariablesSupplierTest {
 
     private FileSystem fileSystem;
 
@@ -53,7 +53,7 @@ class GroovyCurvesSupplierTest {
         assertEquals(1, extensions.size());
         assertInstanceOf(DummyCurveGroovyExtension.class, extensions.get(0));
 
-        CurvesSupplier supplier = new GroovyCurvesSupplier(fileSystem.getPath("/curves.groovy"), extensions);
+        OutputVariablesSupplier supplier = new GroovyOutputVariablesSupplier(fileSystem.getPath("/curves.groovy"), extensions);
 
         testCurveSupplier(network, supplier);
     }
@@ -66,22 +66,22 @@ class GroovyCurvesSupplierTest {
         assertEquals(1, extensions.size());
         assertInstanceOf(DummyCurveGroovyExtension.class, extensions.get(0));
 
-        CurvesSupplier supplier = new GroovyCurvesSupplier(getClass().getResourceAsStream("/curves.groovy"), extensions);
+        OutputVariablesSupplier supplier = new GroovyOutputVariablesSupplier(getClass().getResourceAsStream("/curves.groovy"), extensions);
 
         testCurveSupplier(network, supplier);
     }
 
-    private static void testCurveSupplier(Network network, CurvesSupplier supplier) {
-        List<Curve> curves = supplier.get(network);
-        assertEquals(2, curves.size());
+    private static void testCurveSupplier(Network network, OutputVariablesSupplier supplier) {
+        List<OutputVariable> outputVariables = supplier.get(network);
+        assertEquals(2, outputVariables.size());
 
-        assertInstanceOf(DummyCurve.class, curves.get(0));
-        DummyCurve curve1 = (DummyCurve) curves.get(0);
+        assertInstanceOf(DummyOutputVariable.class, outputVariables.get(0));
+        DummyOutputVariable curve1 = (DummyOutputVariable) outputVariables.get(0);
         assertEquals("id", curve1.getId());
         assertEquals("variable", curve1.getVariable());
 
-        assertInstanceOf(DummyCurve.class, curves.get(1));
-        DummyCurve curve2 = (DummyCurve) curves.get(1);
+        assertInstanceOf(DummyOutputVariable.class, outputVariables.get(1));
+        DummyOutputVariable curve2 = (DummyOutputVariable) outputVariables.get(1);
         assertEquals("LOAD", curve2.getId());
         assertEquals("p0", curve2.getVariable());
     }

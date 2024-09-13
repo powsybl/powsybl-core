@@ -8,20 +8,20 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.dynamicsimulation.Curve;
+import com.powsybl.dynamicsimulation.OutputVariable;
 
 import java.util.Objects;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class DummyCurve implements Curve {
+class DummyOutputVariable implements OutputVariable {
 
     private final String id;
 
     private final String variable;
 
-    DummyCurve(String id, String variable) {
+    DummyOutputVariable(String id, String variable) {
         this.id = Objects.requireNonNull(id);
         this.variable = Objects.requireNonNull(variable);
     }
@@ -34,4 +34,8 @@ class DummyCurve implements Curve {
         return variable;
     }
 
+    @Override
+    public OutputType getOutputType() {
+        return OutputType.CURVE;
+    }
 }

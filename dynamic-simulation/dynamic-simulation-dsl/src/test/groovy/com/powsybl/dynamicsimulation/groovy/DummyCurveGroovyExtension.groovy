@@ -10,7 +10,7 @@ package com.powsybl.dynamicsimulation.groovy
 import com.google.auto.service.AutoService
 import com.powsybl.commons.report.ReportNode
 import com.powsybl.dsl.DslException
-import com.powsybl.dynamicsimulation.Curve
+import com.powsybl.dynamicsimulation.OutputVariable
 
 import java.util.function.Consumer
 /**
@@ -32,7 +32,7 @@ class DummyCurveGroovyExtension implements CurveGroovyExtension {
         }
     }
 
-    void load(Binding binding, Consumer<Curve> consumer, ReportNode reportNode) {
+    void load(Binding binding, Consumer<OutputVariable> consumer, ReportNode reportNode) {
         binding.dummyCurve = { Closure<Void> closure ->
             def cloned = closure.clone()
 
@@ -47,7 +47,7 @@ class DummyCurveGroovyExtension implements CurveGroovyExtension {
                 throw new DslException("'variable' field is not set")
             }
 
-            consumer.accept(new DummyCurve(curveSpec.id, curveSpec.variable))
+            consumer.accept(new DummyOutputVariable(curveSpec.id, curveSpec.variable))
         }
     }
 }
