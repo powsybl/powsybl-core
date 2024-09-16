@@ -24,7 +24,7 @@ import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
@@ -32,12 +32,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class GroovyOutputVariablesSupplierTest {
 
     private FileSystem fileSystem;
+    private Network network;
 
     @BeforeEach
     void setup() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-
-        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/curves.groovy")), fileSystem.getPath("/curves.groovy"));
+        Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/outputVariables.groovy")), fileSystem.getPath("/outputVariables.groovy"));
+        network = EurostagTutorialExample1Factory.create();
     }
 
     @AfterEach
@@ -47,42 +48,25 @@ class GroovyOutputVariablesSupplierTest {
 
     @Test
     void test() {
-        Network network = EurostagTutorialExample1Factory.create();
-
-        List<CurveGroovyExtension> extensions = GroovyExtension.find(CurveGroovyExtension.class, "dummy");
-        assertEquals(1, extensions.size());
-        assertInstanceOf(DummyCurveGroovyExtension.class, extensions.get(0));
-
-        OutputVariablesSupplier supplier = new GroovyOutputVariablesSupplier(fileSystem.getPath("/curves.groovy"), extensions);
-
-        testCurveSupplier(network, supplier);
+        List<OutputVariableGroovyExtension> extensions = GroovyExtension.find(OutputVariableGroovyExtension.class, "dummy");
+        assertThat(extensions).hasSize(1).hasOnlyElementsOfType(DummyOutputVariableGroovyExtension.class);
+        OutputVariablesSupplier supplier = new GroovyOutputVariablesSupplier(fileSystem.getPath("/outputVariables.groovy"), extensions);
+        testCurveSupplier(supplier.get(network));
     }
 
     @Test
     void testWithInputStream() {
-        Network network = EurostagTutorialExample1Factory.create();
-
-        List<CurveGroovyExtension> extensions = GroovyExtension.find(CurveGroovyExtension.class, "dummy");
-        assertEquals(1, extensions.size());
-        assertInstanceOf(DummyCurveGroovyExtension.class, extensions.get(0));
-
-        OutputVariablesSupplier supplier = new GroovyOutputVariablesSupplier(getClass().getResourceAsStream("/curves.groovy"), extensions);
-
-        testCurveSupplier(network, supplier);
+        List<OutputVariableGroovyExtension> extensions = GroovyExtension.find(OutputVariableGroovyExtension.class, "dummy");
+        assertThat(extensions).hasSize(1).hasOnlyElementsOfType(DummyOutputVariableGroovyExtension.class);
+        OutputVariablesSupplier supplier = new GroovyOutputVariablesSupplier(getClass().getResourceAsStream("/outputVariables.groovy"), extensions);
+        testCurveSupplier(supplier.get(network));
     }
 
-    private static void testCurveSupplier(Network network, OutputVariablesSupplier supplier) {
-        List<OutputVariable> outputVariables = supplier.get(network);
-        assertEquals(2, outputVariables.size());
-
-        assertInstanceOf(DummyOutputVariable.class, outputVariables.get(0));
-        DummyOutputVariable curve1 = (DummyOutputVariable) outputVariables.get(0);
-        assertEquals("id", curve1.getId());
-        assertEquals("variable", curve1.getVariable());
-
-        assertInstanceOf(DummyOutputVariable.class, outputVariables.get(1));
-        DummyOutputVariable curve2 = (DummyOutputVariable) outputVariables.get(1);
-        assertEquals("LOAD", curve2.getId());
-        assertEquals("p0", curve2.getVariable());
+    private static void testCurveSupplier(List<OutputVariable> outputVariables) {
+        assertThat(outputVariables).hasSize(3).containsExactly(
+                new DummyOutputVariable("id", "variable", OutputVariable.OutputType.CURVE),
+                new DummyOutputVariable("id", "variable", OutputVariable.OutputType.FSV),
+                new DummyOutputVariable("LOAD", "p0", OutputVariable.OutputType.CURVE)
+        );
     }
 }

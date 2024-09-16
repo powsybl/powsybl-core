@@ -15,27 +15,16 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class DummyOutputVariable implements OutputVariable {
+record DummyOutputVariable(String id, String variable, OutputType type) implements OutputVariable {
 
-    private final String id;
-
-    private final String variable;
-
-    DummyOutputVariable(String id, String variable) {
+    public DummyOutputVariable(String id, String variable, OutputType type) {
         this.id = Objects.requireNonNull(id);
         this.variable = Objects.requireNonNull(variable);
-    }
-
-    String getId() {
-        return id;
-    }
-
-    String getVariable() {
-        return variable;
+        this.type = Objects.requireNonNull(type);
     }
 
     @Override
     public OutputType getOutputType() {
-        return OutputType.CURVE;
+        return type;
     }
 }

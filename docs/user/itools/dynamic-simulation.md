@@ -5,7 +5,7 @@ In the end, the results and the modified network can be exported to files.
 
 ## Usage
 ```
-usage: itools [OPTIONS] dynamic-simulation --case-file <FILE> [--outputVariables-file
+usage: itools [OPTIONS] dynamic-simulation --case-file <FILE> [--output-variables-file
        <FILE>] --dynamic-models-file <FILE> [--event-models-file <FILE>]
        [--help] [-I <property=value>] [--import-parameters <IMPORT_PARAMETERS>]
        [--output-file <FILE>] [--parameters-file <FILE>]
@@ -15,7 +15,10 @@ Available options are:
 
 Available arguments are:
     --case-file <FILE>                        the case path
-    --outputVariables-file <FILE>                      outputVariables description as Groovy file
+    --output-variables-file <FILE>            output variables description as
+                                              Groovy file: defines a list of
+                                              variables to plot or get the final
+                                              value
     --dynamic-models-file <FILE>              dynamic models description as a
                                               Groovy file: defines the dynamic
                                               models to be associated to chosen
@@ -45,8 +48,8 @@ This option defines the path of the mapping file used to associate dynamic model
 
 ### Optional options
 
-`--outputVariables-file`  
-This option defines the path of the configuration for the outputVariables to export at the end of the simulation. This configuration file is a groovy script that respects the [outputVariables DSL](../../simulation/dynamic/index.md#outputVariables-configuration) syntax.
+`--output-variables-file`  
+This option defines the path of the configuration for the output variables to export at the end of the simulation. This configuration file is a groovy script that respects the [outputVariables DSL](../../simulation/dynamic/index.md#output-variables-configuration) syntax.
 
 `--event-models-file`  
 This option defines the path of the configuration for the events to simulate during the simulation. At the moment, only groovy scripts are supported. The [event models DSL](../../simulation/dynamic/index.md#event-models-mapping) depends on the simulator used.
@@ -73,7 +76,7 @@ The expected results are described in the [time domain documentation](../../simu
 ## Examples
 The following example shows how to run a power flow simulation, using the default configuration:
 ```
-$> itools dynamic-simulation --case-file IEEE14.iidm --dynamic-models-file dynamicModels.groovy --outputVariables-file outputVariables.groovy
+$> itools dynamic-simulation --case-file IEEE14.iidm --dynamic-models-file dynamicModels.groovy --output-variables-file outputVariables.groovy
 Loading network '/tmp/mathbagu/IEEE14.iidm'
 dynamic simulation results:
 +--------+

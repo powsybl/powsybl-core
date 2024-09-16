@@ -33,18 +33,18 @@ public class GroovyOutputVariablesSupplier implements OutputVariablesSupplier {
 
     private final GroovyCodeSource codeSource;
 
-    private final List<CurveGroovyExtension> extensions;
+    private final List<OutputVariableGroovyExtension> extensions;
 
     public GroovyOutputVariablesSupplier(Path path) {
         this(path, Collections.emptyList());
     }
 
-    public GroovyOutputVariablesSupplier(Path path, List<CurveGroovyExtension> extensions) {
+    public GroovyOutputVariablesSupplier(Path path, List<OutputVariableGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
         this.extensions = Objects.requireNonNull(extensions);
     }
 
-    public GroovyOutputVariablesSupplier(InputStream is, List<CurveGroovyExtension> extensions) {
+    public GroovyOutputVariablesSupplier(InputStream is, List<OutputVariableGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(is);
         this.extensions = Objects.requireNonNull(extensions);
     }
@@ -52,7 +52,9 @@ public class GroovyOutputVariablesSupplier implements OutputVariablesSupplier {
     @Override
     public List<OutputVariable> get(Network network, ReportNode reportNode) {
         List<OutputVariable> outputVariables = new ArrayList<>();
-        ReportNode groovyReportNode = reportNode.newReportNode().withMessageTemplate("groovyCurves", "Groovy Curves Supplier").add();
+        ReportNode groovyReportNode = reportNode.newReportNode()
+                .withMessageTemplate("groovyOutputVariables", "Groovy Output Variables Supplier")
+                .add();
 
         Binding binding = new Binding();
         binding.setVariable("network", network);

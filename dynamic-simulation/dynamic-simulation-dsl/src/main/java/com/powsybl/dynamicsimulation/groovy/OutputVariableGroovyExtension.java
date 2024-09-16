@@ -13,6 +13,6 @@ import com.powsybl.dynamicsimulation.OutputVariable;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public interface CurveGroovyExtension extends GroovyExtension<OutputVariable> {
+public interface OutputVariableGroovyExtension extends GroovyExtension<OutputVariable> {
 
 }

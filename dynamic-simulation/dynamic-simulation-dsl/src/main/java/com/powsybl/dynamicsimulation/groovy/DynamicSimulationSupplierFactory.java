@@ -52,12 +52,12 @@ public final class DynamicSimulationSupplierFactory {
         return new GroovyEventModelsSupplier(is, GroovyExtension.find(EventModelGroovyExtension.class, providerName));
     }
 
-    public static OutputVariablesSupplier createCurvesSupplier(Path path, String providerName) {
+    public static OutputVariablesSupplier createOutputVariablesSupplier(Path path, String providerName) {
         String extension = FilenameUtils.getExtension(path.toString());
         if (extension.equals(GROOVY_EXTENSION)) {
-            return new GroovyOutputVariablesSupplier(path, GroovyExtension.find(CurveGroovyExtension.class, providerName));
+            return new GroovyOutputVariablesSupplier(path, GroovyExtension.find(OutputVariableGroovyExtension.class, providerName));
         } else {
-            throw new PowsyblException("Unsupported curves format: " + extension);
+            throw new PowsyblException("Unsupported output variables format: " + extension);
         }
     }
 }
