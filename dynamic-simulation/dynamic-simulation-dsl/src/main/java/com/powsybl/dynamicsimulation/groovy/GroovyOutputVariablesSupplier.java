@@ -9,19 +9,13 @@
 package com.powsybl.dynamicsimulation.groovy;
 
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.dsl.ExpressionDslLoader;
 import com.powsybl.dsl.GroovyScripts;
 import com.powsybl.dynamicsimulation.OutputVariable;
 import com.powsybl.dynamicsimulation.OutputVariablesSupplier;
 import com.powsybl.iidm.network.Network;
-import groovy.lang.Binding;
-import groovy.lang.GroovyCodeSource;
-import groovy.lang.GroovyShell;
-import org.codehaus.groovy.control.CompilerConfiguration;
 
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -29,42 +23,24 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public class GroovyOutputVariablesSupplier implements OutputVariablesSupplier {
-
-    private final GroovyCodeSource codeSource;
-
-    private final List<OutputVariableGroovyExtension> extensions;
+public class GroovyOutputVariablesSupplier extends AbstractGroovySupplier<OutputVariable, OutputVariableGroovyExtension>
+        implements OutputVariablesSupplier {
 
     public GroovyOutputVariablesSupplier(Path path) {
         this(path, Collections.emptyList());
     }
 
     public GroovyOutputVariablesSupplier(Path path, List<OutputVariableGroovyExtension> extensions) {
-        this.codeSource = GroovyScripts.load(path);
-        this.extensions = Objects.requireNonNull(extensions);
+        super(GroovyScripts.load(path), Objects.requireNonNull(extensions));
     }
 
     public GroovyOutputVariablesSupplier(InputStream is, List<OutputVariableGroovyExtension> extensions) {
-        this.codeSource = GroovyScripts.load(is);
-        this.extensions = Objects.requireNonNull(extensions);
+        super(GroovyScripts.load(is), Objects.requireNonNull(extensions));
     }
 
     @Override
     public List<OutputVariable> get(Network network, ReportNode reportNode) {
-        List<OutputVariable> outputVariables = new ArrayList<>();
-        ReportNode groovyReportNode = reportNode.newReportNode()
-                .withMessageTemplate("groovyOutputVariables", "Groovy Output Variables Supplier")
-                .add();
-
-        Binding binding = new Binding();
-        binding.setVariable("network", network);
-
-        ExpressionDslLoader.prepareClosures(binding);
-        extensions.forEach(e -> e.load(binding, outputVariables::add, groovyReportNode));
-
-        GroovyShell shell = new GroovyShell(binding, new CompilerConfiguration());
-        shell.evaluate(codeSource);
-
-        return outputVariables;
+        return evaluateScript(network,
+                createReportNode(reportNode, "groovyOutputVariables", "Groovy Output Variables Supplier"));
     }
 }

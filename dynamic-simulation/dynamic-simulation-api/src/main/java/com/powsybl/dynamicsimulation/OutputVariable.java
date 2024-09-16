@@ -19,5 +19,9 @@ public interface OutputVariable {
         FSV
     }
 
+    String getModelId();
+
+    String getVariableName();
+
     OutputType getOutputType();
 }

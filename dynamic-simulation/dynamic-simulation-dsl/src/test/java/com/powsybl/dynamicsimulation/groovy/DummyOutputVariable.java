@@ -24,6 +24,16 @@ record DummyOutputVariable(String id, String variable, OutputType type) implemen
     }
 
     @Override
+    public String getModelId() {
+        return id;
+    }
+
+    @Override
+    public String getVariableName() {
+        return variable;
+    }
+
+    @Override
     public OutputType getOutputType() {
         return type;
     }

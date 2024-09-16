@@ -69,7 +69,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     parser.nextToken();
                     deserializeTimeline(parser, timeLine);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
+                default -> throw getUnexpectedFieldException(parser);
             }
         }
 
@@ -94,7 +94,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                 switch (parser.currentName()) {
                     case "name" -> name = parser.getValueAsString();
                     case "value" -> value = parser.getValueAsDouble();
-                    default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
+                    default -> throw getUnexpectedFieldException(parser);
                 }
             }
             fsvs.put(name, value);
@@ -116,7 +116,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                 case "time" -> time = parser.getValueAsDouble();
                 case "modelName" -> modelName = parser.getValueAsString();
                 case "message" -> message = parser.getValueAsString();
-                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
+                default -> throw getUnexpectedFieldException(parser);
             }
         }
         return new TimelineEvent(time, modelName, message);
@@ -140,5 +140,9 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static IllegalStateException getUnexpectedFieldException(JsonParser parser) throws IOException {
+        return new IllegalStateException("Unexpected field: " + parser.currentName());
     }
 }
