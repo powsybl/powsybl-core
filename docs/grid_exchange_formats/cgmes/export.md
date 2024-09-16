@@ -39,8 +39,8 @@ If a version number is given as a parameter, it is used for the exported files. 
 The quick CGM export will always write updated SSH files for IGMs and a single SV for the CGM. The parameter for selecting which profiles to export is ignored in this kind of export.
 
 If the dependencies have to be updated automatically (see parameter **iidm.export.cgmes.update-dependencies** below), the exported instance files will contain metadata models where:
-* Updated SSH for IGMs supersede the original ones.
-* Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP from IGMs.
+* Updated SSH for IGMs supersede the original ones, and depend on the original EQ from IGMs.
+* Updated SV for the CGM depends on the updated SSH from IGMs and on the original TP and TP_BD from IGMs.
 
 The filenames of the exported instance files will follow the pattern:
 * For the CGM SV: `<basename>_SV.xml`.
@@ -71,7 +71,7 @@ exampleBase_NL_SSH.xml
 exampleBase_SV.xml
 ```
 
-where the updated SSH files will supersede the original ones, and the SV will contain the correct dependencies of new SSH and original TPs.
+where the updated SSH files will supersede the original ones and depend on the original EQs, and the SV will contain the correct dependencies of new SSH and original TPs and TP_BD.
 
 (cgmes-cgm-manual-export)=
 ## CGM (Common Grid Model) manual export
