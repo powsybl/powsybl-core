@@ -29,26 +29,24 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         Line line = network.getLine("Line");
 
         // There are 4 CGMES OperationalLimitSets on side 1 merged into 3 IIDM OperationalLimitsGroup
-        FlowsLimitsHolder holder1 = line.getOperationalLimitsHolder1();
-        FlowsLimitsHolder holder2 = line.getOperationalLimitsHolder2();
-        assertEquals(3, holder1.getOperationalLimitsGroups().size());
-        assertEquals(0, holder2.getOperationalLimitsGroups().size());
+        assertEquals(3, line.getOperationalLimitsGroups1().size());
+        assertEquals(0, line.getOperationalLimitsGroups2().size());
 
         // The CGMES winter current and active power limits have been merged into the same limits group
         // since their OperationalLimitSet name are equals
-        Optional<OperationalLimitsGroup> winterLimits = holder1.getOperationalLimitsGroup("WINTER");
+        Optional<OperationalLimitsGroup> winterLimits = line.getOperationalLimitsGroup1("WINTER");
         assertTrue(winterLimits.isPresent());
         assertTrue(winterLimits.get().getCurrentLimits().isPresent());
         assertTrue(winterLimits.get().getActivePowerLimits().isPresent());
 
         // The CGMES spring current limits and summer active power limits have different limits group
         // since their OperationalLimitSet name are distinct
-        Optional<OperationalLimitsGroup> springLimits = holder1.getOperationalLimitsGroup("SPRING");
+        Optional<OperationalLimitsGroup> springLimits = line.getOperationalLimitsGroup1("SPRING");
         assertTrue(springLimits.isPresent());
         assertTrue(springLimits.get().getCurrentLimits().isPresent());
         assertTrue(springLimits.get().getActivePowerLimits().isEmpty());
 
-        Optional<OperationalLimitsGroup> summerLimits = holder1.getOperationalLimitsGroup("SUMMER");
+        Optional<OperationalLimitsGroup> summerLimits = line.getOperationalLimitsGroup1("SUMMER");
         assertTrue(summerLimits.isPresent());
         assertTrue(summerLimits.get().getCurrentLimits().isEmpty());
         assertTrue(summerLimits.get().getActivePowerLimits().isPresent());

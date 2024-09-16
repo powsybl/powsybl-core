@@ -436,11 +436,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public FlowsLimitsHolder getOperationalLimitsHolder() {
-        return operationalLimitsGroups;
-    }
-
-    @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups() {
         return operationalLimitsGroups.getOperationalLimitsGroups();
     }

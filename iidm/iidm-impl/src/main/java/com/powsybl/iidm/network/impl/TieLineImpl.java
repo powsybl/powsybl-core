@@ -240,11 +240,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     }
 
     @Override
-    public FlowsLimitsHolder getOperationalLimitsHolder1() {
-        return danglingLine1.getOperationalLimitsHolder();
-    }
-
-    @Override
     public Collection<OperationalLimitsGroup> getOperationalLimitsGroups1() {
         return danglingLine1.getOperationalLimitsGroups();
     }
@@ -292,11 +287,6 @@ class TieLineImpl extends AbstractIdentifiable<TieLine> implements TieLine {
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits1() {
         return danglingLine1.newApparentPowerLimits();
-    }
-
-    @Override
-    public FlowsLimitsHolder getOperationalLimitsHolder2() {
-        return danglingLine2.getOperationalLimitsHolder();
     }
 
     @Override

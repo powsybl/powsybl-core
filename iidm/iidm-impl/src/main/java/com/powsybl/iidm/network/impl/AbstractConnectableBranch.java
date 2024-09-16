@@ -53,8 +53,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return BranchUtil.getSide(terminal, getTerminal1(), getTerminal2());
     }
 
-    @Override
-    public FlowsLimitsHolder getOperationalLimitsHolder1() {
+    private FlowsLimitsHolder getOperationalLimitsHolder1() {
         return operationalLimitsHolder1;
     }
 
@@ -113,8 +112,7 @@ abstract class AbstractConnectableBranch<I extends Branch<I> & Connectable<I>> e
         return getOperationalLimitsHolder1().newApparentPowerLimits();
     }
 
-    @Override
-    public FlowsLimitsHolder getOperationalLimitsHolder2() {
+    private FlowsLimitsHolder getOperationalLimitsHolder2() {
         return operationalLimitsHolder2;
     }
 

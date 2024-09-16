@@ -208,8 +208,6 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
 
-        FlowsLimitsHolder getOperationalLimitsHolder();
-
         /**
          * Get the terminal the leg is connected to.
          */
