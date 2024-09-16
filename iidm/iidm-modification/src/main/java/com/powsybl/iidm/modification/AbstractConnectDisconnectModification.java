@@ -54,8 +54,7 @@ public abstract class AbstractConnectDisconnectModification extends AbstractNetw
 
     private boolean checkIfNoImpactOnNetwork(TieLine tieLine) {
         return side == null && tieLine.getTerminal1().isConnected() == isConnecting && tieLine.getTerminal2().isConnected() == isConnecting
-            || side == ThreeSides.ONE && tieLine.getTerminal1().isConnected() == isConnecting
-            || side == ThreeSides.TWO && tieLine.getTerminal2().isConnected() == isConnecting;
+            || side != null && tieLine.getTerminal(side.toTwoSides()).isConnected() == isConnecting;
     }
 
     private boolean checkIfNoImpactOnNetwork(HvdcLine hvdcLine) {
