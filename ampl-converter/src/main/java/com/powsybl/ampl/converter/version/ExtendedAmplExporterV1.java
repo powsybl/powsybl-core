@@ -161,7 +161,7 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
         for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
             RatioTapChangerStep step = rtc.getStep(position);
             ImpedanceAndAdmittance stepCharacteristics = new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB());
-            writeTapChanger(formatter, num, position, rtc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), 0);
+            writeTapChanger(formatter, new TapChangerParametersForWriter(num, position, rtc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), 0));
         }
     }
 
@@ -173,25 +173,27 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
             PhaseTapChangerStep step = ptc.getStep(position);
             ImpedanceAndAdmittance stepCharacteristics = new ImpedanceAndAdmittance(step.getR(), step.getX(), step.getG(), step.getB());
-            writeTapChanger(formatter, num, position, ptc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha()));
+            writeTapChanger(formatter, new TapChangerParametersForWriter(num, position, ptc.getLowTapPosition(), zb2, transformerZandY, stepCharacteristics, step.getRho(), Math.toRadians(step.getAlpha())));
         }
     }
 
-    private void writeTapChanger(TableFormatter formatter, int num, int stepPosition, int lowTapPosition, double zb2,
-                                 ImpedanceAndAdmittance transformer, ImpedanceAndAdmittance step, double rho, double alpha) throws IOException {
-        double rNorm = transformer.r * (1 + step.r / 100) / zb2;
-        double xNorm = transformer.x * (1 + step.x / 100) / zb2;
-        double gNorm = transformer.g * (1 + step.g / 100) * zb2;
-        double bNorm = transformer.b * (1 + step.b / 100) * zb2;
+    private record TapChangerParametersForWriter(int num, int stepPosition, int lowTapPosition, double zb2,
+                                                 ImpedanceAndAdmittance transformer, ImpedanceAndAdmittance step, double rho, double alpha) {}
+
+    private void writeTapChanger(TableFormatter formatter, TapChangerParametersForWriter parametersForWriter) throws IOException {
+        double rNorm = parametersForWriter.transformer.r * (1 + parametersForWriter.step.r / 100) / parametersForWriter.zb2;
+        double xNorm = parametersForWriter.transformer.x * (1 + parametersForWriter.step.x / 100) / parametersForWriter.zb2;
+        double gNorm = parametersForWriter.transformer.g * (1 + parametersForWriter.step.g / 100) * parametersForWriter.zb2;
+        double bNorm = parametersForWriter.transformer.b * (1 + parametersForWriter.step.b / 100) * parametersForWriter.zb2;
         formatter.writeCell(getVariantIndex())
-            .writeCell(num)
-            .writeCell(stepPosition - lowTapPosition + 1)
-            .writeCell(rho)
+            .writeCell(parametersForWriter.num)
+            .writeCell(parametersForWriter.stepPosition - parametersForWriter.lowTapPosition + 1)
+            .writeCell(parametersForWriter.rho)
             .writeCell(rNorm)
             .writeCell(xNorm)
             .writeCell(gNorm)
             .writeCell(bNorm)
-            .writeCell(alpha)
+            .writeCell(parametersForWriter.alpha)
             .writeCell(getFaultNum())
             .writeCell(getActionNum());
     }
