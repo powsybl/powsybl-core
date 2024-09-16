@@ -26,7 +26,7 @@ abstract class AbstractGroovySupplier<T, R extends GroovyExtension<T>> {
     private final GroovyCodeSource codeSource;
     private final List<R> extensions;
 
-    public AbstractGroovySupplier(GroovyCodeSource codeSource, List<R> extensions) {
+    protected AbstractGroovySupplier(GroovyCodeSource codeSource, List<R> extensions) {
         this.codeSource = codeSource;
         this.extensions = extensions;
     }
