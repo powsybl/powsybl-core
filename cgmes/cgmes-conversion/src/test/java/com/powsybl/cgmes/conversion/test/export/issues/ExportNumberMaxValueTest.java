@@ -58,7 +58,7 @@ class ExportNumberMaxValueTest extends AbstractSerDeTest {
         // Look for the value of the temporary limit with acceptable duration 60
         // We know exactly which identifier to look for
         // Include multiple lines and non-greedy matches
-        Pattern tatl60Pattern = Pattern.compile("<cim:CurrentLimit rdf:ID=\"_L01_ACLS_T_1_CurrentLimit_OLV_TATL_60\">.*?<cim:CurrentLimit.value>(.*?)</cim:CurrentLimit.value>", Pattern.DOTALL);
+        Pattern tatl60Pattern = Pattern.compile("<cim:CurrentLimit rdf:ID=\"_L01_ACLS_T_1_CurrentLimit_DEFAULT_OLV_TATL_60\">.*?<cim:CurrentLimit.value>(.*?)</cim:CurrentLimit.value>", Pattern.DOTALL);
         Matcher tatl60Value = tatl60Pattern.matcher(eq);
         assertTrue(tatl60Value.find());
         // Read the value as a double

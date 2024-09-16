@@ -1165,7 +1165,13 @@ public final class EquipmentExport {
     }
 
     private static void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, Set<String> exportedLimitTypes, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (OperationalLimitsGroup limitsGroup : branch.getOperationalLimitsGroups1()) {
+        Collection<OperationalLimitsGroup> limitsGroups1 = new ArrayList<>();
+        if (context.isExportAllLimitsGroup()) {
+            limitsGroups1.addAll(branch.getOperationalLimitsGroups1());
+        } else if (branch.getSelectedOperationalLimitsGroup1().isPresent()) {
+            limitsGroups1.add(branch.getSelectedOperationalLimitsGroup1().get());
+        }
+        for (OperationalLimitsGroup limitsGroup : limitsGroups1) {
             Optional<ActivePowerLimits> activePowerLimits1 = limitsGroup.getActivePowerLimits();
             if (activePowerLimits1.isPresent()) {
                 writeLoadingLimits(activePowerLimits1.get(), terminalId1, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, limitsGroup.getId(), exportedLimitTypes, writeInfiniteDuration, writer, context);
@@ -1180,7 +1186,13 @@ public final class EquipmentExport {
             }
         }
 
-        for (OperationalLimitsGroup limitsGroup : branch.getOperationalLimitsGroups2()) {
+        Collection<OperationalLimitsGroup> limitsGroups2 = new ArrayList<>();
+        if (context.isExportAllLimitsGroup()) {
+            limitsGroups2.addAll(branch.getOperationalLimitsGroups2());
+        } else if (branch.getSelectedOperationalLimitsGroup2().isPresent()) {
+            limitsGroups2.add(branch.getSelectedOperationalLimitsGroup2().get());
+        }
+        for (OperationalLimitsGroup limitsGroup : limitsGroups2) {
             Optional<ActivePowerLimits> activePowerLimits2 = limitsGroup.getActivePowerLimits();
             if (activePowerLimits2.isPresent()) {
                 writeLoadingLimits(activePowerLimits2.get(), terminalId2, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, limitsGroup.getId(), exportedLimitTypes, writeInfiniteDuration, writer, context);
@@ -1197,7 +1209,13 @@ public final class EquipmentExport {
     }
 
     private static void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId, String cimNamespace, String euNamespace, String valueAttributeName, String limitTypeAttributeName, String limitKindClassName, Set<String> exportedLimitTypes, boolean writeInfiniteDuration, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        for (OperationalLimitsGroup limitsGroup : holder.getOperationalLimitsGroups()) {
+        Collection<OperationalLimitsGroup> limitsGroups = new ArrayList<>();
+        if (context.isExportAllLimitsGroup()) {
+            limitsGroups.addAll(holder.getOperationalLimitsGroups());
+        } else if (holder.getSelectedOperationalLimitsGroup().isPresent()) {
+            limitsGroups.add(holder.getSelectedOperationalLimitsGroup().get());
+        }
+        for (OperationalLimitsGroup limitsGroup : limitsGroups) {
             Optional<ActivePowerLimits> activePowerLimits = limitsGroup.getActivePowerLimits();
             if (activePowerLimits.isPresent()) {
                 writeLoadingLimits(activePowerLimits.get(), terminalId, cimNamespace, euNamespace, valueAttributeName, limitTypeAttributeName, limitKindClassName, limitsGroup.getId(), exportedLimitTypes, writeInfiniteDuration, writer, context);
@@ -1227,7 +1245,7 @@ public final class EquipmentExport {
         }
 
         // Write the permanent limit
-        String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(className), OPERATIONAL_LIMIT_VALUE, PATL);
+        String operationalLimitId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(className), ref(limitSetName), OPERATIONAL_LIMIT_VALUE, PATL);
         LoadingLimitEq.write(operationalLimitId, limits, "PATL", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
 
         if (!limits.getTemporaryLimits().isEmpty()) {
@@ -1242,7 +1260,7 @@ public final class EquipmentExport {
                 }
 
                 // Write the temporary limit
-                operationalLimitId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(className), OPERATIONAL_LIMIT_VALUE, TATL, ref(acceptableDuration));
+                operationalLimitId = context.getNamingStrategy().getCgmesId(ref(terminalId), ref(className), ref(limitSetName), OPERATIONAL_LIMIT_VALUE, TATL, ref(acceptableDuration));
                 LoadingLimitEq.write(operationalLimitId, limits, temporaryLimit.getName(), temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, valueAttributeName, writer, context);
             }
         }
