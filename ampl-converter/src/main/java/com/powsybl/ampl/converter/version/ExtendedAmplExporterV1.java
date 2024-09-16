@@ -10,14 +10,12 @@ package com.powsybl.ampl.converter.version;
 import com.powsybl.ampl.converter.AmplConstants;
 import com.powsybl.ampl.converter.AmplExportConfig;
 import com.powsybl.ampl.converter.AmplSubset;
-import com.powsybl.ampl.converter.AmplUtil;
 import com.powsybl.ampl.converter.util.NetworkUtil;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
+import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ConnectedComponents;
-import com.powsybl.iidm.network.util.SV;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,104 +86,27 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
     }
 
     @Override
-    public void writeBusesColumnsToFormatter(TableFormatter formatter, Bus b) throws IOException {
-        int ccNum = ConnectedComponents.getCcNum(b);
-        String id = b.getId();
-        VoltageLevel vl = b.getVoltageLevel();
-        int num = getMapper().getInt(AmplSubset.BUS, id);
-        int vlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
-        double nomV = vl.getNominalV();
-        double v = b.getV() / nomV;
-        double theta = Math.toRadians(b.getAngle());
-        formatter.writeCell(getVariantIndex())
-                .writeCell(num)
-                .writeCell(vlNum)
-                .writeCell(ccNum)
-                .writeCell(v)
-                .writeCell(theta)
-                .writeCell(b.getP())
-                .writeCell(b.getQ())
-                .writeCell(NetworkUtil.isSlackBus(b))
-                .writeCell(getFaultNum())
-                .writeCell(getActionNum())
-                .writeCell(id);
+    public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
+        formatterHelper.addCell(NetworkUtil.isSlackBus(b), 8);
     }
 
     @Override
-    public void writeThreeWindingsTranformersMiddleBusesColumnsToFormatter(TableFormatter formatter,
-                                                                           ThreeWindingsTransformer twt,
-                                                                           int middleCcNum) throws IOException {
-        String middleBusId = AmplUtil.getThreeWindingsTransformerMiddleBusId(twt);
-        String middleVlId = AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt);
-        int middleBusNum = getMapper().getInt(AmplSubset.BUS, middleBusId);
-        int middleVlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-
-        double v = twt.getProperty("v") == null ? Double.NaN :
-                Double.parseDouble(twt.getProperty("v")) / twt.getRatedU0();
-        double angle = twt.getProperty("angle") == null ? Double.NaN :
-                Math.toRadians(Double.parseDouble(twt.getProperty("angle")));
-
-        formatter.writeCell(getVariantIndex())
-                .writeCell(middleBusNum)
-                .writeCell(middleVlNum)
-                .writeCell(middleCcNum)
-                .writeCell(v)
-                .writeCell(angle)
-                .writeCell(0.0)
-                .writeCell(0.0)
-                .writeCell(false)
-                .writeCell(getFaultNum())
-                .writeCell(getActionNum())
-                .writeCell(middleBusId);
+    public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
+                                                                             ThreeWindingsTransformer twt,
+                                                                             int middleCcNum) {
+        formatterHelper.addCell(false, 8);
     }
 
     @Override
-    public void writeDanglingLineMiddleBusesToFormatter(TableFormatter formatter, DanglingLine dl,
-                                                        int middleCcNum) throws IOException {
-        Terminal t = dl.getTerminal();
-        Bus b = AmplUtil.getBus(dl.getTerminal());
-        String middleBusId = AmplUtil.getDanglingLineMiddleBusId(dl);
-        String middleVlId = AmplUtil.getDanglingLineMiddleVoltageLevelId(dl);
-        int middleBusNum = getMapper().getInt(AmplSubset.BUS, middleBusId);
-        int middleVlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-        SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
-                TwoSides.ONE).otherSide(
-                dl, true);
-        double nomV = t.getVoltageLevel().getNominalV();
-        double v = sv.getU() / nomV;
-        double theta = Math.toRadians(sv.getA());
-        formatter.writeCell(getVariantIndex())
-                .writeCell(middleBusNum)
-                .writeCell(middleVlNum)
-                .writeCell(middleCcNum)
-                .writeCell(v)
-                .writeCell(theta)
-                .writeCell(0.0) // 0 MW injected at dangling line internal bus
-                .writeCell(0.0) // 0 MVar injected at dangling line internal bus
-                .writeCell(false)
-                .writeCell(getFaultNum())
-                .writeCell(getActionNum())
-                .writeCell(middleBusId);
+    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
+                                                          int middleCcNum) {
+        formatterHelper.addCell(false, 8);
     }
 
     @Override
-    public void writeTieLineMiddleBusesToFormatter(TableFormatter formatter, TieLine tieLine,
-                                                   int xNodeCcNum) throws IOException {
-        String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
-        int xNodeBusNum = getMapper().getInt(AmplSubset.BUS, xNodeBusId);
-        int xNodeVlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
-        formatter.writeCell(getVariantIndex())
-                .writeCell(xNodeBusNum)
-                .writeCell(xNodeVlNum)
-                .writeCell(xNodeCcNum)
-                .writeCell(Float.NaN)
-                .writeCell(Double.NaN)
-                .writeCell(0.0)
-                .writeCell(0.0)
-                .writeCell(false)
-                .writeCell(getFaultNum())
-                .writeCell(getActionNum())
-                .writeCell(xNodeBusId);
+    public void addAdditionalCellsTieLineMiddleBuses(TableFormatterHelper formatterHelper, TieLine tieLine,
+                                                     int xNodeCcNum) {
+        formatterHelper.addCell(false, 8);
     }
 
     @Override
@@ -276,82 +197,21 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
     }
 
     @Override
-    public void writeGeneratorToFormatter(TableFormatter formatter, Generator gen) throws IOException {
-        String id = gen.getId();
-        Terminal t = gen.getTerminal();
-        int num = getMapper().getInt(AmplSubset.GENERATOR, id);
-        int vlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-        int busNum = AmplUtil.getBusNum(getMapper(), t);
-        int conBusNum = AmplUtil.getConnectableBusNum(getMapper(), t);
-        double minP = gen.getMinP();
-        double maxP = gen.getMaxP();
-        double vb = gen.getRegulatingTerminal().getVoltageLevel().getNominalV();
+    public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
         int regulatingBusNum = gen.isVoltageRegulatorOn() ?
             getMapper().getInt(AmplSubset.BUS, gen.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
-
-        formatter.writeCell(getVariantIndex())
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(minP)
-            .writeCell(maxP)
-            .writeCell(gen.getReactiveLimits().getMinQ(maxP))
-            .writeCell(gen.getReactiveLimits().getMinQ(0))
-            .writeCell(gen.getReactiveLimits().getMinQ(minP))
-            .writeCell(gen.getReactiveLimits().getMaxQ(maxP))
-            .writeCell(gen.getReactiveLimits().getMaxQ(0))
-            .writeCell(gen.getReactiveLimits().getMaxQ(minP))
-            .writeCell(gen.isVoltageRegulatorOn())
-            .writeCell(regulatingBusNum)
-            .writeCell(gen.getTargetV() / vb)
-            .writeCell(gen.getTargetP())
-            .writeCell(gen.getTargetQ())
-            .writeCell(getFaultNum())
-            .writeCell(getActionNum())
-            .writeCell(id)
-            .writeCell(gen.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        formatterHelper.addCell(regulatingBusNum, 14);
     }
 
     @Override
-    public void writeStaticVarCompensatorToFormatter(TableFormatter formatter,
-                                                     StaticVarCompensator svc) throws IOException {
-        String id = svc.getId();
-        int num = getMapper().getInt(AmplSubset.STATIC_VAR_COMPENSATOR, id);
-
-        Terminal t = svc.getTerminal();
-
-        int busNum = AmplUtil.getBusNum(getMapper(), t);
-        int conBusNum = AmplUtil.getConnectableBusNum(getMapper(), t);
-
+    public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
+                                                       StaticVarCompensator svc) {
         boolean voltageRegulation = svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE);
         int regulatingBusNum = voltageRegulation ?
             getMapper().getInt(AmplSubset.BUS, svc.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
-        double vlSet = svc.getVoltageSetpoint();
-        double vb = t.getVoltageLevel().getNominalV();
-        double zb = vb * vb / AmplConstants.SB; // Base impedance
-
-        int vlNum = getMapper().getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-        formatter.writeCell(getVariantIndex())
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum)
-            .writeCell(vlNum)
-            .writeCell(svc.getBmin() * zb)
-            .writeCell(svc.getBmax() * zb)
-            .writeCell(voltageRegulation)
-            .writeCell(regulatingBusNum)
-            .writeCell(vlSet / vb)
-            .writeCell(svc.getReactivePowerSetpoint())
-            .writeCell(getFaultNum())
-            .writeCell(getActionNum())
-            .writeCell(id)
-            .writeCell(svc.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        // Cell to add
+        formatterHelper.addCell(regulatingBusNum, 8);
     }
 
 }

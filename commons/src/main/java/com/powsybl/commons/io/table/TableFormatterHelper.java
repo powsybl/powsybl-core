@@ -7,8 +7,6 @@
  */
 package com.powsybl.commons.io.table;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,12 +23,12 @@ public class TableFormatterHelper {
         this.tableFormatter = tableFormatter;
     }
 
-    public TableFormatterHelper add(Object object) {
+    public TableFormatterHelper addCell(Object object) {
         objectsToWrite.add(object);
         return this;
     }
 
-    public TableFormatterHelper add(Object object, int position) {
+    public TableFormatterHelper addCell(Object object, int position) {
         objectsToWrite.add(position, object);
         return this;
     }
@@ -85,9 +83,8 @@ public class TableFormatterHelper {
         return this;
     }
 
-    public TableFormatter write() {
-        objectsToWrite.forEach(object -> {
-            try {
+    public TableFormatter write() throws IOException {
+        for (Object object : objectsToWrite) {
             if (object instanceof String s) {
                 tableFormatter.writeCell(s);
             } else if (object instanceof Character c) {
@@ -107,15 +104,13 @@ public class TableFormatterHelper {
             } else if (object instanceof EmptyLines emptyLines) {
                 tableFormatter.writeEmptyLines(emptyLines.numberOfLines);
             }
-            } catch (IOException e) {
-                throw new PowsyblException(e);
-            }
-        });
+        }
         return tableFormatter;
     }
 
     private static class Comment {
         String commentToWrite;
+
         Comment(String commentToWrite) {
             this.commentToWrite = commentToWrite;
         }
@@ -123,6 +118,7 @@ public class TableFormatterHelper {
 
     private static class EmptyCells {
         int numberOfCells;
+
         EmptyCells(int numberOfCells) {
             this.numberOfCells = numberOfCells;
         }
@@ -130,6 +126,7 @@ public class TableFormatterHelper {
 
     private static class EmptyLines {
         int numberOfLines;
+
         EmptyLines(int numberOfLines) {
             this.numberOfLines = numberOfLines;
         }
