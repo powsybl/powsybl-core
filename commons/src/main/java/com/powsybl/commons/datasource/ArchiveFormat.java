@@ -15,7 +15,8 @@ import java.util.Objects;
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
 public enum ArchiveFormat {
-    ZIP("zip");
+    ZIP("zip"),
+    TAR("tar");
 
     ArchiveFormat(String extension) {
         this.extension = Objects.requireNonNull(extension);

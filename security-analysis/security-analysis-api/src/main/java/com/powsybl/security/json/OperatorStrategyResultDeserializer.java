@@ -47,7 +47,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
             version = SecurityAnalysisResultSerializer.VERSION;
         }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
+            switch (parser.currentName()) {
                 case "operatorStrategy":
                     parser.nextToken();
                     operatorStrategy = JsonUtil.readValue(deserializationContext, parser, OperatorStrategy.class);
@@ -83,7 +83,7 @@ public class OperatorStrategyResultDeserializer extends StdDeserializer<Operator
                             version, "1.6");
                     break;
                 default:
-                    throw new JsonMappingException(parser, "Unexpected field: " + parser.getCurrentName());
+                    throw new JsonMappingException(parser, "Unexpected field: " + parser.currentName());
             }
         }
         if (version.compareTo("1.3") < 0) {

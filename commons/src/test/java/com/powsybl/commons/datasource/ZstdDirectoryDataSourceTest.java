@@ -36,12 +36,12 @@ class ZstdDirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new ZstdDirectoryDataSource(testDir, "foo_bar", observer), observer);
-        checkDataSource(new ZstdDirectoryDataSource(testDir, "foo_bar"), null);
+        checkDataSource(new ZstdDirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
         assertEquals(testDir, dataSource.getDirectory());
+        assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
         assertEquals(observer, dataSource.getObserver());
@@ -49,19 +49,19 @@ class ZstdDirectoryDataSourceTest extends DirectoryDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new ZstdDirectoryDataSource(testDir, "foo");
+        return new ZstdDirectoryDataSource(testDir, "foo", null, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new ZstdDirectoryDataSource(testDir, "foo", observer);
+        return new ZstdDirectoryDataSource(testDir, "foo", "iidm", observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
         return Stream.of(
-            Arguments.of("foo.iidm", CompressionFormat.ZSTD),
-            Arguments.of("foo", CompressionFormat.ZSTD),
-            Arguments.of("foo.v3", CompressionFormat.ZSTD)
+            Arguments.of("foo", "iidm", CompressionFormat.ZSTD),
+            Arguments.of("foo", "", CompressionFormat.ZSTD),
+            Arguments.of("foo", "v3", CompressionFormat.ZSTD)
         );
     }
 
@@ -72,13 +72,13 @@ class ZstdDirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.xz", "foo_bar.xz", "foo_bar.iidm.gz", "foo_bar.gz");
         return Stream.of(
-            Arguments.of("foo.iidm", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
+            Arguments.of("foo", "iidm", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
+            Arguments.of("foo", "", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo.v3", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
+            Arguments.of("foo", "v3", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );

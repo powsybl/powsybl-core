@@ -40,34 +40,34 @@ class ExpressionDslLoader extends DslLoader {
 
             // integer
             ExpressionNode.metaClass."$op0" = { Integer value ->
-                ExpressionHelper.newArithmeticBinaryOperator(delegate, ExpressionHelper.newIntegerLiteral(value), ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(delegate as ExpressionNode, ExpressionHelper.newIntegerLiteral(value), ArithmeticBinaryOperator."$op1")
             }
 
             Integer.metaClass."$op0" = { ExpressionNode value ->
-                ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newIntegerLiteral(delegate), value, ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newIntegerLiteral(delegate as int), value, ArithmeticBinaryOperator."$op1")
             }
 
             // float
             ExpressionNode.metaClass."$op0" = { Float value ->
-                ExpressionHelper.newArithmeticBinaryOperator(delegate, ExpressionHelper.newFloatLiteral(value), ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(delegate as ExpressionNode, ExpressionHelper.newFloatLiteral(value), ArithmeticBinaryOperator."$op1")
             }
 
             Float.metaClass."$op0" = { ExpressionNode value ->
-                ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newFloatLiteral(delegate), value, ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newFloatLiteral(delegate as float), value, ArithmeticBinaryOperator."$op1")
             }
 
             // double
             ExpressionNode.metaClass."$op0" = { Double value ->
-                ExpressionHelper.newArithmeticBinaryOperator(delegate, ExpressionHelper.newDoubleLiteral(value), ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(delegate as ExpressionNode, ExpressionHelper.newDoubleLiteral(value), ArithmeticBinaryOperator."$op1")
             }
 
             Double.metaClass."$op0" = { ExpressionNode value ->
-                ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newDoubleLiteral(delegate), value, ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newDoubleLiteral(delegate as double), value, ArithmeticBinaryOperator."$op1")
             }
 
             // big decimal
             ExpressionNode.metaClass."$op0" = { BigDecimal value ->
-                ExpressionHelper.newArithmeticBinaryOperator(delegate, ExpressionHelper.newBigDecimalLiteral(value), ArithmeticBinaryOperator."$op1")
+                ExpressionHelper.newArithmeticBinaryOperator(delegate as ExpressionNode, ExpressionHelper.newBigDecimalLiteral(value), ArithmeticBinaryOperator."$op1")
             }
 
             BigDecimal.metaClass."$op0" = { ExpressionNode value ->
@@ -78,7 +78,7 @@ class ExpressionDslLoader extends DslLoader {
 
         // comparison
 
-        java.lang.Object.metaClass.compareTo2 = { Object value, String op ->
+        Object.metaClass.compareTo2 = { Object value, String op ->
             switch (op) {
                 case ">":
                     return delegate > value
@@ -98,31 +98,31 @@ class ExpressionDslLoader extends DslLoader {
         }
 
         ExpressionNode.metaClass.compareTo2 = { ExpressionNode value, String op ->
-            nodeCompareToNode(delegate, value, op)
+            nodeCompareToNode(delegate as ExpressionNode, value, op)
         }
         ExpressionNode.metaClass.compareTo2 = { Integer value, String op ->
-            nodeCompareToNode(delegate, ExpressionHelper.newIntegerLiteral(value), op)
+            nodeCompareToNode(delegate as ExpressionNode, ExpressionHelper.newIntegerLiteral(value), op)
         }
         Integer.metaClass.compareTo2 = { ExpressionNode value, String op ->
-            nodeCompareToNode(ExpressionHelper.newIntegerLiteral(delegate), value, op)
+            nodeCompareToNode(ExpressionHelper.newIntegerLiteral(delegate as int), value, op)
         }
         ExpressionNode.metaClass.compareTo2 = { Float value, String op ->
-            nodeCompareToNode(delegate, ExpressionHelper.newFloatLiteral(value), op)
+            nodeCompareToNode(delegate as ExpressionNode, ExpressionHelper.newFloatLiteral(value), op)
         }
         Float.metaClass.compareTo2 = { ExpressionNode value, String op ->
-            nodeCompareToNode(ExpressionHelper.newFloatLiteral(delegate), value, op)
+            nodeCompareToNode(ExpressionHelper.newFloatLiteral(delegate as float), value, op)
         }
         ExpressionNode.metaClass.compareTo2 = { Double value, String op ->
-            nodeCompareToNode(delegate, ExpressionHelper.newDoubleLiteral(value), op)
+            nodeCompareToNode(delegate as ExpressionNode, ExpressionHelper.newDoubleLiteral(value), op)
         }
         Double.metaClass.compareTo2 = { ExpressionNode value, String op ->
-            nodeCompareToNode(ExpressionHelper.newDoubleLiteral(delegate), value, op)
+            nodeCompareToNode(ExpressionHelper.newDoubleLiteral(delegate as double), value, op)
         }
         ExpressionNode.metaClass.compareTo2 = { BigDecimal value, String op ->
-            nodeCompareToNode(delegate, ExpressionHelper.newBigDecimalLiteral(value), op)
+            nodeCompareToNode(delegate as ExpressionNode, ExpressionHelper.newBigDecimalLiteral(value), op)
         }
         BigDecimal.metaClass.compareTo2 = { ExpressionNode value, String op ->
-            nodeCompareToNode(ExpressionHelper.newBigDecimalLiteral(delegate), value, op)
+            nodeCompareToNode(ExpressionHelper.newBigDecimalLiteral(delegate as BigDecimal), value, op)
         }
 
         // boolean
@@ -130,33 +130,33 @@ class ExpressionDslLoader extends DslLoader {
             delegate && value
         }
         ExpressionNode.metaClass.and2 = { Boolean value ->
-            ExpressionHelper.newLogicalBinaryOperator(delegate, ExpressionHelper.newBooleanLiteral(value), LogicalBinaryOperator.AND)
+            ExpressionHelper.newLogicalBinaryOperator(delegate as ExpressionNode, ExpressionHelper.newBooleanLiteral(value), LogicalBinaryOperator.AND)
         }
         Boolean.metaClass.and2 = { ExpressionNode value ->
-            ExpressionHelper.newLogicalBinaryOperator(ExpressionHelper.newBooleanLiteral(delegate), value, LogicalBinaryOperator.AND)
+            ExpressionHelper.newLogicalBinaryOperator(ExpressionHelper.newBooleanLiteral(delegate as boolean), value, LogicalBinaryOperator.AND)
         }
         ExpressionNode.metaClass.and2 = { ExpressionNode value ->
-            ExpressionHelper.newLogicalBinaryOperator(delegate, value, LogicalBinaryOperator.AND)
+            ExpressionHelper.newLogicalBinaryOperator(delegate as ExpressionNode, value, LogicalBinaryOperator.AND)
         }
 
         Boolean.metaClass.or2 = { Boolean value ->
             delegate || value
         }
         ExpressionNode.metaClass.or2 = { Boolean value ->
-            ExpressionHelper.newLogicalBinaryOperator(delegate, ExpressionHelper.newBooleanLiteral(value), LogicalBinaryOperator.OR)
+            ExpressionHelper.newLogicalBinaryOperator(delegate as ExpressionNode, ExpressionHelper.newBooleanLiteral(value), LogicalBinaryOperator.OR)
         }
         Boolean.metaClass.or2 = { ExpressionNode value ->
             ExpressionHelper.newLogicalBinaryOperator(ExpressionHelper.newBooleanLiteral(delegate), value, LogicalBinaryOperator.OR)
         }
         ExpressionNode.metaClass.or2 = { ExpressionNode value ->
-            ExpressionHelper.newLogicalBinaryOperator(delegate, value, LogicalBinaryOperator.OR)
+            ExpressionHelper.newLogicalBinaryOperator(delegate as ExpressionNode, value, LogicalBinaryOperator.OR)
         }
 
         Boolean.metaClass.not = {
             !delegate
         }
         ExpressionNode.metaClass.not = {
-            ExpressionHelper.newLogicalNotOperator(delegate)
+            ExpressionHelper.newLogicalNotOperator(delegate as ExpressionNode)
         }
     }
 
@@ -199,7 +199,7 @@ class ExpressionDslLoader extends DslLoader {
         } else if (value instanceof String) {
             ExpressionHelper.newStringLiteral(value)
         } else {
-            throw new IllegalStateException(value?.getClass())
+            throw new IllegalStateException(value?.getClass() as String)
         }
     }
 
