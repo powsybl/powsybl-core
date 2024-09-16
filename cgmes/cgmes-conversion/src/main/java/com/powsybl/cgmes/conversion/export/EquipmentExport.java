@@ -1168,8 +1168,8 @@ public final class EquipmentExport {
         Collection<OperationalLimitsGroup> limitsGroups1 = new ArrayList<>();
         if (context.isExportAllLimitsGroup()) {
             limitsGroups1.addAll(branch.getOperationalLimitsGroups1());
-        } else if (branch.getSelectedOperationalLimitsGroup1().isPresent()) {
-            limitsGroups1.add(branch.getSelectedOperationalLimitsGroup1().get());
+        } else {
+            branch.getSelectedOperationalLimitsGroup1().ifPresent(limitsGroups1::add);
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups1) {
             Optional<ActivePowerLimits> activePowerLimits1 = limitsGroup.getActivePowerLimits();
@@ -1189,8 +1189,8 @@ public final class EquipmentExport {
         Collection<OperationalLimitsGroup> limitsGroups2 = new ArrayList<>();
         if (context.isExportAllLimitsGroup()) {
             limitsGroups2.addAll(branch.getOperationalLimitsGroups2());
-        } else if (branch.getSelectedOperationalLimitsGroup2().isPresent()) {
-            limitsGroups2.add(branch.getSelectedOperationalLimitsGroup2().get());
+        } else {
+            branch.getSelectedOperationalLimitsGroup2().ifPresent(limitsGroups2::add);
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups2) {
             Optional<ActivePowerLimits> activePowerLimits2 = limitsGroup.getActivePowerLimits();
@@ -1212,8 +1212,8 @@ public final class EquipmentExport {
         Collection<OperationalLimitsGroup> limitsGroups = new ArrayList<>();
         if (context.isExportAllLimitsGroup()) {
             limitsGroups.addAll(holder.getOperationalLimitsGroups());
-        } else if (holder.getSelectedOperationalLimitsGroup().isPresent()) {
-            limitsGroups.add(holder.getSelectedOperationalLimitsGroup().get());
+        } else {
+            holder.getSelectedOperationalLimitsGroup().ifPresent(limitsGroups::add);
         }
         for (OperationalLimitsGroup limitsGroup : limitsGroups) {
             Optional<ActivePowerLimits> activePowerLimits = limitsGroup.getActivePowerLimits();
