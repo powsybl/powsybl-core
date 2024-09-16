@@ -17,7 +17,8 @@ package com.powsybl.iidm.modification;
  *         <li>{@code NO_IMPACT_ON_NETWORK}: the network modification can be applied to the network but, once the
  *         network modification is applied, the network will still be the same as before.</li>
  *         <li>{@code HAS_IMPACT_ON_NETWORK}: the network modification can be applied to the network and, once the
- *         network modification is applied, the network will be different in its topology or physical characteristics.</li>
+ *         network modification is applied, the network will be different in its topology, steady states hypothesis
+ *         or physical characteristics.</li>
  *     </ul>
  * </p>
  *
