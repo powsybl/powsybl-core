@@ -168,6 +168,8 @@ public class PsseExporter implements Exporter {
         VscDcTransmissionLineConverter.createVscDcTransmissionLines(network, psseModel, contextExport);
         FactsDeviceConverter.createFactsDevices(network, psseModel, contextExport);
         SwitchedShuntCompensatorConverter.createSwitchedShunts(network, psseModel, contextExport);
+
+        TieLineConverter.createTieLines(network, psseModel, contextExport, perUnitContext);
         return psseModel;
     }
 

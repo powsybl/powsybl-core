@@ -124,7 +124,7 @@ class LineConverter extends AbstractConverter {
         psseModel.replaceAllNonTransformerBranches(psseModel.getNonTransformerBranches().stream().sorted(Comparator.comparingInt(PsseNonTransformerBranch::getI).thenComparingInt(PsseNonTransformerBranch::getJ).thenComparing(PsseNonTransformerBranch::getCkt)).toList());
     }
 
-    static PsseNonTransformerBranch createLine(Line line, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
+    private static PsseNonTransformerBranch createLine(Line line, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
         PsseNonTransformerBranch psseLine = createDefaultLine();
 
         int busI = getTerminalBusI(line.getTerminal1(), contextExport);
@@ -166,28 +166,6 @@ class LineConverter extends AbstractConverter {
         return windingRates;
     }
 
-    private static PsseNonTransformerBranch createDefaultLine() {
-        PsseNonTransformerBranch psseLine = new PsseNonTransformerBranch();
-        psseLine.setI(0);
-        psseLine.setJ(0);
-        psseLine.setCkt("1");
-        psseLine.setR(0.0);
-        psseLine.setX(0.0);
-        psseLine.setB(0.0);
-        psseLine.setName("");
-        psseLine.setRates(createDefaultRates());
-        psseLine.setGi(0.0);
-        psseLine.setBi(0.0);
-        psseLine.setGj(0.0);
-        psseLine.setBj(0.0);
-        psseLine.setSt(1);
-        psseLine.setMet(1);
-        psseLine.setLen(0.0);
-        psseLine.setOwnership(createDefaultOwnership());
-
-        return psseLine;
-    }
-
     // antenna lines are exported as open
     static void updateLines(Network network, PssePowerFlowModel psseModel) {
         psseModel.getNonTransformerBranches().forEach(psseLine -> {
@@ -203,12 +181,7 @@ class LineConverter extends AbstractConverter {
     }
 
     private static int getStatus(Line line) {
-        if (line.getTerminal1().isConnected() && line.getTerminal1().getBusBreakerView().getBus() != null
-                && line.getTerminal2().isConnected() && line.getTerminal2().getBusBreakerView().getBus() != null) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return getStatus(line.getTerminal1()) * getStatus(line.getTerminal2());
     }
 
     private final PsseNonTransformerBranch psseLine;

@@ -256,18 +256,14 @@ class VoltageLevelConverter extends AbstractConverter {
 
     private static void createNodeBreakerContextExport(VoltageLevel voltageLevel, ContextExport contextExport) {
         List<Set<Integer>> connectedSetsByInternalConnections = connectedSetsByInternalConnections(voltageLevel);
-        List<Set<Integer>> connectedSetsBySwitches = connectedSetsBySwitches(voltageLevel, connectedSetsByInternalConnections);
-
-        connectedSetsByInternalConnections.forEach(connectedSetByInternalConnections -> {
-            int representativeNode = findRepresentativeNode(voltageLevel, connectedSetByInternalConnections, connectedSetsBySwitches);
-            contextExport.getFullExport().addInternalConnectionNodeRepresentativeNode(voltageLevel, connectedSetByInternalConnections, representativeNode);
-        });
+        findAndSetRepresentativeNodes(voltageLevel, connectedSetsByInternalConnections, contextExport);
+        List<Set<Integer>> connectedSetsBySwitches = connectedSetsBySwitches(voltageLevel, connectedSetsByInternalConnections, contextExport);
 
         PsseSubstation psseSubstation = findPsseSubstation(voltageLevel, contextExport);
         connectedSetsBySwitches.forEach(connectedSetBySwitches -> {
             int busI = findBusI(connectedSetBySwitches, psseSubstation, contextExport);
             Set<Bus> busViewBuses = findBusViewBuses(voltageLevel, connectedSetBySwitches);
-            connectedSetBySwitches.forEach(node -> contextExport.getLinkExport().addNodeBusILink(voltageLevel, node, busI));
+            connectedSetBySwitches.forEach(node -> contextExport.getLinkExport().addNodeBusILink(voltageLevel, convertToPsseNode(node), busI));
 
             Bus selectedBus = busViewBuses.stream().min(Comparator.comparingInt(busView -> findPriorityType(voltageLevel, busView))).orElseThrow();
             contextExport.getLinkExport().addBusViewBusIDoubleLink(selectedBus, busI);
@@ -288,40 +284,48 @@ class VoltageLevelConverter extends AbstractConverter {
         return new ConnectivityInspector<>(icGraph).connectedSets();
     }
 
-    private static List<Set<Integer>> connectedSetsBySwitches(VoltageLevel voltageLevel, List<Set<Integer>> connectedSetsByInternalConnections) {
+    private static void findAndSetRepresentativeNodes(VoltageLevel voltageLevel, List<Set<Integer>> connectedSetsByInternalConnections, ContextExport contextExport) {
+        Set<Integer> nodesOfSwitches = new HashSet<>();
+        voltageLevel.getNodeBreakerView().getSwitches().forEach(sw -> {
+            nodesOfSwitches.add(voltageLevel.getNodeBreakerView().getNode1(sw.getId()));
+            nodesOfSwitches.add(voltageLevel.getNodeBreakerView().getNode2(sw.getId()));
+        });
+
+        connectedSetsByInternalConnections.forEach(connectedSetByInternalConnections -> {
+            int representativeNode = findRepresentativeNode(connectedSetByInternalConnections, nodesOfSwitches);
+            contextExport.getFullExport().addInternalConnectionNodeRepresentativeNode(voltageLevel, connectedSetByInternalConnections, representativeNode);
+        });
+    }
+
+    private static int findRepresentativeNode(Set<Integer> connectedSetByInternalConnections, Set<Integer> nodesOfSwitches) {
+        List<Integer> representativeNodes = connectedSetByInternalConnections.stream().filter(nodesOfSwitches::contains).toList();
+        return representativeNodes.isEmpty() ? connectedSetByInternalConnections.stream().min(Comparator.naturalOrder()).orElseThrow() : representativeNodes.stream().min(Comparator.naturalOrder()).orElseThrow();
+    }
+
+    private static List<Set<Integer>> connectedSetsBySwitches(VoltageLevel voltageLevel, List<Set<Integer>> connectedSetsByInternalConnections, ContextExport contextExport) {
         List<Integer> nodesConnectedByInternalConnections = connectedSetsByInternalConnections.stream().flatMap(Collection::stream).toList();
 
         Graph<Integer, Pair<Integer, Integer>> swGraph = new Pseudograph<>(null, null, false);
+
         // Add buses
+        connectedSetsByInternalConnections.forEach(connectedSetByInternalConnections -> {
+            int representativeNode = contextExport.getFullExport().getRepresentativeNode(voltageLevel, connectedSetByInternalConnections.stream().findFirst().orElseThrow());
+            swGraph.addVertex(representativeNode);
+        });
         for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
             if (!nodesConnectedByInternalConnections.contains(node)) {
                 swGraph.addVertex(node);
             }
         }
-        connectedSetsByInternalConnections.forEach(connectedSetByInternalConnections -> {
-            Optional<Integer> representativeNode = connectedSetByInternalConnections.stream().filter(node -> swGraph.vertexSet().contains(node)).findFirst();
-            if (representativeNode.isEmpty()) {
-                int minNode = connectedSetByInternalConnections.stream().min(Comparator.naturalOrder()).orElseThrow();
-                swGraph.addVertex(minNode);
-            }
-        });
 
+        // Add switches
         voltageLevel.getNodeBreakerView().getSwitches().forEach(sw -> {
-            int node1 = voltageLevel.getNodeBreakerView().getNode1(sw.getId());
-            int node2 = voltageLevel.getNodeBreakerView().getNode2(sw.getId());
+            int node1 = contextExport.getFullExport().getRepresentativeNode(voltageLevel, voltageLevel.getNodeBreakerView().getNode1(sw.getId()));
+            int node2 = contextExport.getFullExport().getRepresentativeNode(voltageLevel, voltageLevel.getNodeBreakerView().getNode2(sw.getId()));
             swGraph.addEdge(node1, node2, Pair.of(node1, node2));
         });
-        return new ConnectivityInspector<>(swGraph).connectedSets();
-    }
 
-    private static int findRepresentativeNode(VoltageLevel voltageLevel, Set<Integer> connectedSetByInternalConnections, List<Set<Integer>> connectedSetsBySwitches) {
-        List<Integer> nodesConnectedBySwitches = connectedSetsBySwitches.stream().flatMap(Collection::stream).toList();
-        List<Integer> representativeNodes = connectedSetByInternalConnections.stream().filter(nodesConnectedBySwitches::contains).toList();
-        if (representativeNodes.size() == 1) {
-            return representativeNodes.get(0);
-        } else {
-            throw new PsseException("Unexpected connectivity in voltage Level: " + voltageLevel.getId() + ". InternalConnectivity set with more than one representative node");
-        }
+        return new ConnectivityInspector<>(swGraph).connectedSets();
     }
 
     private static PsseSubstation findPsseSubstation(VoltageLevel voltageLevel, ContextExport contextExport) {
@@ -385,11 +389,13 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     private static List<PsseSubstation.PsseSubstationNode> createPsseSubstationNodes(VoltageLevel voltageLevel, ContextExport contextExport) {
-        List<Set<Integer>> connectedSetsByInternalConnections = connectedSetsByInternalConnections(voltageLevel);
-        List<Integer> nodesConnectedBySwitches = connectedSetsBySwitches(voltageLevel, connectedSetsByInternalConnections).stream().flatMap(Collection::stream).toList();
+        Set<Integer> nodesToBeExported = new HashSet<>();
+        for (int node : voltageLevel.getNodeBreakerView().getNodes()) {
+            nodesToBeExported.add(convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(voltageLevel, node)));
+        }
 
         List<PsseSubstation.PsseSubstationNode> nodes = new ArrayList<>();
-        nodesConnectedBySwitches.forEach(ni -> {
+        nodesToBeExported.forEach(ni -> {
             PsseSubstation.PsseSubstationNode psseNode = new PsseSubstationNode();
             int busI = contextExport.getLinkExport().getBusI(voltageLevel, ni).orElseThrow();
             Bus bus = contextExport.getLinkExport().getBusView(voltageLevel, ni).orElse(null);
@@ -410,8 +416,8 @@ class VoltageLevelConverter extends AbstractConverter {
     private static List<PsseSubstation.PsseSubstationSwitchingDevice> createPsseSubstationSwitchingDevices(VoltageLevel voltageLevel, ContextExport contextExport) {
         List<PsseSubstation.PsseSubstationSwitchingDevice> switchingDevices = new ArrayList<>();
         voltageLevel.getSwitches().forEach(sw -> {
-            int ni = contextExport.getFullExport().getRepresentativeNode(voltageLevel, sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId()));
-            int nj = contextExport.getFullExport().getRepresentativeNode(voltageLevel, sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId()));
+            int ni = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(voltageLevel, sw.getVoltageLevel().getNodeBreakerView().getNode1(sw.getId())));
+            int nj = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(voltageLevel, sw.getVoltageLevel().getNodeBreakerView().getNode2(sw.getId())));
             PsseSubstation.PsseSubstationSwitchingDevice switchingDevice = new PsseSubstationSwitchingDevice();
             switchingDevice.setNi(ni);
             switchingDevice.setNj(nj);
@@ -466,7 +472,7 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     private static NodeBusR findNodeBusR(Terminal terminal, ContextExport contextExport) {
-        int representativeNode = contextExport.getFullExport().getRepresentativeNode(terminal.getVoltageLevel(), getTerminalNode(terminal));
+        int representativeNode = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(terminal.getVoltageLevel(), getTerminalNode(terminal)));
         int busI = getTerminalBusI(terminal, contextExport);
         return new NodeBusR(terminal.getVoltageLevel(), representativeNode, busI);
     }

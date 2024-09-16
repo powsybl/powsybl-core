@@ -57,6 +57,11 @@ public abstract class AbstractConverter {
         }
     }
 
+    AbstractConverter(Network network) {
+        this.containersMapping = null;
+        this.network = Objects.requireNonNull(network);
+    }
+
     AbstractConverter(ContainersMapping containersMapping, Network network) {
         this.containersMapping = Objects.requireNonNull(containersMapping);
         this.network = Objects.requireNonNull(network);
@@ -215,6 +220,14 @@ public abstract class AbstractConverter {
                 if (connectable.getType().equals(IdentifiableType.HVDC_CONVERTER_STATION)) {
                     HvdcConverterStation<?> converterStation = (HvdcConverterStation<?>) connectable;
                     equipmentListToBeExported.add(converterStation.getHvdcLine().getId());
+                } else if (connectable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+                    DanglingLine danglingLine = (DanglingLine) connectable;
+                    if (danglingLine.isPaired()) {
+                        TieLine tieLine = danglingLine.getTieLine().orElseThrow();
+                        equipmentListToBeExported.add(tieLine.getId());
+                    } else {
+                        equipmentListToBeExported.add(connectable.getId());
+                    }
                 } else {
                     equipmentListToBeExported.add(connectable.getId());
                 }
@@ -225,9 +238,9 @@ public abstract class AbstractConverter {
 
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
-            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR ->
+            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE ->
                     true;
-            case BUSBAR_SECTION, HVDC_LINE, SWITCH -> false;
+            case BUSBAR_SECTION, HVDC_LINE, SWITCH, TIE_LINE, BATTERY -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
         };
     }
@@ -243,6 +256,10 @@ public abstract class AbstractConverter {
                 HvdcLine hvdcLine = (HvdcLine) identifiable;
                 terminals.add(hvdcLine.getConverterStation1().getTerminal());
                 terminals.add(hvdcLine.getConverterStation2().getTerminal());
+            } else if (identifiable != null && identifiable.getType().equals(IdentifiableType.TIE_LINE)) {
+                TieLine tieLine = (TieLine) identifiable;
+                terminals.add(tieLine.getDanglingLine1().getTerminal());
+                terminals.add(tieLine.getDanglingLine2().getTerminal());
             } else {
                 throw new PsseException("Unexpected identifiable: " + equipmentId);
             }
@@ -294,7 +311,7 @@ public abstract class AbstractConverter {
         return switch (identifiable.getType()) {
             case LOAD -> PsseEquipmentType.PSSE_LOAD.getTextCode();
             case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
-            case LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
+            case LINE, TIE_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
             case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
             case THREE_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_THREE_WINDING.getTextCode();
             case SHUNT_COMPENSATOR -> {
@@ -335,7 +352,7 @@ public abstract class AbstractConverter {
 
     static int getTerminalBusI(Terminal terminal, ContextExport contextExport) {
         if (exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel())) {
-            int node = terminal.getNodeBreakerView().getNode();
+            int node = convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(terminal.getVoltageLevel(), terminal.getNodeBreakerView().getNode()));
             return contextExport.getLinkExport().getBusI(terminal.getVoltageLevel(), node).orElseThrow();
         } else {
             Bus bus = getTerminalBusView(terminal);
@@ -348,7 +365,7 @@ public abstract class AbstractConverter {
             return 0;
         } else {
             if (exportVoltageLevelAsNodeBreaker(regulatingTerminal.getVoltageLevel())) {
-                return contextExport.getFullExport().getRepresentativeNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode());
+                return convertToPsseNode(contextExport.getFullExport().getRepresentativeNode(regulatingTerminal.getVoltageLevel(), regulatingTerminal.getNodeBreakerView().getNode()));
             } else {
                 return 0;
             }
@@ -392,10 +409,15 @@ public abstract class AbstractConverter {
     }
 
     // node numbers in psse must be between 1 and 999
+    // node psse 999 is used for mapping the node 0 of iidm
     static boolean exportVoltageLevelAsNodeBreaker(VoltageLevel voltageLevel) {
         return voltageLevel.getTopologyKind().equals(TopologyKind.NODE_BREAKER)
                 && voltageLevel.getNodeBreakerView().getSwitchCount() > 0
-                && maxNode(voltageLevel) <= 999;
+                && maxNode(voltageLevel) <= 998;
+    }
+
+    static int convertToPsseNode(int node) {
+        return node == 0 ? 999 : node;
     }
 
     private static int maxNode(VoltageLevel voltageLevel) {
@@ -546,6 +568,27 @@ public abstract class AbstractConverter {
         psseOwnership.setO4(0);
         psseOwnership.setF4(1.0);
         return psseOwnership;
+    }
+
+    static PsseNonTransformerBranch createDefaultLine() {
+        PsseNonTransformerBranch psseLine = new PsseNonTransformerBranch();
+        psseLine.setI(0);
+        psseLine.setJ(0);
+        psseLine.setCkt("1");
+        psseLine.setR(0.0);
+        psseLine.setX(0.0);
+        psseLine.setB(0.0);
+        psseLine.setName("");
+        psseLine.setRates(createDefaultRates());
+        psseLine.setGi(0.0);
+        psseLine.setBi(0.0);
+        psseLine.setGj(0.0);
+        psseLine.setBj(0.0);
+        psseLine.setSt(1);
+        psseLine.setMet(1);
+        psseLine.setLen(0.0);
+        psseLine.setOwnership(createDefaultOwnership());
+        return psseLine;
     }
 
     static double currentInAmpsToMw(double current, double nominalV) {
