@@ -8,7 +8,6 @@
 package com.powsybl.psse.converter;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseRates;
@@ -22,10 +21,6 @@ import java.util.Comparator;
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
 class TieLineConverter extends AbstractConverter {
-
-    TieLineConverter(ContainersMapping containersMapping, Network network) {
-        super(containersMapping, network);
-    }
 
     TieLineConverter(Network network) {
         super(network);
