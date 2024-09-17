@@ -271,7 +271,6 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
         return writeAndRead(TreeDataFormat.JSON, networkInput, options, path);
     }
 
-
     private static Network binWriteAndRead(Network networkInput, ExportOptions options, Path path) {
         return writeAndRead(TreeDataFormat.BIN, networkInput, options, path);
     }
