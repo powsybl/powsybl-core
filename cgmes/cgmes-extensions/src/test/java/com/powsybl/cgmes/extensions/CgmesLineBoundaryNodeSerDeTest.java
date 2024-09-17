@@ -25,6 +25,9 @@ class CgmesLineBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
                 .setHvdc(true)
                 .setLineEnergyIdentificationCodeEic("EIC_CODE")
                 .add();
+        network.getTieLine("NHV1_NHV2_2").newExtension(CgmesLineBoundaryNodeAdder.class)
+                .setHvdc(true)
+                .add();
         allFormatsRoundTripTest(network, "/eurostag_cgmes_line_boundary_node.xml");
     }
 }
