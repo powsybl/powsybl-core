@@ -16,12 +16,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
 
 import java.util.Arrays;
 import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.regex.Pattern;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -183,24 +181,6 @@ class CommandLineToolsTest extends AbstractToolTest {
     }
 
     @Test
-    void testRegexOutput() {
-        // Matches a regex
-        assertCommandSuccessfulRegex(new String[] {"tool3"}, "^[a-z0-9-]+$");
-        assertCommandErrorRegex(new String[] {"tool2"}, CommandLineTools.EXECUTION_ERROR_STATUS, "\\.[a-zA-Z]+Exception:");
-
-        //TODO remove ?
-
-        // Matches a regex
-        assertCommandMatchTextOrRegex(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
-
-        // Matches a regex - deprecated method
-        assertCommand(new String[] {"tool3"}, 0, "^[a-z0-9-]+$", "");
-
-        // Matches a string
-        assertCommandMatchTextOrRegex(new String[] {"tool1", "--option1", "file.txt"}, 0, "result1", "");
-    }
-
-    @Test
     void test() {
         String scriptOptions = "Available options are:" + System.lineSeparator() +
             "    --config-name <CONFIG_NAME>   Override configuration file name" + System.lineSeparator();
@@ -275,9 +255,8 @@ class CommandLineToolsTest extends AbstractToolTest {
     }
 
     @Test
-    void testComparisonMethods() {
-        matchTextOrRegex("works", "works");
-        matchTextOrRegex("^[a-z0-9-]+$", UUID.randomUUID().toString());
-        assertThrows(AssertionFailedError.class, () -> matchTextOrRegex("^[a-z0-9-]+$", "fail test"));
+    void testRegex() {
+        assertCommandSuccessfulRegex(new String[] {"tool3"}, Pattern.compile("^[a-z0-9-]+$"));
+        assertCommandErrorRegex(new String[] {"tool2"}, CommandLineTools.EXECUTION_ERROR_STATUS, Pattern.compile("\\.[a-zA-Z]+Exception:"));
     }
 }

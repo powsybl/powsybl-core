@@ -80,26 +80,16 @@ public abstract class AbstractToolTest {
     protected abstract Iterable<Tool> getTools();
 
     private void assertMatches(String expected, ByteArrayOutputStream actualStream, BiConsumer<String, String> comparisonFunction) {
-        if (expected != null) {
-            String actual = actualStream.toString(StandardCharsets.UTF_8);
-            if (expected.isEmpty()) {
-                assertTrue(actual.isEmpty(), () -> "Expected output is empty but actual output = " + actual);
-            } else {
-                comparisonFunction.accept(expected, actual);
-            }
+        String actual = actualStream.toString(StandardCharsets.UTF_8);
+        if (expected.isEmpty()) {
+            assertTrue(actual.isEmpty(), () -> "Expected output is empty but actual output = " + actual);
+        } else {
+            comparisonFunction.accept(expected, actual);
         }
     }
 
-    public static void containsTxt(String expected, String actual) {
+    private static void containsTxt(String expected, String actual) {
         assertTrue(actual.contains(expected), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
-    }
-
-    public static void matchRegex(String expected, String actual) {
-        assertTrue(Pattern.compile(expected).matcher(actual).find());
-    }
-
-    public void matchTextOrRegex(String expected, String actual) {
-        assertTrue(actual.equals(expected) || Pattern.compile(expected).matcher(actual).find());
     }
 
     protected void assertCommandSuccessful(String[] args) {
@@ -114,8 +104,8 @@ public abstract class AbstractToolTest {
         assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
     }
 
-    protected void assertCommandSuccessfulRegex(String[] args, String outRegexPattern) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, outRegexPattern, "", AbstractToolTest::matchRegex);
+    protected void assertCommandSuccessfulRegex(String[] args, Pattern outPattern) {
+        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, outPattern, true);
     }
 
     protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
@@ -130,20 +120,8 @@ public abstract class AbstractToolTest {
         assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
     }
 
-    protected void assertCommandErrorRegex(String[] args, int expectedStatus, String errRegexPattern) {
-        assertCommand(args, expectedStatus, null, errRegexPattern, AbstractToolTest::matchRegex);
-    }
-
-    /**
-     * @deprecated use {@link AbstractToolTest#assertCommandMatchTextOrRegex} instead
-     */
-    @Deprecated(since = "6.4.0")
-    protected void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
-        assertCommandMatchTextOrRegex(args, expectedStatus, expectedOut, expectedErr);
-    }
-
-    protected void assertCommandMatchTextOrRegex(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
-        assertCommand(args, expectedStatus, expectedOut, expectedErr, this::matchTextOrRegex);
+    protected void assertCommandErrorRegex(String[] args, int expectedStatus, Pattern errPattern) {
+        assertCommand(args, expectedStatus, errPattern, false);
     }
 
     private void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
@@ -156,6 +134,20 @@ public abstract class AbstractToolTest {
         }
         if (expectedErr != null) {
             assertMatches(expectedErr, berr, comparisonFunction);
+        }
+    }
+
+    private void assertCommand(String[] args, int expectedStatus, Pattern pattern, boolean success) {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ByteArrayOutputStream berr = new ByteArrayOutputStream();
+        int status = runCommand(args, bout, berr, tools, fileSystem);
+        assertEquals(expectedStatus, status);
+        if (success) {
+            String err = berr.toString(StandardCharsets.UTF_8);
+            assertTrue(pattern.matcher(bout.toString(StandardCharsets.UTF_8)).find());
+            assertTrue(err.isEmpty(), () -> "Err output should be empty but actual output = " + err);
+        } else {
+            assertTrue(pattern.matcher(berr.toString(StandardCharsets.UTF_8)).find());
         }
     }
 
