@@ -258,7 +258,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
      */
     public Network allFormatsRoundTripTest(Network network, String refXmlFile, ExportOptions exportOptions) throws IOException {
         return roundTripXmlTest(network,
-                (n, p) -> jsonWriteAndRead(n, exportOptions, p),
+                (n, p) -> jsonWriteAndReadBinWriteAndRead(n, exportOptions, p),
                 (n, p) -> NetworkSerDe.write(n, exportOptions, p),
                 NetworkSerDe::validateAndRead,
                 refXmlFile);
@@ -267,7 +267,7 @@ public abstract class AbstractIidmSerDeTest extends AbstractSerDeTest {
     /**
      * Writes given network to JSON file, then reads the resulting file and returns the resulting network
      */
-    private static Network jsonWriteAndRead(Network networkInput, ExportOptions options, Path path) {
+    private static Network jsonWriteAndReadBinWriteAndRead(Network networkInput, ExportOptions options, Path path) {
         TreeDataFormat previousFormat = options.getFormat();
         options.setFormat(TreeDataFormat.JSON);
         Anonymizer anonymizer = NetworkSerDe.write(networkInput, options, path);
