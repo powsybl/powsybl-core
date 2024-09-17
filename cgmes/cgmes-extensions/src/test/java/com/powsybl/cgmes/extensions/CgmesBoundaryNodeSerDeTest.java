@@ -16,10 +16,10 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
-class CgmesLineBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
+class CgmesBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
 
     @Test
-    void test() throws IOException {
+    void testTieLine() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
         network.getTieLine("NHV1_NHV2_1").newExtension(CgmesLineBoundaryNodeAdder.class)
                 .setHvdc(true)
@@ -29,5 +29,21 @@ class CgmesLineBoundaryNodeSerDeTest extends AbstractCgmesExtensionTest {
                 .setHvdc(true)
                 .add();
         allFormatsRoundTripTest(network, "/eurostag_cgmes_line_boundary_node.xml");
+    }
+
+    @Test
+    void testDanglingLine() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+        var tl = network.getTieLine("NHV1_NHV2_1");
+        tl.getDanglingLine1().newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+                .setHvdc(false)
+                .setLineEnergyIdentificationCodeEic("EIC_CODE")
+                .add();
+        tl.getDanglingLine2().newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+                .setHvdc(false)
+                .add();
+        tl.remove();
+
+        allFormatsRoundTripTest(network, "/eurostag_cgmes_dangling_line_boundary_node.xml");
     }
 }
