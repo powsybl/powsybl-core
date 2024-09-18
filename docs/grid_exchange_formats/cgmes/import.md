@@ -548,5 +548,6 @@ Optional property used when in operational limits, temporary limits are present 
 **iidm.import.cgmes.cgm-with-subnetworks**  
 Optional property to define if subnetworks must be added to the network when importing a Common Grid Model (CGM). Each subnetwork will model an Individual Grid Model (IGM). By default `true`: subnetworks are added, and the merging is done at IIDM level, with a main IIDM network representing the CGM and containing a set of subnetworks, one for each IGM. If the value is set to `false` all the CGMES data will be flattened in a single network and information about the ownership of each equipment will be lost.
 
-**iidm.import.cgmes.cgm-with-subnetworks-defined**  
+**iidm.import.cgmes.cgm-with-subnetworks-defined-by**  
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
+Its default value is `MODELING_AUTHORITY`.
