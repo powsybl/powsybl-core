@@ -45,7 +45,7 @@ class FaultResultDeserializer {
             FaultResultParameters faultResultParameters = new FaultResultParameters();
 
             while (parser.nextToken() != JsonToken.END_OBJECT) {
-                switch (parser.getCurrentName()) {
+                switch (parser.currentName()) {
                     case "fault" -> {
                         parser.nextToken();
                         faultResultParameters.fault = JsonUtil.readValue(deserializationContext, parser, Fault.class);
@@ -85,7 +85,7 @@ class FaultResultDeserializer {
                     case "shortCircuitBusResults" ->
                         faultResultParameters.shortCircuitBusResults = new ShortCircuitBusResultsDeserializer().deserialize(parser, version);
                     case "status" -> {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.1");
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.currentName(), version, "1.1");
                         parser.nextToken();
                         faultResultParameters.status = FaultResult.Status.valueOf(parser.getValueAsString());
                     }
@@ -93,7 +93,7 @@ class FaultResultDeserializer {
                         parser.nextToken();
                         extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
                     }
-                    default -> throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                    default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
                 }
             }
 

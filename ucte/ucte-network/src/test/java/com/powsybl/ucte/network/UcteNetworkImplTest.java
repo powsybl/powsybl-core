@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -42,7 +41,7 @@ public class UcteNetworkImplTest {
         assertEquals(0, network.getComments().size());
 
         assertEquals(3, network.getNodes().size());
-        List<UcteNodeCode> codes = network.getNodes().stream().map(UcteNode::getCode).collect(Collectors.toList());
+        List<UcteNodeCode> codes = network.getNodes().stream().map(UcteNode::getCode).toList();
         assertTrue(codes.containsAll(Arrays.asList(code1, code2, code3)));
         UcteNode node = network.getNode(code1);
         assertEquals(1000.0, node.getActivePowerGeneration(), 0.0);

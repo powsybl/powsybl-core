@@ -12,7 +12,6 @@ import com.google.common.base.Stopwatch;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.iidm.network.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -52,11 +51,6 @@ public class PowerFactoryImporter implements Importer {
     }
 
     @Override
-    public List<Parameter> getParameters() {
-        return Collections.emptyList();
-    }
-
-    @Override
     public String getComment() {
         return "PowerFactory to IIDM converter";
     }
@@ -64,7 +58,7 @@ public class PowerFactoryImporter implements Importer {
     private Optional<PowerFactoryDataLoader<StudyCase>> findProjectLoader(ReadOnlyDataSource dataSource) {
         for (PowerFactoryDataLoader<StudyCase> studyCaseLoader : PowerFactoryDataLoader.find(StudyCase.class)) {
             try {
-                if (dataSource.exists(null, studyCaseLoader.getExtension())) {
+                if (dataSource.isDataExtension(studyCaseLoader.getExtension()) && dataSource.exists(null, studyCaseLoader.getExtension())) {
                     return Optional.of(studyCaseLoader);
                 }
             } catch (IOException e) {
