@@ -172,34 +172,6 @@ class GeneratorConverter extends AbstractConverter {
         return psseGenerator;
     }
 
-    private static PsseGenerator createDefaultGenerator() {
-        PsseGenerator psseGenerator = new PsseGenerator();
-        psseGenerator.setI(0);
-        psseGenerator.setId("1");
-        psseGenerator.setPg(0.0);
-        psseGenerator.setQg(0.0);
-        psseGenerator.setQt(9999.0);
-        psseGenerator.setQb(-9999.0);
-        psseGenerator.setVs(1.0);
-        psseGenerator.setIreg(0);
-        psseGenerator.setNreg(0);
-        psseGenerator.setMbase(100.0);
-        psseGenerator.setZr(0.0);
-        psseGenerator.setZx(1.0);
-        psseGenerator.setRt(0.0);
-        psseGenerator.setXt(0.0);
-        psseGenerator.setGtap(1.0);
-        psseGenerator.setStat(1);
-        psseGenerator.setRmpct(100.0);
-        psseGenerator.setPt(9999.0);
-        psseGenerator.setPb(-9999.0);
-        psseGenerator.setBaslod(0);
-        psseGenerator.setOwnership(createDefaultOwnership());
-        psseGenerator.setWmod(0);
-        psseGenerator.setWpf(1.0);
-        return psseGenerator;
-    }
-
     static void updateGenerators(Network network, PssePowerFlowModel psseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
             String genId = getGeneratorId(psseGen.getI(), psseGen.getId());

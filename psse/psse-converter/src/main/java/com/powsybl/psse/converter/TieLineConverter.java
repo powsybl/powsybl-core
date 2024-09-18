@@ -32,7 +32,7 @@ class TieLineConverter extends AbstractConverter {
     }
 
     private static PsseNonTransformerBranch createTieLine(TieLine tieLine, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        PsseNonTransformerBranch psseLine = createDefaultLine();
+        PsseNonTransformerBranch psseLine = createDefaultNonTransformerBranch();
         int busI = getTerminalBusI(tieLine.getTerminal1(), contextExport);
         int busJ = getTerminalBusI(tieLine.getTerminal2(), contextExport);
         double vNom1 = tieLine.getTerminal1().getVoltageLevel().getNominalV();

@@ -171,6 +171,7 @@ public class PsseExporter implements Exporter {
 
         BatteryConverter.createBatteries(network, psseModel, contextExport);
         TieLineConverter.createTieLines(network, psseModel, contextExport, perUnitContext);
+        DanglingLineConverter.createDanglingLines(network, psseModel, contextExport, perUnitContext);
         return psseModel;
     }
 

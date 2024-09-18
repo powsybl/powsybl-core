@@ -22,8 +22,6 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
  */
 class BusConverter extends AbstractConverter {
 
-    private static final int MAX_BUS_LENGTH = 12;
-
     BusConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network, NodeBreakerImport nodeBreakerImport) {
         super(containerMapping, network);
         this.psseBus = Objects.requireNonNull(psseBus);
@@ -69,30 +67,6 @@ class BusConverter extends AbstractConverter {
         psseBus.setEvhi(getHighVm(bus));
         psseBus.setEvlo(getLowVm(bus));
         return psseBus;
-    }
-
-    private static PsseBus createDefaultBus() {
-        PsseBus psseBus = new PsseBus();
-        psseBus.setI(0);
-        psseBus.setName("");
-        psseBus.setBaskv(0.0);
-        psseBus.setIde(1);
-        psseBus.setArea(1);
-        psseBus.setZone(1);
-        psseBus.setOwner(1);
-        psseBus.setVm(1.0);
-        psseBus.setVa(0.0);
-        psseBus.setNvhi(1.1);
-        psseBus.setNvlo(0.9);
-        psseBus.setEvhi(1.1);
-        psseBus.setEvlo(0.9);
-        return psseBus;
-    }
-
-    // first character must not be a minus sign
-    private static String fixBusName(String name) {
-        String fixedName = name.startsWith("-") ? "_" + name.substring(1) : name;
-        return fixedName.length() > MAX_BUS_LENGTH ? fixedName.substring(0, MAX_BUS_LENGTH) : fixedName;
     }
 
     static void updateBuses(PssePowerFlowModel psseModel, ContextExport contextExport) {

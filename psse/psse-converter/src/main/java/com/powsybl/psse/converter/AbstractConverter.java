@@ -31,6 +31,8 @@ public abstract class AbstractConverter {
     private static final String TWO_TERMINAL_DC_TAG = "TwoTerminalDc-";
     private static final String VSC_DC_TRANSMISSION_LINE_TAG = "VscDcTransmissionLine-";
     private static final String FACTS_DEVICE_TAG = "FactsDevice-";
+    private static final int MAX_BUS_LENGTH = 12;
+    private static final int MAX_BRANCH_LENGTH = 40;
 
     enum PsseEquipmentType {
         PSSE_LOAD("L"),
@@ -226,8 +228,7 @@ public abstract class AbstractConverter {
                         TieLine tieLine = danglingLine.getTieLine().orElseThrow();
                         equipmentListToBeExported.add(tieLine.getId());
                     } else {
-                        // TODO wait until dangling lines are exported
-                        //equipmentListToBeExported.add(connectable.getId());
+                        equipmentListToBeExported.add(connectable.getId());
                     }
                 } else {
                     equipmentListToBeExported.add(connectable.getId());
@@ -312,7 +313,7 @@ public abstract class AbstractConverter {
         return switch (identifiable.getType()) {
             case LOAD, BATTERY -> PsseEquipmentType.PSSE_LOAD.getTextCode();
             case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
-            case LINE, TIE_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
+            case LINE, TIE_LINE, DANGLING_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
             case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
             case THREE_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_THREE_WINDING.getTextCode();
             case SHUNT_COMPENSATOR -> {
@@ -490,11 +491,19 @@ public abstract class AbstractConverter {
     }
 
     static double getVm(Bus bus) {
-        return bus != null && Double.isFinite(bus.getV()) && bus.getV() > 0.0 ? bus.getV() / bus.getVoltageLevel().getNominalV() : 1.0;
+        return bus != null ? getVm(bus.getV() / bus.getVoltageLevel().getNominalV()) : 1.0;
+    }
+
+    static double getVm(double v) {
+        return Double.isFinite(v) && v > 0.0 ? v : 1.0;
     }
 
     static double getVa(Bus bus) {
-        return bus != null && Double.isFinite(bus.getAngle()) ? bus.getAngle() : 0.0;
+        return bus != null ? getVa(bus.getAngle()) : 0.0;
+    }
+
+    static double getVa(double a) {
+        return Double.isFinite(a) ? a : 0.0;
     }
 
     static List<Double> getSortedRates(CurrentLimits currentLimits, double nominalV) {
@@ -541,6 +550,106 @@ public abstract class AbstractConverter {
         return sortedRates.size() > index ? sortedRates.get(index) : 0.0;
     }
 
+    static PsseBus createDefaultBus() {
+        PsseBus psseBus = new PsseBus();
+        psseBus.setI(0);
+        psseBus.setName("");
+        psseBus.setBaskv(0.0);
+        psseBus.setIde(1);
+        psseBus.setArea(1);
+        psseBus.setZone(1);
+        psseBus.setOwner(1);
+        psseBus.setVm(1.0);
+        psseBus.setVa(0.0);
+        psseBus.setNvhi(1.1);
+        psseBus.setNvlo(0.9);
+        psseBus.setEvhi(1.1);
+        psseBus.setEvlo(0.9);
+        return psseBus;
+    }
+
+    // first character must not be a minus sign
+    static String fixBusName(String name) {
+        String fixedName = name.startsWith("-") ? "_" + name.substring(1) : name;
+        return fixedName.length() > MAX_BUS_LENGTH ? fixedName.substring(0, MAX_BUS_LENGTH) : fixedName;
+    }
+
+    static PsseLoad createDefaultLoad() {
+        PsseLoad psseLoad = new PsseLoad();
+        psseLoad.setI(0);
+        psseLoad.setId("1");
+        psseLoad.setStatus(1);
+        psseLoad.setArea(1);
+        psseLoad.setZone(1);
+        psseLoad.setPl(0.0);
+        psseLoad.setQl(0.0);
+        psseLoad.setIp(0.0);
+        psseLoad.setIq(0.0);
+        psseLoad.setYp(0.0);
+        psseLoad.setYq(0.0);
+        psseLoad.setOwner(1);
+        psseLoad.setScale(1);
+        psseLoad.setIntrpt(0);
+        psseLoad.setDgenp(0.0);
+        psseLoad.setDgenq(0.0);
+        psseLoad.setDgenm(0);
+        psseLoad.setLoadtype("");
+        return psseLoad;
+    }
+
+    static PsseNonTransformerBranch createDefaultNonTransformerBranch() {
+        PsseNonTransformerBranch psseLine = new PsseNonTransformerBranch();
+        psseLine.setI(0);
+        psseLine.setJ(0);
+        psseLine.setCkt("1");
+        psseLine.setR(0.0);
+        psseLine.setX(0.0);
+        psseLine.setB(0.0);
+        psseLine.setName("");
+        psseLine.setRates(createDefaultRates());
+        psseLine.setGi(0.0);
+        psseLine.setBi(0.0);
+        psseLine.setGj(0.0);
+        psseLine.setBj(0.0);
+        psseLine.setSt(1);
+        psseLine.setMet(1);
+        psseLine.setLen(0.0);
+        psseLine.setOwnership(createDefaultOwnership());
+        return psseLine;
+    }
+
+    static String fixNonTransformerBranchName(String name) {
+        return name.substring(0, Math.min(MAX_BRANCH_LENGTH, name.length()));
+    }
+
+    static PsseGenerator createDefaultGenerator() {
+        PsseGenerator psseGenerator = new PsseGenerator();
+        psseGenerator.setI(0);
+        psseGenerator.setId("1");
+        psseGenerator.setPg(0.0);
+        psseGenerator.setQg(0.0);
+        psseGenerator.setQt(9999.0);
+        psseGenerator.setQb(-9999.0);
+        psseGenerator.setVs(1.0);
+        psseGenerator.setIreg(0);
+        psseGenerator.setNreg(0);
+        psseGenerator.setMbase(100.0);
+        psseGenerator.setZr(0.0);
+        psseGenerator.setZx(1.0);
+        psseGenerator.setRt(0.0);
+        psseGenerator.setXt(0.0);
+        psseGenerator.setGtap(1.0);
+        psseGenerator.setStat(1);
+        psseGenerator.setRmpct(100.0);
+        psseGenerator.setPt(9999.0);
+        psseGenerator.setPb(-9999.0);
+        psseGenerator.setBaslod(0);
+        psseGenerator.setOwnership(createDefaultOwnership());
+        psseGenerator.setWmod(0);
+        psseGenerator.setWpf(1.0);
+        return psseGenerator;
+    }
+
     static PsseRates createDefaultRates() {
         PsseRates windingRates = new PsseRates();
         windingRates.setRate1(0.0);
@@ -569,50 +678,6 @@ public abstract class AbstractConverter {
         psseOwnership.setO4(0);
         psseOwnership.setF4(1.0);
         return psseOwnership;
-    }
-
-    static PsseLoad createDefaultLoad() {
-        PsseLoad psseLoad = new PsseLoad();
-        psseLoad.setI(0);
-        psseLoad.setId("1");
-        psseLoad.setStatus(1);
-        psseLoad.setArea(1);
-        psseLoad.setZone(1);
-        psseLoad.setPl(0.0);
-        psseLoad.setQl(0.0);
-        psseLoad.setIp(0.0);
-        psseLoad.setIq(0.0);
-        psseLoad.setYp(0.0);
-        psseLoad.setYq(0.0);
-        psseLoad.setOwner(1);
-        psseLoad.setScale(1);
-        psseLoad.setIntrpt(0);
-        psseLoad.setDgenp(0.0);
-        psseLoad.setDgenq(0.0);
-        psseLoad.setDgenm(0);
-        psseLoad.setLoadtype("");
-        return psseLoad;
-    }
-
-    static PsseNonTransformerBranch createDefaultLine() {
-        PsseNonTransformerBranch psseLine = new PsseNonTransformerBranch();
-        psseLine.setI(0);
-        psseLine.setJ(0);
-        psseLine.setCkt("1");
-        psseLine.setR(0.0);
-        psseLine.setX(0.0);
-        psseLine.setB(0.0);
-        psseLine.setName("");
-        psseLine.setRates(createDefaultRates());
-        psseLine.setGi(0.0);
-        psseLine.setBi(0.0);
-        psseLine.setGj(0.0);
-        psseLine.setBj(0.0);
-        psseLine.setSt(1);
-        psseLine.setMet(1);
-        psseLine.setLen(0.0);
-        psseLine.setOwnership(createDefaultOwnership());
-        return psseLine;
     }
 
     static double currentInAmpsToMw(double current, double nominalV) {

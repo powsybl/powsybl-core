@@ -125,7 +125,7 @@ class LineConverter extends AbstractConverter {
     }
 
     private static PsseNonTransformerBranch createLine(Line line, ContextExport contextExport, PsseExporter.PerUnitContext perUnitContext) {
-        PsseNonTransformerBranch psseLine = createDefaultLine();
+        PsseNonTransformerBranch psseLine = createDefaultNonTransformerBranch();
 
         int busI = getTerminalBusI(line.getTerminal1(), contextExport);
         int busJ = getTerminalBusI(line.getTerminal2(), contextExport);
@@ -138,7 +138,7 @@ class LineConverter extends AbstractConverter {
         psseLine.setCkt(contextExport.getFullExport().getEquipmentCkt(line.getId(), IdentifiableType.LINE, busI, busJ));
         psseLine.setR(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getR(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setX(impedanceToPerUnitForLinesWithDifferentNominalVoltageAtEnds(line.getX(), vNom1, vNom2, perUnitContext.sBase()));
-        psseLine.setName(line.getNameOrId().substring(0, Math.min(40, line.getNameOrId().length())));
+        psseLine.setName(fixNonTransformerBranchName(line.getNameOrId()));
         psseLine.setRates(createRates(line, vNom1, vNom2));
         psseLine.setGi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getReal(), line.getG1(), vNom1, vNom2, perUnitContext.sBase()));
         psseLine.setBi(admittanceEnd1ToPerUnitForLinesWithDifferentNominalVoltageAtEnds(transmissionAdmittance.getImaginary(), line.getB1(), vNom1, vNom2, perUnitContext.sBase()));

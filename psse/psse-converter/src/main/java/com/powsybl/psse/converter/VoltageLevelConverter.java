@@ -270,6 +270,8 @@ class VoltageLevelConverter extends AbstractConverter {
                 contextExport.getLinkExport().addBusViewBusIDoubleLink(selectedBus, busI);
             }
         });
+
+        voltageLevel.getDanglingLineStream().filter(danglingLine -> !danglingLine.isPaired()).forEach(danglingLine -> contextExport.getLinkExport().addDanglingLineBusILink(danglingLine, contextExport.getFullExport().getNewPsseBusI()));
     }
 
     private static List<Set<Integer>> connectedSetsByInternalConnections(VoltageLevel voltageLevel) {
@@ -353,7 +355,7 @@ class VoltageLevelConverter extends AbstractConverter {
     private static Set<Bus> findBusViewBuses(VoltageLevel voltageLevel, Set<Integer> connectedSetBySwitches) {
         return connectedSetBySwitches.stream()
                 .map(node -> findBusViewFromNode(voltageLevel, node)).collect(Collectors.toSet())
-                .stream().filter(busView -> busView != null).collect(Collectors.toSet());
+                .stream().filter(Objects::nonNull).collect(Collectors.toSet());
     }
 
     private static int findPriorityType(VoltageLevel voltageLevel, Bus busView) {
@@ -399,7 +401,7 @@ class VoltageLevelConverter extends AbstractConverter {
         }
 
         List<PsseSubstation.PsseSubstationNode> nodes = new ArrayList<>();
-        nodesToBeExported.forEach(ni -> {
+        nodesToBeExported.stream().sorted(Comparator.naturalOrder()).forEach(ni -> {
             PsseSubstation.PsseSubstationNode psseNode = new PsseSubstationNode();
             int busI = contextExport.getLinkExport().getBusI(voltageLevel, ni).orElseThrow();
             Bus bus = contextExport.getLinkExport().getBusView(voltageLevel, ni).orElse(null);
@@ -451,11 +453,11 @@ class VoltageLevelConverter extends AbstractConverter {
         List<PsseSubstation.PsseSubstationEquipmentTerminal> equipmentTerminals = new ArrayList<>();
 
         getEquipmentListToBeExported(voltageLevel).forEach(equipmentId -> {
-            List<NodeBusR> nodeBusRList = getEquipmentNodesPreservingOrder(voltageLevel, equipmentId, contextExport);
+            List<NodeBusR> nodeBusRList = getEquipmentNodesInsideVoltageLevelPreservingOrder(voltageLevel, equipmentId, contextExport);
             Identifiable<?> identifiable = getIdentifiable(voltageLevel, equipmentId);
             String type = getPsseEquipmentType(identifiable);
             getNodesInsideVoltageLevelPreservingOrder(nodeBusRList, voltageLevel).forEach(nodeBusR -> {
-                List<Integer> otherBuses = getTwoOtherBusesPreservingOrder(equipmentId, nodeBusRList, nodeBusR);
+                List<Integer> otherBuses = getTwoOtherBusesPreservingOrder(voltageLevel, equipmentId, nodeBusR, contextExport);
 
                 PsseSubstation.PsseSubstationEquipmentTerminal equipmentTerminal = new PsseSubstationEquipmentTerminal();
                 equipmentTerminal.setNi(nodeBusR.node());
@@ -471,8 +473,10 @@ class VoltageLevelConverter extends AbstractConverter {
         return equipmentTerminals;
     }
 
-    private static List<NodeBusR> getEquipmentNodesPreservingOrder(VoltageLevel voltageLevel, String equipmentId, ContextExport contextExport) {
-        return getEquipmentTerminals(voltageLevel, equipmentId).stream().map(terminal -> findNodeBusR(terminal, contextExport)).toList();
+    private static List<NodeBusR> getEquipmentNodesInsideVoltageLevelPreservingOrder(VoltageLevel voltageLevel, String equipmentId, ContextExport contextExport) {
+        return getEquipmentTerminals(voltageLevel, equipmentId).stream()
+                .filter(terminal -> terminal.getVoltageLevel().equals(voltageLevel))
+                .map(terminal -> findNodeBusR(terminal, contextExport)).toList();
     }
 
     private static NodeBusR findNodeBusR(Terminal terminal, ContextExport contextExport) {
@@ -482,16 +486,33 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     private record NodeBusR(VoltageLevel voltageLevel, int node, int busI) {
+        boolean equals(NodeBusR other) {
+            return voltageLevel().equals(other.voltageLevel()) && node() == other.node();
+        }
     }
 
     private static List<NodeBusR> getNodesInsideVoltageLevelPreservingOrder(List<NodeBusR> nodeBusRList, VoltageLevel voltageLevel) {
         return nodeBusRList.stream().filter(nodeBusR -> nodeBusR.voltageLevel().equals(voltageLevel)).toList();
     }
 
-    private static List<Integer> getTwoOtherBusesPreservingOrder(String equipmentId, List<NodeBusR> nodeBusRList, NodeBusR nodeBusR) {
-        List<NodeBusR> otherNodeBusRList = getOtherPairNodesPreservingOrder(nodeBusRList, nodeBusR);
+    private static List<Integer> getTwoOtherBusesPreservingOrder(VoltageLevel voltageLevel, String equipmentId, NodeBusR nodeBusR, ContextExport contextExport) {
         List<Integer> buses = new ArrayList<>();
-        otherNodeBusRList.forEach(otherNodeBusR -> buses.add(otherNodeBusR.busI()));
+        getEquipmentTerminals(voltageLevel, equipmentId).forEach(terminal -> {
+            if (exportVoltageLevelAsNodeBreaker(terminal.getVoltageLevel())) {
+                NodeBusR otherNodeBusR = findNodeBusR(terminal, contextExport);
+                if (!nodeBusR.equals(otherNodeBusR)) {
+                    buses.add(otherNodeBusR.busI());
+                }
+                // busJ associated with boundary side of the dangling lines
+                Identifiable<?> identifiable = getIdentifiable(voltageLevel, equipmentId);
+                if (identifiable.getType().equals(IdentifiableType.DANGLING_LINE)) {
+                    buses.add(contextExport.getLinkExport().getBusI((DanglingLine) identifiable).orElseThrow());
+                }
+            } else {
+                Bus busView = getTerminalBusView(terminal);
+                buses.add(contextExport.getLinkExport().getBusI(busView).orElseThrow());
+            }
+        });
         // Complete with zeros until two buses
         if (buses.isEmpty()) {
             buses.add(0);
@@ -502,10 +523,6 @@ class VoltageLevelConverter extends AbstractConverter {
             throw new PsseException("Unexpected number of buses for equipmentId: " + equipmentId);
         }
         return buses;
-    }
-
-    private static List<NodeBusR> getOtherPairNodesPreservingOrder(List<NodeBusR> nodeBusRList, NodeBusR nodeBusR) {
-        return nodeBusRList.stream().filter(nbR -> !nodeBusR.voltageLevel().equals(nbR.voltageLevel()) || nodeBusR.node() != nbR.node()).toList();
     }
 
     private static Identifiable<?> getIdentifiable(VoltageLevel voltageLevel, String identifiableId) {

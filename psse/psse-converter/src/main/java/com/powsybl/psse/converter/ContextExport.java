@@ -8,6 +8,7 @@
 package com.powsybl.psse.converter;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.psse.model.PsseException;
@@ -52,11 +53,13 @@ final class ContextExport {
     static class LinkExport {
         private final Map<Bus, Integer> busViewToBusI;
         private final Map<Integer, Bus> busIToBusView;
+        private final Map<DanglingLine, Integer> danglingLineToBusI;
         private final Map<String, Integer> voltageLevelNodeIdToBusI;
 
         LinkExport() {
             this.busViewToBusI = new HashMap<>();
             this.busIToBusView = new HashMap<>();
+            this.danglingLineToBusI = new HashMap<>();
             this.voltageLevelNodeIdToBusI = new HashMap<>();
         }
 
@@ -65,12 +68,20 @@ final class ContextExport {
             this.busIToBusView.put(busI, busView);
         }
 
+        void addDanglingLineBusILink(DanglingLine danglingLine, int busI) {
+            this.danglingLineToBusI.put(danglingLine, busI);
+        }
+
         Set<Integer> getBusISet() {
             return busIToBusView.keySet();
         }
 
         OptionalInt getBusI(Bus busView) {
             return this.busViewToBusI.containsKey(busView) ? OptionalInt.of(this.busViewToBusI.get(busView)) : OptionalInt.empty();
+        }
+
+        OptionalInt getBusI(DanglingLine danglingLine) {
+            return this.danglingLineToBusI.containsKey(danglingLine) ? OptionalInt.of(this.danglingLineToBusI.get(danglingLine)) : OptionalInt.empty();
         }
 
         Optional<Bus> getBusView(int busI) {
