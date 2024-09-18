@@ -108,29 +108,6 @@ class LoadConverter extends AbstractConverter {
         return psseLoad;
     }
 
-    private static PsseLoad createDefaultLoad() {
-        PsseLoad psseLoad = new PsseLoad();
-        psseLoad.setI(0);
-        psseLoad.setId("1");
-        psseLoad.setStatus(1);
-        psseLoad.setArea(1);
-        psseLoad.setZone(1);
-        psseLoad.setPl(0.0);
-        psseLoad.setQl(0.0);
-        psseLoad.setIp(0.0);
-        psseLoad.setIq(0.0);
-        psseLoad.setYp(0.0);
-        psseLoad.setYq(0.0);
-        psseLoad.setOwner(1);
-        psseLoad.setScale(1);
-        psseLoad.setIntrpt(0);
-        psseLoad.setDgenp(0.0);
-        psseLoad.setDgenq(0.0);
-        psseLoad.setDgenm(0);
-        psseLoad.setLoadtype("");
-        return psseLoad;
-    }
-
     static void updateLoads(Network network, PssePowerFlowModel psseModel) {
         psseModel.getLoads().forEach(psseLoad -> {
             String loadId = getLoadId(psseLoad.getI(), psseLoad.getId());

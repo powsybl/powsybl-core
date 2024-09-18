@@ -226,7 +226,8 @@ public abstract class AbstractConverter {
                         TieLine tieLine = danglingLine.getTieLine().orElseThrow();
                         equipmentListToBeExported.add(tieLine.getId());
                     } else {
-                        equipmentListToBeExported.add(connectable.getId());
+                        // TODO wait until dangling lines are exported
+                        //equipmentListToBeExported.add(connectable.getId());
                     }
                 } else {
                     equipmentListToBeExported.add(connectable.getId());
@@ -238,9 +239,9 @@ public abstract class AbstractConverter {
 
     private static boolean isEquipmentToBeExported(IdentifiableType type) {
         return switch (type) {
-            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE ->
+            case LOAD, GENERATOR, SHUNT_COMPENSATOR, LINE, TWO_WINDINGS_TRANSFORMER, THREE_WINDINGS_TRANSFORMER, HVDC_CONVERTER_STATION, STATIC_VAR_COMPENSATOR, DANGLING_LINE, BATTERY ->
                     true;
-            case BUSBAR_SECTION, HVDC_LINE, SWITCH, TIE_LINE, BATTERY -> false;
+            case BUSBAR_SECTION, HVDC_LINE, SWITCH, TIE_LINE -> false;
             default -> throw new PsseException("Unexpected equipment type: " + type.name());
         };
     }
@@ -309,7 +310,7 @@ public abstract class AbstractConverter {
 
     static String getPsseEquipmentType(Identifiable<?> identifiable) {
         return switch (identifiable.getType()) {
-            case LOAD -> PsseEquipmentType.PSSE_LOAD.getTextCode();
+            case LOAD, BATTERY -> PsseEquipmentType.PSSE_LOAD.getTextCode();
             case GENERATOR -> PsseEquipmentType.PSSE_GENERATOR.getTextCode();
             case LINE, TIE_LINE -> PsseEquipmentType.PSSE_BRANCH.getTextCode();
             case TWO_WINDINGS_TRANSFORMER -> PsseEquipmentType.PSSE_TWO_WINDING.getTextCode();
@@ -568,6 +569,29 @@ public abstract class AbstractConverter {
         psseOwnership.setO4(0);
         psseOwnership.setF4(1.0);
         return psseOwnership;
+    }
+
+    static PsseLoad createDefaultLoad() {
+        PsseLoad psseLoad = new PsseLoad();
+        psseLoad.setI(0);
+        psseLoad.setId("1");
+        psseLoad.setStatus(1);
+        psseLoad.setArea(1);
+        psseLoad.setZone(1);
+        psseLoad.setPl(0.0);
+        psseLoad.setQl(0.0);
+        psseLoad.setIp(0.0);
+        psseLoad.setIq(0.0);
+        psseLoad.setYp(0.0);
+        psseLoad.setYq(0.0);
+        psseLoad.setOwner(1);
+        psseLoad.setScale(1);
+        psseLoad.setIntrpt(0);
+        psseLoad.setDgenp(0.0);
+        psseLoad.setDgenq(0.0);
+        psseLoad.setDgenm(0);
+        psseLoad.setLoadtype("");
+        return psseLoad;
     }
 
     static PsseNonTransformerBranch createDefaultLine() {

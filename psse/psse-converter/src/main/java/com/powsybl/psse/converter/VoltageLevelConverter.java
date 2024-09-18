@@ -265,8 +265,10 @@ class VoltageLevelConverter extends AbstractConverter {
             Set<Bus> busViewBuses = findBusViewBuses(voltageLevel, connectedSetBySwitches);
             connectedSetBySwitches.forEach(node -> contextExport.getLinkExport().addNodeBusILink(voltageLevel, convertToPsseNode(node), busI));
 
-            Bus selectedBus = busViewBuses.stream().min(Comparator.comparingInt(busView -> findPriorityType(voltageLevel, busView))).orElseThrow();
-            contextExport.getLinkExport().addBusViewBusIDoubleLink(selectedBus, busI);
+            if (!busViewBuses.isEmpty()) {
+                Bus selectedBus = busViewBuses.stream().min(Comparator.comparingInt(busView -> findPriorityType(voltageLevel, busView))).orElseThrow();
+                contextExport.getLinkExport().addBusViewBusIDoubleLink(selectedBus, busI);
+            }
         });
     }
 
@@ -349,7 +351,9 @@ class VoltageLevelConverter extends AbstractConverter {
     }
 
     private static Set<Bus> findBusViewBuses(VoltageLevel voltageLevel, Set<Integer> connectedSetBySwitches) {
-        return connectedSetBySwitches.stream().map(node -> findBusViewFromNode(voltageLevel, node)).collect(Collectors.toSet());
+        return connectedSetBySwitches.stream()
+                .map(node -> findBusViewFromNode(voltageLevel, node)).collect(Collectors.toSet())
+                .stream().filter(busView -> busView != null).collect(Collectors.toSet());
     }
 
     private static int findPriorityType(VoltageLevel voltageLevel, Bus busView) {

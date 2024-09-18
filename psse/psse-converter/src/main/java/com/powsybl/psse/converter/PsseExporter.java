@@ -169,6 +169,7 @@ public class PsseExporter implements Exporter {
         FactsDeviceConverter.createFactsDevices(network, psseModel, contextExport);
         SwitchedShuntCompensatorConverter.createSwitchedShunts(network, psseModel, contextExport);
 
+        BatteryConverter.createBatteries(network, psseModel, contextExport);
         TieLineConverter.createTieLines(network, psseModel, contextExport, perUnitContext);
         return psseModel;
     }
