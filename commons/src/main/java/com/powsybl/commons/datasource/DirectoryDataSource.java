@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  */
 public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
-    private boolean isCuratedDirectory;
+    private final boolean allFiles;
 
     public DirectoryDataSource(Path directory, String baseName) {
         this(directory, baseName, null, null, null);
@@ -42,9 +42,9 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
     }
 
     public DirectoryDataSource(Path directory, String baseName,
-                               String dataExtension, boolean isCuratedDirectory,
+                               String dataExtension, boolean allFiles,
                                DataSourceObserver observer) {
-        this(directory, baseName, dataExtension, null, isCuratedDirectory, observer);
+        this(directory, baseName, dataExtension, null, allFiles, observer);
     }
 
     DirectoryDataSource(Path directory, String baseName,
@@ -56,13 +56,13 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
 
     DirectoryDataSource(Path directory, String baseName, String dataExtension,
                         CompressionFormat compressionFormat,
-                        boolean isCuratedDirectory, DataSourceObserver observer) {
+                        boolean allFiles, DataSourceObserver observer) {
         super(directory, baseName, dataExtension, compressionFormat, observer);
-        this.isCuratedDirectory = isCuratedDirectory;
+        this.allFiles = allFiles;
     }
 
-    public boolean isCuratedDirectory() {
-        return isCuratedDirectory;
+    public boolean allFiles() {
+        return allFiles;
     }
 
     /**
@@ -130,7 +130,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
                     .map(Path::toString);
-            var maybeFilteredFilenames = isCuratedDirectory ? filenames
+            var maybeFilteredFilenames = allFiles ? filenames
                     : filenames.filter(name -> name.startsWith(baseName));
             return maybeFilteredFilenames
                     // Return names after removing the compression extension

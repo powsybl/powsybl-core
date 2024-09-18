@@ -21,15 +21,15 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean isCuratedDirectory, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean allFiles, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
-            new ZstdDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
+            new DirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
+            new ZstdDirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
             new ZipArchiveDataSource(directory),
             new ZipArchiveDataSource(directory, baseName, dataExtension, observer),
-            new XZDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
-            new GzDirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer),
-            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, isCuratedDirectory, observer)
+            new XZDirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
+            new GzDirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
+            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, allFiles, observer)
         };
     }
 
@@ -48,8 +48,8 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
         this(directory, baseName, dataExtension, false);
     }
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean isCuratedDirectory) {
-        this(directory, baseName, dataExtension, isCuratedDirectory, null);
+    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean allFiles) {
+        this(directory, baseName, dataExtension, allFiles, null);
     }
 
     @Override
