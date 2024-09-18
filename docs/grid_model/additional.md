@@ -68,11 +68,11 @@ generator.newReactiveCapabilityCurve()
 ## Loading Limits
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/LoadingLimits.html)
 
-Some equipment have operational limits regarding the current, active power or apparent power value, corresponding to the equipment's physical limitations (related to heating).
+Some equipment has operational limits regarding the current, active power or apparent power value, corresponding to the equipment's physical limitations (related to heating).
 
 Loading limits can be declined into active power limits (in MW), apparent power limits (in kVA) and current limits (in A).
 They may be set for [lines](./network_subnetwork.md#line),
-[dangling lines](./network_subnetwork.md#dangling-line), [two windings transformers](./network_subnetwork.md#two-windings-transformer) and [three windings transformers](./network_subnetwork.md#three-windings-transformer). The active power limits are in absolute value.
+[dangling lines](./network_subnetwork.md#dangling-line), [two-winding transformers](./network_subnetwork.md#two-winding-transformer) and [three-winding transformers](./network_subnetwork.md#three-winding-transformer). The active power limits are in absolute value.
 
 Loading limits are defined by one permanent limit and any number of temporary limits (zero or more).
 The permanent limit sets the current, active power or apparent power absolute value under which the equipment can safely
@@ -83,16 +83,16 @@ A temporary limit thus has an **acceptable duration**.
 
 The component on which the current limits are applied can safely remain
 between the preceding limit (it could be another temporary limit or a permanent limit) and this limit for a duration up to the acceptable duration.
-Please look at this scheme to fully understand the modelling (the following example shows current limits but this modelling is valid for all loading limits):
+Please look at this scheme to fully understand the modeling (the following example shows current limits, but this modeling is valid for all loading limits):
 
 ![Loading limits model](img/current-limits.svg){width="50%" align=center class="only-light"}
 ![Loading limits model](img/dark_mode/current-limits.svg){width="50%" align=center class="only-dark"}
 
-Note that, following this modelling, in general the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero. If temporary limits are modeled, the permanent limit becomes mandatory.
+Note that, following this modeling, in general, the last temporary limit (the higher one in value) should be infinite with an acceptable duration different from zero, except for tripping current modeling where the last temporary limit is infinite with an acceptable duration equal to zero. If temporary limits are modeled, the permanent limit becomes mandatory.
 
 (limit-group-collection)=
 ### Limit group collection
-In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer for example), the time of the day (day vs night) etc.
+In network development studies or in an operational context (CGMES), we can have a set of operational limits according to the season (winter vs summer, for example), the time of the day (day vs night) etc.
 In PowSyBl, users can store a collection of limits:
 - Active power limits, apparent power limits and current limits are gathered into an `OperationalLimitsGroup` object. This group has an `id`.
 - Lines and transformers are associated with a collection of `OperationalLimitsGroup` (one collection per side/leg).
@@ -151,11 +151,11 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
 ## Phase tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/PhaseTapChanger.html)
 
-A phase tap changer can be added to either [two windings transformers](./network_subnetwork.md#two-windings-transformer) or [three windings transformers' legs](./network_subnetwork.md#three-windings-transformer-leg).
+A phase tap changer can be added to either [two-winding transformers](./network_subnetwork.md#two-winding-transformer) or [three-winding transformers' legs](./network_subnetwork.md#three-winding-transformer-leg).
 
 **Specifications**
 
-A phase tap changer is described by a set of tap positions (or steps) within which the transformer or transformer leg can operate. Additionally to that set of steps, it is necessary to specify:
+A phase tap changer is described by a set of tap positions (or steps) within which the transformer or transformer leg can operate. Additionally, to that set of steps, it is necessary to specify:
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
@@ -184,7 +184,7 @@ Each step of a phase tap changer has the following attributes:
 
 **Example**
 
-This example shows how to add a phase tap changer to a two windings transformer:
+This example shows how to add a phase tap changer to a two-winding transformer:
 ```java
 twoWindingsTransformer.newPhaseTapChanger()
     .setLowTapPosition(-1)
@@ -224,11 +224,11 @@ twoWindingsTransformer.newPhaseTapChanger()
 ## Ratio tap changer
 [![Javadoc](https://img.shields.io/badge/-javadoc-blue.svg)](https://javadoc.io/doc/com.powsybl/powsybl-core/latest/com/powsybl/iidm/network/RatioTapChanger.html)
 
-A ratio tap changer can be added to either [two windings transformers](./network_subnetwork.md#two-windings-transformer) or [three windings transformers' legs](./network_subnetwork.md#three-windings-transformer-leg).
+A ratio tap changer can be added to either [two-winding transformers](./network_subnetwork.md#two-winding-transformer) or [three-winding transformers' legs](./network_subnetwork.md#three-winding-transformer-leg).
 
 **Specifications**
 
-A ratio tap changer is described by a set of tap positions (or steps) within which the transformer or transformer leg can operate (or be operated offload). Additionally to that set of steps, it is necessary to specify:
+A ratio tap changer is described by a set of tap positions (or steps) within which the transformer or transformer leg can operate (or be operated offload). Additionally, to that set of steps, it is necessary to specify:
 - the lowest tap position
 - the highest tap position
 - the position index of the current tap (which has to be within the highest and lowest tap position bounds)
@@ -252,7 +252,7 @@ Each step of a ratio tap changer has the following attributes:
 
 **Example**
 
-This example shows how to add a ratio tap changer to a two windings transformer:
+This example shows how to add a ratio tap changer to a two-winding transformer:
 ```java
 twoWindingsTransformer.newRatioTapChanger()
     .setLowTapPosition(-1)
