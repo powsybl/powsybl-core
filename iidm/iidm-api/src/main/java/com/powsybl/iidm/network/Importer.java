@@ -61,6 +61,11 @@ public interface Importer {
         }
 
         @Override
+        public List<String> getSupportedExtensions() {
+            return importer.getSupportedExtensions();
+        }
+
+        @Override
         public List<Parameter> getParameters() {
             return importer.getParameters();
         }
