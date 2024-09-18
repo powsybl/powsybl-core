@@ -1,14 +1,14 @@
 # Contingency DSL
-The contingency DSL is a domain specific language written in groovy for the creation of a contingency list, used in [security analyses](./index.md) or [sensitivity analyses](../sensitivity/index). At the moment, it's possible to simulate the loss of a generator, a static VAR compensator, a shunt, a power line, a power transformer, a HVDC line or a busbar section. 
+The contingency DSL is a domain specific language written in groovy for the creation of a contingency list, used in [security analyses](./index.md) or [sensitivity analyses](../sensitivity/index). At the moment, it's possible to simulate the loss of a generator, a static VAR compensator, a shunt, a power line, a power transformer, an HVDC line or a busbar section. 
 
 ## N-1 contingency
-A N-1 contingency is a contingency that triggers a single equipment at a time.
+A N-1 contingency is a contingency that triggers a single piece of equipment at a time.
 ```groovy
 contingency('contingencyID') {
     equipments 'equipmentID'
 }
 ```
-where the `contingencyID` is the identifier of the contingency and the `equipmentID` is the identifier of a supported equipment. If the equipment doesn't exist or is not supported, an error will occur.
+where the `contingencyID` is the identifier of the contingency and the `equipmentID` is the identifier of a supported piece of equipment. If the equipment doesn't exist or is not supported, an error will occur.
 
 ## N-K contingency
 A N-K contingency is a contingency that triggers several equipments at a time. The syntax is the same as for the N-1 contingencies, except that you have to pass a list of equipments' IDs.
@@ -31,7 +31,7 @@ contingency('contingency2') {
 ``` 
 
 ## Automatic contingency list
-As the DSL is written in Groovy, it's possible to write more complex script. For example, it's possible to iterate over the equipments of the network to generate the contingency list. The network is accessible using the `network` variable.
+As the DSL is written in Groovy, it's possible to write a more complex script. For example, it's possible to iterate over the equipment of the network to generate the contingency list. The network is accessible using the `network` variable.
 
 The following example creates a N-1 contingency for each line of the network. We use the ID of the lines as identifier for the contingencies. 
 ```groovy
@@ -42,7 +42,7 @@ for (l in network.lines) {
 }
 ```
 
-It's also possible to filter the lines, for example to consider on the border lines:
+It's also possible to filter the lines, for example, to consider on the boundary lines:
 ```groovy
 import com.powsybl.iidm.network.Country
 
@@ -105,7 +105,7 @@ network.generatorStream
 ```
 
 ## Configuration
-To provide contingencies list using this DSL, you have to add the following lines to your configuration file:
+To provide a contingency list using this DSL, you have to add the following lines to your configuration file:
 
 **YAML configuration:**
 ```yaml
