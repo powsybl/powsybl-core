@@ -43,9 +43,9 @@ For the moment, the only way to monitor dynamic variables of the simulation in o
 The outputs of a dynamic simulation are:
 - the updated static network (which may have been topologically modified depending on the events or automatons defined as inputs)
 - the different results of the dynamic simulation:
-    - some curves, asked for by the user to track the evolution of specific variables throughout the simulation
+    - some curves asked for by the user to track the evolution of specific variables throughout the simulation
     - some aggregated data regarding constraints, like a security analysis output
-    - timelines, that contain the list of events that occurred during the dynamic simulation, be them planned beforehand through events, or not
+    - timelines that contain the list of events that occurred during the dynamic simulation, be them planned beforehand through events, or not
     - logs about the execution of the dynamic simulator
 
 ## Implementations

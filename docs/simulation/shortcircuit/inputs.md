@@ -16,7 +16,7 @@ The attributes to fill of a `BusFault` are:
 | Attribute  | Type           | Unit | Required | Default value           | Description                                                                                             |
 |------------|----------------|------|----------|-------------------------|---------------------------------------------------------------------------------------------------------|
 | id         | String         | -    | yes      | -                       | The id of the fault                                                                                     |
-| elementId  | String         | -    | yes      | -                       | The id of the bus on which the fault will be simulated (bus/view topology)                                                 |
+| elementId  | String         | -    | yes      | -                       | The id of the bus on which the fault will be simulated (bus/view topology)                              |
 | r          | double         | Ω    | no       | 0                       | The fault resistance to ground                                                                          |
 | x          | double         | Ω    | no       | 0                       | The fault reactance to ground                                                                           |
 | connection | ConnectionType | -    | no       | `ConnectionType.SERIES` | The way the resistance and reactance of the fault are connected to the ground: in series or in parallel |
@@ -25,7 +25,7 @@ The attributes to fill of a `BusFault` are:
 The attributes to fill of a `BranchFault` are:
 
 | Attribute            | Type           | Unit | Required | Default value           | Description                                                                                             |
-|----------------------|----------------|------|----------|-----------------------  |---------------------------------------------------------------------------------------------------------|
+|----------------------|----------------|------|----------|-------------------------|---------------------------------------------------------------------------------------------------------|
 | id                   | String         | -    | yes      | -                       | The id of the fault                                                                                     |
 | elementId            | String         | -    | yes      | -                       | The id of the branch on which the fault will be simulated                                               |
 | r                    | double         | Ω    | no       | 0                       | The fault resistance to ground                                                                          |
