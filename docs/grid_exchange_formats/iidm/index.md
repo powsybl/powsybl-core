@@ -14,10 +14,11 @@ Several exchange formats result from this internal format:
 - JIIDM, which corresponds to a JSON export of IIDM,
 - BIIDM, which corresponds to a binary export (this is still a beta-feature).
 
-Below are two export from a same network:
+Below are two exports from the same network:
 - one XML export (XIIDM exchange format)
 - one JSON export (JIIDM exchange format)
 
+(xiidm)=
 ## XIIDM
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -64,6 +65,7 @@ Below are two export from a same network:
 </iidm:network>
 ```
 
+(jiidm)=
 ## JIIDM
 ```json
 {
