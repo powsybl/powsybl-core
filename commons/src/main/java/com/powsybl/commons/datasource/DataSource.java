@@ -29,11 +29,10 @@ public interface DataSource extends ReadOnlyDataSource {
         if (!Files.exists(file)) {
             throw new PowsyblException("File " + file + " does not exist");
         }
-        Path absFile = file.toAbsolutePath();
-        return fromPath(absFile.getParent(), absFile.getFileName().toString());
+        return DataSourceUtil.createDataSource(file, null);
     }
 
-    static DataSource fromPath(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
+    static DataSource fromPath(Path directory, String baseName) {
+        return DataSourceUtil.createDataSource(directory, baseName, null);
     }
 }

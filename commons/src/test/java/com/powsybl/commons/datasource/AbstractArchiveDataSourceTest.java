@@ -87,7 +87,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
 
         // Datasource with an observer
         DataSourceObserver observer = new DefaultDataSourceObserver();
-        DataSource dataSource = DataSourceUtil.createDataSource(fileSystem.getPath("."), archiveWithSubfolders, observer);
+        DataSource dataSource = DataSourceUtil.createDataSource(fileSystem.getPath(".").resolve(archiveWithSubfolders), observer);
         assertInstanceOf(ObservableInputStream.class, dataSource.newInputStream("foo.iidm"));
         assertInstanceOf(ObservableOutputStream.class, dataSource.newOutputStream("test.iidm", false));
 

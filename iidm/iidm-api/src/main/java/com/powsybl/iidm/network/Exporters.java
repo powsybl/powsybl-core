@@ -27,17 +27,16 @@ public final class Exporters {
     private Exporters() {
     }
 
-    public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, observer);
+    public static DataSource createDataSource(Path directory, String basename, DataSourceObserver observer) {
+        return DataSourceUtil.createDataSource(directory, basename, observer);
     }
 
     public static DataSource createDataSource(Path file, DataSourceObserver observer) {
         Objects.requireNonNull(file);
-        if (Files.exists(file) && !Files.isRegularFile(file)) {
-            throw new UncheckedIOException(new IOException("File " + file + " already exists and is not a regular file"));
+        if (Files.exists(file) && !(Files.isRegularFile(file) || Files.isDirectory(file))) {
+            throw new UncheckedIOException(new IOException("File " + file + " already exists and is neither a regular file nor a directory"));
         }
-        Path absFile = file.toAbsolutePath();
-        return createDataSource(absFile.getParent(), absFile.getFileName().toString(), observer);
+        return DataSourceUtil.createDataSource(file, observer);
     }
 
     public static DataSource createDataSource(Path file) {

@@ -196,7 +196,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, TAR_FILENAME, null);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath.resolve(TAR_FILENAME), null);
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
