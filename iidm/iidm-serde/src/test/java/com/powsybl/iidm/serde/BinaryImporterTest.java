@@ -24,7 +24,7 @@ class BinaryImporterTest {
         var importer = new BinaryImporter();
         assertEquals("BIIDM", importer.getFormat());
         assertEquals("IIDM binary v " + CURRENT_IIDM_VERSION.toString(".") + " importer", importer.getComment());
-        assertEquals(List.of("biidm", "bin", "iidm.bin"), importer.getSupportedExtensions());
+        assertEquals(List.of("biidm", "bin"), importer.getSupportedExtensions());
         assertEquals(5, importer.getParameters().size());
     }
 }
