@@ -78,7 +78,8 @@ public final class LineCoordinatesOrdering {
 
     private static Optional<Coordinate> getCoordinate(Line line, TwoSides side) {
         return line.getTerminal(side).getVoltageLevel().getSubstation()
-                .map(s -> (SubstationPosition) s.getExtension(SubstationPosition.class))
+                .map(s -> s.getExtension(SubstationPosition.class))
+                .map(SubstationPosition.class::cast)
                 .map(SubstationPosition::getCoordinate);
     }
 }
