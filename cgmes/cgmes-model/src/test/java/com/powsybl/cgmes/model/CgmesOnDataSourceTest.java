@@ -28,6 +28,7 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
@@ -71,13 +72,24 @@ class CgmesOnDataSourceTest {
                     byte[] data = "Test String".getBytes();
                     out.write(data, 0, data.length);
                     out.closeEntry();
+                    e = new ZipEntry("foo.xml");
+                    out.putNextEntry(e);
+                    data = getClass().getResourceAsStream("/empty_cim16_EQ.xml").readAllBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
             ReadOnlyDataSource dataSource = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "test", "xml", null);
             CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
-            assertFalse(cgmesOnDataSource.exists());
+            assertTrue(cgmesOnDataSource.exists());
+            ReadOnlyDataSource dataSource2 = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "test", "iidm", null);
+            CgmesOnDataSource cgmesOnDataSource2 = new CgmesOnDataSource(dataSource2);
+            assertTrue(cgmesOnDataSource2.exists());
+            ReadOnlyDataSource dataSource3 = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "foo", "bar", null);
+            CgmesOnDataSource cgmesOnDataSource3 = new CgmesOnDataSource(dataSource3);
+            assertFalse(cgmesOnDataSource3.exists());
         }
     }
 }

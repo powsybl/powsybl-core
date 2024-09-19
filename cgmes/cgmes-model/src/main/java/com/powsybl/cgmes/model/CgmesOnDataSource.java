@@ -35,7 +35,7 @@ public class CgmesOnDataSource {
     }
 
     private boolean checkIfMainFileNotWithCgmesData(boolean isCim14) throws IOException {
-        if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty()) {
+        if (dataSource.getDataExtension() == null || dataSource.getDataExtension().isEmpty() || !dataSource.exists(null, dataSource.getDataExtension())) {
             return false;
         } else if (EXTENSION.equals(dataSource.getDataExtension()) && dataSource.exists(null, EXTENSION)) {
             try (InputStream is = dataSource.newInputStream(null, EXTENSION)) {
