@@ -9,7 +9,7 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
-import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
+import com.powsybl.iidm.criteria.duration.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -97,7 +97,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void testLimitsComputer() {
+    void testPermanentLimitLimitsComputer() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         List<LimitReduction> limitReductionList = new ArrayList<>();
         LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
@@ -115,5 +115,27 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         Assertions.assertEquals(315, violationsCollector.get(0).getValue(), 0.01);
         Assertions.assertEquals(500., violationsCollector.get(0).getLimit(), 0.01);
         Assertions.assertEquals(ThreeSides.ONE, violationsCollector.get(0).getSide());
+    }
+
+    @Test
+    void testTemporaryLimitLimitsComputer() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        List<LimitReduction> limitReductionList = new ArrayList<>();
+        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+            .withMonitoringOnly(false)
+            .withContingencyContext(ContingencyContext.none())
+            .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+            .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
+            .build();
+        limitReductionList.add(reduction1);
+        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.TWO, 751, violationsCollector::add, computer);
+        Assertions.assertEquals(1, violationsCollector.size());
+        Assertions.assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
+        Assertions.assertEquals(0, violationsCollector.get(0).getAcceptableDuration());
+        Assertions.assertEquals(751, violationsCollector.get(0).getValue(), 0.01);
+        Assertions.assertEquals(1500, violationsCollector.get(0).getLimit(), 0.01);
+        Assertions.assertEquals(ThreeSides.TWO, violationsCollector.get(0).getSide());
+        Assertions.assertEquals("1'", violationsCollector.get(0).getLimitName());
     }
 }

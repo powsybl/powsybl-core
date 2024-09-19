@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsC
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
 import java.util.*;
+import java.util.stream.*;
 
 /**
  *
@@ -82,9 +83,7 @@ public final class LimitViolationUtils {
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return null;
         }
-        List<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits()
-            .stream().sorted(Comparator.comparing(LoadingLimits.TemporaryLimit::getValue)
-                .thenComparing(LoadingLimits.TemporaryLimit::getAcceptableDuration, Comparator.reverseOrder())).toList();
+        List<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits().stream().toList();
         String previousLimitName = PERMANENT_LIMIT_NAME;
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be override with first loop
