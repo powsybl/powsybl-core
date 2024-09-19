@@ -84,8 +84,7 @@ public interface DataSourceUtil {
                     .withBaseName(fileInformation.getBaseName())
                     .withDataExtension(fileInformation.getDataExtension())
                     .withCompressionFormat(fileInformation.getCompressionFormat())
-                    .withArchiveFormat(fileInformation.getArchiveFormat())
-                    .withObserver(observer);
+                    .withArchiveFormat(fileInformation.getArchiveFormat());
         }
 
         return dataSourceBuilder.build();
