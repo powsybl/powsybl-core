@@ -13,7 +13,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.datasource.ZipArchiveDataSource;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -28,12 +27,13 @@ import java.util.zip.ZipOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Jon Harper {@literal <jon.harper at rte-france.com>}
  */
 class CgmesOnDataSourceTest {
+
+    private static String XIIDM_XML_NOT_CGMES = "<?xml version='1.0' encoding='UTF-8'?><some></some>";
 
     static Stream<Arguments> provideArguments() {
         return Stream.of(
@@ -59,37 +59,127 @@ class CgmesOnDataSourceTest {
         assertEquals(expectedExists, exists);
     }
 
-    @Test
-    void testFileDoesNotExist() throws IOException {
+    static Stream<Arguments> provideArgumentsFortestXmlMainFileXiidmZip() {
+        return Stream.of(
+                Arguments.of("foo", "xml"),
+                Arguments.of("foo", null),
+                Arguments.of("foo", ""),
+                Arguments.of("foo", "notexists"),
+                Arguments.of("bar", "xml"),
+                Arguments.of("bar", null),
+                Arguments.of("bar", ""),
+                Arguments.of("bar", "notexists")
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArgumentsFortestXmlMainFileXiidmZip")
+    void testXmlMainFileXiidmZip(String basename, String dataextension) throws IOException {
         Path testDir;
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             testDir = fileSystem.getPath("/tmp");
             Files.createDirectories(testDir);
-            try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(testDir.resolve("foo.iidm.zip")))) {
+            try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(testDir.resolve("my.zip")))) {
                 try {
-                    ZipEntry e = new ZipEntry("foo.bar");
+                    ZipEntry e = new ZipEntry("foo.xml");
                     out.putNextEntry(e);
-                    byte[] data = "Test String".getBytes();
-                    out.write(data, 0, data.length);
-                    out.closeEntry();
-                    e = new ZipEntry("foo.xml");
-                    out.putNextEntry(e);
-                    data = getClass().getResourceAsStream("/empty_cim16_EQ.xml").readAllBytes();
+                    byte[] data = XIIDM_XML_NOT_CGMES.getBytes();
                     out.write(data, 0, data.length);
                     out.closeEntry();
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
-            ReadOnlyDataSource dataSource = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "test", "xml", null);
-            CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
-            assertTrue(cgmesOnDataSource.exists());
-            ReadOnlyDataSource dataSource2 = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "test", "iidm", null);
-            CgmesOnDataSource cgmesOnDataSource2 = new CgmesOnDataSource(dataSource2);
-            assertTrue(cgmesOnDataSource2.exists());
-            ReadOnlyDataSource dataSource3 = new ZipArchiveDataSource(testDir, "foo.iidm.zip", "foo", "bar", null);
-            CgmesOnDataSource cgmesOnDataSource3 = new CgmesOnDataSource(dataSource3);
-            assertFalse(cgmesOnDataSource3.exists());
+
+            ReadOnlyDataSource dataSourceGoodBasenameGoodDataExtension = new ZipArchiveDataSource(
+                    testDir, "my.zip", basename, dataextension, null);
+            CgmesOnDataSource cgmesOnDataSourceGoodBasenameGoodDataExtension = new CgmesOnDataSource(
+                    dataSourceGoodBasenameGoodDataExtension);
+            assertFalse(cgmesOnDataSourceGoodBasenameGoodDataExtension.exists());
+
         }
     }
+
+    static Stream<Arguments> provideArgumentsForTestXmlMainFileCgmesZip() {
+        return Stream.of(
+                Arguments.of("foo", "xml", true),
+                Arguments.of("foo", "xiidm", false),
+                Arguments.of("foo", "notexists", true),
+                Arguments.of("foo", "", true),
+                Arguments.of("foo", null, true),
+                Arguments.of("bar", "xml", false),
+                Arguments.of("bar", "xiidm", false),
+                Arguments.of("bar", "notexists", true),
+                Arguments.of("bar", "", true),
+                Arguments.of("bar", null, true),
+                Arguments.of("kop", "xml", true),
+                Arguments.of("kop", "xiidm", false),
+                Arguments.of("kop", "notexists", true),
+                Arguments.of("kop", "", true),
+                Arguments.of("kop", null, true),
+                Arguments.of("notexist", "xml", true),
+                Arguments.of("notexist", "xiidm", true),
+                Arguments.of("notexist", "notexists", true),
+                Arguments.of("notexist", "", true),
+                Arguments.of("notexist", null, true)
+        );
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideArgumentsForTestXmlMainFileCgmesZip")
+    void testXmlMainFileCgmesZip(String basename, String dataextension, boolean expected) throws IOException {
+        Path testDir;
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            testDir = fileSystem.getPath("/tmp");
+            Files.createDirectories(testDir);
+            try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(testDir.resolve("my.zip")))) {
+                try {
+                    // The cgmes file that justifies importing this as CGMES
+                    ZipEntry e = new ZipEntry("foo.xml");
+                    out.putNextEntry(e);
+                    byte[] data = getClass().getResourceAsStream("/empty_cim16_EQ.xml").readAllBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
+
+                    // random other files, depending on the datasource basename and dataextension
+                    // the cmgmes importer will refuse to import to allow other importers to import
+                    e = new ZipEntry("foo.xiidm");
+                    out.putNextEntry(e);
+                    data = "same basename as the tested cgmes file foo.xml".getBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
+                    // Note: and no need to test prefix matching file names like "fooooo.xiidm" or
+                    // "fooooo.xml"
+                    // because the prefixing of the basename is not used for exists()
+
+                    // different basename but xml may still be cgmes
+                    e = new ZipEntry("bar.xml");
+                    out.putNextEntry(e);
+                    data = XIIDM_XML_NOT_CGMES.getBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
+
+                    e = new ZipEntry("bar.xiidm");
+                    out.putNextEntry(e);
+                    data = "different basename different extension".getBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
+
+                    e = new ZipEntry("kop.xiidm");
+                    out.putNextEntry(e);
+                    data = "nothing in common, there is no other file with the same basename and .xml extension"
+                            .getBytes();
+                    out.write(data, 0, data.length);
+                    out.closeEntry();
+
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+            ReadOnlyDataSource dataSource = new ZipArchiveDataSource(testDir, "my.zip", basename, dataextension, null);
+            CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
+            assertEquals(expected, cgmesOnDataSource.exists());
+        }
+    }
+
 }
