@@ -7,6 +7,7 @@ Datasources are Java-objects used to facilitate I/O operations around PowSyBl.
 It allows users to read and write files. It is for example used under the hood by Importers to access the filesystem
 during Network imports when using `Network.read()` methods.
 
+For importers and exporters, datasources are used to access files corresponding to a single network
 
 ## Types of datasources
 
@@ -52,8 +53,11 @@ Those methods allow the user to write in a new file (if `append==false`) or at t
 `append==true`).
 
 This interface also provides two static convenience methods (`fromPath(Path file)` and
-`fromPath(Path directory, String fileNameOrBaseName)`) for the different use cases like writing data to the local
-filesystem, and ensuring that the target folder already exists.
+`fromPath(Path directory, String fileNameOrBaseName)`) for the different use cases like reading data from the local
+filesystem, and ensuring that the target file exists. These methods have their opposite in the class `Exporters`
+named `createDataSource(Path file)` and used to write data on the local filesystem, while ensuring that the target file
+given as parameter is not a directory. All those methods then make use of `DataSourceUtil.createDataSource` to build
+the datasource.
 
 Two classes implement the `DataSource` interface:
 - `MemDataSource`: extension of `ReadOnlyMemDataSource` implementing the writing features of `DataSource`
@@ -72,9 +76,9 @@ BZIP2, GZIP, XZ and ZSTD. Each one of those compression format has a correspondi
 `ZstdDirectoryDataSource`.
 
 `DirectoryDataSource` integrates the notions of base name and data extension:
-- The base name is used to facilitate the access to files that all start with the same String. For example, `network` would
-be a good base name if your files are `network.xiidm`, `network_reduced.xiidm`, `network_mapping.csv`, etc.
-- The data extension is the last extension of your files, excluding the compression extension if they have one.
+- The base name is used to access files that all start with the same String. For example, `network` would
+be a good base name if your files are `network.xiidm`, `network_mapping.csv`, etc.
+- The data extension is the last extension of your main files, excluding the compression extension if they have one.
 It usually corresponds to the data format extension: `csv`, `xml`, `json`, `xiidm`, etc. This extension is mainly used
 to disambiguate the files to use in the datasource, for example when you have files that differ only by the data
 extension (e.g. `network.xiidm` and `network.xml` in the same folder representing two different networks). 
@@ -109,9 +113,10 @@ Let's consider a directory containing the following files:
 ```
 directory              
 ├── network              
-├── network.south         
+├── network.south              
 ├── network.xiidm.gz    
 ├── network.v3.xiidm.gz
+├── network_mapping.csv.gz
 ├── network.gz         
 └── toto.xiidm.gz  
 ```
@@ -131,7 +136,7 @@ datasource.exists("network.xiidm") // Returns true: the file "network.xiidm.gz" 
 // Check if some files exist in the datasource by using the `exists(String fileName)` method
 datasource.exists("_south", "reduced") // Returns false: the file "network_south.reduced.gz" does not exist in the directory
 datasource.exists(null, "xiidm") // Returns true: the file "network.xiidm.gz" exists in the directory
-datasource.exists(null, null) // Returns true: the file "network.gz" exists in the directory
+datasource.exists("_mapping", "csv") // Returns true: the file "network_mapping.csv.gz" exists in the directory
 
 // We can create some a new file "network_test.txt.gz" and write "line1" inside
 try (OutputStream os = dataSource.newOutputStream("_test", "txt", false)) {
