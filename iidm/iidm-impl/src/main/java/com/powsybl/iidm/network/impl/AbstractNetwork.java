@@ -95,7 +95,7 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      */
     protected static void transferExtensions(Network from, Network to, boolean ignoreAlreadyPresent) {
         // Only well-defined extensions (with an interface) are transferred
-        new ArrayList<Extension<?>>(from.getExtensions()).forEach(e -> {
+        new ArrayList<Extension<?>>(from.getExtensions()).forEach(e ->
             Arrays.stream(e.getClass().getInterfaces())
                     .filter(c -> Objects.nonNull(from.getExtension(c)))
                     .forEach(clazz -> {
@@ -107,8 +107,8 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
                             from.removeExtension((Class<? extends Extension<Network>>) clazz);
                             to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
                         }
-                    });
-        });
+                    })
+        );
     }
 
     /**
