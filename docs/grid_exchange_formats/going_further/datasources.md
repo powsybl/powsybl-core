@@ -3,11 +3,11 @@
 
 ## Principles
 
-Datasources are Java-objects used to facilitate I/O operations around PowSyBl.
+Datasources are Java-objects used for I/O operations around PowSyBl.
 It allows users to read and write files. It is for example used under the hood by Importers to access the filesystem
 during Network imports when using `Network.read()` methods.
 
-For importers and exporters, datasources are used to access files corresponding to a single network
+For importers and exporters, datasources are used to access files corresponding to a single network.
 
 ## Types of datasources
 
@@ -21,13 +21,14 @@ data location, data compression, etc.
 `ReadOnlyDataSource` is the most basic datasource interface available. As you can tell by the name, it only provides 
 reading features.
 It has two parameters:
-- a base name (corresponding to the common prefix in the names of multiple related files the user wants to 
-consider in the datasource),
+- a base name, which is a prefix that can be used to consider only files with this prefix (while reading) or as a prefix for
+the output file (while writing),
 - (optionally) a data extension, mainly used to disambiguate identically named data of different type. 
 Note: this does not apply to compression extensions.
 
 _**Example:**
-For a file named `europe.west.xiidm.gz`, the base name could be `europe.west` for instance (or `europe` or `europe.w` or ...), while the data extension would be `xiidm`._
+For a file named `europe.west.xiidm`, the base name could be `europe.west` for instance (or `europe` or `europe.w` 
+or ...), while the data extension would be `xiidm`._
 
 The main methods `ReadOnlyDataSource` provides are:
 
@@ -62,7 +63,8 @@ the datasource.
 Two classes implement the `DataSource` interface:
 - `MemDataSource`: extension of `ReadOnlyMemDataSource` implementing the writing features of `DataSource`
 - `AbstractFileSystemDataSource`: abstract class used to define datasources based on files present in the file system,
-either directly or in an archive.
+either (see below the DirectoryDataSource class and its children) or in an archive (see below the 
+AbstractArchiveDataSource class and its children).
 
 (directorydatasources)=
 ### Directory DataSource
@@ -76,7 +78,7 @@ BZIP2, GZIP, XZ and ZSTD. Each one of those compression format has a correspondi
 `ZstdDirectoryDataSource`.
 
 `DirectoryDataSource` integrates the notions of base name and data extension:
-- The base name is used to access files that all start with the same String. For example, `network` would
+- The base name is used to access files that all start with the same prefix. For example, `network` would
 be a good base name if your files are `network.xiidm`, `network_mapping.csv`, etc.
 - The data extension is the last extension of your main files, excluding the compression extension if they have one.
 It usually corresponds to the data format extension: `csv`, `xml`, `json`, `xiidm`, etc. This extension is mainly used
@@ -87,6 +89,9 @@ Even if `DirectoryDataSource` integrates the notions of base name and data exten
 `(String suffix, String ext)` as parameters, you still have the possibility to use files that do not correspond to the 
 base name and data extension by using the methods with `(String filename)` as parameter, excluding the compression 
 extension if there is one.
+
+In addition to filtering with the regex parameter, in directory datasources the method `listNames(String regex)` filters
+filenames to only keep those starting with the basename.
 
 (archivedatasources)=
 ### Archive DataSource
@@ -105,6 +110,8 @@ data extension, as `<directory>/<basename>.<dataExtension>.<archiveExtension>.<c
 compression extension being optional depending on the archive format. For example `network.xiidm.zip` contains
 `network.xiidm`.
 
+Unlike in directory datasources, in archive datasources the method `listNames(String regex)` filters
+filenames only by the regex and not by the basename.
 
 ## Example
 
@@ -129,14 +136,15 @@ GzDirectoryDataSource datasource = new GzDirectoryDataSource(testDir, "network",
 
 // Check if some files exist in the datasource by using the `exists(String fileName)` method
 // Since the datasource uses Gzip compression, ".gz" is added to the provided fileName parameter
-datasource.exists("test.toto") // Returns false: the file "test.toto.gz" does not exist in the directory
-datasource.exists("network.south") // Returns false: the file "network.south.gz" does not exist
-datasource.exists("network.xiidm") // Returns true: the file "network.xiidm.gz" exists
+datasource.exists("test.toto"); // Returns false: the file "test.toto.gz" does not exist in the directory
+datasource.exists("network.south"); // Returns false: the file "network.south.gz" does not exist
+datasource.exists("network.xiidm"); // Returns true: the file "network.xiidm.gz" exists
+datasource.exists("toto.xiidm"); // Returns true: the file "toto.xiidm.gz" exists
 
-// Check if some files exist in the datasource by using the `exists(String fileName)` method
-datasource.exists("_south", "reduced") // Returns false: the file "network_south.reduced.gz" does not exist in the directory
-datasource.exists(null, "xiidm") // Returns true: the file "network.xiidm.gz" exists in the directory
-datasource.exists("_mapping", "csv") // Returns true: the file "network_mapping.csv.gz" exists in the directory
+// Check if some files exist in the datasource by using the `exists(String suffix, String ext)` method
+datasource.exists("_south", "reduced"); // Returns false: the file "network_south.reduced.gz" does not exist in the directory
+datasource.exists(null, "xiidm"); // Returns true: the file "network.xiidm.gz" exists in the directory
+datasource.exists("_mapping", "csv"); // Returns true: the file "network_mapping.csv.gz" exists in the directory
 
 // We can create some a new file "network_test.txt.gz" and write "line1" inside
 try (OutputStream os = dataSource.newOutputStream("_test", "txt", false)) {
@@ -154,5 +162,13 @@ try (InputStream is = dataSource.newInputStream("_test", "txt")) {
 }
 
 // List the files in the datasource
-Set<String> files = datasource.listNames(".*") // returns a set containing: "network", "network.south", "network.xiidm", "network.v3.xiidm", "network_test.txt"
+Set<String> files = datasource.listNames(".*");
+// returns a set containing: "network", "network.south", "network.xiidm", "network.v3.xiidm", "network_test.txt", "network_mapping.csv.gz"
+// The file "toto.xiidm.gz" is not listed due to the basename filtering
+
+// Using a datasource with different parameters allows to use other files, even on the same directory
+GzDirectoryDataSource totoDatasource = new GzDirectoryDataSource(testDir, "toto", "xiidm", observer);
+oolean totoDatasource.exists(null, "xiidm"); // Returns true: the file "toto.xiidm.gz" exists in the directory
+Set<String> files = totoDatasource.listNames(".*");
+// returns a set containing: "toto.xiidm.gz"
 ```
