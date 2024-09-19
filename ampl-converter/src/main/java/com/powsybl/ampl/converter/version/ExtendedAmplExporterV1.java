@@ -87,26 +87,26 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
 
     @Override
     public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
-        formatterHelper.addCell(NetworkUtil.isSlackBus(b), 8);
+        formatterHelper.addCell(NetworkUtil.isSlackBus(b), SLACK_BUS_COLUMN_INDEX);
     }
 
     @Override
     public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
                                                                              ThreeWindingsTransformer twt,
                                                                              int middleCcNum) {
-        formatterHelper.addCell(false, 8);
+        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
     @Override
     public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
                                                           int middleCcNum) {
-        formatterHelper.addCell(false, 8);
+        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
     @Override
     public void addAdditionalCellsTieLineMiddleBuses(TableFormatterHelper formatterHelper, TieLine tieLine,
                                                      int xNodeCcNum) {
-        formatterHelper.addCell(false, 8);
+        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
     @Override
@@ -178,7 +178,7 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
     }
 
     private record TapChangerParametersForWriter(int num, int stepPosition, int lowTapPosition, double zb2,
-                                                 ImpedanceAndAdmittance transformer, ImpedanceAndAdmittance step, double rho, double alpha) {}
+                                                 ImpedanceAndAdmittance transformer, ImpedanceAndAdmittance step, double rho, double alpha) { }
 
     private void writeTapChanger(TableFormatter formatter, TapChangerParametersForWriter parametersForWriter) throws IOException {
         double rNorm = parametersForWriter.transformer.r * (1 + parametersForWriter.step.r / 100) / parametersForWriter.zb2;
@@ -202,7 +202,7 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
         int regulatingBusNum = gen.isVoltageRegulatorOn() ?
             getMapper().getInt(AmplSubset.BUS, gen.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
-        formatterHelper.addCell(regulatingBusNum, 14);
+        formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);
     }
 
     @Override
@@ -213,7 +213,7 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
             getMapper().getInt(AmplSubset.BUS, svc.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
         // Cell to add
-        formatterHelper.addCell(regulatingBusNum, 8);
+        formatterHelper.addCell(regulatingBusNum, STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX);
     }
 
 }
