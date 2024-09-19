@@ -12,8 +12,10 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsContainer;
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
-import java.util.*;
-import java.util.stream.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
