@@ -7,7 +7,10 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -18,6 +21,7 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.ucte.converter.util.UcteConstants;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -344,5 +348,15 @@ class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), parameters);
         assertEquals(0, network.getAreaTypeCount());
         assertEquals(0, network.getAreaCount());
+    }
+
+    @Test
+    void testMetaInfos() throws IOException {
+        try (var fs = Jimfs.newFileSystem(Configuration.unix())) {
+            var importer = new UcteImporter(new InMemoryPlatformConfig(fs));
+            assertEquals("UCTE", importer.getFormat());
+            assertEquals("UCTE-DEF", importer.getComment());
+            assertEquals(List.of("uct", "UCT"), importer.getSupportedExtensions());
+        }
     }
 }
