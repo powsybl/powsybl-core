@@ -34,7 +34,7 @@ public final class LoadingLimitsUtil {
     }
 
     /**
-     * comparator for temporary limits
+     * Comparator for temporary limits
      * to return the temporary limits ordered by descending acceptable duration
      */
     public static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
