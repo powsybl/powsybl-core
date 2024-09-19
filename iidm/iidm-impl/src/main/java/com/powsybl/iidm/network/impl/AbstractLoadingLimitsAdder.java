@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.*;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

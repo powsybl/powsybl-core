@@ -9,7 +9,8 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
-import com.powsybl.iidm.criteria.duration.*;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
+import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;

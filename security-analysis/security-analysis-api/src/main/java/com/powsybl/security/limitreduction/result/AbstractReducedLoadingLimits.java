@@ -8,7 +8,7 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.util.*;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 
 import java.util.Collection;
 import java.util.Optional;
