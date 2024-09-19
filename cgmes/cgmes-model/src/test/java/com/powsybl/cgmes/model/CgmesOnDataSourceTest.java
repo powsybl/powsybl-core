@@ -59,7 +59,7 @@ class CgmesOnDataSourceTest {
         assertEquals(expectedExists, exists);
     }
 
-    static Stream<Arguments> provideArgumentsFortestXmlMainFileXiidmZip() {
+    static Stream<Arguments> provideArgumentsForTestXmlMainFileXiidmZip() {
         return Stream.of(
                 Arguments.of("foo", "xml"),
                 Arguments.of("foo", null),
