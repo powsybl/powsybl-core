@@ -10,13 +10,14 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -24,6 +25,8 @@ import java.util.stream.Stream;
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
 abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements NetworkExt {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetwork.class);
 
     private ZonedDateTime caseDate = ZonedDateTime.now(ZoneOffset.UTC); // default is the time at which the network has been created
 
@@ -93,15 +96,18 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
     protected static void transferExtensions(Network from, Network to, boolean ignoreAlreadyPresent) {
         // Only well-defined extensions (with an interface) are transferred
         new ArrayList<Extension<?>>(from.getExtensions()).forEach(e -> {
-            Stream<Class<?>> stream = Arrays.stream(e.getClass().getInterfaces())
-                    .filter(c -> Objects.nonNull(from.getExtension(c)));
-            if (ignoreAlreadyPresent) {
-                stream = stream.filter(c -> to.getExtension(c) == null);
-            }
-            stream.forEach(clazz -> {
-                from.removeExtension((Class<? extends Extension<Network>>) clazz);
-                to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
-            });
+            Arrays.stream(e.getClass().getInterfaces())
+                    .filter(c -> Objects.nonNull(from.getExtension(c)))
+                    .forEach(clazz -> {
+                        if (ignoreAlreadyPresent && to.getExtension(clazz) != null) {
+                            LOGGER.warn("Extension of class \"{}\" was not transferred from \"{}\" to \"{}\": " +
+                                            "an extension of this same class already exists in the destination network.",
+                                    clazz.getName(), from.getId(), to.getId());
+                        } else {
+                            from.removeExtension((Class<? extends Extension<Network>>) clazz);
+                            to.addExtension((Class<? super Extension<Network>>) clazz, (Extension<Network>) e);
+                        }
+                    });
         });
     }
 
@@ -121,13 +127,14 @@ abstract class AbstractNetwork extends AbstractIdentifiable<Network> implements 
      * @param ignoreAlreadyPresent should a property to transfer be ignored if already present in {@code toNetwork}?
      */
     protected static void transferProperties(AbstractNetwork fromNetwork, AbstractNetwork toNetwork, boolean ignoreAlreadyPresent) {
-        Stream<Map.Entry<Object, Object>> stream = fromNetwork.getProperties().entrySet().stream();
-        if (ignoreAlreadyPresent) {
-            stream = stream.filter(e -> !toNetwork.hasProperty(e.getKey().toString()));
-        }
-        stream.forEach(e -> {
-            toNetwork.setProperty(e.getKey().toString(), e.getValue().toString());
-            fromNetwork.removeProperty(e.getKey().toString());
+        fromNetwork.getProperties().forEach((key, value) -> {
+            if (ignoreAlreadyPresent && toNetwork.hasProperty(key.toString())) {
+                LOGGER.warn("Property \"{}\" was not transferred from \"{}\" to \"{}\": it already exists in the destination network.",
+                        key, fromNetwork.getId(), toNetwork.getId());
+            } else {
+                toNetwork.setProperty(key.toString(), value.toString());
+                fromNetwork.removeProperty(key.toString());
+            }
         });
     }
 
