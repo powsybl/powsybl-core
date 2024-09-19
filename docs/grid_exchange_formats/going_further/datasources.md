@@ -81,9 +81,10 @@ BZIP2, GZIP, XZ and ZSTD. Each one of those compression format has a correspondi
 - The base name is used to access files that all start with the same prefix. For example, `network` would
 be a good base name if your files are `network.xiidm`, `network_mapping.csv`, etc.
 - The data extension is the last extension of your main files, excluding the compression extension if they have one.
-It usually corresponds to the data format extension: `csv`, `xml`, `json`, `xiidm`, etc. This extension is mainly used
-to disambiguate the files to use in the datasource, for example when you have files that differ only by the data
-extension (e.g. `network.xiidm` and `network.xml` in the same folder representing two different networks). 
+It usually corresponds to the data format extension: `csv`, `xml`, `json`, `xiidm`, etc. This extension is used
+to disambiguate the files to use in the datasource: just like you can create two different datasources selecting a 
+different subset of files in a folder based on a different base name (e.g. `france.xiidm` and `europe.xiidm`), you can 
+use the data extension to select either `france.xiidm` or `france.uct`. 
 
 Even if `DirectoryDataSource` integrates the notions of base name and data extension in the methods with
 `(String suffix, String ext)` as parameters, you still have the possibility to use files that do not correspond to the 
@@ -91,7 +92,7 @@ base name and data extension by using the methods with `(String filename)` as pa
 extension if there is one.
 
 In addition to filtering with the regex parameter, in directory datasources the method `listNames(String regex)` filters
-filenames to only keep those starting with the basename.
+filenames to only keep those starting with the base name.
 
 (archivedatasources)=
 ### Archive DataSource
@@ -111,7 +112,7 @@ compression extension being optional depending on the archive format. For exampl
 `network.xiidm`.
 
 Unlike in directory datasources, in archive datasources the method `listNames(String regex)` filters
-filenames only by the regex and not by the basename.
+filenames only by the regex and not by the base name.
 
 ## Example
 
@@ -164,11 +165,11 @@ try (InputStream is = dataSource.newInputStream("_test", "txt")) {
 // List the files in the datasource
 Set<String> files = datasource.listNames(".*");
 // returns a set containing: "network", "network.south", "network.xiidm", "network.v3.xiidm", "network_test.txt", "network_mapping.csv.gz"
-// The file "toto.xiidm.gz" is not listed due to the basename filtering
+// The file "toto.xiidm.gz" is not listed due to the base name filtering
 
 // Using a datasource with different parameters allows to use other files, even on the same directory
 GzDirectoryDataSource totoDatasource = new GzDirectoryDataSource(testDir, "toto", "xiidm", observer);
-oolean totoDatasource.exists(null, "xiidm"); // Returns true: the file "toto.xiidm.gz" exists in the directory
+totoDatasource.exists(null, "xiidm"); // Returns true: the file "toto.xiidm.gz" exists in the directory
 Set<String> files = totoDatasource.listNames(".*");
 // returns a set containing: "toto.xiidm.gz"
 ```
