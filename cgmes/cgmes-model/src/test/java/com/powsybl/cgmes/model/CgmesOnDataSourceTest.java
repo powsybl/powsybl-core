@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
  */
 class CgmesOnDataSourceTest {
 
-    private final static String XIIDM_XML_NOT_CGMES = "<?xml version='1.0' encoding='UTF-8'?><some></some>";
+    private static final String XIIDM_XML_NOT_CGMES = "<?xml version='1.0' encoding='UTF-8'?><some></some>";
 
     static Stream<Arguments> provideArguments() {
         return Stream.of(
