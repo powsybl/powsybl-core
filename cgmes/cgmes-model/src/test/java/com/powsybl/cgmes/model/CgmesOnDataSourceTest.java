@@ -73,7 +73,7 @@ class CgmesOnDataSourceTest {
     }
 
     @ParameterizedTest
-    @MethodSource("provideArgumentsFortestXmlMainFileXiidmZip")
+    @MethodSource("provideArgumentsForTestXmlMainFileXiidmZip")
     void testXmlMainFileXiidmZip(String basename, String dataextension) throws IOException {
         Path testDir;
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
