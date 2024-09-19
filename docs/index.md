@@ -8,7 +8,7 @@ It is part of [LF Energy](https://www.lfenergy.org/), an open source foundation 
 PowSyBl is used through Python scripts using the library [Pypowsybl](https://powsybl.readthedocs.io/projects/pypowsybl/en/stable/), but also 
 to build state-of-the-art applications.
 
-Check the [Getting started](../documentation/user/index.md) and [Configuration](../documentation/user/configuration/index.md) pages to learn how to install and configure PowSyBl.
+Check the [Getting started](./user/index.md) and [Configuration](./user/configuration/index.md) pages to learn how to install and configure PowSyBl.
 
 ```{toctree}
 ---

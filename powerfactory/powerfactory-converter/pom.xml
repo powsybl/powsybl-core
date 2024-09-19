@@ -87,5 +87,10 @@
             <artifactId>powsybl-powerfactory-dgs</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-powerfactory-db</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

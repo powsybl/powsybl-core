@@ -60,4 +60,11 @@ public interface NetworkModification {
      * in case of error.
      */
     void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode);
+
+    /**
+     * States if the network modification would change the current state of the network. It has no impact on the network.
+     * @param network Network that serves as reference for the impact.
+     * @return True if the network modification would have an impact on the network.
+     */
+    NetworkModificationImpact hasImpactOnNetwork(final Network network);
 }
