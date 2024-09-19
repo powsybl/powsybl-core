@@ -81,4 +81,21 @@ public final class LoadingLimitsUtil {
             adder.setPermanentLimit(fixedPermanentLimit);
         }
     }
+
+     /**
+      * <p>Initialize an adder filled with a copy of an existing limits set</p>
+      * @param adder the empty adder in which we initialize the new limits
+      * @param limits the limits to copy
+      */
+    public static <L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> A initializeFromLoadingLimits(A adder, L limits) {
+        adder.setPermanentLimit(limits.getPermanentLimit());
+        limits.getTemporaryLimits().forEach(limit ->
+                adder.beginTemporaryLimit()
+                        .setName(limit.getName())
+                        .setAcceptableDuration(limit.getAcceptableDuration())
+                        .setValue(limit.getValue())
+                        .setFictitious(limit.isFictitious())
+                        .endTemporaryLimit());
+        return adder;
+    }
 }
