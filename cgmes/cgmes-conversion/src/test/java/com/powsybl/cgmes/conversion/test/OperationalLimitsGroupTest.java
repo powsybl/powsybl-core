@@ -38,28 +38,19 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
         Line line = network.getLine("Line");
 
-        // There are 4 CGMES OperationalLimitSets on side 1 merged into 3 IIDM OperationalLimitsGroup
-        assertEquals(3, line.getOperationalLimitsGroups1().size());
-        assertEquals(0, line.getOperationalLimitsGroups2().size());
+        // There is 1 set on side 1, 2 sets on side 2
+        assertEquals(1, line.getOperationalLimitsGroups1().size());
+        assertEquals(2, line.getOperationalLimitsGroups2().size());
 
-        // The CGMES winter current and active power limits have been merged into the same limits group
-        // since their OperationalLimitSet name are equals
-        Optional<OperationalLimitsGroup> winterLimits = line.getOperationalLimitsGroup1("WINTER");
+        // The winter set (_OLS_3) contains current limits and active power limits
+        Optional<OperationalLimitsGroup> winterLimits = line.getOperationalLimitsGroup2("_OLS_3");
         assertTrue(winterLimits.isPresent());
         assertTrue(winterLimits.get().getCurrentLimits().isPresent());
         assertTrue(winterLimits.get().getActivePowerLimits().isPresent());
 
-        // The CGMES spring current limits and summer active power limits have different limits group
-        // since their OperationalLimitSet name are distinct
-        Optional<OperationalLimitsGroup> springLimits = line.getOperationalLimitsGroup1("SPRING");
-        assertTrue(springLimits.isPresent());
-        assertTrue(springLimits.get().getCurrentLimits().isPresent());
-        assertTrue(springLimits.get().getActivePowerLimits().isEmpty());
-
-        Optional<OperationalLimitsGroup> summerLimits = line.getOperationalLimitsGroup1("SUMMER");
-        assertTrue(summerLimits.isPresent());
-        assertTrue(summerLimits.get().getCurrentLimits().isEmpty());
-        assertTrue(summerLimits.get().getActivePowerLimits().isPresent());
+        // When an end has only 1 set, this set gets selected, otherwise none is
+        assertTrue(line.getSelectedOperationalLimitsGroup1().isPresent());
+        assertFalse(line.getSelectedOperationalLimitsGroup2().isPresent());
     }
 
     @Test
@@ -73,23 +64,23 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve("ExportSelectedLimitsGroup.xml"));
         String exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
 
-        // No OperationalLimitsGroup is exported
-        assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
-        assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
+        // There is 1 set on side 1 which is selected, and there are 2 sets on side 2 but none of them is selected
+        assertEquals(1, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
-        assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
+        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
 
-        // Manually select one limits group
+        // Manually select one of the limits group on side 2 and export again
         Line line = network.getLine("Line");
-        line.setSelectedOperationalLimitsGroup1("WINTER");
+        line.setSelectedOperationalLimitsGroup2("_OLS_2");
         network.write("CGMES", exportParams, tmpDir.resolve("ExportSelectedLimitsGroup.xml"));
         exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
 
-        // The selected limits group contains 2 sets of limits (current and active power)
+        // That makes 1 set selected on each side = 2 in total
         assertEquals(2, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
         assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
-        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
-        assertEquals(3, getOccurrences(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
+        assertEquals(0, getOccurrences(exportSelectedLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(6, getOccurrences(exportSelectedLimitsGroupXml, CURRENT_LIMIT).size());
     }
 
     @Test
@@ -103,11 +94,11 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         network.write("CGMES", exportParams, tmpDir.resolve("ExportAllLimitsGroup.xml"));
         String exportAllLimitsGroupXml = Files.readString(tmpDir.resolve("ExportAllLimitsGroup_EQ.xml"));
 
-        // All 4 OperationalLimitsGroup are exported
-        assertEquals(4, getOccurrences(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
+        // All 3 OperationalLimitsGroup are exported, even though only 2 are selected
+        assertEquals(3, getOccurrences(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_SET).size());
         assertEquals(3, getOccurrences(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
-        assertEquals(6, getOccurrences(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
-        assertEquals(6, getOccurrences(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
+        assertEquals(3, getOccurrences(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
+        assertEquals(9, getOccurrences(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
     }
 
     private Set<String> getOccurrences(String xml, Pattern pattern) {

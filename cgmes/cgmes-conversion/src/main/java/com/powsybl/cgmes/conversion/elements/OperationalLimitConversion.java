@@ -28,14 +28,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String OPERATIONAL_LIMIT_TYPE_NAME = "operationalLimitTypeName";
     private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
     private static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
-    private static final String OPERATIONAL_LIMIT_SET_NAME = "limitSetName";
     private static final String PERMANENT_LIMIT = "Permanent Limit";
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super("OperationalLimit", l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        String limitSet = p.getLocal(OPERATIONAL_LIMIT_SET_NAME) != null ? p.getLocal(OPERATIONAL_LIMIT_SET_NAME) : p.getLocal(OPERATIONAL_LIMIT_SET);
+        String limitSet = p.getLocal(OPERATIONAL_LIMIT_SET);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");

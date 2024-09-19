@@ -311,23 +311,21 @@ OperationalLimits model a specification of limits associated with equipments.
 #### OperationalLimitSet
 
 A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
-The `id` attribute is copied from CGMES `name`.
 
 Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
-[`Line`](../../grid_model/network_subnetwork.md#line) (actually 2 collections for a Line: one for each side), [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
+[`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
 
-In case of multiple `OperationalLimitSet` attached to the same end:
-- If the sets have different names, they are imported in different `OperationalLimitsGroup`. For instance, a `WINTER` set and a `SUMMER` set will be imported in two distinct groups.
-- If the sets have the same name, the sets are merged in the same `OperationalLimitsGroup`. For instance, a `WINTER` set of CurrentLimit and a `WINTER` set of ActivePowerLimit will be imported in the same group.
+The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
 
 If there is only one `OperationalLimitsGroup` on an end, it automatically gets to be selected (active). However, if there is multiple groups, none is selected: the user has to choose which set is active.
 
 #### OperationalLimit
 
-A CGMES `OperationalLimit` is an abstract class that represent different kinds of limits: current, active power or apparent power.  The collection of CGMES `OperationalLimit` in the set is mapped to a PowSyBl [`LoadingLimits`](../../grid_model/additional.md#loading-limits) as follows:
-- The set of CGMES `CurrentLimit` in the `OperationalLimitSet` are mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
-- The set of CGMES `ActivePowerLimit` in the `OperationalLimitSet` are mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
-- The set of CGMES `ApparentPowerLimit` in the `OperationalLimitSet` are mapped to the `apparentPowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
+A CGMES `OperationalLimit` is an abstract class that represent different kinds of limits: current, active power or apparent power.
+The collection of the same subclass of CGMES `OperationalLimit` in the set is mapped to a PowSyBl [`LoadingLimits`](../../grid_model/additional.md#loading-limits) as follows:
+- The collection of CGMES `CurrentLimit` in the `OperationalLimitSet` is mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ActivePowerLimit` in the `OperationalLimitSet` is mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ApparentPowerLimit` in the `OperationalLimitSet` is mapped to the `apparentPowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
 
 A particular CGMES `OperationalLimit` is mapped differently depending on its associated CGMES `OperationalLimitType`:
 - A permanent limit (`OperationalLimitType.limitType` is `LimitTypeKind.patl`) is mapped as follows:

@@ -76,7 +76,7 @@
     <cim:SubGeographicalRegion.Region rdf:resource="#_Pays"/>
 </cim:SubGeographicalRegion>
 <cim:OperationalLimitSet rdf:ID="_OLS_1">
-    <cim:IdentifiedObject.name>WINTER</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.name>SPRING</cim:IdentifiedObject.name>
     <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_1"/>
 </cim:OperationalLimitSet>
 <cim:CurrentLimit rdf:ID="_Limit_11">
@@ -98,30 +98,30 @@
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
 </cim:CurrentLimit>
 <cim:OperationalLimitSet rdf:ID="_OLS_2">
-    <cim:IdentifiedObject.name>WINTER</cim:IdentifiedObject.name>
-    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_1"/>
+    <cim:IdentifiedObject.name>SPRING</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_2"/>
 </cim:OperationalLimitSet>
-<cim:ActivePowerLimit rdf:ID="_Limit_21">
+<cim:CurrentLimit rdf:ID="_Limit_21">
     <cim:IdentifiedObject.name>Limit1</cim:IdentifiedObject.name>
     <cim:CurrentLimit.value>102</cim:CurrentLimit.value>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
-</cim:ActivePowerLimit>
-<cim:ActivePowerLimit rdf:ID="_Limit_22">
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_22">
     <cim:IdentifiedObject.name>Limit2</cim:IdentifiedObject.name>
     <cim:CurrentLimit.value>202</cim:CurrentLimit.value>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
-</cim:ActivePowerLimit>
-<cim:ActivePowerLimit rdf:ID="_Limit_23">
+</cim:CurrentLimit>
+<cim:CurrentLimit rdf:ID="_Limit_23">
     <cim:IdentifiedObject.name>Limit3</cim:IdentifiedObject.name>
     <cim:CurrentLimit.value>302</cim:CurrentLimit.value>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_2"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
-</cim:ActivePowerLimit>
+</cim:CurrentLimit>
 <cim:OperationalLimitSet rdf:ID="_OLS_3">
-    <cim:IdentifiedObject.name>SPRING</cim:IdentifiedObject.name>
-    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_1"/>
+    <cim:IdentifiedObject.name>WINTER</cim:IdentifiedObject.name>
+    <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_2"/>
 </cim:OperationalLimitSet>
 <cim:CurrentLimit rdf:ID="_Limit_31">
     <cim:IdentifiedObject.name>Limit1</cim:IdentifiedObject.name>
@@ -141,28 +141,24 @@
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
 </cim:CurrentLimit>
-    <cim:OperationalLimitSet rdf:ID="_OLS_4">
-        <cim:IdentifiedObject.name>SUMMER</cim:IdentifiedObject.name>
-        <cim:OperationalLimitSet.Terminal rdf:resource="#_Terminal_1"/>
-    </cim:OperationalLimitSet>
-    <cim:ActivePowerLimit rdf:ID="_Limit_41">
-        <cim:IdentifiedObject.name>Limit1</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>104</cim:CurrentLimit.value>
-        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_4"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
-    </cim:ActivePowerLimit>
-    <cim:ActivePowerLimit rdf:ID="_Limit_42">
-        <cim:IdentifiedObject.name>Limit2</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>204</cim:CurrentLimit.value>
-        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_4"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
-    </cim:ActivePowerLimit>
-    <cim:ActivePowerLimit rdf:ID="_Limit_43">
-        <cim:IdentifiedObject.name>Limit3</cim:IdentifiedObject.name>
-        <cim:CurrentLimit.value>304</cim:CurrentLimit.value>
-        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_4"/>
-        <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
-    </cim:ActivePowerLimit>
+<cim:ActivePowerLimit rdf:ID="_Limit_34">
+    <cim:IdentifiedObject.name>Limit4</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>104</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_1"/>
+</cim:ActivePowerLimit>
+<cim:ActivePowerLimit rdf:ID="_Limit_35">
+    <cim:IdentifiedObject.name>Limit5</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>204</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_2"/>
+</cim:ActivePowerLimit>
+<cim:ActivePowerLimit rdf:ID="_Limit_36">
+    <cim:IdentifiedObject.name>Limit6</cim:IdentifiedObject.name>
+    <cim:CurrentLimit.value>304</cim:CurrentLimit.value>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_OLS_3"/>
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_Limit_Type_3"/>
+</cim:ActivePowerLimit>
 <cim:OperationalLimitType rdf:ID="_Limit_Type_1">
     <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue" />
     <entsoe:OperationalLimitType.limitType rdf:resource="http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl" />

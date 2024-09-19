@@ -2205,10 +2205,6 @@
 		<cim:IdentifiedObject.name>_OLS_V_1000</cim:IdentifiedObject.name>
 		<cim:OperationalLimitSet.Equipment rdf:resource="#_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c" />
 	</cim:OperationalLimitSet>
-	<cim:OperationalLimitSet rdf:ID="new_limit_set_2">
-		<cim:IdentifiedObject.name>Limits at Port 1</cim:IdentifiedObject.name>
-		<cim:OperationalLimitSet.Terminal rdf:resource="#_4c19ace6-c825-4c5b-87d9-031e6e6a3379" />
-	</cim:OperationalLimitSet>
 	<cim:OperationalLimitSet rdf:ID="new_limit_set_3">
 		<cim:IdentifiedObject.name>_OLS_V_1000</cim:IdentifiedObject.name>
 		<cim:OperationalLimitSet.Equipment rdf:resource="#_84ed55f4-61f5-4d9d-8755-bba7b877a246" />
@@ -2261,7 +2257,7 @@
     </cim:VoltageLimit>
 	<cim:ApparentPowerLimit rdf:ID="new_apparent_power_limit_1">
 		<cim:IdentifiedObject.name>patl_apparent_power</cim:IdentifiedObject.name>
-		<cim:OperationalLimit.OperationalLimitSet rdf:resource="#new_limit_set_2" />
+		<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_88aa13e4-d3fe-4c47-9e47-39f8bb805e73" />
 		<cim:OperationalLimit.OperationalLimitType rdf:resource="#patl" />
 		<cim:ApparentPowerLimit.value>22863.1</cim:ApparentPowerLimit.value>
 	</cim:ApparentPowerLimit>
