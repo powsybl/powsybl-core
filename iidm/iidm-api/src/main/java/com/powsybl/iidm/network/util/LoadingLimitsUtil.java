@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 
-
 import java.util.Comparator;
 
 import static java.lang.Integer.MAX_VALUE;
