@@ -4,7 +4,7 @@
 ## Principles
 
 Datasources are Java-objects used for I/O operations around PowSyBl.
-It allows users to read and write files. It is for example used under the hood by Importers to access the filesystem
+Datasources allow users to read and write files. It is for example used under the hood by Importers to access the filesystem
 during Network imports when using `Network.read()` methods.
 
 For importers and exporters, datasources are used to access files corresponding to a single network.
@@ -21,8 +21,8 @@ data location, data compression, etc.
 `ReadOnlyDataSource` is the most basic datasource interface available. As you can tell by the name, it only provides 
 reading features.
 It has two parameters:
-- a base name, which is a prefix that can be used to consider only files with this prefix (while reading) or as a prefix for
-the output file (while writing),
+- a base name, which is a prefix that can be used to consider only files with names starting with this prefix (while 
+reading) or as a prefix for the output file name (while writing),
 - (optionally) a data extension, mainly used to disambiguate identically named data of different type. 
 Note: this does not apply to compression extensions.
 
@@ -63,7 +63,7 @@ the datasource.
 Two classes implement the `DataSource` interface:
 - `MemDataSource`: extension of `ReadOnlyMemDataSource` implementing the writing features of `DataSource`
 - `AbstractFileSystemDataSource`: abstract class used to define datasources based on files present in the file system,
-either (see below the DirectoryDataSource class and its children) or in an archive (see below the 
+either directly (see below the DirectoryDataSource class and its children) or in an archive (see below the 
 AbstractArchiveDataSource class and its children).
 
 (directorydatasources)=
