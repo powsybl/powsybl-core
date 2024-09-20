@@ -514,9 +514,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 && context.boundary().containsNode(nodeId)) {
                 cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
             } else {
-                // cgmesVoltageLevelId may be null if terminal is contained in a Line
+                // cgmesVoltageLevelId may be null if terminal is contained in a Line or directly in a substation
                 // (happens in boundaries)
-                cgmesVoltageLevelId = obtainCgmesVoltageLevelId(nodeId, context);
+                cgmesVoltageLevelId = findCgmesVoltageLevelIdForContainer(nodeId, context);
             }
             if (cgmesVoltageLevelId != null) {
                 String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
@@ -528,14 +528,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
         }
 
-        // if nodeId is contained in a Line Container, the fictitious voltage level that it is created must be considered
-        private static String obtainCgmesVoltageLevelId(String nodeId, Context context) {
+        // if nodeId is included in a Line Container, the fictitious voltage level must be considered
+        private static String findCgmesVoltageLevelIdForContainer(String nodeId, Context context) {
             String cgmesVoltageLevelId = null;
             Optional<CgmesContainer> cgmesContainer = context.cgmes().nodeContainer(nodeId);
             if (cgmesContainer.isPresent()) {
                 cgmesVoltageLevelId = cgmesContainer.get().voltageLevel();
                 if (cgmesVoltageLevelId == null) {
-                    cgmesVoltageLevelId = Conversion.getFictitiousVoltageLevelForContainer(cgmesContainer.get().id(), nodeId, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
+                    cgmesVoltageLevelId = context.substationIdMapping().getFictitiousVoltageLevelNameForContainer(cgmesContainer.get().id(), nodeId);
                 }
             }
             return cgmesVoltageLevelId;

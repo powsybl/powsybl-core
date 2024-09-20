@@ -9,7 +9,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
@@ -140,7 +139,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             return;
         }
         // To obtain a bus for which we want to set voltage:
-        // If there no Terminal at this IIDM node,
+        // If there is no Terminal at this IIDM node,
         // then find from it the first connected node with a Terminal
         Terminal t = topo.getOptionalTerminal(iidmNode)
                 .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
@@ -172,7 +171,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 // A CGMES Voltage Level can not be obtained from the connectivity node container
                 // The connectivity node container is a cim:Line, and
                 // the conversion has created a fictitious voltage level in IIDM
-                cgmesId = Conversion.getFictitiousVoltageLevelForContainer(containerId, this.id, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
+                cgmesId = context.substationIdMapping().getFictitiousVoltageLevelNameForContainer(containerId, this.id);
             }
             String iidm = context.namingStrategy().getIidmId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
             String iidmId = context.substationIdMapping().voltageLevelIidm(iidm);
@@ -183,8 +182,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private void newNode(VoltageLevel vl) {
         VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
-        String connectivityNode = id;
-        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
+        // id is the connectivityNode;
+        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(id, vl);
 
         // Busbar sections are created for every connectivity node to be
         // able to easily check the topology calculated by IIDM
@@ -218,14 +217,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         }
         boolean valid = valid(v, angle);
         if (!valid) {
-            Supplier<String> reason = () -> String.format("v = %f, angle = %f. Node %s", v, angle, id);
-            Supplier<String> location = () -> bus == null
-                ? "No bus"
-                : String.format("Bus %s, %sVoltage level %s",
-                    bus.getId(),
-                    bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
-                    bus.getVoltageLevel().getNameOrId());
-            Supplier<String> message = () -> reason.get() + ". " + location.get();
+            Supplier<String> message = getStringSupplier(bus, v, angle);
             context.invalid("SvVoltage", message);
 
             if (bus != null) {
@@ -235,6 +227,17 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             }
         }
         return valid;
+    }
+
+    private Supplier<String> getStringSupplier(Bus bus, double v, double angle) {
+        Supplier<String> reason = () -> String.format("v = %f, angle = %f. Node %s", v, angle, id);
+        Supplier<String> location = () -> bus == null
+            ? "No bus"
+            : String.format("Bus %s, %sVoltage level %s",
+                bus.getId(),
+                bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
+                bus.getVoltageLevel().getNameOrId());
+        return () -> reason.get() + ". " + location.get();
     }
 
     private void setVoltageAngle(Bus bus) {
@@ -259,7 +262,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // and the right values returned.
         // Another option could be to keep storing SV values (v=0, angle=0),
         // but perform a when a switch is converted,
-        // and ensure its both ends have the same values (v,angle).
+        // and ensure that both ends have the same values (v,angle).
         // This is what HELM integration layer does when mapping from IIDM to HELM.
 
         boolean valid = v > 0;
