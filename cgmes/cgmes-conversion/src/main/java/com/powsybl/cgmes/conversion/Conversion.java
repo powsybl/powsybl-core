@@ -358,7 +358,9 @@ public class Conversion {
         if (ca.containsKey("pTolerance")) {
             area.setProperty("tolerance", ca.get("pTolerance"));
         }
-        area.addAlias("energyIdentificationCodeEic");
+        if (ca.containsKey("energyIdentCodeEic")) {
+            area.addAlias(ca.get("energyIdentCodeEic"), "energyIdentificationCodeEic");
+        }
     }
 
     private static void addTieFlow(Context context, PropertyBag tf) {
