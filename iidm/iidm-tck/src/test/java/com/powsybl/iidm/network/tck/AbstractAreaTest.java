@@ -461,6 +461,54 @@ public abstract class AbstractAreaTest {
     }
 
     @Test
+    public void mergeAndFlatten() {
+        // do a merge
+        Network fourBus = FourSubstationsNodeBreakerFactory.create();
+        String networkId = "merged";
+        Network network0 = Network.merge(networkId, network, fourBus);
+        controlAreaA = network0.getArea("ControlArea_A");
+        controlAreaB = network0.getArea("ControlArea_B");
+        dlXnode1A = network0.getDanglingLine("NHV1_XNODE1");
+        tieLine1 = network0.getTieLine("NHV1_NHV2_1");
+        assertEquals(2, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+        checkAreas(network0, network0, network0.getSubnetwork("sim1"));
+
+        // now flatten
+        network0.flatten();
+        controlAreaA = network0.getArea("ControlArea_A");
+        controlAreaB = network0.getArea("ControlArea_B");
+        checkAreas(network0, network0, network0);
+
+        dlXnode2A = network0.getDanglingLine("NVH1_XNODE2");
+        tieLine2 = network0.getTieLine("NHV1_NHV2_2");
+
+        // Verify the cleanup listener is always effective
+        tieLine2.remove();
+        dlXnode2A.remove();
+
+        assertEquals(1, controlAreaA.getAreaBoundaryStream().count());
+        assertEquals(2, controlAreaB.getAreaBoundaryStream().count());
+
+        // Use the flatten network in another merge
+        Network network2 = Network.merge(network0, Network.create("n3", "manual"));
+        Network subnetwork = network2.getSubnetwork(networkId);
+        checkAreas(network2, network2, subnetwork);
+
+        // And even if detached, everything is alright
+        Network detached = subnetwork.detach();
+        checkAreas(detached, detached, detached);
+    }
+
+    private void checkAreas(Network network, Network expectedNetwork, Network expectedParentNetwork) {
+        assertEquals(3, network.getAreaCount());
+        network.getAreaStream().forEach(area -> {
+            assertEquals(expectedNetwork, area.getNetwork());
+            assertEquals(expectedParentNetwork, area.getParentNetwork());
+        });
+    }
+
+    @Test
     public void throwBoundaryOtherNetwork() {
         Network subnetwork = network.createSubnetwork("subnetwork_id", "Subnetwork", "json");
         VoltageLevel sn1VL1 = subnetwork.newVoltageLevel()
