@@ -138,6 +138,17 @@ public class SubstationIdMapping {
         buildVoltageLevel(voltageLevelAdjacency);
         buildSubstation(substationAdjacency);
         buildReferenceVoltageLevels(fictitiousVoltageLevelInterAdjacency, fictitiousVoltageLevelIntraAdjacency);
+
+        // substation containers including connectivityNodes must be connected using switches to other containers (voltageLevel, Line)
+        // then there is no need for a new container
+        fictitiousVoltageLevels.keySet().stream()
+                .filter(this::isSubstationContainer)
+                .map(this::voltageLevelIidm) // map the representative voltageLevel
+                .filter(voltageLevelRepresentative -> fictitiousVoltageLevels.containsKey(voltageLevelRepresentative) && isSubstationContainer(voltageLevelRepresentative)) // representative must be fictitious
+                .findFirst().ifPresent(fictitiousVoltageLevelForSubstationContainer -> {
+                    String containerId = getContainerId(fictitiousVoltageLevelForSubstationContainer).orElseThrow();
+                    throw new ConversionException("Substation container directly associated with connectivity or topological nodes. It is not expected to create a fictitious voltage level: " + containerId);
+                });
     }
 
     private void buildAdjacency(Map<String, Set<String>> voltageLevelAdjacency, Map<String, Set<String>> substationAdjacency,
@@ -375,9 +386,16 @@ public class SubstationIdMapping {
     }
 
     private String representativeVoltageLevelId(Collection<String> voltageLevelIds) {
-        Optional<String> voltageLevelContainerId = voltageLevelIds.stream()
-                .filter(voltageLevelId -> !fictitiousVoltageLevels.containsKey(voltageLevelId)).min(Comparator.naturalOrder());
-        return voltageLevelContainerId.orElseGet(() -> voltageLevelIds.stream().min(Comparator.naturalOrder())
+        Optional<String> existingVoltageLevelId = voltageLevelIds.stream()
+                .filter(voltageLevelId -> !fictitiousVoltageLevels.containsKey(voltageLevelId))
+                .min(Comparator.naturalOrder());
+        if (existingVoltageLevelId.isPresent()) {
+            return existingVoltageLevelId.get();
+        }
+        Optional<String> fictitiousVoltageLevelIdForLineContainer = voltageLevelIds.stream()
+                .filter(voltageLevelId -> !isSubstationContainer(voltageLevelId)) // Fictitious for LineContainer
+                .min(Comparator.naturalOrder());
+        return fictitiousVoltageLevelIdForLineContainer.orElseGet(() -> voltageLevelIds.stream().min(Comparator.naturalOrder())
                 .orElseThrow(() -> new IllegalStateException("Unexpected: voltageLevelIds list is empty")));
     }
 
@@ -421,8 +439,9 @@ public class SubstationIdMapping {
     }
 
     // Only iidm voltage levels that are fictitious
-    Set<String> getFictitiousVoltageLevelsToBeCreated() {
+    Set<String> getFictitiousVoltageLevelsForLineContainersToBeCreated() {
         return fictitiousVoltageLevels.keySet().stream()
+                .filter(fictitiousVoltageLevelId -> !isSubstationContainer(fictitiousVoltageLevelId))
                 .map(this::voltageLevelIidm) // map the representative voltageLevel
                 .filter(fictitiousVoltageLevels::containsKey) // representative must be fictitious
                 .collect(Collectors.toSet());
@@ -442,7 +461,7 @@ public class SubstationIdMapping {
         }
     }
 
-    boolean isSubstationContainer(String fictitiousVoltageLevelId) {
+    private boolean isSubstationContainer(String fictitiousVoltageLevelId) {
         Optional<String> containerId = getContainerId(fictitiousVoltageLevelId);
         if (containerId.isPresent()) {
             CgmesContainer cgmesContainer = context.cgmes().container(containerId.get());

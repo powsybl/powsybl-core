@@ -172,7 +172,7 @@ public class Conversion {
         // First build all the containers
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
-        createFictitiousVoltageLevelsForContainers(context);
+        createFictitiousVoltageLevelsForLineContainers(context);
 
         PropertyBags nodes = context.nodeBreaker()
                 ? cgmes.connectivityNodes()
@@ -545,13 +545,12 @@ public class Conversion {
     }
 
     // Fictitious voltageLevels for Line and Substation(when it includes nodes) containers
-    private void createFictitiousVoltageLevelsForContainers(Context context) {
+    private void createFictitiousVoltageLevelsForLineContainers(Context context) {
 
-        context.substationIdMapping().getFictitiousVoltageLevelsToBeCreated().forEach(fictitiousVoltageLevelId -> {
+        context.substationIdMapping().getFictitiousVoltageLevelsForLineContainersToBeCreated().forEach(fictitiousVoltageLevelId -> {
             String containerId = context.substationIdMapping().getContainerId(fictitiousVoltageLevelId).orElseThrow();
             String containerName = context.substationIdMapping().getContainerName(fictitiousVoltageLevelId).orElseThrow();
             String referenceVoltageLevelId = context.substationIdMapping().getReferenceVoltageLevelId(fictitiousVoltageLevelId).orElseThrow();
-            boolean isSubstationContainer = context.substationIdMapping().isSubstationContainer(fictitiousVoltageLevelId);
 
             VoltageLevel voltageLevel = context.network().getVoltageLevel(fictitiousVoltageLevelId);
             if (voltageLevel == null) {
@@ -559,13 +558,13 @@ public class Conversion {
                 if (referenceVoltageLevel == null) {
                     throw new ConversionException("VoltageLevel not found for voltageLevelId: " + referenceVoltageLevelId);
                 }
-                createFictitiousVoltageLevelsForContainer(context, fictitiousVoltageLevelId, containerId, containerName, isSubstationContainer, referenceVoltageLevel);
+                createFictitiousVoltageLevelsForLineContainer(context, fictitiousVoltageLevelId, containerId, containerName, referenceVoltageLevel);
             }
         });
     }
 
-    private void createFictitiousVoltageLevelsForContainer(Context context, String fictitiousVoltageLevelId, String containerId, String containerName, boolean isSubstationContainer, VoltageLevel vlref) {
-
+    private void createFictitiousVoltageLevelsForLineContainer(Context context, String fictitiousVoltageLevelId, String containerId, String containerName, VoltageLevel vlref) {
+        LOG.warn("Fictitious Voltage Level {} created for Line container {} name {}", fictitiousVoltageLevelId, containerId, containerName);
         // Nominal voltage and low/high limits are copied from the reference voltage level, if it is given
         VoltageLevel vl = context.network().newVoltageLevel()
                 .setNominalV(vlref.getNominalV())
@@ -579,14 +578,7 @@ public class Conversion {
                 .setName(containerName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
-
-        if (isSubstationContainer) {
-            LOG.warn("Fictitious Voltage Level {} created for Substation container {} name {}", fictitiousVoltageLevelId, containerId, containerName);
-            vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "SubstationContainerId", containerId);
-        } else {
-            LOG.warn("Fictitious Voltage Level {} created for Line container {} name {}", fictitiousVoltageLevelId, containerId, containerName);
-            vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", containerId);
-        }
+        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", containerId);
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
