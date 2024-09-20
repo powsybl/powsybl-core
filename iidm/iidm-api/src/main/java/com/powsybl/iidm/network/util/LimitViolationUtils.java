@@ -85,15 +85,15 @@ public final class LimitViolationUtils {
         if (Double.isNaN(i) || Double.isNaN(permanentLimit)) {
             return null;
         }
-        List<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits().stream().toList();
+        Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
         String previousLimitName = PERMANENT_LIMIT_NAME;
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be override with first loop
-        for (int c = 0; c < temporaryLimits.size(); c++) { // iterate in ascending order
-            LoadingLimits.TemporaryLimit tl = temporaryLimits.get(c);
+        boolean firstIteration = true;
+        for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
             if (i >= previousLimit && i < tl.getValue()) {
-                if (c == 0) {
-                    return new OverloadImpl(temporaryLimits.get(0), previousLimitName,
+                if (firstIteration) {
+                    return new OverloadImpl(tl, previousLimitName,
                         limitsContainer.isDistinct() ?
                             ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalPermanentLimit() : previousLimit,
                         limitsContainer.isDistinct() ?
@@ -109,6 +109,7 @@ public final class LimitViolationUtils {
             previousLimitName = tl.getName();
             previousLimit = tl.getValue();
             previousAcceptableDuration = tl.getAcceptableDuration();
+            firstIteration = false;
         }
         return null;
     }
