@@ -182,7 +182,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
     private void newNode(VoltageLevel vl) {
         VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
-        // id is the connectivityNode;
+        // id is the connectivityNode
         int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(id, vl);
 
         // Busbar sections are created for every connectivity node to be
