@@ -33,7 +33,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
-public class ExtendedAmplExporterV1 extends BasicAmplExporter {
+public class ExtendedAmplExporter extends BasicAmplExporter {
 
     private static final int SLACK_BUS_COLUMN_INDEX = 8;
     private static final int TAP_CHANGER_R_COLUMN_INDEX = 4;
@@ -42,10 +42,10 @@ public class ExtendedAmplExporterV1 extends BasicAmplExporter {
     private static final int GENERATOR_V_REGUL_BUS_COLUMN_INDEX = 14;
     private static final int STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX = 8;
 
-    public ExtendedAmplExporterV1(AmplExportConfig config,
-                                  Network network,
-                                  StringToIntMapper<AmplSubset> mapper,
-                                  int variantIndex, int faultNum, int actionNum) {
+    public ExtendedAmplExporter(AmplExportConfig config,
+                                Network network,
+                                StringToIntMapper<AmplSubset> mapper,
+                                int variantIndex, int faultNum, int actionNum) {
         super(config, network, mapper, variantIndex, faultNum, actionNum);
     }
 

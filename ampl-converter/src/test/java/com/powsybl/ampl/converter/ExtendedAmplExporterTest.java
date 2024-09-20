@@ -29,7 +29,7 @@ import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
  * @author Nicolas PIERRE {@literal <nicolas.pierre at artelys.com>}
  * @author Pierre ARVY {@literal <pierre.arvy at artelys.com>}
  */
-class ExtendedAmplExporterV1Test extends AbstractSerDeTest {
+class ExtendedAmplExporterTest extends AbstractSerDeTest {
 
     MemDataSource dataSource;
     AmplExporter exporter;
