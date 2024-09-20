@@ -115,7 +115,7 @@ public final class GeographicDataParser {
     }
 
     /**
-     * "Fixing" the lines coordinates data: this method tries to calculate a single list when there are several list for
+     * "Fixing" the lines coordinates data: this method tries to calculate a single list when there are several lists for
      * a given line, which often occurs in the ODRE data.
      * @param coordinatesListsByLine the map of all the lists of coordinates, indexed by the line id
      * @return the map of the "fixed" line coordinates, indexed by the line id
@@ -227,7 +227,7 @@ public final class GeographicDataParser {
     }
 
     /**
-     * Aggregate coordinates of two connected components into one single list by trying to find which extremity connect to which other extremity
+     * Aggregate coordinates of two connected components into one single list by trying to find which extremity connects to which other extremity
      */
     private static List<Coordinate> aggregateCoordinates(List<List<Coordinate>> coordinatesComponents) {
         List<Coordinate> aggregatedCoordinates;
