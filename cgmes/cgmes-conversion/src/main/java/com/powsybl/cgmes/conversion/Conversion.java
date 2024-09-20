@@ -350,7 +350,9 @@ public class Conversion {
 
     private static void createControlArea(Context context, PropertyBag ca) {
         String controlAreaId = ca.getId("ControlArea");
+        String type = ca.getLocal("controlAreaType");
         Area area = context.network().newArea()
+                .setAreaType(type) // Copy the type defined by CGMES
                 .setId(controlAreaId)
                 .setName(ca.getLocal("name"))
                 .setInterchangeTarget(ca.asDouble("netInterchange", Double.NaN))
