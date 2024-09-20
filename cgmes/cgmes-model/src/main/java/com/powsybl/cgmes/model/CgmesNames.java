@@ -129,6 +129,8 @@ public final class CgmesNames {
     public static final String EQUIVALENT_INJECTION_TERMINAL = "EquivalentInjectionTerminal";
     public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
 
+    public static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
+
     private CgmesNames() {
     }
 }

@@ -130,8 +130,6 @@ final class ExportXmlCompare {
         if (elementName != null) {
             if (elementName.equals("danglingLine")) {
                 ignored = true;
-            } else if (elementName.contains("operationalLimitsGroup")) {
-                ignored = attr.getLocalName().equals("id");
             } else if (elementName.startsWith("network")) {
                 ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
             } else if (elementName.startsWith("voltageLevel")) {
@@ -147,10 +145,7 @@ final class ExportXmlCompare {
                 // So we do not enforce this attribute to be equal in the original and exported network
                 ignored = attr.getLocalName().equals("ratedS");
             } else {
-                ignored = attr.getLocalName().contains("node")
-                        || attr.getLocalName().contains("bus")
-                        || attr.getLocalName().contains("Bus")
-                        || attr.getLocalName().contains("selectedOperationalLimitsGroupId");
+                ignored = attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
         }
         return !ignored;
@@ -384,6 +379,21 @@ final class ExportXmlCompare {
                 }
             }
             return result;
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringOperationalLimitsGroupId(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (comparison.getControlDetails().getXPath().contains("operationalLimitsGroup") && control != null
+                        && control.getLocalName().equals("id")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().contains("selectedOperationalLimitsGroupId")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
         }
         return result;
     }
