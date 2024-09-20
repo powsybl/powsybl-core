@@ -528,6 +528,7 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsControlArea(Network network) {
+        // FIXME(Luma) remove this use of CgmesControlAreas
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         if (cgmesControlAreas == null) {
             network.newExtension(CgmesControlAreasAdder.class).add();
