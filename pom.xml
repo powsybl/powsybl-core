@@ -541,6 +541,11 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-powerfactory-db</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-powerfactory-converter</artifactId>
                 <version>${project.version}</version>
             </dependency>

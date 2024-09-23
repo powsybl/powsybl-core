@@ -2,12 +2,12 @@
 # Grid model extensions
 
 The grid model contains enough data to basically describe supported components and run power flow computations, but it may not be sufficient for more complex studies.
-The extensions are a way to add additional structured data to an equipment to extend its features.
+The extensions are a way to add additional structured data to a piece of equipment to extend its features.
 The extensions can be attached to any objects of a network or to the network itself.
 
-Some extensions are mono-variant meaning the data are identical for all the variants of the network. However, some of them are multi-variants to allow a different value for each variant of the network. It's typically the case for the [LoadDetail](#load-detail) extension that give the distribution of the constant part and the thermo-sensitive part of a consumption. 
+Some extensions are mono-variant, meaning the data are identical for all the variants of the network. However, some of them are multi-variants to allow a different value for each variant of the network. It's typically the case for the [LoadDetail](#load-detail) extension that give the distribution of the constant part and the thermosensitive part of the consumption. 
 
-Note that some extensions provided by PowSyBl aren't supported in the [persistent implementation of IIDM](../../developer/repositories/powsybl-network-store-server.md).
+Note that some extensions provided by PowSyBl aren't supported in the [persistent implementation of IIDM](https://github.com/powsybl/powsybl-network-store-server).
 
 Every extension is considered as serializable unless explicitly specified as non-serializable in XML-IIDM.
 
@@ -39,7 +39,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 (branch-observability-extension)=
 ## Branch observability
 
-This extension models branches' flows' observability on both sides, obtained after a state estimation.
+This extension models branch flow observability on both sides, obtained after a state estimation.
 
 | Attribute  | Type                 | Unit | Required | Default value | Description                                             |
 |------------|----------------------|------|----------|---------------|---------------------------------------------------------|
@@ -62,7 +62,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 (busbar-section-position-extension)=
 ## Busbar section position
 
-This extension gives positions information about a busbar section. The `busbarIndex` gives the position of the busbar section relatively to other busbars. The `sectionIndex` gives the position of the busbar section within the corresponding busbar. Note that a busbar is a set of busbar sections. Hence, the sections of a same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of a same busbar, which usually reflects their physical relative position.
+This extension gives positions information about a busbar section. The `busbarIndex` gives the position of the busbar section relative to other busbar sections. The `sectionIndex` gives the position of the busbar section within the corresponding busbar. Note that a busbar is a set of busbar sections. Hence, the sections of the same busbar should have the same busbar index. The busbar indices induce an order of busbars within the voltage level, which usually reflects the busbars physical relative positions. Similarly, the section indices induce an order of sections of the same busbar, which usually reflects their physical relative position.
 
 (connectable-position-extension)=
 ## Connectable position
@@ -72,7 +72,7 @@ This extension gives positions information about a busbar section. The `busbarIn
 (coordinated-reactive-control-extension)=
 ## Coordinated reactive control
 
-Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percent of reactive coordinated control that comes from a generator. This extension is attached to a [generator](network_subnetwork.md#generator).
+Some generators can be coordinated to control reactive power in a point of the network. This extension is used to configure the percentage of reactive-coordinated control that comes from a generator. This extension is attached to a [generator](network_subnetwork.md#generator).
 
 | Attribute | Type            | Unit | Required | Default value | Description                                   |
 |-----------|-----------------|------|----------|---------------|-----------------------------------------------|
@@ -85,14 +85,14 @@ generator.newExtension(CoordinatedReactiveControlAdder.class)
     .add();
 ```
 
-Please note that the sum of the $qPercent$ values of the generators coordinating a same point of the network must be 100.
+Please note that the sum of the $qPercent$ values of the generators coordinating the same point of the network must be 100.
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
 (discrete-measurements-extensions)=
 ## Discrete measurements
 
-This extension is used to store discrete measurements (such as tap positions, switch positions etc.) collected in substations.
+This extension is used to store discrete measurements (such as tap positions, switch positions, etc.) collected in substations.
 
 | Attribute            | Type                            | Unit | Required | Default value | Description                                          |
 |----------------------|---------------------------------|------|----------|---------------|------------------------------------------------------|
@@ -131,7 +131,7 @@ $$P = P0 + k~(ph1 - ph2)$$
 (hvdc-operator-active-power-range-extension)=
 ## HVDC operator active power range
 
-This extension enables to replace the operational limits of an DC line in AC emulation. In that case, the VSC converter stations min active power and max active power are not used. 
+This extension enables to replace the operational limits of a DC line in AC emulation. In that case, the VSC converter stations min active power and max active power are not used. 
 
 (generator-enstoe-category-extension)=
 ## Generator ENTSO-E category
@@ -141,7 +141,7 @@ This extension enables to replace the operational limits of an DC line in AC emu
 (generator-short-circuit)=
 ## Generator short-circuit
 
-This extension models the generators data used for short-circuit calculations. Depending on the type of short-circuit study to be 
+This extension models the generator data used for short-circuit calculations. Depending on the type of short-circuit study to be 
 performed, either the transient or the sub-transient reactance should be filled. The reactance of the step-up transformer should be
 filled if the generator has a transformer that is not directly modeled in the network.
 
@@ -186,7 +186,7 @@ The code is similar for every identifiable.
 (injection-observability-extension)=
 ## Injection observability
 
-This extension models injections' flows' observability, obtained after a state estimation.
+This extension models injection flow observability, obtained after a state estimation.
 
 | Attribute | Type                 | Unit | Required | Default value | Description                                 |
 |-----------|----------------------|------|----------|---------------|---------------------------------------------|
@@ -248,7 +248,7 @@ S_{Ci_{Load}}=S_{C}=P_{C}+j.Q_{C} \\
 \end{align}
 $$
 
-But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three phases representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
+But for a balanced load flow, the constant power load $P$ and $Q$ refer to the positive sequence load. Given that, in balanced conditions, the load for zero and negative sequences should always be zero. However, in real life, power loads are better defined in the ABC three-phase representation. The load extension addresses this issue keeping the default behavior for balanced conditions.
 
 <u>Balanced load flow conditions:</u>
 
@@ -292,14 +292,14 @@ S_{Ci_{Load}}=P_{Load}+j.Q_{Load} \\
 \end{align}
 $$
 
-| Attribute | Type | Unit | Required | Default value | Description |
-| --------- | ---- | ---- | -------- | ------------- | ----------- |
-| deltaPa | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $P0$ and its reactive power setpoint $Q0$) |
-| deltaQa | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase A |
-| deltaPb | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase B |
-| deltaQb | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase B |
-| deltaPc | double | MW | No | 0 | The unbalanced part of the active power setpoint at phase C |
-| deltaQc | double | MVar | No | 0 | The unbalanced part of the reactive power setpoint at phase C |
+| Attribute | Type   | Unit | Required | Default value | Description                                                                                                                                                                      |
+|-----------|--------|------|----------|---------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| deltaPa   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase A (balanced parts for each phase are described by its active power setpoint $P0$ and its reactive power setpoint $Q0$) |
+| deltaQa   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase A                                                                                                                    |
+| deltaPb   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase B                                                                                                                      |
+| deltaQb   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase B                                                                                                                    |
+| deltaPc   | double | MW   | No       | 0             | The unbalanced part of the active power setpoint at phase C                                                                                                                      |
+| deltaQc   | double | MVar | No       | 0             | The unbalanced part of the reactive power setpoint at phase C                                                                                                                    |
 
 Here is how to add a load detail extension to a load:
 ```java
@@ -316,8 +316,8 @@ This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 (load-detail-extension)=
 ## Load detail
 A load is described by its active power setpoint $P0$ and its reactive power setpoint $Q0$. This extension is used to detail :
-- In the total amount of active power what is fixed and what is time-dependant (also called variable). The time-dependant part can be adjusted for production equals consumption.
-- In the total amount of reactive power what is fixed and what is time-dependant (also called variable).
+- In the total amount of active power what is fixed and what is time-dependent (also called variable). The time-dependent part can be adjusted for production equals consumption.
+- In the total amount of reactive power what is fixed and what is time-dependent (also called variable).
 
 | Attribute             | Type   | Unit | Required | Default value | Description                                                         |
 |-----------------------|--------|------|----------|---------------|---------------------------------------------------------------------|
@@ -374,9 +374,9 @@ three-winding transformers, HVDC line and a dangling line. The status could be:
 ## Reference Priority
 
 This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
-a power flow calculation, i.e. which bus will be used with a zero voltage angle.
+a power flow calculation, i.e. which bus will be used with a zero-voltage angle.
 Use this extension before a computation to force the reference bus selection.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
 today supports Reference Priorities on generators only when this feature is activated.
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
@@ -399,7 +399,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 ## Reference Terminals
 
 This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
 today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priority).
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
@@ -422,7 +422,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 (remote-reactive-power-control-extension)=
 ## Remote reactive power control
 
-This extensions is used for generators with a remote reactive control.
+This extension is used for generators with a remote reactive control.
 
 | Attribute          | Type       | Unit | Required | Default value | Description                                        |
 |--------------------|------------|------|----------|---------------|----------------------------------------------------|
@@ -481,10 +481,10 @@ station.newExtension(SubstationPositionAdder.class)
         .add();
 ```
 
-(three-windings-transformer-phase-angle-clock-extension)=
-## Three-windings transformer phase angle clock
+(three-winding-transformer-phase-angle-clock-extension)=
+## Three-winding transformer phase angle clock
 
-This extension is used to model the Vector Group of a three windings transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three windings transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three windings transformer](network_subnetwork.md#three-windings-transformer).
+This extension is used to model the Vector Group of a three-winding transformer. The phase angle clock could be modeled at leg 2, leg 3 or both legs 2 and 3 and of a three-winding transformer (network side). The voltage phase angle displacement is represented with clock hours. The valid values are `0` to `11`. This extension is attached to a [three-winding transformer](network_subnetwork.md#three-winding-transformer).
 
 | Attribute           | Type       | Unit  | Required | Default value | Description                                   |
 |---------------------|------------|-------|----------|---------------|-----------------------------------------------|
@@ -500,10 +500,10 @@ transformer.newExtension(ThreeWindingsTransformerPhaseAngleClock.class)
 
 This extension is provided by the `com.powsybl:powsybl-iidm-extensions` module.
 
-(three-windings-transformer-to-be-estimated-extension)=
-## Three-windings transformer to be estimated
+(three-winding-transformer-to-be-estimated-extension)=
+## Three-winding transformer to be estimated
 
-This extension is used to indicate if a three-winding transformer tap changer is to be estimated during a state estimation, i.e. if its tap position should be an output of the state estimation.
+This extension is used to indicate if a three-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
 * The three-winding transformer model offers the possibility to have up to 3 ratio tap changers and up to 3 phase tap changers. Each tap changer can be estimated or not.
 * If a tap changer is not to be estimated, it should not be changed during a state estimation (its tap position is merely an input of the state estimation).
 
@@ -529,10 +529,10 @@ transformer.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
         .add();
 ```
 
-(two-windings-transformer-phase-angle-clock-extension)=
-## Two-windings transformer phase angle clock
+(two-winding-transformer-phase-angle-clock-extension)=
+## Two-winding transformer phase angle clock
 
-This extension is used to model the Vector Group of a two windings transformer. The phase angle clock is modeled at side 2 of a two windings transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two windings transformer](network_subnetwork.md#two-windings-transformer).
+This extension is used to model the Vector Group of a two-winding transformer. The phase angle clock is modeled at side 2 of a two-winding transformer. The voltage phase angle displacement is represented with clock hours. The valid values are 0 to 11. This extension is attached to a [two-winding transformer](network_subnetwork.md#two-winding-transformer).
 
 | Attribute       | Type       | Unit  | Required | Default value | Description                          |
 |-----------------|------------|-------|----------|---------------|--------------------------------------|
@@ -546,10 +546,10 @@ transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
 
 This extension is provided in the module `com.powsybl:powsybl-iidm-extensions`.
 
-(two-windings-transformer-to-be-estimated-extension)=
-## Two-windings transformer to be estimated
+(two-winding-transformer-to-be-estimated-extension)=
+## Two-winding transformer to be estimated
 
-This extension is used to indicate if a two-winding transformer tap changer is to be estimated during a state estimation, i.e. if its tap position should be an output of the state estimation.
+This extension is used to indicate if a two-winding transformer tap changer is to be estimated during a state estimation, i.e., if its tap position should be an output of the state estimation.
 * A two-winding transformer has a ratio tap changer and/or a phase tap changer. Each tap changer can be estimated or not.
 * If a tap changer is not to be estimated, it should not be changed during a state estimation (its tap position is merely an input of the state estimation).
 
