@@ -52,7 +52,7 @@ class EntsoeAreaSerDeTest extends AbstractSerDeTest {
         EntsoeArea country = s.getExtension(EntsoeArea.class);
 
         Network network2 = roundTripXmlTest(network,
-                this::jsonWriteAndRead,
+                (n, p) -> binWriteAndRead(jsonWriteAndRead(n, p), p),
                 NetworkSerDe::write,
                 NetworkSerDe::validateAndRead,
                 "/entsoeAreaRef.xml");
@@ -63,7 +63,16 @@ class EntsoeAreaSerDeTest extends AbstractSerDeTest {
         assertEquals(country.getCode(), country2.getCode());
     }
 
-    private Network jsonWriteAndRead(Network network, Path path) {
+    private static Network binWriteAndRead(Network network, Path path) {
+        var anonymizer = NetworkSerDe.write(network, new ExportOptions().setFormat(TreeDataFormat.BIN), path);
+        try (InputStream is = Files.newInputStream(path)) {
+            return NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.BIN), anonymizer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static Network jsonWriteAndRead(Network network, Path path) {
         var anonymizer = NetworkSerDe.write(network, new ExportOptions().setFormat(TreeDataFormat.JSON), path);
         try (InputStream is = Files.newInputStream(path)) {
             return NetworkSerDe.read(is, new ImportOptions().setFormat(TreeDataFormat.JSON), anonymizer);
