@@ -8,6 +8,8 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -17,6 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,6 +30,9 @@ public abstract class AbstractMergeNetworkTest {
     private static final String MERGE_DEFAULT_ID = "n1+n2";
     public static final String N1 = "n1";
     public static final String N2 = "n2";
+    public static final String PROPERTY_NAME_1 = "property_name1";
+    public static final String PROPERTY_NAME_2 = "property_name2";
+    public static final String PROPERTY_NAME_3 = "property_name3";
 
     Network n0;
     Network n1;
@@ -143,24 +149,90 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     @Test
+    public void testMergeAndFlatten() {
+        addCommonSubstationsAndVoltageLevels();
+        addCommonDanglingLines("dl1", "code", "dl2", "code");
+        // merge(n1, n2)
+        Network network = Network.merge(MERGE, n1, n2);
+        Network subnetwork1 = network.getSubnetwork(N1);
+        Network subnetwork2 = network.getSubnetwork(N2);
+
+        // flatten
+        network.flatten();
+        checkDanglingLineStatusCount(network, 0, 2);
+        checkSubstationAndVoltageLevelCounts(network, 2, 2);
+        checkSubstationAndVoltageLevelsNetworks(network, network, network);
+        assertTrue(network.getSubnetworks().isEmpty());
+        checkDanglingLineStatusCount(subnetwork1, 0, 0);
+        checkDanglingLineStatusCount(subnetwork2, 0, 0);
+        checkSubstationAndVoltageLevelCounts(subnetwork1, 0, 0);
+        checkSubstationAndVoltageLevelCounts(subnetwork2, 0, 0);
+
+        // Use the flatten network in another merge
+        Network network2 = Network.merge(network, Network.create("n3", "manual"));
+        Network mergedAsSubnetwork = network2.getSubnetwork("merge");
+        checkSubstationAndVoltageLevelCounts(network2, 2, 2);
+        checkSubstationAndVoltageLevelsNetworks(network2, network2, mergedAsSubnetwork);
+
+        // And even if detached, everything is alright
+        Network detachedN2 = mergedAsSubnetwork.detach();
+        checkSubstationAndVoltageLevelCounts(detachedN2, 2, 2);
+        checkSubstationAndVoltageLevelsNetworks(detachedN2, detachedN2, detachedN2);
+    }
+
+    private void checkSubstationAndVoltageLevelsNetworks(Network network, Network expectedNetwork, Network expectedParentNetwork) {
+        Stream.concat(network.getSubstationStream().map(Identifiable.class::cast),
+                        network.getVoltageLevelStream().map(Identifiable.class::cast))
+                .forEach(substation -> {
+                    assertEquals(expectedNetwork, substation.getNetwork());
+                    assertEquals(expectedParentNetwork, substation.getParentNetwork());
+                });
+    }
+
+    @Test
     public void testMergeAndDetachWithProperties() {
-        // Create 2 networks with a Property
-        Network n1 = Network.create("network1", "manual");
-        n1.setProperty("property_name1", "property_value1");
-        Network n2 = Network.create("network2", "manual");
-        n2.setProperty("property_name2", "property_value2");
+        // Add properties to the networks
+        n1.setProperty(PROPERTY_NAME_1, "property_value1");
+        n2.setProperty(PROPERTY_NAME_2, "property_value2");
 
         // Merge the networks and check that the properties have been transferred to subnetworks
         Network merged = Network.merge(n1, n2);
         assertFalse(merged.hasProperty());
-        assertEquals("property_value1", merged.getSubnetwork("network1").getProperty("property_name1"));
-        assertEquals("property_value2", merged.getSubnetwork("network2").getProperty("property_name2"));
+        assertEquals("property_value1", merged.getSubnetwork(N1).getProperty(PROPERTY_NAME_1));
+        assertEquals("property_value2", merged.getSubnetwork(N2).getProperty(PROPERTY_NAME_2));
 
         // Detach the subnetworks and check that the properties have been transferred to the detached networks
-        Network detached1 = merged.getSubnetwork("network1").detach();
-        Network detached2 = merged.getSubnetwork("network2").detach();
-        assertEquals("property_value1", detached1.getProperty("property_name1"));
-        assertEquals("property_value2", detached2.getProperty("property_name2"));
+        Network detached1 = merged.getSubnetwork(N1).detach();
+        Network detached2 = merged.getSubnetwork(N2).detach();
+        assertEquals("property_value1", detached1.getProperty(PROPERTY_NAME_1));
+        assertEquals("property_value2", detached2.getProperty(PROPERTY_NAME_2));
+    }
+
+    @Test
+    public void testMergeAndFlattenWithProperties() {
+        n1.setProperty(PROPERTY_NAME_1, "n1-val1");
+        n1.setProperty(PROPERTY_NAME_2, "n1-val2");
+        n2.setProperty(PROPERTY_NAME_1, "n2-val1");
+        n2.setProperty(PROPERTY_NAME_3, "n2-val3");
+        // merge(n1, n2)
+        Network network = Network.merge(MERGE, n1, n2);
+        Network subnetwork1 = network.getSubnetwork(N1);
+        Network subnetwork2 = network.getSubnetwork(N2);
+        network.setProperty("property_name_4", "val");
+
+        // flatten
+        network.flatten();
+        // The 1st property is present in both subnetworks.
+        // The value of the 1st one (in the merging order) is set in the flatten network and
+        // the property is kept in subnetwork2. This way, it is possible to detect duplicates and
+        // to handle them manually if wanted.
+        assertEquals("n1-val1", network.getProperty(PROPERTY_NAME_1));
+        assertEquals("n1-val2", network.getProperty(PROPERTY_NAME_2));
+        assertEquals("n2-val3", network.getProperty(PROPERTY_NAME_3));
+        assertEquals("val", network.getProperty("property_name_4"));
+        assertTrue(subnetwork1.getPropertyNames().isEmpty());
+        assertEquals(1, subnetwork2.getPropertyNames().size());
+        assertEquals(PROPERTY_NAME_1, subnetwork2.getPropertyNames().stream().findFirst().orElseThrow());
     }
 
     @Test
@@ -204,15 +276,81 @@ public abstract class AbstractMergeNetworkTest {
     }
 
     private static void checkExtensions(Network network) {
-        // Check that the Network extension is present on the subnetwork
+        // Check that the Network extension is present on the given network
         assertEquals(1, network.getExtensions().size());
         assertNotNull(network.getExtensionByName(SecondaryVoltageControl.NAME));
         assertNotNull(network.getExtension(SecondaryVoltageControl.class));
 
-        // Check that the Load extension is visible from the subnetwork
+        // Check that the Load extension is visible from the given network
         assertEquals(1, network.getLoad("LOAD").getExtensions().size());
         assertNotNull(network.getLoad("LOAD").getExtensionByName(LoadDetail.NAME));
         assertNotNull(network.getLoad("LOAD").getExtension(LoadDetail.class));
+    }
+
+    @Test
+    public void testMergeAndFlattenWithExtensions() {
+        n1.addExtension(FooNetworkExtension.class, new FooNetworkExtensionImpl(N1));
+        n2.addExtension(FooNetworkExtension.class, new FooNetworkExtensionImpl(N2));
+        n2.addExtension(BarNetworkExtension.class, new BarNetworkExtensionImpl());
+
+        Network merge = Network.merge(MERGE, n1, n2);
+        Network subnetwork1 = merge.getSubnetwork(N1);
+        Network subnetwork2 = merge.getSubnetwork(N2);
+        assertEquals(0, merge.getExtensions().size());
+        assertEquals(1, subnetwork1.getExtensions().size());
+        assertEquals(2, subnetwork2.getExtensions().size());
+
+        merge.flatten();
+        // A FooNetworkExtension extension is present in both subnetworks.
+        // The 1st one (in the merging order) is transferred to the flatten network and
+        // the extension is kept in subnetwork2. This way, it is possible to detect duplicates and
+        // to handle them manually if wanted.
+        assertEquals(2, merge.getExtensions().size());
+        assertEquals(0, subnetwork1.getExtensions().size());
+        assertEquals(1, subnetwork2.getExtensions().size());
+        Extension<Network> extension = subnetwork2.getExtensions().stream().findFirst().orElseThrow();
+        assertInstanceOf(FooNetworkExtension.class, extension);
+        assertEquals(N2, ((FooNetworkExtension) extension).getVal());
+    }
+
+    interface FooNetworkExtension {
+        String getVal();
+    }
+
+    static class FooNetworkExtensionImpl extends AbstractExtension<Network> implements FooNetworkExtension {
+        private final String val;
+
+        public FooNetworkExtensionImpl(String val) {
+            this.val = val;
+        }
+
+        @Override
+        public String getName() {
+            return "Foo";
+        }
+
+        @Override
+        public String getVal() {
+            return val;
+        }
+    }
+
+    interface BarNetworkExtension {
+    }
+
+    static class BarNetworkExtensionImpl extends AbstractExtension<Network> implements BarNetworkExtension {
+        @Override
+        public String getName() {
+            return "Bar";
+        }
+    }
+
+    @Test
+    public void failFlattenSubnetwork() {
+        Network merged = Network.merge(n1, n2);
+        Network subnetwork1 = merged.getSubnetwork(N1);
+        Exception e = assertThrows(UnsupportedOperationException.class, subnetwork1::flatten);
+        assertEquals("Subnetworks cannot be flattened.", e.getMessage());
     }
 
     @Test

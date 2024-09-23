@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -51,6 +52,15 @@ public class RemoveSubstation extends AbstractNetworkModification {
         substation.remove();
         removedSubstationReport(reportNode, substationId);
         LOGGER.info("Substation {} and its voltage levels have been removed", substationId);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (network.getSubstation(substationId) == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
     }
 }
 

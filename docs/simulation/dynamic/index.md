@@ -9,7 +9,6 @@ hidden: true
 maxdepth: 1
 ---
 configuration.md
-parameters.md
 ```
 
 ## Inputs
@@ -26,17 +25,17 @@ The inputs of a dynamic simulation are the following:
 (dynamic-models-mapping)=
 ### Dynamic models mapping
 For the moment, the only way to associate dynamic models to static components is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo dynamic model DSL](TODO)
+- [Dynawo dynamic model DSL](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-dsl)
 
 (event-models-mapping)=
 ### Event models mapping
 For the moment, the only way to add events to the simulation is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo event model DSL](TODO)
+- [Dynawo event model DSL](inv:powsybldynawo:*:*#dynamic_simulation/event-models-dsl)
 
 (output-variables-configuration)=
 ### Output variables configuration
 For the moment, the only way to add output variables configuration is to provide a groovy script to the simulation. Note that the syntax of this script is specific to each simulator:
-- [Dynawo outputVariables DSL](TODO)
+- [Dynawo outputVariables DSL](inv:powsybldynawo:*:*#dynamic_simulation/output-variables-dsl)
 
 ## Outputs
 
