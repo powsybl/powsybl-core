@@ -355,6 +355,16 @@ class UcteImporterTest {
     }
 
     @Test
+    void testMetaInfos() throws IOException {
+        try (var fs = Jimfs.newFileSystem(Configuration.unix())) {
+            var importer = new UcteImporter(new InMemoryPlatformConfig(fs));
+            assertEquals("UCTE", importer.getFormat());
+            assertEquals("UCTE-DEF", importer.getComment());
+            assertEquals(List.of("uct", "UCT"), importer.getSupportedExtensions());
+        }
+    }
+
+    @Test
     void testModuleConfig() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);

@@ -9,7 +9,6 @@ hidden: true
 maxdepth: 1
 ---
 configuration.md
-parameters.md
 ```
 
 ## Inputs
@@ -26,26 +25,26 @@ The inputs of a dynamic simulation are the following:
 (dynamic-models-mapping)=
 ### Dynamic models mapping
 For the moment, the only way to associate dynamic models to static components is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo dynamic model DSL](TODO)
+- [Dynawo dynamic model DSL](inv:powsybldynawo:*:*#dynamic_simulation/dynamic-models-dsl)
 
 (event-models-mapping)=
 ### Event models mapping
 For the moment, the only way to add events to the simulation is through a groovy script. Note that the syntax of this script is specific to each simulator:
-- [Dynawo event model DSL](TODO)
+- [Dynawo event model DSL](inv:powsybldynawo:*:*#dynamic_simulation/event-models-dsl)
 
 (curves-configuration)=
 ### Curves configuration
 For the moment, the only way to monitor dynamic variables of the simulation in order to export curves at the end of the simulation is to provide a groovy script to the simulation. Note that the syntax of this script is specific to each simulator:
-- [Dynawo curves DSL](TODO)
+- [Dynawo curves DSL](inv:powsybldynawo:*:*#dynamic_simulation/curves-dsl)
 
 ## Outputs
 
 The outputs of a dynamic simulation are:
 - the updated static network (which may have been topologically modified depending on the events or automatons defined as inputs)
 - the different results of the dynamic simulation:
-    - some curves, asked for by the user to track the evolution of specific variables throughout the simulation
+    - some curves asked for by the user to track the evolution of specific variables throughout the simulation
     - some aggregated data regarding constraints, like a security analysis output
-    - timelines, that contain the list of events that occurred during the dynamic simulation, be them planned beforehand through events, or not
+    - timelines that contain the list of events that occurred during the dynamic simulation, be them planned beforehand through events, or not
     - logs about the execution of the dynamic simulator
 
 ## Implementations

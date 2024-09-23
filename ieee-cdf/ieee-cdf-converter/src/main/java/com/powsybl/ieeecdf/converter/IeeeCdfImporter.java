@@ -69,6 +69,11 @@ public class IeeeCdfImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return List.of(EXT);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
         return DynamicValueParameter.load(Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }

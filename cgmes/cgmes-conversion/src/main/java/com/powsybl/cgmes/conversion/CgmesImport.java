@@ -148,6 +148,11 @@ public class CgmesImport implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return List.of("xml");
+    }
+
+    @Override
     public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, ReportNode reportNode) {
         Objects.requireNonNull(ds);
         Objects.requireNonNull(networkFactory);

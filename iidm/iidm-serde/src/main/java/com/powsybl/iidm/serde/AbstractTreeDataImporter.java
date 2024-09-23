@@ -32,10 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -107,6 +104,11 @@ public abstract class AbstractTreeDataImporter implements Importer {
     }
 
     protected abstract String[] getExtensions();
+
+    @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(getExtensions());
+    }
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
