@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
-    private final String subjectId;
+    private final LimitViolationId subjectId;
 
     private final String subjectName;
 
@@ -55,7 +55,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param value              The actual value of the physical value which triggered the detection of a violation.
      * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
      */
-    public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
+    public LimitViolation(LimitViolationId subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
                           double limit, double limitReduction, double value, @Nullable ThreeSides side) {
         this.subjectId = Objects.requireNonNull(subjectId);
         this.subjectName = subjectName;
@@ -69,6 +69,26 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     /**
+     * Create a new LimitViolation.
+     *
+     * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
+     *
+     * @param subjectId          The identifier of the network equipment on which the violation occurred.
+     * @param subjectName        An optional name of the network equipment on which the violation occurred.
+     * @param limitType          The type of limit which has been violated.
+     * @param limitName          An optional name for the limit which has been violated.
+     * @param acceptableDuration The acceptable duration, in seconds, associated to the current violation value. Only relevant for current limits.
+     * @param limit              The value of the limit which has been violated.
+     * @param limitReduction     The limit reduction factor used for violation detection.
+     * @param value              The actual value of the physical value which triggered the detection of a violation.
+     * @param side               The side of the equipment where the violation occurred. May be {@code null} for non-branch, non-three windings transformer equipments.
+     */
+    public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
+                          double limit, double limitReduction, double value, @Nullable ThreeSides side) {
+        this(new SimpleLimitViolationIdImpl(subjectId), subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+    }
+
+    /**
      * Create a new LimitViolation without side.
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
@@ -84,7 +104,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
                           double limit, double limitReduction, double value) {
-        this(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, (ThreeSides) null);
+        this(new SimpleLimitViolationIdImpl(subjectId), subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, (ThreeSides) null);
 
     }
 
@@ -105,7 +125,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      */
     public LimitViolation(String subjectId, @Nullable String subjectName, LimitViolationType limitType, @Nullable String limitName, int acceptableDuration,
                           double limit, double limitReduction, double value, TwoSides side) {
-        this(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
+        this(new SimpleLimitViolationIdImpl(subjectId), subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
     }
 
     /**
@@ -124,7 +144,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
                           double limit, double limitReduction, double value, TwoSides side) {
-        this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
+        this(new SimpleLimitViolationIdImpl(subjectId), null, limitType, limitName, acceptableDuration, limit, limitReduction, value, Objects.requireNonNull(side).toThreeSides());
     }
 
     /**
@@ -142,7 +162,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
                           double limit, double limitReduction, double value) {
-        this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, (ThreeSides) null);
+        this(new SimpleLimitViolationIdImpl(subjectId), null, limitType, limitName, acceptableDuration, limit, limitReduction, value, (ThreeSides) null);
     }
 
     /**
@@ -158,7 +178,23 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param value          The actual value of the physical value which triggered the detection of a violation.
      */
     public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, double limitReduction, double value) {
-        this(subjectId, subjectName, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, (ThreeSides) null);
+        this(new SimpleLimitViolationIdImpl(subjectId), subjectName, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, (ThreeSides) null);
+    }
+
+    /**
+     * Create a new LimitViolation, for types other than current limits.
+     *
+     * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
+     *
+     * @param limitViolationId      The object identifying the network equipment on which the violation occurred.
+     * @param subjectName           An optional name of the network equipment on which the violation occurred.
+     * @param limitType             The type of limit which has been violated.
+     * @param limit                 The value of the limit which has been violated.
+     * @param limitReduction        The limit reduction factor used for violation detection.
+     * @param value                 The actual value of the physical value which triggered the detection of a violation.
+     */
+    public LimitViolation(LimitViolationId limitViolationId, String subjectName, LimitViolationType limitType, double limit, double limitReduction, double value) {
+        this(limitViolationId, subjectName, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, (ThreeSides) null);
     }
 
     /**
@@ -173,7 +209,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param value          The actual value of the physical value which triggered the detection of a violation.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, double limitReduction, double value) {
-        this(subjectId, null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, (ThreeSides) null);
+        this(new SimpleLimitViolationIdImpl(subjectId), null, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, (ThreeSides) null);
     }
 
     /**
@@ -182,6 +218,15 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @return the identifier of the network equipment on which the violation occurred.
      */
     public String getSubjectId() {
+        return subjectId.getId();
+    }
+
+    /**
+     * The identifier of the network equipment on which the violation occurred.
+     *
+     * @return the identifier of the network equipment on which the violation occurred.
+     */
+    public LimitViolationId getLimitViolationId() {
         return subjectId;
     }
 

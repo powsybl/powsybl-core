@@ -17,10 +17,10 @@ import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.iidm.network.ThreeSides;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
@@ -48,6 +48,9 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         double limitReduction = Double.NaN;
         double value = Double.NaN;
         ThreeSides side = null;
+        String voltageLevelId = null;
+        String busId = null;
+        List<String> busbarIds = new ArrayList<>();
 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
 
@@ -55,6 +58,19 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
             switch (parser.currentName()) {
                 case "subjectId":
                     subjectId = parser.nextTextValue();
+                    break;
+
+                case "busId":
+                    busId = parser.nextTextValue();
+                    break;
+
+                case "voltageLevelId":
+                    voltageLevelId = parser.nextTextValue();
+                    break;
+
+                case "busbarIds":
+                    parser.nextToken();
+                    busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
 
                 case "subjectName":
@@ -104,8 +120,13 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-
-        LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+        LimitViolationId limitViolationId;
+        if (voltageLevelId != null || busId != null || !busbarIds.isEmpty()) {
+            limitViolationId = new DetailsLimitViolationIdImpl(voltageLevelId, busId, busbarIds);
+        } else {
+            limitViolationId = new SimpleLimitViolationIdImpl(subjectId);
+        }
+        LimitViolation violation = new LimitViolation(limitViolationId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
