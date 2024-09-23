@@ -130,9 +130,10 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
                     .map(Path::toString);
-            var maybeFilteredFilenames = allFiles ? filenames
-                    : filenames.filter(name -> name.startsWith(baseName));
-            return maybeFilteredFilenames
+            if (!allFiles) {
+                filenames = filenames.filter(name -> name.startsWith(baseName));
+            }
+            return filenames
                     // Return names after removing the compression extension
                     .map(name -> name.replace(getCompressionExtension(), ""))
                     .filter(s -> p.matcher(s).matches())
