@@ -14,9 +14,10 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}

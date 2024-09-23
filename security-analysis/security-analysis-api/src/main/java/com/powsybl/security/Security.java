@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
-import com.powsybl.iidm.network.util.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 import com.powsybl.security.results.PostContingencyResult;
