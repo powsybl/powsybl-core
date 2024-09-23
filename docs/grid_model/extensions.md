@@ -7,7 +7,7 @@ The extensions can be attached to any objects of a network or to the network its
 
 Some extensions are mono-variant, meaning the data are identical for all the variants of the network. However, some of them are multi-variants to allow a different value for each variant of the network. It's typically the case for the [LoadDetail](#load-detail) extension that give the distribution of the constant part and the thermosensitive part of the consumption. 
 
-Note that some extensions provided by PowSyBl aren't supported in the [persistent implementation of IIDM](../../developer/repositories/powsybl-network-store-server.md).
+Note that some extensions provided by PowSyBl aren't supported in the [persistent implementation of IIDM](https://github.com/powsybl/powsybl-network-store-server).
 
 Every extension is considered as serializable unless explicitly specified as non-serializable in XML-IIDM.
 
@@ -376,7 +376,7 @@ three-winding transformers, HVDC line and a dangling line. The status could be:
 This extension is attached to a Generator, or a BusBarSection or a Load and is used to define the angle reference bus of
 a power flow calculation, i.e. which bus will be used with a zero-voltage angle.
 Use this extension before a computation to force the reference bus selection.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
 today supports Reference Priorities on generators only when this feature is activated.
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
@@ -399,7 +399,7 @@ This extension is provided by the `com.powsybl:powsybl-iidm-api` module.
 ## Reference Terminals
 
 This extension is attached to a Network and is used to define the angle references of a Power Flow solution.
-The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](../simulation/powerflow/openlf.md) implementation
+The support of this feature by Load Flow implementations may vary. For example, the [OpenLoadFlow](inv:powsyblopenloadflow:*:*#index) implementation
 today supports writing to the Network the terminals of the reference generators chosen via the [Reference Priority extension](#reference-priority).
 
 The reference bus is defined through the terminal of the equipment and an integer specifying the reference priority.
