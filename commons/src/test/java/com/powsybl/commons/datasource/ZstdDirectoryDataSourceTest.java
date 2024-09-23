@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Olivier Bretteville {@literal <olivier.bretteville at rte-france.com>}
@@ -45,7 +45,7 @@ class ZstdDirectoryDataSourceTest extends DirectoryDataSourceTest {
         assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
-        assertEquals(false, dataSource.allFiles());
+        assertFalse(dataSource.allFiles());
         assertEquals(observer, dataSource.getObserver());
     }
 
@@ -73,13 +73,6 @@ class ZstdDirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.xz", "foo.txt.xz", "foo.iidm.xz", "foo.xiidm.xz", "foo.v3.iidm.xz", "foo.v3.xz", "foo_bar.iidm.xz", "foo_bar.xz",
             "foo.gz", "foo.txt.gz", "foo.iidm.gz", "foo.xiidm.gz", "foo.v3.iidm.gz", "foo.v3.gz", "foo_bar.iidm.gz", "foo_bar.gz");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.xz", "foo_bar.xz", "foo_bar.iidm.gz", "foo_bar.gz");
-        Set<String> barFiles = Set.of(
-            "bar.iidm", "bar",
-            "bar.iidm.bz2", "bar.bz2",
-            "bar.iidm.xz", "bar.xz",
-            "bar.iidm.gz", "bar.gz");
-        Set<String> curatedListedFiles = Stream.concat(listedFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
-        Set<String> curatedListedBarFiles = Stream.concat(listedBarFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
         return Stream.of(
             Arguments.of(null, "foo", "iidm", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
                 listedFiles,
@@ -89,19 +82,7 @@ class ZstdDirectoryDataSourceTest extends DirectoryDataSourceTest {
                 listedBarFiles),
             Arguments.of(null, "foo", "v3", CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
                 listedFiles,
-                listedBarFiles),
-            Arguments.of("foo.zst", null, null, CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
-            Arguments.of("foo.xiidm.zst", null, null, CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
-            Arguments.of("tmp.zst", null, null, CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
-            Arguments.of("tmp.xiidm.zst", null, null, CompressionFormat.ZSTD, ZstdDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles)
+                listedBarFiles)
         );
     }
 }

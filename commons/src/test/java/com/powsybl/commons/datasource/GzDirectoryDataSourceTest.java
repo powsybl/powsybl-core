@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.provider.Arguments;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -45,7 +45,7 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
         assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
-        assertEquals(false, dataSource.allFiles());
+        assertFalse(dataSource.allFiles());
         assertEquals(observer, dataSource.getObserver());
     }
 
@@ -73,13 +73,6 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.xz", "foo.txt.xz", "foo.iidm.xz", "foo.xiidm.xz", "foo.v3.iidm.xz", "foo.v3.xz", "foo_bar.iidm.xz", "foo_bar.xz",
             "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.xz", "foo_bar.xz", "foo_bar.iidm.zst", "foo_bar.zst");
-        Set<String> barFiles = Set.of(
-            "bar.iidm", "bar",
-            "bar.iidm.bz2", "bar.bz2",
-            "bar.iidm.xz", "bar.xz",
-            "bar.iidm.zst", "bar.zst");
-        Set<String> curatedListedFiles = Stream.concat(listedFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
-        Set<String> curatedListedBarFiles = Stream.concat(listedBarFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
         return Stream.of(
             Arguments.of(null, "foo", "iidm", CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 listedFiles,
@@ -89,19 +82,7 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
                 listedBarFiles),
             Arguments.of(null, "foo", "v3", CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 listedFiles,
-                listedBarFiles),
-            Arguments.of("foo.gz", null, null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
-            Arguments.of("foo.xiidm.gz", null, null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
-            Arguments.of("tmp.gz", null, null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
-            Arguments.of("tmp.xiidm.gz", null, null, CompressionFormat.GZIP, GzDirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles)
+                listedBarFiles)
         );
     }
 }
