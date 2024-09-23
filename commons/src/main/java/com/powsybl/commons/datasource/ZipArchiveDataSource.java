@@ -61,6 +61,10 @@ public class ZipArchiveDataSource extends AbstractArchiveDataSource {
         this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()));
     }
 
+    public ZipArchiveDataSource(Path zipFile, DataSourceObserver observer) {
+        this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()), observer);
+    }
+
     protected boolean entryExists(Path zipFilePath, String fileName) {
         if (Files.exists(zipFilePath)) {
             try (ZipFile zipFile = ZipFile.builder()
