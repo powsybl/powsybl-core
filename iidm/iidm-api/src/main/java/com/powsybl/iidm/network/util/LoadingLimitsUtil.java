@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
 
+import java.util.Comparator;
+
 import static java.lang.Integer.MAX_VALUE;
 
 /**
@@ -29,6 +31,12 @@ public final class LoadingLimitsUtil {
 
         void log(String what, String reason, double wrongValue, double fixedValue);
     }
+
+    /**
+     * Comparator for temporary limits
+     * to return the temporary limits ordered by descending acceptable duration
+     */
+    public static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
 
     /**
      * <p>Compute a missing permanent limit accordingly to the temporary limits and to a given percentage.</p>
