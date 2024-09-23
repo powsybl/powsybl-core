@@ -61,6 +61,11 @@ public interface Importer {
         }
 
         @Override
+        public List<String> getSupportedExtensions() {
+            return importer.getSupportedExtensions();
+        }
+
+        @Override
         public List<Parameter> getParameters() {
             return importer.getParameters();
         }
@@ -275,6 +280,10 @@ public interface Importer {
      * Get a unique identifier of the format.
      */
     String getFormat();
+
+    default List<String> getSupportedExtensions() {
+        return Collections.emptyList();
+    }
 
     /**
      * Get a description of import parameters
