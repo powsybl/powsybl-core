@@ -135,6 +135,12 @@ public abstract class AbstractTaskInterruptionTest {
      * @throws InterruptedException Exception that should be thrown during the interruption
      */
     public void testCancelShortTask(boolean isDelayed, Supplier<?> methodCalledInTask) throws InterruptedException {
+        // When "isDelayed" is true, the test checks that interrupting a script after its execution (it's a *short* one) doesn't generate problems.
+        //
+        // When "isDelayed" is false,  the script should be interrupted before its execution's end. This could be either during the preparation phase
+        // or during its execution. In both cases, the script should be interrupted and end gracefully...
+        // ... but it is difficult to test both cases since it depends on the test machine's performances,
+        // and we don't want to add a specific mechanism in the production code (which may slow the execution) only for test purposes.
 
         // Counters
         waitForStart = new CountDownLatch(1);
