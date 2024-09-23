@@ -20,7 +20,7 @@ The inputs of a dynamic simulation are the following:
 - a mapping between static components of the network and dynamic models
 - optionally, a description of events occurring in the dynamic simulation (disconnection of a line, change of tap for a transformer, etc.)
 - a set of parameters for the simulator itself (simulation start and stop time, solver parameters, etc.)
-- a configuration file to configure the outputVariables to export at the end of the simulation
+- a configuration file to configure the output variables to export at the end of the simulation
 
 (dynamic-models-mapping)=
 ### Dynamic models mapping
@@ -35,7 +35,7 @@ For the moment, the only way to add events to the simulation is through a groovy
 (output-variables-configuration)=
 ### Output variables configuration
 For the moment, the only way to add output variables configuration is to provide a groovy script to the simulation. Note that the syntax of this script is specific to each simulator:
-- [Dynawo outputVariables DSL](inv:powsybldynawo:*:*#dynamic_simulation/output-variables-dsl)
+- [Dynawo output variables DSL](inv:powsybldynawo:*:*#dynamic_simulation/output-variables-dsl)
 
 ## Outputs
 
