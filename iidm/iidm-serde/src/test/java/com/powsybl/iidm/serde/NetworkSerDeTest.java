@@ -29,6 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
 
+import static com.powsybl.commons.test.ComparisonUtils.assertTxtEquals;
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,18 +119,18 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
     }
 
     @Test
-    void testCopyFormat() throws IOException {
+    void testCopyFormat() {
         Network network = createEurostagTutorialExample1();
         Path file1 = tmpDir.resolve("n.xml");
         NetworkSerDe.write(network, file1);
         Network network2 = NetworkSerDe.copy(network);
         Path file2 = tmpDir.resolve("n2.xml");
         NetworkSerDe.write(network2, file2);
-        assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
+        assertTxtEquals(file1, file2);
         Network network3 = NetworkSerDe.copy(network, TreeDataFormat.BIN);
         Path file3 = tmpDir.resolve("n3.xml");
         NetworkSerDe.write(network3, file3);
-        assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file3));
+        assertTxtEquals(file1, file3);
     }
 
     @AutoService(ExtensionSerDe.class)
