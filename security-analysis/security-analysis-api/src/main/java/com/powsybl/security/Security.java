@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
+import com.powsybl.iidm.network.util.*;
 import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
 import com.powsybl.security.results.PostContingencyResult;
@@ -77,10 +78,15 @@ public final class Security {
     }
 
     public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
+        return checkLimits(network, currentLimitTypes, limitsComputer, LimitViolationUtils.VoltageLimitViolationIdType.VOLTAGE_LEVEL_ID);
+    }
+
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, LimitViolationUtils.VoltageLimitViolationIdType voltageLimitViolationIdType) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
+        Objects.requireNonNull(voltageLimitViolationIdType);
         List<LimitViolation> violations = new ArrayList<>();
-        LimitViolationDetection.checkAll(network, currentLimitTypes, limitsComputer, violations::add);
+        LimitViolationDetection.checkAll(network, currentLimitTypes, limitsComputer, violations::add, voltageLimitViolationIdType);
         return violations;
     }
 

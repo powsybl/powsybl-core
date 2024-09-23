@@ -29,6 +29,12 @@ public final class LimitViolationUtils {
     private LimitViolationUtils() {
     }
 
+    public enum VoltageLimitViolationIdType {
+        VOLTAGE_LEVEL_ID,
+        BUS_ID,
+        BUSBAR_IDS;
+    }
+
     public static Overload checkTemporaryLimits(Branch<?> branch, TwoSides side, double limitReductionValue, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);

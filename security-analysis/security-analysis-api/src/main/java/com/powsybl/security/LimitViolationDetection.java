@@ -14,8 +14,9 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
 
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.*;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -42,6 +43,28 @@ public final class LimitViolationDetection {
         network.getVoltageLevelStream()
                 .flatMap(vl -> vl.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
+        network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+    }
+
+    /**
+     * Checks whether the current and voltage values on all equipments
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param network                   The network on which physical values must be checked.
+     * @param currentLimitTypes         The current limit type to consider.
+     * @param limitsComputer            The computer of the limit reductions to apply.
+     * @param consumer                  Will be fed with possibly created limit violations.
+     * @param voltageViolationIdType
+     */
+    public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
+                                LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer,
+                                LimitViolationUtils.VoltageLimitViolationIdType voltageViolationIdType) {
+        network.getBranchStream().forEach(b -> checkCurrent(b, currentLimitTypes, limitsComputer, consumer));
+        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(t, currentLimitTypes, limitsComputer, consumer));
+        network.getVoltageLevelStream()
+            .flatMap(vl -> vl.getBusView().getBusStream())
+            .forEach(b -> checkVoltage(b, consumer, voltageViolationIdType));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
@@ -203,15 +226,41 @@ public final class LimitViolationDetection {
         checkVoltage(bus, value, consumer);
     }
 
+    private static void checkVoltage(Bus bus, Consumer<LimitViolation> consumer, LimitViolationUtils.VoltageLimitViolationIdType violationIdType) {
+        double value = bus.getV();
+        checkVoltage(bus, value, consumer, violationIdType);
+    }
+
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
+        checkVoltage(bus, value, consumer, LimitViolationUtils.VoltageLimitViolationIdType.VOLTAGE_LEVEL_ID);
+    }
+
+    static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer, LimitViolationUtils.VoltageLimitViolationIdType violationIdType) {
+        Objects.requireNonNull(violationIdType);
         VoltageLevel vl = bus.getVoltageLevel();
+        String limitViolationId = vl.getId();
+        switch (violationIdType) {
+            case BUS_ID -> limitViolationId = bus.getId();
+            case VOLTAGE_LEVEL_ID -> limitViolationId = vl.getId();
+            case BUSBAR_IDS -> {
+                if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                    limitViolationId = bus.getConnectedTerminalStream()
+                        .map(Terminal::getConnectable)
+                        .filter(BusbarSection.class::isInstance)
+                        .map(Connectable::getId)
+                        .collect(Collectors.joining(", "));
+                } else {
+                    throw new PowsyblException("Can not get busbar ids for limitViolation id because topology is not Node Breaker,");
+                }
+            }
+        }
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
+            consumer.accept(new LimitViolation(limitViolationId, vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), 1., value));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
+            consumer.accept(new LimitViolation(limitViolationId, vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
                     vl.getHighVoltageLimit(), 1., value));
         }
     }
