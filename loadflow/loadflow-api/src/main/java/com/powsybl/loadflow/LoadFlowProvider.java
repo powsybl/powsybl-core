@@ -109,7 +109,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
     void updateSpecificParameters(Extension<LoadFlowParameters> extension, Map<String, String> properties);
 
     /**
-     * Get the parameters of the parameters extension associated with this provider from default platform config.
+     * Get the parameters of the parameters extension associated with this provider.
      *
      * @return the parameters of the parameters extension associated with this provider.
      */

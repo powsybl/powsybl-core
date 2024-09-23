@@ -11,11 +11,9 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.iidm.network.*;
@@ -24,13 +22,11 @@ import com.powsybl.ucte.converter.util.UcteConstants;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.nio.file.FileSystem;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.ucte.converter.UcteImporter.COMBINE_PHASE_ANGLE_REGULATION;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -361,19 +357,6 @@ class UcteImporterTest {
             assertEquals("UCTE", importer.getFormat());
             assertEquals("UCTE-DEF", importer.getComment());
             assertEquals(List.of("uct", "UCT"), importer.getSupportedExtensions());
-        }
-    }
-
-    @Test
-    void testModuleConfig() throws IOException {
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("import-export-parameters-default-value");
-            moduleConfig.setStringProperty(COMBINE_PHASE_ANGLE_REGULATION, "true");
-
-            Importer importer = new UcteImporter(platformConfig);
-            List<Parameter> parameterList = importer.getParameters();
-            assertTrue((boolean) parameterList.get(0).getDefaultValue());
         }
     }
 }

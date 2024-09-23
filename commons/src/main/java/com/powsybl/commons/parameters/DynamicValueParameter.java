@@ -46,12 +46,13 @@ public class DynamicValueParameter extends Parameter {
     }
 
     private static Object getPropertyFromModuleConfig(Parameter param, ModuleConfig moduleConfig) {
-        return switch (param.getType()) {
-            case STRING -> moduleConfig.getStringProperty(param.getName());
-            case BOOLEAN -> moduleConfig.getBooleanProperty(param.getName());
-            case INTEGER -> moduleConfig.getIntProperty(param.getName());
-            case STRING_LIST -> moduleConfig.getStringListProperty(param.getName());
-            case DOUBLE -> moduleConfig.getDoubleProperty(param.getName());
+        Object moduleConfigDefaultValue = switch (param.getType()) {
+            case STRING -> moduleConfig.getOptionalStringProperty(param.getName()).orElse(null);
+            case BOOLEAN -> moduleConfig.getOptionalBooleanProperty(param.getName()).orElse(null);
+            case INTEGER -> moduleConfig.getOptionalIntProperty(param.getName()).stream().boxed().findFirst().orElse(null);
+            case STRING_LIST -> moduleConfig.getOptionalStringListProperty(param.getName()).orElse(null);
+            case DOUBLE -> moduleConfig.getOptionalDoubleProperty(param.getName()).stream().boxed().findFirst().orElse(null);
         };
+        return moduleConfigDefaultValue != null ? moduleConfigDefaultValue : param.getDefaultValue();
     }
 }
