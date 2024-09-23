@@ -21,15 +21,16 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     private final ReadOnlyDataSource[] dataSources;
 
-    public GenericReadOnlyDataSource(Path directory, String baseName, String dataExtension, boolean allFiles, DataSourceObserver observer) {
+    public GenericReadOnlyDataSource(Path directoryOrFile, String baseName, String dataExtension, boolean allFiles, DataSourceObserver observer) {
         dataSources = new DataSource[] {
-            new DirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
-            new ZstdDirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
-            new ZipArchiveDataSource(directory),
-            new ZipArchiveDataSource(directory, baseName, dataExtension, observer),
-            new XZDirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
-            new GzDirectoryDataSource(directory, baseName, dataExtension, allFiles, observer),
-            new Bzip2DirectoryDataSource(directory, baseName, dataExtension, allFiles, observer)
+            new DirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new ZstdDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new ZipArchiveDataSource(directoryOrFile, observer),
+            new ZipArchiveDataSource(directoryOrFile, baseName, dataExtension, observer),
+            new TarArchiveDataSource(directoryOrFile, observer),
+            new XZDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new GzDirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer),
+            new Bzip2DirectoryDataSource(directoryOrFile, baseName, dataExtension, allFiles, observer)
         };
     }
 

@@ -43,7 +43,7 @@ class DataSourceBuilderTest {
         DataSourceBuilder builder = new DataSourceBuilder()
             .withDirectory(testDir)
             .withBaseName("foo")
-            .withDataExtension(".baz")
+            .withDataExtension("baz")
             .withObserver(observer);
 
         // Directory datasource
@@ -71,7 +71,7 @@ class DataSourceBuilderTest {
         DataSourceBuilder builder = new DataSourceBuilder()
             .withCompressionFormat(CompressionFormat.ZIP)
             .withArchiveFileName("bar.zip")
-            .withDataExtension(".baz")
+            .withDataExtension("baz")
             .withArchiveFormat(ArchiveFormat.ZIP)
             .withObserver(observer);
 
@@ -97,7 +97,7 @@ class DataSourceBuilderTest {
             .withDirectory(testDir)
             .withBaseName("foo")
             .withArchiveFileName("bar.zip")
-            .withDataExtension(".baz");
+            .withDataExtension("baz");
 
         // Wrong archive format
         builder.withCompressionFormat(CompressionFormat.ZIP).withArchiveFormat(ArchiveFormat.TAR);

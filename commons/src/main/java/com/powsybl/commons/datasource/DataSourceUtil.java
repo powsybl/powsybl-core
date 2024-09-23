@@ -36,8 +36,8 @@ public interface DataSourceUtil {
 
     static String getBaseName(String fileName) {
         Objects.requireNonNull(fileName);
-        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
-        return pos == -1 ? fileName : fileName.substring(0, pos);
+        FileInformation fileInformation = new FileInformation(fileName, false);
+        return fileInformation.getBaseName();
     }
 
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
