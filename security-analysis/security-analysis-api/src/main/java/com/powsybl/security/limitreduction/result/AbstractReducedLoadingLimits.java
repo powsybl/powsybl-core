@@ -8,6 +8,7 @@
 package com.powsybl.security.limitreduction.result;
 
 import com.powsybl.iidm.network.LoadingLimits;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 
 import java.util.Collection;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public abstract class AbstractReducedLoadingLimits implements LoadingLimits {
     private final double permanentLimit;
     private final double originalPermanentLimit;
     private final double permanentLimitReduction;
-    private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>();
+    private final TreeMap<Integer, TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
     public record ReducedTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious,
                                  double originalValue, double limitReduction) implements TemporaryLimit {
