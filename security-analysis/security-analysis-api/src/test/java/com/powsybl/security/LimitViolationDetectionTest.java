@@ -13,6 +13,8 @@ import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
 import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
@@ -94,6 +96,41 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Override
     protected void checkVoltageAngle(VoltageAngleLimit voltageAngleLimit, double voltageAngleDifference, Consumer<LimitViolation> consumer) {
         LimitViolationDetection.checkVoltageAngle(voltageAngleLimit, voltageAngleDifference, consumer);
+    }
+
+    @Test
+    void testVoltageViolationDetection() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        LimitViolationDetection.checkVoltage(((Bus) network.getIdentifiable("NHV2")), 620, violationsCollector::add);
+        Assertions.assertEquals(1, violationsCollector.size());
+        Assertions.assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+        Assertions.assertEquals(620.0, violationsCollector.get(0).getValue());
+        Assertions.assertEquals(500, violationsCollector.get(0).getLimit());
+        Assertions.assertEquals("VLHV2", violationsCollector.get(0).getSubjectId());
+    }
+
+    @Test
+    void testVoltageViolationDetectionWithBusId() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        LimitViolationDetection.checkVoltage(((Bus) network.getIdentifiable("NHV2")), 620, violationsCollector::add,
+            LimitViolationUtils.VoltageLimitViolationIdType.BUS_ID);
+        Assertions.assertEquals(1, violationsCollector.size());
+        Assertions.assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+        Assertions.assertEquals(620.0, violationsCollector.get(0).getValue());
+        Assertions.assertEquals(500, violationsCollector.get(0).getLimit());
+        Assertions.assertEquals("NHV2", violationsCollector.get(0).getSubjectId());
+    }
+
+    @Test
+    void testVoltageViolationDetectionWithBusBarIds() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        LimitViolationDetection.checkVoltage(network.getBusView().getBus("S1VL1_0"), 300,
+            violationsCollector::add, LimitViolationUtils.VoltageLimitViolationIdType.BUSBAR_IDS);
+        Assertions.assertEquals(1, violationsCollector.size());
+        Assertions.assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+        Assertions.assertEquals(300, violationsCollector.get(0).getValue());
+        Assertions.assertEquals(240, violationsCollector.get(0).getLimit());
+        Assertions.assertEquals("S1VL1_BBS", violationsCollector.get(0).getSubjectId());
     }
 
     @Test

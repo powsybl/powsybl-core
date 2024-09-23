@@ -39,12 +39,7 @@ public final class LimitViolationDetection {
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
                                 LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer) {
-        network.getBranchStream().forEach(b -> checkCurrent(b, currentLimitTypes, limitsComputer, consumer));
-        network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(t, currentLimitTypes, limitsComputer, consumer));
-        network.getVoltageLevelStream()
-                .flatMap(vl -> vl.getBusView().getBusStream())
-                .forEach(b -> checkVoltage(b, consumer));
-        network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
+        checkAll(network, currentLimitTypes, limitsComputer, consumer, LimitViolationUtils.VoltageLimitViolationIdType.VOLTAGE_LEVEL_ID);
     }
 
     /**
@@ -56,7 +51,7 @@ public final class LimitViolationDetection {
      * @param currentLimitTypes         The current limit type to consider.
      * @param limitsComputer            The computer of the limit reductions to apply.
      * @param consumer                  Will be fed with possibly created limit violations.
-     * @param voltageViolationIdType
+     * @param voltageViolationIdType    determine the limit violation id for voltage violations
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
                                 LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer,
