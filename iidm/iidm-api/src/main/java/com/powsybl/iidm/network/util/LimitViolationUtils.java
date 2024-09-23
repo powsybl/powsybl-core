@@ -87,27 +87,25 @@ public final class LimitViolationUtils {
         Collection<LoadingLimits.TemporaryLimit> temporaryLimits = limitsContainer.getLimits().getTemporaryLimits();
         String previousLimitName = PERMANENT_LIMIT_NAME;
         double previousLimit = permanentLimit;
-        int previousAcceptableDuration = 0; // never mind initialisation it will be override with first loop
+        int previousAcceptableDuration = 0; // never mind initialisation it will be overridden with first loop
         boolean isFirstTemporaryLimit = true;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
-            if (isFirstTemporaryLimit) {
-                if (i >= previousLimit && i < tl.getValue()) {
-                    return new OverloadImpl(tl, previousLimitName,
-                        limitsContainer.isDistinct() ?
-                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalPermanentLimit() : previousLimit,
-                        limitsContainer.isDistinct() ?
-                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : 1);
+            if (i >= previousLimit && i < tl.getValue()) {
+                double limit = previousLimit;
+                double reduction = 1;
+                if (limitsContainer.isDistinct()) {
+                    AbstractDistinctLimitsContainer<?, ?> container = (AbstractDistinctLimitsContainer<?, ?>) limitsContainer;
+                    if (isFirstTemporaryLimit) {
+                        limit = container.getOriginalPermanentLimit();
+                        reduction = container.getPermanentLimitReduction();
+                    } else {
+                        limit = container.getOriginalTemporaryLimit(previousAcceptableDuration);
+                        reduction = container.getTemporaryLimitReduction(previousAcceptableDuration);
+                    }
                 }
-                isFirstTemporaryLimit = false;
-            } else {
-                if (i >= previousLimit && i < tl.getValue()) {
-                    return new OverloadImpl(tl, previousLimitName,
-                        limitsContainer.isDistinct() ?
-                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalTemporaryLimit(previousAcceptableDuration) : previousLimit,
-                        limitsContainer.isDistinct() ?
-                            ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getTemporaryLimitReduction(previousAcceptableDuration) : 1);
-                }
+                return new OverloadImpl(tl, previousLimitName, limit, reduction);
             }
+            isFirstTemporaryLimit = false;
             previousLimitName = tl.getName();
             previousLimit = tl.getValue();
             previousAcceptableDuration = tl.getAcceptableDuration();
