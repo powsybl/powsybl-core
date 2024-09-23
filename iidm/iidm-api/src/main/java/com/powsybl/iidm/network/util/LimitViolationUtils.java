@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.limitmodification.result.AbstractDistinctLimitsC
 import com.powsybl.iidm.network.limitmodification.result.LimitsContainer;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -89,9 +88,9 @@ public final class LimitViolationUtils {
         String previousLimitName = PERMANENT_LIMIT_NAME;
         double previousLimit = permanentLimit;
         int previousAcceptableDuration = 0; // never mind initialisation it will be override with first loop
-        boolean firstIteration = true;
+        boolean isFirstTemporaryLimit = true;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
-            if (firstIteration) {
+            if (isFirstTemporaryLimit) {
                 if (i >= previousLimit && i < tl.getValue()) {
                     return new OverloadImpl(tl, previousLimitName,
                         limitsContainer.isDistinct() ?
@@ -99,7 +98,7 @@ public final class LimitViolationUtils {
                         limitsContainer.isDistinct() ?
                             ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : 1);
                 }
-                firstIteration = false;
+                isFirstTemporaryLimit = false;
             } else {
                 if (i >= previousLimit && i < tl.getValue()) {
                     return new OverloadImpl(tl, previousLimitName,
