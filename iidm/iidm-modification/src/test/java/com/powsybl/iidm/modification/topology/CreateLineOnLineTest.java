@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.junit.jupiter.api.Test;
 
@@ -221,5 +222,21 @@ class CreateLineOnLineTest extends AbstractModificationTest {
         LineAdder adder = createLineAdder(line, network);
         AbstractNetworkModification networkModification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
         assertEquals("CreateLineOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createNbNetworkWithBusbarSection();
+        Line line = network.getLine("CJ");
+        LineAdder adder = createLineAdder(line, network);
+
+        NetworkModification modification1 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId("WRONG_BBS").withLine(line).withLineAdder(adder).build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withPositionPercent(Double.NaN).withLine(line).withLineAdder(adder).build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification3.hasImpactOnNetwork(network));
     }
 }

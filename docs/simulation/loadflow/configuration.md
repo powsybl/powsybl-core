@@ -117,16 +117,16 @@ The `shuntCompensatorVoltageControlOn` property is an optional property that def
 The default value is `false`.
 
 **connectedComponentMode**  
-The `connectedComponentMode` property is an optional property that defines if the power flow has to be computed over all connected component (choose `ALL` mode) or just on the main connected component (choose `MAIN` mode).  
+The `connectedComponentMode` property is an optional property that defines if the power flow has to be computed over all connected components (choose `ALL` mode) or just on the main connected component (choose `MAIN` mode).  
 The default value of this parameter is `MAIN`.
 
 **twtSplitShuntAdmittance**  
-The `twtSplitShuntAdmittance` property is an optional property that defines whether the shunt admittance is split at each side of the serie impedance for transformers.  
+The `twtSplitShuntAdmittance` property is an optional property that defines whether the shunt admittance is split at each side of the series impedance for transformers.  
 The default value is `false`.
 
 **dcUseTransformerRatio**  
-The `dcUseTransformerRatio` property is an optional property that defines if ratio of transformers should be used in the
-flow equations in a DC power flow.  
+The `dcUseTransformerRatio` property is an optional property that defines if the ratio of transformers should be used in 
+the flow equations in a DC power flow.  
 The default value of this parameter is `true`.
 
 **dcPowerFactor**  
@@ -134,6 +134,6 @@ The `dcPowerFactor` property is an optional property that defines the power fact
 The default value is `1.0`.
 
 ### Specific parameters
-Some implementation use specific parameters that can be defined in the configuration file or in the JSON parameters file:
-- [PowSyBl OpenLoadFlow](TODO)
-- [DynaFlow](TODO)
+Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#loadflow/parameters)
+- [DynaFlow](inv:powsybldynawo:*:*#load_flow/configuration)

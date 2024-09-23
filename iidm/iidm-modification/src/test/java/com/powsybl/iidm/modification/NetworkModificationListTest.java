@@ -115,4 +115,25 @@ class NetworkModificationListTest {
         assertThrows(PowsyblException.class, () -> task.apply(network, false), "Branch '" + lineId + "' not found");
         assertNull(network.getLine("NHV1_NHV2_1"));
     }
+
+    @Test
+    void testHasImpact() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        BranchTripping tripping1 = new BranchTripping("NHV1_NHV2_1", "VLHV1");
+        BranchTripping tripping2 = new BranchTripping("NHV1_NHV2_1", "VLHV2");
+        LoadModification modification1 = new LoadModification("LOAD_NOT_EXISTING", true, -20.0, null);
+        NetworkModificationList modificationList = new NetworkModificationList(tripping1, tripping2, modification1);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modificationList.hasImpactOnNetwork(network));
+
+        LoadModification modification2 = new LoadModification("LOAD", true, null, 2.0);
+        LoadModification modification3 = new LoadModification("LOAD", true, 5.0, null);
+        NetworkModificationList modificationList2 = new NetworkModificationList(modification2, modification3);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modificationList2.hasImpactOnNetwork(network));
+
+        LoadModification modification4 = new LoadModification("LOAD", true, null, null);
+        LoadModification modification5 = new LoadModification("LOAD", false, 600.0, 200.0);
+        NetworkModificationList modificationList3 = new NetworkModificationList(modification5, modification4);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modificationList3.hasImpactOnNetwork(network));
+    }
 }

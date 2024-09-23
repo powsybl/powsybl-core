@@ -13,6 +13,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
@@ -353,5 +354,19 @@ class RemoveFeederBayTest {
     void testGetName() {
         AbstractNetworkModification networkModification = new RemoveFeederBay("LINE1");
         assertEquals("RemoveFeederBay", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+
+        NetworkModification modification1 = new RemoveFeederBay("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RemoveFeederBay("S1VL1_BBS");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new RemoveFeederBay("LD1");
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
     }
 }

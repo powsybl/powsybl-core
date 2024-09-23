@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification.tapchanger;
 
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -97,5 +98,43 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
         } catch (ValidationException e) {
             logOrThrow(throwException, e.getMessage());
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer(getTransformerId());
+        ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer(getTransformerId());
+        if (twoWindingsTransformer == null && threeWindingsTransformer == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (twoWindingsTransformer != null) {
+            if (cannotApplyModification(twoWindingsTransformer)) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            } else if (areValuesEqual(getTapPosition(), twoWindingsTransformer.getPhaseTapChanger().getTapPosition(), isRelative)) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        } else {
+            PhaseTapChangerHolder ptcHolder = getLeg(threeWindingsTransformer, PhaseTapChangerHolder::hasPhaseTapChanger, false);
+            if (cannotApplyModification(ptcHolder)) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            } else if (areValuesEqual(getTapPosition(), ptcHolder.getPhaseTapChanger().getTapPosition(), isRelative)) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
+    }
+
+    private boolean cannotApplyModification(TwoWindingsTransformer twoWindingsTransformer) {
+        return !twoWindingsTransformer.hasPhaseTapChanger()
+            || isValueOutsideRange(getTapPosition() + (isRelative ? twoWindingsTransformer.getPhaseTapChanger().getTapPosition() : 0),
+            twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
+            twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition());
+    }
+
+    private boolean cannotApplyModification(PhaseTapChangerHolder ptcHolder) {
+        return !ptcHolder.hasPhaseTapChanger()
+            || isValueOutsideRange(getTapPosition() + (isRelative ? ptcHolder.getPhaseTapChanger().getTapPosition() : 0),
+            ptcHolder.getPhaseTapChanger().getLowTapPosition(),
+            ptcHolder.getPhaseTapChanger().getHighTapPosition());
     }
 }

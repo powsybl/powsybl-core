@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -165,5 +166,58 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
             .withLineId("NHV1_NHV2_1")
             .build();
         assertEquals("RevertConnectVoltageLevelOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createNbBbNetwork();
+        network.newLine()
+            .setId("LINE")
+            .setVoltageLevel1("VLLOAD")
+            .setBus1("NLOAD")
+            .setConnectableBus1("NLOAD")
+            .setVoltageLevel2("VLHV2")
+            .setBus2("NHV2")
+            .setConnectableBus2("NHV2")
+            .setR(3.0)
+            .setX(33.0)
+            .setG1(0.0)
+            .setB1(386E-6 / 2)
+            .setG2(0.0)
+            .setB2(386E-6 / 2)
+            .add();
+        NetworkModification modification = new ConnectVoltageLevelOnLineBuilder()
+            .withBusbarSectionOrBusId(BBS)
+            .withLine(network.getLine("NHV1_NHV2_1"))
+            .build();
+        modification.apply(network);
+
+        NetworkModification modification1 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("WRONG_ID")
+            .withLine2Id("NHV1_NHV2_1_2")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("NHV1_NHV2_1_1")
+            .withLine2Id("WRONG_ID")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("NHV1_NHV2_1_1")
+            .withLine2Id("NHV1_NHV2_1_2")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("LINE")
+            .withLine2Id("NHV1_NHV2_1_1")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification4.hasImpactOnNetwork(network));
     }
 }

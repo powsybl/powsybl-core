@@ -78,4 +78,16 @@ class TestThreeWindingsTransformerModification {
         AbstractNetworkModification networkModification = new ThreeWindingsTransformerModification("ID", 10.);
         assertEquals("ThreeWindingsTransformerModification", networkModification.getName());
     }
+
+    @Test
+    void testHasImpact() {
+        ThreeWindingsTransformerModification modification1 = new ThreeWindingsTransformerModification("TWT_NOT_EXISTING", 135.0);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        ThreeWindingsTransformerModification modification2 = new ThreeWindingsTransformerModification(t3wt.getId(), 135.0);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        ThreeWindingsTransformerModification modification3 = new ThreeWindingsTransformerModification(t3wt.getId(), 132.0);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+    }
 }

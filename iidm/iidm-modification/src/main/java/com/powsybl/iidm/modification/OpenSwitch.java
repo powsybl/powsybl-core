@@ -41,4 +41,16 @@ public class OpenSwitch extends AbstractNetworkModification {
         }
         sw.setOpen(true);
     }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        Switch sw = network.getSwitch(switchId);
+        if (sw == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (sw.isOpen()) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
+    }
 }

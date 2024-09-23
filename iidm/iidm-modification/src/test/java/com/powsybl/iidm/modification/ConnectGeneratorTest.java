@@ -111,4 +111,16 @@ class ConnectGeneratorTest {
         networkModification = new GeneratorModification("ID", modifs);
         assertEquals("GeneratorModification", networkModification.getName());
     }
+
+    @Test
+    void testHasImpact() {
+        ConnectGenerator modification = new ConnectGenerator("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g2.getId());
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g3.getId());
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+    }
 }

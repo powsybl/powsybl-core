@@ -12,6 +12,7 @@ import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.SwitchKind;
@@ -232,6 +233,70 @@ class CreateVoltageLevelTopologyTest extends AbstractModificationTest {
             .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
             .build();
         assertEquals("CreateVoltageLevelTopology", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createNbNetwork();
+        NetworkModification modification1 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId(VLTEST)
+            .withAlignedBusesOrBusbarCount(-1)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId(VLTEST)
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        NetworkModification modification3 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId("WRONG_VL")
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.DISCONNECTOR)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification3.hasImpactOnNetwork(network));
+
+        NetworkModification modification4 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId("VLTEST")
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification4.hasImpactOnNetwork(network));
+
+        NetworkModification modification5 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId("VLTEST")
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, null)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification5.hasImpactOnNetwork(network));
+
+        NetworkModification modification6 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId("VLTEST")
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .withSwitchKinds(SwitchKind.BREAKER, SwitchKind.DISCONNECTOR, SwitchKind.LOAD_BREAK_SWITCH)
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification6.hasImpactOnNetwork(network));
+
+        network.newVoltageLevel()
+            .setId("VLTEST_BUS")
+            .setNominalV(400.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        CreateVoltageLevelTopology modification7 = new CreateVoltageLevelTopologyBuilder()
+            .withVoltageLevelId("VLTEST_BUS")
+            .withAlignedBusesOrBusbarCount(3)
+            .withSectionCount(4)
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification7.hasImpactOnNetwork(network));
     }
 
 }

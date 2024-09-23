@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
@@ -244,5 +245,54 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
             .withMergedLineId("NEW LINE ID")
             .build();
         assertEquals("RevertCreateLineOnLine", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createNbBbNetwork();
+        Line line = network.getLine("NHV1_NHV2_1");
+        LineAdder adder = createLineAdder(line, network);
+        NetworkModification modification = new CreateLineOnLineBuilder().withBusbarSectionOrBusId(BBS).withLine(line).withLineAdder(adder).build();
+        modification.apply(network);
+
+        modification = new RevertCreateLineOnLineBuilder()
+            .withLineToBeMerged1Id("NHV1_NHV2_1_2")
+            .withLineToBeMerged2Id("NHV1_NHV2_1_1")
+            .withLineToBeDeletedId("testLine")
+            .withMergedLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+
+        modification = new RevertCreateLineOnLineBuilder()
+            .withLineToBeMerged1Id("WRONG_LINE")
+            .withLineToBeMerged2Id("NHV1_NHV2_1_1")
+            .withLineToBeDeletedId("testLine")
+            .withMergedLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new RevertCreateLineOnLineBuilder()
+            .withLineToBeMerged1Id("NHV1_NHV2_1_2")
+            .withLineToBeMerged2Id("WRONG_LINE")
+            .withLineToBeDeletedId("testLine")
+            .withMergedLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new RevertCreateLineOnLineBuilder()
+            .withLineToBeMerged1Id("NHV1_NHV2_1_2")
+            .withLineToBeMerged2Id("NHV1_NHV2_1_1")
+            .withLineToBeDeletedId("WRONG_LINE")
+            .withMergedLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new RevertCreateLineOnLineBuilder()
+            .withLineToBeMerged1Id("NHV1_NHV2_1_2")
+            .withLineToBeMerged2Id("NHV1_NHV2_1_1")
+            .withLineToBeDeletedId("NHV1_NHV2_2")
+            .withMergedLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
     }
 }

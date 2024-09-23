@@ -53,4 +53,25 @@ class DanglingLineModificationTest {
         AbstractNetworkModification networkModification = new DanglingLineModification("ID", 10., 10.);
         assertEquals("DanglingLineModification", networkModification.getName());
     }
+
+    @Test
+    void testHasImpact() {
+        DanglingLineModification modification1 = new DanglingLineModification("DL_NOT_EXISTING", true, null, 2.0);
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        DanglingLineModification modification2 = new DanglingLineModification("NHV1_XNODE1", true, null, 2.0);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
+
+        DanglingLineModification modification3 = new DanglingLineModification("NHV1_XNODE1", true, 5.0, null);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification3.hasImpactOnNetwork(network));
+
+        DanglingLineModification modification4 = new DanglingLineModification("NHV1_XNODE1", true, null, null);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification4.hasImpactOnNetwork(network));
+
+        DanglingLineModification modification5 = new DanglingLineModification("NHV1_XNODE1", false, 10.0, 4.0);
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification5.hasImpactOnNetwork(network));
+
+        DanglingLineModification modification6 = new DanglingLineModification("NHV1_XNODE1", true, 10.0, 4.0);
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification6.hasImpactOnNetwork(network));
+    }
 }

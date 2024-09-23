@@ -1,7 +1,7 @@
 # Configuration
 
 ## Implementation
-If you have several implementation in your classpath, you need to choose which implementation to use in your configuration file with the `default-impl-name` property.
+If you have several implementations in your classpath, you need to choose which implementation to use in your configuration file with the `default-impl-name` property.
 Each implementation is identified by its name, that may be unique in the classpath:
 - use "DynaWaltz" to use powsybl-dynawo implementation
 
@@ -50,7 +50,7 @@ The parameters may also be overridden with a JSON file, in which case the config
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
-- [Dynawo](TODO)
+- [Dynawo](inv:powsybldynawo:*:*#dynamic_simulation/configuration)
 
 ### Examples
 

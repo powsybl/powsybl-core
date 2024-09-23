@@ -96,4 +96,11 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         AbstractNetworkModification networkModification = new ReplaceTieLinesByLines();
         assertEquals("ReplaceTieLinesByLines", networkModification.getName());
     }
+
+    @Test
+    void testHasImpact() {
+        Network network = createDummyNodeBreakerNetwork();
+        ReplaceTieLinesByLines modification = new ReplaceTieLinesByLines();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+    }
 }
