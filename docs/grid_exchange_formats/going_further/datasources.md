@@ -95,7 +95,9 @@ Note that in directory datasources, there are two behaviours for the method `lis
 In addition to this regex filtering, it might also filter filenames to only keep those starting with the base name.
 This behaviour basename-filtering only occurs if `allFiles` is set to `false`.
 Setting `allFiles` to `true` is very useful for the CGMES use case, for which several files define a network (TP, EQ, SV, SSH, GL, ...), often without a common prefix (basename).
-This is done if the user is giving a folder as path in one of the `Network::read` methods.
+Such a directory datasource is created if the user is giving an existing folder as path
+- in one of the `Network::read` methods,
+- in one of the `Network::write` methods.
 
 (archivedatasources)=
 ### Archive DataSource
