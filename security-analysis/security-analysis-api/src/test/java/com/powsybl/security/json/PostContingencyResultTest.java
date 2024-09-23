@@ -59,7 +59,8 @@ class PostContingencyResultTest extends AbstractSerDeTest {
     void roundTrip() throws IOException {
         Contingency contingency = new Contingency("contingency");
         LimitViolation violation = new LimitViolation("violation", LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
-        LimitViolationsResult result = new LimitViolationsResult(Collections.singletonList(violation));
+        LimitViolation violation2 = new LimitViolation(new DetailsLimitViolationIdImpl("vl_id", "bus_id", Collections.singletonList("bb_id")), LimitViolationType.HIGH_VOLTAGE, 420, (float) 0.1, 500);
+        LimitViolationsResult result = new LimitViolationsResult(Arrays.asList(violation, violation2));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));

@@ -11,6 +11,14 @@
       "limit" : 420.0,
       "limitReduction" : 0.10000000149011612,
       "value" : 500.0
+    }, {
+      "subjectId" : "bus_id",
+      "voltageLevelId" : "vl_id",
+      "busbarIds" : [ "bb_id" ],
+      "limitType" : "HIGH_VOLTAGE",
+      "limit" : 420.0,
+      "limitReduction" : 0.10000000149011612,
+      "value" : 500.0
     } ],
     "actionsTaken" : [ ]
   },
