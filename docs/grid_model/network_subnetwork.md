@@ -287,7 +287,7 @@ A generation part, at boundary side can also be modeled with a constant active p
 
 Resulting flows at the dangling line terminal all follow the same passive-sign convention, either for the injection part or for the generation part.
 
-Dangling lines are key objects for merging networks. Merging will be described soon [here](../features/merging.md).
+Dangling lines are key objects for merging networks. Merging will be described soon [here](TODO).
 
 **Characteristics**
 
@@ -614,8 +614,8 @@ $$
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
-- [Two-windings Transformer Phase Angle Clock](extensions.md#two-windings-transformer-phase-angle-clock)
-- [Two-windings Transformer To Be Estimated](extensions.md#two-windings-transformer-to-be-estimated)
+- [Two-windings Transformer Phase Angle Clock](extensions.md#two-winding-transformer-phase-angle-clock)
+- [Two-windings Transformer To Be Estimated](extensions.md#two-winding-transformer-to-be-estimated)
 
 (three-winding-transformer)=
 ### Three-winding transformer
@@ -651,8 +651,8 @@ For each leg, the network bus is at side 1 and the star bus is at side 2.
 - [Discrete Measurements](extensions.md#discrete-measurements)
 - [Identifiable Short-Circuit](extensions.md#identifiable-short-circuit)
 - [Measurements](extensions.md#measurements)
-- [Three-windings Transformer Phase Angle Clock](extensions.md#three-windings-transformer-phase-angle-clock)
-- [Three-windings Transformer To Be Estimated](extensions.md#three-windings-transformer-to-be-estimated)
+- [Three-windings Transformer Phase Angle Clock](extensions.md#three-winding-transformer-phase-angle-clock)
+- [Three-windings Transformer To Be Estimated](extensions.md#three-winding-transformer-to-be-estimated)
 
 #### Three-winding transformer leg
 

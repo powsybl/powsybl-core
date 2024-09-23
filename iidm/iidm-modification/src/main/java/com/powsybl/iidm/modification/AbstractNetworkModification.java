@@ -13,7 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.modification.topology.DefaultNamingStrategy;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractNetworkModification implements NetworkModification {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractNetworkModification.class);
+    protected static final NetworkModificationImpact DEFAULT_IMPACT = NetworkModificationImpact.HAS_IMPACT_ON_NETWORK;
+    protected static final double EPSILON = 1e-10;
+
+    protected NetworkModificationImpact impact;
 
     @Override
     public void apply(Network network) {
@@ -90,5 +94,34 @@ public abstract class AbstractNetworkModification implements NetworkModification
         } else {
             LOGGER.warn("Error while applying modification : {}", message);
         }
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        return DEFAULT_IMPACT;
+    }
+
+    protected static boolean checkVoltageLevel(Identifiable<?> identifiable) {
+        VoltageLevel vl;
+        if (identifiable instanceof Bus bus) {
+            vl = bus.getVoltageLevel();
+        } else if (identifiable instanceof BusbarSection bbs) {
+            vl = bbs.getTerminal().getVoltageLevel();
+        } else {
+            return false;
+        }
+        return vl != null;
+    }
+
+    protected boolean areValuesEqual(Double newValue, double currentValue, boolean isRelativeValue) {
+        return newValue == null || Math.abs(newValue - (isRelativeValue ? 0 : currentValue)) < EPSILON;
+    }
+
+    protected boolean areValuesEqual(Integer newValue, int currentValue, boolean isRelativeValue) {
+        return newValue == null || Math.abs(newValue - (isRelativeValue ? 0 : currentValue)) < 1;
+    }
+
+    protected boolean isValueOutsideRange(int newValue, int minValue, int maxValue) {
+        return newValue < minValue || newValue > maxValue;
     }
 }
