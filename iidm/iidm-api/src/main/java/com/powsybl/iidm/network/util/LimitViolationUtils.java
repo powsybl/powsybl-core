@@ -91,14 +91,17 @@ public final class LimitViolationUtils {
         int previousAcceptableDuration = 0; // never mind initialisation it will be override with first loop
         boolean firstIteration = true;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits) { // iterate in ascending order
-            if (i >= previousLimit && i < tl.getValue()) {
-                if (firstIteration) {
+            if (firstIteration) {
+                if (i >= previousLimit && i < tl.getValue()) {
                     return new OverloadImpl(tl, previousLimitName,
                         limitsContainer.isDistinct() ?
                             ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalPermanentLimit() : previousLimit,
                         limitsContainer.isDistinct() ?
                             ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getPermanentLimitReduction() : 1);
-                } else {
+                }
+                firstIteration = false;
+            } else {
+                if (i >= previousLimit && i < tl.getValue()) {
                     return new OverloadImpl(tl, previousLimitName,
                         limitsContainer.isDistinct() ?
                             ((AbstractDistinctLimitsContainer<?, ?>) limitsContainer).getOriginalTemporaryLimit(previousAcceptableDuration) : previousLimit,
@@ -109,7 +112,6 @@ public final class LimitViolationUtils {
             previousLimitName = tl.getName();
             previousLimit = tl.getValue();
             previousAcceptableDuration = tl.getAcceptableDuration();
-            firstIteration = false;
         }
         return null;
     }
