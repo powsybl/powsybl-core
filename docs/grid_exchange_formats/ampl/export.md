@@ -2,7 +2,7 @@
 
 ## Available exporters
 
-According to one's needs, there are several Ampl exporters available, each with a version number.
+According to one's needs, there are several AMPL exporters available, each with a version number.
 
 At the moment, there are:
 
@@ -11,7 +11,7 @@ At the moment, there are:
 
 The default version is the `V1_1`.
 
-Exporters define the information written in text files and fed to Ampl regarding:
+Exporters define the information written in text files and fed to AMPL regarding:
 
 - Buses;
 - Tap changers;
