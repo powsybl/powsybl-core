@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.TreeDataFormat;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.report.TypedValue;
 import com.powsybl.computation.ComputationManager;
@@ -145,8 +146,8 @@ public abstract class AbstractNetworkModification implements NetworkModification
         if (dryRun) {
             ReportNode dryRunReportNode = reportOnDryRunStart(network, reportNode);
             try {
-                //TODO The following copy performs an XML export/import. It will be more performant to change it to the BIN format.
-                Network dryRunNetwork = NetworkSerDe.copy(network);
+                //TODO The following copy performs a JSON export/import. It will be more performant to change it to the BIN format.
+                Network dryRunNetwork = NetworkSerDe.copy(network, TreeDataFormat.JSON);
                 dryRunNetwork.setName(network.getNameOrId() + "_Dry-run");
                 apply(dryRunNetwork, namingStrategy, true, computationManager, dryRunReportNode);
             } catch (PowsyblException powsyblException) {
