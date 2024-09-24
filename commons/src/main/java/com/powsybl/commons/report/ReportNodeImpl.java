@@ -100,7 +100,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public String getMessageTemplate() {
-        return rootContext.get().getDictionary().get(messageKey);
+        return getRootContext().getDictionary().get(messageKey);
     }
 
     @Override
@@ -110,7 +110,7 @@ public final class ReportNodeImpl implements ReportNode {
 
     @Override
     public String getMessage() {
-        return Optional.ofNullable(rootContext.get().getDictionary().get(messageKey))
+        return Optional.ofNullable(getRootContext().getDictionary().get(messageKey))
                 .map(messageTemplate -> new StringSubstitutor(vk -> getValueAsString(vk).orElse(null)).replace(messageTemplate))
                 .orElse("(missing message key in dictionary)");
     }
@@ -165,7 +165,7 @@ public final class ReportNodeImpl implements ReportNode {
         reportNodeImpl.unroot();
         children.add(reportNodeImpl);
 
-        rootContext.get().merge(reportNodeImpl.rootContext.get());
+        getRootContext().merge(reportNodeImpl.getRootContext());
         reportNodeImpl.rootContext.setRef(rootContext);
     }
 

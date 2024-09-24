@@ -50,6 +50,11 @@ public class RootContextImpl implements RootContext {
         return timestamps;
     }
 
+    @Override
+    public synchronized void merge(RootContext otherContext) {
+        otherContext.getDictionary().forEach(this::addDictionaryEntry);
+    }
+
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {
         dictionary.merge(key, messageTemplate, (prevMsg, newMsg) -> mergeEntries(key, prevMsg, newMsg));
     }
@@ -60,9 +65,4 @@ public class RootContextImpl implements RootContext {
         }
         return previousMessageTemplate;
     }
-
-    public synchronized void merge(RootContextImpl otherContext) {
-        otherContext.dictionary.forEach(this::addDictionaryEntry);
-    }
-
 }

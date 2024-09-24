@@ -19,9 +19,23 @@ import java.util.Map;
  */
 public interface RootContext {
 
+    /**
+     * Get the dictionary of message templates indexed by their key.
+     */
     Map<String, String> getDictionary();
 
+    /**
+     * Get the {@link DateTimeFormatter} to use for timestamps, if enabled.
+     */
     DateTimeFormatter getTimestampFormatter();
 
+    /**
+     * Return whether a timestamp is added at each {@link ReportNode} creation.
+     */
     boolean isTimestampAdded();
+
+    /**
+     * Merge given {@link RootContext} with current one.
+     */
+    void merge(RootContext rootContext);
 }
