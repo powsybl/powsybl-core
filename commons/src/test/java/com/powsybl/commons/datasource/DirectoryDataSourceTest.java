@@ -72,7 +72,7 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     protected String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
                                        CompressionFormat compressionFormat) {
         return baseName == null ?
-                getContainerPath(containerFileName, baseName, dataExtension, compressionFormat) :
+                getContainerPath(containerFileName, null, dataExtension, compressionFormat) :
                 testDir + "/" + getFileName(baseName, dataExtension, compressionFormat);
     }
 
