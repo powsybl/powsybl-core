@@ -134,16 +134,16 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
     }
 
     @Override
-    protected String getContainerPath(String maybeContainerFileName, String baseName, String dataExtension,
-            CompressionFormat compressionFormat) {
-        return testDir + "/" + (maybeContainerFileName != null ?
-                maybeContainerFileName : getFileName(baseName, dataExtension, compressionFormat));
+    protected String getContainerPath(String containerFileName, String baseName, String dataExtension,
+                                      CompressionFormat compressionFormat) {
+        return testDir + "/" + (containerFileName != null ?
+            containerFileName : getFileName(baseName, dataExtension, compressionFormat));
     }
 
     @Override
-    protected String getDatasourcePath(String maybeContainerFileName, String baseName, String dataExtension,
-            CompressionFormat compressionFormat) {
-        return getContainerPath(maybeContainerFileName, baseName, dataExtension, compressionFormat);
+    protected String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
+                                       CompressionFormat compressionFormat) {
+        return getContainerPath(containerFileName, baseName, dataExtension, compressionFormat);
     }
 
 }

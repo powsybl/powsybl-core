@@ -49,11 +49,11 @@ abstract class AbstractFileSystemDataSourceTest {
             + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
     }
 
-    protected abstract String getContainerPath(String maybeContainerFileName, String baseName, String dataExtension, CompressionFormat compressionFormat);
+    protected abstract String getContainerPath(String containerFileName, String baseName, String dataExtension, CompressionFormat compressionFormat);
 
     protected abstract void createFiles(String fileName) throws IOException;
 
-    protected abstract String getDatasourcePath(String maybeContainerFileName, String baseName, String dataExtension,
+    protected abstract String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
             CompressionFormat compressionFormat);
 
     @ParameterizedTest
@@ -115,18 +115,18 @@ abstract class AbstractFileSystemDataSourceTest {
 
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
-    // maybeContainerName is the archive file name for ArchiveDataSource
+    // containerName is the archive file name for ArchiveDataSource
     // or the curated directory name for DirectoryDataSource
-    void testClassAndListing(String maybeContainerName, String baseName, String dataExtension,
+    void testClassAndListing(String containerName, String baseName, String dataExtension,
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
         // Update the list of unlisted files
         unlistedFiles = existingFiles.stream().filter(name -> !listedFiles.contains(name)).collect(Collectors.toSet());
 
         // Create the files
-        createFiles(getContainerPath(maybeContainerName, baseName, dataExtension, compressionFormat));
+        createFiles(getContainerPath(containerName, baseName, dataExtension, compressionFormat));
 
-        String dataSourcePath = getDatasourcePath(maybeContainerName, baseName, dataExtension, compressionFormat);
+        String dataSourcePath = getDatasourcePath(containerName, baseName, dataExtension, compressionFormat);
 
         // Create the datasource
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(dataSourcePath));

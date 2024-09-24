@@ -50,9 +50,9 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     }
 
     @Override
-    protected String getContainerPath(String maybeContainerFileName, String baseName, String dataExtension,
-            CompressionFormat compressionFormat) {
-        return testDir + (maybeContainerFileName == null ? "" : "/" + maybeContainerFileName);
+    protected String getContainerPath(String containerFileName, String baseName, String dataExtension,
+                                      CompressionFormat compressionFormat) {
+        return testDir + (containerFileName == null ? "" : "/" + containerFileName);
     }
 
     @Override
@@ -69,10 +69,10 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     }
 
     @Override
-    protected String getDatasourcePath(String maybeContainerFileName, String baseName, String dataExtension,
-            CompressionFormat compressionFormat) {
+    protected String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
+                                       CompressionFormat compressionFormat) {
         return baseName == null ?
-                getContainerPath(maybeContainerFileName, baseName, dataExtension, compressionFormat) :
+                getContainerPath(containerFileName, baseName, dataExtension, compressionFormat) :
                 testDir + "/" + getFileName(baseName, dataExtension, compressionFormat);
     }
 
