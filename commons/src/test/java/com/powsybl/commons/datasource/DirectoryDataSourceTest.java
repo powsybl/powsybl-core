@@ -162,5 +162,4 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
         // An exception is thrown because the directory does not exist
         assertThrows(IOException.class, () -> dataSource.listNames(".*"));
     }
-
 }
