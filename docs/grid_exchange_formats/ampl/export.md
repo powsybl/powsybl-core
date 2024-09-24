@@ -28,7 +28,7 @@ Exporters define the information written in text files and fed to Ampl regarding
 - HVDC lines.
 
 ### The `BasicAmplExporter`
-This exporter is the first that has been designed.
+This exporter is the "historical" version, the first that has been designed.
 
 ### The `ExtendedAmplExporter`
 
