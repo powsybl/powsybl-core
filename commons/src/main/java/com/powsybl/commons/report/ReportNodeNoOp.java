@@ -25,6 +25,11 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
+    public RootContext getRootContext() {
+        return null;
+    }
+
+    @Override
     public void include(ReportNode reportRoot) {
         // No-op
     }

@@ -41,26 +41,26 @@ public final class ReportNodeImpl implements ReportNode {
     private final List<ReportNodeImpl> children = new ArrayList<>();
     private final Collection<Map<String, TypedValue>> inheritedValuesMaps;
     private final Map<String, TypedValue> values;
-    private final RefChain<RootContext> rootContext;
+    private final RefChain<RootContextImpl> rootContext;
     private boolean isRoot;
     private Collection<Map<String, TypedValue>> valuesMapsInheritance;
 
     static ReportNodeImpl createChildReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, ReportNodeImpl parent) {
-        return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getRootContext(), false);
+        return createReportNode(messageKey, messageTemplate, values, parent.getValuesMapsInheritance(), parent.getRootContextRef(), false);
     }
 
     static ReportNodeImpl createRootReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values, boolean timestamps, DateTimeFormatter timestampPattern) {
-        RefChain<RootContext> rootContext = new RefChain<>(new RefObj<>(new RootContext(timestamps, timestampPattern)));
+        RefChain<RootContextImpl> rootContext = new RefChain<>(new RefObj<>(new RootContextImpl(timestamps, timestampPattern)));
         return createReportNode(messageKey, messageTemplate, values, Collections.emptyList(), rootContext, true);
     }
 
     private static ReportNodeImpl createReportNode(String messageKey, String messageTemplate, Map<String, TypedValue> values,
-                                                   Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<RootContext> rootContextRef,
+                                                   Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<RootContextImpl> rootContextRef,
                                                    boolean isRoot) {
-        RootContext rootContext = rootContextRef.get();
+        RootContextImpl rootContext = rootContextRef.get();
         rootContext.addDictionaryEntry(Objects.requireNonNull(messageKey), Objects.requireNonNull(messageTemplate));
         if (rootContext.isTimestampAdded()) {
-            values.put(ReportConstants.TIMESTAMP_KEY, rootContext.getTimestamp());
+            values.put(ReportConstants.TIMESTAMP_KEY, TypedValue.getTimestamp(rootContext.getTimestampFormatter()));
         }
         return new ReportNodeImpl(messageKey, values, inheritedValuesMaps, rootContextRef, isRoot);
     }
@@ -74,9 +74,9 @@ public final class ReportNodeImpl implements ReportNode {
      *                            Be aware that any value in this map might, in all descendants, override a value of one of
      *                            {@link ReportNode} ancestors.
      * @param inheritedValuesMaps a {@link Collection} of inherited values maps
-     * @param rootContext         the {@link RootContext} of the root of corresponding report tree
+     * @param rootContext         the {@link RootContextImpl} of the root of corresponding report tree
      */
-    private ReportNodeImpl(String messageKey, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<RootContext> rootContext, boolean isRoot) {
+    private ReportNodeImpl(String messageKey, Map<String, TypedValue> values, Collection<Map<String, TypedValue>> inheritedValuesMaps, RefChain<RootContextImpl> rootContext, boolean isRoot) {
         this.messageKey = Objects.requireNonNull(messageKey);
         checkMap(values);
         Objects.requireNonNull(inheritedValuesMaps).forEach(ReportNodeImpl::checkMap);
@@ -119,7 +119,12 @@ public final class ReportNodeImpl implements ReportNode {
         return getValue(valueKey).map(TypedValue::getValue).map(Object::toString);
     }
 
-    RefChain<RootContext> getRootContext() {
+    @Override
+    public RootContextImpl getRootContext() {
+        return getRootContextRef().get();
+    }
+
+    RefChain<RootContextImpl> getRootContextRef() {
         return rootContext;
     }
 
@@ -198,7 +203,7 @@ public final class ReportNodeImpl implements ReportNode {
         writer.append(indent).append(prefix).append(getMessage()).append(System.lineSeparator());
     }
 
-    public static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, RootContext rootContext, ReportNodeVersion version) throws IOException {
+    public static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, RootContextImpl rootContext, ReportNodeVersion version) throws IOException {
         Objects.requireNonNull(version, "ReportNode version is missing (null)");
         Objects.requireNonNull(rootContext);
         return switch (version) {
@@ -207,12 +212,12 @@ public final class ReportNodeImpl implements ReportNode {
         };
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, RootContext rootContext) throws IOException {
+    private static ReportNodeImpl parseJsonNode(JsonParser parser, ObjectMapper objectMapper, RootContextImpl rootContext) throws IOException {
         checkToken(parser, JsonToken.START_OBJECT); // remove start object token to read the ReportNode itself
         return parseJsonNode(parser, objectMapper, new RefChain<>(new RefObj<>(rootContext)), Collections.emptyList(), true);
     }
 
-    private static ReportNodeImpl parseJsonNode(JsonParser p, ObjectMapper objectMapper, RefChain<RootContext> rootContext,
+    private static ReportNodeImpl parseJsonNode(JsonParser p, ObjectMapper objectMapper, RefChain<RootContextImpl> rootContext,
                                                 Collection<Map<String, TypedValue>> inheritedValuesMaps, boolean rootReportNode) throws IOException {
         ReportNodeImpl reportNode = null;
         var parsingContext = new Object() {

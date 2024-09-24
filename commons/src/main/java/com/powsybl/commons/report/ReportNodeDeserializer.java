@@ -27,22 +27,22 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
+public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ReportNodeDeserializer.class);
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
     ReportNodeDeserializer() {
-        super(ReportNodeImpl.class);
+        super(ReportNode.class);
     }
 
     @Override
-    public ReportNodeImpl deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReportNode deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
-        RootContext rootContext = new RootContext();
+        RootContextImpl rootContext = new RootContextImpl();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
                 case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
@@ -54,7 +54,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         return reportNode;
     }
 
-    private void readDictionary(JsonParser p, ObjectMapper objectMapper, RootContext rootContext, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, ObjectMapper objectMapper, RootContextImpl rootContext, String dictionaryName) throws IOException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
@@ -108,7 +108,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNodeImpl> {
         Objects.requireNonNull(jsonIs);
         Objects.requireNonNull(dictionary);
         try {
-            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNodeImpl.class);
+            return getReportNodeModelObjectMapper(dictionary).readValue(jsonIs, ReportNode.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
