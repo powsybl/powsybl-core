@@ -92,39 +92,89 @@ public abstract class AbstractToolTest {
         assertTrue(actual.contains(expected), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
     }
 
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS} and the error output is empty
+     * @param args the tested command and its parameters
+     */
     protected void assertCommandSuccessful(String[] args) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
     }
 
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS}, the error output is empty and the output equals the expected output
+     * @param args the tested command and its parameters
+     * @param expectedOut expected output
+     */
     protected void assertCommandSuccessful(String[] args, String expectedOut) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::assertTxtEquals);
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::assertTxtEquals);
     }
 
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS}, the error output is empty and the output contains the expected output
+     * @param args the tested command and its parameters
+     * @param expectedOut expected output
+     */
     protected void assertCommandSuccessfulMatch(String[] args, String expectedOut) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
     }
 
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS}, the error output is empty and the output matches the regex pattern
+     * @param args the tested command and its parameters
+     * @param outPattern expected regex pattern
+     */
     protected void assertCommandSuccessfulRegex(String[] args, Pattern outPattern) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, outPattern, true);
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, outPattern, true);
     }
 
+    /**
+     * Asserts the command returns the expected status and error output equals the expected error output
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param expectedErr expected error output
+     */
     protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
-        assertCommand(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
+        assertCommandResult(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
     }
 
+    /**
+     * Asserts the command returns the expected status and error output contains the expected error output
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param expectedErr expected error output
+     */
     protected void assertCommandErrorMatch(String[] args, int expectedStatus, String expectedErr) {
-        assertCommand(args, expectedStatus, null, expectedErr, AbstractToolTest::containsTxt);
+        assertCommandResult(args, expectedStatus, null, expectedErr, AbstractToolTest::containsTxt);
     }
 
+    /**
+     * Asserts the command returns {@link CommandLineTools#EXECUTION_ERROR_STATUS} and error output contains the expected error output
+     * @param args the tested command and its parameters
+     * @param expectedErr expected error output
+     */
     protected void assertCommandErrorMatch(String[] args, String expectedErr) {
-        assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
+        assertCommandResult(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
     }
 
+    /**
+     * Asserts the command returns the expected status and error output matches the regex pattern
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param errPattern expected error regex pattern
+     */
     protected void assertCommandErrorRegex(String[] args, int expectedStatus, Pattern errPattern) {
-        assertCommand(args, expectedStatus, errPattern, false);
+        assertCommandResult(args, expectedStatus, errPattern, false);
     }
 
-    private void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
+    /**
+     * Asserts the command returns the expected status and output and error output matches the comparison function
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param expectedOut expected output
+     * @param expectedErr expected error output
+     * @param comparisonFunction comparison with expected output and error output
+     */
+    protected void assertCommandResult(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
         int status = runCommand(args, bout, berr, tools, fileSystem);
@@ -137,7 +187,7 @@ public abstract class AbstractToolTest {
         }
     }
 
-    private void assertCommand(String[] args, int expectedStatus, Pattern pattern, boolean success) {
+    private void assertCommandResult(String[] args, int expectedStatus, Pattern pattern, boolean success) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
         int status = runCommand(args, bout, berr, tools, fileSystem);
