@@ -874,7 +874,7 @@ public final class NetworkSerDe {
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
-        return copy(network, networkFactory, executor, TreeDataFormat.XML);
+        return copy(network, networkFactory, executor, TreeDataFormat.JSON);
     }
 
     /**
