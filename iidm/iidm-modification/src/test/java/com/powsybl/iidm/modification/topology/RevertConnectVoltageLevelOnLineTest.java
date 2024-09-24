@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
@@ -155,6 +156,16 @@ class RevertConnectVoltageLevelOnLineTest extends AbstractModificationTest {
                 .withLineName("NEW LINE NAME")
                 .build();
         assertEquals("NEW LINE NAME", modification.getLineName());
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RevertConnectVoltageLevelOnLineBuilder()
+            .withLine1Id("NHV1_NHV2_1_1")
+            .withLine2Id("NHV1_NHV2_1_2")
+            .withLineId("NHV1_NHV2_1")
+            .build();
+        assertEquals("RevertConnectVoltageLevelOnLine", networkModification.getName());
     }
 
     @Test

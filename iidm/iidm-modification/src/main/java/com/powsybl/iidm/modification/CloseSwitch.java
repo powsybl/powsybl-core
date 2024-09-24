@@ -27,6 +27,11 @@ public class CloseSwitch extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "CloseSwitch";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         Switch sw = network.getSwitch(switchId);

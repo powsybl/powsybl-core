@@ -66,6 +66,11 @@ public class PhaseTapPositionModification extends AbstractTapPositionModificatio
     }
 
     @Override
+    public String getName() {
+        return "PhaseTapPositionModification";
+    }
+
+    @Override
     protected void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
                                                boolean throwException) {
         apply(twoWindingsTransformer, throwException);

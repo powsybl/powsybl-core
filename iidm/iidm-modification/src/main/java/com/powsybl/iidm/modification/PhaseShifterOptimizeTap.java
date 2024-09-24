@@ -26,6 +26,11 @@ public class PhaseShifterOptimizeTap extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "PhaseShifterOptimizeTap";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         new LoadFlowBasedPhaseShifterOptimizer(computationManager)

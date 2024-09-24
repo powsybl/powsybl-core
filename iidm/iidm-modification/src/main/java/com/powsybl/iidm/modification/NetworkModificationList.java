@@ -34,6 +34,11 @@ public class NetworkModificationList extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "NetworkModificationList";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         modificationList.forEach(modification -> modification.apply(network, namingStrategy, throwException, computationManager, reportNode));

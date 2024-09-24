@@ -49,6 +49,11 @@ public class CreateFeederBay extends AbstractCreateConnectableFeederBays {
     }
 
     @Override
+    public String getName() {
+        return "CreateFeederBay";
+    }
+
+    @Override
     protected String getBusOrBusbarSectionId(int side) {
         return busOrBbsId;
     }

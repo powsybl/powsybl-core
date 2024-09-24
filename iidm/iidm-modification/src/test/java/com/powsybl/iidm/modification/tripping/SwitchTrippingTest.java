@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.junit.jupiter.api.Test;
@@ -36,5 +37,11 @@ class SwitchTrippingTest extends AbstractTrippingTest {
 
         SwitchTripping tripping = new SwitchTripping("switch");
         assertThrows(PowsyblException.class, () -> tripping.apply(network));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new SwitchTripping("ID");
+        assertEquals("SwitchTripping", networkModification.getName());
     }
 }
