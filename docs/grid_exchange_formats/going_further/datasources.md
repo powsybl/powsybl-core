@@ -91,13 +91,14 @@ Even if `DirectoryDataSource` integrates the notions of base name and data exten
 base name and data extension by using the methods with `(String filename)` as parameter, excluding the compression 
 extension if there is one.
 
-Note that in directory datasources, there are two behaviours for the method `listNames(String regex)`, which is used to filter the files within the datasource with the given regex parameter.
-In addition to this regex filtering, it might also filter filenames to only keep those starting with the base name.
-This behaviour basename-filtering only occurs if `allFiles` is set to `false`.
-Setting `allFiles` to `true` is very useful for the CGMES use case, for which several files define a network (TP, EQ, SV, SSH, GL, ...), often without a common prefix (basename).
-Such a directory datasource is created if the user is giving an existing folder as path
-- in one of the `Network::read` methods,
-- in one of the `Network::write` methods.
+Note that in directory datasources, there are two behaviours for the method `listNames(String regex)`, which is used 
+to filter the files within the datasource. In addition to the filtering using the regex parameter, it can also 
+filter filenames to only keep those starting with the base name. This behaviour basename-filtering only occurs if 
+`allFiles` is set to `false` in the datasource.
+Setting `allFiles` to `true` is  for example very useful for the CGMES use case, in which a network is defined by 
+several files (TP, EQ, SV, SSH, GL, ...), often without a common prefix (base name).
+Such a directory datasource is created if the user gives an existing folder as path in either one of the `Network::read` 
+or one of the `Network::write` methods.
 
 (archivedatasources)=
 ### Archive DataSource
