@@ -1,9 +1,10 @@
 # Export
-<span style="color: red">TODO</span>
 
 ## Available exporters
 
-According to one's needs, there are several Ampl exporters available, each vwith a version number. At the moment, there are:
+According to one's needs, there are several Ampl exporters available, each with a version number.
+
+At the moment, there are:
 
 - The `BasicAmplExporter` (associated with the `AmplExportVersion` `V1_0`);
 - The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
