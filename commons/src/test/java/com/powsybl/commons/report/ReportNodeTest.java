@@ -103,7 +103,7 @@ class ReportNodeTest extends AbstractSerDeTest {
         root.include(otherRoot);
         assertEquals(1, root.getChildren().size());
         assertEquals(otherRoot, root.getChildren().get(0));
-        assertEquals(((ReportNodeImpl) root).getRootContext(), ((ReportNodeImpl) otherRoot).getRootContextRef().get());
+        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         // Other root is not root anymore and can therefore not be added again
         PowsyblException e2 = assertThrows(PowsyblException.class, () -> root.include(otherRoot));
@@ -119,8 +119,8 @@ class ReportNodeTest extends AbstractSerDeTest {
                 .withMessageTemplate("newRootAboveAll", "New root above all reportNodes")
                 .build();
         yetAnotherRoot.include(root);
-        assertEquals(((ReportNodeImpl) root).getRootContext(), ((ReportNodeImpl) yetAnotherRoot).getRootContextRef().get());
-        assertEquals(((ReportNodeImpl) root).getRootContext(), ((ReportNodeImpl) otherRoot).getRootContextRef().get());
+        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) yetAnotherRoot).getTreeContextRef().get());
+        assertEquals(((ReportNodeImpl) root).getTreeContext(), ((ReportNodeImpl) otherRoot).getTreeContextRef().get());
 
         roundTripTest(yetAnotherRoot, ReportNodeSerializer::write, ReportNodeDeserializer::read, "/testIncludeReportNode.json");
     }

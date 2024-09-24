@@ -42,19 +42,19 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
         ReportNodeImpl reportNode = null;
         ObjectMapper objectMapper = new ObjectMapper().registerModule(new ReportNodeJsonModule());
         ReportNodeVersion version = ReportConstants.CURRENT_VERSION;
-        RootContextImpl rootContext = new RootContextImpl();
+        TreeContextImpl treeContext = new TreeContextImpl();
         while (p.nextToken() != JsonToken.END_OBJECT) {
             switch (p.currentName()) {
                 case "version" -> version = ReportNodeVersion.of(p.nextTextValue());
-                case "dictionaries" -> readDictionary(p, objectMapper, rootContext, getDictionaryName(ctx));
-                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, rootContext, version);
+                case "dictionaries" -> readDictionary(p, objectMapper, treeContext, getDictionaryName(ctx));
+                case "reportRoot" -> reportNode = ReportNodeImpl.parseJsonNode(p, objectMapper, treeContext, version);
                 default -> throw new IllegalStateException("Unexpected value: " + p.currentName());
             }
         }
         return reportNode;
     }
 
-    private void readDictionary(JsonParser p, ObjectMapper objectMapper, RootContextImpl rootContext, String dictionaryName) throws IOException {
+    private void readDictionary(JsonParser p, ObjectMapper objectMapper, TreeContextImpl treeContext, String dictionaryName) throws IOException {
         checkToken(p, JsonToken.START_OBJECT); // remove start object token to read the underlying map
         TypeReference<HashMap<String, HashMap<String, String>>> dictionariesTypeRef = new TypeReference<>() {
         };
@@ -71,7 +71,7 @@ public class ReportNodeDeserializer extends StdDeserializer<ReportNode> {
                 dictionary = dictionaryEntry.getValue();
             }
         }
-        dictionary.forEach(rootContext::addDictionaryEntry);
+        dictionary.forEach(treeContext::addDictionaryEntry);
     }
 
     private String getDictionaryName(DeserializationContext ctx) {

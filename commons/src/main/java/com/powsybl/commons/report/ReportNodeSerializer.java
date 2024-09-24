@@ -36,7 +36,7 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
 
         generator.writeFieldName("dictionaries");
         generator.writeStartObject();
-        generator.writeObjectField("default", reportNode.getRootContext().getDictionary());
+        generator.writeObjectField("default", reportNode.getTreeContext().getDictionary());
         generator.writeEndObject();
 
         generator.writeFieldName("reportRoot");

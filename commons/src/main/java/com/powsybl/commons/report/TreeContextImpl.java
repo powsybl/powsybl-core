@@ -16,21 +16,21 @@ import java.util.*;
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class RootContextImpl implements RootContext {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RootContextImpl.class);
+public class TreeContextImpl implements TreeContext {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TreeContextImpl.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
     private final boolean timestamps;
     private final DateTimeFormatter timestampFormatter;
 
-    public RootContextImpl() {
+    public TreeContextImpl() {
         this(false);
     }
 
-    public RootContextImpl(boolean timestamps) {
+    public TreeContextImpl(boolean timestamps) {
         this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
     }
 
-    public RootContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
+    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
         this.timestamps = timestamps;
         this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
     }
@@ -51,7 +51,7 @@ public class RootContextImpl implements RootContext {
     }
 
     @Override
-    public synchronized void merge(RootContext otherContext) {
+    public synchronized void merge(TreeContext otherContext) {
         otherContext.getDictionary().forEach(this::addDictionaryEntry);
     }
 

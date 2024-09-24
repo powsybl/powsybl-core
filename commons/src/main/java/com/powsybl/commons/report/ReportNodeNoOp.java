@@ -25,7 +25,7 @@ public class ReportNodeNoOp implements ReportNode {
     }
 
     @Override
-    public RootContext getRootContext() {
+    public TreeContext getTreeContext() {
         return null;
     }
 

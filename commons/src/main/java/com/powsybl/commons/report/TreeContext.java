@@ -13,11 +13,11 @@ import java.util.Map;
 /**
  * Context attached to a {@link ReportNode} tree.
  * It contains parameters intended to be used by all the {@link ReportNode} sharing the same tree.
- * Hence, all the nodes of a tree should point to the same {@link RootContext} through {@link ReportNode#getRootContext()}.
+ * Hence, all the nodes of a tree should point to the same {@link TreeContext} through {@link ReportNode#getTreeContext()}.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public interface RootContext {
+public interface TreeContext {
 
     /**
      * Get the dictionary of message templates indexed by their key.
@@ -35,7 +35,7 @@ public interface RootContext {
     boolean isTimestampAdded();
 
     /**
-     * Merge given {@link RootContext} with current one.
+     * Merge given {@link TreeContext} with current one.
      */
-    void merge(RootContext rootContext);
+    void merge(TreeContext treeContext);
 }

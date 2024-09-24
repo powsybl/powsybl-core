@@ -112,9 +112,9 @@ public interface ReportNode {
     ReportNodeAdder newReportNode();
 
     /**
-     * Get the {@link RootContext} of the corresponding {@link ReportNode} tree.
+     * Get the {@link TreeContext} of the corresponding {@link ReportNode} tree.
      */
-    RootContext getRootContext();
+    TreeContext getTreeContext();
 
     /**
      * Add a <code>ReportNode</code> as a child of current <code>ReportNode</code>.
