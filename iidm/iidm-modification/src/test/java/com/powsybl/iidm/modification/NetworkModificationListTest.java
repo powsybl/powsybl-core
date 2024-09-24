@@ -118,8 +118,6 @@ class NetworkModificationListTest {
 
     @Test
     void testHasImpact() {
-        Network network = EurostagTutorialExample1Factory.create();
-
         BranchTripping tripping1 = new BranchTripping("NHV1_NHV2_1", "VLHV1");
         BranchTripping tripping2 = new BranchTripping("NHV1_NHV2_1", "VLHV2");
         LoadModification modification1 = new LoadModification("LOAD_NOT_EXISTING", true, -20.0, null);
