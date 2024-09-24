@@ -63,28 +63,28 @@ public interface DataSourceUtil {
         return dataSourceBuilder.build();
     }
 
-    static DataSource createDataSource(Path file, DataSourceObserver observer) {
-        Objects.requireNonNull(file);
+    static DataSource createDataSource(Path fileOrDirectory, DataSourceObserver observer) {
+        Objects.requireNonNull(fileOrDirectory);
 
         DataSourceBuilder dataSourceBuilder = new DataSourceBuilder().withObserver(observer);
-        if (Files.isDirectory(file)) {
-            dataSourceBuilder.withDirectory(file)
-                    .withBaseName(file.getFileName().toString())
-                    .withAllFiles(true);
+        if (Files.isDirectory(fileOrDirectory)) {
+            dataSourceBuilder.withDirectory(fileOrDirectory)
+                .withBaseName(fileOrDirectory.getFileName().toString())
+                .withAllFiles(true);
         } else {
-            Path absFile = file.toAbsolutePath();
+            Path absFile = fileOrDirectory.toAbsolutePath();
             String fileNameOrBaseName = absFile.getFileName().toString();
 
             // Get the file information
             FileInformation fileInformation = new FileInformation(fileNameOrBaseName);
 
             dataSourceBuilder
-                    .withDirectory(absFile.getParent())
-                    .withArchiveFileName(fileNameOrBaseName)
-                    .withBaseName(fileInformation.getBaseName())
-                    .withDataExtension(fileInformation.getDataExtension())
-                    .withCompressionFormat(fileInformation.getCompressionFormat())
-                    .withArchiveFormat(fileInformation.getArchiveFormat());
+                .withDirectory(absFile.getParent())
+                .withArchiveFileName(fileNameOrBaseName)
+                .withBaseName(fileInformation.getBaseName())
+                .withDataExtension(fileInformation.getDataExtension())
+                .withCompressionFormat(fileInformation.getCompressionFormat())
+                .withArchiveFormat(fileInformation.getArchiveFormat());
         }
 
         return dataSourceBuilder.build();
