@@ -51,6 +51,15 @@ class SwitchModificationsTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new OpenSwitch("ID");
+        assertEquals("OpenSwitch", networkModification.getName());
+
+        networkModification = new CloseSwitch("ID");
+        assertEquals("CloseSwitch", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         CloseSwitch modification = new CloseSwitch("dummy");
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));

@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
@@ -233,6 +234,17 @@ class RevertCreateLineOnLineTest extends AbstractModificationTest {
                 .setG1(line.getG1())
                 .setB2(line.getB2())
                 .setG2(line.getG2());
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RevertCreateLineOnLineBuilder()
+            .withLineToBeMerged1Id("NHV1_NHV2_1")
+            .withLineToBeMerged2Id("NHV1_NHV2_2")
+            .withLineToBeDeletedId("NHV1_NHV2_3")
+            .withMergedLineId("NEW LINE ID")
+            .build();
+        assertEquals("RevertCreateLineOnLine", networkModification.getName());
     }
 
     @Test

@@ -39,6 +39,11 @@ public class LoadModification extends AbstractLoadModification {
         this(loadId, false, targetP0, targetQ0);
     }
 
+    @Override
+    public String getName() {
+        return "LoadModification";
+    }
+
     public String getLoadId() {
         return loadId;
     }

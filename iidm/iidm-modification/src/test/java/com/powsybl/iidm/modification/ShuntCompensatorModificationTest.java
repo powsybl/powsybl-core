@@ -118,6 +118,12 @@ class ShuntCompensatorModificationTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ShuntCompensatorModification("ID", true, 1);
+        assertEquals("ShuntCompensatorModification", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         ShuntCompensatorModification modification1 = new ShuntCompensatorModification("SHUNT_NOT_EXISTING", false, null);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
