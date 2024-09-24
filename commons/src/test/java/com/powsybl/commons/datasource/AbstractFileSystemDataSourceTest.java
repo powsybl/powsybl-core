@@ -126,9 +126,8 @@ abstract class AbstractFileSystemDataSourceTest {
         // Create the files
         createFiles(getContainerPath(containerName, baseName, dataExtension, compressionFormat));
 
-        String dataSourcePath = getDatasourcePath(containerName, baseName, dataExtension, compressionFormat);
-
         // Create the datasource
+        String dataSourcePath = getDatasourcePath(containerName, baseName, dataExtension, compressionFormat);
         DataSource dataSource = DataSource.fromPath(fileSystem.getPath(dataSourcePath));
 
         // Check the class
