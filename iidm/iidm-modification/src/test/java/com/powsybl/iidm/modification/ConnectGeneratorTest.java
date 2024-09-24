@@ -101,4 +101,16 @@ class ConnectGeneratorTest {
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(g2.getRegulatingTerminal().getBusView().getBus().getV(), g2.getTargetV(), 0.01);
     }
+
+    @Test
+    void testHasImpact() {
+        ConnectGenerator modification = new ConnectGenerator("WRONG_ID");
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g2.getId());
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+
+        modification = new ConnectGenerator(g3.getId());
+        assertEquals(NetworkModificationImpact.NO_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
+    }
 }

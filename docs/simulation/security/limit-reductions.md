@@ -9,7 +9,7 @@ Each limit reduction has its own criteria specifying for which limits and under 
 - the type of limit (current, active power or apparent power)
 - the use case: for monitoring only or also for applying remedial actions
 - the contingency context (pre-contingency, after a specific contingency or after all contingencies, etc.)
-- the network elements targeted by the reduction (branches, three-windings transformers, ...), which can be described by the following criteria:
+- the network elements targeted by the reduction (branches, three-winding transformers, ...), which can be described by the following criteria:
     - a set of their ids;
     - their countries;
     - their nominal voltages.
@@ -65,7 +65,7 @@ The network elements whose limits will be affected by the limit reductions can b
 - one or two countries (respectively for elements with one or two substations);
 - their nominal voltages, by defining an interval for each of the voltage levels.
 
-If no network elements is specified, the limit reduction applies to all of them.
+If no network elements are specified, the limit reduction applies to all of them.
 
 
 ### Limit duration criteria
@@ -85,5 +85,5 @@ Duration criteria can be optionally specified. It contains:
 
 When no duration criteria are present, the reduction is applied to all permanent and temporary limits.
 
-When several duration criteria are specified, the limit reductions applies to each one. 
+When several duration criteria are specified, the limit reductions apply to each one. 
 For instance, if both criteria `PERMANENT` and (`TEMPORARY` ; `EQUALITY`: 600) are defined, the limit reduction will apply to permanent limits and 600 s limits.

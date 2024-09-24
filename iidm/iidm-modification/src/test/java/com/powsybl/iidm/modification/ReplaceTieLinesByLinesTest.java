@@ -19,6 +19,8 @@ import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Properties;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 /**
  * @author Miora Vedelago {@literal <miora.ralambotiana at rte-france.com>}
  */
@@ -87,5 +89,12 @@ class ReplaceTieLinesByLinesTest extends AbstractModificationTest {
         public String getName() {
             return "foo";
         }
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = createDummyNodeBreakerNetwork();
+        ReplaceTieLinesByLines modification = new ReplaceTieLinesByLines();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification.hasImpactOnNetwork(network));
     }
 }
