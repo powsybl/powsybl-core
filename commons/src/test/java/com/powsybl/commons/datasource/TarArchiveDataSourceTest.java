@@ -127,13 +127,13 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     @Override
-    protected void createFiles(String fileName) throws IOException {
+    protected void createFiles(String archiveName) throws IOException {
 
         // File information
-        FileInformation fileInformation = new FileInformation(fileName);
+        FileInformation fileInformation = new FileInformation(archiveName);
 
         // Create the Tar archive and add the files
-        try (OutputStream fOut = Files.newOutputStream(fileSystem.getPath(fileName));
+        try (OutputStream fOut = Files.newOutputStream(fileSystem.getPath(archiveName));
              BufferedOutputStream buffOut = new BufferedOutputStream(fOut);
              OutputStream gzOut = getCompressedOutputStream(buffOut, fileInformation.getCompressionFormat());
              TarArchiveOutputStream tOut = new TarArchiveOutputStream(gzOut)) {

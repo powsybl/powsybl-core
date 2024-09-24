@@ -113,9 +113,9 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
     }
 
     @Override
-    protected void createFiles(String fileName) throws IOException {
+    protected void createFiles(String archiveName) throws IOException {
         // Create the Zip archive and add the files
-        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(fileName)))) {
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(archiveName)))) {
             filesInArchive.forEach(fileInArchive -> {
                 try {
                     ZipEntry e = new ZipEntry(fileInArchive);

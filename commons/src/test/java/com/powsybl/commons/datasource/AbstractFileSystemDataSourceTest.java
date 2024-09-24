@@ -51,7 +51,7 @@ abstract class AbstractFileSystemDataSourceTest {
 
     protected abstract String getContainerPath(String containerFileName, String baseName, String dataExtension, CompressionFormat compressionFormat);
 
-    protected abstract void createFiles(String fileName) throws IOException;
+    protected abstract void createFiles(String archiveOrDirectoryName) throws IOException;
 
     protected abstract String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
             CompressionFormat compressionFormat);

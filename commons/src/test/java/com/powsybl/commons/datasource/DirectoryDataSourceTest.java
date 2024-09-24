@@ -56,12 +56,12 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
     }
 
     @Override
-    protected void createFiles(String fileName) throws IOException {
-        Files.createDirectories(fileSystem.getPath(fileName));
+    protected void createFiles(String directoryName) throws IOException {
+        Files.createDirectories(fileSystem.getPath(directoryName));
         // Create the test files
-        existingFiles.forEach(eachFileName -> {
+        existingFiles.forEach(fileName -> {
             try {
-                Files.createFile(fileSystem.getPath(fileName + "/" + eachFileName));
+                Files.createFile(fileSystem.getPath(directoryName + "/" + fileName));
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
