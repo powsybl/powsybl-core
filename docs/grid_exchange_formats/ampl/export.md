@@ -34,7 +34,7 @@ This exporter is the "historical" version, the first that has been designed.
 
 This exporter adds the following information to the `BasicAmplExporter`:
 
-- A slack bus boolean in the bus table;
+- In the bus tables, a boolean indicating if the bus is a slack one;
 - `r`, `g` and `b` in tap tables as it is already done for `x`;
 - The regulating bus id for generators and static VAR compensators that are in voltage regulation mode.
 
