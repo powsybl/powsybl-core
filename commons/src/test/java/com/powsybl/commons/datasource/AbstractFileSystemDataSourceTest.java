@@ -153,7 +153,7 @@ abstract class AbstractFileSystemDataSourceTest {
         assertEquals("iidm", dataSourceWithObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithObserver).getCompressionFormat());
         if (dataSourceWithObserver instanceof DirectoryDataSource directoryDataSourceWithObserver) {
-            assertEquals(false, directoryDataSourceWithObserver.allFiles());
+            assertFalse(directoryDataSourceWithObserver.allFiles());
         }
         assertEquals(observer, ((AbstractFileSystemDataSource) dataSourceWithObserver).getObserver());
 
@@ -168,7 +168,7 @@ abstract class AbstractFileSystemDataSourceTest {
         assertNull(dataSourceWithoutObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getCompressionFormat());
         if (dataSourceWithoutObserver instanceof DirectoryDataSource directoryDataSourceWithoutObserver) {
-            assertEquals(false, directoryDataSourceWithoutObserver.allFiles());
+            assertFalse(directoryDataSourceWithoutObserver.allFiles());
         }
         assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getObserver());
     }
