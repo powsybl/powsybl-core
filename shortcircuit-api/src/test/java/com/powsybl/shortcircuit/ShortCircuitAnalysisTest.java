@@ -8,6 +8,8 @@
 package com.powsybl.shortcircuit;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -20,6 +22,7 @@ import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -52,6 +55,11 @@ class ShortCircuitAnalysisTest {
                                                                      List<FaultParameters> faultParameters) {
 
                 return CompletableFuture.supplyAsync(() -> new ShortCircuitAnalysisResult(Collections.emptyList()));
+            }
+
+            @Override
+            public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+                return Optional.empty();
             }
         };
 

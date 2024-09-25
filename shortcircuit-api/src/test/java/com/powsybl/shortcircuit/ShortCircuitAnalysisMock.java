@@ -8,6 +8,7 @@
 package com.powsybl.shortcircuit;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -77,6 +78,11 @@ public class ShortCircuitAnalysisMock implements ShortCircuitAnalysisProvider {
     @Override
     public Optional<Extension<ShortCircuitParameters>> loadSpecificParameters(PlatformConfig config) {
         return Optional.of(new ShortCircuitParametersTest.DummyExtension());
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        return Optional.empty();
     }
 
 }

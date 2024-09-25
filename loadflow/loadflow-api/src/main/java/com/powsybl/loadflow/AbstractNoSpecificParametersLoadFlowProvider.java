@@ -7,6 +7,7 @@
  */
 package com.powsybl.loadflow;
 
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -55,5 +56,10 @@ public abstract class AbstractNoSpecificParametersLoadFlowProvider implements Lo
     @Override
     public List<Parameter> getSpecificParameters() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfigConfig) {
+        return Optional.empty();
     }
 }

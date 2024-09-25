@@ -9,10 +9,12 @@ package com.powsybl.shortcircuit;
 
 import com.google.common.collect.Lists;
 import com.powsybl.commons.Versionable;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
+import com.powsybl.commons.parameters.DynamicValueParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
@@ -98,4 +100,22 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
     default List<Parameter> getSpecificParameters() {
         return Collections.emptyList();
     }
+
+    /**
+     * Retrieves the parameters of the extension associated with this provider,
+     * incorporating any overrides from the PlatformConfig.
+     *
+     * @return The parameters of the associated extension with overrides applied from PlatformConfig.
+     */
+    default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
+        return DynamicValueParameter.load(getSpecificParameters(), getModuleConfig(platformConfigConfig).orElse(null));
+    }
+
+    /**
+     * Retrieves the configuration of the specific module for this provider from the provided PlatformConfig.
+     *
+     * @param platformConfig The platform configuration containing potential module configurations.
+     * @return An Optional containing the ModuleConfig if present, otherwise an empty Optional.
+     */
+    Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig);
 }

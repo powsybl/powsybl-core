@@ -12,7 +12,6 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.parameters.DynamicValueParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterType;
 import com.powsybl.commons.report.ReportNode;
@@ -103,7 +102,11 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
 
     @Override
     public List<Parameter> getSpecificParameters() {
-        ModuleConfig config = PlatformConfig.defaultConfig().getOptionalModuleConfig("dummy-extension").orElse(null);
-        return DynamicValueParameter.load(PARAMETERS, config);
+        return PARAMETERS;
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfigConfig) {
+        return PlatformConfig.defaultConfig().getOptionalModuleConfig("dummy-extension");
     }
 }
