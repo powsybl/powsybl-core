@@ -42,6 +42,11 @@ public class BranchTripping extends AbstractTripping {
         this.supplier = supplier;
     }
 
+    @Override
+    public String getName() {
+        return "BranchTripping";
+    }
+
     protected String getVoltageLevelId() {
         return voltageLevelId;
     }
