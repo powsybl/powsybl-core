@@ -24,6 +24,14 @@ public interface DataSource extends ReadOnlyDataSource {
 
     OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
 
+    /**
+     * Creates a {@link DataSource} from the given path, throwing an exception if the path does not correspond to an
+     * existing file. Note that the basename of the created {@link DataSource} is
+     * <ul>
+     *     <li>the file name if the file is a directory</li>
+     *     <li>the base name guessed by {@link FileInformation} if the file is not a directory</li>
+     * </ul>
+     */
     static DataSource fromPath(Path file) {
         Objects.requireNonNull(file);
         if (!Files.exists(file)) {

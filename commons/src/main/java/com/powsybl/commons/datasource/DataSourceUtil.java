@@ -63,16 +63,23 @@ public interface DataSourceUtil {
         return dataSourceBuilder.build();
     }
 
-    static DataSource createDataSource(Path fileOrDirectory, DataSourceObserver observer) {
-        Objects.requireNonNull(fileOrDirectory);
+    /**
+     * Creates a {@link DataSource} from the given path. Note that the basename of the created {@link DataSource} is
+     * <ul>
+     *     <li>the file name if the path is a directory</li>
+     *     <li>the base name guessed by {@link FileInformation} if the path is not a directory</li>
+     * </ul>
+     */
+    static DataSource createDataSource(Path path, DataSourceObserver observer) {
+        Objects.requireNonNull(path);
 
         DataSourceBuilder dataSourceBuilder = new DataSourceBuilder().withObserver(observer);
-        if (Files.isDirectory(fileOrDirectory)) {
-            dataSourceBuilder.withDirectory(fileOrDirectory)
-                .withBaseName(fileOrDirectory.getFileName().toString()) // note that we use the full directory name here instead of a parsed representation using FileInformation
+        if (Files.isDirectory(path)) {
+            dataSourceBuilder.withDirectory(path)
+                .withBaseName(path.getFileName().toString()) // note that we use the full directory name here instead of a parsed representation using FileInformation
                 .withAllFiles(true);
         } else {
-            Path absFile = fileOrDirectory.toAbsolutePath();
+            Path absFile = path.toAbsolutePath();
             String fileName = absFile.getFileName().toString();
 
             // Get the file information
