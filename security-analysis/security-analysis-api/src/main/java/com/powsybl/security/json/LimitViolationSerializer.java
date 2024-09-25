@@ -14,6 +14,7 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolation;
 
 import java.io.IOException;
+import java.util.Optional;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -29,8 +30,9 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("subjectId", limitViolation.getViolationLocation().getId());
         jsonGenerator.writeStringField("voltageLevelId", limitViolation.getViolationLocation().getVoltageLevelId());
-        if (limitViolation.getViolationLocation().getBusId().isPresent()) {
-            jsonGenerator.writeStringField("busId", limitViolation.getViolationLocation().getBusId().get());
+        Optional<String> busId = limitViolation.getViolationLocation().getBusId();
+        if (busId.isPresent()) {
+            jsonGenerator.writeStringField("busId", busId.get());
         }
         if (!limitViolation.getViolationLocation().getBusBarIds().isEmpty()) {
             serializerProvider.defaultSerializeField("busbarIds", limitViolation.getViolationLocation().getBusBarIds(), jsonGenerator);
