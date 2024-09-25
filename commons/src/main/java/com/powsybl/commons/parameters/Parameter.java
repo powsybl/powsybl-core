@@ -117,7 +117,7 @@ public class Parameter {
         return possibleValues;
     }
 
-    private static Object checkDefaultValue(ParameterType type, Object defaultValue) {
+    static Object checkDefaultValue(ParameterType type, Object defaultValue) {
         checkValue(type.getTypeClass(), defaultValue);
         if (type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
@@ -257,7 +257,7 @@ public class Parameter {
         return categoryKey;
     }
 
-    public DefaultValueSource getDefaultValueSource() {
-        return DefaultValueSource.CODE;
+    public ParameterSourceType getParameterSourceType() {
+        return ParameterSourceType.PARAMETER;
     }
 }

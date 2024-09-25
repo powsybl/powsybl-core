@@ -15,28 +15,28 @@ import java.util.*;
 /**
  * @author Antoine Bouhours {@literal <antoine.bouhours at rte-france.com>}
  */
-public class DynamicValueParameter extends Parameter {
+public class ConfiguredParameter extends Parameter {
 
-    private final Object staticDefaultValue;
+    private final Object configuredValue;
 
-    public DynamicValueParameter(Parameter parameter, Object dynamicDefaultValue) {
+    public ConfiguredParameter(Parameter parameter, Object configuredValue) {
         super(parameter.getNames(),
                 parameter.getType(),
                 parameter.getDescription(),
-                dynamicDefaultValue,
+                parameter.getDefaultValue(),
                 parameter.getPossibleValues(),
                 parameter.getScope(),
                 parameter.getCategoryKey());
-        this.staticDefaultValue = parameter.getDefaultValue();
+        this.configuredValue = checkDefaultValue(parameter.getType(), configuredValue);
     }
 
     @Override
-    public DefaultValueSource getDefaultValueSource() {
-        return DefaultValueSource.CONFIGURATION;
+    public ParameterSourceType getParameterSourceType() {
+        return ParameterSourceType.CONFIGURED_PARAMETER;
     }
 
-    public Object getStaticDefaultValue() {
-        return staticDefaultValue;
+    public Object getConfiguredValue() {
+        return configuredValue;
     }
 
     /**
@@ -57,9 +57,9 @@ public class DynamicValueParameter extends Parameter {
                 .toList();
     }
 
-    private static Parameter processParameters(Object defaultValue, Parameter param) {
-        if (defaultValue != param.getDefaultValue()) {
-            return new DynamicValueParameter(param, defaultValue);
+    private static Parameter processParameters(Object configuredValue, Parameter param) {
+        if (configuredValue != param.getDefaultValue()) {
+            return new ConfiguredParameter(param, configuredValue);
         }
         return param;
     }

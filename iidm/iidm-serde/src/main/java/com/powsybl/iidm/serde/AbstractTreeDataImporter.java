@@ -17,7 +17,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
-import com.powsybl.commons.parameters.DynamicValueParameter;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -91,7 +91,7 @@ public abstract class AbstractTreeDataImporter implements Importer {
         List<Parameter> parameters = List.of(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER,
                 WITH_AUTOMATION_SYSTEMS_PARAMETER, MISSING_PERMANENT_LIMIT_PERCENTAGE_PARAMETER,
                 MINIMAL_VALIDATION_LEVEL_PARAMETER);
-        return DynamicValueParameter.load(parameters, getFormat(), defaultValueConfig);
+        return ConfiguredParameter.load(parameters, getFormat(), defaultValueConfig);
     }
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {

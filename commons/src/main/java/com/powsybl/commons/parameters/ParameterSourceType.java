@@ -10,7 +10,7 @@ package com.powsybl.commons.parameters;
 /**
  * @author Antoine Bouhours {@literal <antoine.bouhours at rte-france.com>}
  */
-public enum DefaultValueSource {
-    CODE,
-    CONFIGURATION,
+public enum ParameterSourceType {
+    PARAMETER,
+    CONFIGURED_PARAMETER,
 }

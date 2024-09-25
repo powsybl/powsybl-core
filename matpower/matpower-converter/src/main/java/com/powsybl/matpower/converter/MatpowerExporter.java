@@ -10,7 +10,7 @@ package com.powsybl.matpower.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.parameters.DynamicValueParameter;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -101,7 +101,7 @@ public class MatpowerExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return DynamicValueParameter.load(PARAMETERS, getFormat(), defaultValueConfig);
+        return ConfiguredParameter.load(PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     private static boolean hasSlackExtension(Bus bus) {

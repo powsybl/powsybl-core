@@ -14,7 +14,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.commons.parameters.DynamicValueParameter;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
@@ -108,7 +108,7 @@ public interface ShortCircuitAnalysisProvider extends Versionable, PlatformConfi
      * @return The parameters of the associated extension with overrides applied from PlatformConfig.
      */
     default List<Parameter> getSpecificParameters(PlatformConfig platformConfigConfig) {
-        return DynamicValueParameter.load(getSpecificParameters(), getModuleConfig(platformConfigConfig).orElse(null));
+        return ConfiguredParameter.load(getSpecificParameters(), getModuleConfig(platformConfigConfig).orElse(null));
     }
 
     /**

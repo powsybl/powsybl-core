@@ -14,7 +14,7 @@ import com.powsybl.commons.extensions.ExtensionProvider;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionSerDe;
 import com.powsybl.commons.io.TreeDataFormat;
-import com.powsybl.commons.parameters.DynamicValueParameter;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -165,7 +165,7 @@ public abstract class AbstractTreeDataExporter implements Exporter {
 
     @Override
     public List<Parameter> getParameters() {
-        return DynamicValueParameter.load(STATIC_PARAMETERS, getFormat(), defaultValueConfig);
+        return ConfiguredParameter.load(STATIC_PARAMETERS, getFormat(), defaultValueConfig);
     }
 
     private void addExtensionsVersions(Properties parameters, ExportOptions options) {

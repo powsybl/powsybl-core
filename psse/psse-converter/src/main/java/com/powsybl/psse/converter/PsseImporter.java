@@ -12,7 +12,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.parameters.DynamicValueParameter;
+import com.powsybl.commons.parameters.ConfiguredParameter;
 import com.powsybl.commons.parameters.Parameter;
 import com.powsybl.commons.parameters.ParameterDefaultValueConfig;
 import com.powsybl.commons.parameters.ParameterType;
@@ -69,7 +69,7 @@ public class PsseImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return DynamicValueParameter.load(Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
+        return ConfiguredParameter.load(Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER), getFormat(), ParameterDefaultValueConfig.INSTANCE);
     }
 
     @Override

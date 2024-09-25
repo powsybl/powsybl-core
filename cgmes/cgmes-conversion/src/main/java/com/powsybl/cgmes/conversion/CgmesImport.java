@@ -119,7 +119,7 @@ public class CgmesImport implements Importer {
         List<Parameter> allParams = new ArrayList<>(STATIC_PARAMETERS);
         allParams.add(boundaryLocationParameter);
         allParams.add(postProcessorsParameter);
-        return DynamicValueParameter.load(allParams, getFormat(), defaultValueConfig);
+        return ConfiguredParameter.load(allParams, getFormat(), defaultValueConfig);
     }
 
     @Override
