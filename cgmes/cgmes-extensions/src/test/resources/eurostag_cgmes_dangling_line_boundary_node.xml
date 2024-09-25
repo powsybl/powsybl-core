@@ -14,7 +14,7 @@
                 <iidm:bus id="NHV1" v="402.1428451538086" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:danglingLine id="NHV1_XNODE1" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" pairingKey="XNODE1" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
-            <iidm:danglingLine id="NVH1_XNODE2" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" pairingKey="XNODE2" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
+            <iidm:danglingLine id="NHV1_XNODE2" p0="0.0" q0="0.0" r="1.5" x="20.0" g="1.0E-6" b="1.93E-4" pairingKey="XNODE2" bus="NHV1" connectableBus="NHV1" p="302.4440612792969" q="98.74027252197266"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1" p1="605.558349609375" q1="225.2825164794922" p2="-604.8909301757812" q2="-197.48046875"/>
     </iidm:substation>
@@ -41,7 +41,7 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:tieLine id="NHV1_NHV2_2" danglingLineId1="NVH1_XNODE2" danglingLineId2="XNODE2_NHV2"/>
+    <iidm:tieLine id="NHV1_NHV2_2" danglingLineId1="NHV1_XNODE2" danglingLineId2="XNODE2_NHV2"/>
     <iidm:extension id="XNODE1_NHV2">
         <cdlbn:cgmesDanglingLineBoundaryNode isHvdc="false"/>
     </iidm:extension>
