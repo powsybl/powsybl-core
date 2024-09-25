@@ -26,6 +26,11 @@ public class ThreeWindingsTransformerTripping extends AbstractTripping {
     }
 
     @Override
+    public String getName() {
+        return "ThreeWindingsTransformerTripping";
+    }
+
+    @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 
