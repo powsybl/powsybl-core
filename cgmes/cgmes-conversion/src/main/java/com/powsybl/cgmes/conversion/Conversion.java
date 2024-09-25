@@ -358,7 +358,7 @@ public class Conversion {
                 .setInterchangeTarget(ca.asDouble("netInterchange", Double.NaN))
                 .add();
         if (ca.containsKey("pTolerance")) {
-            area.setProperty("tolerance", ca.get("pTolerance"));
+            area.setProperty("pTolerance", ca.get("pTolerance"));
         }
         if (ca.containsKey("energyIdentCodeEic")) {
             area.addAlias(ca.get("energyIdentCodeEic"), "energyIdentificationCodeEic");
@@ -375,10 +375,17 @@ public class Conversion {
         String terminalId = tf.getId("terminal");
         Boundary boundary = context.terminalMapping().findBoundary(terminalId, context.cgmes());
         if (boundary != null) {
-            area.newAreaBoundary().setBoundary(boundary).add();
+            area.newAreaBoundary()
+                    .setAc(true)
+                    .setBoundary(boundary)
+                    .add();
             return;
         }
-        RegulatingTerminalMapper.mapForTieFlow(terminalId, context).ifPresent(t -> area.newAreaBoundary().setTerminal(t).add());
+        RegulatingTerminalMapper.mapForTieFlow(terminalId, context)
+                .ifPresent(t -> area.newAreaBoundary()
+                        .setAc(true)
+                        .setTerminal(t)
+                        .add());
     }
 
     private void convert(

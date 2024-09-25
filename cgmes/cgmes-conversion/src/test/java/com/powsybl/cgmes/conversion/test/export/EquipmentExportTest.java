@@ -67,6 +67,7 @@ class EquipmentExportTest extends AbstractSerDeTest {
 
     private Properties importParams;
 
+    @Override
     @BeforeEach
     public void setUp() throws IOException {
         super.setUp();
@@ -172,13 +173,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         //  instead of an error logged and the tie flow ignored,
         //  the reimported network control area should contain one tie flow
         Network actual = exportImportNodeBreaker(network, dataSource);
-        CgmesControlArea actualCgmesControlArea = actual.getExtension(CgmesControlAreas.class).getCgmesControlArea("controlAreaId");
+        Area actualControlArea = actual.getArea("controlAreaId");
         boolean tieFlowsAtTieLinesAreSupported = false;
         if (tieFlowsAtTieLinesAreSupported) {
-            assertEquals(1, actualCgmesControlArea.getBoundaries().size());
-            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualCgmesControlArea.getBoundaries().iterator().next().getDanglingLine().getId());
+            assertEquals(1, actualControlArea.getAreaBoundaryStream().count());
+            assertEquals("7f43f508-2496-4b64-9146-0a40406cbe49", actualControlArea.getAreaBoundaries().iterator().next().getBoundary().get().getDanglingLine().getId());
         } else {
-            assertEquals(0, actualCgmesControlArea.getBoundaries().size());
+            assertNull(actualControlArea);
         }
     }
 

@@ -1354,38 +1354,42 @@ public final class EquipmentExport {
     }
 
     private static void writeControlAreas(String energyAreaId, Network network, String cimNamespace, String euNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-            writeControlArea(cgmesControlArea, energyAreaId, cimNamespace, euNamespace, writer, context, network);
+        for (Area area : network.getAreas()) {
+            if (area.getAreaType().equals("ControlAreaTypeKind.Interchange")) {
+                writeControlArea(area, energyAreaId, cimNamespace, euNamespace, writer, context, network);
+            }
         }
     }
 
-    private static void writeControlArea(CgmesControlArea cgmesControlArea, String energyAreaId, String cimNamespace, String euNamespace,
+    private static void writeControlArea(Area controlArea, String energyAreaId, String cimNamespace, String euNamespace,
                                          XMLStreamWriter writer, CgmesExportContext context, Network network) throws XMLStreamException {
         // Original control area identifiers may not respect mRID rules, so we pass it through naming strategy
         // to obtain always valid mRID identifiers
-        String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(cgmesControlArea.getId());
-        ControlAreaEq.write(controlAreaCgmesId, cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), energyAreaId, cimNamespace, euNamespace, writer, context);
-        for (Terminal terminal : cgmesControlArea.getTerminals()) {
-            Connectable<?> c = terminal.getConnectable();
-            if (c instanceof DanglingLine dl) {
-                if (network.isBoundaryElement(dl)) {
-                    String tieFlowId = context.getNamingStrategy().getCgmesId(refTyped(c), TIE_FLOW);
-                    String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
-                    TieFlowEq.write(tieFlowId, controlAreaCgmesId, terminalId, cimNamespace, writer, context);
+        String controlAreaCgmesId = context.getNamingStrategy().getCgmesId(controlArea.getId());
+        String energyIdentificationCodeEIC = controlArea.getProperty("energyIdentificationCodeEIC");
+        ControlAreaEq.write(controlAreaCgmesId, controlArea.getNameOrId(), energyIdentificationCodeEIC, energyAreaId, cimNamespace, euNamespace, writer, context);
+        for (AreaBoundary areaBoundary : controlArea.getAreaBoundaries()) {
+            areaBoundary.getTerminal().ifPresent(terminal -> {
+                Connectable<?> c = terminal.getConnectable();
+                if (c instanceof DanglingLine dl) {
+                    if (network.isBoundaryElement(dl)) {
+                        String tieFlowId = context.getNamingStrategy().getCgmesId(refTyped(c), TIE_FLOW);
+                        String terminalId = context.getNamingStrategy().getCgmesIdFromAlias(dl, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + TERMINAL_BOUNDARY);
+                        TieFlowEq.write(tieFlowId, controlAreaCgmesId, terminalId, cimNamespace, writer, context);
+                    } else {
+                        LOG.error("Unsupported tie flow at TieLine boundary {}", dl.getId());
+                    }
                 } else {
-                    LOG.error("Unsupported tie flow at TieLine boundary {}", dl.getId());
+                    LOG.warn("Ignored tie flow at {}: should be a dangling line to retrieve boundary terminal", terminal.getConnectable().getId());
                 }
-            } else {
-                LOG.warn("Ignored tie flow at {}: should be a dangling line to retrieve boundary terminal", terminal.getConnectable().getId());
-            }
-        }
-        for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-            String terminalId = getTieFlowBoundaryTerminal(boundary, context, network);
-            if (terminalId != null) {
-                String tieFlowId = context.getNamingStrategy().getCgmesId(ref(terminalId), TIE_FLOW);
-                TieFlowEq.write(tieFlowId, controlAreaCgmesId, terminalId, cimNamespace, writer, context);
-            }
+            });
+            areaBoundary.getBoundary().ifPresent(boundary -> {
+                String terminalId = getTieFlowBoundaryTerminal(boundary, context, network);
+                if (terminalId != null) {
+                    String tieFlowId = context.getNamingStrategy().getCgmesId(ref(terminalId), TIE_FLOW);
+                    TieFlowEq.write(tieFlowId, controlAreaCgmesId, terminalId, cimNamespace, writer, context);
+                }
+            });
         }
     }
 

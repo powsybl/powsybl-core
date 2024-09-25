@@ -528,20 +528,22 @@ public class CgmesExportContext {
     }
 
     private void addIidmMappingsControlArea(Network network) {
-        // FIXME(Luma) remove this use of CgmesControlAreas
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        if (cgmesControlAreas == null) {
-            network.newExtension(CgmesControlAreasAdder.class).add();
-            cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-            String cgmesControlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
-            cgmesControlAreas.newCgmesControlArea()
-                    .setId(cgmesControlAreaId)
+        // If no control area exists, create one for the whole network, containing the dangling lines as boundaries,
+        // but only if the network does not contain subnetworks
+        // FIXME(LUMA) check the use of the literal for CGMES "ControlAreaTypeKind.Interchange" and "energyIdentificationCodeEic"
+        long numControlAreas = network.getAreaStream().filter(a -> a.getAreaType().equals("ControlAreaTypeKind.Interchange")).count();
+        long numSubnetworks = network.getSubnetworks().size();
+        if (numControlAreas == 0 && numSubnetworks == 0) {
+            String controlAreaId = namingStrategy.getCgmesId(refTyped(network), CONTROL_AREA);
+            Area area = network.newArea()
+                    .setAreaType("ControlAreaTypeKind.Interchange")
+                    .setId(controlAreaId)
                     .setName("Network")
-                    .setEnergyIdentificationCodeEic("Network--1")
                     .add();
-            CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(cgmesControlAreaId);
+            // FIXME(Luma) unknown EIC, there is no good default value for it
             for (DanglingLine danglingLine : CgmesExportUtil.getBoundaryDanglingLines(network)) {
-                cgmesControlArea.add(danglingLine.getTerminal());
+                // Our exchange should be referred the boundary
+                area.newAreaBoundary().setAc(true).setBoundary(danglingLine.getBoundary()).add();
             }
         }
     }

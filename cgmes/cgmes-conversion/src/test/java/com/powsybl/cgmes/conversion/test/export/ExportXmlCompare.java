@@ -450,7 +450,7 @@ final class ExportXmlCompare {
             }
             if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
                 Comparison.Detail control = comparison.getControlDetails();
-                if (control.getValue().toString().equals("netInterchange")
+                if (control.getValue() != null && control.getValue().toString().equals("netInterchange")
                         && control.getTarget().getLocalName().equals("controlArea")) {
                     return ComparisonResult.EQUAL;
                 }
