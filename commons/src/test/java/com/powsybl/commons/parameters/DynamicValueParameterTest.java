@@ -121,4 +121,18 @@ class DynamicValueParameterTest {
         List<Parameter> loadedParams = DynamicValueParameter.load(parameters, "", null);
         assertDefaultValues(loadedParams);
     }
+
+    @Test
+    void testDefaultValueSource() {
+        MapModuleConfig moduleConfig = config.createModuleConfig("import-export-parameters-default-value");
+        moduleConfig.setStringProperty("test-param-boolean", "true");
+        moduleConfig.setStringProperty("test-param-string", "TestDynamicParam");
+        moduleConfig.setStringProperty("test-param-int", "888");
+        moduleConfig.setStringListProperty("test-param-string-list", List.of("e", "b"));
+        moduleConfig.setStringProperty("test-param-double", "0.07");
+
+        List<Parameter> loadedParams = DynamicValueParameter.load(parameters, moduleConfig);
+        assertEquals(DefaultValueSource.CONFIGURATION, loadedParams.get(0).getDefaultValueSource());
+        assertEquals(DefaultValueSource.CODE, loadedParams.get(1).getDefaultValueSource());
+    }
 }

@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.parameters;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.config.ModuleConfig;
 
 import java.util.*;
@@ -22,11 +23,16 @@ public class DynamicValueParameter extends Parameter {
         super(parameter.getNames(),
                 parameter.getType(),
                 parameter.getDescription(),
-                checkDefaultValue(parameter.getType(), dynamicDefaultValue),
+                dynamicDefaultValue,
                 parameter.getPossibleValues(),
                 parameter.getScope(),
                 parameter.getCategoryKey());
         this.staticDefaultValue = parameter.getDefaultValue();
+    }
+
+    @Override
+    public DefaultValueSource getDefaultValueSource() {
+        return DefaultValueSource.CONFIGURATION;
     }
 
     public Object getStaticDefaultValue() {
@@ -35,17 +41,28 @@ public class DynamicValueParameter extends Parameter {
 
     public static List<Parameter> load(Collection<Parameter> parameters, String prefix, ParameterDefaultValueConfig defaultValueConfig) {
         return defaultValueConfig == null
-                ? new ArrayList<>(parameters)
-                : parameters.stream().map(param -> (Parameter) new DynamicValueParameter(param, defaultValueConfig.getValue(prefix, param))).toList();
+                ? ImmutableList.copyOf(parameters)
+                : parameters.stream()
+                .map(param -> processParameters(defaultValueConfig.getValue(prefix, param), param))
+                .toList();
+    }
+
+    private static Parameter processParameters(Object defaultValue, Parameter param) {
+        if (defaultValue != param.getDefaultValue()) {
+            return new DynamicValueParameter(param, defaultValue);
+        }
+        return param;
     }
 
     public static List<Parameter> load(Collection<Parameter> parameters, ModuleConfig moduleConfig) {
         return moduleConfig == null
-                ? new ArrayList<>(parameters)
-                : parameters.stream().map(param -> (Parameter) new DynamicValueParameter(param, getPropertyFromModuleConfig(param, moduleConfig))).toList();
+                ? ImmutableList.copyOf(parameters)
+                : parameters.stream()
+                .map(param -> processParameters(getValueFromModuleConfig(param, moduleConfig), param))
+                .toList();
     }
 
-    private static Object getPropertyFromModuleConfig(Parameter param, ModuleConfig moduleConfig) {
+    private static Object getValueFromModuleConfig(Parameter param, ModuleConfig moduleConfig) {
         Object moduleConfigDefaultValue = switch (param.getType()) {
             case STRING -> moduleConfig.getOptionalStringProperty(param.getName()).orElse(null);
             case BOOLEAN -> moduleConfig.getOptionalBooleanProperty(param.getName()).orElse(null);

@@ -49,6 +49,11 @@ public class Parameter {
 
     public Parameter(List<String> names, ParameterType type, String description, Object defaultValue,
                      List<Object> possibleValues, ParameterScope scope, String categoryKey) {
+        Objects.requireNonNull(names);
+        if (names.isEmpty()) {
+            throw new IllegalArgumentException("At least one name is expected.");
+        }
+        Objects.requireNonNull(names.get(0));
         this.names.addAll(names);
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
@@ -112,7 +117,7 @@ public class Parameter {
         return possibleValues;
     }
 
-    static Object checkDefaultValue(ParameterType type, Object defaultValue) {
+    private static Object checkDefaultValue(ParameterType type, Object defaultValue) {
         checkValue(type.getTypeClass(), defaultValue);
         if (type == ParameterType.BOOLEAN && defaultValue == null) {
             throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
@@ -250,5 +255,9 @@ public class Parameter {
 
     public String getCategoryKey() {
         return categoryKey;
+    }
+
+    public DefaultValueSource getDefaultValueSource() {
+        return DefaultValueSource.CODE;
     }
 }
