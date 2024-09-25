@@ -7,33 +7,24 @@
  */
 package com.powsybl.security;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class DetailsLimitViolationIdImpl implements LimitViolationId {
+public class NodeBreakerVoltageLocation implements ViolationLocation {
     private final String voltageLevelId;
-    private final String busId;
     private final List<String> busBarIds;
 
-    public DetailsLimitViolationIdImpl(String voltageLevelId, String busId) {
-        this(voltageLevelId, busId, Collections.emptyList());
-    }
-
-    public DetailsLimitViolationIdImpl(String voltageLevelId, String busId, List<String> busBarIds) {
+    public NodeBreakerVoltageLocation(String voltageLevelId, List<String> busBarIds) {
+        Objects.requireNonNull(voltageLevelId, "voltageLevelId");
         this.voltageLevelId = voltageLevelId;
-        this.busId = busId;
         this.busBarIds = busBarIds;
     }
 
     public String getVoltageLevelId() {
         return voltageLevelId;
-    }
-
-    public String getBusId() {
-        return busId;
     }
 
     public List<String> getBusBarIds() {
@@ -42,14 +33,13 @@ public class DetailsLimitViolationIdImpl implements LimitViolationId {
 
     @Override
     public String getId() {
-        return busId;
+        return busBarIds.isEmpty() ? voltageLevelId : busBarIds.get(0);
     }
 
     @Override
     public String toString() {
-        return "DetailsLimitViolationIdImpl{" +
+        return "NodeBreakerVoltageLocation{" +
             "voltageLevelId='" + voltageLevelId + '\'' +
-            ", busId='" + busId + '\'' +
             ", busBarIds=" + busBarIds +
             '}';
     }

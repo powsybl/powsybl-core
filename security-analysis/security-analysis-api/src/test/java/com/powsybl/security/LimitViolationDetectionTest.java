@@ -28,6 +28,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -125,12 +126,12 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                 assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
                 assertEquals(620.0, violationsCollector.get(0).getValue());
                 assertEquals(500, violationsCollector.get(0).getLimit());
-                Assertions.assertThat(violationsCollector.get(0).getLimitViolationId())
-                    .isInstanceOf(DetailsLimitViolationIdImpl.class)
-                    .isInstanceOfSatisfying(DetailsLimitViolationIdImpl.class,
+                Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
+                    .isInstanceOfSatisfying(BusBreakerViolationLocation.class,
                         vli -> {
                             assertEquals("NHV2", vli.getId());
-                            assertEquals("NHV2", vli.getBusId());
+                            assertTrue(vli.getBusId().isPresent());
+                            assertEquals("NHV2", vli.getBusId().get());
                             assertEquals("VLHV2", vli.getVoltageLevelId());
                             Assertions.assertThat(vli.getBusBarIds()).isEmpty();
                         });
@@ -148,12 +149,11 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                 assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
                 assertEquals(300, violationsCollector.get(0).getValue());
                 assertEquals(240, violationsCollector.get(0).getLimit());
-                Assertions.assertThat(violationsCollector.get(0).getLimitViolationId())
-                    .isInstanceOf(DetailsLimitViolationIdImpl.class)
-                    .isInstanceOfSatisfying(DetailsLimitViolationIdImpl.class,
+                Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
+                    .isInstanceOfSatisfying(NodeBreakerVoltageLocation.class,
                         vli -> {
-                            assertEquals("S1VL1_0", vli.getId());
-                            assertEquals("S1VL1_0", vli.getBusId());
+                            assertEquals("S1VL1_BBS", vli.getId());
+                            assertTrue(vli.getBusId().isEmpty());
                             assertEquals("S1VL1", vli.getVoltageLevelId());
                             Assertions.assertThat(vli.getBusBarIds())
                                 .hasSize(1)

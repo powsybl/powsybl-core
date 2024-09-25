@@ -11,9 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.security.DetailsLimitViolationIdImpl;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.SimpleLimitViolationIdImpl;
 
 import java.io.IOException;
 
@@ -29,12 +27,13 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
     @Override
     public void serialize(LimitViolation limitViolation, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        if (limitViolation.getLimitViolationId() instanceof SimpleLimitViolationIdImpl) {
-            jsonGenerator.writeStringField("subjectId", limitViolation.getSubjectId());
-        } else if (limitViolation.getLimitViolationId() instanceof DetailsLimitViolationIdImpl detailsLimitViolationId) {
-            jsonGenerator.writeStringField("subjectId", limitViolation.getLimitViolationId().getId());
-            jsonGenerator.writeStringField("voltageLevelId", detailsLimitViolationId.getVoltageLevelId());
-            serializerProvider.defaultSerializeField("busbarIds", detailsLimitViolationId.getBusBarIds(), jsonGenerator);
+        jsonGenerator.writeStringField("subjectId", limitViolation.getViolationLocation().getId());
+        jsonGenerator.writeStringField("voltageLevelId", limitViolation.getViolationLocation().getVoltageLevelId());
+        if (limitViolation.getViolationLocation().getBusId().isPresent()) {
+            jsonGenerator.writeStringField("busId", limitViolation.getViolationLocation().getBusId().get());
+        }
+        if (!limitViolation.getViolationLocation().getBusBarIds().isEmpty()) {
+            serializerProvider.defaultSerializeField("busbarIds", limitViolation.getViolationLocation().getBusBarIds(), jsonGenerator);
         }
         if (limitViolation.getSubjectName() != null) {
             jsonGenerator.writeStringField("subjectName", limitViolation.getSubjectName());

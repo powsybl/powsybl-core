@@ -7,11 +7,25 @@
  */
 package com.powsybl.security;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public interface LimitViolationId {
+public interface ViolationLocation {
 
     String getId();
+
+    String getVoltageLevelId();
+
+    default Optional<String> getBusId() {
+        return Optional.empty();
+    }
+
+    default List<String> getBusBarIds() {
+        return Collections.emptyList();
+    }
 
 }

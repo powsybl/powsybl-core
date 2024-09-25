@@ -7,30 +7,34 @@
  */
 package com.powsybl.security;
 
+import java.util.Objects;
+
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
-public class SimpleLimitViolationIdImpl implements LimitViolationId {
+public class VoltageLevelViolationLocation implements ViolationLocation {
 
-    private final String subjectId;
+    private final String voltageLevelId;
 
-    public SimpleLimitViolationIdImpl(String subjectId) {
-        this.subjectId = subjectId;
+    public VoltageLevelViolationLocation(String voltageLevelId) {
+        Objects.requireNonNull(voltageLevelId, "voltageLevelId");
+        this.voltageLevelId = voltageLevelId;
     }
 
-    public String getSubjectId() {
-        return subjectId;
+    @Override
+    public String getVoltageLevelId() {
+        return voltageLevelId;
     }
 
     @Override
     public String getId() {
-        return subjectId;
+        return voltageLevelId;
     }
 
     @Override
     public String toString() {
-        return "SimpleLimitViolationIdImpl{" +
-            "subjectId='" + subjectId + '\'' +
+        return "VoltageLevelViolationLocation{" +
+            "subjectId='" + voltageLevelId + '\'' +
             '}';
     }
 }
