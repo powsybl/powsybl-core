@@ -135,5 +135,5 @@ The default value is `1.0`.
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
-- [PowSyBl OpenLoadFlow](TODO)
-- [DynaFlow](TODO)
+- [PowSyBl OpenLoadFlow](inv:powsyblopenloadflow:*:*#loadflow/parameters)
+- [DynaFlow](inv:powsybldynawo:*:*#load_flow/configuration)

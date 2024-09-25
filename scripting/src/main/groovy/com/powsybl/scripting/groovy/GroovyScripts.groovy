@@ -7,12 +7,13 @@
  */
 package com.powsybl.scripting.groovy
 
+import com.powsybl.computation.DefaultComputationManagerConfig
+import groovy.transform.ThreadInterrupt
 import org.codehaus.groovy.control.CompilerConfiguration
+import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 
 import java.nio.charset.StandardCharsets
 import java.nio.file.Path
-
-import com.powsybl.computation.DefaultComputationManagerConfig
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -51,9 +52,12 @@ class GroovyScripts {
 
         CompilerConfiguration conf = new CompilerConfiguration()
 
+        // Add a check on thread interruption in every loop (for, while) in the script
+        conf.addCompilationCustomizers(new ASTTransformationCustomizer(ThreadInterrupt.class))
+
         // Computation manager
-        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load();
-        binding.computationManager = config.createShortTimeExecutionComputationManager();
+        DefaultComputationManagerConfig config = DefaultComputationManagerConfig.load()
+        binding.computationManager = config.createShortTimeExecutionComputationManager()
 
         if (out != null) {
             binding.out = out
@@ -64,6 +68,10 @@ class GroovyScripts {
             extensions.forEach { it.load(binding, binding.computationManager) }
 
             GroovyShell shell = new GroovyShell(binding, conf)
+
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted")
+
             shell.evaluate(codeReader)
         } finally {
             extensions.forEach { it.unload() }

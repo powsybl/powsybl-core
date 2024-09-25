@@ -781,7 +781,7 @@ public class AmplNetworkWriter {
         try (Writer writer = new OutputStreamWriter(
             dataSource.newOutputStream("_headers", "txt", append), StandardCharsets.UTF_8)
         ) {
-            columnsExporter.writeHeaderFile(writer);
+            writer.write("version " + config.getVersion().getExporterId() + "\n");
         }
     }
 }
