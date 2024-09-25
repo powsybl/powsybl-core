@@ -54,6 +54,7 @@
   </cim:BaseVoltage>
   <cim:Line rdf:ID="_Line">
     <cim:Line.Region rdf:resource="#_Region"/>
+    <cim:IdentifiedObject.name>A line</cim:IdentifiedObject.name>
   </cim:Line>
   <cim:SubGeographicalRegion rdf:ID="_Region">
     <cim:SubGeographicalRegion.Region rdf:resource="#_Subregion"/>
