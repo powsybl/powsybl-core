@@ -25,6 +25,11 @@ public class TwoWindingsTransformerTripping extends BranchTripping {
     }
 
     @Override
+    public String getName() {
+        return "TwoWindingsTransformerTripping";
+    }
+
+    @Override
     protected PowsyblException createNotFoundException() {
         return new PowsyblException("Two windings transformer '" + id + "' not found");
     }

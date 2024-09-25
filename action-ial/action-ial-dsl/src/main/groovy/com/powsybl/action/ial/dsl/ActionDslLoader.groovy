@@ -10,10 +10,10 @@ package com.powsybl.action.ial.dsl
 import com.powsybl.action.ial.dsl.spi.DslModificationExtension
 import com.powsybl.contingency.Contingency
 import com.powsybl.contingency.dsl.ContingencyDslLoader
-import com.powsybl.iidm.modification.NetworkModification
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
+import com.powsybl.iidm.modification.NetworkModification
 import com.powsybl.iidm.network.Network
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
@@ -208,6 +208,9 @@ class ActionDslLoader extends DslLoader {
         try {
 
             def shell = createShell(binding)
+
+            // Check for thread interruption right before beginning the evaluation
+            if (Thread.currentThread().isInterrupted()) throw new InterruptedException("Execution Interrupted");
 
             shell.evaluate(dslSrc)
 

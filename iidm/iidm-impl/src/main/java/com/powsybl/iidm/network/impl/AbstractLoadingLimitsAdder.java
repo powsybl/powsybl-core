@@ -9,10 +9,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LoadingLimitsUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+
 import static java.lang.Integer.MAX_VALUE;
 
 /**
@@ -21,14 +23,12 @@ import static java.lang.Integer.MAX_VALUE;
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
-    private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuration1, acceptableDuration2) -> acceptableDuration2 - acceptableDuration1;
-
     protected final Validable validable;
     private final String ownerId;
 
     protected double permanentLimit = Double.NaN;
 
-    protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(ACCEPTABLE_DURATION_COMPARATOR);
+    protected final TreeMap<Integer, LoadingLimits.TemporaryLimit> temporaryLimits = new TreeMap<>(LoadingLimitsUtil.ACCEPTABLE_DURATION_COMPARATOR);
 
     public class TemporaryLimitAdderImpl<B extends LoadingLimitsAdder<L, B>> implements TemporaryLimitAdder<B> {
 
@@ -187,4 +187,5 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
     public String getOwnerId() {
         return ownerId;
     }
+
 }

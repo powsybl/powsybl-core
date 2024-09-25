@@ -23,6 +23,11 @@ public class SwitchTripping extends AbstractTripping {
     }
 
     @Override
+    public String getName() {
+        return "SwitchTripping";
+    }
+
+    @Override
     public void traverse(Network network, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(network);
 

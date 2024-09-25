@@ -4,6 +4,7 @@ A load flow result is considered *acceptable* if it describes a feasible steady-
 More practically, generations of practitioners have set quasi-standard ways to describe them that makes it possible to define precise rules.
 They are described below for the different elements of the network.
 
+(loadflow-validation-buses)=
 ## Buses
 
 The first law of Kirchhoff must be satisfied for every bus for active and reactive power:
@@ -13,8 +14,9 @@ $$\begin{equation}
 \left| \sum_{branches} Q + \sum_{injections} Q \right| \leq \epsilon \\
 \end{equation}$$
 
+(loadflow-validation-branches)=
 ## Branches
-Lines and two windings transformers are converted into classical PI models:
+Lines and two-winding transformers are converted into classical PI models:
 
 ```
     V1*exp(j*theta1)     rho1*exp(j*alpha1)             r+j*x              rho2*exp(j*alpha2)   V2*exp(j*theta2)
@@ -36,19 +38,21 @@ Lines and two windings transformers are converted into classical PI models:
     - $(g_1, b_1)$ and $(g_2, b_2)$: Complex shunt impedance on each side (S).
     - $(r, x)$: Complex series impedance $(\Omega)$.
 
-Thanks to Kirchhoff laws (see the [line](../grid_model/network_subnetwork.md#line) and [2-winding transformer](../grid_model/network_subnetwork.md#two-windings-transformer) documentation), estimations of powers are computed according to the voltages and the characteristics of the branch:
+Thanks to Kirchhoff laws (see the [line](../grid_model/network_subnetwork.md#line) and [2-winding transformer](../grid_model/network_subnetwork.md#two-winding-transformer) documentation), estimations of powers are computed according to the voltages and the characteristics of the branch:
 
 $(P_1^{calc}, Q_1^{calc}, P_2^{calc}, Q_2^{calc}) = f(\text{Voltages}, \text{Characteristics})$
 
-## Three-windings transformers
-To be implemented, based on a conversion into 3 two-windings transformers.
+(loadflow-validation-three-winding-transformers)=
+## Three-winding transformers
+To be implemented, based on a conversion into 3 two-winding transformers.
 
+(loadflow-validation-generators)=
 ## Generators
 
 ### Active power
 There may be an imbalance between the sum of generator active power setpoints $\text{targetP}$ on one side and consumption
-and losses on the other side, after the load flow optimization process. Note that, if it is possible to modify the setpoints during the computation
-(for example if the results were computed by an Optimal Power Flow and not a Power Flow), there should be no imbalance left.
+and losses on the other side, after the load flow optimization process. Note that if it is possible to modify the setpoints during the computation
+(for example, if the results were computed by an Optimal Power Flow and not a Power Flow), there should be no imbalance left.
 
 In case of an imbalance between the sum of generator active power setpoints $\text{targetP}$ on one side and consumption
 and losses on the other side, the generation $P$ of some units has to be adjusted.
@@ -89,9 +93,11 @@ V - targetV & < & -& \epsilon && \& && |Q-maxQ| & \leq & \epsilon \\
 targetV - V & < && \epsilon && \& && |Q-minQ| & \leq & \epsilon \\
 \end{align*}
 
+(loadflow-validation-loads)=
 ## Loads
 To be implemented, with tests similar to generators with voltage regulation.
 
+(loadflow-validation-shunts)=
 ## Shunts
 A shunt is expected not to generate or absorb active power:
 
@@ -100,8 +106,9 @@ $\left| P \right| < \epsilon$
 A shunt is expected to generate reactive power according to the number of activated sections and to the susceptance per section $B$:
 $\left| Q + \text{#sections} * B  V^2 \right| < \epsilon$
 
+(loadflow-validation-static-var-compensators)=
 ## Static VAR Compensators
-Static VAR Compensators behave like generators producing 0 active power except that their reactive bounds are expressed
+Static VAR Compensators behave like generators producing zero active power except that their reactive bounds are expressed
 in susceptance, so that they are voltage dependent.
 
 $targetP = 0$ MW
@@ -111,19 +118,23 @@ $targetP = 0$ MW
 - If the regulation mode is `VOLTAGE`, it behaves like a generator with voltage regulation with the following bounds (dependent on the voltage, which is not the case for generators):
   $minQ = - Bmax * V^2$ and $maxQ = - Bmin V^2$
 
+(loadflow-validation-hvdc)=
 ## HVDC lines
 To be done.
 
+(loadflow-validation-vsc)=
 ## VSC
 VSC converter stations behave like generators with the additional constraints that the sum of active power on converter
 stations paired by a cable is equal to the losses on the converter stations plus the losses on the cable.
 
+(loadflow-validation-lcc)=
 ## LCC
 To be done.
 
+(loadflow-validation-transformers-ratio-tap-changer)=
 ## Transformers with a ratio tap changer
 
-Transformers with a ratio tap changer have a tap with a finite discrete number of position that allows to change their transformer ratio.
+Transformers with a ratio tap changer have a tap with a finite discrete number of positions that allows to change their transformer ratio.
 Let's assume that the logic is based on deadband: if the deviation between the measurement
 and the setpoint is higher than the deadband width, the tap position is increased or decreased by one unit.
 

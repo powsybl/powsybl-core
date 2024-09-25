@@ -1,7 +1,7 @@
 # iTools dynamic-simulation
 
 The `dynamic-simulation` command loads a grid file and run a [time domain](../../simulation/dynamic/index.md) simulation.
-At the end, the results and the modified network can be exported to files.
+In the end, the results and the modified network can be exported to files.
 
 ## Usage
 ```
@@ -83,7 +83,7 @@ dynamic simulation results:
 +--------+
 ```
 
-The following example shows how to run a time domain simulation, using a parameters file:
+The following example shows how to run a time domain simulation, using a parameter file:
 ```
 $> itools dynamic-simulation --case-file IEEE14.iidm --dynamic-models-file dynamicModels.groovy --parameters-file dynawoParameters.json
 dynamic simulation results:

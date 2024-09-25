@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.util.SwitchPredicates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
 import java.util.function.Predicate;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.connectableConnectionReport;
@@ -32,17 +31,14 @@ import static com.powsybl.iidm.modification.util.ModificationReports.connectable
  * try to connect every side.</p>
  * @author Nicolas Rol {@literal <nicolas.rol at rte-france.com>}
  */
-public class ConnectableConnection extends AbstractNetworkModification {
+public class ConnectableConnection extends AbstractConnectDisconnectModification {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConnectableConnection.class);
-    final String connectableId;
     final Predicate<Switch> isTypeSwitchToOperate;
-    ThreeSides side;
 
     ConnectableConnection(String connectableId, boolean openFictitiousSwitches, boolean operateOnlyBreakers,
                           ThreeSides side) {
-        this.connectableId = Objects.requireNonNull(connectableId);
-        this.side = side;
+        super(connectableId, side, true);
 
         // Initial predicate
         Predicate<Switch> predicate = SwitchPredicates.IS_NON_NULL;
@@ -62,16 +58,21 @@ public class ConnectableConnection extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "ConnectableConnection";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException, ComputationManager computationManager, ReportNode reportNode) {
         // Get the connectable
-        Identifiable<?> identifiable = network.getIdentifiable(connectableId);
+        Identifiable<?> identifiable = network.getIdentifiable(identifiableId);
 
         // Add the reportNode to the network reportNode context
         network.getReportNodeContext().pushReportNode(reportNode);
 
         // Connect the element if it exists
         if (identifiable == null) {
-            logOrThrow(throwException, "Identifiable '" + connectableId + "' not found");
+            logOrThrow(throwException, "Identifiable '" + identifiableId + "' not found");
         } else {
             connectIdentifiable(identifiable, network, throwException, reportNode);
         }
@@ -87,16 +88,16 @@ public class ConnectableConnection extends AbstractNetworkModification {
             } else if (identifiable instanceof HvdcLine hvdcLine) {
                 hasBeenConnected = hvdcLine.connectConverterStations(isTypeSwitchToOperate, side == null ? null : side.toTwoSides());
             } else {
-                logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", connectableId));
+                logOrThrow(throwException, String.format("Connection not implemented for identifiable '%s'", identifiableId));
             }
         } finally {
             network.getReportNodeContext().popReportNode();
         }
 
         if (hasBeenConnected) {
-            LOG.info("Connectable {} has been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Connectable {} has been connected {}.", identifiableId, side == null ? "on each side" : "on side " + side.getNum());
         } else {
-            LOG.info("Connectable {} has NOT been connected {}.", connectableId, side == null ? "on each side" : "on side " + side.getNum());
+            LOG.info("Connectable {} has NOT been connected {}.", identifiableId, side == null ? "on each side" : "on side " + side.getNum());
         }
         connectableConnectionReport(reportNode, identifiable, hasBeenConnected, side);
     }
