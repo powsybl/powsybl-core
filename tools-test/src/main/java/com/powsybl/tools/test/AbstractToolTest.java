@@ -167,7 +167,7 @@ public abstract class AbstractToolTest {
     }
 
     /**
-     * Asserts the command returns the expected status and output and error output matches the comparison function
+     * Asserts the command returns the expected status and output and error output each match its expected string using the given comparison function
      * @param args the tested command and its parameters
      * @param expectedStatus expected command status
      * @param expectedOut expected output
