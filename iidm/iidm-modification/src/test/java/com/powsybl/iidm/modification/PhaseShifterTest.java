@@ -37,6 +37,15 @@ class PhaseShifterTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new PhaseShifterSetAsFixedTap("TWT", 50);
+        assertEquals("PhaseShifterSetAsFixedTap", networkModification.getName());
+
+        networkModification = new PhaseShifterShiftTap("TWT", 1);
+        assertEquals("PhaseShifterShiftTap", networkModification.getName());
+    }
+
+    @Test
     void testHasImpactSetAsFixedTap() {
         NetworkModification modification1 = new PhaseShifterSetAsFixedTap("UNKNOWN_ID", 1);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));

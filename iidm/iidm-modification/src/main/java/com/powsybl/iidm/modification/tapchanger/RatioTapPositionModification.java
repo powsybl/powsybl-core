@@ -39,6 +39,11 @@ public class RatioTapPositionModification extends AbstractTapPositionModificatio
     }
 
     @Override
+    public String getName() {
+        return "RatioTapPositionModification";
+    }
+
+    @Override
     protected void applyTwoWindingsTransformer(Network network, TwoWindingsTransformer twoWindingsTransformer,
                                                boolean throwException) {
         apply(twoWindingsTransformer, throwException);

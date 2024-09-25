@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
@@ -70,6 +71,12 @@ class GeneratorTrippingTest extends AbstractTrippingTest {
 
         List<Boolean> switchStates = getSwitchStates(network, switchIds);
         assertEquals(expectedSwitchStates, switchStates);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new GeneratorTripping("ID");
+        assertEquals("GeneratorTripping", networkModification.getName());
     }
 
     @Test

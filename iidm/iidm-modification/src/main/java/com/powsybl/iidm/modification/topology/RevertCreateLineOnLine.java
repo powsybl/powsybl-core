@@ -59,6 +59,11 @@ public class RevertCreateLineOnLine extends AbstractLineDisconnectionModificatio
         this.mergedLineName = mergedLineName;
     }
 
+    @Override
+    public String getName() {
+        return "RevertCreateLineOnLine";
+    }
+
     public RevertCreateLineOnLine setLineToBeMerged1Id(String lineToBeMerged1Id) {
         this.oldLine1Id = Objects.requireNonNull(lineToBeMerged1Id);
         return this;
