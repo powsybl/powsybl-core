@@ -69,36 +69,23 @@ public interface DataSourceUtil {
         DataSourceBuilder dataSourceBuilder = new DataSourceBuilder().withObserver(observer);
         if (Files.isDirectory(fileOrDirectory)) {
             dataSourceBuilder.withDirectory(fileOrDirectory)
-                .withBaseName(fileOrDirectory.getFileName().toString())
+                .withBaseName(fileOrDirectory.getFileName().toString()) // note that we use the full directory name here instead of a parsed representation using FileInformation
                 .withAllFiles(true);
         } else {
             Path absFile = fileOrDirectory.toAbsolutePath();
-            String fileNameOrBaseName = absFile.getFileName().toString();
+            String fileName = absFile.getFileName().toString();
 
             // Get the file information
-            FileInformation fileInformation = new FileInformation(fileNameOrBaseName);
+            FileInformation fileInformation = new FileInformation(fileName);
 
             dataSourceBuilder
                 .withDirectory(absFile.getParent())
-                .withArchiveFileName(fileNameOrBaseName)
+                .withArchiveFileName(fileName)
                 .withBaseName(fileInformation.getBaseName())
                 .withDataExtension(fileInformation.getDataExtension())
                 .withCompressionFormat(fileInformation.getCompressionFormat())
                 .withArchiveFormat(fileInformation.getArchiveFormat());
         }
-
-        return dataSourceBuilder.build();
-    }
-
-    static DataSource createDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        Objects.requireNonNull(directory);
-        Objects.requireNonNull(baseName);
-
-        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
-            .withDirectory(directory)
-            .withArchiveFileName(baseName)
-            .withBaseName(baseName)
-            .withObserver(observer);
 
         return dataSourceBuilder.build();
     }

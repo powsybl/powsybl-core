@@ -116,7 +116,7 @@ abstract class AbstractFileSystemDataSourceTest {
     @ParameterizedTest
     @MethodSource("provideArgumentsForClassAndListingTest")
     // containerName is the archive file name for ArchiveDataSource
-    // or the curated directory name for DirectoryDataSource
+    // or the directory name for DirectoryDataSource
     void testClassAndListing(String containerName, String baseName, String dataExtension,
                              CompressionFormat compressionFormat, Class<? extends AbstractFileSystemDataSource> dataSourceClass,
                              Set<String> listedFiles, Set<String> listedBarFiles) throws IOException {
@@ -153,7 +153,7 @@ abstract class AbstractFileSystemDataSourceTest {
         assertEquals("iidm", dataSourceWithObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithObserver).getCompressionFormat());
         if (dataSourceWithObserver instanceof DirectoryDataSource directoryDataSourceWithObserver) {
-            assertFalse(directoryDataSourceWithObserver.allFiles());
+            assertFalse(directoryDataSourceWithObserver.isAllFiles());
         }
         assertEquals(observer, ((AbstractFileSystemDataSource) dataSourceWithObserver).getObserver());
 
@@ -168,7 +168,7 @@ abstract class AbstractFileSystemDataSourceTest {
         assertNull(dataSourceWithoutObserver.getDataExtension());
         assertEquals(compressionFormat, ((AbstractFileSystemDataSource) dataSourceWithoutObserver).getCompressionFormat());
         if (dataSourceWithoutObserver instanceof DirectoryDataSource directoryDataSourceWithoutObserver) {
-            assertFalse(directoryDataSourceWithoutObserver.allFiles());
+            assertFalse(directoryDataSourceWithoutObserver.isAllFiles());
         }
         assertNull(((AbstractFileSystemDataSource) dataSourceWithoutObserver).getObserver());
     }

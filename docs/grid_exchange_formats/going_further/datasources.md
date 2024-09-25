@@ -96,7 +96,8 @@ to filter the files within the datasource. In addition to the filtering using th
 filter filenames to only keep those starting with the base name. This behaviour basename-filtering only occurs if 
 `allFiles` is set to `false` in the datasource.
 Setting `allFiles` to `true` is  for example very useful for the CGMES use case, in which a network is defined by 
-several files (TP, EQ, SV, SSH, GL, ...), often without a common prefix (base name).
+several files (TP, EQ, SV, SSH, GL, ...), often without a common prefix (base name). This makes the
+`DirectoryDataSource` behave just like an `ArchiveDataSource`.
 Such a directory datasource is created if the user gives an existing folder as path in either one of the `Network::read` 
 or one of the `Network::write` methods.
 

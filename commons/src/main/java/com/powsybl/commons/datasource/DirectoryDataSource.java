@@ -61,7 +61,7 @@ public class DirectoryDataSource extends AbstractFileSystemDataSource {
         this.allFiles = allFiles;
     }
 
-    public boolean allFiles() {
+    public boolean isAllFiles() {
         return allFiles;
     }
 

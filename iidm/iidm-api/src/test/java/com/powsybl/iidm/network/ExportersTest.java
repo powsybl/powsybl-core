@@ -10,6 +10,7 @@ package com.powsybl.iidm.network;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.tools.ExporterMockWithReportNode;
@@ -57,7 +58,7 @@ class ExportersTest extends AbstractConvertersTest {
     @Test
     void createDataSource1() throws IOException {
         Files.createFile(path);
-        DataSource dataSource = Exporters.createDataSource(fileSystem.getPath(WORK_FOLDER), FOO_BASENAME, null);
+        DataSource dataSource = new DirectoryDataSource(fileSystem.getPath(WORK_FOLDER), FOO_BASENAME);
         assertTrue(dataSource.exists(FOO_TST));
     }
 

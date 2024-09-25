@@ -129,8 +129,8 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
             "bar.iidm.xz", "bar.xz",
             "bar.iidm.zst", "bar.zst",
             "bar.iidm.gz", "bar.gz");
-        Set<String> curatedListedFiles = Stream.concat(listedFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
-        Set<String> curatedListedBarFiles = Stream.concat(listedBarFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
+        Set<String> allListedFiles = Stream.concat(listedFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
+        Set<String> allListedBarFiles = Stream.concat(listedBarFiles.stream(), barFiles.stream()).collect(Collectors.toSet());
         return Stream.of(
             Arguments.of(null, "foo", "iidm", null, DirectoryDataSource.class,
                 listedFiles,
@@ -142,14 +142,14 @@ class DirectoryDataSourceTest extends AbstractFileSystemDataSourceTest {
                 listedFiles,
                 listedBarFiles),
             Arguments.of("tmp", null, null, null, DirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
+                allListedFiles,
+                allListedBarFiles),
             Arguments.of("foo", null, null, null, DirectoryDataSource.class,
-                curatedListedFiles,
-                curatedListedBarFiles),
+                allListedFiles,
+                allListedBarFiles),
             Arguments.of("foo.xiidm", null, null, null, DirectoryDataSource.class,
-                    curatedListedFiles,
-                    curatedListedBarFiles)
+                    allListedFiles,
+                    allListedBarFiles)
         );
     }
 

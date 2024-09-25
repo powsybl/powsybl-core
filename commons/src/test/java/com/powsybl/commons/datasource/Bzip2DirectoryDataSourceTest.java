@@ -45,7 +45,7 @@ class Bzip2DirectoryDataSourceTest extends DirectoryDataSourceTest {
         assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
-        assertFalse(dataSource.allFiles());
+        assertFalse(dataSource.isAllFiles());
         assertEquals(observer, dataSource.getObserver());
     }
 

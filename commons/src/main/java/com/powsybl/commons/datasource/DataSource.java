@@ -31,8 +31,4 @@ public interface DataSource extends ReadOnlyDataSource {
         }
         return DataSourceUtil.createDataSource(file, null);
     }
-
-    static DataSource fromPath(Path directory, String baseName) {
-        return DataSourceUtil.createDataSource(directory, baseName, null);
-    }
 }

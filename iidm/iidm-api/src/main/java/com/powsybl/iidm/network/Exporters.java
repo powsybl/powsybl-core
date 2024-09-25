@@ -27,10 +27,6 @@ public final class Exporters {
     private Exporters() {
     }
 
-    public static DataSource createDataSource(Path directory, String basename, DataSourceObserver observer) {
-        return DataSourceUtil.createDataSource(directory, basename, observer);
-    }
-
     public static DataSource createDataSource(Path file, DataSourceObserver observer) {
         Objects.requireNonNull(file);
         if (Files.exists(file) && !(Files.isRegularFile(file) || Files.isDirectory(file))) {
