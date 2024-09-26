@@ -31,6 +31,11 @@ public class GeneratorModification extends AbstractNetworkModification {
     }
 
     @Override
+    public String getName() {
+        return "GeneratorModification";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         Generator g = network.getGenerator(generatorId);
