@@ -11,7 +11,6 @@
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
-        "voltageLevelId" : "NHV1_NHV2_1",
         "limitType" : "CURRENT",
         "limit" : 100.0,
         "limitReduction" : 0.949999988079071,
@@ -86,7 +85,6 @@
     "limitViolationsResult" : {
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_2",
-        "voltageLevelId" : "NHV1_NHV2_2",
         "limitType" : "CURRENT",
         "limitName" : "20'",
         "acceptableDuration" : 1200,
@@ -105,14 +103,12 @@
         }
       }, {
         "subjectId" : "GEN",
-        "voltageLevelId" : "GEN",
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.8999999761581421,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
-        "voltageLevelId" : "GEN2",
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.699999988079071,
@@ -124,7 +120,6 @@
         }
       }, {
         "subjectId" : "NHV1_NHV2_2",
-        "voltageLevelId" : "NHV1_NHV2_2",
         "limitType" : "ACTIVE_POWER",
         "limitName" : "20'",
         "acceptableDuration" : 1200,
@@ -134,7 +129,6 @@
         "side" : "ONE"
       }, {
         "subjectId" : "NHV1_NHV2_2",
-        "voltageLevelId" : "NHV1_NHV2_2",
         "limitType" : "APPARENT_POWER",
         "limitName" : "20'",
         "acceptableDuration" : 1200,

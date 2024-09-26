@@ -118,8 +118,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetectionWithDetailLimitViolationId() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add,
-            true);
+        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
@@ -127,6 +126,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                 assertEquals(620.0, violationsCollector.get(0).getValue());
                 assertEquals(500, violationsCollector.get(0).getLimit());
                 Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
+                    .isPresent()
+                    .get()
                     .isInstanceOfSatisfying(BusBreakerViolationLocation.class,
                         vli -> {
                             assertEquals("NHV2", vli.getId());
@@ -142,7 +143,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     void testVoltageViolationDetectionWithBusBarIds() {
         Network network = FourSubstationsNodeBreakerFactory.create();
         LimitViolationDetection.checkVoltage(network.getBusView().getBus("S1VL1_0"), 300,
-            violationsCollector::add, true);
+            violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
@@ -150,6 +151,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                 assertEquals(300, violationsCollector.get(0).getValue());
                 assertEquals(240, violationsCollector.get(0).getLimit());
                 Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
+                    .isPresent()
+                    .get()
                     .isInstanceOfSatisfying(NodeBreakerVoltageLocation.class,
                         vli -> {
                             assertEquals("S1VL1_BBS", vli.getId());

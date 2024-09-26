@@ -18,7 +18,6 @@
     },
     "limitViolations" : [ {
       "subjectId" : "vlId",
-      "voltageLevelId" : "vlId",
       "limitType" : "HIGH_SHORT_CIRCUIT_CURRENT",
       "limit" : 2000.0,
       "limitReduction" : 1.0,

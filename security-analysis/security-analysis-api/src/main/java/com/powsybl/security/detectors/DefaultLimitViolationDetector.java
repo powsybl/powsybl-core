@@ -8,13 +8,9 @@
 package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.*;
 
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -80,14 +76,25 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     @Override
     public void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
+        ViolationLocation voltageViolationLocation;
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            List<String> busbarIds = bus.getConnectedTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(BusbarSection.class::isInstance)
+                .map(Connectable::getId)
+                .toList();
+            voltageViolationLocation = new NodeBreakerVoltageLocation(vl.getId(), busbarIds);
+        } else {
+            voltageViolationLocation = new BusBreakerViolationLocation(vl.getId(), bus.getId());
+        }
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), limitReductionValue, value));
+                    vl.getLowVoltageLimit(), limitReductionValue, value, voltageViolationLocation));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), limitReductionValue, value));
+                    vl.getHighVoltageLimit(), limitReductionValue, value, voltageViolationLocation));
         }
     }
 

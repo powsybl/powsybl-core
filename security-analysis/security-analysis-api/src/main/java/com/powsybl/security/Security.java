@@ -77,14 +77,10 @@ public final class Security {
     }
 
     public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer) {
-        return checkLimits(network, currentLimitTypes, limitsComputer, false);
-    }
-
-    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, boolean detailLimitViolationId) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
         List<LimitViolation> violations = new ArrayList<>();
-        LimitViolationDetection.checkAll(network, currentLimitTypes, limitsComputer, violations::add, detailLimitViolationId);
+        LimitViolationDetection.checkAll(network, currentLimitTypes, limitsComputer, violations::add);
         return violations;
     }
 

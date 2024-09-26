@@ -120,15 +120,15 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-        ViolationLocation limitViolationId;
-        if (voltageLevelId == null || busId == null && busbarIds.isEmpty()) {
-            limitViolationId = new VoltageLevelViolationLocation(subjectId);
+        ViolationLocation limitViolationId = null;
+        if (voltageLevelId != null && busId == null && busbarIds.isEmpty()) {
+            limitViolationId = new VoltageLevelViolationLocation(voltageLevelId);
         } else if (busId != null && busbarIds.isEmpty()) {
             limitViolationId = new BusBreakerViolationLocation(voltageLevelId, busId);
-        } else {
+        } else if (busId == null && !busbarIds.isEmpty()) {
             limitViolationId = new NodeBreakerVoltageLocation(voltageLevelId, busbarIds);
         }
-        LimitViolation violation = new LimitViolation(limitViolationId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+        LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side, limitViolationId);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;

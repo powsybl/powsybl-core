@@ -31,35 +31,18 @@ public final class LimitViolationDetection {
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
-     * @param network             The network on which physical values must be checked.
-     * @param currentLimitTypes   The current limit type to consider.
-     * @param limitsComputer      The computer of the limit reductions to apply.
-     * @param consumer            Will be fed with possibly created limit violations.
-     */
-    public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
-                                LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer) {
-        checkAll(network, currentLimitTypes, limitsComputer, consumer, false);
-    }
-
-    /**
-     * Checks whether the current and voltage values on all equipments
-     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
-     * In case it should, feeds the consumer with it.
-     *
      * @param network                   The network on which physical values must be checked.
      * @param currentLimitTypes         The current limit type to consider.
      * @param limitsComputer            The computer of the limit reductions to apply.
      * @param consumer                  Will be fed with possibly created limit violations.
-     * @param detailLimitViolationId    add detail on limitViolation Id
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
-                                LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer,
-                                boolean detailLimitViolationId) {
+                                LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer) {
         network.getBranchStream().forEach(b -> checkCurrent(b, currentLimitTypes, limitsComputer, consumer));
         network.getThreeWindingsTransformerStream().forEach(t -> checkCurrent(t, currentLimitTypes, limitsComputer, consumer));
         network.getVoltageLevelStream()
             .flatMap(vl -> vl.getBusView().getBusStream())
-            .forEach(b -> checkVoltage(b, consumer, detailLimitViolationId));
+            .forEach(b -> checkVoltage(b, consumer));
         network.getVoltageAngleLimitsStream().forEach(valOk -> checkVoltageAngle(valOk, consumer));
     }
 
@@ -221,41 +204,27 @@ public final class LimitViolationDetection {
         checkVoltage(bus, value, consumer);
     }
 
-    private static void checkVoltage(Bus bus, Consumer<LimitViolation> consumer, boolean detailLimitViolationId) {
-        double value = bus.getV();
-        checkVoltage(bus, value, consumer, detailLimitViolationId);
-    }
-
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
-        checkVoltage(bus, value, consumer, false);
-    }
-
-    static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer, boolean detailLimitViolationId) {
         VoltageLevel vl = bus.getVoltageLevel();
-        ViolationLocation limitViolationId;
-        if (detailLimitViolationId) {
-            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-                List<String> busbarIds = bus.getConnectedTerminalStream()
-                    .map(Terminal::getConnectable)
-                    .filter(BusbarSection.class::isInstance)
-                    .map(Connectable::getId)
-                    .toList();
-                limitViolationId = new NodeBreakerVoltageLocation(vl.getId(), busbarIds);
-            } else {
-                limitViolationId = new BusBreakerViolationLocation(vl.getId(), bus.getId());
-            }
+        ViolationLocation voltageViolationLocation;
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            List<String> busbarIds = bus.getConnectedTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(BusbarSection.class::isInstance)
+                .map(Connectable::getId)
+                .toList();
+            voltageViolationLocation = new NodeBreakerVoltageLocation(vl.getId(), busbarIds);
         } else {
-            limitViolationId = new VoltageLevelViolationLocation(vl.getId());
+            voltageViolationLocation = new BusBreakerViolationLocation(vl.getId(), bus.getId());
         }
-
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
-            consumer.accept(new LimitViolation(limitViolationId, vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), 1., value));
+            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
+                    vl.getLowVoltageLimit(), 1., value, voltageViolationLocation));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
-            consumer.accept(new LimitViolation(limitViolationId, vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), 1., value));
+            consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
+                    vl.getHighVoltageLimit(), 1., value, voltageViolationLocation));
         }
     }
 
