@@ -16,7 +16,7 @@ public interface OutputVariable {
     enum OutputType {
         CURVE,
         /** Final state value **/
-        FSV
+        FINAL_STATE
     }
 
     String getModelId();

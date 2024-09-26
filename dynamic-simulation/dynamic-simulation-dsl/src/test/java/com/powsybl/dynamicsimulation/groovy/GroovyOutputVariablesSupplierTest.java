@@ -65,7 +65,7 @@ class GroovyOutputVariablesSupplierTest {
     private static void testCurveSupplier(List<OutputVariable> outputVariables) {
         assertThat(outputVariables).hasSize(3).containsExactly(
                 new DummyOutputVariable("id", "variable", OutputVariable.OutputType.CURVE),
-                new DummyOutputVariable("id", "variable", OutputVariable.OutputType.FSV),
+                new DummyOutputVariable("id", "variable", OutputVariable.OutputType.FINAL_STATE),
                 new DummyOutputVariable("LOAD", "p0", OutputVariable.OutputType.CURVE)
         );
     }

@@ -57,7 +57,7 @@ class DummyOutputVariableGroovyExtension implements OutputVariableGroovyExtensio
             cloned.delegate = variableSpec
             cloned()
             checkOutputVariableSpec(variableSpec)
-            consumer.accept(new DummyOutputVariable(variableSpec.id, variableSpec.variable, OutputVariable.OutputType.FSV))
+            consumer.accept(new DummyOutputVariable(variableSpec.id, variableSpec.variable, OutputVariable.OutputType.FINAL_STATE))
         }
     }
 }
