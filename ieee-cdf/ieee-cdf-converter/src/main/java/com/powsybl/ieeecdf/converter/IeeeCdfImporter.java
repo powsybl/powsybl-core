@@ -68,6 +68,11 @@ public class IeeeCdfImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return List.of(EXT);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
         return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
     }
@@ -80,7 +85,7 @@ public class IeeeCdfImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            if (dataSource.exists(null, EXT)) {
+            if (dataSource.isDataExtension(EXT) && dataSource.exists(null, EXT)) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, EXT)))) {
                     String titleLine = reader.readLine();
                     if (titleLine != null) {

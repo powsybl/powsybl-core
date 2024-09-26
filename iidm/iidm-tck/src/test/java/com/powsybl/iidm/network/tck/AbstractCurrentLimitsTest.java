@@ -11,13 +11,14 @@ import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
  */
-public abstract class AbstractCurrentLimitsTest {
+public abstract class AbstractCurrentLimitsTest extends AbstractIdenticalLimitsTest {
 
     private static Network createNetwork() {
         Network network = Network.create("test", "test");
@@ -396,19 +397,6 @@ public abstract class AbstractCurrentLimitsTest {
             // ignore
         }
 
-        try {
-            currentLimitsAdder.beginTemporaryLimit()
-                    .setAcceptableDuration(5 * 60)
-                    .setValue(1400.0)
-                    .setName("20'")
-                    .setFictitious(true)
-                    .endTemporaryLimit()
-                    .add();
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
-
         CurrentLimits currentLimits = currentLimitsAdder.beginTemporaryLimit()
                     .setName("5'")
                     .setAcceptableDuration(5 * 60)
@@ -477,6 +465,27 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
         assertEquals("TL#0", currentLimits.getTemporaryLimit(10 * 60).getName());
         assertEquals("TL#1", currentLimits.getTemporaryLimit(5 * 60).getName());
+    }
+
+    @Test
+    public void testNameDuplicationIsAllowed() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimits currentLimits = line.newCurrentLimits1()
+                .setPermanentLimit(100.0)
+                .beginTemporaryLimit()
+                    .setName("TL")
+                    .setAcceptableDuration(20 * 60)
+                    .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("TL")
+                    .setAcceptableDuration(10 * 60)
+                    .setValue(1400.0)
+                .endTemporaryLimit()
+                .add();
+
+        assertEquals("TL", currentLimits.getTemporaryLimit(20 * 60).getName());
+        assertEquals("TL", currentLimits.getTemporaryLimit(10 * 60).getName());
     }
 
     @Test
@@ -670,4 +679,109 @@ public abstract class AbstractCurrentLimitsTest {
         assertEquals(1, names.size());
         assertTrue(names.contains("TL1"));
     }
+
+    @Test
+    public void testAdderWithValueZero() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(0)
+                .beginTemporaryLimit()
+                    .setName("TEST")
+                    .setAcceptableDuration(Integer.MAX_VALUE)
+                    .setValue(0)
+                .endTemporaryLimit();
+        adder.add();
+        Optional<CurrentLimits> optionalLimits = line.getCurrentLimits(TwoSides.ONE);
+        assertTrue(optionalLimits.isPresent());
+        CurrentLimits limits = optionalLimits.get();
+        assertEquals(0, limits.getPermanentLimit());
+        assertEquals(0, limits.getTemporaryLimit(Integer.MAX_VALUE).getValue());
+    }
+
+    @Test
+    public void testAdderByCopy() {
+        // First limit
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+        CurrentLimits limits1 = line.getCurrentLimits1().get();
+
+        // Second limit
+        CurrentLimitsAdder adder2 = line.newCurrentLimits2(limits1);
+
+        adder2.add();
+
+        Optional<CurrentLimits> optionalLimits2 = line.getCurrentLimits2();
+        assertTrue(optionalLimits2.isPresent());
+        CurrentLimits limits2 = optionalLimits2.get();
+
+        // Tests
+        assertTrue(areLimitsIdentical(limits1, limits2));
+
+        adder = line.newCurrentLimits1(limits2);
+        adder.add();
+
+        assertTrue(areLimitsIdentical(limits1, limits2));
+    }
+
+    @Test
+    public void testSetTemporaryLimitValue() {
+        Line line = createNetwork().getLine("L");
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL2")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1400.0)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("TL3")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1600.0)
+                .endTemporaryLimit();
+        adder.add();
+
+        Optional<CurrentLimits> optionalLimits = line.getCurrentLimits(TwoSides.ONE);
+        assertTrue(optionalLimits.isPresent());
+        CurrentLimits limits = optionalLimits.get();
+
+        limits.setTemporaryLimitValue(20 * 60, 1050.0);
+        assertEquals(1050.0, limits.getTemporaryLimit(20 * 60).getValue());
+
+        limits.setTemporaryLimitValue(10 * 60, 1450.0);
+        assertEquals(1450.0, limits.getTemporaryLimit(10 * 60).getValue());
+
+        limits.setTemporaryLimitValue(5 * 60, 1750.0);
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+
+        // Tests with invalid values
+        assertEquals(1750.0, limits.getTemporaryLimit(5 * 60).getValue());
+        limits.setTemporaryLimitValue(5 * 60, 1250.0);
+        assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(7 * 60, 1550.0));
+        assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, Double.NaN));
+        assertThrows(ValidationException.class, () -> limits.setTemporaryLimitValue(5 * 60, -6.0));
+    }
 }
+
+

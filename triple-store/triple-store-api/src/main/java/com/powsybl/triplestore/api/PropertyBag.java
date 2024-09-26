@@ -167,8 +167,8 @@ public class PropertyBag extends HashMap<String, String> {
 
             // Performance : avoid using concat() -> use a StringBuilder instead.
             return new StringBuilder(title).append(lineSeparator).append(propertyNames.stream()
-                    .map(n -> new StringBuilder(INDENTATION).append(String.format(format, n)).append(" : ").append(getValue.apply(this, n)).toString())
-                    .collect(Collectors.joining(lineSeparator))).toString();
+                .map(n -> new StringBuilder(INDENTATION).append(String.format(format, n)).append(" : ").append(getValue.apply(this, n)).toString())
+                .collect(Collectors.joining(lineSeparator))).toString();
         }
         return "";
     }
@@ -182,7 +182,7 @@ public class PropertyBag extends HashMap<String, String> {
         // rdf:ID is the mRID plus an underscore added at the beginning of the string
         // We may decide if we want to preserve or not the underscore
         if (isIdentifier) {
-            if (removeInitialUnderscoreForIdentifiers && s1.length() > 0 && s1.charAt(0) == '_') {
+            if (removeInitialUnderscoreForIdentifiers && !s1.isEmpty() && s1.charAt(0) == '_') {
                 s1 = s1.substring(1);
             }
             if (decodeEscapedIdentifiers) {
@@ -202,10 +202,9 @@ public class PropertyBag extends HashMap<String, String> {
         if (this == obj) {
             return true;
         }
-        if (!(obj instanceof PropertyBag)) {
+        if (!(obj instanceof PropertyBag p)) {
             return false;
         }
-        PropertyBag p = (PropertyBag) obj;
         if (removeInitialUnderscoreForIdentifiers != p.removeInitialUnderscoreForIdentifiers) {
             return false;
         }

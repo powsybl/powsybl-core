@@ -18,7 +18,7 @@ import java.util.Map;
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, NodeCalcEvaluator.EvalContext> {
 
-    class EvalContext {
+    static class EvalContext {
         DoubleMultiPoint multiPoint;
         Map<NodeCalc, Double> cache;
 

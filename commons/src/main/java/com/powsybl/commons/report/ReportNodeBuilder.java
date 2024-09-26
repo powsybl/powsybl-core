@@ -7,12 +7,45 @@
  */
 package com.powsybl.commons.report;
 
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
 /**
  * A builder to create a {@link ReportNode} object.
  *
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
 public interface ReportNodeBuilder extends ReportNodeAdderOrBuilder<ReportNodeBuilder> {
+
+    /**
+     * Sets the pattern and the locale used for formatting timestamps (see {@link DateTimeFormatter#ofPattern(String, Locale)}}), if timestamps are enabled.
+     * If no pattern and locale are given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} and locale
+     * {@link ReportConstants#DEFAULT_TIMESTAMP_LOCALE} are used.
+     *
+     * @param timestampPattern : the pattern to use for the timestamp
+     * @param locale the locale to use for formatting the timestamp
+     * @return a reference to this object
+     */
+    ReportNodeBuilder withTimestampPattern(String timestampPattern, Locale locale);
+
+    /**
+     * Sets the pattern used for timestamps, if timestamps are enabled, with the default Locale {@link ReportConstants#DEFAULT_TIMESTAMP_LOCALE}.
+     * If no pattern is given, the default pattern {@link ReportConstants#DEFAULT_TIMESTAMP_PATTERN} is used.
+     *
+     * @param timestampPattern : the pattern to use for the timestamp (see {@link DateTimeFormatter#ofPattern(String, Locale)}})
+     * @return a reference to this object
+     */
+    default ReportNodeBuilder withTimestampPattern(String timestampPattern) {
+        return withTimestampPattern(timestampPattern, ReportConstants.DEFAULT_TIMESTAMP_LOCALE);
+    }
+
+    /**
+     * Enable timestamps on build ReportNode and all descendants.
+     * @return a reference to this object
+     */
+    ReportNodeBuilder withTimestamps(boolean enabled);
+
+
     /**
      * Build the corresponding {@link ReportNode}.
      * @return the new {@link ReportNode} corresponding to current <code>ReportNodeBuilder</code>

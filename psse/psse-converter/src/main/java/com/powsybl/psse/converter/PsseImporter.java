@@ -62,6 +62,11 @@ public class PsseImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return Arrays.asList(EXTENSIONS);
+    }
+
+    @Override
     public List<Parameter> getParameters() {
         return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
     }
@@ -83,7 +88,7 @@ public class PsseImporter implements Importer {
 
     private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.isDataExtension(ext) && dataSource.exists(null, ext)) {
                 return ext;
             }
         }

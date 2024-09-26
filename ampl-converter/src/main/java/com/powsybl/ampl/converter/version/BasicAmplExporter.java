@@ -13,6 +13,7 @@ import com.powsybl.ampl.converter.AmplSubset;
 import com.powsybl.ampl.converter.AmplUtil;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
+import com.powsybl.commons.io.table.TableFormatterHelper;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.ConnectedComponents;
@@ -41,10 +42,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
     private final int actionNum;
     private HashMap<String, HvdcLine> hvdcLinesMap;
 
-    public static AmplExportVersion.Factory getFactory() {
-        return BasicAmplExporter::new;
-    }
-
     public BasicAmplExporter(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
                              int variantIndex, int faultNum, int actionNum) {
 
@@ -54,11 +51,6 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         this.variantIndex = variantIndex;
         this.faultNum = faultNum;
         this.actionNum = actionNum;
-    }
-
-    @Override
-    public String getExporterId() {
-        return AmplExportVersion.V1_0.getExporterId();
     }
 
     @Override
@@ -623,17 +615,28 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double nomV = vl.getNominalV();
         double v = b.getV() / nomV;
         double theta = Math.toRadians(b.getAngle());
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(vlNum)
-            .writeCell(ccNum)
-            .writeCell(v)
-            .writeCell(theta)
-            .writeCell(b.getP())
-            .writeCell(b.getQ())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id);
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(vlNum)
+            .addCell(ccNum)
+            .addCell(v)
+            .addCell(theta)
+            .addCell(b.getP())
+            .addCell(b.getQ())
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id);
+
+        // Add cells if necessary
+        addAdditionalCellsBusesColumns(formatterHelper, b);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
+        // Nothing to do here
     }
 
     @Override
@@ -650,17 +653,30 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double angle = twt.getProperty("angle") == null ? Double.NaN :
             Math.toRadians(Double.parseDouble(twt.getProperty("angle")));
 
-        formatter.writeCell(variantIndex)
-            .writeCell(middleBusNum)
-            .writeCell(middleVlNum)
-            .writeCell(middleCcNum)
-            .writeCell(v)
-            .writeCell(angle)
-            .writeCell(0.0)
-            .writeCell(0.0)
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(middleBusId);
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(middleBusNum)
+            .addCell(middleVlNum)
+            .addCell(middleCcNum)
+            .addCell(v)
+            .addCell(angle)
+            .addCell(0.0)
+            .addCell(0.0)
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(middleBusId);
+
+        // Add cells if necessary
+        addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(formatterHelper, twt, middleCcNum);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
+                                                                             ThreeWindingsTransformer twt,
+                                                                             int middleCcNum) {
+        // Nothing to do here
     }
 
     @Override
@@ -678,17 +694,30 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double nomV = t.getVoltageLevel().getNominalV();
         double v = sv.getU() / nomV;
         double theta = Math.toRadians(sv.getA());
-        formatter.writeCell(variantIndex)
-            .writeCell(middleBusNum)
-            .writeCell(middleVlNum)
-            .writeCell(middleCcNum)
-            .writeCell(v)
-            .writeCell(theta)
-            .writeCell(0.0) // 0 MW injected at dangling line internal bus
-            .writeCell(0.0) // 0 MVar injected at dangling line internal bus
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(middleBusId);
+
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(middleBusNum)
+            .addCell(middleVlNum)
+            .addCell(middleCcNum)
+            .addCell(v)
+            .addCell(theta)
+            .addCell(0.0) // 0 MW injected at dangling line internal bus
+            .addCell(0.0) // 0 MVar injected at dangling line internal bus
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(middleBusId);
+
+        // Add cells if necessary
+        addAdditionalCellsDanglingLineMiddleBuses(formatterHelper, dl, middleCcNum);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
+                                                          int middleCcNum) {
+        // Nothing to do here
     }
 
     @Override
@@ -697,17 +726,30 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
         int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
         int xNodeVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
-        formatter.writeCell(variantIndex)
-            .writeCell(xNodeBusNum)
-            .writeCell(xNodeVlNum)
-            .writeCell(xNodeCcNum)
-            .writeCell(Float.NaN)
-            .writeCell(Double.NaN)
-            .writeCell(0.0)
-            .writeCell(0.0)
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(xNodeBusId);
+
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(xNodeBusNum)
+            .addCell(xNodeVlNum)
+            .addCell(xNodeCcNum)
+            .addCell(Float.NaN)
+            .addCell(Double.NaN)
+            .addCell(0.0)
+            .addCell(0.0)
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(xNodeBusId);
+
+        // Add cells if necessary
+        addAdditionalCellsTieLineMiddleBuses(formatterHelper, tieLine, xNodeCcNum);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsTieLineMiddleBuses(TableFormatterHelper formatterHelper, TieLine tieLine,
+                                                     int xNodeCcNum) {
+        // Nothing to do here
     }
 
     @Override
@@ -724,8 +766,33 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int num = mapper.getInt(AmplSubset.BRANCH, id);
         int vl1Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl1.getId());
         int vl2Num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl2.getId());
-        double vb = vl1.getNominalV();
-        double zb = vb * vb / AmplConstants.SB;
+        double zSquare = l.getR() * l.getR() + l.getX() * l.getX();
+        double r;
+        double x;
+        double g1;
+        double g2;
+        double b1;
+        double b2;
+        if (zSquare == 0) {
+            r = 0;
+            x = 0;
+            g1 = 0;
+            g2 = 0;
+            b1 = 0;
+            b2 = 0;
+        } else {
+            double g = l.getR() / zSquare;
+            double b = -l.getX() / zSquare;
+            double vb1 = vl1.getNominalV();
+            double vb2 = vl2.getNominalV();
+            double zb = vb1 * vb2 / AmplConstants.SB;
+            r = l.getR() / zb;
+            x = l.getX() / zb;
+            g1 = (l.getG1() * vb1 * vb1 + g * vb1 * (vb1 - vb2)) / AmplConstants.SB;
+            g2 = (l.getG2() * vb2 * vb2 + g * vb2 * (vb2 - vb1)) / AmplConstants.SB;
+            b1 = (l.getB1() * vb1 * vb1 + b * vb1 * (vb1 - vb2)) / AmplConstants.SB;
+            b2 = (l.getB2() * vb2 * vb2 + b * vb2 * (vb2 - vb1)) / AmplConstants.SB;
+        }
 
         formatter.writeCell(variantIndex)
             .writeCell(num)
@@ -734,12 +801,12 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             .writeCell(-1)
             .writeCell(vl1Num)
             .writeCell(vl2Num)
-            .writeCell(l.getR() / zb)
-            .writeCell(l.getX() / zb)
-            .writeCell(l.getG1() * zb)
-            .writeCell(l.getG2() * zb)
-            .writeCell(l.getB1() * zb)
-            .writeCell(l.getB2() * zb)
+            .writeCell(r)
+            .writeCell(x)
+            .writeCell(g1)
+            .writeCell(g2)
+            .writeCell(b1)
+            .writeCell(b2)
             .writeCell(1f) // constant ratio
             .writeCell(-1) // no ratio tap changer
             .writeCell(-1) // no phase tap changer
@@ -1194,29 +1261,40 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double maxP = gen.getMaxP();
         double vb = gen.getRegulatingTerminal().getVoltageLevel().getNominalV();
 
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum != -1 ? conBusNum : busNum)
-            .writeCell(vlNum)
-            .writeCell(minP)
-            .writeCell(maxP)
-            .writeCell(gen.getReactiveLimits().getMinQ(maxP))
-            .writeCell(gen.getReactiveLimits().getMinQ(0))
-            .writeCell(gen.getReactiveLimits().getMinQ(minP))
-            .writeCell(gen.getReactiveLimits().getMaxQ(maxP))
-            .writeCell(gen.getReactiveLimits().getMaxQ(0))
-            .writeCell(gen.getReactiveLimits().getMaxQ(minP))
-            .writeCell(gen.isVoltageRegulatorOn())
-            .writeCell(gen.getTargetV() / vb)
-            .writeCell(gen.getTargetP())
-            .writeCell(gen.getTargetQ())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id)
-            .writeCell(gen.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(busNum)
+            .addCell(conBusNum != -1 ? conBusNum : busNum)
+            .addCell(vlNum)
+            .addCell(minP)
+            .addCell(maxP)
+            .addCell(gen.getReactiveLimits().getMinQ(maxP))
+            .addCell(gen.getReactiveLimits().getMinQ(0))
+            .addCell(gen.getReactiveLimits().getMinQ(minP))
+            .addCell(gen.getReactiveLimits().getMaxQ(maxP))
+            .addCell(gen.getReactiveLimits().getMaxQ(0))
+            .addCell(gen.getReactiveLimits().getMaxQ(minP))
+            .addCell(gen.isVoltageRegulatorOn())
+            .addCell(gen.getTargetV() / vb)
+            .addCell(gen.getTargetP())
+            .addCell(gen.getTargetQ())
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id)
+            .addCell(gen.getNameOrId())
+            .addCell(t.getP())
+            .addCell(t.getQ());
+
+        // Add cells if necessary
+        addAdditionalCellsGenerator(formatterHelper, gen);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
+        // Nothing to do here
     }
 
     @Override
@@ -1270,23 +1348,35 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double zb = vb * vb / AmplConstants.SB; // Base impedance
 
         int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell(busNum)
-            .writeCell(conBusNum)
-            .writeCell(vlNum)
-            .writeCell(svc.getBmin() * zb)
-            .writeCell(svc.getBmax() * zb)
-            .writeCell(svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
-            .writeCell(vlSet / vb)
-            .writeCell(svc.getReactivePowerSetpoint())
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(id)
-            .writeCell(svc.getNameOrId())
-            .writeCell(t.getP())
-            .writeCell(t.getQ());
 
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell(busNum)
+            .addCell(conBusNum)
+            .addCell(vlNum)
+            .addCell(svc.getBmin() * zb)
+            .addCell(svc.getBmax() * zb)
+            .addCell(svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE))
+            .addCell(vlSet / vb)
+            .addCell(svc.getReactivePowerSetpoint())
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(id)
+            .addCell(svc.getNameOrId())
+            .addCell(t.getP())
+            .addCell(t.getQ());
+
+        // Add cells if necessary
+        addAdditionalCellsStaticVarCompensator(formatterHelper, svc);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
+                                                       StaticVarCompensator svc) {
+        // Nothing to do here
     }
 
     @Override
@@ -1298,18 +1388,31 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double nomV = vl.getNominalV();
         double minV = vl.getLowVoltageLimit() / nomV;
         double maxV = vl.getHighVoltageLimit() / nomV;
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell("")
-            .writeCell(0)
-            .writeCell(nomV)
-            .writeCell(minV)
-            .writeCell(maxV)
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
-            .writeCell(dl.getId() + "_voltageLevel")
-            .writeCell("");
+
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell("")
+            .addCell(0)
+            .addCell(nomV)
+            .addCell(minV)
+            .addCell(maxV)
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
+            .addCell(dl.getId() + "_voltageLevel")
+            .addCell("");
+
+        // Add cells if necessary
+        addAdditionalCellsDanglingLineVoltageLevel(formatterHelper, dl);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsDanglingLineVoltageLevel(TableFormatterHelper formatterHelper,
+                                                           DanglingLine dl) {
+        // Nothing to do here
     }
 
     @Override
@@ -1317,24 +1420,37 @@ public class BasicAmplExporter implements AmplColumnsExporter {
                                                                      ThreeWindingsTransformer twt) throws IOException {
         String vlId = AmplUtil.getThreeWindingsTransformerMiddleVoltageLevelId(twt);
         int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
-        formatter.writeCell(variantIndex)
-            .writeCell(num)
-            .writeCell("")
-            .writeCell(0)
-            .writeCell(twt.getRatedU0())
-            .writeCell(Float.NaN)
-            .writeCell(Float.NaN)
-            .writeCell(faultNum)
-            .writeCell(actionNum)
-            .writeCell(twt.getLeg1()
+
+        TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+        formatterHelper.addCell(variantIndex)
+            .addCell(num)
+            .addCell("")
+            .addCell(0)
+            .addCell(twt.getRatedU0())
+            .addCell(Float.NaN)
+            .addCell(Float.NaN)
+            .addCell(faultNum)
+            .addCell(actionNum)
+            .addCell(twt.getLeg1()
                 .getTerminal()
                 .getVoltageLevel()
                 .getSubstation()
                 .flatMap(Substation::getCountry)
                 .map(Enum::toString)
                 .orElse(""))
-            .writeCell(vlId)
-            .writeCell("");
+            .addCell(vlId)
+            .addCell("");
+
+        // Add cells if necessary
+        addAdditionalCellsThreeWindingsTransformerVoltageLevel(formatterHelper, twt);
+
+        // Write the cells
+        formatterHelper.write();
+    }
+
+    public void addAdditionalCellsThreeWindingsTransformerVoltageLevel(TableFormatterHelper formatterHelper,
+                                                                       ThreeWindingsTransformer twt) {
+        // Nothing to do here
     }
 
     private void writeRatioTapChanger(TableFormatter formatter, String id, double zb2, double reactance,
@@ -1344,15 +1460,28 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
             RatioTapChangerStep step = rtc.getStep(position);
             double x = reactance * (1 + step.getX() / 100) / zb2;
-            formatter.writeCell(variantIndex)
-                .writeCell(num)
-                .writeCell(position - rtc.getLowTapPosition() + 1)
-                .writeCell(step.getRho())
-                .writeCell(x)
-                .writeCell(0.0)
-                .writeCell(faultNum)
-                .writeCell(actionNum);
+            TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+            formatterHelper.addCell(variantIndex)
+                .addCell(num)
+                .addCell(position - rtc.getLowTapPosition() + 1)
+                .addCell(step.getRho())
+                .addCell(x)
+                .addCell(0.0)
+                .addCell(faultNum)
+                .addCell(actionNum);
+
+            // Add cells if necessary
+            addAdditionalCellsRatioTapChangerStep(formatterHelper, id, zb2, reactance, rtc);
+
+            // Write the cells
+            formatterHelper.write();
         }
+    }
+
+    public void addAdditionalCellsRatioTapChangerStep(TableFormatterHelper formatterHelper,
+                                                      String id, double zb2, double reactance,
+                                                      RatioTapChanger rtc) {
+        // Nothing to do here
     }
 
     private void writePhaseTapChanger(TableFormatter formatter, String id, double zb2, double reactance,
@@ -1362,15 +1491,28 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
             PhaseTapChangerStep step = ptc.getStep(position);
             double x = reactance * (1 + step.getX() / 100) / zb2;
-            formatter.writeCell(variantIndex)
-                .writeCell(num)
-                .writeCell(position - ptc.getLowTapPosition() + 1)
-                .writeCell(step.getRho())
-                .writeCell(x)
-                .writeCell(Math.toRadians(step.getAlpha()))
-                .writeCell(faultNum)
-                .writeCell(actionNum);
+            TableFormatterHelper formatterHelper = new TableFormatterHelper(formatter);
+            formatterHelper.addCell(variantIndex)
+                .addCell(num)
+                .addCell(position - ptc.getLowTapPosition() + 1)
+                .addCell(step.getRho())
+                .addCell(x)
+                .addCell(Math.toRadians(step.getAlpha()))
+                .addCell(faultNum)
+                .addCell(actionNum);
+
+            // Add cells if necessary
+            addAdditionalCellsPhaseTapChangerStep(formatterHelper, id, zb2, reactance, ptc);
+
+            // Write the cells
+            formatterHelper.write();
         }
+    }
+
+    public void addAdditionalCellsPhaseTapChangerStep(TableFormatterHelper formatterHelper,
+                                                      String id, double zb2, double reactance,
+                                                      PhaseTapChanger ptc) {
+        // Nothing to do here
     }
 
     private void writeTemporaryCurrentLimits(CurrentLimits limits, TableFormatter formatter, String branchId,
@@ -1422,5 +1564,29 @@ public class BasicAmplExporter implements AmplColumnsExporter {
             return limits.getPermanentLimit();
         }
         return Double.NaN;
+    }
+
+    public AmplExportConfig getConfig() {
+        return config;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public StringToIntMapper<AmplSubset> getMapper() {
+        return mapper;
+    }
+
+    public int getVariantIndex() {
+        return variantIndex;
+    }
+
+    public int getFaultNum() {
+        return faultNum;
+    }
+
+    public int getActionNum() {
+        return actionNum;
     }
 }

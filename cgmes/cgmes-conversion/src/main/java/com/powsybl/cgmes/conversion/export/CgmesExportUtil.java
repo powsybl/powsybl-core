@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference;
 import com.powsybl.cgmes.conversion.naming.CgmesObjectReference.Part;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
@@ -18,8 +19,10 @@ import com.powsybl.cgmes.model.CgmesMetadataModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.report.TypedValue;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +50,11 @@ public final class CgmesExportUtil {
     private CgmesExportUtil() {
     }
 
+    public static final String REPORT_NODE_KEY_EXPORTED_CGMES_ID = "ExportedCgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_ID = "cgmesId";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_SUBSET = "cgmesSubset";
+    public static final String REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID = "networkId";
+
     // Avoid trailing zeros and format always using US locale
 
     private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
@@ -69,8 +77,10 @@ public final class CgmesExportUtil {
 
     public static String format(double value, double defaultValue) {
         // Always use scientific format for extreme values
-        if (value == Double.MAX_VALUE || value == -Double.MAX_VALUE) {
-            return scientificFormat(value, defaultValue);
+        if (value >= Float.MAX_VALUE || value <= -Float.MAX_VALUE) {
+            // CIMXML expects xsd:float values
+            float value1 = value >= Float.MAX_VALUE ? Float.MAX_VALUE : -Float.MAX_VALUE;
+            return scientificFormat(value1, defaultValue);
         }
         return DOUBLE_FORMAT.format(fixValue(value, defaultValue));
     }
@@ -114,24 +124,34 @@ public final class CgmesExportUtil {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
+    public static void initializeModelId(Network network, CgmesMetadataModel model, CgmesExportContext context) {
         // The ref to build a unique model id must contain:
         // the network, the subset (EQ, SSH, SV, ...), the time of the scenario, the version, the business process and the FULL_MODEL part
         // If we use name-based UUIDs this ensures that the UUID for the model will be specific enough
         CgmesObjectReference[] modelRef = {
             refTyped(network),
-            ref(subset),
+            ref(model.getSubset()),
             ref(DATE_TIME_FORMATTER.format(context.getScenarioTime())),
-            ref(format(modelDescription.getVersion())),
+            ref(String.valueOf(model.getVersion())),
             ref(context.getBusinessProcess()),
             Part.FULL_MODEL};
         String modelId = "urn:uuid:" + context.getNamingStrategy().getCgmesId(modelRef);
-        modelDescription.setId(modelId);
-        context.updateDependencies();
+        model.setId(modelId);
+    }
 
+    public static void writeModelDescription(Network network, CgmesSubset subset, XMLStreamWriter writer, CgmesMetadataModel modelDescription, CgmesExportContext context) throws XMLStreamException {
+        if (modelDescription.getId() == null || modelDescription.getId().isEmpty()) {
+            initializeModelId(network, modelDescription, context);
+        }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelId);
-        context.getReportNode().newReportNode().withMessageTemplate("CgmesId", modelId).add();
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, modelDescription.getId());
+        // Report the exported CGMES model identifiers
+        context.getReportNode().newReportNode()
+                .withMessageTemplate(REPORT_NODE_KEY_EXPORTED_CGMES_ID, "CGMES exported model identifier: ${cgmesId} for subset ${cgmesSubset} of network ${networkId}")
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_ID, modelDescription.getId(), TypedValue.URN_UUID)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_SUBSET, subset.getIdentifier(), TypedValue.CGMES_SUBSET)
+                .withTypedValue(REPORT_VALUE_EXPORTED_CGMES_NETWORK_ID, network.getId(), TypedValue.ID)
+                .add();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(DATE_TIME_FORMATTER.format(context.getScenarioTime()));
         writer.writeEndElement();
@@ -271,10 +291,6 @@ public final class CgmesExportUtil {
             case BREAKER -> "Breaker";
             case DISCONNECTOR -> "Disconnector";
             case LOAD_BREAK_SWITCH -> "LoadBreakSwitch";
-            default -> {
-                LOG.warn("It is not possible to determine the type of switch from kind {}", kind);
-                yield "Switch";
-            }
         };
     }
 
@@ -386,7 +402,7 @@ public final class CgmesExportUtil {
     }
 
     static boolean regulatingControlIsDefined(RatioTapChanger rtc) {
-        return !Double.isNaN(rtc.getTargetV())
+        return !Double.isNaN(rtc.getRegulationValue())
                 && !Double.isNaN(rtc.getTargetDeadband())
                 && rtc.getRegulationTerminal() != null;
     }
@@ -493,6 +509,68 @@ public final class CgmesExportUtil {
             kind = originalKind != null && (originalKind.equals(GENERATOR_OR_MOTOR) || originalKind.equals("generatorOrCondenserOrMotor")) ? originalKind : "generatorOrCondenserOrMotor";
         }
         return kind;
+    }
+
+    public static boolean isValidVoltageSetpoint(double v) {
+        return Double.isFinite(v) && v > 0;
+    }
+
+    public static boolean isValidReactivePowerSetpoint(double q) {
+        return Double.isFinite(q);
+    }
+
+    public static String getGeneratorRegulatingControlMode(Generator generator, RemoteReactivePowerControl rrpc) {
+        if (rrpc == null) {
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        }
+        boolean enabledVoltageControl = generator.isVoltageRegulatorOn();
+        boolean enabledReactivePowerControl = rrpc.isEnabled();
+
+        if (enabledVoltageControl) {
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        } else if (enabledReactivePowerControl) {
+            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+        } else {
+            boolean validVoltageSetpoint = isValidVoltageSetpoint(generator.getTargetV());
+            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(rrpc.getTargetQ());
+            if (validReactiveSetpoint && !validVoltageSetpoint) {
+                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            }
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        }
+    }
+
+    public static String getSvcMode(StaticVarCompensator svc) {
+        if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE)) {
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        } else if (svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.REACTIVE_POWER)) {
+            return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+        } else {
+            boolean validVoltageSetpoint = isValidVoltageSetpoint(svc.getVoltageSetpoint());
+            boolean validReactiveSetpoint = isValidReactivePowerSetpoint(svc.getReactivePowerSetpoint());
+            if (validReactiveSetpoint && !validVoltageSetpoint) {
+                return RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+            }
+            return RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+        }
+    }
+
+    public static String getTcMode(RatioTapChanger rtc) {
+        if (rtc.getRegulationMode() == null) {
+            throw new PowsyblException("Regulation mode not defined for RTC.");
+        }
+        return switch (rtc.getRegulationMode()) {
+            case VOLTAGE -> RegulatingControlEq.REGULATING_CONTROL_VOLTAGE;
+            case REACTIVE_POWER -> RegulatingControlEq.REGULATING_CONTROL_REACTIVE_POWER;
+        };
+    }
+
+    public static String getPhaseTapChangerRegulationMode(PhaseTapChanger ptc) {
+        return switch (ptc.getRegulationMode()) {
+            case CURRENT_LIMITER -> RegulatingControlEq.REGULATING_CONTROL_CURRENT_FLOW;
+            case ACTIVE_POWER_CONTROL -> RegulatingControlEq.REGULATING_CONTROL_ACTIVE_POWER;
+            default -> throw new PowsyblException("Unexpected regulation mode: " + ptc.getRegulationMode());
+        };
     }
 
     public static boolean isMinusOrMaxValue(double value) {

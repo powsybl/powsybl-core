@@ -350,6 +350,8 @@ public final class NetworkSerDe {
         writeLines(n, context);
         writeTieLines(n, context);
         writeHvdcLines(n, context);
+
+        IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_13, context, () -> writeAreas(n, context));
     }
 
     private static void writeSubnetworks(Network n, NetworkSerializerContext context) {
@@ -358,6 +360,18 @@ public final class NetworkSerDe {
             IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelSerDe.ROOT_ELEMENT_NAME,
                     IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_11, context);
             write(subnetwork, context);
+        }
+        context.getWriter().writeEndNodes();
+    }
+
+    private static void writeAreas(Network n, NetworkSerializerContext context) {
+        context.getWriter().writeStartNodes();
+        for (Area area : IidmSerDeUtil.sorted(n.getAreas(), context.getOptions())) {
+            if (isElementWrittenInsideNetwork(area, n, context)) {
+                IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                        IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
+                AreaSerDe.INSTANCE.write(area, n, context);
+            }
         }
         context.getWriter().writeEndNodes();
     }
@@ -556,7 +570,9 @@ public final class NetworkSerDe {
                 Map.entry(AbstractSwitchSerDe.ARRAY_ELEMENT_NAME, AbstractSwitchSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(AbstractTransformerSerDe.STEP_ARRAY_ELEMENT_NAME, AbstractTransformerSerDe.STEP_ROOT_ELEMENT_NAME),
                 Map.entry(AliasesSerDe.ARRAY_ELEMENT_NAME, AliasesSerDe.ROOT_ELEMENT_NAME),
+                Map.entry(AreaSerDe.ARRAY_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BatterySerDe.ARRAY_ELEMENT_NAME, BatterySerDe.ROOT_ELEMENT_NAME),
+                Map.entry(AreaBoundarySerDe.ARRAY_ELEMENT_NAME, AreaBoundarySerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusSerDe.ARRAY_ELEMENT_NAME, BusSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(BusbarSectionSerDe.ARRAY_ELEMENT_NAME, BusbarSectionSerDe.ROOT_ELEMENT_NAME),
                 Map.entry(ConnectableSerDeUtil.TEMPORARY_LIMITS_ARRAY_ELEMENT_NAME, ConnectableSerDeUtil.TEMPORARY_LIMITS_ROOT_ELEMENT_NAME),
@@ -617,6 +633,7 @@ public final class NetworkSerDe {
             case AliasesSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadAlias(networks.peek(), context);
             case PropertiesSerDe.ROOT_ELEMENT_NAME -> PropertiesSerDe.read(networks.peek(), context);
             case NETWORK_ROOT_ELEMENT_NAME -> checkSupportedAndReadSubnetwork(networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound);
+            case AreaSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadArea(context, networks);
             case VoltageLevelSerDe.ROOT_ELEMENT_NAME -> checkSupportedAndReadVoltageLevel(context, networks);
             case SubstationSerDe.ROOT_ELEMENT_NAME -> SubstationSerDe.INSTANCE.read(networks.peek(), context);
             case LineSerDe.ROOT_ELEMENT_NAME -> LineSerDe.INSTANCE.read(networks.peek(), context);
@@ -648,6 +665,12 @@ public final class NetworkSerDe {
                 elementName -> readNetworkElement(elementName, networks, networkFactory, context, extensionNamesImported, extensionNamesNotFound));
         // Pop the subnetwork. We will now work with its parent.
         networks.pop();
+    }
+
+    private static void checkSupportedAndReadArea(NetworkDeserializerContext context, Deque<Network> networks) {
+        IidmSerDeUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, AreaSerDe.ROOT_ELEMENT_NAME,
+                IidmSerDeUtil.ErrorMessage.NOT_SUPPORTED, IidmVersion.V_1_13, context);
+        AreaSerDe.INSTANCE.read(networks.peek(), context);
     }
 
     private static void checkSupportedAndReadVoltageLevel(NetworkDeserializerContext context, Deque<Network> networks) {
@@ -851,6 +874,33 @@ public final class NetworkSerDe {
     }
 
     public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor) {
+        return copy(network, networkFactory, executor, TreeDataFormat.JSON);
+    }
+
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network the network to copy
+     * @param format the converter to use to export/import the network
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, TreeDataFormat format) {
+        return copy(network, NetworkFactory.findDefault(), format);
+    }
+
+    /**
+     * Deep copy of the network using the specified converter
+     *
+     * @param network        the network to copy
+     * @param networkFactory the network factory to use for the copy
+     * @param format the converter to use to export/import the network
+     * @return the copy of the network
+     */
+    public static Network copy(Network network, NetworkFactory networkFactory, TreeDataFormat format) {
+        return copy(network, networkFactory, ForkJoinPool.commonPool(), format);
+    }
+
+    public static Network copy(Network network, NetworkFactory networkFactory, ExecutorService executor, TreeDataFormat format) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(networkFactory);
         Objects.requireNonNull(executor);
@@ -858,7 +908,7 @@ public final class NetworkSerDe {
         try (InputStream is = new PipedInputStream(pos)) {
             executor.execute(() -> {
                 try {
-                    write(network, pos);
+                    write(network, new ExportOptions().setFormat(format), pos);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 } finally {
@@ -869,7 +919,7 @@ public final class NetworkSerDe {
                     }
                 }
             });
-            return read(is, new ImportOptions(), null, networkFactory, ReportNode.NO_OP);
+            return read(is, new ImportOptions().setFormat(format), null, networkFactory, ReportNode.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -31,9 +31,19 @@ public class ReportNodeSerializer extends StdSerializer<ReportNode> {
     @Override
     public void serialize(ReportNode reportNode, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
+
         generator.writeStringField("version", ReportConstants.CURRENT_VERSION.toString());
+
+        generator.writeFieldName("dictionaries");
+        generator.writeStartObject();
+        generator.writeObjectField("default", reportNode.getTreeContext().getDictionary());
+        generator.writeEndObject();
+
         generator.writeFieldName("reportRoot");
+        generator.writeStartObject();
         reportNode.writeJson(generator);
+        generator.writeEndObject();
+
         generator.writeEndObject();
     }
 

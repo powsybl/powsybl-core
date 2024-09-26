@@ -52,6 +52,11 @@ public class ConnectVoltageLevelOnLine extends AbstractLineConnectionModificatio
     }
 
     @Override
+    public String getName() {
+        return "ConnectVoltageLevelOnLine";
+    }
+
+    @Override
     public void apply(Network network, NamingStrategy namingStrategy, boolean throwException,
                       ComputationManager computationManager, ReportNode reportNode) {
         // Checks

@@ -24,7 +24,6 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.serde.IidmSerDeConstants.CURRENT_IIDM_VERSION;
@@ -38,7 +37,7 @@ class BranchObservabilityXmlTest extends AbstractIidmSerDeTest {
     private static List<IidmVersion> fromMinToCurrentVersion(IidmVersion min) {
         return Stream.of(IidmVersion.values())
                 .filter(v -> v.compareTo(min) >= 0)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Test

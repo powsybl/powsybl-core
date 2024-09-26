@@ -12,7 +12,10 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
+
 import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,6 +84,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(2.3, leg1.getB(), 0.0);
         leg1.setRatedS(2.4);
         assertEquals(2.4, leg1.getRatedS(), 0.0);
+        assertEquals("twt", leg1.getTransformer().getId());
 
         // leg2/3 adder
         ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
@@ -1036,5 +1040,69 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setConnectableBus("busB")
             .add()
             .add();
+    }
+
+    @Test
+    public void testAdderByCopy() {
+        // First limit
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+
+        CurrentLimitsAdder currentLimitsAdder1 = leg1.newCurrentLimits()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit();
+        currentLimitsAdder1.add();
+
+        ActivePowerLimitsAdder activePowerLimitsAdder1 = leg1.newActivePowerLimits()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit();
+        activePowerLimitsAdder1.add();
+
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder1 = leg1.newApparentPowerLimits()
+                .setPermanentLimit(1000.)
+                .beginTemporaryLimit()
+                .setName("TL1")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200.0)
+                .endTemporaryLimit();
+        apparentPowerLimitsAdder1.add();
+
+        CurrentLimits currentLimits1 = leg1.getCurrentLimits().get();
+        ActivePowerLimits activePowerLimits1 = leg1.getActivePowerLimits().get();
+        ApparentPowerLimits apparentPowerLimits1 = leg1.getApparentPowerLimits().get();
+
+        CurrentLimitsAdder currentLimitsAdder2 = leg2.newCurrentLimits(currentLimits1);
+        currentLimitsAdder2.add();
+        Optional<CurrentLimits> optionalCurrentLimits2 = leg2.getCurrentLimits();
+        assertTrue(optionalCurrentLimits2.isPresent());
+        CurrentLimits currentLimits2 = optionalCurrentLimits2.get();
+
+        ActivePowerLimitsAdder activePowerLimitsAdder2 = leg2.newActivePowerLimits(activePowerLimits1);
+        activePowerLimitsAdder2.add();
+        Optional<ActivePowerLimits> optionalActivePowerLimits2 = leg2.getActivePowerLimits();
+        assertTrue(optionalActivePowerLimits2.isPresent());
+        ActivePowerLimits activePowerLimits2 = optionalActivePowerLimits2.get();
+
+        ApparentPowerLimitsAdder apparentPowerLimitsAdder2 = leg2.newApparentPowerLimits(apparentPowerLimits1);
+        apparentPowerLimitsAdder2.add();
+        Optional<ApparentPowerLimits> optionalApparentPowerLimits2 = leg2.getApparentPowerLimits();
+        assertTrue(optionalApparentPowerLimits2.isPresent());
+        ApparentPowerLimits apparentPowerLimits2 = optionalApparentPowerLimits2.get();
+
+        // Tests
+        assertTrue(areLimitsIdentical(currentLimits1, currentLimits2));
+        assertTrue(areLimitsIdentical(activePowerLimits1, activePowerLimits2));
+        assertTrue(areLimitsIdentical(apparentPowerLimits1, apparentPowerLimits2));
+
     }
 }

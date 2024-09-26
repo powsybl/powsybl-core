@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.computation.ComputationManager;
 import org.slf4j.Logger;
@@ -29,6 +30,11 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
 
     public RemoveVoltageLevel(String voltageLevelId) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+    }
+
+    @Override
+    public String getName() {
+        return "RemoveVoltageLevel";
     }
 
     @Override
@@ -65,4 +71,12 @@ public class RemoveVoltageLevel extends AbstractNetworkModification {
         LOGGER.info("Voltage level {}, its equipments and the branches it is connected to have been removed", voltageLevelId);
     }
 
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (network.getVoltageLevel(voltageLevelId) == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        }
+        return impact;
+    }
 }

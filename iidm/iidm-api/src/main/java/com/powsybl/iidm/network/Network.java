@@ -320,10 +320,16 @@ public interface Network extends Container<Network> {
         return read(dataSource, properties, ReportNode.NO_OP);
     }
 
-    static Network read(ReadOnlyDataSource dataSource, Properties properties, ReportNode reportNode) {
-        Importer importer = Importer.find(dataSource);
+    static Network read(ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        return read(dataSource, LocalComputationManager.getDefault(), ImportConfig.load(), parameters, NetworkFactory.findDefault(),
+                new ImportersServiceLoader(), reportNode);
+    }
+
+    static Network read(ReadOnlyDataSource dataSource, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                        NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
+        Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
-            return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reportNode);
+            return importer.importData(dataSource, networkFactory, parameters, reportNode);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }
@@ -617,6 +623,48 @@ public interface Network extends Container<Network> {
      * Get the country count.
      */
     int getCountryCount();
+
+    /**
+     * Get all areaTypes.
+     */
+    Iterable<String> getAreaTypes();
+
+    /**
+     * Get all areaTypes.
+     */
+    Stream<String> getAreaTypeStream();
+
+    /**
+     * Get the areaType count.
+     */
+    int getAreaTypeCount();
+
+    /**
+     * Get a builder to create a new area.
+     * @return a builder to create a new area
+     */
+    AreaAdder newArea();
+
+    /**
+     * @return all existing areas, which may include several areas for each area type
+     */
+    Iterable<Area> getAreas();
+
+    /**
+     * @return all existing areas, which may include several areas for each area type
+     */
+    Stream<Area> getAreaStream();
+
+    /**
+     * Get an area.
+     * @param id the id or an alias of the area
+     */
+    Area getArea(String id);
+
+    /**
+     * Get the area count.
+     */
+    int getAreaCount();
 
     /**
      * Get a builder to create a new substation.
@@ -1344,6 +1392,40 @@ public interface Network extends Container<Network> {
     boolean isBoundaryElement(Identifiable<?> identifiable);
 
     /**
+     * <p>Remove the subnetworks structure from the current network.</p>
+     * <ul>
+     *     <li>If the current network is a subnetwork of another network, this method throws a {@link UnsupportedOperationException}.</li>
+     *     <li>If the current network doesn't contains any subnetworks, the network is unchanged by this method.</li>
+     *     <li>If the current network contains one or several subnetworks, all the subnetworks' elements will be "moved"
+     *     into the current network and the subnetworks (thus emptied) will be removed.</li>
+     * </ul>
+     * <p>Subnetworks' extensions and properties are transferred to the flatten network.</p>
+     * <p>Note that subnetworks are integrated in the whole network following the same order they were merged.
+     * For each one, only the properties and the extensions which are not already present in the currently flattened network
+     * (i.e same name for properties or same type for extensions) are transferred. If a duplicate is detected,
+     * this latter is not transferred and will remain in its original subnetwork at the end of the flattening operation.
+     * It is thus possible to retrieve potential duplicates and to handle them manually.</p>
+     *<p>For instance, if:
+     * <ul>
+     *     <li>{@code n0} has 2 subnetworks {@code s1} and {@code s2} (merged in this order).</li>
+     *     <li>{@code s1} has the property {@code (key = val1)}.</li>
+     *     <li>{@code s2} has the property {@code (key = val2)}.</li>
+     * </ul>
+     * After {@code n0.flatten()}:
+     * <ul>
+     *     <li>{@code n0} will have the property {@code (key = val1)}
+     *     (when "integrating" {@code s1}, no property of key {@code key} was found in {@code n0}).</li>
+     *     <li>{@code s1} will have no property
+     *     (it was transferred to {@code n0}).</li>
+     *     <li>{@code s2} will have the property {@code (key = val2)}
+     *     (the property was NOT transferred because the property {@code (key = val1)} was already in {@code n0}).</li>
+     * </ul>
+     *</p>
+     * <p>Also note that only well-formed (implementing an interface) network extensions will be transferred.</p>
+     */
+    void flatten();
+
+    /**
      * <p>Add a listener on the network.</p>
      * @param listener the listener to add
      */
@@ -1482,7 +1564,7 @@ public interface Network extends Container<Network> {
      * @param reportNode the reportNode used for functional logs
      */
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String baseName, ReportNode reportNode) {
-        write(loader, format, parameters, new FileDataSource(Paths.get(directory), baseName), reportNode);
+        write(loader, format, parameters, new DirectoryDataSource(Paths.get(directory), baseName), reportNode);
     }
 
     default void write(ExportersLoader loader, String format, Properties parameters, String directory, String basename) {

@@ -43,40 +43,37 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         DynamicSimulationResult.Status status = null;
         String error = "";
         Map<String, DoubleTimeSeries> curves = new HashMap<>();
+        Map<String, Double> fsv = new HashMap<>();
         List<TimelineEvent> timeLine = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken(); // skip
-                    break;
-
-                case "status":
+            switch (parser.currentName()) {
+                case "version" -> parser.nextToken(); // skip
+                case "status" -> {
                     parser.nextToken();
                     status = parser.readValueAs(DynamicSimulationResult.Status.class);
-                    break;
-
-                case "error":
+                }
+                case "error" -> {
                     parser.nextToken();
                     error = parser.readValueAs(String.class);
-                    break;
-
-                case "curves":
+                }
+                case "curves" -> {
                     parser.nextToken();
                     deserializeCurves(parser, curves);
-                    break;
-
-                case "timeLine":
+                }
+                case "finalStateValues" -> {
+                    parser.nextToken();
+                    deserializeFinalStateValues(parser, fsv);
+                }
+                case "timeLine" -> {
                     parser.nextToken();
                     deserializeTimeline(parser, timeLine);
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+                }
+                default -> throw getUnexpectedFieldException(parser);
             }
         }
 
-        return new DynamicSimulationResultImpl(status, error, curves, timeLine);
+        return new DynamicSimulationResultImpl(status, error, curves, fsv, timeLine);
     }
 
     private void deserializeCurves(JsonParser parser, Map<String, DoubleTimeSeries> curves) throws IOException {
@@ -86,6 +83,21 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             if (curve != null) {
                 curves.put(curve.getMetadata().getName(), curve);
             }
+        }
+    }
+
+    private void deserializeFinalStateValues(JsonParser parser, Map<String, Double> fsvs) throws IOException {
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            String name = null;
+            double value = 0;
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                switch (parser.currentName()) {
+                    case "name" -> name = parser.getValueAsString();
+                    case "value" -> value = parser.getValueAsDouble();
+                    default -> throw getUnexpectedFieldException(parser);
+                }
+            }
+            fsvs.put(name, value);
         }
     }
 
@@ -100,18 +112,11 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         String modelName = null;
         String message = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "time":
-                    time = parser.getValueAsDouble();
-                    break;
-                case "modelName":
-                    modelName = parser.getValueAsString();
-                    break;
-                case "message":
-                    message = parser.getValueAsString();
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected field: " + parser.getCurrentName());
+            switch (parser.currentName()) {
+                case "time" -> time = parser.getValueAsDouble();
+                case "modelName" -> modelName = parser.getValueAsString();
+                case "message" -> message = parser.getValueAsString();
+                default -> throw getUnexpectedFieldException(parser);
             }
         }
         return new TimelineEvent(time, modelName, message);
@@ -135,5 +140,9 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static IllegalStateException getUnexpectedFieldException(JsonParser parser) throws IOException {
+        return new IllegalStateException("Unexpected field: " + parser.currentName());
     }
 }

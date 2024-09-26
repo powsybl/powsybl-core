@@ -33,6 +33,8 @@ public class SubnetworkImpl extends AbstractNetwork {
     /**
      * Reference to the root network, hence the parent network in this implementation (only one level of subnetworks).
      * This is used to easily update the root network in all equipments when detaching this subnetwork.
+     * <p>This {@link RefChain} should reference the {@code ref} attribute of the root network in order for the {@link #flatten()}
+     * method to work.</p>
      */
     private final RefChain<NetworkImpl> rootNetworkRef;
 
@@ -59,6 +61,10 @@ public class SubnetworkImpl extends AbstractNetwork {
     @Override
     public RefChain<NetworkImpl> getRootNetworkRef() {
         return rootNetworkRef;
+    }
+
+    protected RefChain<SubnetworkImpl> getRef() {
+        return ref;
     }
 
     @Override
@@ -108,10 +114,51 @@ public class SubnetworkImpl extends AbstractNetwork {
 
     private Stream<Country> getCountryStream() {
         return getNetwork().getSubstationStream()
-                .filter(this::contains)
-                .map(s -> s.getCountry().orElse(null))
-                .filter(Objects::nonNull)
-                .distinct();
+                           .filter(this::contains)
+                           .map(s -> s.getCountry().orElse(null))
+                           .filter(Objects::nonNull)
+                           .distinct();
+    }
+
+    @Override
+    public Iterable<String> getAreaTypes() {
+        return getAreaTypeStream().toList();
+    }
+
+    @Override
+    public Stream<String> getAreaTypeStream() {
+        return getAreaStream().map(Area::getAreaType).distinct();
+    }
+
+    @Override
+    public int getAreaTypeCount() {
+        return (int) getAreaTypeStream().count();
+    }
+
+    @Override
+    public AreaAdder newArea() {
+        return new AreaAdderImpl(rootNetworkRef, ref);
+    }
+
+    @Override
+    public Iterable<Area> getAreas() {
+        return getAreaStream().toList();
+    }
+
+    @Override
+    public Stream<Area> getAreaStream() {
+        return getNetwork().getAreaStream().filter(this::contains);
+    }
+
+    @Override
+    public Area getArea(String id) {
+        Area area = getNetwork().getArea(id);
+        return contains(area) ? area : null;
+    }
+
+    @Override
+    public int getAreaCount() {
+        return (int) getAreaStream().count();
     }
 
     @Override
@@ -764,7 +811,7 @@ public class SubnetworkImpl extends AbstractNetwork {
         transferExtensions(this, detachedNetwork);
         transferProperties(this, detachedNetwork);
 
-        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them latter)
+        // Memorize the network identifiables/voltageAngleLimits before moving references (to use them later)
         Collection<Identifiable<?>> identifiables = getIdentifiables();
         Iterable<VoltageAngleLimit> vals = getVoltageAngleLimits();
 
@@ -789,6 +836,11 @@ public class SubnetworkImpl extends AbstractNetwork {
             previousRootNetwork.getVoltageAngleLimitsIndex().remove(val.getId());
             detachedNetwork.getVoltageAngleLimitsIndex().put(val.getId(), val);
         }
+
+        detachedNetwork.getAreaStream().forEach(a -> {
+            AreaImpl area = (AreaImpl) a;
+            area.moveListener(previousRootNetwork, detachedNetwork);
+        });
 
         // We don't control that regulating terminals and phase/ratio regulation terminals are in the same subnetwork
         // as their network elements (generators, PSTs, ...). It is unlikely that those terminals and their elements
@@ -860,6 +912,11 @@ public class SubnetworkImpl extends AbstractNetwork {
             case DANGLING_LINE -> isBoundary((DanglingLine) identifiable);
             default -> false;
         };
+    }
+
+    @Override
+    public void flatten() {
+        throw new UnsupportedOperationException("Subnetworks cannot be flattened.");
     }
 
     private boolean isBoundary(Branch<?> branch) {

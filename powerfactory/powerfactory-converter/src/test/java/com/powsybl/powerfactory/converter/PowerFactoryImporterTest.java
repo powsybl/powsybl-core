@@ -7,7 +7,7 @@
  */
 package com.powsybl.powerfactory.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.DirectoryDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
@@ -25,6 +25,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.ZonedDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -44,6 +45,7 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertEquals("POWER-FACTORY", importer.getFormat());
         assertTrue(importer.getParameters().isEmpty());
         assertEquals("PowerFactory to IIDM converter", importer.getComment());
+        assertEquals(List.of("json", "dgs", "properties"), importer.getSupportedExtensions());
     }
 
     @Test
@@ -56,11 +58,11 @@ class PowerFactoryImporterTest extends AbstractSerDeTest {
         assertTrue(studyCase.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "ieee14")));
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "error")));
+        assertTrue(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14")));
+        assertFalse(importer.exists(new DirectoryDataSource(fileSystem.getPath("/work"), "error")));
 
-        importer.copy(new FileDataSource(fileSystem.getPath("/work"), "ieee14"),
-                new FileDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
+        importer.copy(new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14"),
+                new DirectoryDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
         assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
     }
 

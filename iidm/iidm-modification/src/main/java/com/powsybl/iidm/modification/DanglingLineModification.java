@@ -39,6 +39,11 @@ public class DanglingLineModification extends AbstractLoadModification {
         this(danglingLineId, false, targetP0, targetQ0);
     }
 
+    @Override
+    public String getName() {
+        return "DanglingLineModification";
+    }
+
     public String getDanglingLineId() {
         return danglingLineId;
     }
@@ -53,5 +58,17 @@ public class DanglingLineModification extends AbstractLoadModification {
         }
         getP0().ifPresent(value -> danglingLine.setP0((isRelativeValue() ? danglingLine.getP0() : 0) + value));
         getQ0().ifPresent(value -> danglingLine.setQ0((isRelativeValue() ? danglingLine.getQ0() : 0) + value));
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        DanglingLine danglingLine = network.getDanglingLine(getDanglingLineId());
+        if (danglingLine == null) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else if (areValuesEqual(p0, danglingLine.getP0(), isRelativeValue()) && areValuesEqual(q0, danglingLine.getQ0(), isRelativeValue())) {
+            impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+        }
+        return impact;
     }
 }
