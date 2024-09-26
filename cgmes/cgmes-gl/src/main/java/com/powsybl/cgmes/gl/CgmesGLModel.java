@@ -22,7 +22,7 @@ import java.util.Objects;
  */
 public class CgmesGLModel {
 
-    public static final String SUBSTATION_VL_POSITIONS_QUERY_KEY = "substationVoltageLevelPosition";
+    public static final String SUBSTATION_VL_POSITION_QUERY_KEY = "substationVoltageLevelPosition";
     public static final String LINE_POSITION_QUERY_KEY = "linePosition";
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesGLModel.class);
@@ -49,9 +49,9 @@ public class CgmesGLModel {
         return tripleStore.query(query);
     }
 
-    public PropertyBags getSubstationsVoltageLevelsPosition() {
-        LOG.info("Querying triple store for substations and voltage levels positions");
-        return queryTripleStore(SUBSTATION_VL_POSITIONS_QUERY_KEY);
+    public PropertyBags getSubstationVoltageLevelPosition() {
+        LOG.info("Querying triple store for substation and voltage level positions");
+        return queryTripleStore(SUBSTATION_VL_POSITION_QUERY_KEY);
     }
 
     public PropertyBags getLinesPositions() {
