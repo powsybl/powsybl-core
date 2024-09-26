@@ -48,7 +48,7 @@ public class ConfiguredParameter extends Parameter {
      * @param defaultValueConfig  The configuration providing default values for parameters, which may override base defaults.
      * @return A list of parameters with default values assigned, either from the configuration or the parameter's own base value.
      *
-     * @throws PowsyblException If the parameter from the provided configuration is not of the expected type.
+     * @throws PowsyblException If the parameter from the provided configuration is not correct.
      */
     public static List<Parameter> load(Collection<Parameter> parameters, String prefix, ParameterDefaultValueConfig defaultValueConfig) {
         if (defaultValueConfig == null) {
@@ -61,10 +61,18 @@ public class ConfiguredParameter extends Parameter {
     }
 
     private static Parameter processParameters(Object configuredValue, Parameter param) {
-        if (configuredValue != param.getDefaultValue()) {
-            return new ConfiguredParameter(param, configuredValue);
+        if (!Objects.equals(configuredValue, param.getDefaultValue())) {
+            return createConfiguredParameter(configuredValue, param);
         }
         return param;
+    }
+
+    private static ConfiguredParameter createConfiguredParameter(Object configuredValue, Parameter param) {
+        try {
+            return new ConfiguredParameter(param, configuredValue);
+        } catch (PowsyblException | IllegalArgumentException e) {
+            throw new PowsyblException("Default value check failed for parameter: " + param.getName() + ", with value: " + configuredValue.toString(), e);
+        }
     }
 
     /**
@@ -79,7 +87,7 @@ public class ConfiguredParameter extends Parameter {
      * @param moduleConfig The configuration providing default values for parameters, which may override base defaults.
      * @return A list of parameters with default values assigned, either from the configuration or the parameter's own base value.
      *
-     * @throws PowsyblException If the parameter from the provided configuration is not of the expected type.
+     * @throws PowsyblException If the parameter from the provided configuration is not correct.
      */
     public static List<Parameter> load(Collection<Parameter> parameters, ModuleConfig moduleConfig) {
         if (moduleConfig == null) {

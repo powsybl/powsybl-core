@@ -9,6 +9,7 @@ package com.powsybl.commons.parameters;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import org.junit.jupiter.api.AfterEach;
@@ -43,7 +44,7 @@ class ConfiguredParameterTest {
         Parameter paramBoolean2 = new Parameter("test-param-boolean2", ParameterType.BOOLEAN, "", Boolean.FALSE);
         Parameter paramString = new Parameter("test-param-string", ParameterType.STRING, "", "TestParam");
         Parameter paramString2 = new Parameter("test-param-string2", ParameterType.STRING, "", "TestParam2");
-        Parameter paramInt = new Parameter("test-param-int", ParameterType.INTEGER, "", 999);
+        Parameter paramInt = new Parameter("test-param-int", ParameterType.INTEGER, "", 999, List.of(999, 888));
         Parameter paramInt2 = new Parameter("test-param-int2", ParameterType.INTEGER, "", 111);
         Parameter paramStringList = new Parameter("test-param-string-list", ParameterType.STRING_LIST, "", List.of("a", "b"));
         Parameter paramStringList2 = new Parameter("test-param-string-list-2", ParameterType.STRING_LIST, "", List.of("a", "b", "c"));
@@ -120,5 +121,16 @@ class ConfiguredParameterTest {
     void testConfiguredParametersNullDefaultValueConfig() {
         List<Parameter> loadedParams = ConfiguredParameter.load(parameters, "", null);
         assertDefaultValues(loadedParams);
+    }
+
+    @Test
+    void testConfiguredParametersThrows() {
+        MapModuleConfig moduleConfig = config.createModuleConfig("import-export-parameters-default-value");
+        String param = "test-param-int";
+        String configuredValue = "56";
+        moduleConfig.setStringProperty(param, configuredValue);
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> ConfiguredParameter.load(parameters, moduleConfig));
+        assertEquals("Default value check failed for parameter: " + param + ", with value: " + configuredValue, e.getMessage());
     }
 }
