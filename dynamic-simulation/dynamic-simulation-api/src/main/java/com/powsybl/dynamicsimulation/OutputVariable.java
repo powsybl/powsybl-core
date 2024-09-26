@@ -6,13 +6,21 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.dynamicsimulation.groovy;
-
-import com.powsybl.dynamicsimulation.Curve;
+package com.powsybl.dynamicsimulation;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public interface CurveGroovyExtension extends GroovyExtension<Curve> {
+public interface OutputVariable {
 
+    enum OutputType {
+        CURVE,
+        FINAL_STATE
+    }
+
+    String getModelId();
+
+    String getVariableName();
+
+    OutputType getOutputType();
 }
