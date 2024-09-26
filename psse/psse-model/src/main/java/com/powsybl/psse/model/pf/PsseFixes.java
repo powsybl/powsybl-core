@@ -18,18 +18,23 @@ import java.util.function.Function;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-public class PsseFixDuplicateIds {
+public class PsseFixes {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixDuplicateIds.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PsseFixes.class);
     private final PssePowerFlowModel model;
     private final PsseVersion version;
 
-    public PsseFixDuplicateIds(PssePowerFlowModel model, PsseVersion version) {
+    public PsseFixes(PssePowerFlowModel model, PsseVersion version) {
         this.model = Objects.requireNonNull(model);
         this.version = Objects.requireNonNull(version);
     }
 
     public void fix() {
+        fixDuplicatedIds();
+        fixTransformersWindingCod();
+    }
+
+    private void fixDuplicatedIds() {
         fixDuplicatedIds(model.getLoads(), l -> l.getI() + "-" + l.getId(), this::loadFixer);
         fixDuplicatedIds(model.getGenerators(), g -> g.getI() + "-" + g.getId(), this::generatorFixer);
         fixDuplicatedIds(model.getFixedShunts(), sh -> sh.getI() + "-" + sh.getId(), this::fixedShuntFixer);
@@ -39,6 +44,18 @@ public class PsseFixDuplicateIds {
         if (version.getMajorNumber() >= 35) {
             fixDuplicatedIds(model.getSwitchedShunts(), sh -> sh.getI() + "-" + sh.getId(), this::switchedShuntFixer);
         }
+    }
+
+    private void fixTransformersWindingCod() {
+        model.getTransformers().forEach(psseTransformer -> {
+            if (psseTransformer.getK() == 0) { // TwoWindingsTransformers
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), "Winding1");
+            } else {
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding1(), "Winding1");
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding2(), "Winding2");
+                fixTransformerWindingCod(psseTransformer, psseTransformer.getWinding3(), "Winding3");
+            }
+        });
     }
 
     private String sortedBuses(int... buses) {
@@ -137,6 +154,13 @@ public class PsseFixDuplicateIds {
         return fixedId;
     }
 
+    private void fixTransformerWindingCod(PsseTransformer transformer, PsseTransformerWinding winding, String windingTag) {
+        if (Math.abs(winding.getCod()) == 1 && winding.getCont() == 0) {
+            warn(transformer, windingTag, winding.getCod(), 0);
+            winding.setCod(0);
+        }
+    }
+
     private void warn(String type, int i, String id, String fixedId) {
         if (LOGGER.isWarnEnabled()) {
             if (id.equals(fixedId)) {
@@ -164,6 +188,12 @@ public class PsseFixDuplicateIds {
             } else {
                 LOGGER.warn("Transformer Id fixed: I {} J {} K {} CKT '{}'. Fixed CKT '{}'", transformer.getI(), transformer.getJ(), transformer.getK(), id, fixedId);
             }
+        }
+    }
+
+    private void warn(PsseTransformer transformer, String windingTag, int cod, int fixedCod) {
+        if (LOGGER.isWarnEnabled()) {
+            LOGGER.warn("Transformer {} Cod fixed: I {} J {} K {} CKT {}. Cod '{}' Fixed Cod '{}'. Controlled bus is not defined (cont == 0).", windingTag, transformer.getI(), transformer.getJ(), transformer.getK(), transformer.getCkt(), cod, fixedCod);
         }
     }
 
