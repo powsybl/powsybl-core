@@ -17,37 +17,35 @@ import java.util.*;
  */
 public class ConfiguredParameter extends Parameter {
 
-    private final Object configuredValue;
+    private final Object baseDefaultValue;
 
     public ConfiguredParameter(Parameter parameter, Object configuredValue) {
         super(parameter.getNames(),
                 parameter.getType(),
                 parameter.getDescription(),
-                parameter.getDefaultValue(),
+                configuredValue,
                 parameter.getPossibleValues(),
                 parameter.getScope(),
                 parameter.getCategoryKey());
-        this.configuredValue = checkDefaultValue(parameter.getType(), configuredValue);
+        this.baseDefaultValue = parameter.getDefaultValue();
     }
 
-    @Override
-    public ParameterSourceType getParameterSourceType() {
-        return ParameterSourceType.CONFIGURED_PARAMETER;
-    }
-
-    public Object getConfiguredValue() {
-        return configuredValue;
+    public Object getBaseDefaultValue() {
+        return baseDefaultValue;
     }
 
     /**
-     * Loads a list of parameters and dynamically assigns default values from the provided configuration {@link ParameterDefaultValueConfig}.
-     * If the defaultValueConfig is null, the method returns the original list of parameters.
-     * Otherwise, each parameter is processed with a potential dynamic default value derived from the configuration.
+     * Processes a list of parameters, assigning default values from the provided configuration,
+     * {@link ParameterDefaultValueConfig}, if applicable.
+     * If {@code defaultValueConfig} is null, the method returns the original list of parameters.
+     * Otherwise, each parameter is checked against the configuration. If a matching default
+     * value is found in the configuration, it is applied to the parameter. If no matching
+     * value is found, the parameter retains its base default value.
      *
-     * @param parameters        The collection of parameters to be processed.
-     * @param prefix            The prefix used to fetch values from the defaultValueConfig.
-     * @param defaultValueConfig The configuration containing default values for parameters.
-     * @return A list of parameters with dynamically assigned default values.
+     * @param parameters         The collection of parameters to be processed.
+     * @param prefix             A string prefix used to fetch values from {@code defaultValueConfig}.
+     * @param defaultValueConfig  The configuration providing default values for parameters, which may override base defaults.
+     * @return A list of parameters with default values assigned, either from the configuration or the parameter's own base value.
      */
     public static List<Parameter> load(Collection<Parameter> parameters, String prefix, ParameterDefaultValueConfig defaultValueConfig) {
         return defaultValueConfig == null
@@ -65,13 +63,16 @@ public class ConfiguredParameter extends Parameter {
     }
 
     /**
-     * Loads a list of parameters and dynamically assigns default values from the provided configuration {@link ModuleConfig}.
-     * If the moduleConfig is null, the method returns the original list of parameters.
-     * Otherwise, each parameter is processed with a potential dynamic default value derived from the configuration.
+     * Processes a list of parameters, assigning default values from the provided configuration,
+     * {@link ModuleConfig}, if applicable.
+     * If {@code moduleConfig} is null, the method returns the original list of parameters.
+     * Otherwise, each parameter is checked against the configuration. If a matching default
+     * value is found in the configuration, it is applied to the parameter. If no matching
+     * value is found, the parameter retains its base default value.
      *
-     * @param parameters  The collection of parameters to be processed.
-     * @param moduleConfig The module configuration containing default values for parameters.
-     * @return A list of parameters with dynamically assigned default values.
+     * @param parameters   The collection of parameters to be processed.
+     * @param moduleConfig The configuration providing default values for parameters, which may override base defaults.
+     * @return A list of parameters with default values assigned, either from the configuration or the parameter's own base value.
      */
     public static List<Parameter> load(Collection<Parameter> parameters, ModuleConfig moduleConfig) {
         return moduleConfig == null

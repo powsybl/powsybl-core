@@ -71,17 +71,17 @@ class ConfiguredParameterTest {
     }
 
     private static void assertValuesModifiedWithConfig(List<Parameter> loadedParams) {
-        assertEquals(true, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(0)));
-        assertEquals(false, loadedParams.get(0).getDefaultValue());
-        assertEquals(false, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(1)));
-        assertEquals("TestDynamicParam", ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(2)));
-        assertEquals("TestParam2", ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(3)));
-        assertEquals(888, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(4)));
-        assertEquals(111, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(5)));
-        assertEquals(List.of("e", "b"), ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(6)));
-        assertEquals(List.of("a", "b", "c"), ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(7)));
-        assertEquals(0.07, (double) ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(8)), 1e-3);
-        assertEquals(0.08, (double) ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(9)), 1e-3);
+        assertEquals(true, loadedParams.get(0).getDefaultValue());
+        assertEquals(false, ((ConfiguredParameter) loadedParams.get(0)).getBaseDefaultValue());
+        assertEquals(false, loadedParams.get(1).getDefaultValue());
+        assertEquals("TestDynamicParam", loadedParams.get(2).getDefaultValue());
+        assertEquals("TestParam2", loadedParams.get(3).getDefaultValue());
+        assertEquals(888, loadedParams.get(4).getDefaultValue());
+        assertEquals(111, loadedParams.get(5).getDefaultValue());
+        assertEquals(List.of("e", "b"), loadedParams.get(6).getDefaultValue());
+        assertEquals(List.of("a", "b", "c"), loadedParams.get(7).getDefaultValue());
+        assertEquals(0.07, (double) loadedParams.get(8).getDefaultValue(), 1e-3);
+        assertEquals(0.08, (double) loadedParams.get(9).getDefaultValue(), 1e-3);
     }
 
     @Test
@@ -91,16 +91,16 @@ class ConfiguredParameterTest {
     }
 
     private static void assertDefaultValues(List<Parameter> loadedParams) {
-        assertEquals(false, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(0)));
-        assertEquals(false, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(1)));
-        assertEquals("TestParam", ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(2)));
-        assertEquals("TestParam2", ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(3)));
-        assertEquals(999, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(4)));
-        assertEquals(111, ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(5)));
-        assertEquals(List.of("a", "b"), ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(6)));
-        assertEquals(List.of("a", "b", "c"), ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(7)));
-        assertEquals(0.06, (double) ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(8)), 1e-3);
-        assertEquals(0.08, (double) ParameterUtil.getConfiguredOrDefaultValue(loadedParams.get(9)), 1e-3);
+        assertEquals(false, loadedParams.get(0).getDefaultValue());
+        assertEquals(false, loadedParams.get(1).getDefaultValue());
+        assertEquals("TestParam", loadedParams.get(2).getDefaultValue());
+        assertEquals("TestParam2", loadedParams.get(3).getDefaultValue());
+        assertEquals(999, loadedParams.get(4).getDefaultValue());
+        assertEquals(111, loadedParams.get(5).getDefaultValue());
+        assertEquals(List.of("a", "b"), loadedParams.get(6).getDefaultValue());
+        assertEquals(List.of("a", "b", "c"), loadedParams.get(7).getDefaultValue());
+        assertEquals(0.06, (double) loadedParams.get(8).getDefaultValue(), 1e-3);
+        assertEquals(0.08, (double) loadedParams.get(9).getDefaultValue(), 1e-3);
     }
 
     @Test
@@ -120,19 +120,5 @@ class ConfiguredParameterTest {
     void testDynamicParametersNullDefaultValueConfig() {
         List<Parameter> loadedParams = ConfiguredParameter.load(parameters, "", null);
         assertDefaultValues(loadedParams);
-    }
-
-    @Test
-    void testDefaultValueSource() {
-        MapModuleConfig moduleConfig = config.createModuleConfig("import-export-parameters-default-value");
-        moduleConfig.setStringProperty("test-param-boolean", "true");
-        moduleConfig.setStringProperty("test-param-string", "TestDynamicParam");
-        moduleConfig.setStringProperty("test-param-int", "888");
-        moduleConfig.setStringListProperty("test-param-string-list", List.of("e", "b"));
-        moduleConfig.setStringProperty("test-param-double", "0.07");
-
-        List<Parameter> loadedParams = ConfiguredParameter.load(parameters, moduleConfig);
-        assertEquals(ParameterSourceType.CONFIGURED_PARAMETER, loadedParams.get(0).getParameterSourceType());
-        assertEquals(ParameterSourceType.PARAMETER, loadedParams.get(1).getParameterSourceType());
     }
 }
