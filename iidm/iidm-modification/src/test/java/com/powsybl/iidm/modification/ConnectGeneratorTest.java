@@ -103,6 +103,16 @@ class ConnectGeneratorTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ConnectGenerator("ID");
+        assertEquals("ConnectGenerator", networkModification.getName());
+
+        GeneratorModification.Modifs modifs = new GeneratorModification.Modifs();
+        networkModification = new GeneratorModification("ID", modifs);
+        assertEquals("GeneratorModification", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         ConnectGenerator modification = new ConnectGenerator("WRONG_ID");
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification.hasImpactOnNetwork(network));

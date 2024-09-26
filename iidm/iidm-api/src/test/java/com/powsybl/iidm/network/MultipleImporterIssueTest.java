@@ -93,7 +93,7 @@ class MultipleImporterIssueTest {
             Files.createFile(fooFile);
             Files.createFile(barFile);
 
-            var dataSource = DataSourceUtil.createDataSource(workingDir, "test.bar", null);
+            var dataSource = DataSourceUtil.createDataSource(workingDir.resolve("test.bar"), null);
             ComputationManager computationManager = Mockito.mock(ComputationManager.class);
             var importer = Importer.find(dataSource, new ImportersLoaderList(new FooImporter(), new BarImporter()), computationManager, new ImportConfig());
             assertNotNull(importer);
