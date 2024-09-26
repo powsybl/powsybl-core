@@ -294,7 +294,7 @@ class PsseImporterTest extends AbstractSerDeTest {
     }
 
     @Test
-    void importTestTransformersWithVoltageControlAndNotDefinedControlledBusV33() throws IOException {
+    void importTestTransformersWithVoltageControlAndNotDefinedControlledBusV33() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("TransformersWithVoltageControlAndNotDefinedControlledBus", new ResourceSet("/", "TransformersWithVoltageControlAndNotDefinedControlledBus.raw"));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), new Properties());
 
