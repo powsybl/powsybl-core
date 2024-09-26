@@ -133,5 +133,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param platformConfig The platform configuration containing potential module configurations.
      * @return An Optional containing the ModuleConfig if present, otherwise an empty Optional.
      */
-    Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig);
+    default Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }
