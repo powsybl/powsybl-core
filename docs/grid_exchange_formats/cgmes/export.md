@@ -355,7 +355,7 @@ Optional property that defines which naming strategy is used to transform IIDM i
 It can be:
 - `identity`: CGMES IDs are the same as IIDM IDs.
 - `cgmes`: new CGMES IDs (new master resource identifiers, cim:mRID) are created for IIDM `Identifiables` if the IIDM IDs are not compliant with CGMES requirements.
-- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability curves, ...).
+- `cgmes-fix-all-invalid-ids`: ensures that all CGMES IDs in the export will comply with CGMES requirements, for IIDM `Identifiables`and also for its related objects (tap changers, operational limits, regulating controls, reactive capability outputVariables, ...).
   Its default value is `identity`.
 
 **iidm.export.cgmes.uuid-namespace**  

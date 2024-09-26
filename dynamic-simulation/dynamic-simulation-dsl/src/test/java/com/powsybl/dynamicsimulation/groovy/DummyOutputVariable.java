@@ -8,30 +8,33 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
-import com.powsybl.dynamicsimulation.Curve;
+import com.powsybl.dynamicsimulation.OutputVariable;
 
 import java.util.Objects;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-class DummyCurve implements Curve {
+record DummyOutputVariable(String id, String variable, OutputType type) implements OutputVariable {
 
-    private final String id;
-
-    private final String variable;
-
-    DummyCurve(String id, String variable) {
+    public DummyOutputVariable(String id, String variable, OutputType type) {
         this.id = Objects.requireNonNull(id);
         this.variable = Objects.requireNonNull(variable);
+        this.type = Objects.requireNonNull(type);
     }
 
-    String getId() {
+    @Override
+    public String getModelId() {
         return id;
     }
 
-    String getVariable() {
+    @Override
+    public String getVariableName() {
         return variable;
     }
 
+    @Override
+    public OutputType getOutputType() {
+        return type;
+    }
 }
