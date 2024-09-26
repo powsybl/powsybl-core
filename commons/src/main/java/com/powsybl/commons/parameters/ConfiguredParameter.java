@@ -8,6 +8,7 @@
 package com.powsybl.commons.parameters;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 
 import java.util.*;
@@ -46,11 +47,15 @@ public class ConfiguredParameter extends Parameter {
      * @param prefix             A string prefix used to fetch values from {@code defaultValueConfig}.
      * @param defaultValueConfig  The configuration providing default values for parameters, which may override base defaults.
      * @return A list of parameters with default values assigned, either from the configuration or the parameter's own base value.
+     *
+     * @throws PowsyblException If the parameter from the provided configuration is not of the expected type.
      */
     public static List<Parameter> load(Collection<Parameter> parameters, String prefix, ParameterDefaultValueConfig defaultValueConfig) {
-        return defaultValueConfig == null
-                ? ImmutableList.copyOf(parameters)
-                : parameters.stream()
+        if (defaultValueConfig == null) {
+            return ImmutableList.copyOf(parameters);
+        }
+
+        return parameters.stream()
                 .map(param -> processParameters(defaultValueConfig.getValue(prefix, param), param))
                 .toList();
     }
@@ -73,11 +78,15 @@ public class ConfiguredParameter extends Parameter {
      * @param parameters   The collection of parameters to be processed.
      * @param moduleConfig The configuration providing default values for parameters, which may override base defaults.
      * @return A list of parameters with default values assigned, either from the configuration or the parameter's own base value.
+     *
+     * @throws PowsyblException If the parameter from the provided configuration is not of the expected type.
      */
     public static List<Parameter> load(Collection<Parameter> parameters, ModuleConfig moduleConfig) {
-        return moduleConfig == null
-                ? ImmutableList.copyOf(parameters)
-                : parameters.stream()
+        if (moduleConfig == null) {
+            return ImmutableList.copyOf(parameters);
+        }
+
+        return parameters.stream()
                 .map(param -> processParameters(getValueFromModuleConfig(param, moduleConfig), param))
                 .toList();
     }

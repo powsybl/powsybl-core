@@ -58,7 +58,7 @@ class ConfiguredParameterTest {
     }
 
     @Test
-    void testDynamicParametersModuleConfig() {
+    void testConfiguredParametersModuleConfig() {
         MapModuleConfig moduleConfig = config.createModuleConfig("import-export-parameters-default-value");
         moduleConfig.setStringProperty("test-param-boolean", "true");
         moduleConfig.setStringProperty("test-param-string", "TestDynamicParam");
@@ -85,7 +85,7 @@ class ConfiguredParameterTest {
     }
 
     @Test
-    void testDynamicParametersNullModuleConfig() {
+    void testConfiguredParametersNullModuleConfig() {
         List<Parameter> loadedParams = ConfiguredParameter.load(parameters, null);
         assertDefaultValues(loadedParams);
     }
@@ -104,7 +104,7 @@ class ConfiguredParameterTest {
     }
 
     @Test
-    void testDynamicParametersDefaultValueConfig() {
+    void testConfiguredParametersDefaultValueConfig() {
         MapModuleConfig moduleConfig = config.createModuleConfig("import-export-parameters-default-value");
         moduleConfig.setStringProperty("prefix_test-param-boolean", "true");
         moduleConfig.setStringProperty("prefix_test-param-string", "TestDynamicParam");
@@ -117,7 +117,7 @@ class ConfiguredParameterTest {
     }
 
     @Test
-    void testDynamicParametersNullDefaultValueConfig() {
+    void testConfiguredParametersNullDefaultValueConfig() {
         List<Parameter> loadedParams = ConfiguredParameter.load(parameters, "", null);
         assertDefaultValues(loadedParams);
     }
