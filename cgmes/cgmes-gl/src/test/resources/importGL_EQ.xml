@@ -37,17 +37,17 @@
   <cim:VoltageLevel rdf:ID="_VoltageLevel2">
     <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
     <cim:VoltageLevel.Substation rdf:resource="#_Substation2"/>
-    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.name>Voltage level 2</cim:IdentifiedObject.name>
   </cim:VoltageLevel>
   <cim:VoltageLevel rdf:ID="_VoltageLevel3">
     <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
     <cim:VoltageLevel.Substation rdf:resource="#_Substation3"/>
-    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.name>Voltage level 3</cim:IdentifiedObject.name>
   </cim:VoltageLevel>
   <cim:VoltageLevel rdf:ID="_VoltageLevel4">
     <cim:VoltageLevel.BaseVoltage rdf:resource="#_BaseVoltage300"/>
     <cim:VoltageLevel.Substation rdf:resource="#_Substation3"/>
-    <cim:IdentifiedObject.name>Voltage level 1</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.name>Voltage level 4</cim:IdentifiedObject.name>
   </cim:VoltageLevel>
   <cim:BaseVoltage rdf:ID="_BaseVoltage300">
     <cim:BaseVoltage.nominalVoltage>300</cim:BaseVoltage.nominalVoltage>
