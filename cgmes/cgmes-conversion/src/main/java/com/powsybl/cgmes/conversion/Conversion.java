@@ -357,9 +357,11 @@ public class Conversion {
                 .setName(ca.getLocal("name"))
                 .setInterchangeTarget(ca.asDouble("netInterchange", Double.NaN))
                 .add();
+        String pTolerance = "0";
         if (ca.containsKey("pTolerance")) {
-            area.setProperty("pTolerance", ca.get("pTolerance"));
+            pTolerance = ca.get("pTolerance");
         }
+        area.setProperty("pTolerance", pTolerance);
         if (ca.containsKey("energyIdentCodeEic")) {
             area.addAlias(ca.get("energyIdentCodeEic"), "energyIdentificationCodeEic");
         }
