@@ -21,6 +21,42 @@ public final class CgmesReports {
     }
 
     // INFO
+    public static void applyingPreprocessorsReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("applyingPreprocessors", "Applying preprocessors.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode convertingElementTypeReport(ReportNode reportNode, String elementType) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("convertingElementType", "Converting ${elementType}.")
+                .withUntypedValue("elementType", elementType)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode fixingDanglingLinesIssuesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("fixingDanglingLinesIssues", "Fixing issues with dangling lines.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static ReportNode settingVoltagesAndAnglesReport(ReportNode reportNode) {
+        return reportNode.newReportNode()
+                .withMessageTemplate("settingVoltagesAndAngles", "Setting voltages and angles.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void applyingPostprocessorsReport(ReportNode reportNode) {
+        reportNode.newReportNode()
+                .withMessageTemplate("applyingPostprocessors", "Applying postprocessors.")
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
     public static void importedCgmesNetworkReport(ReportNode reportNode, String networkId) {
         reportNode.newReportNode()
                 .withMessageTemplate("importedCgmesNetwork", "CGMES network ${networkId} is imported.")
@@ -67,6 +103,14 @@ public final class CgmesReports {
                 .withUntypedValue("nodeId", nodeId)
                 .withTypedValue("voltage", v, TypedValue.VOLTAGE)
                 .withTypedValue("angle", angle, TypedValue.ANGLE)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void removingUnattachedHvdcConverterStationReport(ReportNode reportNode, String converterId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("removingUnattachedHvdcConverterStation", "HVDC Converter Station ${converterId} will be removed since it has no attached HVDC line.")
+                .withUntypedValue("converterId", converterId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }

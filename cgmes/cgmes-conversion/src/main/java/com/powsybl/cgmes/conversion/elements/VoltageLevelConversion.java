@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -20,8 +21,9 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
+
     public VoltageLevelConversion(PropertyBag vl, Context context) {
-        super("VoltageLevel", vl, context);
+        super(CgmesNames.VOLTAGE_LEVEL, vl, context);
         cgmesSubstationId = p.getId("Substation");
         iidmSubstationId = context.substationIdMapping().substationIidm(cgmesSubstationId);
         substation = context.network().getSubstation(iidmSubstationId);

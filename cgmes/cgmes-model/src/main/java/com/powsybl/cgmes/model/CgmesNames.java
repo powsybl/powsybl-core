@@ -107,6 +107,14 @@ public final class CgmesNames {
 
     public static final Set<String> SWITCH_TYPES = Set.of(SWITCH, "Breaker", "Disconnector", "LoadBreakSwitch", "ProtectedSwitch", "GroundDisconnector");
 
+    public static final String BUSBAR_SECTION = "BusbarSection";
+    public static final String GROUND = "Ground";
+    public static final String SHUNT_COMPENSATOR = "ShuntCompensator";
+    public static final String EQUIVALENT_SHUNT = "EquivalentShunt";
+    public static final String EQUIVALENT_BRANCH = "EquivalentBranch";
+    public static final String STATIC_VAR_COMPENSATOR = "StaticVarCompensator";
+    public static final String REGULATING_CONTROL = "RegulatingControl";
+    public static final String CONTROL_AREA = "ControlArea";
     public static final String CONFORM_LOAD = "ConformLoad";
     public static final String NONCONFORM_LOAD = "NonConformLoad";
     public static final String ENERGY_CONSUMER = "EnergyConsumer";
@@ -117,6 +125,8 @@ public final class CgmesNames {
     public static final String SV_INJECTION = "SvInjection";
     public static final String CONFORM_LOAD_GROUP = "ConformLoadGroup";
     public static final String NONCONFORM_LOAD_GROUP = "NonConformLoadGroup";
+    public static final String ACDC_CONVERTER = "ACDCConverter";
+    public static final String DC_LINE_SEGMENT = "DCLineSegment";
 
     public static final String CONNECTIVITY_NODE_BOUNDARY = "ConnectivityNode_Boundary";
     public static final String TOPOLOGICAL_NODE_BOUNDARY = "TopologicalNode_Boundary";
@@ -128,6 +138,8 @@ public final class CgmesNames {
     public static final String EQUIVALENT_INJECTION = "EquivalentInjection";
     public static final String EQUIVALENT_INJECTION_TERMINAL = "EquivalentInjectionTerminal";
     public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
+
+    public static final String OPERATIONAL_LIMIT = "OperationalLimit";
 
     private CgmesNames() {
     }
