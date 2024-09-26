@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
@@ -188,6 +189,15 @@ class CreateCouplingDeviceTest extends AbstractModificationTest {
                 .setOpen(false)
                 .add();
         return network;
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new CreateCouplingDeviceBuilder()
+            .withBusOrBusbarSectionId1("bbs1")
+            .withBusOrBusbarSectionId2("bbs2")
+            .build();
+        assertEquals("CreateCouplingDevice", networkModification.getName());
     }
 
     @Test

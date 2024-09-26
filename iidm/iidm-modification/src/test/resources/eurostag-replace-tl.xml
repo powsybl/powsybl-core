@@ -55,7 +55,7 @@
     </iidm:line>
     <iidm:line id="NHV1_NHV2_2" r="2.999999999999999" x="33.0" g1="1.0000000000005664E-6" b1="1.930000000000022E-4" g2="2.000000000000699E-6" b2="1.9300000000000567E-4" bus1="NHV1" connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2" voltageLevelId2="VLHV2" p1="302.4440612792969" q1="98.74027252197266" p2="-300.43389892578125" q2="-137.18849182128906">
         <iidm:alias type="pairingKey">XNODE2</iidm:alias>
+        <iidm:alias type="danglingLine1Id">NHV1_XNODE2</iidm:alias>
         <iidm:alias type="danglingLine2Id">XNODE2_NHV2</iidm:alias>
-        <iidm:alias type="danglingLine1Id">NVH1_XNODE2</iidm:alias>
     </iidm:line>
 </iidm:network>

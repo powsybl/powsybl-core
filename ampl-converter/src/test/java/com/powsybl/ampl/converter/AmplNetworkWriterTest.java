@@ -7,12 +7,12 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.ampl.converter.version.AmplExportVersion;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -28,10 +28,20 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class AmplNetworkWriterTest extends AbstractSerDeTest {
 
+    Properties properties;
+
     private void assertEqualsToRef(MemDataSource dataSource, String suffix, String refFileName) throws IOException {
         try (InputStream actual = new ByteArrayInputStream(dataSource.getData(suffix, "txt"))) {
             assertTxtEquals(getClass().getResourceAsStream("/" + refFileName), actual);
         }
+    }
+
+    @Override
+    @BeforeEach
+    public void setUp() throws IOException {
+        super.setUp();
+        properties = new Properties();
+        properties.put("iidm.export.ampl.export-version", "1.0");
     }
 
     @Test
@@ -47,9 +57,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
         MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
-        AmplExportConfig amplExportConfig = new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, false, false, AmplExportVersion.defaultVersion(), true);
-        exporter.export(network, amplExportConfig, dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses.txt");
@@ -64,12 +72,10 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     @Test
     void writeNetworkWithExtension() throws IOException {
         Network network = Network.create("sim1", "test");
-
         network.addExtension(FooNetworkExtension.class, new FooNetworkExtension());
 
         MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "foo-network-extension", "inputs/foo-network-extension.txt");
     }
@@ -79,8 +85,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
 
         MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
     }
@@ -92,8 +97,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         sc.setSectionCount(2);
 
         MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_shunts", "inputs/shunt-test-case-shunts.txt");
     }
@@ -103,7 +107,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = HvdcTestNetwork.createLcc();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-lcc-test-case.txt");
         assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/lcc-test-case.txt");
@@ -115,7 +119,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = PhaseShifterTestCaseFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_ptc", "inputs/ptc-test-case.txt");
     }
@@ -125,7 +129,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_static_var_compensators", "inputs/svc-test-case.txt");
     }
@@ -135,7 +139,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = BatteryNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_batteries", "inputs/battery-test-batteries.txt");
     }
@@ -158,7 +162,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
             .add();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/three-windings-transformers-branches.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/three-windings-transformers-buses.txt");
@@ -173,7 +177,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = HvdcTestNetwork.createVsc();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
         assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
@@ -185,7 +189,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_limits", "inputs/current-limits-test-case.txt");
     }
@@ -201,7 +205,6 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
                 .add();
         }
 
-        Properties properties = new Properties();
         properties.put("iidm.export.ampl.with-xnodes", "true");
 
         MemDataSource dataSource = new MemDataSource();
@@ -218,7 +221,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = DanglingLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/dangling-line-branches.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/dangling-line-buses.txt");
@@ -233,7 +236,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         HvdcLine l = network.getHvdcLine("L");
         l.addExtension(FooExtension.class, new FooExtension());
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "foo-extension", "inputs/foo-extension.txt");
     }
@@ -247,16 +250,15 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
     void writeHeaders() throws IOException {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
         assertEqualsToRef(dataSource, "_headers", "inputs/headers.txt");
     }
 
     @Test
-    void writeHeadersWithVersion() throws IOException {
+    void writeHeadersWithVersion10() throws IOException {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
 
-        Properties properties = new Properties();
         properties.put("iidm.export.ampl.export-version", "1.0");
 
         export(network, properties, dataSource);
@@ -268,12 +270,22 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         Network network = Network.create("dummy_network", "test");
         MemDataSource dataSource = new MemDataSource();
 
-        Properties properties = new Properties();
         properties.put("iidm.export.ampl.export-version", "V1_0");
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
-        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0]"));
+        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0"));
 
+    }
+
+    @Test
+    void writeHeadersWithVersion11() throws IOException {
+        Network network = Network.create("dummy_network", "test");
+        MemDataSource dataSource = new MemDataSource();
+
+        properties.put("iidm.export.ampl.export-version", "1.1");
+
+        export(network, properties, dataSource);
+        assertEqualsToRef(dataSource, "_headers", "inputs/extended_exporter/headers.txt");
     }
 
     @Test
@@ -282,7 +294,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         network.getVoltageLevel("VL2").setNominalV(400);
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/line-with-different-nominal-voltage-at-ends-test-case.txt");
     }
@@ -295,7 +307,7 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
                                 .setX(0);
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, new Properties(), dataSource);
+        export(network, properties, dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/zero-impedance-line-with-different-nominal-voltage-at-ends-test-case.txt");
     }

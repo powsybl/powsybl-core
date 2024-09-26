@@ -50,7 +50,7 @@ The parameters may also be overridden with a JSON file, in which case the config
 
 ### Specific parameters
 Some implementations use specific parameters that can be defined in the configuration file or in the JSON parameters file:
-- [Dynawo](TODO)
+- [Dynawo](inv:powsybldynawo:*:*#dynamic_simulation/configuration)
 
 ### Examples
 
