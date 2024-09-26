@@ -29,6 +29,7 @@ public final class AmplConstants {
     public static final String MINP = "minP (MW)";
     public static final String MAXP = "maxP (MW)";
     public static final String V_REGUL = "v regul.";
+    public static final String V_REGUL_BUS = "v regul. bus";
     public static final String ACTIVE_POWER = "P (MW)";
     public static final String REACTIVE_POWER = "Q (MVar)";
     public static final String MIN_Q_MAX_P = "minQmaxP (MVar)";

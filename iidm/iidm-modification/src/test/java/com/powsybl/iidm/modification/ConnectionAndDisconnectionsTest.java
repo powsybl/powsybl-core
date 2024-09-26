@@ -612,6 +612,18 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new ConnectableConnection("ID", false, false, ThreeSides.ONE);
+        assertEquals("ConnectableConnection", networkModification.getName());
+
+        networkModification = new UnplannedDisconnection("ID", false, ThreeSides.ONE);
+        assertEquals("UnplannedDisconnection", networkModification.getName());
+
+        networkModification = new PlannedDisconnection("ID", false, ThreeSides.ONE);
+        assertEquals("PlannedDisconnection", networkModification.getName());
+    }
+
+    @Test
     void testHasImpactCannotBeApplied() {
         Network network = createNetwork();
 

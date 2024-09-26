@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.tripping;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.jupiter.api.Test;
@@ -44,5 +45,11 @@ class TieLineTrippingTest extends AbstractTrippingTest {
         TieLineTripping unknownVlTripping = new TieLineTripping("NHV1_NHV2_1", "NOT_EXISTS_VL");
         Exception e2 = assertThrows(PowsyblException.class, () -> unknownVlTripping.apply(network));
         assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to TIE_LINE 'NHV1_NHV2_1'", e2.getMessage());
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new TieLineTripping("ID");
+        assertEquals("TieLineTripping", networkModification.getName());
     }
 }

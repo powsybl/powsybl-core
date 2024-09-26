@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.topology;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.modification.NetworkModification;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
@@ -379,5 +380,28 @@ class CreateBranchFeederBaysTest extends AbstractModificationTest {
                 .build()
                 .apply(network, true, reportNode);
         testReportNode(reportNode, "/reportNode/create-line-NB-without-extensions-report.txt");
+    }
+
+    @Test
+    void testGetName() {
+        Network network = Network.read("testNetworkNodeBreakerWithoutExtensions.xiidm", getClass().getResourceAsStream("/testNetworkNodeBreakerWithoutExtensions.xiidm"));
+        LineAdder lineAdder = network.newLine()
+            .setId("lineTest")
+            .setR(1.0)
+            .setX(1.0)
+            .setG1(0.0)
+            .setG2(0.0)
+            .setB1(0.0)
+            .setB2(0.0);
+        AbstractNetworkModification networkModification = new CreateBranchFeederBaysBuilder()
+            .withBranchAdder(lineAdder)
+            .withBusOrBusbarSectionId1("bbs5")
+            .withPositionOrder1(115)
+            .withDirection1(BOTTOM)
+            .withBusOrBusbarSectionId2("bbs1")
+            .withPositionOrder2(121)
+            .withDirection2(TOP)
+            .build();
+        assertEquals("CreateBranchFeederBays", networkModification.getName());
     }
 }

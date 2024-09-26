@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -63,5 +64,11 @@ class BusbarSectionTrippingTest extends AbstractTrippingTest {
 
         BusbarSectionTripping tripping = new BusbarSectionTripping("bbs");
         assertThrows(PowsyblException.class, () -> tripping.apply(network));
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new BusbarSectionTripping("ID");
+        assertEquals("BusbarSectionTripping", networkModification.getName());
     }
 }

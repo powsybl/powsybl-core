@@ -9,6 +9,7 @@ package com.powsybl.iidm.modification.tripping;
 
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -140,5 +141,17 @@ class BranchTrippingTest extends AbstractTrippingTest {
 
         List<Boolean> switchStates = getSwitchStates(network, switchIds);
         assertEquals(expectedSwitchStates, switchStates);
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new BranchTripping("CJ", "C");
+        assertEquals("BranchTripping", networkModification.getName());
+
+        networkModification = new TwoWindingsTransformerTripping("NHV2_NLOAD", "VLHV2");
+        assertEquals("TwoWindingsTransformerTripping", networkModification.getName());
+
+        networkModification = new LineTripping("NHV1_NHV2_1", "VLHV2");
+        assertEquals("LineTripping", networkModification.getName());
     }
 }

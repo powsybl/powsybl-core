@@ -78,6 +78,12 @@ class StaticVarCompensatorModificationTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new StaticVarCompensatorModification("ID", 1.0, 1.);
+        assertEquals("StaticVarCompensatorModification", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         NetworkModification modification1 = new StaticVarCompensatorModification("UNKNOWN_ID", 1., 2.);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
