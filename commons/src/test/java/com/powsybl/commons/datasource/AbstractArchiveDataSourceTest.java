@@ -87,7 +87,7 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
 
         // Datasource with an observer
         DataSourceObserver observer = new DefaultDataSourceObserver();
-        DataSource dataSource = DataSourceUtil.createDataSource(fileSystem.getPath("."), archiveWithSubfolders, observer);
+        DataSource dataSource = DataSourceUtil.createDataSource(fileSystem.getPath(".").resolve(archiveWithSubfolders), observer);
         assertInstanceOf(ObservableInputStream.class, dataSource.newInputStream("foo.iidm"));
         assertInstanceOf(ObservableOutputStream.class, dataSource.newOutputStream("test.iidm", false));
 
@@ -132,4 +132,18 @@ abstract class AbstractArchiveDataSourceTest extends AbstractFileSystemDataSourc
         AbstractArchiveDataSource dataSource = createArchiveDataSource();
         assertFalse(dataSource.exists("test.bar"));
     }
+
+    @Override
+    protected String getContainerPath(String containerFileName, String baseName, String dataExtension,
+                                      CompressionFormat compressionFormat) {
+        return testDir + "/" + (containerFileName != null ?
+            containerFileName : getFileName(baseName, dataExtension, compressionFormat));
+    }
+
+    @Override
+    protected String getDatasourcePath(String containerFileName, String baseName, String dataExtension,
+                                       CompressionFormat compressionFormat) {
+        return getContainerPath(containerFileName, baseName, dataExtension, compressionFormat);
+    }
+
 }
