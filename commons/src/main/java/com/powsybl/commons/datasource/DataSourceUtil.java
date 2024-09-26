@@ -7,6 +7,7 @@
  */
 package com.powsybl.commons.datasource;
 
+import java.nio.file.Files;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -62,21 +63,36 @@ public interface DataSourceUtil {
         return dataSourceBuilder.build();
     }
 
-    static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
-        Objects.requireNonNull(directory);
-        Objects.requireNonNull(fileNameOrBaseName);
+    /**
+     * Creates a {@link DataSource} from the given path. Note that the basename of the created {@link DataSource} is
+     * <ul>
+     *     <li>the file name if the path is a directory</li>
+     *     <li>the base name guessed by {@link FileInformation} if the path is not a directory</li>
+     * </ul>
+     */
+    static DataSource createDataSource(Path path, DataSourceObserver observer) {
+        Objects.requireNonNull(path);
 
-        // Get the file information
-        FileInformation fileInformation = new FileInformation(fileNameOrBaseName);
+        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder().withObserver(observer);
+        if (Files.isDirectory(path)) {
+            dataSourceBuilder.withDirectory(path)
+                .withBaseName(path.getFileName().toString()) // note that we use the full directory name here instead of a parsed representation using FileInformation
+                .withAllFiles(true);
+        } else {
+            Path absFile = path.toAbsolutePath();
+            String fileName = absFile.getFileName().toString();
 
-        DataSourceBuilder dataSourceBuilder = new DataSourceBuilder()
-            .withDirectory(directory)
-            .withArchiveFileName(fileNameOrBaseName)
-            .withBaseName(fileInformation.getBaseName())
-            .withDataExtension(fileInformation.getDataExtension())
-            .withCompressionFormat(fileInformation.getCompressionFormat())
-            .withArchiveFormat(fileInformation.getArchiveFormat())
-            .withObserver(observer);
+            // Get the file information
+            FileInformation fileInformation = new FileInformation(fileName);
+
+            dataSourceBuilder
+                .withDirectory(absFile.getParent())
+                .withArchiveFileName(fileName)
+                .withBaseName(fileInformation.getBaseName())
+                .withDataExtension(fileInformation.getDataExtension())
+                .withCompressionFormat(fileInformation.getCompressionFormat())
+                .withArchiveFormat(fileInformation.getArchiveFormat());
+        }
 
         return dataSourceBuilder.build();
     }
