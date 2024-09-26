@@ -688,7 +688,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
     }
 
     @Test
-    void testWriteBoundaryTnInTopologicalIsland() throws XMLStreamException, IOException {
+    void testWriteBoundaryTnInTopologicalIsland() throws XMLStreamException {
         Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
         Optional<? extends Terminal> terminal = network.getBusBreakerView().getBus("97d7d14a-7294-458f-a8d7-024700a08717").getConnectedTerminalStream().findFirst();
         assertTrue(terminal.isPresent());
