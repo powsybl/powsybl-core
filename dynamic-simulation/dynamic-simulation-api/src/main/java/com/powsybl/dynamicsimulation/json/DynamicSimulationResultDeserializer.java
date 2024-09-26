@@ -43,6 +43,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         DynamicSimulationResult.Status status = null;
         String error = "";
         Map<String, DoubleTimeSeries> curves = new HashMap<>();
+        Map<String, Double> fsv = new HashMap<>();
         List<TimelineEvent> timeLine = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -60,15 +61,19 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     parser.nextToken();
                     deserializeCurves(parser, curves);
                 }
+                case "finalStateValues" -> {
+                    parser.nextToken();
+                    deserializeFinalStateValues(parser, fsv);
+                }
                 case "timeLine" -> {
                     parser.nextToken();
                     deserializeTimeline(parser, timeLine);
                 }
-                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
+                default -> throw getUnexpectedFieldException(parser);
             }
         }
 
-        return new DynamicSimulationResultImpl(status, error, curves, timeLine);
+        return new DynamicSimulationResultImpl(status, error, curves, fsv, timeLine);
     }
 
     private void deserializeCurves(JsonParser parser, Map<String, DoubleTimeSeries> curves) throws IOException {
@@ -78,6 +83,21 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             if (curve != null) {
                 curves.put(curve.getMetadata().getName(), curve);
             }
+        }
+    }
+
+    private void deserializeFinalStateValues(JsonParser parser, Map<String, Double> fsvs) throws IOException {
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            String name = null;
+            double value = 0;
+            while (parser.nextToken() != JsonToken.END_OBJECT) {
+                switch (parser.currentName()) {
+                    case "name" -> name = parser.getValueAsString();
+                    case "value" -> value = parser.getValueAsDouble();
+                    default -> throw getUnexpectedFieldException(parser);
+                }
+            }
+            fsvs.put(name, value);
         }
     }
 
@@ -96,7 +116,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                 case "time" -> time = parser.getValueAsDouble();
                 case "modelName" -> modelName = parser.getValueAsString();
                 case "message" -> message = parser.getValueAsString();
-                default -> throw new IllegalStateException("Unexpected field: " + parser.currentName());
+                default -> throw getUnexpectedFieldException(parser);
             }
         }
         return new TimelineEvent(time, modelName, message);
@@ -120,5 +140,9 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static IllegalStateException getUnexpectedFieldException(JsonParser parser) throws IOException {
+        return new IllegalStateException("Unexpected field: " + parser.currentName());
     }
 }
