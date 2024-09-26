@@ -15,7 +15,6 @@ public interface OutputVariable {
 
     enum OutputType {
         CURVE,
-        /** Final state value **/
         FINAL_STATE
     }
 
