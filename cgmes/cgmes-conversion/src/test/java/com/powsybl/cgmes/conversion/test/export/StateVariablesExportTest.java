@@ -687,6 +687,20 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         assertFalse(svInjectionPattern.matcher(svDisconnected).find());
     }
 
+    @Test
+    void testWriteBoundaryTnInTopologicalIsland() throws XMLStreamException, IOException {
+        Network network = Network.read(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
+        Optional<? extends Terminal> terminal = network.getBusBreakerView().getBus("97d7d14a-7294-458f-a8d7-024700a08717").getConnectedTerminalStream().findFirst();
+        assertTrue(terminal.isPresent());
+        ReferenceTerminals.addTerminal(terminal.get());
+        String sv = exportSvAsString(network, false);
+        Pattern p = Pattern.compile("<cim:TopologicalIsland.TopologicalNodes rdf:resource=");
+        assertEquals(10, p.matcher(sv).results().count());
+        // 10 is the number of topologicalIsland associated to buses + topological nodes associated to dangling lines
+        assertEquals(5, network.getBusBreakerView().getBusStream().count());
+        assertEquals(5, network.getDanglingLineStream().count());
+    }
+
     record ExportedContent(String sv, String tp) {
     }
 
