@@ -22,9 +22,6 @@ import java.util.function.Supplier;
  */
 public class OperationalLimitConversion extends AbstractIdentifiedObjectConversion {
 
-    private static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
-    private static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
-    private static final String CURRENT_LIMIT = "CurrentLimit";
     private static final String LIMIT_TYPE = "limitType";
     private static final String OPERATIONAL_LIMIT = "Operational limit";
     private static final String OPERATIONAL_LIMIT_TYPE_NAME = "operationalLimitTypeName";
@@ -45,7 +42,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
         Terminal terminal = null;
-        if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
+        if (limitSubclass == null || limitSubclass.equals(CgmesNames.ACTIVE_POWER_LIMIT) || limitSubclass.equals(CgmesNames.APPARENT_POWER_LIMIT) || limitSubclass.equals(CgmesNames.CURRENT_LIMIT)) {
+            if (limitSubclass == null) {
+                // Support for CIM14, all limits are assumed to be current
+                limitSubclass = CgmesNames.CURRENT_LIMIT;
+            }
             if (terminalId != null) {
                 terminal = context.terminalMapping().findForFlowLimits(terminalId);
             }
@@ -81,28 +82,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     /**
-     * Get the LoadingLimitsAdder supplier for the given limits group and subclass.
-     * @param limitsGroup The limit group instance for which the adder is called.
-     * @param limitSubClass The subclass of the OperationalLimit.
-     * @return The appropriate LoadingLimitsAdder supplier.
-     */
-    private Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(OperationalLimitsGroup limitsGroup, String limitSubClass) {
-        if (limitSubClass == null) {
-            return limitsGroup::newCurrentLimits;
-        }
-        switch (limitSubClass) {
-            case ACTIVE_POWER_LIMIT:
-                return limitsGroup::newActivePowerLimits;
-            case APPARENT_POWER_LIMIT:
-                return limitsGroup::newApparentPowerLimits;
-            case CURRENT_LIMIT:
-                return limitsGroup::newCurrentLimits;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    /**
      * Create the LoadingLimitsAdder for the given branch + side and the given limit set + subclass.
      * @param terminalNumber The side of the branch to which the OperationalLimit applies.
      * @param limitSubClass The subclass of the OperationalLimit.
@@ -115,14 +94,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup1(limitSetId).orElseGet(() -> {
                 b.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup1(limitSetId); });
-            loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1_" + limitSubClass + "_" + limitSetId,
-                    getLoadingLimitAdderSupplier(limitsGroup, limitSubClass));
+            loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = b.getOperationalLimitsGroup2(limitSetId).orElseGet(() -> {
                 b.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return b.newOperationalLimitsGroup2(limitSetId); });
-            loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2_" + limitSubClass + "_" + limitSetId,
-                    getLoadingLimitAdderSupplier(limitsGroup, limitSubClass));
+            loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
             throw new IllegalArgumentException();
         }
@@ -140,8 +117,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         OperationalLimitsGroup limitsGroup = dl.getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
             dl.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
             return dl.newOperationalLimitsGroup(limitSetId); });
-        loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(dl.getId() + "_" + limitSubClass + "_" + limitSetId,
-                getLoadingLimitAdderSupplier(limitsGroup, limitSubClass));
+        loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
     }
 
     /**
@@ -157,20 +133,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             OperationalLimitsGroup limitsGroup = twt.getLeg1().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return twt.getLeg1().newOperationalLimitsGroup(limitSetId); });
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass + "_" + limitSetId,
-                    getLoadingLimitAdderSupplier(limitsGroup, limitSubClass));
+            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 2) {
             OperationalLimitsGroup limitsGroup = twt.getLeg2().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return twt.getLeg2().newOperationalLimitsGroup(limitSetId); });
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass + "_" + limitSetId,
-                    getLoadingLimitAdderSupplier(limitsGroup, limitSubClass));
+            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else if (terminalNumber == 3) {
             OperationalLimitsGroup limitsGroup = twt.getLeg3().getOperationalLimitsGroup(limitSetId).orElseGet(() -> {
                 twt.setProperty(PROPERTY_PREFIX + limitSetId, limitSetName);
                 return twt.getLeg3().newOperationalLimitsGroup(limitSetId); });
-            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass + "_" + limitSetId,
-                    getLoadingLimitAdderSupplier(limitsGroup, limitSubClass));
+            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(limitsGroup, limitSubClass);
         } else {
             throw new IllegalArgumentException();
         }
