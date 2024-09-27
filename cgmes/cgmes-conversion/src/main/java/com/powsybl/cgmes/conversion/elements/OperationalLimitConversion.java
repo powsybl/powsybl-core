@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -32,7 +33,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
-        super("OperationalLimit", l, context);
+        super(CgmesNames.OPERATIONAL_LIMIT, l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
