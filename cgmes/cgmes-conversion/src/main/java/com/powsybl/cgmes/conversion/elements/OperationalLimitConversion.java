@@ -35,7 +35,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     public OperationalLimitConversion(PropertyBag l, Context context) {
         super("OperationalLimit", l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
-        String limitSetId = p.getLocal(OPERATIONAL_LIMIT_SET_ID);
+        String limitSetId = p.getId(OPERATIONAL_LIMIT_SET_ID);
         String limitSetName = p.getLocal(OPERATIONAL_LIMIT_SET_NAME);
         limitSetName = limitSetName != null ? limitSetName : limitSetId;
         // Limit can associated to a Terminal or to an Equipment

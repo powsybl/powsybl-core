@@ -43,7 +43,7 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         assertEquals(2, line.getOperationalLimitsGroups2().size());
 
         // The winter set (_OLS_3) contains current limits and active power limits
-        Optional<OperationalLimitsGroup> winterLimits = line.getOperationalLimitsGroup2("_OLS_3");
+        Optional<OperationalLimitsGroup> winterLimits = line.getOperationalLimitsGroup2("OLS_3");
         assertTrue(winterLimits.isPresent());
         assertTrue(winterLimits.get().getCurrentLimits().isPresent());
         assertTrue(winterLimits.get().getActivePowerLimits().isPresent());
@@ -72,7 +72,7 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
 
         // Manually select one of the limits group on side 2 and export again
         Line line = network.getLine("Line");
-        line.setSelectedOperationalLimitsGroup2("_OLS_2");
+        line.setSelectedOperationalLimitsGroup2("OLS_2");
         network.write("CGMES", exportParams, tmpDir.resolve("ExportSelectedLimitsGroup.xml"));
         exportSelectedLimitsGroupXml = Files.readString(tmpDir.resolve("ExportSelectedLimitsGroup_EQ.xml"));
 
