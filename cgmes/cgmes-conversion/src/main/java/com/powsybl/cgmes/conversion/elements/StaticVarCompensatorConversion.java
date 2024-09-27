@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForStaticVarCompensators;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControlAdder;
@@ -21,7 +22,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
 
     public StaticVarCompensatorConversion(PropertyBag svc, Context context) {
-        super("StaticVarCompensator", svc, context);
+        super(CgmesNames.STATIC_VAR_COMPENSATOR, svc, context);
     }
 
     @Override

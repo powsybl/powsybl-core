@@ -28,7 +28,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     private static final String SECTION_NUMBER = "sectionNumber";
 
     public ShuntConversion(PropertyBag sh, Context context) {
-        super("ShuntCompensator", sh, context);
+        super(CgmesNames.SHUNT_COMPENSATOR, sh, context);
     }
 
     private int getSections(PropertyBag p, int normalSections) {
