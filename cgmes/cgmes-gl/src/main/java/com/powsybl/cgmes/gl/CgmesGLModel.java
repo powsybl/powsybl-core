@@ -49,7 +49,7 @@ public class CgmesGLModel {
         return tripleStore.query(query);
     }
 
-    public PropertyBags getSubstationVoltageLevelPosition() {
+    public PropertyBags getSubstationVoltageLevelPositions() {
         LOG.info("Querying triple store for substation and voltage level positions");
         return queryTripleStore(SUBSTATION_VL_POSITION_QUERY_KEY);
     }

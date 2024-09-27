@@ -40,7 +40,7 @@ public class SubstationPositionImporter {
     public void importPositions() {
         Map<Substation, List<Coordinate>> vlCoordinates = new HashMap<>();
 
-        cgmesGLModel.getSubstationVoltageLevelPosition().forEach(propertyBag -> importPositions(propertyBag, vlCoordinates));
+        cgmesGLModel.getSubstationVoltageLevelPositions().forEach(propertyBag -> importPositions(propertyBag, vlCoordinates));
 
         vlCoordinates.forEach((substation, coordinates) -> {
             // only calculating the average position if there's no position on the corresponding substation
