@@ -99,7 +99,7 @@ class ExtendedAmplExporterTest extends AbstractSerDeTest {
         assertEqualsToRef(dataSource, "_network_substations", "inputs/three-windings-transformers-substations.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/three-windings-transformers-limits.txt");
 
-        // Check that slack bus has been added to buses file
+        // Check that slack bus and sc have been added to buses file
         assertEqualsToRef(dataSource, "_network_buses",
                 "inputs/extended_exporter/three-windings-transformers-buses.txt");
 
