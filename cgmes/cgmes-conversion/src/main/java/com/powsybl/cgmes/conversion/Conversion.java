@@ -147,8 +147,9 @@ public class Conversion {
         }
 
         // Apply preprocessors, which mainly create missing containers
-        CgmesReports.applyingPreprocessorsReport(reportNode);
+        ReportNode preProcessorsNode = CgmesReports.applyingPreprocessorsReport(reportNode);
         for (CgmesImportPreProcessor preProcessor : preProcessors) {
+            CgmesReports.applyingProcessorReport(preProcessorsNode, preProcessor.getName());
             preProcessor.process(cgmes);
         }
         if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
@@ -163,11 +164,14 @@ public class Conversion {
         addCimCharacteristics(network);
 
         // Build mappings
+        context.pushReportNode(CgmesReports.buildingMappingsReport(reportNode));
+        context.substationIdMapping().build();
         BaseVoltageMappingAdder bvAdder = network.newExtension(BaseVoltageMappingAdder.class);
         cgmes.baseVoltages().forEach(bv -> bvAdder.addBaseVoltage(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage"), isBoundaryBaseVoltage(bv.getLocal("graph"))));
         bvAdder.add();
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
+        context.popReportNode();
 
         // Convert containers
         convert(cgmes.substations(), CgmesNames.SUBSTATION, context);
@@ -195,8 +199,7 @@ public class Conversion {
         convert(cgmes.equivalentShunts(), CgmesNames.EQUIVALENT_SHUNT, context);
         convert(cgmes.staticVarCompensators(), CgmesNames.STATIC_VAR_COMPENSATOR, context);
         convert(cgmes.asynchronousMachines(), CgmesNames.ASYNCHRONOUS_MACHINE, context);
-        convert(cgmes.synchronousMachinesGenerators(), CgmesNames.SYNCHRONOUS_MACHINE, context);
-        convert(cgmes.synchronousMachinesCondensers(), "Condenser", context);
+        convert(cgmes.synchronousMachinesAll(), CgmesNames.SYNCHRONOUS_MACHINE, context);
 
         // Convert multiple terminals equipments
         // We will delay the conversion of some lines/switches that have an end at boundary
@@ -263,10 +266,11 @@ public class Conversion {
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();
         }
 
-        CgmesReports.applyingPostprocessorsReport(reportNode);
+        ReportNode postProcessorsNode = CgmesReports.applyingPostprocessorsReport(reportNode);
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
             // TODO maybe pass the properties to the post processors
+            CgmesReports.applyingProcessorReport(postProcessorsNode, postProcessor.getName());
             postProcessor.process(network, cgmes.tripleStore());
         }
 
@@ -393,8 +397,7 @@ public class Conversion {
             AbstractObjectConversion c = switch (elementType) {
                 case CgmesNames.SUBSTATION -> new SubstationConversion(element, context);
                 case CgmesNames.VOLTAGE_LEVEL -> new VoltageLevelConversion(element, context);
-                case CgmesNames.CONNECTIVITY_NODE -> new NodeConversion(CgmesNames.CONNECTIVITY_NODE, element, context);
-                case CgmesNames.TOPOLOGICAL_NODE -> new NodeConversion(CgmesNames.TOPOLOGICAL_NODE, element, context);
+                case CgmesNames.CONNECTIVITY_NODE, CgmesNames.TOPOLOGICAL_NODE -> new NodeConversion(elementType, element, context);
                 case CgmesNames.BUSBAR_SECTION -> new BusbarSectionConversion(element, context);
                 case CgmesNames.GROUND -> new GroundConversion(element, context);
                 case CgmesNames.ENERGY_CONSUMER -> new EnergyConsumerConversion(element, context);
@@ -405,7 +408,7 @@ public class Conversion {
                 case CgmesNames.EQUIVALENT_SHUNT -> new EquivalentShuntConversion(element, context);
                 case CgmesNames.STATIC_VAR_COMPENSATOR -> new StaticVarCompensatorConversion(element, context);
                 case CgmesNames.ASYNCHRONOUS_MACHINE -> new AsynchronousMachineConversion(element, context);
-                case CgmesNames.SYNCHRONOUS_MACHINE, "Condenser" -> new SynchronousMachineConversion(element, context);
+                case CgmesNames.SYNCHRONOUS_MACHINE -> new SynchronousMachineConversion(element, context);
                 case CgmesNames.SERIES_COMPENSATOR -> new SeriesCompensatorConversion(element, context);
                 case CgmesNames.OPERATIONAL_LIMIT -> new OperationalLimitConversion(element, context);
                 case CgmesNames.SV_INJECTION -> new SvInjectionConversion(element, context);
@@ -428,7 +431,6 @@ public class Conversion {
 
     private Context createContext(Network network, ReportNode reportNode) {
         Context context = new Context(cgmes, config, network, reportNode);
-        context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangers();
         context.loadPhaseTapChangers();

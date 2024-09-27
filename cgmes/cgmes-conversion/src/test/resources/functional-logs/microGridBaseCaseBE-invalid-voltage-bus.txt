@@ -8,10 +8,11 @@
       Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
    + Importing CGMES file(s)
       Applying preprocessors.
+      Building mappings.
       Converting Substation.
       Converting VoltageLevel.
       + Converting TopologicalNode.
-         Node e44141af-f1dc-44d3-bfa4-b674e5c953d7 in substation PP_Brussels, voltageLevel 380.0, bus e44141af-f1dc-44d3-bfa4-b674e5c953d7 has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
+         Node e44141af-f1dc-44d3-bfa4-b674e5c953d7 in substation PP_Brussels, voltageLevel 380.0, bus e44141af-f1dc-44d3-bfa4-b674e5c953d7 has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
       Converting BusbarSection.
       Converting Ground.
       Converting EnergyConsumer.
@@ -23,7 +24,6 @@
       Converting StaticVarCompensator.
       Converting AsynchronousMachine.
       Converting SynchronousMachine.
-      Converting Condenser.
       Converting Switch.
       Converting ACLineSegment.
       Converting EquivalentBranch.
@@ -35,8 +35,8 @@
       Converting SvInjection.
       Converting ControlArea.
       + Converting RegulatingControl.
-         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0
-         Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0
+         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0.
+         Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
       Fixing issues with dangling lines.
       Setting voltages and angles.
       Applying postprocessors.

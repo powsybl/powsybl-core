@@ -7,6 +7,7 @@
       Instance file MicroGridTestConfiguration_BC_BE_SSH_V2.xml
    + Importing CGMES file(s)
       Applying preprocessors.
+      Building mappings.
       Converting Substation.
       Converting VoltageLevel.
       Converting TopologicalNode.
@@ -21,7 +22,6 @@
       Converting StaticVarCompensator.
       Converting AsynchronousMachine.
       Converting SynchronousMachine.
-      Converting Condenser.
       Converting Switch.
       Converting ACLineSegment.
       Converting EquivalentBranch.
@@ -33,10 +33,10 @@
       Converting SvInjection.
       Converting ControlArea.
       + Converting RegulatingControl.
-         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0
-         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target deadband: -0.5
-         Equipment 6ebbef67-3061-4236-a6fd-6ccc4595f6c3 has a regulating control with bad target deadband: -35.0
-         Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0
+         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target value for voltage: 0.0.
+         Equipment 955d9cd0-4a10-4031-b008-60c0dc340a07 has a regulating control with bad target deadband: -0.5.
+         Equipment 6ebbef67-3061-4236-a6fd-6ccc4595f6c3 has a regulating control with bad target deadband: -35.0.
+         Equipment fe25f43a-7341-446e-a71a-8ab7119ba806 has a regulating control with bad target value for voltage: 0.0.
       Fixing issues with dangling lines.
       Setting voltages and angles.
       Applying postprocessors.

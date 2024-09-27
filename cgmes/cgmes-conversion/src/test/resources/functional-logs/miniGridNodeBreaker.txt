@@ -8,6 +8,7 @@
       Instance file MiniGridTestConfiguration_BC_TP_v3.0.0.xml
    + Importing CGMES file(s)
       Applying preprocessors.
+      Building mappings.
       Converting Substation.
       Converting VoltageLevel.
       Converting ConnectivityNode.
@@ -22,7 +23,6 @@
       Converting StaticVarCompensator.
       Converting AsynchronousMachine.
       Converting SynchronousMachine.
-      Converting Condenser.
       Converting Switch.
       Converting ACLineSegment.
       Converting EquivalentBranch.
@@ -36,7 +36,7 @@
       Converting RegulatingControl.
       Fixing issues with dangling lines.
       + Setting voltages and angles.
-         Node 183d126d-2522-4ff2-a8cd-c5016cf09c1b has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
-         Node 49831d24-33e9-4233-8424-3f88186a924e has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0
+         Node 183d126d-2522-4ff2-a8cd-c5016cf09c1b has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
+         Node 49831d24-33e9-4233-8424-3f88186a924e has invalid value for voltage and/or angle. Voltage magnitude is 0.0, angle is 0.0.
       Applying postprocessors.
       CGMES network urn:uuid:239ecbd2-9a39-11e0-aa80-0800200c9a66 is imported.

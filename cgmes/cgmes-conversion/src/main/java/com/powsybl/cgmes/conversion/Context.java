@@ -41,8 +41,7 @@ public class Context {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.network = Objects.requireNonNull(network);
-        this.reportNode = Objects.requireNonNull(reportNode);
-        pushReportNode(reportNode);
+        pushReportNode(Objects.requireNonNull(reportNode));
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -208,10 +207,6 @@ public class Context {
 
     // Handling issues found during conversion
 
-    public ReportNode getRootReportNode() {
-        return reportNode;
-    }
-
     public ReportNode getReportNode() {
         return network.getReportNodeContext().getReportNode();
     }
@@ -307,8 +302,6 @@ public class Context {
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
-
-    private final ReportNode reportNode;
 
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
