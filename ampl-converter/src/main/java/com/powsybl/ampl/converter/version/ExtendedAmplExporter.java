@@ -253,7 +253,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
 
     @Override
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
-        int regulatingBusNum = gen.isVoltageRegulatorOn() ?
+        int regulatingBusNum = gen.isVoltageRegulatorOn() && gen.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, gen.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
         formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);
     }
@@ -262,7 +262,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
                                                        StaticVarCompensator svc) {
         boolean voltageRegulation = svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE);
-        int regulatingBusNum = voltageRegulation ?
+        int regulatingBusNum = voltageRegulation && svc.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, svc.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
         // Cell to add

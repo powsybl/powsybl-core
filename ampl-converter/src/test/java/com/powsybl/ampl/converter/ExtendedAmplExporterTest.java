@@ -271,15 +271,15 @@ class ExtendedAmplExporterTest extends AbstractSerDeTest {
         assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/buses-vsc-test-case.txt");
     }
 
-//    @Test
-//    void writeTwoConnectedComponent() throws IOException {
-//        Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
-//
-//        exporter.export(network, properties, dataSource);
-//
-//        // Check that synchronous components are different for the two connected component
-//        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/two-connected-components-buses.txt");
-//    }
+    @Test
+    void writeTwoConnectedComponent() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
+
+        exporter.export(network, properties, dataSource);
+
+        // Check that synchronous components are different for the two connected component
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/extended_exporter/two-connected-components-buses.txt");
+    }
 
     @Test
     void testVersion() throws IOException {
