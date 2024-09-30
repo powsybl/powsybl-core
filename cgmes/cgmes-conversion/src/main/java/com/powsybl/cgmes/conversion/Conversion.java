@@ -34,7 +34,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.Conversion.Config.StateProfile.SSH;
@@ -281,14 +280,15 @@ public class Conversion {
     }
 
     /**
-     * Retrieve the Collection of OperationalLimitGroups for identifiable that have flow limits (branch, dangling line, 3w-transformer).
+     * Retrieve the Collection of OperationalLimitGroups for identifiable that have flow limits
+     * (branch, dangling line, 3w-transformer).
      * If the collection has only one element, it gets to be the identifiable's selectedGroup.
-     * If there is more than one element in the collection, do nothing. The identifiable's selectedGroup should then be set by the user after the conversion.
+     * If there is more than one element in the collection, don't set any as selected.
      * @param context The conversion's Context.
      */
     private void setSelectedOperationalLimitsGroup(Context context) {
         // Set selected limits group for branches
-        for (Branch<?> branch : context.network().getBranches()) {
+        context.network().getBranchStream().map(b -> (Branch<?>) b).forEach(branch -> {
             // Side 1
             Collection<OperationalLimitsGroup> limitsHolder1 = branch.getOperationalLimitsGroups1();
             if (limitsHolder1.size() == 1) {
@@ -299,24 +299,23 @@ public class Conversion {
             if (limitsHolder2.size() == 1) {
                 branch.setSelectedOperationalLimitsGroup2(limitsHolder2.iterator().next().getId());
             }
-        }
+        });
 
         // Set selected limits group for Dangling lines
-        for (DanglingLine dl : context.network().getDanglingLines()) {
+        context.network().getDanglingLineStream().forEach(dl -> {
             Collection<OperationalLimitsGroup> limitsHolder = dl.getOperationalLimitsGroups();
             if (limitsHolder.size() == 1) {
                 dl.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
             }
-        }
+        });
 
         // Set selected limits group for 3w transformers legs
-        for (ThreeWindingsTransformer.Leg leg : context.network().getThreeWindingsTransformerStream()
-                .flatMap(ThreeWindingsTransformer::getLegStream).collect(Collectors.toSet())) {
+        context.network().getThreeWindingsTransformerStream().flatMap(ThreeWindingsTransformer::getLegStream).forEach(leg -> {
             Collection<OperationalLimitsGroup> limitsHolder = leg.getOperationalLimitsGroups();
             if (limitsHolder.size() == 1) {
                 leg.setSelectedOperationalLimitsGroup(limitsHolder.iterator().next().getId());
             }
-        }
+        });
     }
 
     private void handleDangingLineDisconnectedAtBoundary(Network network, Context context) {
