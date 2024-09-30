@@ -10,6 +10,7 @@ package com.powsybl.ampl.converter.version;
 import com.powsybl.ampl.converter.AmplConstants;
 import com.powsybl.ampl.converter.AmplExportConfig;
 import com.powsybl.ampl.converter.AmplSubset;
+import com.powsybl.ampl.converter.AmplUtil;
 import com.powsybl.ampl.converter.util.NetworkUtil;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
@@ -26,6 +27,7 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
 /**
  * 1st extension of BasicAmplExporter, associated with AMPL version 1.1 (exporter id).
  * The extension adds:
+ *  - A synchronous component number in the bus tables.
  *  - A slack bus boolean in the bus table.
  *  - R, G and B characteristics in tap tables.
  *  - The regulated bus in generator and static var compensator tables.
@@ -35,12 +37,15 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class ExtendedAmplExporter extends BasicAmplExporter {
 
-    private static final int SLACK_BUS_COLUMN_INDEX = 8;
+    private static final int SYNCHRONOUS_COMPONENT_COLUMN_INDEX = 4;
+    private static final int SLACK_BUS_COLUMN_INDEX = 9;
     private static final int TAP_CHANGER_R_COLUMN_INDEX = 4;
     private static final int TAP_CHANGER_G_COLUMN_INDEX = 6;
     private static final int TAP_CHANGER_B_COLUMN_INDEX = 7;
     private static final int GENERATOR_V_REGUL_BUS_COLUMN_INDEX = 14;
     private static final int STATIC_VAR_COMPENSATOR_V_REGUL_BUS_COLUMN_INDEX = 8;
+
+    private int otherScNum = Integer.MAX_VALUE;
 
     public ExtendedAmplExporter(AmplExportConfig config,
                                 Network network,
@@ -54,6 +59,8 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     @Override
     public List<Column> getBusesColumns() {
         List<Column> busesColumns = new ArrayList<>(super.getBusesColumns());
+        // add synchronous component column
+        busesColumns.add(SYNCHRONOUS_COMPONENT_COLUMN_INDEX, new Column("sc"));
         // add slack bus column
         busesColumns.add(SLACK_BUS_COLUMN_INDEX, new Column("slack bus"));
         return busesColumns;
@@ -87,6 +94,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
 
     @Override
     public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
+        formatterHelper.addCell(b.getSynchronousComponent().getNum(), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
         formatterHelper.addCell(NetworkUtil.isSlackBus(b), SLACK_BUS_COLUMN_INDEX);
     }
 
@@ -94,19 +102,64 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
                                                                              ThreeWindingsTransformer twt,
                                                                              int middleCcNum) {
+        formatterHelper.addCell(getThreeWindingsTransformerMiddleBusSCNum(twt), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
         formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
+    }
+
+    private int getThreeWindingsTransformerMiddleBusSCNum(ThreeWindingsTransformer twt) {
+        Terminal t1 = twt.getLeg1().getTerminal();
+        Terminal t2 = twt.getLeg2().getTerminal();
+        Terminal t3 = twt.getLeg3().getTerminal();
+        Bus b1 = AmplUtil.getBus(t1);
+        Bus b2 = AmplUtil.getBus(t2);
+        Bus b3 = AmplUtil.getBus(t3);
+        int middleScNum;
+        if (b1 != null) {
+            middleScNum = b1.getSynchronousComponent().getNum();
+        } else if (b2 != null) {
+            middleScNum = b2.getSynchronousComponent().getNum();
+        } else if (b3 != null) {
+            middleScNum = b3.getSynchronousComponent().getNum();
+        } else {
+            middleScNum = otherScNum--;
+        }
+
+        return middleScNum;
     }
 
     @Override
     public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
                                                           int middleCcNum) {
+        formatterHelper.addCell(getDanglingLineMiddleBusSCNum(dl), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
         formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
+    }
+
+    private int getDanglingLineMiddleBusSCNum(DanglingLine dl) {
+        Bus b = AmplUtil.getBus(dl.getTerminal());
+        return b != null ? b.getSynchronousComponent().getNum() : otherScNum--;
     }
 
     @Override
     public void addAdditionalCellsTieLineMiddleBuses(TableFormatterHelper formatterHelper, TieLine tieLine,
                                                      int xNodeCcNum) {
+        formatterHelper.addCell(getTieLineMiddleBusSCNum(tieLine), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
         formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
+    }
+
+    private int getTieLineMiddleBusSCNum(TieLine tieLine) {
+        Terminal t1 = tieLine.getDanglingLine1().getTerminal();
+        Terminal t2 = tieLine.getDanglingLine2().getTerminal();
+        Bus b1 = AmplUtil.getBus(t1);
+        Bus b2 = AmplUtil.getBus(t2);
+        int xNodeScNum;
+        if (b1 != null) {
+            xNodeScNum = b1.getSynchronousComponent().getNum();
+        } else if (b2 != null) {
+            xNodeScNum = b2.getSynchronousComponent().getNum();
+        } else {
+            xNodeScNum = otherScNum--;
+        }
+        return xNodeScNum;
     }
 
     @Override
@@ -200,7 +253,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
 
     @Override
     public void addAdditionalCellsGenerator(TableFormatterHelper formatterHelper, Generator gen) {
-        int regulatingBusNum = gen.isVoltageRegulatorOn() ?
+        int regulatingBusNum = gen.isVoltageRegulatorOn() && gen.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, gen.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
         formatterHelper.addCell(regulatingBusNum, GENERATOR_V_REGUL_BUS_COLUMN_INDEX);
     }
@@ -209,7 +262,7 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     public void addAdditionalCellsStaticVarCompensator(TableFormatterHelper formatterHelper,
                                                        StaticVarCompensator svc) {
         boolean voltageRegulation = svc.getRegulationMode().equals(StaticVarCompensator.RegulationMode.VOLTAGE);
-        int regulatingBusNum = voltageRegulation ?
+        int regulatingBusNum = voltageRegulation && svc.getRegulatingTerminal().isConnected() ?
             getMapper().getInt(AmplSubset.BUS, svc.getRegulatingTerminal().getBusView().getBus().getId()) : -1;
 
         // Cell to add
