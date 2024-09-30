@@ -10,10 +10,8 @@ package com.powsybl.cgmes.conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
@@ -55,15 +53,13 @@ public class LoadingLimitsMapping {
      * This method shall be called after all the CGMES OperationalLimit have been converted.
      */
     void addAll() {
-        for (Map<OperationalLimitsGroup, ? extends LoadingLimitsAdder> adder : List.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders)) {
-            for (Map.Entry<OperationalLimitsGroup, ? extends LoadingLimitsAdder> entry : adder.entrySet()) {
-                if (!Double.isNaN(entry.getValue().getPermanentLimit()) || entry.getValue().hasTemporaryLimits()) {
-                    entry.getValue()
-                            .fixLimits(context.config().getMissingPermanentLimitPercentage(), context::fixed)
-                            .add();
-                }
+        Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders).flatMap(m -> m.values().stream()).forEach(adder -> {
+            if (!Double.isNaN(adder.getPermanentLimit()) || adder.hasTemporaryLimits()) {
+                adder.fixLimits(context.config().getMissingPermanentLimitPercentage(), context::fixed)
+                        .add();
             }
-            adder.clear();
-        }
+        });
+
+        Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders).forEach(Map::clear);
     }
 }
