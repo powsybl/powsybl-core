@@ -140,6 +140,10 @@ public final class CgmesNames {
     public static final String EXTERNAL_NETWORK_INJECTION = "ExternalNetworkInjection";
 
     public static final String OPERATIONAL_LIMIT = "OperationalLimit";
+    public static final String OPERATIONAL_LIMIT_SET = "OperationalLimitSet";
+    public static final String CURRENT_LIMIT = "CurrentLimit";
+    public static final String ACTIVE_POWER_LIMIT = "ActivePowerLimit";
+    public static final String APPARENT_POWER_LIMIT = "ApparentPowerLimit";
 
     private CgmesNames() {
     }
