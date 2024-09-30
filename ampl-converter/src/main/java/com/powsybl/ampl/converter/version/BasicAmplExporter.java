@@ -34,13 +34,13 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class BasicAmplExporter implements AmplColumnsExporter {
 
-    protected final AmplExportConfig config;
-    protected final Network network;
-    protected final StringToIntMapper<AmplSubset> mapper;
-    protected final int variantIndex;
-    protected final int faultNum;
-    protected final int actionNum;
-    protected HashMap<String, HvdcLine> hvdcLinesMap;
+    private final AmplExportConfig config;
+    private final Network network;
+    private final StringToIntMapper<AmplSubset> mapper;
+    private final int variantIndex;
+    private final int faultNum;
+    private final int actionNum;
+    private HashMap<String, HvdcLine> hvdcLinesMap;
 
     public BasicAmplExporter(AmplExportConfig config, Network network, StringToIntMapper<AmplSubset> mapper,
                              int variantIndex, int faultNum, int actionNum) {
@@ -1555,11 +1555,11 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         return lineMap;
     }
 
-    int getBusNum(Bus bus) {
+    private int getBusNum(Bus bus) {
         return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
     }
 
-    static double getPermanentLimit(CurrentLimits limits) {
+    private static double getPermanentLimit(CurrentLimits limits) {
         if (limits != null) {
             return limits.getPermanentLimit();
         }
