@@ -70,38 +70,17 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case BUS_ID:
-                    if (securityResultVersion != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_ID,
-                            securityResultVersion, "1.7");
-                    }
-                    if (shortCircuitResultVersion != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_ID,
-                            shortCircuitResultVersion, "1.3");
-                    }
+                    checkVersions(securityResultVersion, shortCircuitResultVersion);
                     busId = parser.nextTextValue();
                     break;
 
                 case VOLTAGE_LEVEL_ID:
-                    if (securityResultVersion != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, VOLTAGE_LEVEL_ID,
-                            securityResultVersion, "1.7");
-                    }
-                    if (shortCircuitResultVersion != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, VOLTAGE_LEVEL_ID,
-                            shortCircuitResultVersion, "1.3");
-                    }
+                    checkVersions(securityResultVersion, shortCircuitResultVersion);
                     voltageLevelId = parser.nextTextValue();
                     break;
 
                 case BUS_BAR_IDS:
-                    if (securityResultVersion != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
-                            securityResultVersion, "1.7");
-                    }
-                    if (shortCircuitResultVersion != null) {
-                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
-                            shortCircuitResultVersion, "1.3");
-                    }
+                    checkVersions(securityResultVersion, shortCircuitResultVersion);
                     parser.nextToken();
                     busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
@@ -165,5 +144,16 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
+    }
+
+    private void checkVersions(String securityResultVersion, String shortCircuitResultVersion) {
+        if (securityResultVersion != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
+                securityResultVersion, "1.7");
+        }
+        if (shortCircuitResultVersion != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
+                shortCircuitResultVersion, "1.3");
+        }
     }
 }
