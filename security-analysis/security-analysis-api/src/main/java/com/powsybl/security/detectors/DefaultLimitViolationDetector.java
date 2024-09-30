@@ -78,7 +78,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     @Override
     public void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
-        ViolationLocation voltageViolationLocation = createViolationLocation(bus, vl);
+        ViolationLocation voltageViolationLocation = createViolationLocation(bus);
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), limitReductionValue, value, voltageViolationLocation));

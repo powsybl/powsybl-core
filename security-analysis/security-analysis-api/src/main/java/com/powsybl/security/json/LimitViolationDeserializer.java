@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
@@ -31,6 +33,8 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+    public static final String SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE = "shortCircuitResultVersion";
+    private static final String CONTEXT_NAME = "limit-violation";
 
     public LimitViolationDeserializer() {
         super(LimitViolation.class);
@@ -38,6 +42,8 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
     @Override
     public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        String securityResultVersion = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
+        String shortCircuitResultVersion = JsonUtil.getSourceVersion(deserializationContext, SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE);
         String subjectId = null;
         String subjectName = null;
         LimitViolationType limitType = null;
@@ -101,6 +107,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case "violationLocation":
+                    checkVersions(securityResultVersion, shortCircuitResultVersion, "violationLocation");
                     parser.nextToken();
                     violationLocation = JsonUtil.readValue(deserializationContext, parser, ViolationLocation.class);
                     break;
@@ -114,5 +121,16 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
+    }
+
+    private void checkVersions(String securityResultVersion, String shortCircuitResultVersion, String fieldName) {
+        if (securityResultVersion != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
+                securityResultVersion, "1.7");
+        }
+        if (shortCircuitResultVersion != null) {
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
+                shortCircuitResultVersion, "1.3");
+        }
     }
 }

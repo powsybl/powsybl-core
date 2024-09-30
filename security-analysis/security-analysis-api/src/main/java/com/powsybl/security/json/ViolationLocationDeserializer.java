@@ -20,8 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
-
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
@@ -30,8 +28,6 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
     private static final String BUS_ID = "busId";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String BUS_BAR_IDS = "busbarIds";
-    public static final String SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE = "shortCircuitResultVersion";
-    private static final String CONTEXT_NAME = "violation-location";
 
     public ViolationLocationDeserializer() {
         super(ViolationLocation.class);
@@ -42,8 +38,6 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
         String voltageLevelId = null;
         String busId = null;
         List<String> busbarIds = new ArrayList<>();
-        String securityResultVersion = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
-        String shortCircuitResultVersion = JsonUtil.getSourceVersion(deserializationContext, SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE);
         ViolationLocation.Type type = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -52,17 +46,14 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
                     type = JsonUtil.readValue(deserializationContext, parser, ViolationLocation.Type.class);
                     break;
                 case BUS_ID:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion, BUS_ID);
                     busId = parser.nextTextValue();
                     break;
 
                 case VOLTAGE_LEVEL_ID:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion, VOLTAGE_LEVEL_ID);
                     voltageLevelId = parser.nextTextValue();
                     break;
 
                 case BUS_BAR_IDS:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion, BUS_BAR_IDS);
                     parser.nextToken();
                     busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
@@ -70,26 +61,12 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-
-        ViolationLocation violationLocation = null;
         if (type == ViolationLocation.Type.NODE_BREAKER) {
-            violationLocation = new NodeBreakerViolationLocation(voltageLevelId, busbarIds);
+            return new NodeBreakerViolationLocation(voltageLevelId, busbarIds);
         } else if (type == ViolationLocation.Type.BUS_BREAKER) {
-            violationLocation = new BusBreakerViolationLocation(voltageLevelId, busId);
+            return new BusBreakerViolationLocation(voltageLevelId, busId);
         } else {
-            throw new IllegalStateException("type can not be null for ViolationLocation");
-        }
-        return violationLocation;
-    }
-
-    private void checkVersions(String securityResultVersion, String shortCircuitResultVersion, String fieldName) {
-        if (securityResultVersion != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
-                securityResultVersion, "1.7");
-        }
-        if (shortCircuitResultVersion != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
-                shortCircuitResultVersion, "1.3");
+            throw new IllegalStateException("type should be among [NODE_BREAKER, BUS_BREAKER].");
         }
     }
 }

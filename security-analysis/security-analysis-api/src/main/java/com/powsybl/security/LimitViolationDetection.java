@@ -206,7 +206,7 @@ public final class LimitViolationDetection {
 
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
-        ViolationLocation voltageViolationLocation = createViolationLocation(bus, vl);
+        ViolationLocation voltageViolationLocation = createViolationLocation(bus);
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), 1., value, voltageViolationLocation));
@@ -265,7 +265,8 @@ public final class LimitViolationDetection {
                 });
     }
 
-    public static ViolationLocation createViolationLocation(Bus bus, VoltageLevel vl) {
+    public static ViolationLocation createViolationLocation(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
         if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
             List<String> busbarIds = bus.getConnectedTerminalStream()
                 .map(Terminal::getConnectable)
