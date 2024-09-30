@@ -7,6 +7,8 @@
  */
 package com.powsybl.iidm.geodata.utils;
 
+import com.powsybl.iidm.network.extensions.Coordinate;
+
 /**
  * @author Chamseddine Benhamed {@literal <chamseddine.benhamed at rte-france.com>}
  */
@@ -14,6 +16,10 @@ public final class DistanceCalculator {
 
     private DistanceCalculator() {
 
+    }
+
+    public static double distance(Coordinate coord1, Coordinate coord2) {
+        return DistanceCalculator.distance(coord1.getLatitude(), coord1.getLongitude(), coord2.getLatitude(), coord2.getLongitude());
     }
 
     /**

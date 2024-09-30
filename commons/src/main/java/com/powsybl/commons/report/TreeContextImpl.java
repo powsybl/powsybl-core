@@ -10,34 +10,49 @@ package com.powsybl.commons.report;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
  * @author Florian Dupuy {@literal <florian.dupuy at rte-france.com>}
  */
-public class RootContext {
-    private static final Logger LOGGER = LoggerFactory.getLogger(RootContext.class);
+public class TreeContextImpl implements TreeContext {
+    private static final Logger LOGGER = LoggerFactory.getLogger(TreeContextImpl.class);
     private final SortedMap<String, String> dictionary = new TreeMap<>();
     private final boolean timestamps;
     private final DateTimeFormatter timestampFormatter;
 
-    public RootContext() {
+    public TreeContextImpl() {
         this(false);
     }
 
-    public RootContext(boolean timestamps) {
+    public TreeContextImpl(boolean timestamps) {
         this(timestamps, ReportConstants.DEFAULT_TIMESTAMP_FORMATTER);
     }
 
-    public RootContext(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
+    public TreeContextImpl(boolean timestamps, DateTimeFormatter dateTimeFormatter) {
         this.timestamps = timestamps;
         this.timestampFormatter = Objects.requireNonNull(dateTimeFormatter);
     }
 
+    @Override
     public Map<String, String> getDictionary() {
         return Collections.unmodifiableMap(dictionary);
+    }
+
+    @Override
+    public DateTimeFormatter getTimestampFormatter() {
+        return timestampFormatter;
+    }
+
+    @Override
+    public boolean isTimestampAdded() {
+        return timestamps;
+    }
+
+    @Override
+    public synchronized void merge(TreeContext otherContext) {
+        otherContext.getDictionary().forEach(this::addDictionaryEntry);
     }
 
     public synchronized void addDictionaryEntry(String key, String messageTemplate) {
@@ -49,17 +64,5 @@ public class RootContext {
             LOGGER.warn("Same key {} for two non-equal message templates: '{}' / '{}'. Keeping the first one.", key, previousMessageTemplate, newMessageTemplate);
         }
         return previousMessageTemplate;
-    }
-
-    public synchronized void merge(RootContext otherContext) {
-        otherContext.dictionary.forEach(this::addDictionaryEntry);
-    }
-
-    public boolean isTimestampAdded() {
-        return timestamps;
-    }
-
-    public TypedValue getTimestamp() {
-        return new TypedValue(timestampFormatter.format(ZonedDateTime.now()), TypedValue.TIMESTAMP);
     }
 }

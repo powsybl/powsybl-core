@@ -28,6 +28,13 @@ class HvdcLineModificationTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new HvdcLineModification("L", true, 280.0,
+                HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, 0.0, 0.0, false);
+        assertEquals("HvdcLineModification", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         NetworkModification modification1 = new HvdcLineModification("WRONG_ID", true, 12.0,
             HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, 0.0, 0.0, false);

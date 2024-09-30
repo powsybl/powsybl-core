@@ -218,7 +218,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
-        assertTrue(compareNetworksEQdata(network, actual));
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
     }
 
     @Test
@@ -238,7 +244,13 @@ class EquipmentExportTest extends AbstractSerDeTest {
         TwoWindingsTransformer twta = actual.getTwoWindingsTransformerStream().findFirst().orElseThrow();
         network.getTwoWindingsTransformers().forEach(twtn -> twtn.setRatedS(twta.getRatedS()));
 
-        assertTrue(compareNetworksEQdata(network, actual));
+        // Ignore OperationalLimitsGroup id
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringNonEQ,
+                ExportXmlCompare::ignoringOperationalLimitsGroupId);
+        assertTrue(compareNetworksEQdata(network, actual, knownDiffs));
     }
 
     private void prepareNetworkForSortedTransformerEndsComparison(Network network) {

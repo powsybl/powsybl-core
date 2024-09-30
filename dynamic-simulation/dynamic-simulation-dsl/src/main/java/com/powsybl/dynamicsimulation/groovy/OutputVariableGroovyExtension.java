@@ -6,10 +6,13 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
-package com.powsybl.dynamicsimulation;
+package com.powsybl.dynamicsimulation.groovy;
+
+import com.powsybl.dynamicsimulation.OutputVariable;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public interface Curve {
+public interface OutputVariableGroovyExtension extends GroovyExtension<OutputVariable> {
+
 }

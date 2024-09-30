@@ -100,22 +100,22 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
         Set<String> listedFiles = Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar");
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of(null, "foo", "iidm", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of(null, "foo", "", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
+            Arguments.of(null, "foo", "v3", CompressionFormat.ZIP, ZipArchiveDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );
     }
 
     @Override
-    protected void createFiles(String fileName) throws IOException {
+    protected void createFiles(String archiveName) throws IOException {
         // Create the Zip archive and add the files
-        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(fileName)))) {
+        try (ZipOutputStream out = new ZipOutputStream(Files.newOutputStream(fileSystem.getPath(archiveName)))) {
             filesInArchive.forEach(fileInArchive -> {
                 try {
                     ZipEntry e = new ZipEntry(fileInArchive);
@@ -161,7 +161,7 @@ class ZipArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, ZIP_FILENAME, null);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath.resolve(ZIP_FILENAME), null);
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
