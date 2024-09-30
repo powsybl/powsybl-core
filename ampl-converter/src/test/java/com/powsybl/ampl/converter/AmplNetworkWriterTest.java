@@ -273,8 +273,8 @@ class AmplNetworkWriterTest extends AbstractSerDeTest {
         properties.put("iidm.export.ampl.export-version", "V1_0");
 
         Exception e = assertThrows(IllegalArgumentException.class, () -> export(network, properties, dataSource));
-        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0"));
 
+        assertTrue(e.getMessage().contains("Value V1_0 of parameter iidm.export.ampl.export-version is not contained in possible values [1.0, 1.1]"));
     }
 
     @Test
