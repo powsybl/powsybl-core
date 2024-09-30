@@ -33,7 +33,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String TEMPORARY_LIMIT = "Temporary Limit";
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
-        super("OperationalLimit", l, context);
+        super(CgmesNames.OPERATIONAL_LIMIT, l, context);
         String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
         String limitSetId = p.getId(OPERATIONAL_LIMIT_SET_ID);
         String limitSetName = p.getLocal(OPERATIONAL_LIMIT_SET_NAME);
@@ -107,7 +107,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     /**
      * Create the LoadingLimitsAdder for the given dangling line and the given limit set + subclass.
-     * @param terminalNumber The side of the branch to which the OperationalLimit applies.
      * @param limitSubClass The subclass of the OperationalLimit.
      * @param limitSetId The set containing the OperationalLimit.
      * @param limitSetName The name of the set containing the OperationalLimit.

@@ -225,6 +225,7 @@ public class SubstationIdMapping {
             }
         }
         if (!voltageLevelMapping.isEmpty()) {
+            CgmesReports.voltageLevelMappingReport(context.getReportNode(), voltageLevelMapping.size(), voltageLevelMapping.toString());
             LOG.warn("Original {} VoltageLevel container(s) connected by switches have been merged in IIDM. Map of original VoltageLevel to IIDM: {}",
                 voltageLevelMapping.size(), voltageLevelMapping);
         }
@@ -240,6 +241,7 @@ public class SubstationIdMapping {
             }
         }
         if (!substationMapping.isEmpty()) {
+            CgmesReports.substationMappingReport(context.getReportNode(), substationMapping.size(), substationMapping.toString());
             LOG.warn("Original {} Substation container(s) connected by transformers have been merged in IIDM. Map of original Substation to IIDM: {}",
                 substationMapping.size(), substationMapping);
         }
