@@ -37,8 +37,8 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
  */
 public class ExtendedAmplExporter extends BasicAmplExporter {
 
-    private static final int SLACK_BUS_COLUMN_INDEX = 8;
     private static final int SYNCHRONOUS_COMPONENT_COLUMN_INDEX = 4;
+    private static final int SLACK_BUS_COLUMN_INDEX = 9;
     private static final int TAP_CHANGER_R_COLUMN_INDEX = 4;
     private static final int TAP_CHANGER_G_COLUMN_INDEX = 6;
     private static final int TAP_CHANGER_B_COLUMN_INDEX = 7;
@@ -59,10 +59,10 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     @Override
     public List<Column> getBusesColumns() {
         List<Column> busesColumns = new ArrayList<>(super.getBusesColumns());
-        // add slack bus column
-        busesColumns.add(SLACK_BUS_COLUMN_INDEX, new Column("slack bus"));
         // add synchronous component column
         busesColumns.add(SYNCHRONOUS_COMPONENT_COLUMN_INDEX, new Column("sc"));
+        // add slack bus column
+        busesColumns.add(SLACK_BUS_COLUMN_INDEX, new Column("slack bus"));
         return busesColumns;
     }
 
@@ -94,16 +94,16 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
 
     @Override
     public void addAdditionalCellsBusesColumns(TableFormatterHelper formatterHelper, Bus b) {
-        formatterHelper.addCell(NetworkUtil.isSlackBus(b), SLACK_BUS_COLUMN_INDEX);
         formatterHelper.addCell(b.getSynchronousComponent().getNum(), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
+        formatterHelper.addCell(NetworkUtil.isSlackBus(b), SLACK_BUS_COLUMN_INDEX);
     }
 
     @Override
     public void addAdditionalCellsThreeWindingsTranformersMiddleBusesColumns(TableFormatterHelper formatterHelper,
                                                                              ThreeWindingsTransformer twt,
                                                                              int middleCcNum) {
-        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
         formatterHelper.addCell(getThreeWindingsTransformerMiddleBusSCNum(twt), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
+        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
     private int getThreeWindingsTransformerMiddleBusSCNum(ThreeWindingsTransformer twt) {
@@ -130,8 +130,8 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     @Override
     public void addAdditionalCellsDanglingLineMiddleBuses(TableFormatterHelper formatterHelper, DanglingLine dl,
                                                           int middleCcNum) {
-        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
         formatterHelper.addCell(getDanglingLineMiddleBusSCNum(dl), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
+        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
     private int getDanglingLineMiddleBusSCNum(DanglingLine dl) {
@@ -142,8 +142,8 @@ public class ExtendedAmplExporter extends BasicAmplExporter {
     @Override
     public void addAdditionalCellsTieLineMiddleBuses(TableFormatterHelper formatterHelper, TieLine tieLine,
                                                      int xNodeCcNum) {
-        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
         formatterHelper.addCell(getTieLineMiddleBusSCNum(tieLine), SYNCHRONOUS_COMPONENT_COLUMN_INDEX);
+        formatterHelper.addCell(false, SLACK_BUS_COLUMN_INDEX);
     }
 
     private int getTieLineMiddleBusSCNum(TieLine tieLine) {
