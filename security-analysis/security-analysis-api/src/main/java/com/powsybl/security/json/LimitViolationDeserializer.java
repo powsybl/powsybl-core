@@ -70,17 +70,17 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     break;
 
                 case BUS_ID:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion);
+                    checkVersions(securityResultVersion, shortCircuitResultVersion, BUS_ID);
                     busId = parser.nextTextValue();
                     break;
 
                 case VOLTAGE_LEVEL_ID:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion);
+                    checkVersions(securityResultVersion, shortCircuitResultVersion, VOLTAGE_LEVEL_ID);
                     voltageLevelId = parser.nextTextValue();
                     break;
 
                 case BUS_BAR_IDS:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion);
+                    checkVersions(securityResultVersion, shortCircuitResultVersion, BUS_BAR_IDS);
                     parser.nextToken();
                     busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
@@ -146,13 +146,13 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         return violation;
     }
 
-    private void checkVersions(String securityResultVersion, String shortCircuitResultVersion) {
+    private void checkVersions(String securityResultVersion, String shortCircuitResultVersion, String fieldName) {
         if (securityResultVersion != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
                 securityResultVersion, "1.7");
         }
         if (shortCircuitResultVersion != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
+            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
                 shortCircuitResultVersion, "1.3");
         }
     }
