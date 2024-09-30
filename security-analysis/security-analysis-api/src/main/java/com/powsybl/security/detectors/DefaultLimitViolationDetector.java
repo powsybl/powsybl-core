@@ -13,6 +13,8 @@ import com.powsybl.security.*;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static com.powsybl.security.LimitViolationDetection.createViolationLocation;
+
 /**
  * Implements the default behaviour for limit violation detection.
  *
@@ -76,17 +78,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     @Override
     public void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
-        ViolationLocation voltageViolationLocation;
-        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            List<String> busbarIds = bus.getConnectedTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(BusbarSection.class::isInstance)
-                .map(Connectable::getId)
-                .toList();
-            voltageViolationLocation = new NodeBreakerVoltageLocation(vl.getId(), busbarIds, bus.getId());
-        } else {
-            voltageViolationLocation = new BusBreakerViolationLocation(vl.getId(), bus.getId());
-        }
+        ViolationLocation voltageViolationLocation = createViolationLocation(bus, vl);
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), limitReductionValue, value, voltageViolationLocation));

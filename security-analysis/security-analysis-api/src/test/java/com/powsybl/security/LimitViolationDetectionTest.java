@@ -153,11 +153,10 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                 Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
                     .isPresent()
                     .get()
-                    .isInstanceOfSatisfying(NodeBreakerVoltageLocation.class,
+                    .isInstanceOfSatisfying(NodeBreakerViolationLocation.class,
                         vli -> {
                             assertEquals("S1VL1_BBS", vli.getId());
-                            assertTrue(vli.getBusId().isPresent());
-                            assertEquals("S1VL1_0", vli.getBusId().get());
+                            assertTrue(vli.getBusId().isEmpty());
                             assertEquals("S1VL1", vli.getVoltageLevelId());
                             Assertions.assertThat(vli.getBusBarIds())
                                 .hasSize(1)

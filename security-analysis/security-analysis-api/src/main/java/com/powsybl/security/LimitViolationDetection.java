@@ -206,17 +206,7 @@ public final class LimitViolationDetection {
 
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
-        ViolationLocation voltageViolationLocation;
-        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            List<String> busbarIds = bus.getConnectedTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(BusbarSection.class::isInstance)
-                .map(Connectable::getId)
-                .toList();
-            voltageViolationLocation = new NodeBreakerVoltageLocation(vl.getId(), busbarIds, bus.getId());
-        } else {
-            voltageViolationLocation = new BusBreakerViolationLocation(vl.getId(), bus.getId());
-        }
+        ViolationLocation voltageViolationLocation = createViolationLocation(bus, vl);
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), 1., value, voltageViolationLocation));
@@ -273,5 +263,18 @@ public final class LimitViolationDetection {
                                 1., value));
                     }
                 });
+    }
+
+    public static ViolationLocation createViolationLocation(Bus bus, VoltageLevel vl) {
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            List<String> busbarIds = bus.getConnectedTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(BusbarSection.class::isInstance)
+                .map(Connectable::getId)
+                .toList();
+            return new NodeBreakerViolationLocation(vl.getId(), busbarIds);
+        } else {
+            return new BusBreakerViolationLocation(vl.getId(), bus.getId());
+        }
     }
 }

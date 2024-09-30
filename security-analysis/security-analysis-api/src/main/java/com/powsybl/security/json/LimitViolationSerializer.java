@@ -32,14 +32,7 @@ public class LimitViolationSerializer extends StdSerializer<LimitViolation> {
         jsonGenerator.writeStringField("subjectId", limitViolation.getSubjectId());
         Optional<ViolationLocation> violationLocation = limitViolation.getViolationLocation();
         if (violationLocation.isPresent()) {
-            jsonGenerator.writeStringField("voltageLevelId", violationLocation.get().getVoltageLevelId());
-            Optional<String> busId = violationLocation.get().getBusId();
-            if (busId.isPresent()) {
-                jsonGenerator.writeStringField("busId", busId.get());
-            }
-            if (!violationLocation.get().getBusBarIds().isEmpty()) {
-                serializerProvider.defaultSerializeField("busbarIds", violationLocation.get().getBusBarIds(), jsonGenerator);
-            }
+            serializerProvider.defaultSerializeField("violationLocation", violationLocation.get(), jsonGenerator);
         }
         if (limitViolation.getSubjectName() != null) {
             jsonGenerator.writeStringField("subjectName", limitViolation.getSubjectName());

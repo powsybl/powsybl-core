@@ -39,6 +39,11 @@ public class BusBreakerViolationLocation implements ViolationLocation {
     }
 
     @Override
+    public Type getType() {
+        return Type.BUS_BREAKER;
+    }
+
+    @Override
     public String toString() {
         return "BusBreakerViolationLocation{" +
             "voltageLevelId='" + voltageLevelId + '\'' +

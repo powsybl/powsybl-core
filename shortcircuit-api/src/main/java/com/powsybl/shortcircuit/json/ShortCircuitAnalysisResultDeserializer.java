@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import static com.powsybl.security.json.LimitViolationDeserializer.SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE;
+import static com.powsybl.security.json.ViolationLocationDeserializer.SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE;
 
 /**
  *

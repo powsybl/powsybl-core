@@ -16,7 +16,14 @@ import java.util.Optional;
  */
 public interface ViolationLocation {
 
+    enum Type {
+        NODE_BREAKER,
+        BUS_BREAKER
+    }
+
     String getId();
+
+    Type getType();
 
     String getVoltageLevelId();
 

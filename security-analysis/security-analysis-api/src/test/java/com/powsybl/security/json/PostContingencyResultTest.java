@@ -62,7 +62,7 @@ class PostContingencyResultTest extends AbstractSerDeTest {
         LimitViolation violation2 = new LimitViolation("subject_id", LimitViolationType.HIGH_VOLTAGE, 420,
             (float) 0.1, 500, new BusBreakerViolationLocation("vl_id", "bus_id"));
         LimitViolation violation3 = new LimitViolation("subject_id", LimitViolationType.LOW_VOLTAGE, 200,
-            (float) 0.3, 180, new NodeBreakerVoltageLocation("vl_id", Collections.singletonList("bbs_id"), "bus_id"));
+            (float) 0.3, 180, new NodeBreakerViolationLocation("vl_id", Collections.singletonList("bbs_id")));
         LimitViolationsResult result = new LimitViolationsResult(Arrays.asList(violation, violation2, violation3));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
         threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",

@@ -20,12 +20,9 @@ import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.security.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
-
-import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
 
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
@@ -34,11 +31,6 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
-    public static final String SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE = "shortCircuitResultVersion";
-    private static final String CONTEXT_NAME = "limit-violation";
-    private static final String BUS_ID = "busId";
-    private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
-    private static final String BUS_BAR_IDS = "busbarIds";
 
     public LimitViolationDeserializer() {
         super(LimitViolation.class);
@@ -55,34 +47,14 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         double limitReduction = Double.NaN;
         double value = Double.NaN;
         ThreeSides side = null;
-        String voltageLevelId = null;
-        String busId = null;
-        List<String> busbarIds = new ArrayList<>();
+        ViolationLocation violationLocation = null;
 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
-        String securityResultVersion = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
-        String shortCircuitResultVersion = JsonUtil.getSourceVersion(deserializationContext, SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE);
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
                 case "subjectId":
                     subjectId = parser.nextTextValue();
-                    break;
-
-                case BUS_ID:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion, BUS_ID);
-                    busId = parser.nextTextValue();
-                    break;
-
-                case VOLTAGE_LEVEL_ID:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion, VOLTAGE_LEVEL_ID);
-                    voltageLevelId = parser.nextTextValue();
-                    break;
-
-                case BUS_BAR_IDS:
-                    checkVersions(securityResultVersion, shortCircuitResultVersion, BUS_BAR_IDS);
-                    parser.nextToken();
-                    busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
 
                 case "subjectName":
@@ -128,32 +100,19 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     extensions = JsonUtil.readExtensions(parser, deserializationContext, SUPPLIER.get());
                     break;
 
+                case "violationLocation":
+                    parser.nextToken();
+                    violationLocation = JsonUtil.readValue(deserializationContext, parser, ViolationLocation.class);
+                    break;
+
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
-        ViolationLocation limitViolationId = null;
-        if (busId != null && busbarIds.isEmpty()) {
-            limitViolationId = new BusBreakerViolationLocation(voltageLevelId, busId);
-        }
-        if (!busbarIds.isEmpty()) {
-            limitViolationId = new NodeBreakerVoltageLocation(voltageLevelId, busbarIds, busId);
-        }
         LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration,
-            limit, limitReduction, value, side, limitViolationId);
+            limit, limitReduction, value, side, violationLocation);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
-    }
-
-    private void checkVersions(String securityResultVersion, String shortCircuitResultVersion, String fieldName) {
-        if (securityResultVersion != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
-                securityResultVersion, "1.7");
-        }
-        if (shortCircuitResultVersion != null) {
-            JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, fieldName,
-                shortCircuitResultVersion, "1.3");
-        }
     }
 }

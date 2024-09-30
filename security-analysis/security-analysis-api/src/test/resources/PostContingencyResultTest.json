@@ -13,17 +13,22 @@
       "value" : 500.0
     }, {
       "subjectId" : "subject_id",
-      "voltageLevelId" : "vl_id",
-      "busId" : "bus_id",
+      "violationLocation" : {
+        "type" : "BUS_BREAKER",
+        "voltageLevelId" : "vl_id",
+        "busId" : "bus_id"
+      },
       "limitType" : "HIGH_VOLTAGE",
       "limit" : 420.0,
       "limitReduction" : 0.10000000149011612,
       "value" : 500.0
     }, {
       "subjectId" : "subject_id",
-      "voltageLevelId" : "vl_id",
-      "busId" : "bus_id",
-      "busbarIds" : [ "bbs_id" ],
+      "violationLocation" : {
+        "type" : "NODE_BREAKER",
+        "voltageLevelId" : "vl_id",
+        "busbarIds" : [ "bbs_id" ]
+      },
       "limitType" : "LOW_VOLTAGE",
       "limit" : 200.0,
       "limitReduction" : 0.30000001192092896,
