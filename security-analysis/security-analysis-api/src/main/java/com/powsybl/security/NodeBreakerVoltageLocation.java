@@ -26,10 +26,12 @@ public class NodeBreakerVoltageLocation implements ViolationLocation {
         this.busBarIds = busBarIds;
     }
 
+    @Override
     public String getVoltageLevelId() {
         return voltageLevelId;
     }
 
+    @Override
     public List<String> getBusBarIds() {
         return busBarIds;
     }

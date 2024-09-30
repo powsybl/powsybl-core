@@ -23,6 +23,7 @@ public class BusBreakerViolationLocation implements ViolationLocation {
         this.busId = busId;
     }
 
+    @Override
     public String getVoltageLevelId() {
         return voltageLevelId;
     }
