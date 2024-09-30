@@ -49,16 +49,15 @@ public class LoadingLimitsMapping {
     }
 
     /**
-     * Execute the add method for all the LoadingLimitsAdder stored in this mapping class.
+     * Execute the add method for all the valid LoadingLimitsAdder stored in this mapping class.
      * This method shall be called after all the CGMES OperationalLimit have been converted.
      */
     void addAll() {
-        Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders).flatMap(m -> m.values().stream()).forEach(adder -> {
-            if (!Double.isNaN(adder.getPermanentLimit()) || adder.hasTemporaryLimits()) {
-                adder.fixLimits(context.config().getMissingPermanentLimitPercentage(), context::fixed)
-                        .add();
-            }
-        });
+        Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders)
+                .flatMap(m -> m.values().stream())
+                .filter(adder -> !Double.isNaN(adder.getPermanentLimit()) || adder.hasTemporaryLimits())
+                .forEach(adder -> adder.fixLimits(context.config().getMissingPermanentLimitPercentage(), context::fixed)
+                        .add());
 
         Stream.of(currentLimitsAdders, activePowerLimitsAdders, apparentPowerLimitsAdders).forEach(Map::clear);
     }
