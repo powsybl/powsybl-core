@@ -72,7 +72,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                 case BUS_ID:
                     if (securityResultVersion != null) {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_ID,
-                            securityResultVersion, "1.0");
+                            securityResultVersion, "1.7");
                     }
                     if (shortCircuitResultVersion != null) {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_ID,
@@ -84,7 +84,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                 case VOLTAGE_LEVEL_ID:
                     if (securityResultVersion != null) {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, VOLTAGE_LEVEL_ID,
-                            securityResultVersion, "1.0");
+                            securityResultVersion, "1.7");
                     }
                     if (shortCircuitResultVersion != null) {
                         JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, VOLTAGE_LEVEL_ID,
