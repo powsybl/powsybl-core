@@ -13,9 +13,9 @@ import java.util.Collections;
 /**
  * @author Mathieu Bague {@literal <mathieu.bague@rte-france.com>}
  */
-public interface CurvesSupplier extends SimulatorInputSupplier<Curve> {
+public interface OutputVariablesSupplier extends SimulatorInputSupplier<OutputVariable> {
 
-    static CurvesSupplier empty() {
+    static OutputVariablesSupplier empty() {
         return (network, reportNode) -> Collections.emptyList();
     }
 }
