@@ -8,8 +8,10 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.cgmes.conversion.CgmesReports;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -20,8 +22,9 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  */
 public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
+
     public VoltageLevelConversion(PropertyBag vl, Context context) {
-        super("VoltageLevel", vl, context);
+        super(CgmesNames.VOLTAGE_LEVEL, vl, context);
         cgmesSubstationId = p.getId("Substation");
         iidmSubstationId = context.substationIdMapping().substationIidm(cgmesSubstationId);
         substation = context.network().getSubstation(iidmSubstationId);
@@ -31,10 +34,12 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     public boolean valid() {
         double nominalVoltage = p.asDouble("nominalVoltage");
         if (nominalVoltage == 0) {
+            CgmesReports.nominalVoltageIsZeroReport(context.getReportNode(), id);
             ignored("Voltage level", () -> String.format("nominal voltage of %s is equal to 0", id));
             return false;
         }
         if (substation == null) {
+            CgmesReports.missingMandatoryAttributeReport(context.getReportNode(), "Substation", CgmesNames.VOLTAGE_LEVEL, id);
             missing(String.format("Substation %s (IIDM id: %s)",
                     cgmesSubstationId,
                     iidmSubstationId));
