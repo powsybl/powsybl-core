@@ -41,7 +41,6 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
 
-
     ShortCircuitAnalysisResultDeserializer() {
         super(ShortCircuitAnalysisResult.class);
     }
