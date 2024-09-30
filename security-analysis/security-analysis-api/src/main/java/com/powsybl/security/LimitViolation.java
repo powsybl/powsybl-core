@@ -196,6 +196,22 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * @param limit          The value of the limit which has been violated.
      * @param limitReduction The limit reduction factor used for violation detection.
      * @param value          The actual value of the physical value which triggered the detection of a violation.
+     */
+    public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, double limitReduction, double value) {
+        this(subjectId, subjectName, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null, null);
+    }
+
+    /**
+     * Create a new LimitViolation, for types other than current limits.
+     *
+     * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
+     *
+     * @param subjectId      The identifier of the network equipment on which the violation occurred.
+     * @param subjectName    An optional name of the network equipment on which the violation occurred.
+     * @param limitType      The type of limit which has been violated.
+     * @param limit          The value of the limit which has been violated.
+     * @param limitReduction The limit reduction factor used for violation detection.
+     * @param value          The actual value of the physical value which triggered the detection of a violation.
      * @param voltageLocation    Detailed information about the location of the violation.
      */
     public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, double limitReduction, double value, ViolationLocation voltageLocation) {

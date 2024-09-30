@@ -35,7 +35,7 @@ public class BusBreakerViolationLocation implements ViolationLocation {
 
     @Override
     public String getId() {
-        return busId;
+        return busId == null ? voltageLevelId : busId;
     }
 
     @Override
