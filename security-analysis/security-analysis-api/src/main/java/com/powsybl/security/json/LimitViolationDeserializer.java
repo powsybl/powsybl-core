@@ -25,6 +25,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 
+import static com.powsybl.security.json.SecurityAnalysisResultDeserializer.SOURCE_VERSION_ATTRIBUTE;
+
 /**
  * @author Mathieu Bague {@literal <mathieu.bague at rte-france.com>}
  */
@@ -32,6 +34,11 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+    public static final String SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE = "shortCircuitResultVersion";
+    private static final String CONTEXT_NAME = "limit-violation";
+    private static final String BUS_ID = "busId";
+    private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
+    private static final String BUS_BAR_IDS = "busbarIds";
 
     public LimitViolationDeserializer() {
         super(LimitViolation.class);
@@ -53,6 +60,8 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
         List<String> busbarIds = new ArrayList<>();
 
         List<Extension<LimitViolation>> extensions = Collections.emptyList();
+        String securityResultVersion = JsonUtil.getSourceVersion(deserializationContext, SOURCE_VERSION_ATTRIBUTE);
+        String shortCircuitResultVersion = JsonUtil.getSourceVersion(deserializationContext, SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE);
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -60,15 +69,39 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
                     subjectId = parser.nextTextValue();
                     break;
 
-                case "busId":
+                case BUS_ID:
+                    if (securityResultVersion != null) {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_ID,
+                            securityResultVersion, "1.0");
+                    }
+                    if (shortCircuitResultVersion != null) {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_ID,
+                            shortCircuitResultVersion, "1.3");
+                    }
                     busId = parser.nextTextValue();
                     break;
 
-                case "voltageLevelId":
+                case VOLTAGE_LEVEL_ID:
+                    if (securityResultVersion != null) {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, VOLTAGE_LEVEL_ID,
+                            securityResultVersion, "1.0");
+                    }
+                    if (shortCircuitResultVersion != null) {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, VOLTAGE_LEVEL_ID,
+                            shortCircuitResultVersion, "1.3");
+                    }
                     voltageLevelId = parser.nextTextValue();
                     break;
 
-                case "busbarIds":
+                case BUS_BAR_IDS:
+                    if (securityResultVersion != null) {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
+                            securityResultVersion, "1.7");
+                    }
+                    if (shortCircuitResultVersion != null) {
+                        JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, BUS_BAR_IDS,
+                            shortCircuitResultVersion, "1.3");
+                    }
                     parser.nextToken();
                     busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
@@ -121,14 +154,14 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
             }
         }
         ViolationLocation limitViolationId = null;
-        if (voltageLevelId != null && busId == null && busbarIds.isEmpty()) {
-            limitViolationId = new VoltageLevelViolationLocation(voltageLevelId);
-        } else if (busId != null && busbarIds.isEmpty()) {
+        if (busId != null && busbarIds.isEmpty()) {
             limitViolationId = new BusBreakerViolationLocation(voltageLevelId, busId);
-        } else if (busId == null && !busbarIds.isEmpty()) {
-            limitViolationId = new NodeBreakerVoltageLocation(voltageLevelId, busbarIds);
         }
-        LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side, limitViolationId);
+        if (!busbarIds.isEmpty()) {
+            limitViolationId = new NodeBreakerVoltageLocation(voltageLevelId, busbarIds, busId);
+        }
+        LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration,
+            limit, limitReduction, value, side, limitViolationId);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;

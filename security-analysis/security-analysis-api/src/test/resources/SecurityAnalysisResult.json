@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.7",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -103,12 +103,17 @@
         }
       }, {
         "subjectId" : "GEN",
+        "voltageLevelId" : "VL",
+        "busId" : "BUSID",
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.8999999761581421,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
+        "voltageLevelId" : "VL",
+        "busId" : "BUSID",
+        "busbarIds" : [ "BBS1", "BBS2" ],
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.699999988079071,

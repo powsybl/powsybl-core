@@ -22,6 +22,7 @@
     }, {
       "subjectId" : "subject_id",
       "voltageLevelId" : "vl_id",
+      "busId" : "bus_id",
       "busbarIds" : [ "bbs_id" ],
       "limitType" : "LOW_VOLTAGE",
       "limit" : 200.0,

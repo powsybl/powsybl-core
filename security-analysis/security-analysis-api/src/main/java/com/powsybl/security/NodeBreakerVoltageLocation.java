@@ -9,6 +9,7 @@ package com.powsybl.security;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -16,9 +17,11 @@ import java.util.Objects;
 public class NodeBreakerVoltageLocation implements ViolationLocation {
     private final String voltageLevelId;
     private final List<String> busBarIds;
+    private final String busId;
 
-    public NodeBreakerVoltageLocation(String voltageLevelId, List<String> busBarIds) {
+    public NodeBreakerVoltageLocation(String voltageLevelId, List<String> busBarIds, String busId) {
         Objects.requireNonNull(voltageLevelId, "voltageLevelId");
+        this.busId = busId;
         this.voltageLevelId = voltageLevelId;
         this.busBarIds = busBarIds;
     }
@@ -29,6 +32,11 @@ public class NodeBreakerVoltageLocation implements ViolationLocation {
 
     public List<String> getBusBarIds() {
         return busBarIds;
+    }
+
+    @Override
+    public Optional<String> getBusId() {
+        return Optional.ofNullable(busId);
     }
 
     @Override

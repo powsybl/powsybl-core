@@ -213,7 +213,7 @@ public final class LimitViolationDetection {
                 .filter(BusbarSection.class::isInstance)
                 .map(Connectable::getId)
                 .toList();
-            voltageViolationLocation = new NodeBreakerVoltageLocation(vl.getId(), busbarIds);
+            voltageViolationLocation = new NodeBreakerVoltageLocation(vl.getId(), busbarIds, bus.getId());
         } else {
             voltageViolationLocation = new BusBreakerViolationLocation(vl.getId(), bus.getId());
         }

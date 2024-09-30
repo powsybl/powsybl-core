@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.security.json.LimitViolationDeserializer.SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE;
+
 /**
  *
  * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -38,6 +40,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "short-circuit-analysis"));
+
 
     ShortCircuitAnalysisResultDeserializer() {
         super(ShortCircuitAnalysisResult.class);
@@ -54,6 +57,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                 case "version" -> {
                     parser.nextToken();
                     version = parser.readValueAs(String.class);
+                    JsonUtil.setSourceVersion(ctx, version, SHORT_CIRCUIT_RESULT_VERSION_ATTRIBUTE);
                 }
                 case "faultResults" -> faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
                 case "extensions" -> {

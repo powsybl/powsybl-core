@@ -55,8 +55,8 @@ class ExporterTest extends AbstractSerDeTest {
         violation2.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0, 230.0));
         violation2.addExtension(CurrentExtension.class, new CurrentExtension(95.0));
 
-        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110);
-        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
+        LimitViolation violation3 = new LimitViolation("GEN", LimitViolationType.HIGH_VOLTAGE, 100, 0.9f, 110, new BusBreakerViolationLocation("VL", "BUSID"));
+        LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115, new NodeBreakerVoltageLocation("VL", Arrays.asList("BBS1", "BBS2"), "BUSID"));
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
         LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, TwoSides.ONE);
