@@ -27,8 +27,8 @@ import static com.powsybl.ampl.converter.AmplConstants.*;
 /**
  * 1st extension of BasicAmplExporter, associated with AMPL version 1.1 (exporter id).
  * The extension adds:
+ *  - A synchronous component number in the bus tables.
  *  - A slack bus boolean in the bus table.
- *  - A synchronous component number in the bus tables
  *  - R, G and B characteristics in tap tables.
  *  - The regulated bus in generator and static var compensator tables.
  *
