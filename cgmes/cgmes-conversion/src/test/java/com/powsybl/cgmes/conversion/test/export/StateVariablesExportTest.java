@@ -696,7 +696,7 @@ class StateVariablesExportTest extends AbstractSerDeTest {
         String sv = exportSvAsString(network, false);
         Pattern p = Pattern.compile("<cim:TopologicalIsland.TopologicalNodes rdf:resource=");
         assertEquals(10, p.matcher(sv).results().count());
-        // 10 is the number of topologicalIsland associated to buses + topological nodes associated to dangling lines
+        // 10 is the number of topological nodes in the island associated to buses and to dangling lines
         assertEquals(5, network.getBusBreakerView().getBusStream().count());
         assertEquals(5, network.getDanglingLineStream().count());
     }
