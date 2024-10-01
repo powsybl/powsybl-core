@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+import static com.powsybl.security.json.LimitViolationDeserializer.VIOLATION_LOCATION_SUPPORT;
+
 /**
  *
  * @author Teofil-Calin BANC {@literal <teofil-calin.banc at rte-france.com>}
@@ -54,6 +56,7 @@ public class ShortCircuitAnalysisResultDeserializer extends StdDeserializer<Shor
                 case "version" -> {
                     parser.nextToken();
                     version = parser.readValueAs(String.class);
+                    ctx.setAttribute(VIOLATION_LOCATION_SUPPORT, version.compareTo("1.3") >= 0);
                 }
                 case "faultResults" -> faultResults = new FaultResultDeserializer().deserialize(parser, ctx, version);
                 case "extensions" -> {

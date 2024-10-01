@@ -92,7 +92,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
     void jsonDeserializeNoSpecifiedDictionary() throws Exception {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReportNodeJsonModule());
-        ReportNode rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNodeImpl.class);
+        ReportNode rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
         assertEquals(2, rm.getChildren().size());
 
         ReportNode node1 = rm.getChildren().get(0);
@@ -101,7 +101,7 @@ class UcteImporterReportNodeTest extends AbstractSerDeTest {
         assertEquals("Reading UCTE network file", node2.getMessage());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
-        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNodeImpl.class);
+        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReportNode.class);
         assertEquals(2, rm.getChildren().size());
 
         node1 = rm.getChildren().get(0);

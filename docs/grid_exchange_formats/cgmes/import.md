@@ -304,8 +304,37 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 <span style="color: red">TODO regulation</span>
 
 (cgmes-operational_limit-import)=
-### OperationalLimit
-<span style="color: red">TODO</span>
+### OperationalLimits
+
+OperationalLimits model a specification of limits associated with equipments.
+
+#### OperationalLimitSet
+
+A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
+
+Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
+[`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
+
+The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
+
+If there is only one `OperationalLimitsGroup` on an end, it automatically gets to be selected (active). However, if there is multiple groups, none is selected: the user has to choose which set is active.
+
+#### OperationalLimit
+
+A CGMES `OperationalLimit` is an abstract class that represent different kinds of limits: current, active power or apparent power.
+The collection of the same subclass of CGMES `OperationalLimit` in the set is mapped to a PowSyBl [`LoadingLimits`](../../grid_model/additional.md#loading-limits) as follows:
+- The collection of CGMES `CurrentLimit` in the `OperationalLimitSet` is mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ActivePowerLimit` in the `OperationalLimitSet` is mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ApparentPowerLimit` in the `OperationalLimitSet` is mapped to the `apparentPowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
+
+A particular CGMES `OperationalLimit` is mapped differently depending on its associated CGMES `OperationalLimitType`:
+- A permanent limit (`OperationalLimitType.limitType` is `LimitTypeKind.patl`) is mapped as follows:
+    - PowSyBl `LoadingLimits.permanentLimit` is copied from CGMES `OperationalLimit.value`
+- A temporary limit (`OperationalLimitType.limitType` is `LimitTypeKind.tatl`) is mapped as follows:
+    - A new entry is created in PowSyBl `LoadingLimits.temporaryLimits`
+    - `name` is copied from `OperationalLimit.name`
+    - `value` is copied from `OperationalLimit.value`
+    - `acceptableDuration` is copied from `OperationalType.acceptableDuration`
 
 (cgmes-power-transformer-import)=
 ### PowerTransformer
@@ -519,7 +548,7 @@ Optional property that defines which naming strategy is used to transform CGMES 
 **iidm.import.cgmes.post-processors**  
 Optional property that defines all the CGMES post-processors which will be activated after import.
 By default, it is an empty list.
-One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](../../developer/repositories/powsybl-diagram.md) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
+One implementation of such a post-processor is available in PowSyBl in the [powsybl-diagram](https://github.com/powsybl/powsybl-diagram) repository, named [CgmesDLImportPostProcessor](./post_processor.md#cgmesdlimportpostprocessor).
 
 **iidm.import.cgmes.powsybl-triplestore**  
 Optional property that defines which Triplestore implementation is used. Currently, PowSyBl only supports [RDF4J](https://rdf4j.org/). `rdf4j` by default.
@@ -548,5 +577,6 @@ Optional property used when in operational limits, temporary limits are present 
 **iidm.import.cgmes.cgm-with-subnetworks**  
 Optional property to define if subnetworks must be added to the network when importing a Common Grid Model (CGM). Each subnetwork will model an Individual Grid Model (IGM). By default `true`: subnetworks are added, and the merging is done at IIDM level, with a main IIDM network representing the CGM and containing a set of subnetworks, one for each IGM. If the value is set to `false` all the CGMES data will be flattened in a single network and information about the ownership of each equipment will be lost.
 
-**iidm.import.cgmes.cgm-with-subnetworks-defined**  
+**iidm.import.cgmes.cgm-with-subnetworks-defined-by**  
 If `iidm.import.cgmes.cgm-with-subnetworks` is set to `true`, use this property to specify how the set of input files should be split by IGM: based on their filenames (use the value `FILENAME`) or by its modeling authority, read from the header (use the value `MODELING_AUTHORITY`).
+Its default value is `MODELING_AUTHORITY`.

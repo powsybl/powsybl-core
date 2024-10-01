@@ -51,6 +51,11 @@ public class PowerFactoryImporter implements Importer {
     }
 
     @Override
+    public List<String> getSupportedExtensions() {
+        return PowerFactoryDataLoader.find(StudyCase.class).stream().map(PowerFactoryDataLoader::getExtension).toList();
+    }
+
+    @Override
     public String getComment() {
         return "PowerFactory to IIDM converter";
     }
