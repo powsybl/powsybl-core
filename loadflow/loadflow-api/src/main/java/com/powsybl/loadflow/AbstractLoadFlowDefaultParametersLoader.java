@@ -18,7 +18,7 @@ public abstract class AbstractLoadFlowDefaultParametersLoader implements LoadFlo
     private final String name;
     private final String jsonParametersFile;
 
-    public AbstractLoadFlowDefaultParametersLoader(String name, String jsonParametersFile) {
+    protected AbstractLoadFlowDefaultParametersLoader(String name, String jsonParametersFile) {
         this.name = Objects.requireNonNull(name);
         this.jsonParametersFile = Objects.requireNonNull(jsonParametersFile);
     }
