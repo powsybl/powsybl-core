@@ -690,7 +690,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
         SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN,
             TwoSides.ONE).otherSide(
-            dl, true);
+            dl);
         double nomV = t.getVoltageLevel().getNominalV();
         double v = sv.getU() / nomV;
         double theta = Math.toRadians(sv.getA());
@@ -956,7 +956,7 @@ public class BasicAmplExporter implements AmplColumnsExporter {
         double q1 = t.getQ();
         SV sv = new SV(p1, q1, bus != null ? bus.getV() : Double.NaN, bus != null ? bus.getAngle() : Double.NaN,
             TwoSides.ONE).otherSide(
-            dl, true);
+            dl);
         double p2 = sv.getP();
         double q2 = sv.getQ();
         double patl = getPermanentLimit(dl.getCurrentLimits().orElse(null));

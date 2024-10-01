@@ -89,15 +89,15 @@ class SVTest {
         assertEquals(v1, svB2.otherSideU(dl), tol);
         assertEquals(a1, svB2.otherSideA(dl), tol);
 
-        assertEquals(p2, svA1.otherSideP(dl, false), tol);
-        assertEquals(q2, svA1.otherSideQ(dl, false), tol);
-        assertEquals(v2, svA1.otherSideU(dl, false), tol);
-        assertEquals(a2, svA1.otherSideA(dl, false), tol);
+        assertEquals(p2, svA1.otherSideP(dl), tol);
+        assertEquals(q2, svA1.otherSideQ(dl), tol);
+        assertEquals(v2, svA1.otherSideU(dl), tol);
+        assertEquals(a2, svA1.otherSideA(dl), tol);
 
-        assertEquals(p1, svB2.otherSideP(dl, false), tol);
-        assertEquals(q1, svB2.otherSideQ(dl, false), tol);
-        assertEquals(v1, svB2.otherSideU(dl, false), tol);
-        assertEquals(a1, svB2.otherSideA(dl, false), tol);
+        assertEquals(p1, svB2.otherSideP(dl), tol);
+        assertEquals(q1, svB2.otherSideQ(dl), tol);
+        assertEquals(v1, svB2.otherSideU(dl), tol);
+        assertEquals(a1, svB2.otherSideA(dl), tol);
     }
 
     @Test

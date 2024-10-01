@@ -29,7 +29,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getV() {
         if (useHypothesis(parent)) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return danglingLineData.getBoundaryBusU();
         }
 
@@ -38,14 +38,14 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return getV(b);
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent);
         }
     }
 
     @Override
     public double getAngle() {
         if (useHypothesis(parent)) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
@@ -53,7 +53,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return getAngle(b);
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent);
         }
     }
 
@@ -67,7 +67,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return -t.getP();
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent);
         }
     }
 
@@ -81,7 +81,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return -t.getQ();
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent);
         }
     }
 

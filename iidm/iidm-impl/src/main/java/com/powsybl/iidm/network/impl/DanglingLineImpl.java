@@ -261,7 +261,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, GenerationImpl generation) {
+    private final boolean shuntAdmittanceHasBeenMerged;
+
+    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String pairingKey, boolean shuntAdmittanceHasBeenMerged, GenerationImpl generation) {
         super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
@@ -278,6 +280,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.pairingKey = pairingKey;
         this.operationalLimitsGroups = new OperationalLimitsGroupsImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
+        this.shuntAdmittanceHasBeenMerged = shuntAdmittanceHasBeenMerged;
         this.generation = generation != null ? generation.attach(this) : null;
     }
 
@@ -493,6 +496,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     @Override
     public Boundary getBoundary() {
         return boundary;
+    }
+
+    @Override
+    public boolean hasShuntAdmittanceBeenMerged() {
+        return shuntAdmittanceHasBeenMerged;
     }
 
     @Override

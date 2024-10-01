@@ -288,6 +288,8 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
 
     Boundary getBoundary();
 
+    boolean hasShuntAdmittanceBeenMerged();
+
     default Optional<TieLine> getTieLine() {
         return Optional.empty();
     }

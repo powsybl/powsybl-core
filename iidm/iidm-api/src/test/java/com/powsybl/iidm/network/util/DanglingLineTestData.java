@@ -65,6 +65,7 @@ class DanglingLineTestData {
         Mockito.when(danglingLine.getB()).thenReturn(B);
         Mockito.when(danglingLine.getP0()).thenReturn(P0);
         Mockito.when(danglingLine.getQ0()).thenReturn(Q0);
+        Mockito.when(danglingLine.hasShuntAdmittanceBeenMerged()).thenReturn(true);
     }
 
     DanglingLine getDanglingLine() {

@@ -173,14 +173,14 @@ public abstract class AbstractTieLineTest {
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, TwoSides.ONE);
         SV expectedSV2 = new SV(p2, q2, v2, angle2, TwoSides.TWO);
-        assertEquals(expectedSV1.otherSideP(danglingLine1, true), danglingLine1.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(danglingLine1, true), danglingLine1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(danglingLine2, true), danglingLine2.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(danglingLine2, true), danglingLine2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(danglingLine1, true), danglingLine1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(danglingLine1, true), danglingLine1.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(danglingLine2, true), danglingLine2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(danglingLine2, true), danglingLine2.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.otherSideP(danglingLine1), danglingLine1.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(danglingLine1), danglingLine1.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(danglingLine2), danglingLine2.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(danglingLine2), danglingLine2.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(danglingLine1), danglingLine1.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(danglingLine1), danglingLine1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(danglingLine2), danglingLine2.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(danglingLine2), danglingLine2.getBoundary().getAngle(), 0.0d);
 
         // test paired dangling line retrieval - For paired dangling lines
         Optional<DanglingLine> otherSide1 = TieLineUtil.getPairedDanglingLine(danglingLine1);

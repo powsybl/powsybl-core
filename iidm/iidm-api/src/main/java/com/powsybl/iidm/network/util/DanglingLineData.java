@@ -26,10 +26,6 @@ public class DanglingLineData {
     private final double boundaryBusTheta;
 
     public DanglingLineData(DanglingLine danglingLine) {
-        this(danglingLine, true);
-    }
-
-    public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
 
         double u1 = getV(danglingLine);
@@ -47,10 +43,10 @@ public class DanglingLineData {
             return;
         }
 
-        double g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
-        double b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
-        double g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
-        double b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
+        double g1 = danglingLine.hasShuntAdmittanceBeenMerged() ? danglingLine.getG() * 0.5 : danglingLine.getG();
+        double b1 = danglingLine.hasShuntAdmittanceBeenMerged() ? danglingLine.getB() * 0.5 : danglingLine.getB();
+        double g2 = danglingLine.hasShuntAdmittanceBeenMerged() ? danglingLine.getG() * 0.5 : 0.0;
+        double b2 = danglingLine.hasShuntAdmittanceBeenMerged() ? danglingLine.getB() * 0.5 : 0.0;
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 

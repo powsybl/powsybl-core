@@ -43,6 +43,8 @@ public interface DanglingLineAdder extends InjectionAdder<DanglingLine, Dangling
 
     DanglingLineAdder setPairingKey(String pairingKey);
 
+    DanglingLineAdder setShuntAdmittanceHasBeenMerged(boolean shuntAdmittanceHasBeenMerged);
+
     default GenerationAdder newGeneration() {
         throw new UnsupportedOperationException();
     }

@@ -102,15 +102,10 @@ public class SV {
 
     public SV otherSide(DanglingLine dl) {
         double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
-        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);
-    }
-
-    public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
-        if (splitShuntAdmittance) {
-            double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
+        if (dl.hasShuntAdmittanceBeenMerged()) {
             return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zb);
         } else {
-            return otherSide(dl);
+            return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);
         }
     }
 
@@ -122,20 +117,12 @@ public class SV {
         return otherSide(dl).getP();
     }
 
-    public double otherSideP(DanglingLine dl, boolean splitShuntAdmittance) {
-        return otherSide(dl, splitShuntAdmittance).getP();
-    }
-
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
         return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getQ();
     }
 
     public double otherSideQ(DanglingLine dl) {
         return otherSide(dl).getQ();
-    }
-
-    public double otherSideQ(DanglingLine dl, boolean splitShuntAdmittance) {
-        return otherSide(dl, splitShuntAdmittance).getQ();
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -146,20 +133,12 @@ public class SV {
         return otherSide(dl).getU();
     }
 
-    public double otherSideU(DanglingLine dl, boolean splitShuntAdmittance) {
-        return otherSide(dl, splitShuntAdmittance).getU();
-    }
-
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
         return otherSide(r, x, g1, b1, g2, b2, rho, alpha, Double.NaN).getA();
     }
 
     public double otherSideA(DanglingLine dl) {
         return otherSide(dl).getA();
-    }
-
-    public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
-        return otherSide(dl, splitShuntAdmittance).getA();
     }
 
     private static double getRho(TwoWindingsTransformer twt) {

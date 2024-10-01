@@ -249,6 +249,7 @@ class SVTest {
             .setPairingKey(ucteCode)
             .setNode(node)
             .setEnsureIdUnicity(false)
+            .setShuntAdmittanceHasBeenMerged(false)
             .add();
     }
 
