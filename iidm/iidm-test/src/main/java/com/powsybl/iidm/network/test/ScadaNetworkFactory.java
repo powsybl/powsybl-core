@@ -52,6 +52,7 @@ public final class ScadaNetworkFactory {
                 .setX(1.0)
                 .setG(0.0)
                 .setB(0.0)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .newGeneration()
                 .setMinP(100.0)
                 .setMaxP(200.0)

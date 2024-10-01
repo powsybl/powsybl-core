@@ -78,6 +78,7 @@ public abstract class AbstractTieLineTest {
                 .setB(hl1b1 + hl1b2)
                 .setG(hl1g1 + hl1g2)
                 .setPairingKey("ucte")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
@@ -89,6 +90,7 @@ public abstract class AbstractTieLineTest {
                 .setX(x2)
                 .setB(hl2b1 + hl2b2)
                 .setG(hl2g1 + hl2g2)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         assertEquals(List.of(dl1, dl2), network.getDanglingLines(DanglingLineFilter.UNPAIRED));
@@ -219,6 +221,7 @@ public abstract class AbstractTieLineTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setPairingKey("ucte")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         // adder
         ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
@@ -413,6 +416,7 @@ public abstract class AbstractTieLineTest {
                 .setG(g)
                 .setP0(0)
                 .setQ0(0)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         DanglingLine dl2 = voltageLevelB.newDanglingLine()
                 .setBus("busB")
@@ -424,6 +428,7 @@ public abstract class AbstractTieLineTest {
                 .setG(8.5)
                 .setP0(0)
                 .setQ0(0)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .setPairingKey(code)
                 .add();
         network.newTieLine()
@@ -512,6 +517,7 @@ public abstract class AbstractTieLineTest {
             .setB(386E-6 / 2)
             .setNode(21)
             .setPairingKey("XNODE1")
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
 
         // Add a dangling line in the second Voltage level
@@ -525,6 +531,7 @@ public abstract class AbstractTieLineTest {
             .setB(386E-6 / 2)
             .setBus("bus22")
             .setPairingKey("XNODE1")
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
         networkWithTieLine.newTieLine()
             .setId("TL")

@@ -39,6 +39,7 @@ class CgmesControlAreasSerDeTest extends AbstractCgmesExtensionTest {
                 .setId("DL")
                 .setConnectableBus("NDL")
                 .setBus("NDL")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         network.newExtension(CgmesControlAreasAdder.class).add();
         network.getExtension(CgmesControlAreas.class).newCgmesControlArea()

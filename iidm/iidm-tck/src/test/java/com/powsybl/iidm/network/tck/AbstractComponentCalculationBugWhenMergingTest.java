@@ -44,6 +44,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
                 .setG(0)
                 .setB(0)
                 .setPairingKey("XNODE")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         Network n2 = Network.create("n2", "test");
         Substation s2 = n2.newSubstation()
@@ -69,6 +70,7 @@ public abstract class AbstractComponentCalculationBugWhenMergingTest {
                 .setG(0)
                 .setB(0)
                 .setPairingKey("XNODE")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         // to reproduce the issue, force connected components on one of the network (n1)
         // and not the other one

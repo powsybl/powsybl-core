@@ -171,6 +171,7 @@ final class ScalableTestNetwork {
                 .setX(10.)
                 .setB(0.0)
                 .setG(0.0)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         network.newLine()
@@ -285,6 +286,7 @@ final class ScalableTestNetwork {
             .setX(10.)
             .setB(0.0)
             .setG(0.0)
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
         Battery battery = vl2.newBattery()
             .setId("BAT")

@@ -34,6 +34,7 @@ public final class DanglingLineNetworkFactory {
                 .setG(10e-5)
                 .setP0(50.0)
                 .setQ0(30.0)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         createDanglingLineCurrentLimits(danglingLine);
         return network;
@@ -54,6 +55,7 @@ public final class DanglingLineNetworkFactory {
                 .setG(10e-5)
                 .setP0(50.0)
                 .setQ0(30.0)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .newGeneration()
                 .setTargetP(440)
                 .setMaxP(900)

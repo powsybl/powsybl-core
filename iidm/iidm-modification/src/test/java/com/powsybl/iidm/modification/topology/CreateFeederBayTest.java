@@ -225,7 +225,8 @@ class CreateFeederBayTest extends AbstractModificationTest {
                         .setB(40)
                         .setP0(50)
                         .setQ0(60)
-                        .setEnsureIdUnicity(false);
+                        .setEnsureIdUnicity(false)
+                        .setHasShuntAdmittanceLineEquivalentModel(true);
         Optional<Range<Integer>> unusedOrderPositionsAfter0 = TopologyModificationUtils.getUnusedOrderPositionsAfter(network.getBusbarSection("bbs5"));
         assertTrue(unusedOrderPositionsAfter0.isPresent());
         assertEquals(81, (int) unusedOrderPositionsAfter0.get().getMinimum());

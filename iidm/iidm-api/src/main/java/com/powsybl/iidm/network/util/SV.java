@@ -102,7 +102,7 @@ public class SV {
 
     public SV otherSide(DanglingLine dl) {
         double zb = dl.getTerminal().getVoltageLevel().getNominalV() * dl.getTerminal().getVoltageLevel().getNominalV();
-        if (dl.hasShuntAdmittanceBeenMerged()) {
+        if (dl.hasShuntAdmittanceLineEquivalentModel()) {
             return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0, zb);
         } else {
             return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0, zb);

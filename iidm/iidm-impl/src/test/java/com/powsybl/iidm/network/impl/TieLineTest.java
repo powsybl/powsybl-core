@@ -247,6 +247,7 @@ class TieLineTest {
                 .setX(2.0)
                 .setBus("S1VL1-BUS")
                 .setPairingKey("key")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setId(boundarySide2.name())
@@ -257,6 +258,7 @@ class TieLineTest {
                 .setX(2.0)
                 .setBus("S2VL1-BUS")
                 .setPairingKey("key")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         TieLine tieLine = network.newTieLine()
@@ -395,6 +397,7 @@ class TieLineTest {
                 .setX(0.059)
                 .setG(0.05)
                 .setB(0.14)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
@@ -408,6 +411,7 @@ class TieLineTest {
                 .setG(0.04)
                 .setB(0.13)
                 .setPairingKey("key")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         TieLine tieLine = network.newTieLine()
@@ -480,6 +484,7 @@ class TieLineTest {
                 .setG(0.0)
                 .setB(0.00032976265)
                 .setPairingKey("key")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         DanglingLine dl2 = s2vl1.newDanglingLine()
                 .setBus("S2VL1-BUS")
@@ -491,6 +496,7 @@ class TieLineTest {
                 .setX(14.928011999999999)
                 .setG(0.00299837274)
                 .setB(-0.01393693142)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         TieLine tieLine = network.newTieLine()

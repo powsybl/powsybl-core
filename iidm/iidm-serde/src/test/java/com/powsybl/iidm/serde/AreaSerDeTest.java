@@ -48,7 +48,7 @@ class AreaSerDeTest extends AbstractIidmSerDeTest {
         vl2.getBusBreakerView().newBus().setId("N3").add();
 
         final Load load1 = vl1.newLoad().setId("L1").setBus("N1").setP0(0).setQ0(0).add();
-        final DanglingLine danglingLine = vl1.newDanglingLine().setId("DL1").setBus("N2").setR(0.0).setX(0.0).setP0(0).setQ0(0).add();
+        final DanglingLine danglingLine = vl1.newDanglingLine().setId("DL1").setBus("N2").setR(0.0).setX(0.0).setP0(0).setQ0(0).setHasShuntAdmittanceLineEquivalentModel(true).add();
 
         // Add area types and areas to the network
         final String biddingZoneType = "BiddingZone";

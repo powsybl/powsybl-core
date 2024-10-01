@@ -727,6 +727,7 @@ public abstract class AbstractMergeNetworkTest {
                 .setG(4.0)
                 .setB(5.0)
                 .setPairingKey(code)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         Terminal t = dl.getTerminal();
         t.setP(1.);

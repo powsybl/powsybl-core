@@ -266,6 +266,7 @@ class NetworkSerDeTest extends AbstractIidmSerDeTest {
                 .setG(4.0)
                 .setB(5.0)
                 .setPairingKey("code")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         // Add an extension on the network and on an inner element

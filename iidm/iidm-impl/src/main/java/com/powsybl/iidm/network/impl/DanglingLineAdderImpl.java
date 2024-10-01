@@ -10,6 +10,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import java.util.Objects;
+
 /**
  *
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -32,7 +34,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private String pairingKey;
 
-    private boolean shuntAdmittanceHasBeenMerged = true;
+    private Boolean hasShuntAdmittanceLineEquivalentModel = null;
 
     private GenerationAdderImpl generationAdder;
 
@@ -92,8 +94,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     }
 
     @Override
-    public DanglingLineAdder setShuntAdmittanceHasBeenMerged(boolean shuntAdmittanceHasBeenMerged) {
-        this.shuntAdmittanceHasBeenMerged = shuntAdmittanceHasBeenMerged;
+    public DanglingLineAdder setHasShuntAdmittanceLineEquivalentModel(boolean hasShuntAdmittanceLineEquivalentModel) {
+        this.hasShuntAdmittanceLineEquivalentModel = hasShuntAdmittanceLineEquivalentModel;
         return this;
     }
 
@@ -120,7 +122,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, shuntAdmittanceHasBeenMerged, generation);
+        Objects.requireNonNull(hasShuntAdmittanceLineEquivalentModel); // TODO remove this. Only used to find impacts
+
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, pairingKey, hasShuntAdmittanceLineEquivalentModel, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);

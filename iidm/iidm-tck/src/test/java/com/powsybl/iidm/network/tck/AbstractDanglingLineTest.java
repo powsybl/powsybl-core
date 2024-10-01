@@ -78,7 +78,8 @@ public abstract class AbstractDanglingLineTest {
                         .setPairingKey(pairingKey)
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
-                    .add();
+                        .setHasShuntAdmittanceLineEquivalentModel(true)
+                        .add();
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
         assertEquals(IdentifiableType.DANGLING_LINE, danglingLine.getType());
@@ -147,6 +148,7 @@ public abstract class AbstractDanglingLineTest {
                 .setQ0(40.0)
                 .setPairingKey("code")
                 .setBus(BUS_VL_ID)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
 
         DanglingLine danglingLine = network.getDanglingLine("danglingId");
@@ -273,6 +275,7 @@ public abstract class AbstractDanglingLineTest {
                 .setPairingKey(pairingKey)
                 .setBus(BUS_VL_ID)
                 .setConnectableBus(BUS_VL_ID)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .newGeneration()
                     .setTargetP(440)
                     .setMaxP(900)
@@ -315,7 +318,8 @@ public abstract class AbstractDanglingLineTest {
                         .setPairingKey(ucteCode)
                         .setBus(BUS_VL_ID)
                         .setConnectableBus(BUS_VL_ID)
-                    .add();
+                        .setHasShuntAdmittanceLineEquivalentModel(true)
+                        .add();
     }
 
 }

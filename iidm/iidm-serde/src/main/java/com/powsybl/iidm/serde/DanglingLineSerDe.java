@@ -119,6 +119,7 @@ class DanglingLineSerDe extends AbstractSimpleIdentifiableSerDe<DanglingLine, Da
             String pairingKey = context.getReader().readStringAttribute("pairingKey");
             adder.setPairingKey(pairingKey);
         });
+        adder.setHasShuntAdmittanceLineEquivalentModel(true); // TODO Should we add this to a new version ?
         DanglingLine dl = adder.add();
         readPQ(null, dl.getTerminal(), context.getReader());
         IidmSerDeUtil.runFromMinimumVersion(IidmVersion.V_1_12, context, () ->

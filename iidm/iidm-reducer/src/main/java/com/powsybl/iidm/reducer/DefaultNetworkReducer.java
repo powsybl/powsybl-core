@@ -176,7 +176,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setB(side == TwoSides.ONE ? line.getB1() : line.getB2())
                 .setG(side == TwoSides.ONE ? line.getG1() : line.getG2())
                 .setP0(checkP(terminal))
-                .setQ0(checkQ(terminal));
+                .setQ0(checkQ(terminal))
+                .setHasShuntAdmittanceLineEquivalentModel(false);
         fillNodeOrBus(dlAdder, terminal);
 
         double p = terminal.getP();

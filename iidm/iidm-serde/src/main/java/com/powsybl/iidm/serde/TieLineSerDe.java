@@ -103,7 +103,8 @@ class TieLineSerDe extends AbstractSimpleIdentifiableSerDe<TieLine, TieLineAdder
                 .setG(g1 + g2)
                 .setB(b1 + b2)
                 .setP0(0.0)
-                .setQ0(0.0);
+                .setQ0(0.0)
+                .setHasShuntAdmittanceLineEquivalentModel(true);
 
         double[] halfBoundaryP = new double[1];
         double[] halfBoundaryQ = new double[1];

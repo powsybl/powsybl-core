@@ -210,11 +210,13 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setId(id("danglingLine1", networkId))
                 .setNode(15)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         voltageLevel2.newDanglingLine()
                 .setId(id("danglingLine2", networkId))
                 .setNode(16)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         n.newTieLine()
                 .setId(id("tieLine1", networkId))
@@ -226,6 +228,7 @@ public abstract class AbstractSubnetworksExplorationTest {
                 .setNode(17)
                 .setR(1.0).setX(0.1).setG(0.0).setB(0.001).setP0(10).setQ0(1)
                 .setPairingKey("mergingKey") // when merging both networks, this key will be used to create a tie line
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         substation3.newOverloadManagementSystem()
                 .setId(id("overloadManagementSystem", networkId))

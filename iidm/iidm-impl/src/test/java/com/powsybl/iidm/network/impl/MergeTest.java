@@ -91,6 +91,7 @@ class MergeTest {
                 .setQ0(1)
                 // Same pairing key for dangling lines
                 .setPairingKey("X")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         vl.getNodeBreakerView().newBreaker()
                 .setId(id("voltageLevel1BreakerDLb", nid))
@@ -354,6 +355,7 @@ class MergeTest {
             .setPairingKey(pairingKey)
             .setNode(node)
             .setEnsureIdUnicity(false)
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
     }
 

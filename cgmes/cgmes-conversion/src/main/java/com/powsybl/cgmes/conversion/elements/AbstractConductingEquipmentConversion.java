@@ -234,6 +234,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                         .setX(x)
                         .setG(gch)
                         .setB(bch)
+                        .setHasShuntAdmittanceLineEquivalentModel(false)
                         .setPairingKey(findPairingKey(boundaryNode)))
                 .orElseThrow(() -> new CgmesModelException("Dangling line " + id + " has no container"));
         identify(dlAdder);

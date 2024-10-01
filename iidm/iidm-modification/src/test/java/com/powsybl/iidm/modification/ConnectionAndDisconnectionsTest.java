@@ -458,6 +458,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setB(386E-6 / 2)
             .setBus("bus2A")
             .setPairingKey("XNODE1")
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
             .setId("XNODE1_NHV2")
@@ -469,6 +470,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setB(386E-6 / 2)
             .setBus("bus3A")
             .setPairingKey("XNODE1")
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
         TieLine tieLine = network.newTieLine()
             .setId("NHV1_NHV2_1")
@@ -977,6 +979,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setB(386E-6 / 2)
             .setBus("bus2A")
             .setPairingKey("XNODE1")
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
         DanglingLine xnode1nhv2 = network.getVoltageLevel("VL3").newDanglingLine()
             .setId("XNODE1_NHV2")
@@ -988,6 +991,7 @@ class ConnectionAndDisconnectionsTest extends AbstractModificationTest {
             .setB(386E-6 / 2)
             .setBus("bus3A")
             .setPairingKey("XNODE1")
+            .setHasShuntAdmittanceLineEquivalentModel(true)
             .add();
         network.newTieLine()
             .setId("NHV1_NHV2_1")

@@ -128,6 +128,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setG(5.75e-5)
                 .setB(2.1677e-5)
                 .setPairingKey("TN_Border_ST24")
+                .setHasShuntAdmittanceLineEquivalentModel(false)
                 .add();
         be7.newCurrentLimits().setPermanentLimit(1180)
                 .beginTemporaryLimit()
@@ -154,6 +155,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setG(3.08e-5)
                 .setB(8.2938E-5)
                 .setPairingKey("TN_Border_ST23")
+                .setHasShuntAdmittanceLineEquivalentModel(false)
                 .add();
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
@@ -222,6 +224,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setG(6e-5)
                 .setB(1.49854e-4)
                 .setPairingKey("TN_Border_AL11")
+                .setHasShuntAdmittanceLineEquivalentModel(false)
                 .add();
         be3.newCurrentLimits().setPermanentLimit(1371)
                 .beginTemporaryLimit()
@@ -248,6 +251,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setG(4.2e-5)
                 .setB(6.59734E-5)
                 .setPairingKey("TN_Border_GY11")
+                .setHasShuntAdmittanceLineEquivalentModel(false)
                 .add();
         be5.newCurrentLimits().setPermanentLimit(1804)
                 .beginTemporaryLimit()
@@ -274,6 +278,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setG(4e-5)
                 .setB(2.51956e-5)
                 .setPairingKey("TN_Border_MA11")
+                .setHasShuntAdmittanceLineEquivalentModel(false)
                 .add();
         be4.newCurrentLimits().setPermanentLimit(1226)
                 .beginTemporaryLimit()

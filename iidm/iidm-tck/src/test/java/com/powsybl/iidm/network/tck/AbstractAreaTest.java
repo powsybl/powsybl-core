@@ -529,6 +529,7 @@ public abstract class AbstractAreaTest {
                 .setB(0.0)
                 .setBus(bus.getId())
                 .setPairingKey("XNODE")
+                .setHasShuntAdmittanceLineEquivalentModel(true)
                 .add();
         AreaBoundaryAdder areaBoundaryAdder = controlAreaA.newAreaBoundary().setBoundary(danglingLine.getBoundary()).setAc(true);
         Throwable e = assertThrows(PowsyblException.class, areaBoundaryAdder::add);
