@@ -8,6 +8,7 @@
 package com.powsybl.loadflow;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
@@ -102,5 +103,10 @@ public class LoadFlowProviderMock implements LoadFlowProvider {
     @Override
     public List<Parameter> getSpecificParameters() {
         return PARAMETERS;
+    }
+
+    @Override
+    public Optional<ModuleConfig> getModuleConfig(PlatformConfig platformConfig) {
+        return platformConfig.getOptionalModuleConfig("dummy-extension");
     }
 }

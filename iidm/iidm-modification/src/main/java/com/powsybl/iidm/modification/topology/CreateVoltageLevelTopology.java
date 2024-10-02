@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.BusbarSectionPositionAdder;
 import org.slf4j.Logger;
@@ -55,6 +56,11 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         this.busOrBusbarSectionPrefixId = Objects.requireNonNull(busOrBusbarSectionPrefixId, "Undefined busbar section prefix ID");
         this.switchPrefixId = Objects.requireNonNull(switchPrefixId, "Undefined switch prefix ID");
         this.switchKinds = switchKinds;
+    }
+
+    @Override
+    public String getName() {
+        return "CreateVoltageLevelTopology";
     }
 
     private static boolean checkCountAttributes(Integer count, String type, int min, ReportNode reportNode, boolean throwException) {
@@ -168,6 +174,23 @@ public class CreateVoltageLevelTopology extends AbstractNetworkModification {
         }
         LOG.info("New symmetrical topology in voltage level {}: creation of {} bus(es) or busbar(s) with {} section(s) each.", voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
         createdNewSymmetricalTopology(reportNode, voltageLevelId, alignedBusesOrBusbarCount, sectionCount);
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        if (!checkCountAttributes(lowBusOrBusbarIndex, alignedBusesOrBusbarCount, lowSectionIndex, sectionCount, false, ReportNode.NO_OP)) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (voltageLevel == null ||
+                voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER &&
+                    (switchKinds.size() != sectionCount - 1 || switchKinds.contains(null)
+                        || switchKinds.stream().anyMatch(kind -> kind != SwitchKind.DISCONNECTOR && kind != SwitchKind.BREAKER))) {
+                impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+            }
+        }
+        return impact;
     }
 
     private void createBusbarSections(VoltageLevel voltageLevel, NamingStrategy namingStrategy) {

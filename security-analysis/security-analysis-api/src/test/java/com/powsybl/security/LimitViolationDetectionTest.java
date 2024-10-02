@@ -10,20 +10,25 @@ package com.powsybl.security;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
 import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
+import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import com.powsybl.security.detectors.AbstractLimitViolationDetectionTest;
 import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.limitreduction.DefaultLimitReductionsApplier;
 import com.powsybl.security.limitreduction.LimitReduction;
 import com.powsybl.security.limitreduction.SimpleLimitsComputer;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Consumer;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -97,7 +102,72 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     }
 
     @Test
-    void testLimitsComputer() {
+    void testVoltageViolationDetection() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(l -> {
+                assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+                assertEquals(620.0, violationsCollector.get(0).getValue());
+                assertEquals(500, violationsCollector.get(0).getLimit());
+                assertEquals("VLHV2", violationsCollector.get(0).getSubjectId());
+            });
+    }
+
+    @Test
+    void testVoltageViolationDetectionWithDetailLimitViolationId() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(l -> {
+                assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+                assertEquals(620.0, violationsCollector.get(0).getValue());
+                assertEquals(500, violationsCollector.get(0).getLimit());
+                Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
+                    .isPresent()
+                    .get()
+                    .isInstanceOfSatisfying(BusBreakerViolationLocation.class,
+                        vli -> {
+                            assertEquals("NHV2", vli.getId());
+                            assertTrue(vli.getBusId().isPresent());
+                            assertEquals("NHV2", vli.getBusId().get());
+                            assertEquals("VLHV2", vli.getVoltageLevelId());
+                            Assertions.assertThat(vli.getBusBarIds()).isEmpty();
+                        });
+            });
+    }
+
+    @Test
+    void testVoltageViolationDetectionWithBusBarIds() {
+        Network network = FourSubstationsNodeBreakerFactory.create();
+        LimitViolationDetection.checkVoltage(network.getBusView().getBus("S1VL1_0"), 300,
+            violationsCollector::add);
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(l -> {
+                assertEquals(LimitViolationType.HIGH_VOLTAGE, violationsCollector.get(0).getLimitType());
+                assertEquals(300, violationsCollector.get(0).getValue());
+                assertEquals(240, violationsCollector.get(0).getLimit());
+                Assertions.assertThat(violationsCollector.get(0).getViolationLocation())
+                    .isPresent()
+                    .get()
+                    .isInstanceOfSatisfying(NodeBreakerViolationLocation.class,
+                        vli -> {
+                            assertEquals("S1VL1_BBS", vli.getId());
+                            assertTrue(vli.getBusId().isEmpty());
+                            assertEquals("S1VL1", vli.getVoltageLevelId());
+                            Assertions.assertThat(vli.getBusBarIds())
+                                .hasSize(1)
+                                .first()
+                                .isEqualTo("S1VL1_BBS");
+                        });
+            });
+    }
+
+    @Test
+    void testPermanentLimitLimitsComputer() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         List<LimitReduction> limitReductionList = new ArrayList<>();
         LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
@@ -109,11 +179,36 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
         limitReductionList.add(reduction1);
         DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
         checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.ONE, 315, violationsCollector::add, computer);
-        Assertions.assertEquals(1, violationsCollector.size());
-        Assertions.assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
-        Assertions.assertEquals(Integer.MAX_VALUE, violationsCollector.get(0).getAcceptableDuration());
-        Assertions.assertEquals(315, violationsCollector.get(0).getValue(), 0.01);
-        Assertions.assertEquals(500., violationsCollector.get(0).getLimit(), 0.01);
-        Assertions.assertEquals(ThreeSides.ONE, violationsCollector.get(0).getSide());
+        Assertions.assertThat(violationsCollector)
+            .hasSize(1)
+            .allSatisfy(l -> {
+                assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
+                assertEquals(Integer.MAX_VALUE, violationsCollector.get(0).getAcceptableDuration());
+                assertEquals(315, violationsCollector.get(0).getValue(), 0.01);
+                assertEquals(500., violationsCollector.get(0).getLimit(), 0.01);
+                assertEquals(ThreeSides.ONE, violationsCollector.get(0).getSide());
+            });
+    }
+
+    @Test
+    void testTemporaryLimitLimitsComputer() {
+        Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        List<LimitReduction> limitReductionList = new ArrayList<>();
+        LimitReduction reduction1 = LimitReduction.builder(LimitType.CURRENT, 0.5)
+            .withMonitoringOnly(false)
+            .withContingencyContext(ContingencyContext.none())
+            .withNetworkElementCriteria(new NetworkElementIdListCriterion(Set.of("NHV1_NHV2_1")))
+            .withLimitDurationCriteria(new EqualityTemporaryDurationCriterion(60))
+            .build();
+        limitReductionList.add(reduction1);
+        DefaultLimitReductionsApplier computer = new DefaultLimitReductionsApplier(limitReductionList);
+        checkCurrent(network.getLine("NHV1_NHV2_1"), TwoSides.TWO, 751, violationsCollector::add, computer);
+        assertEquals(1, violationsCollector.size());
+        assertEquals(0.5, violationsCollector.get(0).getLimitReduction());
+        assertEquals(0, violationsCollector.get(0).getAcceptableDuration());
+        assertEquals(751, violationsCollector.get(0).getValue(), 0.01);
+        assertEquals(1500, violationsCollector.get(0).getLimit(), 0.01);
+        assertEquals(ThreeSides.TWO, violationsCollector.get(0).getSide());
+        assertEquals("1'", violationsCollector.get(0).getLimitName());
     }
 }

@@ -10,6 +10,9 @@ package com.powsybl.iidm.modification.topology;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.AbstractSerDeTest;
+import com.powsybl.iidm.modification.AbstractNetworkModification;
+import com.powsybl.iidm.modification.NetworkModification;
+import com.powsybl.iidm.modification.NetworkModificationImpact;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -108,5 +111,22 @@ class RemoveHvdcLineTest extends AbstractSerDeTest {
                 .setMaximumSectionCount(1)
                 .add()
                 .add();
+    }
+
+    @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
+        assertEquals("RemoveHvdcLine", networkModification.getName());
+    }
+
+    @Test
+    void testHasImpact() {
+        Network network = HvdcTestNetwork.createLcc();
+
+        NetworkModification modification1 = new RemoveHvdcLineBuilder().withHvdcLineId("WRONG_ID").build();
+        assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));
+
+        NetworkModification modification2 = new RemoveHvdcLineBuilder().withHvdcLineId("L").build();
+        assertEquals(NetworkModificationImpact.HAS_IMPACT_ON_NETWORK, modification2.hasImpactOnNetwork(network));
     }
 }

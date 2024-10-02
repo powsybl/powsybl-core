@@ -30,6 +30,11 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
         this.tapDelta = tapDelta;
     }
 
+    @Override
+    public String getName() {
+        return "PhaseShifterShiftTap";
+    }
+
     public int getTapDelta() {
         return tapDelta;
     }
@@ -54,5 +59,24 @@ public class PhaseShifterShiftTap extends AbstractNetworkModification {
     private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
         phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
                 phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
+    }
+
+    @Override
+    public NetworkModificationImpact hasImpactOnNetwork(Network network) {
+        impact = DEFAULT_IMPACT;
+        TwoWindingsTransformer phaseShifter = network.getTwoWindingsTransformer(phaseShifterId);
+        if (phaseShifter == null || !phaseShifter.hasPhaseTapChanger()) {
+            impact = NetworkModificationImpact.CANNOT_BE_APPLIED;
+        } else {
+            PhaseTapChanger phaseTapChanger = phaseShifter.getPhaseTapChanger();
+            int tapPosition = Math.min(Math.max(phaseTapChanger.getTapPosition() + tapDelta,
+                phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition());
+            if (areValuesEqual(tapPosition, phaseTapChanger.getTapPosition(), false)
+                && !phaseTapChanger.isRegulating()
+                && phaseTapChanger.getRegulationMode() == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+                impact = NetworkModificationImpact.NO_IMPACT_ON_NETWORK;
+            }
+        }
+        return impact;
     }
 }

@@ -1,8 +1,8 @@
 # Import
-There is a lot of Matpower open source cases available all over the internet. Most of the time, those cases are provided  as a `.m` file. This is Matlab code and only Matlab can interpret this kind of data. PowSyBl converter can only import `.mat` file which is a binary serialization of Matlab case data structure created from `.m` file.
+There are a lot of Matpower open source cases available all over the internet. Most of the time, those cases are provided as a `.m` file. This is Matlab code, and only Matlab can interpret this kind of data. PowSyBl converter can only import `.mat` file which is a binary serialization of Matlab case data structure created from `.m` file.
 
 ## Matpower cases conversions
-To import a Matpower cases, they have to be converted to `.mat` files first. This can be done using Matlab of course, but it is also possible to use [Octave](https://www.gnu.org/software/octave/), an open source scientific programming language which is mostly compatible with Matlab. Matpower toolbox can be installed with Octave.
+To import a Matpower cases, they have to be converted to `.mat` files first. This can be done using Matlab, but it is also possible to use [Octave](https://www.gnu.org/software/octave/), an open source scientific programming language which is mostly compatible with Matlab. Matpower toolbox can be installed with Octave.
 
 ### Octave and Matpower installation
 To install Octave, please follow the installation guide for your operating system, available on their [wiki](https://wiki.octave.org/Category:Installation).
