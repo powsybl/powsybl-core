@@ -46,6 +46,11 @@ class CgmesGLImportPostProcessorTest {
         assertEquals(49.224448, substation2Position.getCoordinate().getLatitude(), 0);
         assertEquals(-2.136596, substation2Position.getCoordinate().getLongitude(), 0);
 
+        Substation substation3 = network.getSubstation("Substation3");
+        SubstationPosition substation3Position = substation3.getExtension(SubstationPosition.class);
+        assertEquals(49.2092905, substation3Position.getCoordinate().getLatitude(), 1e-11);
+        assertEquals(-2.19941, substation3Position.getCoordinate().getLongitude(), 0);
+
         Line line = network.getLine("ACLine");
         LinePosition<Line> linePosition = line.getExtension(LinePosition.class);
         assertEquals(48.7123755, linePosition.getCoordinates().get(0).getLatitude(), 0);

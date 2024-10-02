@@ -75,6 +75,12 @@ class VscConverterStationModificationTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new VscConverterStationModification("ID", 10., null);
+        assertEquals("VscConverterStationModification", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         NetworkModification modification1 = new VscConverterStationModification("UNKNOWN_ID", 1., 2.);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));

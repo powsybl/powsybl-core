@@ -80,61 +80,101 @@ public abstract class AbstractToolTest {
     protected abstract Iterable<Tool> getTools();
 
     private void assertMatches(String expected, ByteArrayOutputStream actualStream, BiConsumer<String, String> comparisonFunction) {
-        if (expected != null) {
-            String actual = actualStream.toString(StandardCharsets.UTF_8);
-            if (expected.isEmpty()) {
-                assertTrue(actual.isEmpty(), () -> "Expected output is empty but actual output = " + actual);
-            } else {
-                comparisonFunction.accept(expected, actual);
-            }
+        String actual = actualStream.toString(StandardCharsets.UTF_8);
+        if (expected.isEmpty()) {
+            assertTrue(actual.isEmpty(), () -> "Expected output is empty but actual output = " + actual);
+        } else {
+            comparisonFunction.accept(expected, actual);
         }
     }
 
-    public static void containsTxt(String expected, String actual) {
+    private static void containsTxt(String expected, String actual) {
         assertTrue(actual.contains(expected), () -> ASSERT_MATCH_TEXT_BLOCK.formatted(expected, actual));
     }
 
-    public void matchTextOrRegex(String expected, String actual) {
-        assertTrue(actual.equals(expected) || Pattern.compile(expected).matcher(actual).find());
-    }
-
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS} and the error output is empty
+     * @param args the tested command and its parameters
+     */
     protected void assertCommandSuccessful(String[] args) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
-    }
-
-    protected void assertCommandSuccessful(String[] args, String expectedOut) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::assertTxtEquals);
-    }
-
-    protected void assertCommandSuccessfulMatch(String[] args, String expectedOut) {
-        assertCommand(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
-    }
-
-    protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
-        assertCommand(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
-    }
-
-    protected void assertCommandErrorMatch(String[] args, int expectedStatus, String expectedErr) {
-        assertCommand(args, expectedStatus, null, expectedErr, AbstractToolTest::containsTxt);
-    }
-
-    protected void assertCommandErrorMatch(String[] args, String expectedErr) {
-        assertCommand(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, null, "", ComparisonUtils::assertTxtEquals);
     }
 
     /**
-     * @deprecated use {@link AbstractToolTest#assertCommandMatchTextOrRegex} instead
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS}, the error output is empty and the output equals the expected output
+     * @param args the tested command and its parameters
+     * @param expectedOut expected output
      */
-    @Deprecated(since = "6.4.0")
-    protected void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
-        assertCommandMatchTextOrRegex(args, expectedStatus, expectedOut, expectedErr);
+    protected void assertCommandSuccessful(String[] args, String expectedOut) {
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", ComparisonUtils::assertTxtEquals);
     }
 
-    protected void assertCommandMatchTextOrRegex(String[] args, int expectedStatus, String expectedOut, String expectedErr) {
-        assertCommand(args, expectedStatus, expectedOut, expectedErr, this::matchTextOrRegex);
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS}, the error output is empty and the output contains the expected output
+     * @param args the tested command and its parameters
+     * @param expectedOut expected output
+     */
+    protected void assertCommandSuccessfulMatch(String[] args, String expectedOut) {
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, expectedOut, "", AbstractToolTest::containsTxt);
     }
 
-    private void assertCommand(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
+    /**
+     * Asserts the command returns {@link CommandLineTools#COMMAND_OK_STATUS}, the error output is empty and the output matches the regex pattern
+     * @param args the tested command and its parameters
+     * @param outPattern expected regex pattern
+     */
+    protected void assertCommandSuccessfulRegex(String[] args, Pattern outPattern) {
+        assertCommandResult(args, CommandLineTools.COMMAND_OK_STATUS, outPattern, true);
+    }
+
+    /**
+     * Asserts the command returns the expected status and error output equals the expected error output
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param expectedErr expected error output
+     */
+    protected void assertCommandError(String[] args, int expectedStatus, String expectedErr) {
+        assertCommandResult(args, expectedStatus, null, expectedErr, ComparisonUtils::assertTxtEquals);
+    }
+
+    /**
+     * Asserts the command returns the expected status and error output contains the expected error output
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param expectedErr expected error output
+     */
+    protected void assertCommandErrorMatch(String[] args, int expectedStatus, String expectedErr) {
+        assertCommandResult(args, expectedStatus, null, expectedErr, AbstractToolTest::containsTxt);
+    }
+
+    /**
+     * Asserts the command returns {@link CommandLineTools#EXECUTION_ERROR_STATUS} and error output contains the expected error output
+     * @param args the tested command and its parameters
+     * @param expectedErr expected error output
+     */
+    protected void assertCommandErrorMatch(String[] args, String expectedErr) {
+        assertCommandResult(args, CommandLineTools.EXECUTION_ERROR_STATUS, null, expectedErr, AbstractToolTest::containsTxt);
+    }
+
+    /**
+     * Asserts the command returns the expected status and error output matches the regex pattern
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param errPattern expected error regex pattern
+     */
+    protected void assertCommandErrorRegex(String[] args, int expectedStatus, Pattern errPattern) {
+        assertCommandResult(args, expectedStatus, errPattern, false);
+    }
+
+    /**
+     * Asserts the command returns the expected status and output and error output each match its expected string using the given comparison function
+     * @param args the tested command and its parameters
+     * @param expectedStatus expected command status
+     * @param expectedOut expected output
+     * @param expectedErr expected error output
+     * @param comparisonFunction comparison with expected output and error output
+     */
+    protected void assertCommandResult(String[] args, int expectedStatus, String expectedOut, String expectedErr, BiConsumer<String, String> comparisonFunction) {
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         ByteArrayOutputStream berr = new ByteArrayOutputStream();
         int status = runCommand(args, bout, berr, tools, fileSystem);
@@ -144,6 +184,20 @@ public abstract class AbstractToolTest {
         }
         if (expectedErr != null) {
             assertMatches(expectedErr, berr, comparisonFunction);
+        }
+    }
+
+    private void assertCommandResult(String[] args, int expectedStatus, Pattern pattern, boolean success) {
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        ByteArrayOutputStream berr = new ByteArrayOutputStream();
+        int status = runCommand(args, bout, berr, tools, fileSystem);
+        assertEquals(expectedStatus, status);
+        if (success) {
+            String err = berr.toString(StandardCharsets.UTF_8);
+            assertTrue(pattern.matcher(bout.toString(StandardCharsets.UTF_8)).find());
+            assertTrue(err.isEmpty(), () -> "Err output should be empty but actual output = " + err);
+        } else {
+            assertTrue(pattern.matcher(berr.toString(StandardCharsets.UTF_8)).find());
         }
     }
 

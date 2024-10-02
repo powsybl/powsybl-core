@@ -11,6 +11,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.CountryConversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.SubstationAdder;
@@ -22,7 +23,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class SubstationConversion extends AbstractIdentifiedObjectConversion {
 
     public SubstationConversion(PropertyBag s, Context context) {
-        super("Substation", s, context);
+        super(CgmesNames.SUBSTATION, s, context);
     }
 
     @Override
