@@ -9,6 +9,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
@@ -23,7 +24,7 @@ import static com.powsybl.cgmes.conversion.Conversion.PROPERTY_BUSBAR_SECTION_TE
 public class BusbarSectionConversion extends AbstractConductingEquipmentConversion {
 
     public BusbarSectionConversion(PropertyBag bbs, Context context) {
-        super("BusbarSection", bbs, context);
+        super(CgmesNames.BUSBAR_SECTION, bbs, context);
     }
 
     @Override

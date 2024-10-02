@@ -44,6 +44,8 @@ public interface DynamicSimulationResult {
         return getCurves().get(curve);
     }
 
+    Map<String, Double> getFinalStateValues();
+
     /**
      * The Timeline contains information about relevant events that may have happened during the time domain simulation.
      */
