@@ -10,7 +10,6 @@ package com.powsybl.iidm.modification;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,10 +32,10 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     @BeforeEach
     public void setUp() {
         network = ThreeWindingsTransformerNetworkFactory.create();
-        assertTrue(network.getThreeWindingsTransformerCount() == 1);
+        assertEquals(1, network.getThreeWindingsTransformerCount());
         ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
         replace.apply(network);
-        assertTrue(network.getTwoWindingsTransformerCount() == 3);
+        assertEquals(3, network.getTwoWindingsTransformerCount());
         t2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
         assertNotNull(t2w1);
         t2w2 = network.getTwoWindingsTransformer("3WT-Leg2");
@@ -58,8 +57,28 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void testApplyChecks() {
+    void testApplyChecks1() {
         t2w1.setProperty("unknown property", "unknown value");
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
+                "An unknown property should fail to apply.");
+        assertDoesNotThrow(() -> replace.apply(network, false, ReportNode.NO_OP),
+                "An unknown property should not throw if throwException is false.");
+    }
+
+    @Test
+    void testApplyChecks2() {
+        t2w2.setProperty("unknown property", "unknown value");
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
+                "An unknown property should fail to apply.");
+        assertDoesNotThrow(() -> replace.apply(network, false, ReportNode.NO_OP),
+                "An unknown property should not throw if throwException is false.");
+    }
+
+    @Test
+    void testApplyChecks3() {
+        t2w3.setProperty("unknown property", "unknown value");
         Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
         assertThrows(PowsyblException.class, () -> replace.apply(network, true, ReportNode.NO_OP),
                 "An unknown property should fail to apply.");

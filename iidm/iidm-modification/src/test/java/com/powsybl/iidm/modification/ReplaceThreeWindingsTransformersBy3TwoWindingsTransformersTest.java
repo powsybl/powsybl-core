@@ -30,7 +30,7 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     @BeforeEach
     public void setUp() {
         network = ThreeWindingsTransformerNetworkFactory.create();
-        assertTrue(network.getThreeWindingsTransformerCount() == 1);
+        assertEquals(1, network.getThreeWindingsTransformerCount());
         t3w = network.getThreeWindingsTransformer("3WT");
         assertNotNull(t3w);
     }
