@@ -26,6 +26,8 @@ public final class ModificationReports {
     private static final String IDENTIFIABLE_ID = "identifiableId";
     private static final String IDENTIFIABLE_TYPE = "identifiableType";
     private static final String HVDC_LINE_ID = "hvdcLineId";
+    private static final String TWO_WINDINGS_TRANSFORMER_ID = "twoWindingsTransformerId";
+    private static final String THREE_WINDINGS_TRANSFORMER_ID = "threeWindingsTransformerId";
     public static final String POSITION_ORDER = "positionOrder";
 
     // INFO
@@ -75,6 +77,100 @@ public final class ModificationReports {
                 .withMessageTemplate("lineCreated", "Line ${lineId} created")
                 .withUntypedValue(LINE_ID, lineId)
                 .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdVoltageLevelReport(ReportNode reportNode, String voltageLevelId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("voltageLevelCreated", "VoltageLevel ${voltageLevelId} created")
+                .withUntypedValue(VOLTAGE_LEVEL_ID, voltageLevelId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdTwoWindingsTransformerReport(ReportNode reportNode, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("twoWindingsTransformerCreated", "TwoWindingsTransformer ${twoWindingsTransformerId} created")
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void createdThreeWindingsTransformerReport(ReportNode reportNode, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("threeWindingsTransformerCreated", "ThreeWindingsTransformer ${threeWindingsTransformerId} created")
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedTwoWindingsTransformerReport(ReportNode reportNode, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("twoWindingsTransformerRemoved", "TwoWindingsTransformer ${twoWindingsTransformerId} removed")
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void removedThreeWindingsTransformerReport(ReportNode reportNode, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("threeWindingsTransformerRemoved", "ThreeWindingsTransformer ${threeWindingsTransformerId} removed")
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.INFO_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerAliases(ReportNode reportNode, String aliases, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerAliases", "Alias [${aliases}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("aliases", aliases)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostThreeWindingsTransformerAliases(ReportNode reportNode, String aliases, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostThreeWindingsTransformerAliases", "Alias [${aliases}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
+                .withUntypedValue("aliases", aliases)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerProperties(ReportNode reportNode, String properties, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerProperties", "Property [${properties}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("properties", properties)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostThreeWindingsTransformerProperties(ReportNode reportNode, String properties, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostThreeWindingsTransformerProperties", "Property [${properties}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
+                .withUntypedValue("properties", properties)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostTwoWindingsTransformerExtensions(ReportNode reportNode, String extensions, String twoWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostTwoWindingsTransformerExtensions", "Extension [${extensions}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
+                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
+                .add();
+    }
+
+    public static void lostThreeWindingsTransformerExtensions(ReportNode reportNode, String extensions, String threeWindingsTransformerId) {
+        reportNode.newReportNode()
+                .withMessageTemplate("lostThreeWindingsTransformerExtensions", "Extension [${extensions}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
+                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
+                .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
     }
 

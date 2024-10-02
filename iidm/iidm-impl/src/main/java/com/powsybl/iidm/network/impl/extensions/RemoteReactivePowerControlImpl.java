@@ -7,12 +7,16 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import java.util.Objects;
 
 /**
  * @author Bertrand Rix {@literal <bertrand.rix at artelys.com>}
@@ -21,7 +25,7 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
 
     private TDoubleArrayList targetQ;
 
-    private final Terminal regulatingTerminal;
+    private Terminal regulatingTerminal;
 
     private TBooleanArrayList enabled;
 
@@ -57,6 +61,20 @@ public class RemoteReactivePowerControlImpl extends AbstractMultiVariantIdentifi
     @Override
     public Terminal getRegulatingTerminal() {
         return regulatingTerminal;
+    }
+
+    @Override
+    public RemoteReactivePowerControl setRegulatingTerminal(Terminal regulatingTerminal) {
+        Objects.requireNonNull(regulatingTerminal);
+        checkRegulatingTerminal(regulatingTerminal, getExtendable().getTerminal().getVoltageLevel().getNetwork());
+        this.regulatingTerminal = regulatingTerminal;
+        return this;
+    }
+
+    private static void checkRegulatingTerminal(Terminal regulatingTerminal, Network network) {
+        if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != network) {
+            throw new PowsyblException("regulating terminal is not part of the same network");
+        }
     }
 
     @Override
