@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.RegulatingControlEq;
-import com.powsybl.cgmes.extensions.CgmesControlArea;
-import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.extensions.CgmesTapChanger;
 import com.powsybl.cgmes.extensions.CgmesTapChangers;
 import com.powsybl.cgmes.model.CgmesMetadataModel;
@@ -843,20 +841,29 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        CgmesControlAreas areas = network.getExtension(CgmesControlAreas.class);
-        for (CgmesControlArea area : areas.getCgmesControlAreas()) {
-            writeControlArea(area, cimNamespace, writer, context);
+        for (Area area : network.getAreas()) {
+            if (area.getAreaType().equals("ControlAreaTypeKind.Interchange")) {
+                writeControlArea(area, cimNamespace, writer, context);
+            }
         }
     }
 
-    private static void writeControlArea(CgmesControlArea area, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String areaId = context.getNamingStrategy().getCgmesId(area.getId());
+    private static void writeControlArea(Area controlArea, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        String areaId = context.getNamingStrategy().getCgmesId(controlArea.getId());
         CgmesExportUtil.writeStartAbout("ControlArea", areaId, cimNamespace, writer, context);
         writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
-        writer.writeCharacters(CgmesExportUtil.format(area.getNetInterchange()));
+        double netInterchange = controlArea.getInterchangeTarget().orElse(Double.NaN);
+        writer.writeCharacters(CgmesExportUtil.format(netInterchange));
         writer.writeEndElement();
+        double pTolerance;
+        if (controlArea.hasProperty("pTolerance")) {
+            pTolerance = Double.parseDouble(controlArea.getProperty("pTolerance"));
+        } else {
+            // FIXME(Luma) check if QoCDC says something about this tolerance
+            pTolerance = 0.1 * netInterchange;
+        }
         writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
-        writer.writeCharacters(CgmesExportUtil.format(area.getPTolerance()));
+        writer.writeCharacters(CgmesExportUtil.format(pTolerance));
         writer.writeEndElement();
         writer.writeEndElement();
     }
