@@ -18,8 +18,8 @@ import java.nio.file.Path;
  */
 public class XZDirectoryDataSource extends DirectoryDataSource {
 
-    public XZDirectoryDataSource(Path directory, String baseName, String dataExtension, DataSourceObserver observer) {
-        super(directory, baseName, dataExtension, CompressionFormat.XZ, observer);
+    public XZDirectoryDataSource(Path directory, String baseName, String dataExtension, boolean allFiles, DataSourceObserver observer) {
+        super(directory, baseName, dataExtension, CompressionFormat.XZ, allFiles, observer);
     }
 
     @Override

@@ -6,14 +6,20 @@
  * SPDX-License-Identifier: MPL-2.0
  */
 
+
 import com.powsybl.iidm.network.Generator
 import com.powsybl.iidm.network.Load
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyCurvesSupplier")
+Logger logger = LoggerFactory.getLogger("com.powsybl.dynamicsimulation.groovy.GroovyOutputVariablesSupplier")
 
 dummyCurve {
+    id "id"
+    variable "variable"
+}
+
+dummyFsv {
     id "id"
     variable "variable"
 }

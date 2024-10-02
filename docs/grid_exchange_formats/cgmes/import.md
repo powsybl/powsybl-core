@@ -304,8 +304,37 @@ Sections are created from the lowest CGMES `sectionNumber` to the highest and ea
 <span style="color: red">TODO regulation</span>
 
 (cgmes-operational_limit-import)=
-### OperationalLimit
-<span style="color: red">TODO</span>
+### OperationalLimits
+
+OperationalLimits model a specification of limits associated with equipments.
+
+#### OperationalLimitSet
+
+A CGMES `OperationalLimitSet` is a set of `OperationalLimit` associated with equipment or terminal. It is mapped to a PowSyBl [`OperationalLimitsGroup`](../../grid_model/additional.md#limit-group-collection).
+
+Just like CGMES allows to attach multiple `OperationalLimitSet` on the same equipment or terminal, PowSyBl stores a collection of `OperationalLimitsGroup` for every 
+[`Line`](../../grid_model/network_subnetwork.md#line) side, [`DanglingLine`](../../grid_model/network_subnetwork.md#dangling-line) and [`ThreeWindingTransformer.Leg`](../../grid_model/network_subnetwork.md#three-winding-transformer-leg).
+
+The same way a CGMES `OperationalLimitSet` may contain `OperationalLimit` of different subclasses, a PowSyBl `OperationalLimitsGroup` may have multipe non-null `LoadingLimits`.
+
+If there is only one `OperationalLimitsGroup` on an end, it automatically gets to be selected (active). However, if there is multiple groups, none is selected: the user has to choose which set is active.
+
+#### OperationalLimit
+
+A CGMES `OperationalLimit` is an abstract class that represent different kinds of limits: current, active power or apparent power.
+The collection of the same subclass of CGMES `OperationalLimit` in the set is mapped to a PowSyBl [`LoadingLimits`](../../grid_model/additional.md#loading-limits) as follows:
+- The collection of CGMES `CurrentLimit` in the `OperationalLimitSet` is mapped to the `currentLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ActivePowerLimit` in the `OperationalLimitSet` is mapped to the `activePowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set. 
+- The collection of CGMES `ApparentPowerLimit` in the `OperationalLimitSet` is mapped to the `apparentPowerLimits` attribute of the PowSyBl `OperationalLimitsGroup` corresponding to the set.
+
+A particular CGMES `OperationalLimit` is mapped differently depending on its associated CGMES `OperationalLimitType`:
+- A permanent limit (`OperationalLimitType.limitType` is `LimitTypeKind.patl`) is mapped as follows:
+    - PowSyBl `LoadingLimits.permanentLimit` is copied from CGMES `OperationalLimit.value`
+- A temporary limit (`OperationalLimitType.limitType` is `LimitTypeKind.tatl`) is mapped as follows:
+    - A new entry is created in PowSyBl `LoadingLimits.temporaryLimits`
+    - `name` is copied from `OperationalLimit.name`
+    - `value` is copied from `OperationalLimit.value`
+    - `acceptableDuration` is copied from `OperationalType.acceptableDuration`
 
 (cgmes-power-transformer-import)=
 ### PowerTransformer

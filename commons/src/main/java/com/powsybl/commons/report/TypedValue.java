@@ -9,6 +9,8 @@ package com.powsybl.commons.report;
 
 import com.powsybl.commons.PowsyblException;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -70,5 +72,9 @@ public class TypedValue {
     @Override
     public String toString() {
         return String.valueOf(value);
+    }
+
+    public static TypedValue getTimestamp(DateTimeFormatter timestampFormatter) {
+        return new TypedValue(timestampFormatter.format(ZonedDateTime.now()), TypedValue.TIMESTAMP);
     }
 }

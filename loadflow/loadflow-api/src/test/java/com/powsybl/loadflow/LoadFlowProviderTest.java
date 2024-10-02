@@ -90,4 +90,22 @@ class LoadFlowProviderTest {
         provider.updateSpecificParameters(new JsonLoadFlowParametersTest.DummyExtension(), Map.of());
         assertTrue(provider.getSpecificParameters().isEmpty());
     }
+
+    @Test
+    void testConfiguredParameters() throws IOException {
+        LoadFlowProvider provider = new LoadFlowProviderMock();
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+            List<Parameter> baseSpecificParameters = provider.getSpecificParameters();
+            assertEquals(6.4, baseSpecificParameters.get(0).getDefaultValue());
+            assertEquals(false, baseSpecificParameters.get(1).getDefaultValue());
+            assertEquals("yes", baseSpecificParameters.get(2).getDefaultValue());
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("dummy-extension");
+            moduleConfig.setStringProperty("parameterDouble", "3.14");
+            List<Parameter> configuredSpecificParameters = provider.getSpecificParameters(platformConfig);
+            assertEquals(3.14, configuredSpecificParameters.get(0).getDefaultValue());
+            assertEquals(false, configuredSpecificParameters.get(1).getDefaultValue());
+            assertEquals("yes", configuredSpecificParameters.get(2).getDefaultValue());
+        }
+    }
 }

@@ -24,16 +24,19 @@ public interface DataSource extends ReadOnlyDataSource {
 
     OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
 
+    /**
+     * Creates a {@link DataSource} from the given path, throwing an exception if the path does not correspond to an
+     * existing file. Note that the basename of the created {@link DataSource} is
+     * <ul>
+     *     <li>the file name if the file is a directory</li>
+     *     <li>the base name guessed by {@link FileInformation} if the file is not a directory</li>
+     * </ul>
+     */
     static DataSource fromPath(Path file) {
         Objects.requireNonNull(file);
-        if (!Files.isRegularFile(file)) {
-            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
+        if (!Files.exists(file)) {
+            throw new PowsyblException("File " + file + " does not exist");
         }
-        Path absFile = file.toAbsolutePath();
-        return fromPath(absFile.getParent(), absFile.getFileName().toString());
-    }
-
-    static DataSource fromPath(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
+        return DataSourceUtil.createDataSource(file, null);
     }
 }
