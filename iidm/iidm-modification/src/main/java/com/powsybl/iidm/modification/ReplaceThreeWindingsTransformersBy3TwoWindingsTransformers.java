@@ -80,24 +80,25 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         }
 
         // report
-        removedThreeWindingsTransformerReport(reportNode, t3wId);
+        ReportNode reportNodeReplacement = reportNode.newReportNode().withMessageTemplate("replaced-t3w-by-3t2w", "Replaced ThreeWindingsTransformer by 3 TwoWindingsTransformers").add();
+        removedThreeWindingsTransformerReport(reportNodeReplacement, t3wId);
         if (!lostProperties.isEmpty()) {
             String properties = String.join(",", lostProperties);
-            lostThreeWindingsTransformerProperties(reportNode, properties, t3wId);
+            lostThreeWindingsTransformerProperties(reportNodeReplacement, properties, t3wId);
         }
         if (!lostExtensions.isEmpty()) {
             String extensions = String.join(",", lostExtensions);
-            lostThreeWindingsTransformerExtensions(reportNode, extensions, t3wId);
+            lostThreeWindingsTransformerExtensions(reportNodeReplacement, extensions, t3wId);
         }
         if (!lostAliases.isEmpty()) {
             String aliases = lostAliases.stream().map(AliasR::alias).collect(Collectors.joining(","));
-            lostThreeWindingsTransformerAliases(reportNode, aliases, t3wId);
+            lostThreeWindingsTransformerAliases(reportNodeReplacement, aliases, t3wId);
         }
 
-        createdVoltageLevelReport(reportNode, starVoltageLevel.getId());
-        createdTwoWindingsTransformerReport(reportNode, t2wLeg1.getId());
-        createdTwoWindingsTransformerReport(reportNode, t2wLeg2.getId());
-        createdTwoWindingsTransformerReport(reportNode, t2wLeg3.getId());
+        createdVoltageLevelReport(reportNodeReplacement, starVoltageLevel.getId());
+        createdTwoWindingsTransformerReport(reportNodeReplacement, t2wLeg1.getId());
+        createdTwoWindingsTransformerReport(reportNodeReplacement, t2wLeg2.getId());
+        createdTwoWindingsTransformerReport(reportNodeReplacement, t2wLeg3.getId());
     }
 
     // It is a fictitious bus, then we do not set voltage limits

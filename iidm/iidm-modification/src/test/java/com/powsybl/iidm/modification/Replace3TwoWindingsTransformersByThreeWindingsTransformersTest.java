@@ -9,11 +9,15 @@ package com.powsybl.iidm.modification;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
+import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.io.StringWriter;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -54,6 +58,39 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertEquals(3, network.getVoltageLevelCount());
         assertEquals(0, network.getTwoWindingsTransformerCount());
         assertEquals(1, network.getThreeWindingsTransformerCount());
+    }
+
+    @Test
+    void testReportNode() throws IOException {
+        t2w1.setProperty("t2w1 property1", "t2w1-value1");
+        t2w2.setProperty("t2w2 property1", "t2w2-value1");
+        t2w2.setProperty("t2w2 property2", "t2w2-value2");
+        t2w3.setProperty("t2w3 property1", "t2w3-value1");
+        t2w1.addAlias("t2w1-alias1");
+        t2w1.addAlias("t2w1-alias2");
+        t2w2.addAlias("t2w2-alias1");
+        t2w3.addAlias("t2w3-alias1");
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network, reportNode);
+
+        StringWriter sw1 = new StringWriter();
+        reportNode.print(sw1);
+        assertEquals("""
+                + test reportNode
+                   + Replaced 3 TwoWindingsTransformers by ThreeWindingsTransformer
+                      TwoWindingsTransformer 3WT-Leg1 removed
+                      TwoWindingsTransformer 3WT-Leg2 removed
+                      TwoWindingsTransformer 3WT-Leg3 removed
+                      Voltage level 3WT-Star-VL, its equipments and the branches it is connected to have been removed
+                      Property [t2w1 property1] of twoWindingsTransformer 3WT-Leg1 will be lost
+                      Property [t2w2 property1,t2w2 property2] of twoWindingsTransformer 3WT-Leg2 will be lost
+                      Property [t2w3 property1] of twoWindingsTransformer 3WT-Leg3 will be lost
+                      Alias [t2w1-alias2,t2w1-alias1] of twoWindingsTransformer 3WT-Leg1 will be lost
+                      Alias [t2w2-alias1] of twoWindingsTransformer 3WT-Leg2 will be lost
+                      Alias [t2w3-alias1] of twoWindingsTransformer 3WT-Leg3 will be lost
+                      ThreeWindingsTransformer 3WT-Leg1-3WT-Leg2-3WT-Leg3 created
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
     }
 
     @Test

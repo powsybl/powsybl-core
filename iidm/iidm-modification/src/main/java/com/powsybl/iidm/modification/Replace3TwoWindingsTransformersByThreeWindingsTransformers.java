@@ -177,33 +177,34 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         }
 
         // report
-        removedTwoWindingsTransformerReport(reportNode, t2w1Id);
-        removedTwoWindingsTransformerReport(reportNode, t2w2Id);
-        removedTwoWindingsTransformerReport(reportNode, t2w3Id);
-        removedVoltageLevelReport(reportNode, starVoltageId);
+        ReportNode reportNodeReplacement = reportNode.newReportNode().withMessageTemplate("replaced-3t2w-by-t3w", "Replaced 3 TwoWindingsTransformers by ThreeWindingsTransformer").add();
+        removedTwoWindingsTransformerReport(reportNodeReplacement, t2w1Id);
+        removedTwoWindingsTransformerReport(reportNodeReplacement, t2w2Id);
+        removedTwoWindingsTransformerReport(reportNodeReplacement, t2w3Id);
+        removedVoltageLevelReport(reportNodeReplacement, starVoltageId);
 
         if (!lostProperties.isEmpty()) {
             Set<String> t2wIds = lostProperties.stream().map(propertyR -> propertyR.t2wId).collect(Collectors.toSet());
             t2wIds.stream().sorted().forEach(t2wId -> {
                 String properties = String.join(",", lostProperties.stream().filter(propertyR -> propertyR.t2wId.equals(t2wId)).map(propertyR -> propertyR.propertyName).toList());
-                lostTwoWindingsTransformerProperties(reportNode, properties, t2wId);
+                lostTwoWindingsTransformerProperties(reportNodeReplacement, properties, t2wId);
             });
         }
         if (!lostExtensions.isEmpty()) {
             Set<String> t2wIds = lostExtensions.stream().map(extensionR -> extensionR.t2wId).collect(Collectors.toSet());
             t2wIds.stream().sorted().forEach(t2wId -> {
                 String extensions = String.join(",", lostExtensions.stream().filter(extensionR -> extensionR.t2wId.equals(t2wId)).map(extensionR -> extensionR.extensionName).toList());
-                lostTwoWindingsTransformerExtensions(reportNode, extensions, t2wId);
+                lostTwoWindingsTransformerExtensions(reportNodeReplacement, extensions, t2wId);
             });
         }
         if (!lostAliases.isEmpty()) {
             Set<String> t2wIds = lostAliases.stream().map(aliasR -> aliasR.t2wId).collect(Collectors.toSet());
             t2wIds.stream().sorted().forEach(t2wId -> {
                 String aliases = lostAliases.stream().filter(aliasR -> aliasR.t2wId.equals(t2wId)).map(AliasR::alias).collect(Collectors.joining(","));
-                lostTwoWindingsTransformerAliases(reportNode, aliases, t2wId);
+                lostTwoWindingsTransformerAliases(reportNodeReplacement, aliases, t2wId);
             });
         }
-        createdThreeWindingsTransformerReport(reportNode, t3w.getId());
+        createdThreeWindingsTransformerReport(reportNodeReplacement, t3w.getId());
     }
 
     private Substation findSubstation(TwoR twoR, boolean throwException) {
