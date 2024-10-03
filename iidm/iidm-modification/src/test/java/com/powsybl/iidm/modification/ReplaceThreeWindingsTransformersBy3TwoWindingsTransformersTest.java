@@ -128,6 +128,37 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
+    void replaceAliasTest() {
+        addLegAliases("1");
+        addLegAliases("2");
+        addLegAliases("3");
+
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
+        TwoWindingsTransformer t2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
+        TwoWindingsTransformer t2w2 = network.getTwoWindingsTransformer("3WT-Leg2");
+        TwoWindingsTransformer t2w3 = network.getTwoWindingsTransformer("3WT-Leg3");
+
+        assertTrue(compareAliases(t2w1, "1"));
+        assertTrue(compareAliases(t2w2, "2"));
+        assertTrue(compareAliases(t2w3, "3"));
+    }
+
+    private void addLegAliases(String leg) {
+        network.getThreeWindingsTransformer(t3w.getId()).addAlias("transformerEnd-Leg" + leg, "CGMES.TransformerEnd" + leg);
+        network.getThreeWindingsTransformer(t3w.getId()).addAlias("terminal-Leg" + leg, "CGMES.Terminal" + leg);
+        network.getThreeWindingsTransformer(t3w.getId()).addAlias("ratioTapChanger-Leg" + leg, "CGMES.RatioTapChanger" + leg);
+        network.getThreeWindingsTransformer(t3w.getId()).addAlias("phaseTapChanger-Leg" + leg, "CGMES.PhaseTapChanger" + leg);
+    }
+
+    private boolean compareAliases(TwoWindingsTransformer t2w, String leg) {
+        return t2w.getAliasFromType("CGMES.TransformerEnd1").orElseThrow().equals("transformerEnd-Leg" + leg)
+                && t2w.getAliasFromType("CGMES.Terminal1").orElseThrow().equals("terminal-Leg" + leg)
+                && t2w.getAliasFromType("CGMES.RatioTapChanger1").orElseThrow().equals("ratioTapChanger-Leg" + leg)
+                && t2w.getAliasFromType("CGMES.PhaseTapChanger1").orElseThrow().equals("phaseTapChanger-Leg" + leg);
+    }
+
+    @Test
     void testReportNode() throws IOException {
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("t3w property1", "t3w-value1");
         network.getThreeWindingsTransformer(t3w.getId()).setProperty("t3w property2", "t3w-value2");

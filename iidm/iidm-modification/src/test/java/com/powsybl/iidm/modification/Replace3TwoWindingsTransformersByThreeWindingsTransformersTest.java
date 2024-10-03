@@ -135,6 +135,35 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
+    void replaceAliasTest() {
+        addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w1.getId()));
+        addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w2.getId()));
+        addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w3.getId()));
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-3WT-Leg3");
+
+        assertTrue(compareAliases(t3w, "1", t2w1));
+        assertTrue(compareAliases(t3w, "2", t2w2));
+        assertTrue(compareAliases(t3w, "3", t2w3));
+    }
+
+    private void addTwoWindingsTransformerAliases(TwoWindingsTransformer t2w) {
+        t2w.addAlias("transformerEnd-" + t2w.getId(), "CGMES.TransformerEnd1");
+        t2w.addAlias("terminal-" + t2w.getId(), "CGMES.Terminal1");
+        t2w.addAlias("ratioTapChanger-" + t2w.getId(), "CGMES.RatioTapChanger1");
+        t2w.addAlias("phaseTapChanger-" + t2w.getId(), "CGMES.PhaseTapChanger1");
+    }
+
+    private boolean compareAliases(ThreeWindingsTransformer t3w, String leg, TwoWindingsTransformer t2w) {
+        return t3w.getAliasFromType("CGMES.TransformerEnd" + leg).orElseThrow().equals("transformerEnd-" + t2w.getId())
+                && t3w.getAliasFromType("CGMES.Terminal" + leg).orElseThrow().equals("terminal-" + t2w.getId())
+                && t3w.getAliasFromType("CGMES.RatioTapChanger" + leg).orElseThrow().equals("ratioTapChanger-" + t2w.getId())
+                && t3w.getAliasFromType("CGMES.PhaseTapChanger" + leg).orElseThrow().equals("phaseTapChanger-" + t2w.getId());
+    }
+
+    @Test
     void testReportNode() throws IOException {
         network.getTwoWindingsTransformer(t2w1.getId()).setProperty("t2w1 property1", "t2w1-value1");
         network.getTwoWindingsTransformer(t2w2.getId()).setProperty("t2w2 property1", "t2w2-value1");
