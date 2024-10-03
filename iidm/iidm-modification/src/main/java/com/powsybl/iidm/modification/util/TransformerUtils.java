@@ -125,9 +125,9 @@ public final class TransformerUtils {
                 .setRegulationMode(ptc.getRegulationMode())
                 .setRegulationValue(ptc.getRegulationValue())
                 .setLowTapPosition(ptc.getLowTapPosition())
-                .setRegulating(ptc.isRegulating())
                 .setRegulationTerminal(ptc.getRegulationTerminal())
-                .setTargetDeadband(ptc.getTargetDeadband());
+                .setTargetDeadband(ptc.getTargetDeadband())
+                .setRegulating(ptc.isRegulating());
     }
 
     private static Complex obtainComplexRatio(double ratio, double alpha) {

@@ -80,6 +80,9 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         if (substation == null) {
             return;
         }
+        if (anyTwoWindingsTransformerRegulatingOnFictitiousSide(twoR, controlledRegulatingTerminals, throwException)) {
+            return;
+        }
         double ratedU0 = twoR.starBus.getVoltageLevel().getNominalV();
 
         ThreeWindingsTransformerAdder t3wAdder = substation.newThreeWindingsTransformer()
@@ -124,20 +127,26 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         twoR.t2w3.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg3().newRatioTapChanger(), rtc, isWellOriented(twoR.starBus, twoR.t2w3)));
         twoR.t2w3.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg3().newPhaseTapChanger(), ptc, isWellOriented(twoR.starBus, twoR.t2w3)));
 
-        getOperationalLimitsGroups(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1))
+        getOperationalLimitsGroups1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1))
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t3w.getLeg1().newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
-        getOperationalLimitsGroups(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2))
+        getOperationalLimitsGroups1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2))
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t3w.getLeg2().newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
-        getOperationalLimitsGroups(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3))
+        getOperationalLimitsGroups1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3))
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t3w.getLeg3().newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
 
-        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
 
-        copyTerminalActiveAndReactivePower(getTerminal(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
-        copyTerminalActiveAndReactivePower(getTerminal(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
-        copyTerminalActiveAndReactivePower(getTerminal(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
+        // t3w is not considered in controlledRegulatingTerminals (created in the model later)
+        Map<Terminal, Terminal> regulatingTerminalMapping = getRegulatingTerminalMapping(twoR, t3w);
+        replaceRegulatingTerminal(t3w.getLeg1(), regulatingTerminalMapping);
+        replaceRegulatingTerminal(t3w.getLeg2(), regulatingTerminalMapping);
+        replaceRegulatingTerminal(t3w.getLeg3(), regulatingTerminalMapping);
+
+        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
+        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
+        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
 
         List<PropertyR> lostProperties = new ArrayList<>();
         lostProperties.addAll(copyProperties(twoR.t2w1, t3w));
@@ -151,9 +160,9 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
         // copy necessary data before removing
         List<AliasR> t2wAliases = new ArrayList<>();
-        t2wAliases.addAll(getAliases(twoR.t2w1, "1", getEnd(isWellOriented(twoR.starBus, twoR.t2w1))));
-        t2wAliases.addAll(getAliases(twoR.t2w2, "2", getEnd(isWellOriented(twoR.starBus, twoR.t2w2))));
-        t2wAliases.addAll(getAliases(twoR.t2w3, "3", getEnd(isWellOriented(twoR.starBus, twoR.t2w3))));
+        t2wAliases.addAll(getAliases(twoR.t2w1, "1", getEnd1(isWellOriented(twoR.starBus, twoR.t2w1))));
+        t2wAliases.addAll(getAliases(twoR.t2w2, "2", getEnd1(isWellOriented(twoR.starBus, twoR.t2w2))));
+        t2wAliases.addAll(getAliases(twoR.t2w3, "3", getEnd1(isWellOriented(twoR.starBus, twoR.t2w3))));
 
         String t2w1Id = twoR.t2w1.getId();
         String t2w2Id = twoR.t2w2.getId();
@@ -217,6 +226,22 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         }
     }
 
+    private boolean anyTwoWindingsTransformerRegulatingOnFictitiousSide(TwoR twoR, ControlledRegulatingTerminals controlledRegulatingTerminals, boolean throwException) {
+        if (controlledRegulatingTerminals.usedAsRegulatingTerminal(getTerminal2(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)))) {
+            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w1.getId() + "' with fictitious terminal used as regulating terminal");
+            return true;
+        }
+        if (controlledRegulatingTerminals.usedAsRegulatingTerminal(getTerminal2(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)))) {
+            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w2.getId() + "' with fictitious terminal used as regulating terminal");
+            return true;
+        }
+        if (controlledRegulatingTerminals.usedAsRegulatingTerminal(getTerminal2(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)))) {
+            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w3.getId() + "' with fictitious terminal used as regulating terminal");
+            return true;
+        }
+        return false;
+    }
+
     private static String getId(TwoR twoR) {
         return twoR.t2w1.getId() + "-" + twoR.t2w2.getId() + "-" + twoR.t2w3.getId();
     }
@@ -250,7 +275,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     }
 
     private static void connectAfterCreatingInternalConnection(ThreeWindingsTransformerAdder.LegAdder legAdder, TwoWindingsTransformer t2w, boolean isWellOriented) {
-        Terminal terminal = getTerminal(t2w, isWellOriented);
+        Terminal terminal = getTerminal1(t2w, isWellOriented);
         if (terminal.getVoltageLevel().getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
             int newNode = terminal.getVoltageLevel().getNodeBreakerView().getMaximumNodeIndex() + 1;
             terminal.getVoltageLevel().getNodeBreakerView()
@@ -283,16 +308,41 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         }
     }
 
-    private static Collection<OperationalLimitsGroup> getOperationalLimitsGroups(TwoWindingsTransformer t2w, boolean isWellOriented) {
+    private static Collection<OperationalLimitsGroup> getOperationalLimitsGroups1(TwoWindingsTransformer t2w, boolean isWellOriented) {
         return isWellOriented ? t2w.getOperationalLimitsGroups1() : t2w.getOperationalLimitsGroups2();
     }
 
-    private static Terminal getTerminal(TwoWindingsTransformer t2w, boolean isWellOriented) {
+    private static Terminal getTerminal1(TwoWindingsTransformer t2w, boolean isWellOriented) {
         return isWellOriented ? t2w.getTerminal1() : t2w.getTerminal2();
     }
 
-    private static String getEnd(boolean isWellOriented) {
+    private static Terminal getTerminal2(TwoWindingsTransformer t2w, boolean isWellOriented) {
+        return isWellOriented ? t2w.getTerminal2() : t2w.getTerminal1();
+    }
+
+    private static String getEnd1(boolean isWellOriented) {
         return isWellOriented ? "1" : "2";
+    }
+
+    private static Map<Terminal, Terminal> getRegulatingTerminalMapping(TwoR twoR, ThreeWindingsTransformer t3w) {
+        Map<Terminal, Terminal> regulatingTerminalMapping = new HashMap<>();
+        regulatingTerminalMapping.put(getTerminal1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
+        regulatingTerminalMapping.put(getTerminal1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
+        regulatingTerminalMapping.put(getTerminal1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
+        return regulatingTerminalMapping;
+    }
+
+    private static void replaceRegulatingTerminal(ThreeWindingsTransformer.Leg t3wLeg, Map<Terminal, Terminal> regulatingTerminalMapping) {
+        t3wLeg.getOptionalRatioTapChanger().ifPresent(rtc -> {
+            if (regulatingTerminalMapping.containsKey(rtc.getRegulationTerminal())) {
+                rtc.setRegulationTerminal(regulatingTerminalMapping.get(rtc.getRegulationTerminal()));
+            }
+        });
+        t3wLeg.getOptionalPhaseTapChanger().ifPresent(ptc -> {
+            if (regulatingTerminalMapping.containsKey(ptc.getRegulationTerminal())) {
+                ptc.setRegulationTerminal(regulatingTerminalMapping.get(ptc.getRegulationTerminal()));
+            }
+        });
     }
 
     private List<PropertyR> copyProperties(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {

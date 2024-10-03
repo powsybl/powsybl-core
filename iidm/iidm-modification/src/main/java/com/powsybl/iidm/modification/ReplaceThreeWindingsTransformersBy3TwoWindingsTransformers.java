@@ -53,6 +53,12 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         controlledRegulatingTerminals.replaceRegulatingTerminal(t3w.getLeg2().getTerminal(), t2wLeg2.getTerminal1());
         controlledRegulatingTerminals.replaceRegulatingTerminal(t3w.getLeg3().getTerminal(), t2wLeg3.getTerminal1());
 
+        // t2wLeg1, t2wLeg, and t2wLeg3 are not considered in controlledRegulatingTerminals (created in the model later)
+        Map<Terminal, Terminal> regulatingTerminalMapping = getRegulatingTerminalMapping(t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+        replaceRegulatingTerminal(t2wLeg1, regulatingTerminalMapping);
+        replaceRegulatingTerminal(t2wLeg2, regulatingTerminalMapping);
+        replaceRegulatingTerminal(t2wLeg3, regulatingTerminalMapping);
+
         copyTerminalActiveAndReactivePower(t3w.getLeg1().getTerminal(), t2wLeg1.getTerminal1());
         copyTerminalActiveAndReactivePower(t3w.getLeg2().getTerminal(), t2wLeg2.getTerminal1());
         copyTerminalActiveAndReactivePower(t3w.getLeg3().getTerminal(), t2wLeg3.getTerminal1());
@@ -200,6 +206,27 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     }
 
     private record ConnectivityR(int node, Bus bus, Bus connectableBus) {
+    }
+
+    private static Map<Terminal, Terminal> getRegulatingTerminalMapping(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        Map<Terminal, Terminal> regulatingTerminalMapping = new HashMap<>();
+        regulatingTerminalMapping.put(t3w.getLeg1().getTerminal(), t2w1.getTerminal1());
+        regulatingTerminalMapping.put(t3w.getLeg2().getTerminal(), t2w2.getTerminal1());
+        regulatingTerminalMapping.put(t3w.getLeg3().getTerminal(), t2w3.getTerminal1());
+        return regulatingTerminalMapping;
+    }
+
+    private static void replaceRegulatingTerminal(TwoWindingsTransformer t2w, Map<Terminal, Terminal> regulatingTerminalMapping) {
+        t2w.getOptionalRatioTapChanger().ifPresent(rtc -> {
+            if (regulatingTerminalMapping.containsKey(rtc.getRegulationTerminal())) {
+                rtc.setRegulationTerminal(regulatingTerminalMapping.get(rtc.getRegulationTerminal()));
+            }
+        });
+        t2w.getOptionalPhaseTapChanger().ifPresent(ptc -> {
+            if (regulatingTerminalMapping.containsKey(ptc.getRegulationTerminal())) {
+                ptc.setRegulationTerminal(regulatingTerminalMapping.get(ptc.getRegulationTerminal()));
+            }
+        });
     }
 
     private List<String> copyProperties(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {

@@ -117,6 +117,10 @@ public class ControlledRegulatingTerminals {
         return null;
     }
 
+    public boolean usedAsRegulatingTerminal(Terminal regulatingTerminal) {
+        return controllers.containsKey(regulatingTerminal);
+    }
+
     public void replaceRegulatingTerminal(Terminal regulatingTerminal, Terminal newRegulatingTerminal) {
         if (controllers.containsKey(regulatingTerminal)) {
             controllers.get(regulatingTerminal).forEach(identifiable -> replaceRegulatingTerminal(identifiable, regulatingTerminal, newRegulatingTerminal));
