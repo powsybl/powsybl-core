@@ -135,7 +135,40 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
-    void replaceAliasTest() {
+    void replacePropertiesT2w1Test() {
+        assertTrue(replaceProertiesTwoWindingsTransformer(t2w1));
+    }
+
+    @Test
+    void replacePropertiesT2w2Test() {
+        assertTrue(replaceProertiesTwoWindingsTransformer(t2w2));
+    }
+
+    @Test
+    void replacePropertiesT2w3Test() {
+        assertTrue(replaceProertiesTwoWindingsTransformer(t2w3));
+    }
+
+    private boolean replaceProertiesTwoWindingsTransformer(TwoWindingsTransformer t2w) {
+        modifyNetworkForPropertiesTest(t2w);
+        network.getTwoWindingsTransformer(t2w.getId()).setProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-summer", "summer");
+        network.getTwoWindingsTransformer(t2w.getId()).setProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-winter", "winter");
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-3WT-Leg3");
+
+        return t3w.getProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-summer").equals("summer") &&
+                t3w.getProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-winter").equals("winter");
+    }
+
+    private void modifyNetworkForPropertiesTest(TwoWindingsTransformer t2w) {
+        addLoadingLimits(t2w);
+        addLoadingLimits(network.getTwoWindingsTransformer(t2w.getId()));
+    }
+
+    @Test
+    void replaceAliasesTest() {
         addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w1.getId()));
         addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w2.getId()));
         addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w3.getId()));

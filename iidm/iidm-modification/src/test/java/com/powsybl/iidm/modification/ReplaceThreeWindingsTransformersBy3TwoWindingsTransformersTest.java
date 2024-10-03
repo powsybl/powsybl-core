@@ -128,7 +128,30 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     }
 
     @Test
-    void replaceAliasTest() {
+    void replacePropertiesTest() {
+        modifyNetworkForPropertiesTest();
+        network.getThreeWindingsTransformer(t3w.getId()).setProperty("v", "132.5");
+        network.getThreeWindingsTransformer(t3w.getId()).setProperty("angle", "2.5");
+        network.getThreeWindingsTransformer(t3w.getId()).setProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-summer", "summer");
+        network.getThreeWindingsTransformer(t3w.getId()).setProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-winter", "winter");
+
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
+        TwoWindingsTransformer t2w1 = network.getTwoWindingsTransformer("3WT-Leg1");
+
+        assertEquals(132.5, t2w1.getTerminal2().getBusView().getBus().getV());
+        assertEquals(2.5, t2w1.getTerminal2().getBusView().getBus().getAngle());
+        assertEquals("summer", t2w1.getProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-summer"));
+        assertEquals("winter", t2w1.getProperty("CGMES.OperationalLimitSet_" + "OperationalLimitsGroup-winter"));
+    }
+
+    private void modifyNetworkForPropertiesTest() {
+        addLoadingLimits(t3w.getLeg1());
+        addLoadingLimits(network.getThreeWindingsTransformer(t3w.getId()).getLeg1());
+    }
+
+    @Test
+    void replaceAliasesTest() {
         addLegAliases("1");
         addLegAliases("2");
         addLegAliases("3");
