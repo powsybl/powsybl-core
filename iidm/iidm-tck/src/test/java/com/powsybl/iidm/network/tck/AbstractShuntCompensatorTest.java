@@ -152,6 +152,8 @@ public abstract class AbstractShuntCompensatorTest {
         shuntLinearModel.setMaximumSectionCount(20);
         assertEquals(20, shuntCompensator.getMaximumSectionCount());
 
+        ShuntCompensatorModel shuntCompensatorModel1 = shuntCompensator.getModel();
+
         // remove
         int count = network.getShuntCompensatorCount();
         shuntCompensator.remove();
@@ -174,7 +176,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
         // Create second ShuntCompensator from same adder
         ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
-        assertNotSame(shuntCompensator.getModel(), shuntCompensator2.getModel());
+        assertNotSame(shuntCompensatorModel1, shuntCompensator2.getModel());
         assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator2.getModelType());
     }
 
