@@ -86,6 +86,20 @@ public class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
+    public double getI() {
+        if (useHypothesis(parent)) {
+            return Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getV() / 1000);
+        }
+        Terminal t = parent.getTerminal();
+        Bus b = t.getBusView().getBus();
+        if (zeroImpedance(parent)) {
+            return -t.getQ();
+        } else {
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideI(parent, true);
+        }
+    }
+
+    @Override
     public DanglingLine getDanglingLine() {
         return parent;
     }
