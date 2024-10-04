@@ -62,6 +62,8 @@ class SVTest {
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
         assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
+        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getV() / 1000);;
+        assertEquals(expectedI, dl.getBoundary().getI(), tol);
     }
 
     @Test
@@ -91,6 +93,9 @@ class SVTest {
         assertEquals(-0.4187543391573424, svDl1other.getA(), tol);
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
+        assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
+        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getNetworkSideVoltageLevel().getNominalV() / 1000);;
+        assertEquals(expectedI, dl.getBoundary().getI(), tol);
     }
 
     private static void svOlfDataToNetwork(Network network) {
@@ -305,6 +310,7 @@ class SVTest {
         assertEquals(-50.0, danglingLine.getBoundary().getP(), tol);
         assertEquals(-30.0, danglingLine.getBoundary().getQ(), tol);
         assertEquals(100.0, danglingLine.getBoundary().getV(), tol);
+        assertEquals(336.650165, danglingLine.getBoundary().getI(), tol);
         assertEquals(0.0, danglingLine.getBoundary().getAngle(), tol);
     }
 }
