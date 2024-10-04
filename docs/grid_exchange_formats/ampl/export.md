@@ -1,5 +1,43 @@
 # Export
-<span style="color: red">TODO</span>
+
+## Available exporters
+
+According to one's needs, there are several AMPL exporters available, each with a version number.
+
+At the moment, there are:
+
+- The `BasicAmplExporter` (associated with the `AmplExportVersion` `V1_0`);
+- The `ExtendedAmplExporter` (associated with the `AmplExportVersion` `V1_1`) that inherits from the `BasicAmplExporter`.
+
+The default version is the `V1_1`.
+
+Exporters define the information written in text files and fed to AMPL regarding:
+
+- Buses;
+- Tap changers;
+- Branches;
+- Current limits;
+- Generators;
+- Batteries;
+- Loads;
+- Shunts;
+- Static VAR Compensators;
+- Substations;
+- VSC Converter stations;
+- LCC Converter stations;
+- HVDC lines.
+
+### The `BasicAmplExporter`
+This exporter is the "historical" version, the first that has been designed.
+
+### The `ExtendedAmplExporter`
+
+This exporter adds the following information to the `BasicAmplExporter`:
+
+- In the bus tables, a boolean indicating if the bus is a slack one and an integer identifying the synchronous component;
+- `r`, `g` and `b` in tap tables as it is already done for `x`;
+- The regulating bus id for generators and static VAR compensators that are in voltage regulation mode.
+
 
 (ampl-export-options)=
 ## Options

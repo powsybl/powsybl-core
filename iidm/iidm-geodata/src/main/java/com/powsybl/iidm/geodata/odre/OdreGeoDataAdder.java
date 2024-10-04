@@ -9,6 +9,7 @@ package com.powsybl.iidm.geodata.odre;
 
 import com.powsybl.iidm.network.Network;
 
+import java.io.IOException;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.geodata.utils.NetworkGeoDataExtensionsAdder.fillNetworkLinesGeoData;
@@ -22,13 +23,11 @@ public class OdreGeoDataAdder {
     protected OdreGeoDataAdder() {
     }
 
-    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, OdreConfig odreConfig) {
-        fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsGeoData(path, odreConfig));
+    public static void fillNetworkSubstationsGeoDataFromFile(Network network, Path path, OdreConfig odreConfig) throws IOException {
+        fillNetworkSubstationsGeoData(network, OdreGeoDataCsvLoader.getSubstationsCoordinates(path, odreConfig));
     }
 
-    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath,
-                                                        Path undergroundLinesFilePath, Path substationPath, OdreConfig odreConfig) {
-        fillNetworkLinesGeoData(network,
-                OdreGeoDataCsvLoader.getLinesGeoData(aerialLinesFilePath, undergroundLinesFilePath, substationPath, odreConfig));
+    public static void fillNetworkLinesGeoDataFromFiles(Network network, Path aerialLinesFilePath, Path undergroundLinesFilePath, OdreConfig odreConfig) throws IOException {
+        fillNetworkLinesGeoData(network, OdreGeoDataCsvLoader.getLinesCoordinates(aerialLinesFilePath, undergroundLinesFilePath, odreConfig));
     }
 }

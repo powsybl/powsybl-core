@@ -47,6 +47,12 @@ class LoadModificationTest {
     }
 
     @Test
+    void testGetName() {
+        AbstractNetworkModification networkModification = new LoadModification("ID", 10., 10.);
+        assertEquals("LoadModification", networkModification.getName());
+    }
+
+    @Test
     void testHasImpact() {
         LoadModification modification1 = new LoadModification("LOAD_NOT_EXISTING", true, -20.0, null);
         assertEquals(NetworkModificationImpact.CANNOT_BE_APPLIED, modification1.hasImpactOnNetwork(network));

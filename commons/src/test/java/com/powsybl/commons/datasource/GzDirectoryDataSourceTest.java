@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 /**
  * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
@@ -36,7 +37,7 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
         DataSourceObserver observer = new DefaultDataSourceObserver();
 
         // Check constructors
-        checkDataSource(new GzDirectoryDataSource(testDir, "foo_bar", "iidm", observer), observer);
+        checkDataSource(new GzDirectoryDataSource(testDir, "foo_bar", "iidm", false, observer), observer);
     }
 
     private void checkDataSource(DirectoryDataSource dataSource, DataSourceObserver observer) {
@@ -44,17 +45,18 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
         assertEquals("iidm", dataSource.getDataExtension());
         assertEquals(compressionFormat, dataSource.getCompressionFormat());
         assertEquals("foo_bar", dataSource.getBaseName());
+        assertFalse(dataSource.isAllFiles());
         assertEquals(observer, dataSource.getObserver());
     }
 
     @Override
     protected DataSource createDataSource() {
-        return new GzDirectoryDataSource(testDir, "foo", null, null);
+        return new GzDirectoryDataSource(testDir, "foo", null, false, null);
     }
 
     @Override
     protected DataSource createDataSource(DataSourceObserver observer) {
-        return new GzDirectoryDataSource(testDir, "foo", "iidm", observer);
+        return new GzDirectoryDataSource(testDir, "foo", "iidm", false, observer);
     }
 
     static Stream<Arguments> provideArgumentsForWriteThenReadTest() {
@@ -72,13 +74,13 @@ class GzDirectoryDataSourceTest extends DirectoryDataSourceTest {
             "foo.zst", "foo.txt.zst", "foo.iidm.zst", "foo.xiidm.zst", "foo.v3.iidm.zst", "foo.v3.zst", "foo_bar.iidm.zst", "foo_bar.zst");
         Set<String> listedBarFiles = Set.of("foo_bar.iidm", "foo_bar", "foo_bar.iidm.bz2", "foo_bar.bz2", "foo_bar.iidm.xz", "foo_bar.xz", "foo_bar.iidm.zst", "foo_bar.zst");
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.GZIP, GzDirectoryDataSource.class,
+            Arguments.of(null, "foo", "iidm", CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "", CompressionFormat.GZIP, GzDirectoryDataSource.class,
+            Arguments.of(null, "foo", "", CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles),
-            Arguments.of("foo", "v3", CompressionFormat.GZIP, GzDirectoryDataSource.class,
+            Arguments.of(null, "foo", "v3", CompressionFormat.GZIP, GzDirectoryDataSource.class,
                 listedFiles,
                 listedBarFiles)
         );

@@ -100,7 +100,7 @@ In PowSyBl, users can store a collection of limits:
 
 #### Examples
 
-Two examples are provided below, with their corresponding limits scheme, to show clearly how to create a new `CurrentLimits` instance.
+Three examples are provided below, with their corresponding limits scheme, to show clearly how to create new `CurrentLimits` instances.
 
 ##### First example
 This first example creates a `CurrentLimits` instance containing one permanent limit and two temporary limits.
@@ -146,6 +146,35 @@ CurrentLimits currentLimits = network.getDanglingLine("DL").newCurrentLimits()
 ```
 ![Current limits scheme_example2](img/current-limits-example2.svg){align=center class="only-light"}
 ![Current limits scheme_example2](img/dark_mode/current-limits-example2.svg){align=center class="only-dark"}
+
+##### Third example
+This third example shows how to create multiple OperationalLimitsGroup on the same end, and set one of these as the selected (active) one.
+```java
+Line line = network.getLine("Line");
+
+line.newOperationalLimitsGroup1("SUMMER")
+        .newCurrentLimits()
+        .setPermanentLimit(60)
+        .beginTemporaryLimit()
+        .setName("TATL-10")
+        .setValue(80)
+        .setAcceptableDuration(10 * 60)
+        .endTemporaryLimit()
+        .add();
+
+line.newOperationalLimitsGroup1("WINTER")
+        .newCurrentLimits()
+        .setPermanentLimit(100)
+        .beginTemporaryLimit()
+        .setName("TATL-10")
+        .setValue(120)
+        .setAcceptableDuration(10 * 60)
+        .endTemporaryLimit()
+        .add();
+
+line.setSelectedOperationalLimitsGroup1("WINTER");
+```
+In this example, there is two sets of limits on the same line side (1). The selected set is the winter one: the limits violations will be tested against this set.
 
 (phase-tap-changer)=
 ## Phase tap changer

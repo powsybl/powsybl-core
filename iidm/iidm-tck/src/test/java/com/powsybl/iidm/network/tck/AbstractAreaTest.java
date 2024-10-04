@@ -56,7 +56,7 @@ public abstract class AbstractAreaTest {
         vlload = network.getVoltageLevel("VLLOAD");
         dlXnode1A = network.getDanglingLine("NHV1_XNODE1");
         dlXnode1B = network.getDanglingLine("XNODE1_NHV2");
-        dlXnode2A = network.getDanglingLine("NVH1_XNODE2");
+        dlXnode2A = network.getDanglingLine("NHV1_XNODE2");
         dlXnode2B = network.getDanglingLine("XNODE2_NHV2");
         tieLine1 = network.getTieLine("NHV1_NHV2_1");
         tieLine2 = network.getTieLine("NHV1_NHV2_2");
@@ -449,7 +449,7 @@ public abstract class AbstractAreaTest {
         network = network.detach();
         controlAreaA = network.getArea("ControlArea_A");
         controlAreaB = network.getArea("ControlArea_B");
-        dlXnode2A = network.getDanglingLine("NVH1_XNODE2");
+        dlXnode2A = network.getDanglingLine("NHV1_XNODE2");
         tieLine2 = network.getTieLine("NHV1_NHV2_2");
 
         // Verify the cleanup listener is now effective on the detached network
@@ -480,7 +480,7 @@ public abstract class AbstractAreaTest {
         controlAreaB = network0.getArea("ControlArea_B");
         checkAreas(network0, network0, network0);
 
-        dlXnode2A = network0.getDanglingLine("NVH1_XNODE2");
+        dlXnode2A = network0.getDanglingLine("NHV1_XNODE2");
         tieLine2 = network0.getTieLine("NHV1_NHV2_2");
 
         // Verify the cleanup listener is always effective

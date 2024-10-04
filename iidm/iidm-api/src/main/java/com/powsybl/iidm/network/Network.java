@@ -320,10 +320,16 @@ public interface Network extends Container<Network> {
         return read(dataSource, properties, ReportNode.NO_OP);
     }
 
-    static Network read(ReadOnlyDataSource dataSource, Properties properties, ReportNode reportNode) {
-        Importer importer = Importer.find(dataSource);
+    static Network read(ReadOnlyDataSource dataSource, Properties parameters, ReportNode reportNode) {
+        return read(dataSource, LocalComputationManager.getDefault(), ImportConfig.load(), parameters, NetworkFactory.findDefault(),
+                new ImportersServiceLoader(), reportNode);
+    }
+
+    static Network read(ReadOnlyDataSource dataSource, ComputationManager computationManager, ImportConfig config, Properties parameters,
+                        NetworkFactory networkFactory, ImportersLoader loader, ReportNode reportNode) {
+        Importer importer = Importer.find(dataSource, loader, computationManager, config);
         if (importer != null) {
-            return importer.importData(dataSource, NetworkFactory.findDefault(), properties, reportNode);
+            return importer.importData(dataSource, networkFactory, parameters, reportNode);
         }
         throw new PowsyblException(Importers.UNSUPPORTED_FILE_FORMAT_OR_INVALID_FILE);
     }

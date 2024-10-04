@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
 
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -30,10 +31,10 @@ public final class LimitViolationDetection {
      * of the specified {@link Network} should be considered as {@link LimitViolation}s.
      * In case it should, feeds the consumer with it.
      *
-     * @param network             The network on which physical values must be checked.
-     * @param currentLimitTypes   The current limit type to consider.
-     * @param limitsComputer      The computer of the limit reductions to apply.
-     * @param consumer            Will be fed with possibly created limit violations.
+     * @param network           The network on which physical values must be checked.
+     * @param currentLimitTypes The current limit type to consider.
+     * @param limitsComputer    The computer of the limit reductions to apply.
+     * @param consumer          Will be fed with possibly created limit violations.
      */
     public static void checkAll(Network network, Set<LoadingLimitType> currentLimitTypes,
                                 LimitsComputer<Identifiable<?>, LoadingLimits> limitsComputer, Consumer<LimitViolation> consumer) {
@@ -205,14 +206,15 @@ public final class LimitViolationDetection {
 
     static void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
+        ViolationLocation voltageViolationLocation = createViolationLocation(bus);
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.LOW_VOLTAGE,
-                    vl.getLowVoltageLimit(), 1., value));
+                    vl.getLowVoltageLimit(), 1., value, voltageViolationLocation));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getOptionalName().orElse(null), LimitViolationType.HIGH_VOLTAGE,
-                    vl.getHighVoltageLimit(), 1., value));
+                    vl.getHighVoltageLimit(), 1., value, voltageViolationLocation));
         }
     }
 
@@ -261,5 +263,19 @@ public final class LimitViolationDetection {
                                 1., value));
                     }
                 });
+    }
+
+    public static ViolationLocation createViolationLocation(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            List<String> busbarIds = bus.getConnectedTerminalStream()
+                .map(Terminal::getConnectable)
+                .filter(BusbarSection.class::isInstance)
+                .map(Connectable::getId)
+                .toList();
+            return new NodeBreakerViolationLocation(vl.getId(), busbarIds);
+        } else {
+            return new BusBreakerViolationLocation(vl.getId(), bus.getId());
+        }
     }
 }
