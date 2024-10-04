@@ -24,14 +24,14 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class OperatingStatusXmlTest extends AbstractIidmSerDeTest {
 
-    private static Network createTestNetwork() {
+    protected static Network createTestNetwork() {
         Network network = Network.create("test", "test");
         network.setCaseDate(ZonedDateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
                 .add();
-        VoltageLevel vl = s.newVoltageLevel()
+        s.newVoltageLevel()
                 .setId("VL")
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
@@ -40,7 +40,7 @@ class OperatingStatusXmlTest extends AbstractIidmSerDeTest {
                 .setId("S2")
                 .setCountry(Country.FR)
                 .add();
-        VoltageLevel vl2 = s2.newVoltageLevel()
+        s2.newVoltageLevel()
                 .setId("VL2")
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
