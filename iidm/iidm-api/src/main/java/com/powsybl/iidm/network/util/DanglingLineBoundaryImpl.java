@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
@@ -32,7 +33,6 @@ public class DanglingLineBoundaryImpl implements Boundary {
             DanglingLineData danglingLineData = new DanglingLineData(parent, true);
             return danglingLineData.getBoundaryBusU();
         }
-
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         if (zeroImpedance(parent)) {
@@ -88,14 +88,14 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getI() {
         if (useHypothesis(parent)) {
-            return Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getV() / 1000);
+            return Math.hypot(getP(), getQ()) / (Math.sqrt(3.) * getVWithFallbackOnNominalV() / 1000);
         }
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         if (zeroImpedance(parent)) {
-            return -t.getQ();
+            return t.getI();
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideI(parent, true);
+            return new SV(t.getP(), t.getQ(), getVWithFallbackOnNominalV(b), getAngle(b), TwoSides.ONE).otherSideI(parent, true);
         }
     }
 
@@ -109,8 +109,24 @@ public class DanglingLineBoundaryImpl implements Boundary {
         return parent.getTerminal().getVoltageLevel();
     }
 
+    private double getVWithFallbackOnNominalV() {
+        double v = getV();
+        return Double.isFinite(v) ? v : getNetworkSideVoltageLevel().getNominalV();
+    }
+
     private static double getV(Bus b) {
         return b == null ? Double.NaN : b.getV();
+    }
+
+    private static double getVWithFallbackOnNominalV(Bus b) {
+        double v = getV(b);
+        if (Double.isFinite(v)) {
+            return v;
+        }
+        if (b != null) {
+            return b.getVoltageLevel().getNominalV();
+        }
+        throw new PowsyblException("Could not return V with fallback on nominal V because there is no bus");
     }
 
     private static double getAngle(Bus b) {

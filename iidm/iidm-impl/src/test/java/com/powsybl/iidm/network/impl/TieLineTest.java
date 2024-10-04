@@ -216,6 +216,43 @@ class TieLineTest {
     }
 
     @Test
+    void tieLineWithNaNVoltagesTest() {
+
+        // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
+        CaseSv caseSv = createCaseNaNVoltages();
+        Network n = createNetworkWithTieLineWithDifferentNominalVoltageAtEnds(NetworkFactory.findDefault(), TwoSides.TWO, TwoSides.ONE, caseSv);
+        TieLine tieLine = n.getTieLine("TWO + ONE");
+
+        SV sv2 = new SV(tieLine.getDanglingLine1().getTerminal().getP(), tieLine.getDanglingLine1().getTerminal().getQ(),
+                tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getV(),
+                tieLine.getDanglingLine1().getTerminal().getBusView().getBus().getAngle(),
+                TwoSides.ONE).otherSide(tieLine);
+        SV isv2 = initialSv2(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.TWO, TwoSides.ONE);
+        assertTrue(compare(sv2, caseSv.node2, caseSv.line2, TwoSides.ONE, isv2));
+
+        SV sv1 = new SV(tieLine.getDanglingLine2().getTerminal().getP(), tieLine.getDanglingLine2().getTerminal().getQ(),
+                tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getV(),
+                tieLine.getDanglingLine2().getTerminal().getBusView().getBus().getAngle(),
+                TwoSides.TWO).otherSide(tieLine);
+        SV isv1 = initialSv1(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.TWO, TwoSides.ONE);
+        assertTrue(compare(sv1, caseSv.node1, caseSv.line1, TwoSides.TWO, isv1));
+
+        SV isvHalf1 = initialHalf1SvBoundary(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.TWO);
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine1().getBoundary().getV(), isvHalf1.getU()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine1().getBoundary().getAngle(), isvHalf1.getA()));
+        assertTrue(compare(getP(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getP(), isvHalf1.getP()));
+        assertTrue(compare(getQ(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getQ(), isvHalf1.getQ()));
+        assertTrue(compare(getI(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
+
+        SV isvHalf2 = initialHalf2SvBoundary(caseSv, initialModelDifferentVlCase(TwoSides.TWO, TwoSides.ONE), TwoSides.ONE);
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getDanglingLine2().getBoundary().getV(), isvHalf2.getU()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getDanglingLine2().getBoundary().getAngle(), isvHalf2.getA()));
+        assertTrue(compare(getP(caseSv.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getP(), isvHalf2.getP()));
+        assertTrue(compare(getQ(caseSv.line2, TwoSides.ONE), tieLine.getDanglingLine2().getBoundary().getQ(), isvHalf2.getQ()));
+        assertTrue(compare(getI(caseSv.line1, TwoSides.TWO), tieLine.getDanglingLine1().getBoundary().getI(), isvHalf1.getI()));
+    }
+
+    @Test
     void testDefaultValuesTieLine() {
 
         Network network = NoEquipmentNetworkFactory.create();
@@ -657,6 +694,19 @@ class TieLineTest {
         NodeSv node1 = new NodeSv(145.2861673277147, Math.toDegrees(-0.01745197));
         NodeSv nodeBoundary = new NodeSv(145.42378472578227, Math.toDegrees(-0.02324020));
         NodeSv node2 = new NodeSv(231.30269602522478, Math.toDegrees(-0.02818192));
+
+        LineSv line1 = new LineSv(11.729938, -8.196614, -11.713527, 1.301712, node1.v, nodeBoundary.v);
+        LineSv line2 = new LineSv(11.713527, -1.301712, -11.700000, -6.700000, nodeBoundary.v, node2.v);
+        return new CaseSv(node1, node2, nodeBoundary, line1, line2);
+    }
+
+    // Line1 from node1 to nodeBoundary, Line2 from nodeBoundary to node2
+    // Different nominal voltage at node1 and node2
+    // NaN values for voltages - simulates DC LF
+    private static CaseSv createCaseNaNVoltages() {
+        NodeSv node1 = new NodeSv(Double.NaN, Math.toDegrees(-0.01745197));
+        NodeSv nodeBoundary = new NodeSv(Double.NaN, Math.toDegrees(-0.02324020));
+        NodeSv node2 = new NodeSv(Double.NaN, Math.toDegrees(-0.02818192));
 
         LineSv line1 = new LineSv(11.729938, -8.196614, -11.713527, 1.301712, node1.v, nodeBoundary.v);
         LineSv line2 = new LineSv(11.713527, -1.301712, -11.700000, -6.700000, nodeBoundary.v, node2.v);
