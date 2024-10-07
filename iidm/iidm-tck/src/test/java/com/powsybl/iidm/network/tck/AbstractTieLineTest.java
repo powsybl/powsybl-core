@@ -155,7 +155,8 @@ public abstract class AbstractTieLineTest {
         verifyNoMoreInteractions(mockedListener);
 
         // Reuse adder
-        ValidationException e = assertThrows(ValidationException.class, () -> adder.setId("testTie2").add());
+        adder.setId("testTie2");
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertTrue(e.getMessage().contains("already has a tie line"));
 
         // Update power flows, voltages and angles
@@ -198,10 +199,10 @@ public abstract class AbstractTieLineTest {
     @Test
     public void danglingLine1NotSet() {
         // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
+        TieLineAdder tieLineAdder = network.newTieLine()
                 .setId("testTie")
-                .setName("testNameTie")
-                .add());
+                .setName("testNameTie");
+        ValidationException e = assertThrows(ValidationException.class, tieLineAdder::add);
         assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
@@ -221,11 +222,11 @@ public abstract class AbstractTieLineTest {
                 .setPairingKey("ucte")
                 .add();
         // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
+        TieLineAdder tieLineAdder = network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .setDanglingLine1(dl1.getId())
-                .add());
+                .setDanglingLine1(dl1.getId());
+        ValidationException e = assertThrows(ValidationException.class, tieLineAdder::add);
         assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
