@@ -17,8 +17,9 @@ import static com.powsybl.iidm.network.util.DanglingLineData.zeroImpedance;
  * @author Miora Ralambotiana {@literal <miora.ralambotiana at rte-france.com>}
  */
 public class DanglingLineBoundaryImpl implements Boundary {
-    // for SV use: side represents the network side, that is always
-    // Side.ONE for a dangling line.
+    // Notes about SV utility class usage here:
+    // - side represents the network side, which is always Side.ONE for a dangling line.
+    // - DanglingLine model has shunt admittance on network side only, hence splitShuntAdmittance argument in SV methods must be set to false.
 
     private final DanglingLine parent;
 
@@ -38,7 +39,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return getV(b);
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideU(parent, false);
         }
     }
 
@@ -53,7 +54,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return getAngle(b);
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideA(parent, false);
         }
     }
 
@@ -67,7 +68,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return -t.getP();
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideP(parent, false);
         }
     }
 
@@ -81,7 +82,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return -t.getQ();
         } else {
-            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, true);
+            return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), TwoSides.ONE).otherSideQ(parent, false);
         }
     }
 
