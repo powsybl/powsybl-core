@@ -250,11 +250,10 @@ public class SubstationIdMapping {
     }
 
     private static void addAdjacency(Map<String, Set<String>> adjacency, String id1, String id2) {
-        if (!isValidAdjacency(id1, id2)) {
-            return;
+        if (isValidAdjacency(id1, id2)) {
+            adjacency.computeIfAbsent(id1, k -> new HashSet<>()).add(id2);
+            adjacency.computeIfAbsent(id2, k -> new HashSet<>()).add(id1);
         }
-        adjacency.computeIfAbsent(id1, k -> new HashSet<>()).add(id2);
-        adjacency.computeIfAbsent(id2, k -> new HashSet<>()).add(id1);
     }
 
     private static boolean isValidAdjacency(String ad1, String ad2) {
