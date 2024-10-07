@@ -325,7 +325,7 @@ final class TransformersTestUtils {
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
 
-        ThreeWindingsTransformer twt = substation.newThreeWindingsTransformer()
+        substation.newThreeWindingsTransformer()
                 .setId("3WT")
                 .setRatedU0(132.0)
                 .newLeg1()

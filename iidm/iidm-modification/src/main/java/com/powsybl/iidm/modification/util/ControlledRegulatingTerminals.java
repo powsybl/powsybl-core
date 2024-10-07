@@ -48,6 +48,7 @@ public class ControlledRegulatingTerminals {
         List<Terminal> regulatingTerminals = new ArrayList<>();
         switch (identifiable.getType()) {
             case NETWORK, SUBSTATION, VOLTAGE_LEVEL, AREA, HVDC_LINE, BUS, SWITCH, BUSBAR_SECTION, LINE, TIE_LINE, BATTERY, LOAD, DANGLING_LINE, OVERLOAD_MANAGEMENT_SYSTEM, GROUND -> {
+                // do nothing
             }
             case TWO_WINDINGS_TRANSFORMER -> {
                 TwoWindingsTransformer t2w = (TwoWindingsTransformer) identifiable;
