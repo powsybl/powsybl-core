@@ -617,8 +617,7 @@ public class Conversion {
             String containerName = context.substationIdMapping().getContainerName(fictitiousVoltageLevelId).orElseThrow();
             String referenceVoltageLevelId = context.substationIdMapping().getReferenceVoltageLevelId(fictitiousVoltageLevelId).orElseThrow();
 
-            VoltageLevel voltageLevel = context.network().getVoltageLevel(fictitiousVoltageLevelId);
-            if (voltageLevel == null) {
+            if (context.network().getVoltageLevel(fictitiousVoltageLevelId) == null) {
                 VoltageLevel referenceVoltageLevel = context.network().getVoltageLevel(referenceVoltageLevelId);
                 if (referenceVoltageLevel == null) {
                     throw new ConversionException("VoltageLevel not found for voltageLevelId: " + referenceVoltageLevelId);
