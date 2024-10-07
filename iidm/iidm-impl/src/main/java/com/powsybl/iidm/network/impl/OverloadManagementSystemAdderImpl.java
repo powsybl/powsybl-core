@@ -65,15 +65,18 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return type + " '" + id + "' not found";
         }
 
-        protected <E> String checkElementId(String elementId, BiFunction<Network, String, E> getter, String attributeName, String type) {
+        protected String checkElementId(String elementId, String attributeName) {
             if (elementId == null) {
                 throw new ValidationException(this, attributeName + " is not set");
             }
+            return elementId;
+        }
+
+        protected <E> void validateElementId(String elementId, BiFunction<Network, String, E> getter, String type) {
             E element = getter.apply(getNetwork(), elementId);
             if (element == null) {
                 throw new ValidationException(this, getNotFoundMessage(type, elementId));
             }
-            return elementId;
         }
     }
 
@@ -88,7 +91,7 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         protected String checkSwitchId() {
-            return checkElementId(switchId, Network::getSwitch, "switchId", "switch");
+            return checkElementId(switchId, "switchId");
         }
 
         @Override
@@ -115,12 +118,16 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         protected String checkBranchId() {
-            return checkElementId(branchId, Network::getBranch, "branchId", "branch");
+            return checkElementId(branchId, "branchId");
+        }
+
+        protected void validateBranchId() {
+            validateElementId(branchId, Network::getBranch, "branch");
         }
 
         @Override
         public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
-            return Collections.emptyList();
+            return List.of(oms -> this.validateBranchId());
         }
     }
 
@@ -143,8 +150,8 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         }
 
         protected String checkThreeWindingsTransformerId() {
-            return checkElementId(threeWindingsTransformerId, Network::getThreeWindingsTransformer,
-                    "threeWindingsTransformerId", "three windings transformer");
+            return checkElementId(threeWindingsTransformerId,
+                    "threeWindingsTransformerId");
         }
 
         @Override
@@ -271,6 +278,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     }
 
     private OverloadManagementSystem.Tripping createTripping(BranchTrippingAdderImpl adder, String overloadManagementSystemId) {
+        if (!validateAfterCreation) {
+            adder.validateBranchId();
+        }
         return new OverloadManagementSystemImpl.BranchTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
