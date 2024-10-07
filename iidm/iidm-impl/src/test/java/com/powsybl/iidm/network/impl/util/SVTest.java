@@ -62,7 +62,7 @@ class SVTest {
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
         assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
-        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getV() / 1000);;
+        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getV() / 1000);
         assertEquals(expectedI, dl.getBoundary().getI(), tol);
     }
 
@@ -94,7 +94,7 @@ class SVTest {
 
         assertEquals(-dl.getP0(), dl.getBoundary().getP(), tol);
         assertEquals(-dl.getQ0(), dl.getBoundary().getQ(), tol);
-        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getNetworkSideVoltageLevel().getNominalV() / 1000);;
+        double expectedI = Math.hypot(-dl.getP0(), -dl.getQ0()) / (Math.sqrt(3.) * dl.getBoundary().getNetworkSideVoltageLevel().getNominalV() / 1000);
         assertEquals(expectedI, dl.getBoundary().getI(), tol);
     }
 
