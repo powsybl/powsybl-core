@@ -8,10 +8,14 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.TwtData;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import static com.powsybl.iidm.modification.util.TransformerUtils.copyPhaseTapChanger;
+import static com.powsybl.iidm.modification.util.TransformerUtils.copyRatioTapChanger;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -254,5 +258,46 @@ final class TransformersTestUtils {
             strings.add(String.valueOf(temporaryLimit.getValue()));
             strings.add(String.valueOf(temporaryLimit.isFictitious()));
         });
+    }
+
+    static void addVoltages(Bus bus1, Bus bus2, Bus bus3) {
+        bus1.setV(bus1.getVoltageLevel().getNominalV() * 1.01);
+        bus1.setAngle(2.0);
+
+        bus2.setV(bus2.getVoltageLevel().getNominalV() * 0.99);
+        bus2.setAngle(4.0);
+
+        bus3.setV(bus3.getVoltageLevel().getNominalV() * 0.98);
+        bus3.setAngle(3.0);
+    }
+
+    static void setStarBusVoltage(TwtData twtData, Bus starBus) {
+        starBus.setV(twtData.getStarU());
+        starBus.setAngle(Math.toDegrees(twtData.getStarTheta()));
+    }
+
+    static void reOrientedTwoWindingsTransformer(TwoWindingsTransformer t2w) {
+        TwoWindingsTransformer t2wNotWellOriented = t2w.getTerminal1().getVoltageLevel().getSubstation().orElseThrow().newTwoWindingsTransformer()
+                .setId(t2w.getId() + "-" + "notWellOriented")
+                .setName(t2w.getNameOrId() + "-" + "notWellOriented")
+                .setRatedU1(t2w.getRatedU2())
+                .setRatedU2(t2w.getRatedU1())
+                .setR(t2w.getR())
+                .setX(t2w.getX())
+                .setG(t2w.getG())
+                .setB(t2w.getB())
+                .setRatedS(t2w.getRatedS())
+                .setVoltageLevel1(t2w.getTerminal2().getVoltageLevel().getId())
+                .setConnectableBus1(t2w.getTerminal2().getBusBreakerView().getBus().getId())
+                .setBus1(t2w.getTerminal2().getBusBreakerView().getBus().getId())
+                .setVoltageLevel2(t2w.getTerminal1().getVoltageLevel().getId())
+                .setConnectableBus2(t2w.getTerminal1().getBusBreakerView().getBus().getId())
+                .setBus2(t2w.getTerminal1().getBusBreakerView().getBus().getId())
+                .add();
+
+        copyRatioTapChanger(t2wNotWellOriented.newRatioTapChanger(), t2w.getRatioTapChanger());
+        copyPhaseTapChanger(t2wNotWellOriented.newPhaseTapChanger(), t2w.getPhaseTapChanger());
+
+        t2w.remove();
     }
 }

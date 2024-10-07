@@ -100,7 +100,7 @@ public final class TransformerUtils {
             double g = ptc.getStep(step).getG();
             double b = ptc.getStep(step).getB();
 
-            Complex ratio = obtainComplexRatio(1.0 / rho, alpha);
+            Complex ratio = obtainComplexRatio(1.0 / rho, -alpha);
             Complex movedRatio = ratio.reciprocal();
 
             double rCorrection = 100 * (impedanceConversion(1 + r / 100, ratio) - 1);
@@ -130,8 +130,8 @@ public final class TransformerUtils {
                 .setRegulating(ptc.isRegulating());
     }
 
-    private static Complex obtainComplexRatio(double ratio, double alpha) {
-        return new Complex(ratio * Math.cos(Math.toRadians(alpha)), ratio * Math.sin(Math.toRadians(alpha)));
+    private static Complex obtainComplexRatio(double ratio, double angle) {
+        return new Complex(ratio * Math.cos(Math.toRadians(angle)), ratio * Math.sin(Math.toRadians(angle)));
     }
 
     public static double impedanceConversion(double impedance, Complex a) {

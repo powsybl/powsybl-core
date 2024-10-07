@@ -84,59 +84,62 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
             return;
         }
         double ratedU0 = twoR.starBus.getVoltageLevel().getNominalV();
+        boolean isWellOrientedT2w1 = isWellOriented(twoR.starBus, twoR.t2w1);
+        boolean isWellOrientedT2w2 = isWellOriented(twoR.starBus, twoR.t2w2);
+        boolean isWellOrientedT2w3 = isWellOriented(twoR.starBus, twoR.t2w3);
 
         ThreeWindingsTransformerAdder t3wAdder = substation.newThreeWindingsTransformer()
                 .setId(getId(twoR))
                 .setName(getName(twoR))
                 .setRatedU0(ratedU0);
         ThreeWindingsTransformerAdder.LegAdder leg1Adder = t3wAdder.newLeg1()
-                .setVoltageLevel(findVoltageLevel(twoR.starBus, twoR.t2w1).getId())
-                .setR(findImpedance(twoR.t2w1.getR(), getStructuralRatio(twoR.t2w1), isWellOriented(twoR.starBus, twoR.t2w1)))
-                .setX(findImpedance(twoR.t2w1.getX(), getStructuralRatio(twoR.t2w1), isWellOriented(twoR.starBus, twoR.t2w1)))
-                .setG(findAdmittance(twoR.t2w1.getG(), getStructuralRatio(twoR.t2w1), isWellOriented(twoR.starBus, twoR.t2w1)))
-                .setB(findAdmittance(twoR.t2w1.getB(), getStructuralRatio(twoR.t2w1), isWellOriented(twoR.starBus, twoR.t2w1)))
-                .setRatedU(getRatedU1(twoR.t2w1, ratedU0, isWellOriented(twoR.starBus, twoR.t2w1)));
-        connectAfterCreatingInternalConnection(leg1Adder, twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1));
+                .setVoltageLevel(findVoltageLevel(twoR.t2w1, isWellOrientedT2w1).getId())
+                .setR(findImpedance(twoR.t2w1.getR(), getStructuralRatio(twoR.t2w1), isWellOrientedT2w1))
+                .setX(findImpedance(twoR.t2w1.getX(), getStructuralRatio(twoR.t2w1), isWellOrientedT2w1))
+                .setG(findAdmittance(twoR.t2w1.getG(), getStructuralRatio(twoR.t2w1), isWellOrientedT2w1))
+                .setB(findAdmittance(twoR.t2w1.getB(), getStructuralRatio(twoR.t2w1), isWellOrientedT2w1))
+                .setRatedU(getRatedU1(twoR.t2w1, ratedU0, isWellOrientedT2w1));
+        connectAfterCreatingInternalConnection(leg1Adder, twoR.t2w1, isWellOrientedT2w1);
         leg1Adder.add();
 
         ThreeWindingsTransformerAdder.LegAdder leg2Adder = t3wAdder.newLeg2()
-                .setVoltageLevel(findVoltageLevel(twoR.starBus, twoR.t2w2).getId())
-                .setR(findImpedance(twoR.t2w2.getR(), getStructuralRatio(twoR.t2w2), isWellOriented(twoR.starBus, twoR.t2w2)))
-                .setX(findImpedance(twoR.t2w2.getX(), getStructuralRatio(twoR.t2w2), isWellOriented(twoR.starBus, twoR.t2w2)))
-                .setG(findAdmittance(twoR.t2w2.getG(), getStructuralRatio(twoR.t2w2), isWellOriented(twoR.starBus, twoR.t2w2)))
-                .setB(findAdmittance(twoR.t2w2.getB(), getStructuralRatio(twoR.t2w2), isWellOriented(twoR.starBus, twoR.t2w2)))
-                .setRatedU(getRatedU1(twoR.t2w2, ratedU0, isWellOriented(twoR.starBus, twoR.t2w2)));
-        connectAfterCreatingInternalConnection(leg2Adder, twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2));
+                .setVoltageLevel(findVoltageLevel(twoR.t2w2, isWellOrientedT2w2).getId())
+                .setR(findImpedance(twoR.t2w2.getR(), getStructuralRatio(twoR.t2w2), isWellOrientedT2w2))
+                .setX(findImpedance(twoR.t2w2.getX(), getStructuralRatio(twoR.t2w2), isWellOrientedT2w2))
+                .setG(findAdmittance(twoR.t2w2.getG(), getStructuralRatio(twoR.t2w2), isWellOrientedT2w2))
+                .setB(findAdmittance(twoR.t2w2.getB(), getStructuralRatio(twoR.t2w2), isWellOrientedT2w2))
+                .setRatedU(getRatedU1(twoR.t2w2, ratedU0, isWellOrientedT2w2));
+        connectAfterCreatingInternalConnection(leg2Adder, twoR.t2w2, isWellOrientedT2w2);
         leg2Adder.add();
 
         ThreeWindingsTransformerAdder.LegAdder leg3Adder = t3wAdder.newLeg3()
-                .setVoltageLevel(findVoltageLevel(twoR.starBus, twoR.t2w3).getId())
-                .setR(findImpedance(twoR.t2w3.getR(), getStructuralRatio(twoR.t2w3), isWellOriented(twoR.starBus, twoR.t2w3)))
-                .setX(findImpedance(twoR.t2w3.getX(), getStructuralRatio(twoR.t2w3), isWellOriented(twoR.starBus, twoR.t2w3)))
-                .setG(findAdmittance(twoR.t2w3.getG(), getStructuralRatio(twoR.t2w3), isWellOriented(twoR.starBus, twoR.t2w3)))
-                .setB(findAdmittance(twoR.t2w3.getB(), getStructuralRatio(twoR.t2w3), isWellOriented(twoR.starBus, twoR.t2w3)))
-                .setRatedU(getRatedU1(twoR.t2w3, ratedU0, isWellOriented(twoR.starBus, twoR.t2w3)));
-        connectAfterCreatingInternalConnection(leg3Adder, twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3));
+                .setVoltageLevel(findVoltageLevel(twoR.t2w3, isWellOrientedT2w3).getId())
+                .setR(findImpedance(twoR.t2w3.getR(), getStructuralRatio(twoR.t2w3), isWellOrientedT2w3))
+                .setX(findImpedance(twoR.t2w3.getX(), getStructuralRatio(twoR.t2w3), isWellOrientedT2w3))
+                .setG(findAdmittance(twoR.t2w3.getG(), getStructuralRatio(twoR.t2w3), isWellOrientedT2w3))
+                .setB(findAdmittance(twoR.t2w3.getB(), getStructuralRatio(twoR.t2w3), isWellOrientedT2w3))
+                .setRatedU(getRatedU1(twoR.t2w3, ratedU0, isWellOrientedT2w3));
+        connectAfterCreatingInternalConnection(leg3Adder, twoR.t2w3, isWellOrientedT2w3);
         leg3Adder.add();
         ThreeWindingsTransformer t3w = t3wAdder.add();
 
-        twoR.t2w1.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg1().newRatioTapChanger(), rtc, isWellOriented(twoR.starBus, twoR.t2w1)));
-        twoR.t2w1.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg1().newPhaseTapChanger(), ptc, isWellOriented(twoR.starBus, twoR.t2w1)));
-        twoR.t2w2.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg2().newRatioTapChanger(), rtc, isWellOriented(twoR.starBus, twoR.t2w2)));
-        twoR.t2w2.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg2().newPhaseTapChanger(), ptc, isWellOriented(twoR.starBus, twoR.t2w2)));
-        twoR.t2w3.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg3().newRatioTapChanger(), rtc, isWellOriented(twoR.starBus, twoR.t2w3)));
-        twoR.t2w3.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg3().newPhaseTapChanger(), ptc, isWellOriented(twoR.starBus, twoR.t2w3)));
+        twoR.t2w1.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg1().newRatioTapChanger(), rtc, isWellOrientedT2w1));
+        twoR.t2w1.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg1().newPhaseTapChanger(), ptc, isWellOrientedT2w1));
+        twoR.t2w2.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg2().newRatioTapChanger(), rtc, isWellOrientedT2w2));
+        twoR.t2w2.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg2().newPhaseTapChanger(), ptc, isWellOrientedT2w2));
+        twoR.t2w3.getOptionalRatioTapChanger().ifPresent(rtc -> copyOrMoveRatioTapChanger(t3w.getLeg3().newRatioTapChanger(), rtc, isWellOrientedT2w3));
+        twoR.t2w3.getOptionalPhaseTapChanger().ifPresent(ptc -> copyOrMovePhaseTapChanger(t3w.getLeg3().newPhaseTapChanger(), ptc, isWellOrientedT2w3));
 
-        getOperationalLimitsGroups1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1))
+        getOperationalLimitsGroups1(twoR.t2w1, isWellOrientedT2w1)
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t3w.getLeg1().newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
-        getOperationalLimitsGroups1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2))
+        getOperationalLimitsGroups1(twoR.t2w2, isWellOrientedT2w2)
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t3w.getLeg2().newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
-        getOperationalLimitsGroups1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3))
+        getOperationalLimitsGroups1(twoR.t2w3, isWellOrientedT2w3)
                 .forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t3w.getLeg3().newOperationalLimitsGroup(operationalLimitGroup.getId()), operationalLimitGroup));
 
-        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
-        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w1, isWellOrientedT2w1), t3w.getLeg1().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w2, isWellOrientedT2w2), t3w.getLeg2().getTerminal());
+        controlledRegulatingTerminals.replaceRegulatingTerminal(getTerminal1(twoR.t2w3, isWellOrientedT2w3), t3w.getLeg3().getTerminal());
 
         // t3w is not considered in controlledRegulatingTerminals (created in the model later)
         Map<Terminal, Terminal> regulatingTerminalMapping = getRegulatingTerminalMapping(twoR, t3w);
@@ -144,9 +147,9 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         replaceRegulatingTerminal(t3w.getLeg2(), regulatingTerminalMapping);
         replaceRegulatingTerminal(t3w.getLeg3(), regulatingTerminalMapping);
 
-        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)), t3w.getLeg1().getTerminal());
-        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)), t3w.getLeg2().getTerminal());
-        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)), t3w.getLeg3().getTerminal());
+        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w1, isWellOrientedT2w1), t3w.getLeg1().getTerminal());
+        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w2, isWellOrientedT2w2), t3w.getLeg2().getTerminal());
+        copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w3, isWellOrientedT2w3), t3w.getLeg3().getTerminal());
 
         List<PropertyR> lostProperties = new ArrayList<>();
         lostProperties.addAll(copyProperties(twoR.t2w1, t3w));
@@ -160,9 +163,9 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
         // copy necessary data before removing
         List<AliasR> t2wAliases = new ArrayList<>();
-        t2wAliases.addAll(getAliases(twoR.t2w1, "1", getEnd1(isWellOriented(twoR.starBus, twoR.t2w1))));
-        t2wAliases.addAll(getAliases(twoR.t2w2, "2", getEnd1(isWellOriented(twoR.starBus, twoR.t2w2))));
-        t2wAliases.addAll(getAliases(twoR.t2w3, "3", getEnd1(isWellOriented(twoR.starBus, twoR.t2w3))));
+        t2wAliases.addAll(getAliases(twoR.t2w1, "1", getEnd1(isWellOrientedT2w1)));
+        t2wAliases.addAll(getAliases(twoR.t2w2, "2", getEnd1(isWellOrientedT2w2)));
+        t2wAliases.addAll(getAliases(twoR.t2w3, "3", getEnd1(isWellOrientedT2w3)));
 
         String t2w1Id = twoR.t2w1.getId();
         String t2w2Id = twoR.t2w2.getId();
@@ -254,8 +257,8 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         return starBus.equals(t2w.getTerminal2().getBusView().getBus());
     }
 
-    private static VoltageLevel findVoltageLevel(Bus starBus, TwoWindingsTransformer t2w) {
-        return isWellOriented(starBus, t2w) ? t2w.getTerminal1().getVoltageLevel() : t2w.getTerminal2().getVoltageLevel();
+    private static VoltageLevel findVoltageLevel(TwoWindingsTransformer t2w, boolean isWellOriented) {
+        return isWellOriented ? t2w.getTerminal1().getVoltageLevel() : t2w.getTerminal2().getVoltageLevel();
     }
 
     private static double getStructuralRatio(TwoWindingsTransformer twt) {

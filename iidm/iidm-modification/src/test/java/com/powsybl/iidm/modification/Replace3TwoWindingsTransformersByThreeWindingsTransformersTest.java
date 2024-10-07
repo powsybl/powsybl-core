@@ -11,9 +11,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.report.ReportNode;
 import com.powsybl.commons.test.TestUtil;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeSides;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -227,6 +230,107 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
                       Alias [t2w3-alias1] of twoWindingsTransformer 3WT-Leg3 will be lost
                       ThreeWindingsTransformer 3WT-Leg1-3WT-Leg2-3WT-Leg3 created
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
+    }
+
+    @Test
+    void replaceFlowsTest() {
+        modifyNetworkForFlowsTest();
+        assertTrue(checkFlowsTest());
+    }
+
+    private void modifyNetworkForFlowsTest() {
+        addVoltages(t2w1.getTerminal1().getBusView().getBus(), t2w2.getTerminal1().getBusView().getBus(), t2w3.getTerminal1().getBusView().getBus());
+        addVoltages(network.getTwoWindingsTransformer(t2w1.getId()).getTerminal1().getBusView().getBus(),
+                network.getTwoWindingsTransformer(t2w2.getId()).getTerminal1().getBusView().getBus(),
+                network.getTwoWindingsTransformer(t2w3.getId()).getTerminal1().getBusView().getBus());
+    }
+
+    @Test
+    void replaceFlowsRatedU2Test() {
+        modifyNetworkForFlowsRatedU2Test();
+        assertTrue(checkFlowsTest());
+    }
+
+    private void modifyNetworkForFlowsRatedU2Test() {
+        t2w1.setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.99);
+        t2w2.setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 1.02);
+        t2w3.setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.98);
+
+        network.getTwoWindingsTransformer(t2w1.getId()).setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.99);
+        network.getTwoWindingsTransformer(t2w2.getId()).setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 1.02);
+        network.getTwoWindingsTransformer(t2w3.getId()).setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.98);
+
+        addVoltages(t2w1.getTerminal1().getBusView().getBus(), t2w2.getTerminal1().getBusView().getBus(), t2w3.getTerminal1().getBusView().getBus());
+        addVoltages(network.getTwoWindingsTransformer(t2w1.getId()).getTerminal1().getBusView().getBus(),
+                network.getTwoWindingsTransformer(t2w2.getId()).getTerminal1().getBusView().getBus(),
+                network.getTwoWindingsTransformer(t2w3.getId()).getTerminal1().getBusView().getBus());
+    }
+
+    private boolean checkFlowsTest() {
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-3WT-Leg3");
+
+        TwtData t3wData = new TwtData(t3w, 0.0, false);
+        setStarBusVoltage(t3wData, t2w1.getTerminal2().getBusView().getBus());
+
+        BranchData t2w1Data = new BranchData(t2w1, 0.0, false, false);
+        BranchData t2w2Data = new BranchData(t2w2, 0.0, false, false);
+        BranchData t2w3Data = new BranchData(t2w3, 0.0, false, false);
+
+        double tol = 0.000001;
+        assertEquals(t2w1Data.getComputedP1(), t3wData.getComputedP(ThreeSides.ONE), tol);
+        assertEquals(t2w2Data.getComputedP1(), t3wData.getComputedP(ThreeSides.TWO), tol);
+        assertEquals(t2w3Data.getComputedP1(), t3wData.getComputedP(ThreeSides.THREE), tol);
+        return true;
+    }
+
+    @Test
+    void replaceFlowsNotWellOrientedTest() {
+        modifyNetworkForFlowsNotWellOrientedTest();
+        assertTrue(checkFlowsTestNotWellOriented());
+    }
+
+    private void modifyNetworkForFlowsNotWellOrientedTest() {
+        t2w1.setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.99);
+        t2w2.setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 1.02);
+        t2w3.setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.98);
+
+        network.getTwoWindingsTransformer(t2w1.getId()).setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.99);
+        network.getTwoWindingsTransformer(t2w2.getId()).setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 1.02);
+        network.getTwoWindingsTransformer(t2w3.getId()).setRatedU2(t2w1.getTerminal2().getVoltageLevel().getNominalV() * 0.98);
+
+        addPhaseTapChanger(t2w2);
+        addPhaseTapChanger(network.getTwoWindingsTransformer(t2w2.getId()));
+
+        String tw2Id = t2w2.getId();
+        reOrientedTwoWindingsTransformer(t2w2);
+        reOrientedTwoWindingsTransformer(network.getTwoWindingsTransformer(tw2Id));
+        t2w2 = t2w1.getNetwork().getTwoWindingsTransformer("3WT-Leg2-notWellOriented");
+
+        addVoltages(t2w1.getTerminal1().getBusView().getBus(), t2w2.getTerminal2().getBusView().getBus(), t2w3.getTerminal1().getBusView().getBus());
+        addVoltages(network.getTwoWindingsTransformer(t2w1.getId()).getTerminal1().getBusView().getBus(),
+                network.getTwoWindingsTransformer(t2w2.getId()).getTerminal2().getBusView().getBus(),
+                network.getTwoWindingsTransformer(t2w3.getId()).getTerminal1().getBusView().getBus());
+    }
+
+    private boolean checkFlowsTestNotWellOriented() {
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-notWellOriented-3WT-Leg3");
+
+        TwtData t3wData = new TwtData(t3w, 0.0, false);
+        setStarBusVoltage(t3wData, t2w1.getTerminal2().getBusView().getBus());
+
+        BranchData t2w1Data = new BranchData(t2w1, 0.0, false, false);
+        BranchData t2w2Data = new BranchData(t2w2, 0.0, false, false);
+        BranchData t2w3Data = new BranchData(t2w3, 0.0, false, false);
+
+        double tol = 0.000001;
+        assertEquals(t2w1Data.getComputedP1(), t3wData.getComputedP(ThreeSides.ONE), tol);
+        assertEquals(t2w2Data.getComputedP2(), t3wData.getComputedP(ThreeSides.TWO), tol);
+        assertEquals(t2w3Data.getComputedP1(), t3wData.getComputedP(ThreeSides.THREE), tol);
+        return true;
     }
 
     @Test
