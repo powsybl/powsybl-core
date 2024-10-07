@@ -29,7 +29,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getV() {
         if (useHypothesis(parent)) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return danglingLineData.getBoundaryBusU();
         }
 
@@ -45,7 +45,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
     @Override
     public double getAngle() {
         if (useHypothesis(parent)) {
-            DanglingLineData danglingLineData = new DanglingLineData(parent, true);
+            DanglingLineData danglingLineData = new DanglingLineData(parent);
             return Math.toDegrees(danglingLineData.getBoundaryBusTheta());
         }
         Terminal t = parent.getTerminal();
