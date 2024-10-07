@@ -514,8 +514,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 && context.boundary().containsNode(nodeId)) {
                 cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
             } else {
-                // cgmesVoltageLevelId may be null if terminal is contained in a Line or directly in a substation
-                // (happens in boundaries)
+                // If the terminal's node is contained in a Line (happens in boundaries) or in a Substation, a fictitious VoltageLevel is created
                 cgmesVoltageLevelId = findCgmesVoltageLevelIdForContainer(nodeId, context);
             }
             if (cgmesVoltageLevelId != null) {
