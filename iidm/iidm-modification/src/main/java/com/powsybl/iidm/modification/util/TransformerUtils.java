@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification.util;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.*;
 import org.apache.commons.math3.complex.Complex;
 
 /**
@@ -171,5 +172,74 @@ public final class TransformerUtils {
     public static void copyTerminalActiveAndReactivePower(Terminal sourceTerminal, Terminal destinationTerminal) {
         destinationTerminal.setP(sourceTerminal.getP());
         destinationTerminal.setQ(sourceTerminal.getQ());
+    }
+
+    public static void copyAndAddFortescue(ThreeWindingsTransformerFortescue.LegFortescue legFortescue, TwoWindingsTransformerFortescueAdder t2wFortescueAdder) {
+        t2wFortescueAdder.withConnectionType1(legFortescue.getConnectionType())
+                .withConnectionType2(legFortescue.getConnectionType())
+                .withFreeFluxes(legFortescue.isFreeFluxes())
+                .withGroundingR1(legFortescue.getGroundingR())
+                .withGroundingX1(legFortescue.getGroundingX())
+                .withRz(legFortescue.getRz())
+                .withXz(legFortescue.getXz())
+                .withConnectionType2(WindingConnectionType.Y)
+                .withGroundingR2(.0)
+                .withGroundingX2(.0);
+        t2wFortescueAdder.add();
+    }
+
+    public static void copyAndAddFortescue(TwoWindingsTransformerFortescue t2w1Fortescue, boolean isWellOrientedT2w1, TwoWindingsTransformerFortescue t2w2Fortescue, boolean isWellOrientedT2w2, TwoWindingsTransformerFortescue t2w3Fortescue, boolean isWellOrientedT2w3, ThreeWindingsTransformerFortescueAdder t3wFortescue) {
+        copyFortescueLeg(t2w1Fortescue, isWellOrientedT2w1, t3wFortescue.leg1());
+        copyFortescueLeg(t2w2Fortescue, isWellOrientedT2w2, t3wFortescue.leg2());
+        copyFortescueLeg(t2w3Fortescue, isWellOrientedT2w3, t3wFortescue.leg3());
+        t3wFortescue.add();
+    }
+
+    private static void copyFortescueLeg(TwoWindingsTransformerFortescue t2wFortescue, boolean isWellOrientedT2w, ThreeWindingsTransformerFortescueAdder.LegFortescueAdder legFortescueAdder) {
+        if (t2wFortescue != null) {
+            legFortescueAdder.withConnectionType(isWellOrientedT2w ? t2wFortescue.getConnectionType1() : t2wFortescue.getConnectionType2())
+                    .withFreeFluxes(t2wFortescue.isFreeFluxes())
+                    .withGroundingR(isWellOrientedT2w ? t2wFortescue.getGroundingR1() : t2wFortescue.getGroundingR2())
+                    .withGroundingX(isWellOrientedT2w ? t2wFortescue.getGroundingX1() : t2wFortescue.getGroundingX2())
+                    .withRz(t2wFortescue.getRz())
+                    .withXz(t2wFortescue.getXz());
+        }
+    }
+
+    public static void copyAndAddPhaseAngleClock(int phaseAngleClock, TwoWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder) {
+        phaseAngleClockAdder.withPhaseAngleClock(phaseAngleClock);
+        phaseAngleClockAdder.add();
+    }
+
+    public static void copyAndAddPhaseAngleClock(TwoWindingsTransformerPhaseAngleClock t2w2PhaseAngleClock, TwoWindingsTransformerPhaseAngleClock t2w3PhaseAngleClock, ThreeWindingsTransformerPhaseAngleClockAdder phaseAngleClockAdder) {
+        if (t2w2PhaseAngleClock != null) {
+            phaseAngleClockAdder.withPhaseAngleClockLeg2(t2w2PhaseAngleClock.getPhaseAngleClock());
+        }
+        if (t2w3PhaseAngleClock != null) {
+            phaseAngleClockAdder.withPhaseAngleClockLeg3(t2w3PhaseAngleClock.getPhaseAngleClock());
+        }
+        phaseAngleClockAdder.add();
+    }
+
+    public static void copyAndAddToBeEstimated(boolean shouldEstimateRatioTapChanger, boolean shouldEstimatePhaseTapChanger, TwoWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder) {
+        toBeEstimatedAdder.withRatioTapChangerStatus(shouldEstimateRatioTapChanger)
+                .withPhaseTapChangerStatus(shouldEstimatePhaseTapChanger);
+        toBeEstimatedAdder.add();
+    }
+
+    public static void copyAndAddToBeEstimated(TwoWindingsTransformerToBeEstimated t2w1ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w2ToBeEstimated, TwoWindingsTransformerToBeEstimated t2w3ToBeEstimated, ThreeWindingsTransformerToBeEstimatedAdder toBeEstimatedAdder) {
+        if (t2w1ToBeEstimated != null) {
+            toBeEstimatedAdder.withRatioTapChanger1Status(t2w1ToBeEstimated.shouldEstimateRatioTapChanger())
+                    .withPhaseTapChanger1Status(t2w1ToBeEstimated.shouldEstimatePhaseTapChanger());
+        }
+        if (t2w2ToBeEstimated != null) {
+            toBeEstimatedAdder.withRatioTapChanger2Status(t2w2ToBeEstimated.shouldEstimateRatioTapChanger())
+                    .withPhaseTapChanger2Status(t2w2ToBeEstimated.shouldEstimatePhaseTapChanger());
+        }
+        if (t2w3ToBeEstimated != null) {
+            toBeEstimatedAdder.withRatioTapChanger3Status(t2w3ToBeEstimated.shouldEstimateRatioTapChanger())
+                    .withPhaseTapChanger3Status(t2w3ToBeEstimated.shouldEstimatePhaseTapChanger());
+        }
+        toBeEstimatedAdder.add();
     }
 }

@@ -25,6 +25,7 @@ import java.io.StringWriter;
 
 import static com.powsybl.iidm.modification.TransformersTestUtils.*;
 import static com.powsybl.iidm.modification.TransformersTestUtils.addPhaseTapChanger;
+import static com.powsybl.iidm.modification.util.ModificationReports.lostTwoWindingsTransformerExtensions;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -171,6 +172,28 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     }
 
     @Test
+    void replaceExtensionsTest() {
+        modifyNetworkForExtensionsTest();
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+        ThreeWindingsTransformer t3w = network.getThreeWindingsTransformer("3WT-Leg1-3WT-Leg2-3WT-Leg3");
+
+        assertEquals(createTwoWindingsTransformerFortescueToString(t2w1, t2w2, t2w3), createThreeWindingsTransformerFortescueToString(t3w));
+        assertEquals(createTwoWindingsTransformerPhaseAngleClockToString(t2w2, t2w3), createThreeWindingsTransformerPhaseAngleClockToString(t3w));
+        assertEquals(createTwoWindingsTransformerToBeEstimatedToString(t2w1, t2w2, t2w3), createThreeWindingsTransformerToBeEstimatedToString(t3w));
+    }
+
+    private void modifyNetworkForExtensionsTest() {
+        addExtensions(t2w1, 1);
+        addExtensions(t2w2, 2);
+        addExtensions(t2w3, 3);
+        addExtensions(network.getTwoWindingsTransformer(t2w1.getId()), 1);
+        addExtensions(network.getTwoWindingsTransformer(t2w2.getId()), 2);
+        addExtensions(network.getTwoWindingsTransformer(t2w3.getId()), 3);
+    }
+
+    @Test
     void replaceAliasesTest() {
         addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w1.getId()));
         addTwoWindingsTransformerAliases(network.getTwoWindingsTransformer(t2w2.getId()));
@@ -229,6 +252,19 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
                       Alias [t2w2-alias1] of twoWindingsTransformer 3WT-Leg2 will be lost
                       Alias [t2w3-alias1] of twoWindingsTransformer 3WT-Leg3 will be lost
                       ThreeWindingsTransformer 3WT-Leg1-3WT-Leg2-3WT-Leg3 created
+                """, TestUtil.normalizeLineSeparator(sw1.toString()));
+    }
+
+    @Test
+    void testReportNodeExtensions() throws IOException {
+        ReportNode reportNode = ReportNode.newRootReportNode().withMessageTemplate("test", "test reportNode").build();
+        lostTwoWindingsTransformerExtensions(reportNode, "unknownExtension1, unknownExtension2", t2w1.getId());
+
+        StringWriter sw1 = new StringWriter();
+        reportNode.print(sw1);
+        assertEquals("""
+                + test reportNode
+                   Extension [unknownExtension1, unknownExtension2] of twoWindingsTransformer 3WT-Leg1 will be lost
                 """, TestUtil.normalizeLineSeparator(sw1.toString()));
     }
 

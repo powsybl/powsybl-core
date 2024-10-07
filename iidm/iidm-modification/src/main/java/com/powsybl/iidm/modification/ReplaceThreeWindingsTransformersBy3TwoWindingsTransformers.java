@@ -13,12 +13,14 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.ControlledRegulatingTerminals;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.modification.util.ModificationReports.*;
 import static com.powsybl.iidm.modification.util.TransformerUtils.*;
+import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseAngleClock;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -66,7 +68,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         copyTerminalActiveAndReactivePower(t3w.getLeg3().getTerminal(), t2wLeg3.getTerminal1());
 
         List<String> lostProperties = copyProperties(t3w, t2wLeg1, t2wLeg2, t2wLeg3, starVoltageLevel);
-        List<String> lostExtensions = copyExtensions(t3w);
+        List<String> lostExtensions = copyExtensions(t3w, t2wLeg1, t2wLeg2, t2wLeg3);
 
         // copy necessary data before removing the transformer
         String t3wId = t3w.getId();
@@ -264,8 +266,40 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return copied;
     }
 
-    private List<String> copyExtensions(ThreeWindingsTransformer t3w) {
-        return t3w.getExtensions().stream().map(Extension::getName).toList();
+    private List<String> copyExtensions(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
+        List<String> lostExtensions = new ArrayList<>();
+        t3w.getExtensions().stream().map(Extension::getName).toList().forEach(extensionName -> {
+            boolean copied = copyExtension(extensionName, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
+            if (!copied) {
+                lostExtensions.add(extensionName);
+            }
+        });
+        return lostExtensions;
+    }
+
+    private static boolean copyExtension(String extensionName, ThreeWindingsTransformer t3w, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        boolean copied = true;
+        switch (extensionName) {
+            case "threeWindingsTransformerFortescue" -> {
+                ThreeWindingsTransformerFortescue extension = t3w.getExtension(ThreeWindingsTransformerFortescue.class);
+                copyAndAddFortescue(extension.getLeg1(), t2w1.newExtension(TwoWindingsTransformerFortescueAdder.class));
+                copyAndAddFortescue(extension.getLeg2(), t2w2.newExtension(TwoWindingsTransformerFortescueAdder.class));
+                copyAndAddFortescue(extension.getLeg3(), t2w3.newExtension(TwoWindingsTransformerFortescueAdder.class));
+            }
+            case "threeWindingsTransformerPhaseAngleClock" -> {
+                ThreeWindingsTransformerPhaseAngleClock extension = t3w.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+                copyAndAddPhaseAngleClock(extension.getPhaseAngleClockLeg2(), t2w2.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class));
+                copyAndAddPhaseAngleClock(extension.getPhaseAngleClockLeg3(), t2w3.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class));
+            }
+            case "threeWindingsTransformerToBeEstimated" -> {
+                ThreeWindingsTransformerToBeEstimated extension = t3w.getExtension(ThreeWindingsTransformerToBeEstimated.class);
+                copyAndAddToBeEstimated(extension.shouldEstimateRatioTapChanger1(), extension.shouldEstimatePhaseTapChanger1(), t2w1.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class));
+                copyAndAddToBeEstimated(extension.shouldEstimateRatioTapChanger2(), extension.shouldEstimatePhaseTapChanger2(), t2w2.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class));
+                copyAndAddToBeEstimated(extension.shouldEstimateRatioTapChanger3(), extension.shouldEstimatePhaseTapChanger3(), t2w3.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class));
+            }
+            default -> copied = false;
+        }
+        return copied;
     }
 
     List<AliasR> getAliases(ThreeWindingsTransformer t3w) {

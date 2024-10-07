@@ -8,6 +8,7 @@
 package com.powsybl.iidm.modification;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.iidm.network.util.TwtData;
 
 import java.time.ZonedDateTime;
@@ -237,21 +238,21 @@ final class TransformersTestUtils {
             strings.add(operationalLimitGroup.getId());
             operationalLimitGroup.getActivePowerLimits().ifPresent(activePowerLimits -> {
                 strings.add(activePowerLimits.getLimitType().name());
-                add(activePowerLimits, strings);
+                addLegFortescue(activePowerLimits, strings);
             });
             operationalLimitGroup.getApparentPowerLimits().ifPresent(apparentPowerLimits -> {
                 strings.add(apparentPowerLimits.getLimitType().name());
-                add(apparentPowerLimits, strings);
+                addLegFortescue(apparentPowerLimits, strings);
             });
             operationalLimitGroup.getCurrentLimits().ifPresent(currentLimits -> {
                 strings.add(currentLimits.getLimitType().name());
-                add(currentLimits, strings);
+                addLegFortescue(currentLimits, strings);
             });
         });
         return String.join(",", strings);
     }
 
-    private static void add(LoadingLimits loadingLimits, List<String> strings) {
+    private static void addLegFortescue(LoadingLimits loadingLimits, List<String> strings) {
         strings.add(String.valueOf(loadingLimits.getPermanentLimit()));
         loadingLimits.getTemporaryLimits().forEach(temporaryLimit -> {
             strings.add(temporaryLimit.getName());
@@ -259,6 +260,97 @@ final class TransformersTestUtils {
             strings.add(String.valueOf(temporaryLimit.getValue()));
             strings.add(String.valueOf(temporaryLimit.isFictitious()));
         });
+    }
+
+    static String createThreeWindingsTransformerFortescueToString(ThreeWindingsTransformer t3w) {
+        List<String> strings = new ArrayList<>();
+        ThreeWindingsTransformerFortescue extension = t3w.getExtension(ThreeWindingsTransformerFortescue.class);
+        if (extension != null) {
+            addLegFortescue(extension.getLeg1(), strings);
+            addLegFortescue(extension.getLeg2(), strings);
+            addLegFortescue(extension.getLeg3(), strings);
+        }
+        return String.join(",", strings);
+    }
+
+    private static void addLegFortescue(ThreeWindingsTransformerFortescue.LegFortescue legFortescue, List<String> strings) {
+        strings.add(legFortescue.getConnectionType().name());
+        strings.add(String.valueOf(legFortescue.isFreeFluxes()));
+        strings.add(String.valueOf(legFortescue.getGroundingR()));
+        strings.add(String.valueOf(legFortescue.getGroundingX()));
+        strings.add(String.valueOf(legFortescue.getRz()));
+        strings.add(String.valueOf(legFortescue.getXz()));
+    }
+
+    static String createTwoWindingsTransformerFortescueToString(TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        List<String> strings = new ArrayList<>();
+        addT2wFortescue(t2w1.getExtension(TwoWindingsTransformerFortescue.class), strings);
+        addT2wFortescue(t2w2.getExtension(TwoWindingsTransformerFortescue.class), strings);
+        addT2wFortescue(t2w3.getExtension(TwoWindingsTransformerFortescue.class), strings);
+        return String.join(",", strings);
+    }
+
+    private static void addT2wFortescue(TwoWindingsTransformerFortescue t2wFortescue, List<String> strings) {
+        if (t2wFortescue != null) {
+            strings.add(t2wFortescue.getConnectionType1().name());
+            strings.add(String.valueOf(t2wFortescue.isFreeFluxes()));
+            strings.add(String.valueOf(t2wFortescue.getGroundingR1()));
+            strings.add(String.valueOf(t2wFortescue.getGroundingX1()));
+            strings.add(String.valueOf(t2wFortescue.getRz()));
+            strings.add(String.valueOf(t2wFortescue.getXz()));
+        }
+    }
+
+    static String createThreeWindingsTransformerPhaseAngleClockToString(ThreeWindingsTransformer t3w) {
+        List<String> strings = new ArrayList<>();
+        ThreeWindingsTransformerPhaseAngleClock extension = t3w.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
+        if (extension != null) {
+            strings.add(String.valueOf(extension.getPhaseAngleClockLeg2()));
+            strings.add(String.valueOf(extension.getPhaseAngleClockLeg3()));
+        }
+        return String.join(",", strings);
+    }
+
+    static String createTwoWindingsTransformerPhaseAngleClockToString(TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        List<String> strings = new ArrayList<>();
+        TwoWindingsTransformerPhaseAngleClock t2w2Extension = t2w2.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+        if (t2w2Extension != null) {
+            strings.add(String.valueOf(t2w2Extension.getPhaseAngleClock()));
+        }
+        TwoWindingsTransformerPhaseAngleClock t2w3Extension = t2w3.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
+        if (t2w3Extension != null) {
+            strings.add(String.valueOf(t2w3Extension.getPhaseAngleClock()));
+        }
+        return String.join(",", strings);
+    }
+
+    static String createThreeWindingsTransformerToBeEstimatedToString(ThreeWindingsTransformer t3w) {
+        List<String> strings = new ArrayList<>();
+        ThreeWindingsTransformerToBeEstimated extension = t3w.getExtension(ThreeWindingsTransformerToBeEstimated.class);
+        if (extension != null) {
+            strings.add(String.valueOf(extension.shouldEstimateRatioTapChanger1()));
+            strings.add(String.valueOf(extension.shouldEstimatePhaseTapChanger1()));
+            strings.add(String.valueOf(extension.shouldEstimateRatioTapChanger2()));
+            strings.add(String.valueOf(extension.shouldEstimatePhaseTapChanger2()));
+            strings.add(String.valueOf(extension.shouldEstimateRatioTapChanger3()));
+            strings.add(String.valueOf(extension.shouldEstimatePhaseTapChanger3()));
+        }
+        return String.join(",", strings);
+    }
+
+    static String createTwoWindingsTransformerToBeEstimatedToString(TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
+        List<String> strings = new ArrayList<>();
+        addToBeEstimated(t2w1.getExtension(TwoWindingsTransformerToBeEstimated.class), strings);
+        addToBeEstimated(t2w2.getExtension(TwoWindingsTransformerToBeEstimated.class), strings);
+        addToBeEstimated(t2w3.getExtension(TwoWindingsTransformerToBeEstimated.class), strings);
+        return String.join(",", strings);
+    }
+
+    private static void addToBeEstimated(TwoWindingsTransformerToBeEstimated extension, List<String> strings) {
+        if (extension != null) {
+            strings.add(String.valueOf(extension.shouldEstimateRatioTapChanger()));
+            strings.add(String.valueOf(extension.shouldEstimatePhaseTapChanger()));
+        }
     }
 
     static void addVoltages(Bus bus1, Bus bus2, Bus bus3) {
@@ -357,5 +449,62 @@ final class TransformersTestUtils {
                 .add()
                 .add();
         return network;
+    }
+
+    static void addExtensions(ThreeWindingsTransformer t3w) {
+        t3w.newExtension(ThreeWindingsTransformerFortescueAdder.class).leg1()
+                .withConnectionType(WindingConnectionType.Y)
+                .withFreeFluxes(false)
+                .withGroundingR(0.1)
+                .withGroundingX(0.11)
+                .withRz(0.12)
+                .withXz(0.121)
+                .leg2().withConnectionType(WindingConnectionType.Y)
+                .withFreeFluxes(false)
+                .withGroundingR(0.2)
+                .withGroundingX(0.21)
+                .withRz(0.22)
+                .withXz(0.221)
+                .leg3()
+                .withConnectionType(WindingConnectionType.DELTA)
+                .withFreeFluxes(true)
+                .withGroundingR(0.3)
+                .withGroundingX(0.31)
+                .withRz(0.32)
+                .withXz(0.321)
+                .add();
+        t3w.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class)
+                .withPhaseAngleClockLeg2(2)
+                .withPhaseAngleClockLeg3(6)
+                .add();
+        t3w.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+                .withRatioTapChanger1Status(true)
+                .withPhaseTapChanger1Status(true)
+                .withRatioTapChanger2Status(true)
+                .withPhaseTapChanger2Status(true)
+                .withRatioTapChanger3Status(true)
+                .withPhaseTapChanger3Status(true)
+                .add();
+    }
+
+    static void addExtensions(TwoWindingsTransformer t2w, int diferenceFactor) {
+        t2w.newExtension(TwoWindingsTransformerFortescueAdder.class)
+                .withConnectionType1(WindingConnectionType.Y)
+                .withFreeFluxes(false)
+                .withGroundingR1(0.1 * diferenceFactor)
+                .withGroundingX1(0.11 * diferenceFactor)
+                .withRz(0.12 * diferenceFactor)
+                .withXz(0.121 * diferenceFactor)
+                .withConnectionType2(WindingConnectionType.Y)
+                .withGroundingR1(0.0)
+                .withGroundingX1(0.0)
+                .add();
+        t2w.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class)
+                .withPhaseAngleClock(2 * diferenceFactor)
+                .add();
+        t2w.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
+                .withRatioTapChangerStatus(true)
+                .withPhaseTapChangerStatus(true)
+                .add();
     }
 }

@@ -12,6 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.modification.topology.NamingStrategy;
 import com.powsybl.iidm.modification.util.ControlledRegulatingTerminals;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.*;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -161,10 +162,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         lostProperties.addAll(copyProperties(twoR.t2w2, t3w));
         lostProperties.addAll(copyProperties(twoR.t2w3, t3w));
 
-        List<ExtensionR> lostExtensions = new ArrayList<>();
-        lostExtensions.addAll(copyExtensions(twoR.t2w1));
-        lostExtensions.addAll(copyExtensions(twoR.t2w2));
-        lostExtensions.addAll(copyExtensions(twoR.t2w3));
+        List<ExtensionR> lostExtensions = copyExtensions(twoR, t3w);
 
         // copy necessary data before removing
         List<AliasR> t2wAliases = new ArrayList<>();
@@ -386,11 +384,45 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private record PropertyR(String t2wId, String propertyName) {
     }
 
-    List<ExtensionR> copyExtensions(TwoWindingsTransformer t2w) {
-        return t2w.getExtensions().stream().map(extension -> new ExtensionR(t2w.getId(), extension.getName())).toList();
+    List<ExtensionR> copyExtensions(TwoR twoR, ThreeWindingsTransformer t3w) {
+        List<ExtensionR> extensions = new ArrayList<>();
+        extensions.addAll(twoR.t2w1.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w1.getId(), extension.getName())).toList());
+        extensions.addAll(twoR.t2w2.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w2.getId(), extension.getName())).toList());
+        extensions.addAll(twoR.t2w3.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w3.getId(), extension.getName())).toList());
+
+        List<ExtensionR> lostExtensions = new ArrayList<>();
+        extensions.stream().map(extensionR -> extensionR.extensionName).collect(Collectors.toSet()).forEach(extensionName -> {
+            boolean copied = copyExtension(extensionName, twoR, t3w);
+            if (!copied) {
+                lostExtensions.addAll(extensions.stream().filter(extensionR -> extensionR.extensionName.equals(extensionName)).toList());
+            }
+        });
+        return lostExtensions;
     }
 
     private record ExtensionR(String t2wId, String extensionName) {
+    }
+
+    private static boolean copyExtension(String extensionName, TwoR twoR, ThreeWindingsTransformer t3w) {
+        boolean copied = true;
+        switch (extensionName) {
+            case "twoWindingsTransformerFortescue" ->
+                    copyAndAddFortescue(twoR.t2w1.getExtension(TwoWindingsTransformerFortescue.class), isWellOriented(twoR.starBus, twoR.t2w1),
+                            twoR.t2w2.getExtension(TwoWindingsTransformerFortescue.class), isWellOriented(twoR.starBus, twoR.t2w2),
+                            twoR.t2w3.getExtension(TwoWindingsTransformerFortescue.class), isWellOriented(twoR.starBus, twoR.t2w3),
+                            t3w.newExtension(ThreeWindingsTransformerFortescueAdder.class));
+            case "twoWindingsTransformerPhaseAngleClock" ->
+                    copyAndAddPhaseAngleClock(twoR.t2w2.getExtension(TwoWindingsTransformerPhaseAngleClock.class),
+                            twoR.t2w3.getExtension(TwoWindingsTransformerPhaseAngleClock.class),
+                            t3w.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class));
+            case "twoWindingsTransformerToBeEstimated" ->
+                    copyAndAddToBeEstimated(twoR.t2w1.getExtension(TwoWindingsTransformerToBeEstimated.class),
+                            twoR.t2w2.getExtension(TwoWindingsTransformerToBeEstimated.class),
+                            twoR.t2w3.getExtension(TwoWindingsTransformerToBeEstimated.class),
+                            t3w.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class));
+            default -> copied = false;
+        }
+        return copied;
     }
 
     List<AliasR> getAliases(TwoWindingsTransformer t2w, String leg, String end) {
