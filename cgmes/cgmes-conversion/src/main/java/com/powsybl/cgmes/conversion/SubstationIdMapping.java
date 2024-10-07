@@ -291,7 +291,7 @@ public class SubstationIdMapping {
     }
 
     private void buildReferenceVoltageLevels(Map<String, Set<String>> fictitiousVoltageLevelAdjacency) {
-        // representative voltageLevel is not fictitious, then can be used as reference for all the voltageLevels of the set
+        // Find a representative for fictitious voltage levels of substation containers
         voltageLevelMapping.forEach((key, value) -> {
             if (fictitiousVoltageLevels.containsKey(key) && !fictitiousVoltageLevels.containsKey(value)) {
                 referenceVoltageLevels.put(key, value);
