@@ -7,10 +7,17 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
+import java.util.function.Consumer;
+
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public interface OverloadManagementSystemAdder extends IdentifiableAdder<OverloadManagementSystem, OverloadManagementSystemAdder> {
+
+    OverloadManagementSystemAdder validateAfterCreation();
+
+    Collection<Consumer<OverloadManagementSystem>> getValidationChecks();
 
     interface TrippingAdder<I extends TrippingAdder<I>> {
         /**
@@ -39,6 +46,8 @@ public interface OverloadManagementSystemAdder extends IdentifiableAdder<Overloa
         OverloadManagementSystem.Tripping.Type getType();
 
         OverloadManagementSystemAdder add();
+
+        Collection<Consumer<OverloadManagementSystem>> getValidationChecks();
     }
 
     interface SwitchTrippingAdder extends TrippingAdder<SwitchTrippingAdder> {
