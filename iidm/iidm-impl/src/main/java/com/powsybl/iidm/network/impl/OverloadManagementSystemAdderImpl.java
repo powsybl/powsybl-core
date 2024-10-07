@@ -94,9 +94,13 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
             return checkElementId(switchId, "switchId");
         }
 
+        protected void validateSwitchId() {
+            validateElementId(switchId, Network::getSwitch, "switch");
+        }
+
         @Override
         public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
-            return Collections.emptyList();
+            return List.of(oms -> this.validateSwitchId());
         }
     }
 
@@ -154,9 +158,13 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
                     "threeWindingsTransformerId");
         }
 
+        protected void validateThreeWindingsTransformerId() {
+            validateElementId(threeWindingsTransformerId, Network::getThreeWindingsTransformer, "three windings transformer");
+        }
+
         @Override
         public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
-            return Collections.emptyList();
+            return List.of(oms -> validateThreeWindingsTransformerId());
         }
     }
 
@@ -271,6 +279,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     }
 
     private OverloadManagementSystem.Tripping createTripping(SwitchTrippingAdderImpl adder, String overloadManagementSystemId) {
+        if (!validateAfterCreation) {
+            adder.validateSwitchId();
+        }
         return new OverloadManagementSystemImpl.SwitchTrippingImpl(
                 overloadManagementSystemId, adder.key, adder.name,
                 adder.currentLimit, adder.openAction,
@@ -289,6 +300,9 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
     private OverloadManagementSystem.Tripping createTripping(ThreeWindingsTransformerTrippingAdderImpl adder,
                                                              String overloadManagementSystemId) {
+        if (!validateAfterCreation) {
+            adder.validateThreeWindingsTransformerId();
+        }
         return new OverloadManagementSystemImpl.ThreeWindingsTransformerTrippingImpl(
                 overloadManagementSystemId,
                 adder.key, adder.name, adder.currentLimit, adder.openAction,
