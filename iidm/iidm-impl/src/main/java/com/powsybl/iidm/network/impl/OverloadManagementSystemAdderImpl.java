@@ -215,7 +215,14 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
     @Override
     public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
-        return Collections.emptyList();
+        return List.of(this::validateMonitoredElementId);
+    }
+
+    public void validateMonitoredElementId(OverloadManagementSystem oms) {
+        Identifiable<?> element = getNetwork().getIdentifiable(monitoredElementId);
+        if (element == null) {
+            throw new ValidationException(this, " '" + monitoredElementId + "' not found");
+        }
     }
 
     @Override
@@ -224,6 +231,10 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
         OverloadManagementSystemImpl overloadManagementSystem = new OverloadManagementSystemImpl(id, getName(), substation,
                 monitoredElementId, monitoredElementSide, enabled);
+
+        if (!validateAfterCreation) {
+            validateMonitoredElementId(overloadManagementSystem);
+        }
 
         // Add the trippings
         Set<String> knownTrippingKeys = new HashSet<>();

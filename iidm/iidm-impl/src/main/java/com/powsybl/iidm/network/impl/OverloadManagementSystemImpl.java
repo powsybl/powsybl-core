@@ -212,10 +212,6 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         if (monitoredElementId == null) {
             throw new ValidationException(this, "monitoredElementId is not set");
         }
-        Identifiable<?> element = getNetwork().getIdentifiable(monitoredElementId);
-        if (element == null) {
-            throw new ValidationException(this, " '" + monitoredElementId + "' not found");
-        }
         return monitoredElementId;
     }
 
