@@ -45,6 +45,7 @@ public class DanglingLineData {
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
+        // DanglingLine model has shunt admittance on network side only, so it is not split between both sides.
         Complex vBoundaryBus = new Complex(Double.NaN, Double.NaN);
         if (danglingLine.getP0() == 0.0 && danglingLine.getQ0() == 0.0) {
             LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(
