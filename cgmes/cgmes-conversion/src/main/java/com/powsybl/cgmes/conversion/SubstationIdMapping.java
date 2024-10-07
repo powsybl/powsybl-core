@@ -244,9 +244,7 @@ public class SubstationIdMapping {
 
     // one or both of them must be LineContainers
     private static boolean isValidReference(CgmesContainer cgmesContainer1, CgmesContainer cgmesContainer2) {
-        return cgmesContainer1.isVoltageLevel() && !cgmesContainer2.isVoltageLevel()
-                || !cgmesContainer1.isVoltageLevel() && cgmesContainer2.isVoltageLevel()
-                || !cgmesContainer1.isVoltageLevel() && !cgmesContainer2.isVoltageLevel();
+        return !(cgmesContainer1.isVoltageLevel() && cgmesContainer2.isVoltageLevel());
     }
 
     private static void addAdjacency(Map<String, Set<String>> adjacency, String id1, String id2) {
