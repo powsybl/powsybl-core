@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.powsybl.iidm.modification.util.TransformerUtils.copyPhaseTapChanger;
-import static com.powsybl.iidm.modification.util.TransformerUtils.copyRatioTapChanger;
+import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddPhaseTapChanger;
+import static com.powsybl.iidm.modification.util.TransformerUtils.copyAndAddRatioTapChanger;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -295,8 +295,8 @@ final class TransformersTestUtils {
                 .setBus2(t2w.getTerminal1().getBusBreakerView().getBus().getId())
                 .add();
 
-        copyRatioTapChanger(t2wNotWellOriented.newRatioTapChanger(), t2w.getRatioTapChanger());
-        copyPhaseTapChanger(t2wNotWellOriented.newPhaseTapChanger(), t2w.getPhaseTapChanger());
+        copyAndAddRatioTapChanger(t2wNotWellOriented.newRatioTapChanger(), t2w.getRatioTapChanger());
+        copyAndAddPhaseTapChanger(t2wNotWellOriented.newPhaseTapChanger(), t2w.getPhaseTapChanger());
 
         t2w.remove();
     }

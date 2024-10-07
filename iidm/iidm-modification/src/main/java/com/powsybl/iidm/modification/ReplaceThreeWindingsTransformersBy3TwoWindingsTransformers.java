@@ -158,8 +158,8 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         connect(t2wAdder, getConnectivityLegAfterCreatingInternalConnection(leg), connectivityStar);
         TwoWindingsTransformer t2w = t2wAdder.add();
 
-        leg.getOptionalRatioTapChanger().ifPresent(rtc -> copyRatioTapChanger(t2w.newRatioTapChanger(), rtc));
-        leg.getOptionalPhaseTapChanger().ifPresent(rtc -> copyPhaseTapChanger(t2w.newPhaseTapChanger(), rtc));
+        leg.getOptionalRatioTapChanger().ifPresent(rtc -> copyAndAddRatioTapChanger(t2w.newRatioTapChanger(), rtc));
+        leg.getOptionalPhaseTapChanger().ifPresent(rtc -> copyAndAddPhaseTapChanger(t2w.newPhaseTapChanger(), rtc));
         leg.getOperationalLimitsGroups().forEach(operationalLimitGroup -> copyOperationalLimitsGroup(t2w.newOperationalLimitsGroup1(operationalLimitGroup.getId()), operationalLimitGroup));
 
         return t2w;

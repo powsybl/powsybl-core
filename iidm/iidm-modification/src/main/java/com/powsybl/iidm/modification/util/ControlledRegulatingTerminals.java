@@ -7,6 +7,7 @@
  */
 package com.powsybl.iidm.modification.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -79,6 +80,7 @@ public class ControlledRegulatingTerminals {
                     add(regulatingTerminals, vscConverterStation.getRegulatingTerminal());
                 }
             }
+            default -> throw new PowsyblException("unexpected identifiable type: " + identifiable.getType());
         }
         return regulatingTerminals;
     }
@@ -147,7 +149,7 @@ public class ControlledRegulatingTerminals {
                     replaceRegulatingTerminalBattery((Battery) identifiable, expectedRegulatingTerminal, newRegulatingTerminal);
             case VOLTAGE_LEVEL ->
                     replaceRegulatingTerminalVoltageLevel((VoltageLevel) identifiable, expectedRegulatingTerminal, newRegulatingTerminal);
-            default -> throw new RuntimeException("unexpected identifiable type: " + identifiable.getType());
+            default -> throw new PowsyblException("unexpected identifiable type: " + identifiable.getType());
         }
     }
 

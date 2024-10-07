@@ -303,17 +303,17 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private static void copyOrMoveRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc, boolean isWellOriented) {
         if (isWellOriented) {
-            copyRatioTapChanger(rtcAdder, rtc);
+            copyAndAddRatioTapChanger(rtcAdder, rtc);
         } else {
-            copyAndMoveRatioTapChanger(rtcAdder, rtc);
+            copyAndMoveAndAddRatioTapChanger(rtcAdder, rtc);
         }
     }
 
     private static void copyOrMovePhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc, boolean isWellOriented) {
         if (isWellOriented) {
-            copyPhaseTapChanger(ptcAdder, ptc);
+            copyAndAddPhaseTapChanger(ptcAdder, ptc);
         } else {
-            copyAndMovePhaseTapChanger(ptcAdder, ptc);
+            copyAndMoveAndAddPhaseTapChanger(ptcAdder, ptc);
         }
     }
 

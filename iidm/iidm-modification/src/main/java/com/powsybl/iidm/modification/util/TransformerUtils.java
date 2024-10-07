@@ -19,7 +19,7 @@ public final class TransformerUtils {
     private TransformerUtils() {
     }
 
-    public static void copyRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
+    public static void copyAndAddRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
         copyCommonRatioTapChanger(rtcAdder, rtc);
 
         rtc.getAllSteps().keySet().stream().sorted().forEach(step ->
@@ -33,7 +33,7 @@ public final class TransformerUtils {
         rtcAdder.add();
     }
 
-    public static void copyAndMoveRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
+    public static void copyAndMoveAndAddRatioTapChanger(RatioTapChangerAdder rtcAdder, RatioTapChanger rtc) {
         copyCommonRatioTapChanger(rtcAdder, rtc);
 
         rtc.getAllSteps().keySet().stream().sorted().forEach(step -> {
@@ -74,7 +74,7 @@ public final class TransformerUtils {
                 .setTargetDeadband(rtc.getTargetDeadband());
     }
 
-    public static void copyPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
+    public static void copyAndAddPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
         copyCommonPhaseTapChanger(ptcAdder, ptc);
 
         ptc.getAllSteps().keySet().stream().sorted().forEach(step ->
@@ -89,7 +89,7 @@ public final class TransformerUtils {
         ptcAdder.add();
     }
 
-    public static void copyAndMovePhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
+    public static void copyAndMoveAndAddPhaseTapChanger(PhaseTapChangerAdder ptcAdder, PhaseTapChanger ptc) {
         copyCommonPhaseTapChanger(ptcAdder, ptc);
 
         ptc.getAllSteps().keySet().stream().sorted().forEach(step -> {
@@ -151,12 +151,12 @@ public final class TransformerUtils {
     }
 
     public static void copyOperationalLimitsGroup(OperationalLimitsGroup destination, OperationalLimitsGroup source) {
-        source.getActivePowerLimits().ifPresent(activePowerLimits -> copyLoadingLimits(destination.newActivePowerLimits(), activePowerLimits));
-        source.getApparentPowerLimits().ifPresent(apparentPowerLimits -> copyLoadingLimits(destination.newApparentPowerLimits(), apparentPowerLimits));
-        source.getCurrentLimits().ifPresent(currentLimits -> copyLoadingLimits(destination.newCurrentLimits(), currentLimits));
+        source.getActivePowerLimits().ifPresent(activePowerLimits -> copyAndAddLoadingLimits(destination.newActivePowerLimits(), activePowerLimits));
+        source.getApparentPowerLimits().ifPresent(apparentPowerLimits -> copyAndAddLoadingLimits(destination.newApparentPowerLimits(), apparentPowerLimits));
+        source.getCurrentLimits().ifPresent(currentLimits -> copyAndAddLoadingLimits(destination.newCurrentLimits(), currentLimits));
     }
 
-    private static void copyLoadingLimits(LoadingLimitsAdder<?, ?> loadingLimitsAdder, LoadingLimits loadingLimits) {
+    private static void copyAndAddLoadingLimits(LoadingLimitsAdder<?, ?> loadingLimitsAdder, LoadingLimits loadingLimits) {
         loadingLimitsAdder.setPermanentLimit(loadingLimits.getPermanentLimit());
         loadingLimits.getTemporaryLimits().forEach(temporaryLimit ->
                 loadingLimitsAdder.beginTemporaryLimit()
