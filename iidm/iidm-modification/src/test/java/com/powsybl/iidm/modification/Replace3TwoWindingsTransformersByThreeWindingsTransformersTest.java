@@ -41,15 +41,15 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
     @BeforeEach
     public void setUp() {
         Network expectedNetwork = createSetUpNetwork();
-        network = createSetUpNetwork();
-
-        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(3, expectedNetwork.getTwoWindingsTransformerCount());
         t2w1 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg1");
         assertNotNull(t2w1);
         t2w2 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg2");
         assertNotNull(t2w2);
         t2w3 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg3");
         assertNotNull(t2w3);
+
+        network = createSetUpNetwork();
     }
 
     private static Network createSetUpNetwork() {
@@ -331,6 +331,37 @@ class Replace3TwoWindingsTransformersByThreeWindingsTransformersTest {
         assertEquals(t2w2Data.getComputedP2(), t3wData.getComputedP(ThreeSides.TWO), tol);
         assertEquals(t2w3Data.getComputedP1(), t3wData.getComputedP(ThreeSides.THREE), tol);
         return true;
+    }
+
+    @Test
+    void replaceNodeBreakerTest() {
+        modifyNetworkForNodeBreakerTest();
+
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+
+        Replace3TwoWindingsTransformersByThreeWindingsTransformers replace = new Replace3TwoWindingsTransformersByThreeWindingsTransformers();
+        replace.apply(network);
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+    }
+
+    private void modifyNetworkForNodeBreakerTest() {
+        Network expectedNetwork = createThreeWindingsTransformerNodeBreakerNetwork();
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replaceExpected = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replaceExpected.apply(expectedNetwork);
+        t2w1 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg1");
+        assertNotNull(t2w1);
+        t2w2 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg2");
+        assertNotNull(t2w2);
+        t2w3 = expectedNetwork.getTwoWindingsTransformer("3WT-Leg3");
+
+        network = createThreeWindingsTransformerNodeBreakerNetwork();
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
     }
 
     @Test

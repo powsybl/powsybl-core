@@ -36,10 +36,10 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
     @BeforeEach
     public void setUp() {
         Network expectedNetwork = ThreeWindingsTransformerNetworkFactory.create();
-        network = ThreeWindingsTransformerNetworkFactory.create();
         assertEquals(1, expectedNetwork.getThreeWindingsTransformerCount());
         t3w = expectedNetwork.getThreeWindingsTransformer("3WT");
         assertNotNull(t3w);
+        network = ThreeWindingsTransformerNetworkFactory.create();
     }
 
     @Test
@@ -237,6 +237,28 @@ class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformersTest {
         addVoltages(network.getThreeWindingsTransformer(t3w.getId()).getLeg1().getTerminal().getBusView().getBus(),
                 network.getThreeWindingsTransformer(t3w.getId()).getLeg2().getTerminal().getBusView().getBus(),
                 network.getThreeWindingsTransformer(t3w.getId()).getLeg3().getTerminal().getBusView().getBus());
+    }
+
+    @Test
+    void replaceNodeBreakerTest() {
+        modifyNetworkForNodeBreakerTest();
+
+        assertEquals(3, network.getVoltageLevelCount());
+        assertEquals(1, network.getThreeWindingsTransformerCount());
+        assertEquals(0, network.getTwoWindingsTransformerCount());
+
+        ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers replace = new ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers();
+        replace.apply(network);
+
+        assertEquals(4, network.getVoltageLevelCount());
+        assertEquals(0, network.getThreeWindingsTransformerCount());
+        assertEquals(3, network.getTwoWindingsTransformerCount());
+    }
+
+    private void modifyNetworkForNodeBreakerTest() {
+        Network expectedNetwork = createThreeWindingsTransformerNodeBreakerNetwork();
+        t3w = expectedNetwork.getThreeWindingsTransformer("3WT");
+        network = createThreeWindingsTransformerNodeBreakerNetwork();
     }
 
     @Test

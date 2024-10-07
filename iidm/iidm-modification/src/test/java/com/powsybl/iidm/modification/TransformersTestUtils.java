@@ -10,6 +10,7 @@ package com.powsybl.iidm.modification;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.TwtData;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -299,5 +300,62 @@ final class TransformersTestUtils {
         copyAndAddPhaseTapChanger(t2wNotWellOriented.newPhaseTapChanger(), t2w.getPhaseTapChanger());
 
         t2w.remove();
+    }
+
+    static Network createThreeWindingsTransformerNodeBreakerNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("three-windings-transformer-nodeBreaker", "test");
+        network.setCaseDate(ZonedDateTime.parse("2018-03-05T13:30:30.486+01:00"));
+        Substation substation = network.newSubstation()
+                .setId("SUBSTATION")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = substation.newVoltageLevel()
+                .setId("VL_132")
+                .setNominalV(132.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel vl2 = substation.newVoltageLevel()
+                .setId("VL_33")
+                .setNominalV(33.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        VoltageLevel vl3 = substation.newVoltageLevel()
+                .setId("VL_11")
+                .setNominalV(11.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+
+        ThreeWindingsTransformer twt = substation.newThreeWindingsTransformer()
+                .setId("3WT")
+                .setRatedU0(132.0)
+                .newLeg1()
+                .setR(17.424)
+                .setX(1.7424)
+                .setG(0.00573921028466483)
+                .setB(0.000573921028466483)
+                .setRatedU(132.0)
+                .setVoltageLevel(vl1.getId())
+                .setNode(1)
+                .add()
+                .newLeg2()
+                .setR(1.089)
+                .setX(0.1089)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(33.0)
+                .setVoltageLevel(vl2.getId())
+                .setNode(1)
+                .add()
+                .newLeg3()
+                .setR(0.121)
+                .setX(0.0121)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(11.0)
+                .setVoltageLevel(vl3.getId())
+                .setNode(1)
+                .add()
+                .add();
+        return network;
     }
 }

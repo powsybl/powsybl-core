@@ -82,7 +82,6 @@ public class ControlledRegulatingTerminals {
                     add(regulatingTerminals, vscConverterStation.getRegulatingTerminal());
                 }
             }
-            default -> throw new PowsyblException("unexpected identifiable type: " + identifiable.getType());
         }
         return regulatingTerminals;
     }
