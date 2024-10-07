@@ -28,6 +28,7 @@ public final class ModificationReports {
     private static final String HVDC_LINE_ID = "hvdcLineId";
     private static final String TWO_WINDINGS_TRANSFORMER_ID = "twoWindingsTransformerId";
     private static final String THREE_WINDINGS_TRANSFORMER_ID = "threeWindingsTransformerId";
+    private static final String EXTENSIONS = "extensions";
     public static final String POSITION_ORDER = "positionOrder";
 
     // INFO
@@ -159,7 +160,7 @@ public final class ModificationReports {
     public static void lostTwoWindingsTransformerExtensions(ReportNode reportNode, String extensions, String twoWindingsTransformerId) {
         reportNode.newReportNode()
                 .withMessageTemplate("lostTwoWindingsTransformerExtensions", "Extension [${extensions}] of twoWindingsTransformer ${twoWindingsTransformerId} will be lost")
-                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(EXTENSIONS, extensions)
                 .withUntypedValue(TWO_WINDINGS_TRANSFORMER_ID, twoWindingsTransformerId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -168,7 +169,7 @@ public final class ModificationReports {
     public static void lostThreeWindingsTransformerExtensions(ReportNode reportNode, String extensions, String threeWindingsTransformerId) {
         reportNode.newReportNode()
                 .withMessageTemplate("lostThreeWindingsTransformerExtensions", "Extension [${extensions}] of threeWindingsTransformer ${threeWindingsTransformerId} will be lost")
-                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(EXTENSIONS, extensions)
                 .withUntypedValue(THREE_WINDINGS_TRANSFORMER_ID, threeWindingsTransformerId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -335,7 +336,7 @@ public final class ModificationReports {
     public static void lostDanglingLineExtensions(ReportNode reportNode, String extensions, String danglingLineId) {
         reportNode.newReportNode()
                 .withMessageTemplate("lostDanglingLineExtensions", "Extension [${extensions}] of dangling line ${danglingLineId} will be lost")
-                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(EXTENSIONS, extensions)
                 .withUntypedValue("danglingLineId", danglingLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();
@@ -344,7 +345,7 @@ public final class ModificationReports {
     public static void lostTieLineExtensions(ReportNode reportNode, String extensions, String tieLineId) {
         reportNode.newReportNode()
                 .withMessageTemplate("lostTieLineExtensions", "Extension [${extensions}] of tie line ${tieLineId} will be lost")
-                .withUntypedValue("extensions", extensions)
+                .withUntypedValue(EXTENSIONS, extensions)
                 .withUntypedValue("tieLineId", tieLineId)
                 .withSeverity(TypedValue.WARN_SEVERITY)
                 .add();

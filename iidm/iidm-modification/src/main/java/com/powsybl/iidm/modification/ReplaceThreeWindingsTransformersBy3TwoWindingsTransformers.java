@@ -26,6 +26,8 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
  */
 public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends AbstractNetworkModification {
 
+    private static final String THREE_WINDINGS_TRANSFORMER = "ThreeWindingsTransformer";
+
     @Override
     public String getName() {
         return "ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers";
@@ -76,13 +78,13 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyName -> logOrThrow(throwException, "ThreeWindingsTransformer '" + t3wId + "' unexpected property '" + propertyName + "'"));
+            lostProperties.forEach(propertyName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' unexpected property '" + propertyName + "'"));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionName -> logOrThrow(throwException, "ThreeWindingsTransformer '" + t3wId + "' unexpected extension '" + extensionName + '"'));
+            lostExtensions.forEach(extensionName -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' unexpected extension '" + extensionName + '"'));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, "ThreeWindingsTransformer '" + t3wId + "' unexpected alias '" + aliasR.alias + "' '" + aliasR.aliasType + "'"));
+            lostAliases.forEach(aliasR -> logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3wId + "' unexpected alias '" + aliasR.alias + "' '" + aliasR.aliasType + "'"));
         }
 
         // report
@@ -111,7 +113,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
     private VoltageLevel createStarVoltageLevel(ThreeWindingsTransformer t3w, boolean throwException) {
         Optional<Substation> substation = t3w.getLeg1().getTerminal().getVoltageLevel().getSubstation();
         if (substation.isEmpty()) {
-            logOrThrow(throwException, "ThreeWindingsTransformer '" + t3w.getId() + "' without substation");
+            logOrThrow(throwException, THREE_WINDINGS_TRANSFORMER + "'" + t3w.getId() + "' without substation");
             return null;
         }
         TopologyKind topologykind = t3w.getLeg1().getTerminal().getVoltageLevel().getTopologyKind().equals(TopologyKind.BUS_BREAKER)

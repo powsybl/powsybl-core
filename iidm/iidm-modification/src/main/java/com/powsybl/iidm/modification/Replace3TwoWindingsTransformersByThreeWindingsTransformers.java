@@ -25,6 +25,9 @@ import static com.powsybl.iidm.modification.util.TransformerUtils.*;
  */
 public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends AbstractNetworkModification {
 
+    private static final String TWO_WINDINGS_TRANSFORMER = "TwoWindingsTransformer";
+    private static final String WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATING_TERMINAL = "with fictitious terminal used as regulating terminal";
+
     @Override
     public String getName() {
         return "Replace3TwoWindingsTransformersByThreeWindingsTransformers";
@@ -75,6 +78,8 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private record TwoR(Bus starBus, TwoWindingsTransformer t2w1, TwoWindingsTransformer t2w2, TwoWindingsTransformer t2w3) {
     }
 
+    // if the twoWindingsTransformer is not well oriented, and it has non-zero shunt admittance (G != 0 or B != 0)
+    // the obtained model is not equivalent to the initial one as the shunt admittance must be moved to the other side
     private void replace3TwoWindingsTransformerByThreeWindingsTransformer(TwoR twoR, ControlledRegulatingTerminals controlledRegulatingTerminals, boolean throwException, ReportNode reportNode) {
         Substation substation = findSubstation(twoR, throwException);
         if (substation == null) {
@@ -179,13 +184,13 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
         // warnings
         if (!lostProperties.isEmpty()) {
-            lostProperties.forEach(propertyR -> logOrThrow(throwException, "TwoWindingsTransformer '" + propertyR.t2wId + "' unexpected property '" + propertyR.propertyName + "'"));
+            lostProperties.forEach(propertyR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + propertyR.t2wId + "' unexpected property '" + propertyR.propertyName + "'"));
         }
         if (!lostExtensions.isEmpty()) {
-            lostExtensions.forEach(extensionR -> logOrThrow(throwException, "TwoWindingsTransformer '" + extensionR.t2wId + "' unexpected extension '" + extensionR.extensionName + '"'));
+            lostExtensions.forEach(extensionR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + extensionR.t2wId + "' unexpected extension '" + extensionR.extensionName + '"'));
         }
         if (!lostAliases.isEmpty()) {
-            lostAliases.forEach(aliasR -> logOrThrow(throwException, "TwoWindingsTransformer '" + aliasR.t2wId + "' unexpected alias '" + aliasR.alias + "' '" + aliasR.aliasType + "'"));
+            lostAliases.forEach(aliasR -> logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + aliasR.t2wId + "' unexpected alias '" + aliasR.alias + "' '" + aliasR.aliasType + "'"));
         }
 
         // report
@@ -222,7 +227,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private Substation findSubstation(TwoR twoR, boolean throwException) {
         Optional<Substation> substation = twoR.t2w1.getTerminal1().getVoltageLevel().getSubstation();
         if (substation.isEmpty()) {
-            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w1.getId() + "' without substation");
+            logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + twoR.t2w1.getId() + "' without substation");
             return null;
         } else {
             return substation.get();
@@ -231,15 +236,15 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
 
     private boolean anyTwoWindingsTransformerRegulatingOnFictitiousSide(TwoR twoR, ControlledRegulatingTerminals controlledRegulatingTerminals, boolean throwException) {
         if (controlledRegulatingTerminals.usedAsRegulatingTerminal(getTerminal2(twoR.t2w1, isWellOriented(twoR.starBus, twoR.t2w1)))) {
-            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w1.getId() + "' with fictitious terminal used as regulating terminal");
+            logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + twoR.t2w1.getId() + "' " + WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATING_TERMINAL);
             return true;
         }
         if (controlledRegulatingTerminals.usedAsRegulatingTerminal(getTerminal2(twoR.t2w2, isWellOriented(twoR.starBus, twoR.t2w2)))) {
-            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w2.getId() + "' with fictitious terminal used as regulating terminal");
+            logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + twoR.t2w2.getId() + "' " + WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATING_TERMINAL);
             return true;
         }
         if (controlledRegulatingTerminals.usedAsRegulatingTerminal(getTerminal2(twoR.t2w3, isWellOriented(twoR.starBus, twoR.t2w3)))) {
-            logOrThrow(throwException, "TwoWindingsTransformer '" + twoR.t2w3.getId() + "' with fictitious terminal used as regulating terminal");
+            logOrThrow(throwException, TWO_WINDINGS_TRANSFORMER + "'" + twoR.t2w3.getId() + "' " + WITH_FICTITIOUS_TERMINAL_USED_AS_REGULATING_TERMINAL);
             return true;
         }
         return false;
@@ -253,6 +258,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         return twoR.t2w1.getNameOrId() + "-" + twoR.t2w2.getNameOrId() + "-" + twoR.t2w3.getNameOrId();
     }
 
+    // is well oriented when the fictitious side is at end2
     private static boolean isWellOriented(Bus starBus, TwoWindingsTransformer t2w) {
         return starBus.equals(t2w.getTerminal2().getBusView().getBus());
     }
