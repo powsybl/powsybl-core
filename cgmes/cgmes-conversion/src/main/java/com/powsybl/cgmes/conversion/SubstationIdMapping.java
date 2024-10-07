@@ -134,8 +134,8 @@ public class SubstationIdMapping {
         Map<String, Set<String>> fictitiousVoltageLevelAdjacency = new HashMap<>();
 
         buildAdjacency(voltageLevelAdjacency, substationAdjacency, fictitiousVoltageLevelAdjacency);
-        buildVoltageLevel(voltageLevelAdjacency);
-        buildSubstation(substationAdjacency);
+        buildVoltageLevelMapping(voltageLevelAdjacency);
+        buildSubstationMapping(substationAdjacency);
         buildReferenceVoltageLevels(fictitiousVoltageLevelAdjacency);
 
         // substation containers including connectivityNodes must be connected using switches to other containers (voltageLevel, Line)
@@ -154,18 +154,18 @@ public class SubstationIdMapping {
                                 Map<String, Set<String>> fictitiousVoltageLevelAdjacency) {
         boolean fictitiousVoltageLevelForEveryNode = context.config().getCreateFictitiousVoltageLevelsForEveryNode();
 
-        context.cgmes().switches().forEach(sw -> addSwitch(voltageLevelAdjacency, substationAdjacency, sw, fictitiousVoltageLevelForEveryNode));
+        context.cgmes().switches().forEach(sw -> addAdjacencyThroughSwitch(voltageLevelAdjacency, substationAdjacency, sw, fictitiousVoltageLevelForEveryNode));
         context.cgmes().groupedTransformerEnds().forEach((t, tends) -> addEnds(substationAdjacency, tends));
 
-        context.cgmes().acLineSegments().forEach(ac -> addReference(fictitiousVoltageLevelAdjacency, ac, fictitiousVoltageLevelForEveryNode));
-        context.cgmes().seriesCompensators().forEach(sc -> addReference(fictitiousVoltageLevelAdjacency, sc, fictitiousVoltageLevelForEveryNode));
+        context.cgmes().acLineSegments().forEach(ac -> addAdjacencyThroughBranch(fictitiousVoltageLevelAdjacency, ac, fictitiousVoltageLevelForEveryNode));
+        context.cgmes().seriesCompensators().forEach(sc -> addAdjacencyThroughBranch(fictitiousVoltageLevelAdjacency, sc, fictitiousVoltageLevelForEveryNode));
     }
 
     // Two different voltageLevels are adjacent if they are connected by a switch
     // If the corresponding substations are different they are also adjacent
-    private void addSwitch(Map<String, Set<String>> voltageLevelAdjacency,
-                           Map<String, Set<String>> substationAdjacency,
-                           PropertyBag sw, boolean fictitiousVoltageLevelForEveryNode) {
+    private void addAdjacencyThroughSwitch(Map<String, Set<String>> voltageLevelAdjacency,
+                                           Map<String, Set<String>> substationAdjacency,
+                                           PropertyBag sw, boolean fictitiousVoltageLevelForEveryNode) {
 
         CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
         CgmesTerminal t2 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 2));
@@ -180,8 +180,8 @@ public class SubstationIdMapping {
                 String voltageLevelId1 = findVoltageLevelAndRecordItIfItIsFictitious(cgmesContainer1.get(), nodeId1.get(), fictitiousVoltageLevelForEveryNode);
                 String voltageLevelId2 = findVoltageLevelAndRecordItIfItIsFictitious(cgmesContainer2.get(), nodeId2.get(), fictitiousVoltageLevelForEveryNode);
 
-                addAdjacency(voltageLevelAdjacency, voltageLevelId1, voltageLevelId2);
-                addAdjacency(substationAdjacency, cgmesContainer1.get().substation(), cgmesContainer2.get().substation());
+                addAdjacencyThroughTransformerEnds(voltageLevelAdjacency, voltageLevelId1, voltageLevelId2);
+                addAdjacencyThroughTransformerEnds(substationAdjacency, cgmesContainer1.get().substation(), cgmesContainer2.get().substation());
             }
         }
     }
@@ -218,12 +218,12 @@ public class SubstationIdMapping {
         }
         String sub0 = substationsIds.get(0);
         for (int i = 1; i < substationsIds.size(); i++) {
-            addAdjacency(substationAdjacency, sub0, substationsIds.get(i));
+            addAdjacencyThroughTransformerEnds(substationAdjacency, sub0, substationsIds.get(i));
         }
     }
 
-    private void addReference(Map<String, Set<String>> fictitiousVoltageLevelAdjacency,
-                              PropertyBag equipment, boolean fictitiousVoltageLevelByNode) {
+    private void addAdjacencyThroughBranch(Map<String, Set<String>> fictitiousVoltageLevelAdjacency,
+                                           PropertyBag equipment, boolean fictitiousVoltageLevelByNode) {
 
         CgmesTerminal t1 = context.cgmes().terminal(equipment.getId(CgmesNames.TERMINAL + 1));
         CgmesTerminal t2 = context.cgmes().terminal(equipment.getId(CgmesNames.TERMINAL + 2));
@@ -237,7 +237,7 @@ public class SubstationIdMapping {
             if (cgmesContainer1.isPresent() && cgmesContainer2.isPresent() && isValidReference(cgmesContainer1.get(), cgmesContainer2.get())) {
                 String voltageLevelId1 = findVoltageLevelAndRecordItIfItIsFictitious(cgmesContainer1.get(), nodeId1.get(), fictitiousVoltageLevelByNode);
                 String voltageLevelId2 = findVoltageLevelAndRecordItIfItIsFictitious(cgmesContainer2.get(), nodeId2.get(), fictitiousVoltageLevelByNode);
-                addAdjacency(fictitiousVoltageLevelAdjacency, voltageLevelId1, voltageLevelId2);
+                addAdjacencyThroughTransformerEnds(fictitiousVoltageLevelAdjacency, voltageLevelId1, voltageLevelId2);
             }
         }
     }
@@ -247,7 +247,7 @@ public class SubstationIdMapping {
         return !(cgmesContainer1.isVoltageLevel() && cgmesContainer2.isVoltageLevel());
     }
 
-    private static void addAdjacency(Map<String, Set<String>> adjacency, String id1, String id2) {
+    private static void addAdjacencyThroughTransformerEnds(Map<String, Set<String>> adjacency, String id1, String id2) {
         if (isValidAdjacency(id1, id2)) {
             adjacency.computeIfAbsent(id1, k -> new HashSet<>()).add(id2);
             adjacency.computeIfAbsent(id2, k -> new HashSet<>()).add(id1);
@@ -258,7 +258,7 @@ public class SubstationIdMapping {
         return ad1 != null && ad2 != null && !ad1.equals(ad2);
     }
 
-    private void buildVoltageLevel(Map<String, Set<String>> voltageLevelAdjacency) {
+    private void buildVoltageLevelMapping(Map<String, Set<String>> voltageLevelAdjacency) {
         Set<String> visitedVoltageLevels = new HashSet<>();
         for (String vl : voltageLevelAdjacency.keySet()) {
             if (!visitedVoltageLevels.contains(vl)) {
@@ -274,7 +274,7 @@ public class SubstationIdMapping {
         }
     }
 
-    private void buildSubstation(Map<String, Set<String>> substationAdjacency) {
+    private void buildSubstationMapping(Map<String, Set<String>> substationAdjacency) {
         Set<String> visitedSubstations = new HashSet<>();
         for (String sub : substationAdjacency.keySet()) {
             if (!visitedSubstations.contains(sub)) {
@@ -450,7 +450,7 @@ public class SubstationIdMapping {
         }
     }
 
-    public String getFictitiousVoltageLevelNameForContainer(String containerId, String nodeId) {
+    public String getFictitiousVoltageLevelForContainer(String containerId, String nodeId) {
         return getFictitiousVoltageLevelForContainer(containerId, nodeId, context.config().getCreateFictitiousVoltageLevelsForEveryNode());
     }
 

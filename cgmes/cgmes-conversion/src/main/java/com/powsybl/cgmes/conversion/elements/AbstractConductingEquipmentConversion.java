@@ -534,7 +534,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (cgmesContainer.isPresent()) {
                 cgmesVoltageLevelId = cgmesContainer.get().voltageLevel();
                 if (cgmesVoltageLevelId == null) {
-                    cgmesVoltageLevelId = context.substationIdMapping().getFictitiousVoltageLevelNameForContainer(cgmesContainer.get().id(), nodeId);
+                    cgmesVoltageLevelId = context.substationIdMapping().getFictitiousVoltageLevelForContainer(cgmesContainer.get().id(), nodeId);
                 }
             }
             return cgmesVoltageLevelId;
