@@ -47,6 +47,8 @@ public class ControlledRegulatingTerminals {
     private List<Terminal> findRegulatingTerminalsInModel(Identifiable<?> identifiable) {
         List<Terminal> regulatingTerminals = new ArrayList<>();
         switch (identifiable.getType()) {
+            case NETWORK, SUBSTATION, VOLTAGE_LEVEL, AREA, HVDC_LINE, BUS, SWITCH, BUSBAR_SECTION, LINE, TIE_LINE, BATTERY, LOAD, DANGLING_LINE, OVERLOAD_MANAGEMENT_SYSTEM, GROUND -> {
+            }
             case TWO_WINDINGS_TRANSFORMER -> {
                 TwoWindingsTransformer t2w = (TwoWindingsTransformer) identifiable;
                 t2w.getOptionalRatioTapChanger().ifPresent(rtc -> add(regulatingTerminals, rtc.getRegulationTerminal()));
