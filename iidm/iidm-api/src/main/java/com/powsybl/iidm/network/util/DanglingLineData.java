@@ -56,16 +56,14 @@ public class DanglingLineData {
             // Two buses Loadflow
             Complex sBoundary = new Complex(-danglingLine.getP0(), -danglingLine.getQ0());
             Complex ytr = new Complex(danglingLine.getR(), danglingLine.getX()).reciprocal();
-            Complex ysh2 = new Complex(0, 0);
-            Complex zt = ytr.add(ysh2).reciprocal();
-            Complex v0 = ytr.multiply(v1).divide(ytr.add(ysh2));
-            double v02 = v0.abs() * v0.abs();
+            Complex zt = ytr.reciprocal();
+            double v12 = v1.abs() * v1.abs();
 
-            Complex sigma = zt.multiply(sBoundary.conjugate()).multiply(1.0 / v02);
+            Complex sigma = zt.multiply(sBoundary.conjugate()).multiply(1.0 / v12);
             double d = 0.25 + sigma.getReal() - sigma.getImaginary() * sigma.getImaginary();
             // d < 0 Collapsed network
             if (d >= 0) {
-                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigma.getImaginary()).multiply(v0);
+                vBoundaryBus = new Complex(0.5 + Math.sqrt(d), sigma.getImaginary()).multiply(v1);
             }
         }
 
