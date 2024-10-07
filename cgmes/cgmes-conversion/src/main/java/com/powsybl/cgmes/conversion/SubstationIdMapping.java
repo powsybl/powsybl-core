@@ -298,7 +298,7 @@ public class SubstationIdMapping {
             }
         });
 
-        // find a reference voltageLevel for each fictitiousVoltageLevel set
+        // Find a representative for fictitious voltage levels of line containers
         Set<String> visited = new HashSet<>();
         for (String fictitiousVoltageLevelId : fictitiousVoltageLevelAdjacency.keySet()) {
             if (!visited.contains(fictitiousVoltageLevelId)) {
