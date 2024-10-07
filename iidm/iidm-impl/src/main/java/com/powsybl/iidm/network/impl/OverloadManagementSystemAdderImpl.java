@@ -11,12 +11,15 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<OverloadManagementSystemAdderImpl>
         implements OverloadManagementSystemAdder {
+
+    private boolean validateAfterCreation = false;
 
     abstract class AbstractTrippingAdderImpl<I extends TrippingAdder<I>> implements Validable, TrippingAdder<I> {
         protected String key = null;
@@ -87,6 +90,11 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         protected String checkSwitchId() {
             return checkElementId(switchId, Network::getSwitch, "switchId", "switch");
         }
+
+        @Override
+        public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+            return Collections.emptyList();
+        }
     }
 
     class BranchTrippingAdderImpl extends AbstractTrippingAdderImpl<BranchTrippingAdder>
@@ -108,6 +116,11 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
 
         protected String checkBranchId() {
             return checkElementId(branchId, Network::getBranch, "branchId", "branch");
+        }
+
+        @Override
+        public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+            return Collections.emptyList();
         }
     }
 
@@ -132,6 +145,11 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
         protected String checkThreeWindingsTransformerId() {
             return checkElementId(threeWindingsTransformerId, Network::getThreeWindingsTransformer,
                     "threeWindingsTransformerId", "three windings transformer");
+        }
+
+        @Override
+        public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+            return Collections.emptyList();
         }
     }
 
@@ -187,6 +205,17 @@ class OverloadManagementSystemAdderImpl extends AbstractIdentifiableAdder<Overlo
     @Override
     public OverloadManagementSystemAdder.ThreeWindingsTransformerTrippingAdder newThreeWindingsTransformerTripping() {
         return new ThreeWindingsTransformerTrippingAdderImpl();
+    }
+
+    @Override
+    public OverloadManagementSystemAdder validateAfterCreation() {
+        validateAfterCreation = true;
+        return this;
+    }
+
+    @Override
+    public Collection<Consumer<OverloadManagementSystem>> getValidationChecks() {
+        return Collections.emptyList();
     }
 
     @Override
