@@ -55,7 +55,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     @Override
     protected String getFileName(String baseName, String dataExtension, CompressionFormat compressionFormat) {
-        return testDir + "/" + baseName
+        return baseName
                 + (dataExtension == null || dataExtension.isEmpty() ? "" : "." + dataExtension)
                 + (archiveFormat == null ? "" : "." + archiveFormat.getExtension())
                 + (compressionFormat == null ? "" : "." + compressionFormat.getExtension());
@@ -114,26 +114,26 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
     static Stream<Arguments> provideArgumentsForClassAndListingTest() {
         return Stream.of(
-            Arguments.of("foo", "iidm", CompressionFormat.GZIP, TarArchiveDataSource.class,
+            Arguments.of(null, "foo", "iidm", CompressionFormat.GZIP, TarArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
-            Arguments.of("foo", "", CompressionFormat.BZIP2, TarArchiveDataSource.class,
+            Arguments.of(null, "foo", "", CompressionFormat.BZIP2, TarArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar")),
-            Arguments.of("foo", "v3", CompressionFormat.ZSTD, TarArchiveDataSource.class,
+            Arguments.of(null, "foo", "v3", CompressionFormat.ZSTD, TarArchiveDataSource.class,
                 Set.of("foo", "foo.txt", "foo.iidm", "foo.xiidm", "foo.v3.iidm", "foo.v3", "foo_bar.iidm", "foo_bar", "bar.iidm", "bar"),
                 Set.of("foo_bar.iidm", "foo_bar", "bar.iidm", "bar"))
         );
     }
 
     @Override
-    protected void createFiles(String fileName) throws IOException {
+    protected void createFiles(String archiveName) throws IOException {
 
         // File information
-        FileInformation fileInformation = new FileInformation(fileName);
+        FileInformation fileInformation = new FileInformation(archiveName);
 
         // Create the Tar archive and add the files
-        try (OutputStream fOut = Files.newOutputStream(fileSystem.getPath(fileName));
+        try (OutputStream fOut = Files.newOutputStream(fileSystem.getPath(archiveName));
              BufferedOutputStream buffOut = new BufferedOutputStream(fOut);
              OutputStream gzOut = getCompressedOutputStream(buffOut, fileInformation.getCompressionFormat());
              TarArchiveOutputStream tOut = new TarArchiveOutputStream(gzOut)) {
@@ -196,7 +196,7 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
 
         // Create the datasource
         var workdirPath = fileSystem.getPath(WORK_DIR);
-        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath, TAR_FILENAME, null);
+        DataSource dataSource = DataSourceUtil.createDataSource(workdirPath.resolve(TAR_FILENAME), null);
 
         // Assertions on the files in the archive
         assertTrue(dataSource.exists(UNRELATED_FILE));
@@ -218,4 +218,5 @@ class TarArchiveDataSourceTest extends AbstractArchiveDataSourceTest {
             default -> os;
         };
     }
+
 }

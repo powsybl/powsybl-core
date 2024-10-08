@@ -1,5 +1,5 @@
 {
-  "version" : "1.6",
+  "version" : "1.7",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -103,12 +103,22 @@
         }
       }, {
         "subjectId" : "GEN",
+        "violationLocation" : {
+          "type" : "BUS_BREAKER",
+          "voltageLevelId" : "VL",
+          "busId" : "BUSID"
+        },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.8999999761581421,
         "value" : 110.0
       }, {
         "subjectId" : "GEN2",
+        "violationLocation" : {
+          "type" : "NODE_BREAKER",
+          "voltageLevelId" : "VL",
+          "busbarIds" : [ "BBS1", "BBS2" ]
+        },
         "limitType" : "LOW_VOLTAGE",
         "limit" : 100.0,
         "limitReduction" : 0.699999988079071,

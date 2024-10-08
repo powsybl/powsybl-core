@@ -139,6 +139,12 @@ public interface CgmesModel {
         return new PropertyBags();
     }
 
+    default PropertyBags synchronousMachinesAll() {
+        PropertyBags p = new PropertyBags(synchronousMachinesGenerators());
+        p.addAll(synchronousMachinesCondensers());
+        return p;
+    }
+
     PropertyBags equivalentInjections();
 
     PropertyBags externalNetworkInjections();

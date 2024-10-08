@@ -62,7 +62,7 @@ public final class StateVariablesExport {
             if (context.getCimVersion() >= 16) {
                 CgmesExportUtil.writeModelDescription(network, CgmesSubset.STATE_VARIABLES, writer, model, context);
                 writeTopologicalIslands(network, context, writer);
-                // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
+                // Note: unmapped topological nodes (node breaker) are not written in topological islands
             }
 
             writeVoltagesForTopologicalNodes(network, context, writer);
@@ -224,8 +224,8 @@ public final class StateVariablesExport {
             return new TopologicalIsland(key, new ArrayList<>(), context);
         }
 
-        static TopologicalIsland fromTopologicalNode(String topologicalNode, CgmesExportContext context) {
-            return new TopologicalIsland(topologicalNode, Collections.singletonList(topologicalNode), context);
+        static TopologicalIsland fromTopologicalNodes(List<String> topologicalNodes, CgmesExportContext context) {
+            return new TopologicalIsland(topologicalNodes.get(0), topologicalNodes, context);
         }
 
         void addNode(String topologicalNode, Bus bus, boolean updateLoadFlowStatus) {
@@ -292,13 +292,19 @@ public final class StateVariablesExport {
     private static List<TopologicalIsland> buildIslands(Network network, CgmesExportContext context) {
         Map<String, TopologicalIsland> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            String topologicalNodeId = context.getNamingStrategy().getCgmesId(b);
+            // Adds the topological node of the bus and of any dangling line connected to this bus (QoCDC 4.0)
+            List<String> topologicalNodeIds = new ArrayList<>();
+            String busTnId = context.getNamingStrategy().getCgmesId(b);
+            topologicalNodeIds.add(busTnId);
+            b.getDanglingLines().forEach(dl -> topologicalNodeIds.add(dl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE_BOUNDARY)));
             if (b.getSynchronousComponent() != null) {
                 String key = String.valueOf(b.getSynchronousComponent().getNum());
                 TopologicalIsland island = islands.computeIfAbsent(key, k -> TopologicalIsland.fromSynchronousComponent(k, context));
-                island.addNode(topologicalNodeId, b, context.isExportLoadFlowStatus());
+                for (String topologicalNodeId : topologicalNodeIds) {
+                    island.addNode(topologicalNodeId, b, context.isExportLoadFlowStatus());
+                }
             } else {
-                islands.put(topologicalNodeId, TopologicalIsland.fromTopologicalNode(topologicalNodeId, context));
+                islands.put(busTnId, TopologicalIsland.fromTopologicalNodes(topologicalNodeIds, context));
             }
         }
         return islands.values().stream().toList();

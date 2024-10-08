@@ -32,7 +32,17 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
 
     DcLineSegmentConversion(PropertyBag l, HvdcLine.ConvertersMode mode, double r, double ratedUdc,
         String converterId1, String converterId2, boolean isDuplicated, Context context) {
-        super("DCLineSegment", l, context);
+        super(CgmesNames.DC_LINE_SEGMENT, l, context);
+
+        /*** // TODO JAM
+         DcLineSegmentConverter converter1, DcLineSegmentConverter converter2, Context context) {
+         this(l, mode, r, ratedUdc, converter1, converter2, false, context);
+         }
+
+         DcLineSegmentConversion(PropertyBag l, HvdcLine.ConvertersMode mode, double r, double ratedUdc,
+         DcLineSegmentConverter converter1, DcLineSegmentConverter converter2, boolean isDuplicated, Context context) {
+         super(CgmesNames.DC_LINE_SEGMENT, l, context);
+         ****/
 
         this.mode = mode;
         this.r = r;
