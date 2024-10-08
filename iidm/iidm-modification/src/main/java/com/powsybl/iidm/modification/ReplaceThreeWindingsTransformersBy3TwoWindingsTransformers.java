@@ -233,7 +233,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         });
     }
 
-    private List<String> copyProperties(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {
+    private static List<String> copyProperties(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3, VoltageLevel starVoltageLevel) {
         List<String> lostProperties = new ArrayList<>();
         t3w.getPropertyNames().forEach(propertyName -> {
             boolean copied = copyProperty(propertyName, t3w.getProperty(propertyName), t2wLeg1, t2wLeg2, t2wLeg3, starVoltageLevel);
@@ -266,7 +266,7 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return copied;
     }
 
-    private List<String> copyExtensions(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
+    private static List<String> copyExtensions(ThreeWindingsTransformer t3w, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
         List<String> lostExtensions = new ArrayList<>();
         t3w.getExtensions().stream().map(Extension::getName).toList().forEach(extensionName -> {
             boolean copied = copyExtension(extensionName, t3w, t2wLeg1, t2wLeg2, t2wLeg3);
@@ -302,11 +302,11 @@ public class ReplaceThreeWindingsTransformersBy3TwoWindingsTransformers extends 
         return copied;
     }
 
-    List<AliasR> getAliases(ThreeWindingsTransformer t3w) {
+    private static List<AliasR> getAliases(ThreeWindingsTransformer t3w) {
         return t3w.getAliases().stream().map(alias -> new AliasR(alias, t3w.getAliasType(alias).orElse(""))).toList();
     }
 
-    private List<AliasR> copyAliases(List<AliasR> t3wAliases, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
+    private static List<AliasR> copyAliases(List<AliasR> t3wAliases, TwoWindingsTransformer t2wLeg1, TwoWindingsTransformer t2wLeg2, TwoWindingsTransformer t2wLeg3) {
         List<AliasR> lostAliases = new ArrayList<>();
         t3wAliases.forEach(aliasR -> {
             boolean copied = copyAlias(aliasR.alias, aliasR.aliasType, t2wLeg1, t2wLeg2, t2wLeg3);

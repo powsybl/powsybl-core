@@ -157,6 +157,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w2, isWellOrientedT2w2), t3w.getLeg2().getTerminal());
         copyTerminalActiveAndReactivePower(getTerminal1(twoR.t2w3, isWellOrientedT2w3), t3w.getLeg3().getTerminal());
 
+        copyStarBusVoltageAndAngle(twoR.starBus, t3w);
         List<PropertyR> lostProperties = new ArrayList<>();
         lostProperties.addAll(copyProperties(twoR.t2w1, t3w));
         lostProperties.addAll(copyProperties(twoR.t2w2, t3w));
@@ -352,7 +353,14 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         });
     }
 
-    private List<PropertyR> copyProperties(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
+    private static void copyStarBusVoltageAndAngle(Bus starBus, ThreeWindingsTransformer t3w) {
+        if (Double.isFinite(starBus.getV()) && starBus.getV() > 0.0 && Double.isFinite(starBus.getAngle())) {
+            t3w.setProperty("v", String.valueOf(starBus.getV()));
+            t3w.setProperty("angle", String.valueOf(starBus.getAngle()));
+        }
+    }
+
+    private static List<PropertyR> copyProperties(TwoWindingsTransformer t2w, ThreeWindingsTransformer t3w) {
         List<PropertyR> lostProperties = new ArrayList<>();
         t2w.getPropertyNames().forEach(propertyName -> {
             boolean copied = copyProperty(propertyName, t2w.getProperty(propertyName), t3w);
@@ -384,7 +392,7 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
     private record PropertyR(String t2wId, String propertyName) {
     }
 
-    List<ExtensionR> copyExtensions(TwoR twoR, ThreeWindingsTransformer t3w) {
+    private static List<ExtensionR> copyExtensions(TwoR twoR, ThreeWindingsTransformer t3w) {
         List<ExtensionR> extensions = new ArrayList<>();
         extensions.addAll(twoR.t2w1.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w1.getId(), extension.getName())).toList());
         extensions.addAll(twoR.t2w2.getExtensions().stream().map(extension -> new ExtensionR(twoR.t2w2.getId(), extension.getName())).toList());
@@ -425,11 +433,11 @@ public class Replace3TwoWindingsTransformersByThreeWindingsTransformers extends 
         return copied;
     }
 
-    List<AliasR> getAliases(TwoWindingsTransformer t2w, String leg, String end) {
+    private static List<AliasR> getAliases(TwoWindingsTransformer t2w, String leg, String end) {
         return t2w.getAliases().stream().map(alias -> new AliasR(t2w.getId(), alias, t2w.getAliasType(alias).orElse(""), leg, end)).toList();
     }
 
-    private List<AliasR> copyAliases(List<AliasR> t2wAliases, ThreeWindingsTransformer t3w) {
+    private static List<AliasR> copyAliases(List<AliasR> t2wAliases, ThreeWindingsTransformer t3w) {
         List<AliasR> lostAliases = new ArrayList<>();
         t2wAliases.forEach(aliasR -> {
             boolean copied = copyAlias(aliasR.alias, aliasR.aliasType, aliasR.leg, aliasR.end, t3w);
