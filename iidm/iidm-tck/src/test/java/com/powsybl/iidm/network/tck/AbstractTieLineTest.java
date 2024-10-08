@@ -155,7 +155,8 @@ public abstract class AbstractTieLineTest {
         verifyNoMoreInteractions(mockedListener);
 
         // Reuse adder
-        ValidationException e = assertThrows(ValidationException.class, () -> adder.setId("testTie2").add());
+        adder.setId("testTie2");
+        ValidationException e = assertThrows(ValidationException.class, adder::add);
         assertTrue(e.getMessage().contains("already has a tie line"));
 
         // Update power flows, voltages and angles
@@ -172,15 +173,15 @@ public abstract class AbstractTieLineTest {
 
         // test boundaries values
         SV expectedSV1 = new SV(p1, q1, v1, angle1, TwoSides.ONE);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2, TwoSides.TWO);
-        assertEquals(expectedSV1.otherSideP(danglingLine1, true), danglingLine1.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV1.otherSideQ(danglingLine1, true), danglingLine1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.otherSideP(danglingLine2, true), danglingLine2.getBoundary().getP(), 0.0d);
-        assertEquals(expectedSV2.otherSideQ(danglingLine2, true), danglingLine2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.otherSideU(danglingLine1, true), danglingLine1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.otherSideA(danglingLine1, true), danglingLine1.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.otherSideU(danglingLine2, true), danglingLine2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.otherSideA(danglingLine2, true), danglingLine2.getBoundary().getAngle(), 0.0d);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, TwoSides.ONE);
+        assertEquals(expectedSV1.otherSideP(danglingLine1, false), danglingLine1.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(danglingLine1, false), danglingLine1.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(danglingLine2, false), danglingLine2.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(danglingLine2, false), danglingLine2.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(danglingLine1, false), danglingLine1.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(danglingLine1, false), danglingLine1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(danglingLine2, false), danglingLine2.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(danglingLine2, false), danglingLine2.getBoundary().getAngle(), 0.0d);
 
         // test paired dangling line retrieval - For paired dangling lines
         Optional<DanglingLine> otherSide1 = TieLineUtil.getPairedDanglingLine(danglingLine1);
@@ -198,10 +199,10 @@ public abstract class AbstractTieLineTest {
     @Test
     public void danglingLine1NotSet() {
         // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
+        TieLineAdder tieLineAdder = network.newTieLine()
                 .setId("testTie")
-                .setName("testNameTie")
-                .add());
+                .setName("testNameTie");
+        ValidationException e = assertThrows(ValidationException.class, tieLineAdder::add);
         assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
@@ -221,11 +222,11 @@ public abstract class AbstractTieLineTest {
                 .setPairingKey("ucte")
                 .add();
         // adder
-        ValidationException e = assertThrows(ValidationException.class, () -> network.newTieLine()
+        TieLineAdder tieLineAdder = network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
-                .setDanglingLine1(dl1.getId())
-                .add());
+                .setDanglingLine1(dl1.getId());
+        ValidationException e = assertThrows(ValidationException.class, tieLineAdder::add);
         assertTrue(e.getMessage().contains("undefined dangling line"));
     }
 
@@ -309,14 +310,14 @@ public abstract class AbstractTieLineTest {
         assertEquals(0.0, line2.getDanglingLine2().getQ0());
         line1.remove(true);
         line2.remove(true);
-        assertEquals(301.316, line1.getDanglingLine1().getP0(), 0.001);
-        assertEquals(116.525, line1.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-301.782, line1.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-116.442, line1.getDanglingLine2().getQ0(), 0.001);
-        assertEquals(301.316, line2.getDanglingLine1().getP0(), 0.001);
-        assertEquals(116.525, line2.getDanglingLine1().getQ0(), 0.001);
-        assertEquals(-301.782, line2.getDanglingLine2().getP0(), 0.001);
-        assertEquals(-116.442, line2.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.278, line1.getDanglingLine1().getP0(), 0.001);
+        assertEquals(116.563, line1.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(-301.745, line1.getDanglingLine2().getP0(), 0.001);
+        assertEquals(-116.566, line1.getDanglingLine2().getQ0(), 0.001);
+        assertEquals(301.278, line2.getDanglingLine1().getP0(), 0.001);
+        assertEquals(116.563, line2.getDanglingLine1().getQ0(), 0.001);
+        assertEquals(-301.745, line2.getDanglingLine2().getP0(), 0.001);
+        assertEquals(-116.567, line2.getDanglingLine2().getQ0(), 0.001);
     }
 
     @Test

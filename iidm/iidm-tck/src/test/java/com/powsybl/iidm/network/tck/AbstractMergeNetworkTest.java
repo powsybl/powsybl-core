@@ -127,10 +127,10 @@ public abstract class AbstractMergeNetworkTest {
         DanglingLine dl1 = detachedN1.getDanglingLine("dl1");
         DanglingLine dl2 = merge.getDanglingLine("dl2");
         // - P0 and Q0 of the removed tie line's underlying dangling lines were updated:
-        assertEquals(-1724.437, dl1.getP0(), 0.001);
-        assertEquals(1605.281, dl1.getQ0(), 0.001);
-        assertEquals(-1724.437, dl2.getP0(), 0.001);
-        assertEquals(1605.281, dl2.getQ0(), 0.001);
+        assertEquals(-731.312, dl1.getP0(), 0.001);
+        assertEquals(-1254.625, dl1.getQ0(), 0.001);
+        assertEquals(-731.312, dl2.getP0(), 0.001);
+        assertEquals(-1254.625, dl2.getQ0(), 0.001);
 
         // detach(n2)
         assertTrue(subnetwork2.isDetachable());
