@@ -8,11 +8,9 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 import org.junit.jupiter.api.Test;
@@ -36,8 +34,7 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
         DanglingLine dl = network.getDanglingLine("ACLS1");
         assertEquals(401, dl.getGeneration().getTargetV());
         assertTrue(dl.getGeneration().isVoltageRegulationOn());
-        Boundary boundary = dl.getBoundary();
-        assertThrows(PowsyblException.class, boundary::getI);
+        assertEquals(Double.NaN, dl.getBoundary().getI());
     }
 
     @Test
