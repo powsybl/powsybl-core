@@ -55,8 +55,7 @@ public class DanglingLineData {
 
             // Two buses Loadflow
             Complex sBoundary = new Complex(-danglingLine.getP0(), -danglingLine.getQ0());
-            Complex ytr = new Complex(danglingLine.getR(), danglingLine.getX()).reciprocal();
-            Complex zt = ytr.reciprocal();
+            Complex zt = new Complex(danglingLine.getR(), danglingLine.getX());
             double v12 = v1.abs() * v1.abs();
 
             Complex sigma = zt.multiply(sBoundary.conjugate()).multiply(1.0 / v12);
