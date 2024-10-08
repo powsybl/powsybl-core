@@ -8,9 +8,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Overload management system implementation.
@@ -19,16 +23,16 @@ import java.util.*;
  */
 class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadManagementSystem> implements OverloadManagementSystem {
 
-    abstract static class AbstractTrippingImpl implements Tripping, Validable {
-        private final String overloadManagementSystemId;
+    abstract static class AbstractTrippingImpl extends AbstractExtendable<Tripping> implements Tripping, Validable {
+        private final OverloadManagementSystem overloadManagementSystem;
         private final String key;
         private String name;
         private double currentLimit;
         private boolean openAction;
 
-        protected AbstractTrippingImpl(String overloadManagementSystemId, String key, String name,
+        protected AbstractTrippingImpl(OverloadManagementSystem overloadManagementSystem, String key, String name,
                                        double currentLimit, boolean openAction) {
-            this.overloadManagementSystemId = overloadManagementSystemId;
+            this.overloadManagementSystem = overloadManagementSystem;
             this.key = Objects.requireNonNull(key);
             setName(name);
             setCurrentLimit(currentLimit);
@@ -78,23 +82,28 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
             return this;
         }
 
+        @Override
+        public OverloadManagementSystem getOverloadManagementSystem() {
+            return overloadManagementSystem;
+        }
+
         protected String getTrippingAttribute() {
             return String.format("tripping '%s'", key);
         }
 
         @Override
         public String getMessageHeader() {
-            return String.format("Overload management system '%s' - %s:", overloadManagementSystemId, getTrippingAttribute());
+            return String.format("Overload management system '%s' - %s:", getOverloadManagementSystem().getId(), getTrippingAttribute());
         }
     }
 
     static class SwitchTrippingImpl extends AbstractTrippingImpl implements SwitchTripping {
         private String switchToOperateId;
 
-        public SwitchTrippingImpl(String overloadManagementSystemId, String key, String name,
+        public SwitchTrippingImpl(OverloadManagementSystem overloadManagementSystem, String key, String name,
                                   double currentLimit, boolean openAction,
                                   String switchToOperateId) {
-            super(overloadManagementSystemId, key, name, currentLimit, openAction);
+            super(overloadManagementSystem, key, name, currentLimit, openAction);
             setSwitchToOperateId(switchToOperateId);
         }
 
@@ -114,10 +123,10 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private String branchToOperateId;
         private TwoSides side;
 
-        protected BranchTrippingImpl(String overloadManagementSystemId, String key, String name,
+        protected BranchTrippingImpl(OverloadManagementSystem overloadManagementSystem, String key, String name,
                                      double currentLimit, boolean openAction,
                                      String branchToOperateId, TwoSides side) {
-            super(overloadManagementSystemId, key, name, currentLimit, openAction);
+            super(overloadManagementSystem, key, name, currentLimit, openAction);
             setBranchToOperateId(branchToOperateId);
             setSideToOperate(side);
         }
@@ -151,10 +160,10 @@ class OverloadManagementSystemImpl extends AbstractAutomationSystem<OverloadMana
         private String threeWindingsTransformerId;
         private ThreeSides side;
 
-        protected ThreeWindingsTransformerTrippingImpl(String overloadManagementSystemId, String key, String name,
+        protected ThreeWindingsTransformerTrippingImpl(OverloadManagementSystem overloadManagementSystem, String key, String name,
                                                        double currentLimit, boolean openAction,
                                                        String threeWindingsTransformerId, ThreeSides side) {
-            super(overloadManagementSystemId, key, name, currentLimit, openAction);
+            super(overloadManagementSystem, key, name, currentLimit, openAction);
             setThreeWindingsTransformerToOperateId(threeWindingsTransformerId);
             setSideToOperate(side);
         }
