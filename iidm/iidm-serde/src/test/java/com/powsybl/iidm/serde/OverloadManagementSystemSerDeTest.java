@@ -216,6 +216,12 @@ class OverloadManagementSystemSerDeTest extends AbstractIidmSerDeTest {
                     .setOpenAction(true)
                     .setSwitchToOperateId("S1_400_LINE_2_BREAKER")
                     .add()
+                .newSwitchTripping()
+                    .setKey("trippingWithNoName")
+                    .setCurrentLimit(800)
+                    .setOpenAction(true)
+                    .setSwitchToOperateId("S1_400_LINE_2_BREAKER")
+                    .add()
                 .add();
 
         // Create an overload management system monitoring "LINE_1" with a tripping on "LINE_2".
