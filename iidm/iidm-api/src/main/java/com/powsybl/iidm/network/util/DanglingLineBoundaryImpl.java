@@ -33,6 +33,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
             DanglingLineData danglingLineData = new DanglingLineData(parent);
             return danglingLineData.getBoundaryBusU();
         }
+
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         if (zeroImpedance(parent)) {

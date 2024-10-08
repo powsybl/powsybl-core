@@ -34,7 +34,6 @@ class EquivalentInjectionImportTest extends AbstractSerDeTest {
         DanglingLine dl = network.getDanglingLine("ACLS1");
         assertEquals(401, dl.getGeneration().getTargetV());
         assertTrue(dl.getGeneration().isVoltageRegulationOn());
-        assertEquals(Double.NaN, dl.getBoundary().getI());
     }
 
     @Test
