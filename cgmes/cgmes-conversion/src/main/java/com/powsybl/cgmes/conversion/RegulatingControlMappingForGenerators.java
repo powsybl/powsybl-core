@@ -53,7 +53,6 @@ public class RegulatingControlMappingForGenerators {
         CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
         rd.regulatingControlId = cgmesRegulatingControlId;
         rd.qPercent = qPercent;
-        rd.controlEnabled = sm.asBoolean("controlEnabled", false);
         mapping.put(generatorId, rd);
     }
 
@@ -85,38 +84,23 @@ public class RegulatingControlMappingForGenerators {
 
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, rc.controlEnabled, gen);
+            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
         } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
-            okSet = setRegulatingControlReactivePower(controlId, control, rc.qPercent, rc.controlEnabled, gen);
+            okSet = setRegulatingControlReactivePower(controlId, control, rc.qPercent, gen);
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setRegulatingControlVoltage(String controlId,
-                                                RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
+    private boolean setRegulatingControlVoltage(String controlId, RegulatingControl control, double qPercent, Generator gen) {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
         Terminal regulatingTerminal = RegulatingTerminalMapper
                 .mapForVoltageControl(control.cgmesTerminal, context)
                 .orElse(gen.getTerminal());
 
-        double targetV;
-        if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
-            targetV = regulatingTerminal.getVoltageLevel().getNominalV();
-            regulatingTerminal = gen.getTerminal();
-            context.fixed(controlId, "Invalid value for regulating target value. Regulation considered as local.", control.targetValue, targetV);
-        } else {
-            targetV = control.targetValue;
-        }
-
-        // Regulating control is enabled AND this equipment participates in regulating control
-        boolean voltageRegulatorOn = control.enabled && eqControlEnabled;
-
-        gen.setRegulatingTerminal(regulatingTerminal)
-            .setTargetV(targetV)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
+        gen.setRegulatingTerminal(regulatingTerminal);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -125,11 +109,12 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode", control.mode);
 
         return true;
     }
 
-    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
+    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, Generator gen) {
         // Ignore control if the terminal is not mapped.
         TerminalAndSign mappedRegulatingTerminal = RegulatingTerminalMapper
                 .mapForFlowControl(control.cgmesTerminal, context)
@@ -140,18 +125,8 @@ public class RegulatingControlMappingForGenerators {
             return false;
         }
 
-        double targetQ;
-        if (Double.isNaN(control.targetValue)) {
-            context.fixed(controlId, "Invalid value for regulating target value. Real flows are considered targets.");
-            return false;
-        } else {
-            targetQ = control.targetValue;
-        }
-
         gen.newExtension(RemoteReactivePowerControlAdder.class)
-                .withTargetQ(targetQ * mappedRegulatingTerminal.getSign())
                 .withRegulatingTerminal(mappedRegulatingTerminal.getTerminal())
-                .withEnabled(control.enabled && eqControlEnabled)
                 .add();
 
         // add qPercent as an extension
@@ -162,6 +137,8 @@ public class RegulatingControlMappingForGenerators {
         }
 
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode", control.mode);
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign", String.valueOf(mappedRegulatingTerminal.getSign()));
 
         return true;
     }
@@ -169,7 +146,6 @@ public class RegulatingControlMappingForGenerators {
     private static final class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
         double qPercent;
-        boolean controlEnabled;
     }
 
     private final RegulatingControlMapping parent;

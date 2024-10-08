@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
  * @author José Antonio Marqués {@literal <marquesja at aia.es>}
  */
-final class RegulatingTerminalMapper {
+public final class RegulatingTerminalMapper {
 
     private RegulatingTerminalMapper() {
         // Empty constructor for utility class
@@ -105,20 +105,20 @@ final class RegulatingTerminalMapper {
                 .filter(terminal -> vertices.contains(terminalToVertex.apply(terminal)));
     }
 
-    static class TerminalAndSign {
+    public static class TerminalAndSign {
         private final Terminal terminal;
         private final int sign;
 
-        TerminalAndSign(Terminal terminal, int sign) {
+        public TerminalAndSign(Terminal terminal, int sign) {
             this.terminal = terminal;
             this.sign = sign;
         }
 
-        Terminal getTerminal() {
+        public Terminal getTerminal() {
             return terminal;
         }
 
-        int getSign() {
+        public int getSign() {
             return sign;
         }
     }

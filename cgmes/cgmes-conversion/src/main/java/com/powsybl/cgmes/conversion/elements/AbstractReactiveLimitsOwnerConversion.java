@@ -10,11 +10,18 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping;
+import com.powsybl.cgmes.conversion.RegulatingControlUpdate;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +32,7 @@ import java.util.function.Supplier;
  */
 public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractConductingEquipmentConversion {
 
-    public AbstractReactiveLimitsOwnerConversion(
+    protected AbstractReactiveLimitsOwnerConversion(
         String type,
         PropertyBag p,
         Context context) {
@@ -139,4 +146,78 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         }
         adder.setMinP(minP).setMaxP(maxP);
     }
+
+    protected void updateRegulatingControlForGenerator(Generator generator, boolean controlEnabled) {
+        String controlId = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        String mode = generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "mode");
+        int terminalSign = findTerminalSign(generator.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "terminalSign"));
+        RC rc = new RC(controlEnabled, mode, terminalSign);
+
+        updateRegulatingControl(generator, rc, controlId);
+    }
+
+    private static int findTerminalSign(String terminalSign) {
+        return terminalSign != null ? Integer.parseInt(terminalSign) : 1;
+    }
+
+    private void updateRegulatingControl(Generator gen, RC rc, String controlId) {
+        if (controlId == null) {
+            LOG.trace("Regulating control Id not present for generator {}", gen.getId());
+            return;
+        }
+
+        RegulatingControlUpdate.RegulatingControl control = context.regulatingControlUpdate().getRegulatingControl(controlId).orElse(null);
+        if (control == null) {
+            context.missing(String.format("Regulating control %s", controlId));
+            return;
+        }
+
+        if (RegulatingControlMapping.isControlModeVoltage(rc.mode)) {
+            setRegulatingControlVoltage(controlId, control, rc.controlEnabled, gen);
+        } else if (RegulatingControlMapping.isControlModeReactivePower(rc.mode)) {
+            setRegulatingControlReactivePower(controlId, control, rc.terminalSign, rc.controlEnabled, gen);
+        } else {
+            context.ignored(rc.mode, "Unsupported regulation mode for generator " + gen.getId());
+        }
+    }
+
+    private void setRegulatingControlVoltage(String controlId, RegulatingControlUpdate.RegulatingControl control, boolean eqControlEnabled, Generator gen) {
+
+        double targetV;
+        if (control.getTargetValue() <= 0.0 || Double.isNaN(control.getTargetValue())) {
+            targetV = gen.getRegulatingTerminal() != null ? gen.getRegulatingTerminal().getVoltageLevel().getNominalV() : gen.getTerminal().getVoltageLevel().getNominalV();
+            context.fixed(controlId, "Invalid value for regulating target value. Nominal voltage considered as target.", control.getTargetValue(), targetV);
+        } else {
+            targetV = control.getTargetValue();
+        }
+
+        // Regulating control is enabled AND this equipment participates in regulating control
+        boolean voltageRegulatorOn = control.getEnabled() && eqControlEnabled;
+
+        gen.setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
+    }
+
+    private void setRegulatingControlReactivePower(String controlId, RegulatingControlUpdate.RegulatingControl control, int terminalSign, boolean eqControlEnabled, Generator gen) {
+
+        RemoteReactivePowerControl remoteReactivePowerControl = gen.getExtension(RemoteReactivePowerControl.class);
+        if (remoteReactivePowerControl == null || remoteReactivePowerControl.getRegulatingTerminal() == null) {
+            return;
+        }
+
+        double targetQ = Double.NaN;
+        boolean validTargetQ = false;
+        if (Double.isNaN(control.getTargetValue())) {
+            context.fixed(controlId, "Invalid value for regulating target value. Control is disabled.");
+        } else {
+            targetQ = control.getTargetValue() * terminalSign;
+            validTargetQ = true;
+        }
+
+        remoteReactivePowerControl.setTargetQ(targetQ).setEnabled(control.getEnabled() && eqControlEnabled && validTargetQ);
+    }
+
+    private record RC(boolean controlEnabled, String mode, int terminalSign) {
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractReactiveLimitsOwnerConversion.class);
 }

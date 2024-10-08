@@ -91,21 +91,19 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     protected CgmesRegulatingControlRatio setContextRegulatingDataRatio(TapChanger tc) {
-        CgmesRegulatingControlRatio rcRtc = null;
         if (tc != null) {
-            rcRtc = context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(),
-                    tc.getRegulatingControlId(), tc.getTculControlMode(), tc.isTapChangerControlEnabled());
+            return context.regulatingControlMapping().forTransformers().buildRegulatingControlRatio(tc.getId(),
+                    tc.getRegulatingControlId(), tc.getTculControlMode());
         }
-        return rcRtc;
+        return null;
     }
 
     protected CgmesRegulatingControlPhase setContextRegulatingDataPhase(TapChanger tc) {
-        CgmesRegulatingControlPhase rcPtc = null;
         if (tc != null) {
             return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
-                    tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
+                    tc.getId(), tc.getRegulatingControlId(), tc.isLtcFlag());
         }
-        return rcPtc;
+        return null;
     }
 
     @Override
@@ -137,28 +135,27 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             return;
         }
         TapChanger tch = tc.getHiddenCombinedTapChanger();
-        if (tc.getRegulatingControlId() != null || tc.getType() != null || tch != null) {
-            CgmesTapChangers<C> tapChangers = transformer.getExtension(CgmesTapChangers.class);
-            if (tapChangers == null) {
-                transformer.newExtension(CgmesTapChangersAdder.class).add();
-                tapChangers = transformer.getExtension(CgmesTapChangers.class);
-            }
-            if (tc.getRegulatingControlId() != null || tc.getType() != null) {
-                tapChangers.newTapChanger()
-                        .setId(tc.getId())
-                        .setType(tc.getType())
-                        .setControlId(tc.getRegulatingControlId())
-                        .add();
-            }
-            if (tch != null) {
-                tapChangers.newTapChanger()
-                        .setId(tch.getId())
-                        .setCombinedTapChangerId(tc.getId())
-                        .setHiddenStatus(true)
-                        .setStep(tch.getTapPosition())
-                        .setType(tch.getType())
-                        .add();
-            }
+
+        CgmesTapChangers<C> tapChangers = transformer.getExtension(CgmesTapChangers.class);
+        if (tapChangers == null) {
+            transformer.newExtension(CgmesTapChangersAdder.class).add();
+            tapChangers = transformer.getExtension(CgmesTapChangers.class);
+        }
+        // normalStep is always recorded in the step attribute
+        tapChangers.newTapChanger()
+                .setId(tc.getId())
+                .setType(tc.getType())
+                .setStep(tc.getTapPosition())
+                .setControlId(tc.getRegulatingControlId())
+                .add();
+        if (tch != null) {
+            tapChangers.newTapChanger()
+                    .setId(tch.getId())
+                    .setCombinedTapChangerId(tc.getId())
+                    .setHiddenStatus(true)
+                    .setStep(tch.getTapPosition())
+                    .setType(tch.getType())
+                    .add();
         }
     }
 }
