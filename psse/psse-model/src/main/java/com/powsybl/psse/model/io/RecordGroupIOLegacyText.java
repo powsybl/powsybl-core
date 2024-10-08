@@ -95,6 +95,14 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         write(String.format("0 / END OF %s DATA", legacyTextName), outputStream);
     }
 
+    public static void writeComment(String comment, OutputStream outputStream) {
+        write(String.format("  / %s%n", comment), outputStream);
+    }
+
+    public static void writeEndComment(String comment, OutputStream outputStream) {
+        write(String.format("0 / %s%n", comment), outputStream);
+    }
+
     public static void writeQ(OutputStream outputStream) {
         write(String.format("%nQ%n"), outputStream);
     }

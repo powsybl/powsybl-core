@@ -72,6 +72,8 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         model.addGneDevice(new GneDeviceData().read(null, context));
         model.addInductionMachines(new InductionMachineData().read(null, context));
 
+        model.addSubstations(new SubstationData().read(null, context));
+
         return model;
     }
 
@@ -118,6 +120,8 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
 
             new GneDeviceData().write(model.getGneDevice(), context, null);
             new InductionMachineData().write(model.getInductionMachines(), context, null);
+
+            new SubstationData().write(model.getSubstations(), context, null);
 
             generator.writeEndObject(); // network
             generator.writeEndObject(); // root

@@ -47,7 +47,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
         @Override
         public PsseCaseIdentification readHead(LegacyTextReader reader, Context context) throws IOException {
-            String line = reader.readRecordLine();
+            String line = reader.readUntilFindingARecordLineNotEmpty();
             context.detectDelimiter(line);
 
             String[] headers = recordGroup.fieldNames(context.getVersion());
