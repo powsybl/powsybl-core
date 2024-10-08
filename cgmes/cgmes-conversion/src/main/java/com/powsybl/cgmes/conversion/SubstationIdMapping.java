@@ -370,12 +370,7 @@ public class SubstationIdMapping {
     }
 
     private String representativeSubstationId(Collection<String> substationIds) {
-        return substationIds.stream()
-                .filter(substationId -> context.config().substationIdsExcludedFromMapping()
-                        .stream()
-                        .noneMatch(substationId::matches))
-                .min(Comparator.naturalOrder())
-                .orElse(substationIds.iterator().next());
+        return substationIds.stream().min(Comparator.naturalOrder()).orElseThrow();
     }
 
     // For each merged substation a record (merged substation, representative substation) is added
