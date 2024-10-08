@@ -96,7 +96,7 @@ public class DanglingLineBoundaryImpl implements Boundary {
         if (zeroImpedance(parent)) {
             return t.getI();
         } else {
-            return new SV(t.getP(), t.getQ(), getVWithFallbackOnNominalV(b), getAngle(b), TwoSides.ONE).otherSideI(parent, true);
+            return new SV(t.getP(), t.getQ(), getVWithFallbackOnNominalV(b), getAngle(b), TwoSides.ONE).otherSideI(parent, false);
         }
     }
 
