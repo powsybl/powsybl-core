@@ -519,7 +519,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             if (cgmesVoltageLevelId != null) {
                 String iidmVl = context.namingStrategy().getIidmId("VoltageLevel", cgmesVoltageLevelId);
-                iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
+                iidmVoltageLevelId = context.nodeContainerMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
                 iidmVoltageLevelId = null;
@@ -534,7 +534,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (cgmesContainer.isPresent()) {
                 cgmesVoltageLevelId = cgmesContainer.get().voltageLevel();
                 if (cgmesVoltageLevelId == null) {
-                    cgmesVoltageLevelId = context.substationIdMapping().getFictitiousVoltageLevelForContainer(cgmesContainer.get().id(), nodeId);
+                    cgmesVoltageLevelId = context.nodeContainerMapping().getFictitiousVoltageLevelForContainer(cgmesContainer.get().id(), nodeId);
                 }
             }
             return cgmesVoltageLevelId;
