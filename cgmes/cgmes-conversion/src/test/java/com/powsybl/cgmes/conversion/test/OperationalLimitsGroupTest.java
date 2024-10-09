@@ -9,6 +9,9 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
@@ -35,7 +38,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void importMultipleLimitsGroupsOnSameLineEndTest() {
         // Retrieve line
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = Network.read("multiple_limitsets_on_same_terminal.xml",
+                getClass().getResourceAsStream("/issues/operational-limits/multiple_limitsets_on_same_terminal.xml"));
         Line line = network.getLine("Line");
 
         // There is 1 set on side 1, 2 sets on side 2
@@ -56,7 +60,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportSelectedLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = Network.read("multiple_limitsets_on_same_terminal.xml",
+                getClass().getResourceAsStream("/issues/operational-limits/multiple_limitsets_on_same_terminal.xml"));
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
@@ -86,7 +91,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportAllLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = Network.read("multiple_limitsets_on_same_terminal.xml",
+                getClass().getResourceAsStream("/issues/operational-limits/multiple_limitsets_on_same_terminal.xml"));
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
@@ -99,6 +105,37 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
         assertEquals(3, getOccurrences(exportAllLimitsGroupXml, OPERATIONAL_LIMIT_TYPE).size());
         assertEquals(3, getOccurrences(exportAllLimitsGroupXml, ACTIVE_POWER_LIMIT).size());
         assertEquals(9, getOccurrences(exportAllLimitsGroupXml, CURRENT_LIMIT).size());
+    }
+
+    @Test
+    void limitSetsAssociatedToEquipmentsTest() {
+        // CGMES network:
+        //   An OperationalLimitSet with a CurrentLimit associated to a boundary ACLineSegment (Dangling Line in IIDM).
+        //   An OperationalLimitSet with a CurrentLimit associated to a normal ACLineSegment.
+        //   An OperationalLimitSet with a CurrentLimit associated to a 2-windings PowerTransformer.
+        //   An OperationalLimitSet with a CurrentLimit associated to a Switch.
+        ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)",
+                new ResourceSet("/issues/operational-limits/",
+                        "limitsets_associated_to_equipments_EQ.xml",
+                        "limitsets_associated_to_equipments_EQBD.xml"));
+        Network network = Network.read(ds, new Properties());
+
+        // OperationalLimitSet on dangling line is imported on its single extremity.
+        assertNotNull(network.getDanglingLine("DL"));
+        assertTrue(network.getDanglingLine("DL").getCurrentLimits().isPresent());
+
+        // OperationalLimitSet on ACLineSegment is imported on its two extremities.
+        assertNotNull(network.getLine("ACL"));
+        assertTrue(network.getLine("ACL").getCurrentLimits1().isPresent());
+        assertTrue(network.getLine("ACL").getCurrentLimits2().isPresent());
+
+        // OperationalLimitSet on PowerTransformer is discarded.
+        assertNotNull(network.getTwoWindingsTransformer("PT"));
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits1().isPresent());
+        assertFalse(network.getTwoWindingsTransformer("PT").getCurrentLimits2().isPresent());
+
+        // There can't be any limit associated to switches in IIDM, but check anyway that the switch has been imported.
+        assertNotNull(network.getSwitch("SW"));
     }
 
     private Set<String> getOccurrences(String xml, Pattern pattern) {
