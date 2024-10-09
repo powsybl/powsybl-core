@@ -17,7 +17,7 @@ public class BusBreakerViolationLocation implements ViolationLocation {
     private final List<String> busIds;
 
     public BusBreakerViolationLocation(List<String> busIds) {
-        this.busIds = Objects.requireNonNull(busIds, "'busIds' should not be null.");
+        this.busIds = Objects.requireNonNull(busIds, "busIds should not be null.");
     }
 
     public List<String> getBusIds() {

@@ -18,8 +18,8 @@ public class NodeBreakerViolationLocation implements ViolationLocation {
     private final List<String> busBarIds;
 
     public NodeBreakerViolationLocation(String voltageLevelId, List<String> busBarIds) {
-        this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "'voltageLevelId' should not be null");
-        this.busBarIds = Objects.requireNonNull(busBarIds, "'busBarIds' should not be null");
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "voltageLevelId should not be null");
+        this.busBarIds = Objects.requireNonNull(busBarIds, "busBarIds should not be null");
     }
 
     public String getVoltageLevelId() {

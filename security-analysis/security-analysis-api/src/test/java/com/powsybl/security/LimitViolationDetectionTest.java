@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -121,7 +122,18 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetectionWithDetailLimitViolationId() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+        // Add a new bus merged with "NHV20"
+        VoltageLevel vlh2 = network.getVoltageLevel("VLHV2");
+        vlh2.getBusBreakerView().newBus()
+                .setId("NHV20")
+                .add();
+        vlh2.getBusBreakerView().newSwitch()
+                .setBus1("NHV2").setBus2("NHV20")
+                .setOpen(false).setId("DJ")
+                .add();
+        // Retrieve the merged bus containing "NHV2"
         Bus mergedBus = getMergedBusFromConfiguredBusId(network, "NHV2");
+        // Check the voltage on this merged bus
         LimitViolationDetection.checkVoltage(mergedBus, 620, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
@@ -135,8 +147,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     .isInstanceOfSatisfying(BusBreakerViolationLocation.class,
                         vli -> {
                             assertEquals(ViolationLocation.Type.BUS_BREAKER, vli.getType());
-                            assertEquals(1, vli.getBusIds().size());
-                            assertEquals("NHV2", vli.getBusIds().get(0));
+                            assertEquals(2, vli.getBusIds().size());
+                            assertTrue(vli.getBusIds().containsAll(List.of("NHV2", "NHV20"))); // Both configured buses are present
                         });
             });
     }
