@@ -15,8 +15,7 @@
       "subjectId" : "subject_id",
       "violationLocation" : {
         "type" : "BUS_BREAKER",
-        "voltageLevelId" : "vl_id",
-        "busId" : "bus_id"
+        "busIds" : [ "bus_id" ]
       },
       "limitType" : "HIGH_VOLTAGE",
       "limit" : 420.0,

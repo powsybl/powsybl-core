@@ -105,8 +105,7 @@
         "subjectId" : "GEN",
         "violationLocation" : {
           "type" : "BUS_BREAKER",
-          "voltageLevelId" : "VL",
-          "busId" : "BUSID"
+          "busIds" : [ "BUSID" ]
         },
         "limitType" : "HIGH_VOLTAGE",
         "limit" : 100.0,

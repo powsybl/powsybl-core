@@ -7,10 +7,6 @@
  */
 package com.powsybl.security;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
@@ -21,18 +17,5 @@ public interface ViolationLocation {
         BUS_BREAKER
     }
 
-    String getId();
-
     Type getType();
-
-    String getVoltageLevelId();
-
-    default Optional<String> getBusId() {
-        return Optional.empty();
-    }
-
-    default List<String> getBusBarIds() {
-        return Collections.emptyList();
-    }
-
 }

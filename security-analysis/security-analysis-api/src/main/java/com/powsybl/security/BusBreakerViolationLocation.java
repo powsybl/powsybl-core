@@ -7,35 +7,21 @@
  */
 package com.powsybl.security;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
 public class BusBreakerViolationLocation implements ViolationLocation {
-    private final String voltageLevelId;
-    private final String busId;
+    private final List<String> busIds;
 
-    public BusBreakerViolationLocation(String voltageLevelId, String busId) {
-        Objects.requireNonNull(voltageLevelId, "voltageLevelId");
-        this.voltageLevelId = voltageLevelId;
-        this.busId = busId;
+    public BusBreakerViolationLocation(List<String> busIds) {
+        this.busIds = Objects.requireNonNull(busIds, "'busIds' should not be null.");
     }
 
-    @Override
-    public String getVoltageLevelId() {
-        return voltageLevelId;
-    }
-
-    @Override
-    public Optional<String> getBusId() {
-        return Optional.ofNullable(busId);
-    }
-
-    @Override
-    public String getId() {
-        return busId == null ? voltageLevelId : busId;
+    public List<String> getBusIds() {
+        return busIds;
     }
 
     @Override
@@ -46,8 +32,7 @@ public class BusBreakerViolationLocation implements ViolationLocation {
     @Override
     public String toString() {
         return "BusBreakerViolationLocation{" +
-            "voltageLevelId='" + voltageLevelId + '\'' +
-            ", busId='" + busId + '\'' +
+            "busIds='" + busIds + '\'' +
             '}';
     }
 }

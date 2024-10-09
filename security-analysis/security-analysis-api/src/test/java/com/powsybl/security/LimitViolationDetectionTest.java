@@ -9,8 +9,8 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.criteria.NetworkElementIdListCriterion;
-import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.criteria.duration.EqualityTemporaryDurationCriterion;
+import com.powsybl.iidm.criteria.duration.PermanentDurationCriterion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -24,11 +24,13 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
@@ -104,7 +106,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetection() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
+        Bus mergedBus = getMergedBusFromConfiguredBusId(network, "NHV2");
+        LimitViolationDetection.checkVoltage(mergedBus, 620, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
@@ -118,7 +121,8 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetectionWithDetailLimitViolationId() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        LimitViolationDetection.checkVoltage((Bus) network.getIdentifiable("NHV2"), 620, violationsCollector::add);
+        Bus mergedBus = getMergedBusFromConfiguredBusId(network, "NHV2");
+        LimitViolationDetection.checkVoltage(mergedBus, 620, violationsCollector::add);
         Assertions.assertThat(violationsCollector)
             .hasSize(1)
             .allSatisfy(l -> {
@@ -130,13 +134,16 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     .get()
                     .isInstanceOfSatisfying(BusBreakerViolationLocation.class,
                         vli -> {
-                            assertEquals("NHV2", vli.getId());
-                            assertTrue(vli.getBusId().isPresent());
-                            assertEquals("NHV2", vli.getBusId().get());
-                            assertEquals("VLHV2", vli.getVoltageLevelId());
-                            Assertions.assertThat(vli.getBusBarIds()).isEmpty();
+                            assertEquals(ViolationLocation.Type.BUS_BREAKER, vli.getType());
+                            assertEquals(1, vli.getBusIds().size());
+                            assertEquals("NHV2", vli.getBusIds().get(0));
                         });
             });
+    }
+
+    private Bus getMergedBusFromConfiguredBusId(Network network, String busId) {
+        Bus b = (Bus) network.getIdentifiable(busId);
+        return b.getVoltageLevel().getBusView().getMergedBus(busId);
     }
 
     @Test
@@ -155,8 +162,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                     .get()
                     .isInstanceOfSatisfying(NodeBreakerViolationLocation.class,
                         vli -> {
-                            assertEquals("S1VL1_BBS", vli.getId());
-                            assertTrue(vli.getBusId().isEmpty());
+                            assertEquals(ViolationLocation.Type.NODE_BREAKER, vli.getType());
                             assertEquals("S1VL1", vli.getVoltageLevelId());
                             Assertions.assertThat(vli.getBusBarIds())
                                 .hasSize(1)

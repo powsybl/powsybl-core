@@ -25,7 +25,7 @@ import java.util.List;
  */
 public class ViolationLocationDeserializer extends StdDeserializer<ViolationLocation> {
 
-    private static final String BUS_ID = "busId";
+    private static final String BUS_IDS = "busIds";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
     private static final String BUS_BAR_IDS = "busbarIds";
 
@@ -36,7 +36,7 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
     @Override
     public ViolationLocation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String voltageLevelId = null;
-        String busId = null;
+        List<String> busIds = new ArrayList<>();
         List<String> busbarIds = new ArrayList<>();
         ViolationLocation.Type type = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -45,8 +45,9 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
                     parser.nextToken();
                     type = JsonUtil.readValue(deserializationContext, parser, ViolationLocation.Type.class);
                     break;
-                case BUS_ID:
-                    busId = parser.nextTextValue();
+                case BUS_IDS:
+                    parser.nextToken();
+                    busIds = JsonUtil.readList(deserializationContext, parser, String.class);
                     break;
 
                 case VOLTAGE_LEVEL_ID:
@@ -64,7 +65,7 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
         if (type == ViolationLocation.Type.NODE_BREAKER) {
             return new NodeBreakerViolationLocation(voltageLevelId, busbarIds);
         } else if (type == ViolationLocation.Type.BUS_BREAKER) {
-            return new BusBreakerViolationLocation(voltageLevelId, busId);
+            return new BusBreakerViolationLocation(busIds);
         } else {
             throw new IllegalStateException("type should be among [NODE_BREAKER, BUS_BREAKER].");
         }

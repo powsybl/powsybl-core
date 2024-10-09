@@ -11,10 +11,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.security.BusBreakerViolationLocation;
+import com.powsybl.security.NodeBreakerViolationLocation;
 import com.powsybl.security.ViolationLocation;
 
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * @author Etienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -29,13 +30,13 @@ public class ViolationLocationSerializer extends StdSerializer<ViolationLocation
     public void serialize(ViolationLocation violationLocation, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         JsonUtil.writeOptionalEnumField(jsonGenerator, "type", violationLocation.getType());
-        jsonGenerator.writeStringField("voltageLevelId", violationLocation.getVoltageLevelId());
-        Optional<String> busId = violationLocation.getBusId();
-        if (busId.isPresent()) {
-            jsonGenerator.writeStringField("busId", busId.get());
-        }
-        if (!violationLocation.getBusBarIds().isEmpty()) {
-            serializerProvider.defaultSerializeField("busbarIds", violationLocation.getBusBarIds(), jsonGenerator);
+        if (ViolationLocation.Type.NODE_BREAKER == violationLocation.getType()) {
+            NodeBreakerViolationLocation location = (NodeBreakerViolationLocation) violationLocation;
+            jsonGenerator.writeStringField("voltageLevelId", location.getVoltageLevelId());
+            serializerProvider.defaultSerializeField("busbarIds", location.getBusBarIds(), jsonGenerator);
+        } else {
+            BusBreakerViolationLocation location = (BusBreakerViolationLocation) violationLocation;
+            serializerProvider.defaultSerializeField("busIds", location.getBusIds(), jsonGenerator);
         }
         jsonGenerator.writeEndObject();
     }

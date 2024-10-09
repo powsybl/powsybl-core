@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Set;
@@ -22,6 +24,8 @@ import java.util.function.Consumer;
  * @author Olivier Perrin {@literal <olivier.perrin at rte-france.com>}
  */
 public final class LimitViolationDetection {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LimitViolationDetection.class);
 
     private LimitViolationDetection() {
     }
@@ -275,7 +279,15 @@ public final class LimitViolationDetection {
                 .toList();
             return new NodeBreakerViolationLocation(vl.getId(), busbarIds);
         } else {
-            return new BusBreakerViolationLocation(vl.getId(), bus.getId());
+            try {
+                List<String> configuredBusIds = vl.getBusBreakerView().getBusStreamFromBusViewBusId(bus.getId())
+                        .map(Identifiable::getId)
+                        .sorted().toList();
+                return new BusBreakerViolationLocation(configuredBusIds);
+            } catch (Exception e) {
+                LOGGER.error("Error generating ViolationLocation", e);
+                return null;
+            }
         }
     }
 }
