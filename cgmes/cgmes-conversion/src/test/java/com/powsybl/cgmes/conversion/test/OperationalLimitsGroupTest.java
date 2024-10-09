@@ -35,7 +35,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void importMultipleLimitsGroupsOnSameLineEndTest() {
         // Retrieve line
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = Network.read("multiple_limitsets_on_same_terminal.xml",
+                getClass().getResourceAsStream("/issues/operational-limits/multiple_limitsets_on_same_terminal.xml"));
         Line line = network.getLine("Line");
 
         // There is 1 set on side 1, 2 sets on side 2
@@ -56,7 +57,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportSelectedLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = Network.read("multiple_limitsets_on_same_terminal.xml",
+                getClass().getResourceAsStream("/issues/operational-limits/multiple_limitsets_on_same_terminal.xml"));
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, false);
@@ -86,7 +88,8 @@ class OperationalLimitsGroupTest extends AbstractSerDeTest {
     @Test
     void exportAllLimitsGroupTest() throws IOException {
         // Import and export CGMES limits
-        Network network = Network.read("OperationalLimits.xml", getClass().getResourceAsStream("/OperationalLimits.xml"));
+        Network network = Network.read("multiple_limitsets_on_same_terminal.xml",
+                getClass().getResourceAsStream("/issues/operational-limits/multiple_limitsets_on_same_terminal.xml"));
 
         Properties exportParams = new Properties();
         exportParams.put(CgmesExport.EXPORT_ALL_LIMITS_GROUP, true);
