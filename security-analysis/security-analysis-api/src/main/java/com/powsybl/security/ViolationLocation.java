@@ -7,6 +7,11 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+
+import java.util.stream.Stream;
+
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
  */
@@ -18,4 +23,12 @@ public interface ViolationLocation {
     }
 
     Type getType();
+
+    BusView getBusView(Network network);
+
+    BusView getBusBreakerView(Network network);
+
+    interface BusView {
+        Stream<Bus> getBusStream();
+    }
 }

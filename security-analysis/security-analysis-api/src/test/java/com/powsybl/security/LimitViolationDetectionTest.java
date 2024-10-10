@@ -26,8 +26,10 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -146,6 +148,12 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                             assertEquals(ViolationLocation.Type.BUS_BREAKER, vli.getType());
                             assertEquals(2, vli.getBusIds().size());
                             assertTrue(vli.getBusIds().containsAll(List.of("NHV2", "NHV20"))); // Both configured buses are present
+                            Set<Bus> buses = vli.getBusBreakerView(network).getBusStream().collect(Collectors.toSet());
+                            assertEquals(buses.size(), 2);
+                            assertTrue(buses.contains(network.getBusBreakerView().getBus("NHV2")));
+                            assertTrue(buses.contains(network.getBusBreakerView().getBus("NHV20")));
+                            Set<Bus> mergedBuses = vli.getBusView(network).getBusStream().collect(Collectors.toSet());
+                            assertEquals(mergedBuses.size(), 1);
                         });
             });
     }
@@ -176,6 +184,10 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                             Assertions.assertThat(vli.getNodes())
                                 .hasSize(5)
                                 .isEqualTo(List.of(0, 1, 2, 3, 4));
+                            assertThrows(UnsupportedOperationException.class, () -> vli.getBusBreakerView(network));
+                            Set<Bus> mergedBuses = vli.getBusView(network).getBusStream().collect(Collectors.toSet());
+                            assertEquals(1, mergedBuses.size());
+                            assertTrue(mergedBuses.contains(network.getBusView().getBus("S1VL1_0")));
                         });
             });
         // Check corresponding busbar sections

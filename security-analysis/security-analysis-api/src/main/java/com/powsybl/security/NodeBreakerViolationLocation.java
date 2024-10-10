@@ -7,6 +7,10 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.Networks;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +37,25 @@ public class NodeBreakerViolationLocation implements ViolationLocation {
 
     public List<Integer> getNodes() {
         return nodes;
+    }
+
+    @Override
+    public BusView getBusView(Network network) {
+        return () -> {
+            VoltageLevel vl = network.getVoltageLevel(voltageLevelId);
+            var busView = vl.getBusView();
+            return Networks.getNodesByBus(vl)
+                    .entrySet()
+                    .stream()
+                    .filter(e -> nodes.stream().anyMatch(i -> e.getValue().contains(i)))
+                    .map(e -> busView.getBus(e.getKey()))
+                    .distinct();
+        };
+    }
+
+    @Override
+    public BusView getBusBreakerView(Network network) {
+        throw new UnsupportedOperationException();
     }
 
     @Override

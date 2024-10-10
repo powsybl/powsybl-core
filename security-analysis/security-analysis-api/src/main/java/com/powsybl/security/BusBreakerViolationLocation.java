@@ -7,6 +7,8 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.iidm.network.Network;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -43,4 +45,20 @@ public class BusBreakerViolationLocation implements ViolationLocation {
             "busIds='" + busIds + '\'' +
             '}';
     }
+
+    @Override
+    public BusView getBusView(Network network) {
+        return () -> busIds.stream()
+                .map(id -> network.getBusBreakerView().getBus(id))
+                .filter(b -> b.getConnectedTerminalCount() > 0)
+                .map(b -> b.getConnectedTerminals().iterator().next().getBusView().getBus())
+                .distinct();
+
+    }
+
+    @Override
+    public BusView getBusBreakerView(Network network) {
+        return () -> busIds.stream().map(id -> network.getBusBreakerView().getBus(id));
+    }
+
 }
