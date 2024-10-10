@@ -26,7 +26,7 @@
       "violationLocation" : {
         "type" : "NODE_BREAKER",
         "voltageLevelId" : "vl_id",
-        "busbarIds" : [ "bbs_id" ]
+        "nodes" : [ 0 ]
       },
       "limitType" : "LOW_VOLTAGE",
       "limit" : 200.0,

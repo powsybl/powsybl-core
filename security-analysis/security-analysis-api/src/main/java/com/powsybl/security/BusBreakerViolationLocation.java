@@ -16,10 +16,18 @@ import java.util.Objects;
 public class BusBreakerViolationLocation implements ViolationLocation {
     private final List<String> busIds;
 
+    /**
+     * Create a ViolationLocation for a violation detected in a voltage level in bus/breaker topology.
+     * @param busIds The ids of the <b>configured</b> buses (of the bus/breaker view) where the violation was detected.
+     */
     public BusBreakerViolationLocation(List<String> busIds) {
         this.busIds = Objects.requireNonNull(busIds, "busIds should not be null.");
     }
 
+    /**
+     * Get the ids of the <b>configured</b> buses (of the bus/breaker view) where the violation was detected.
+     * @return the configured bus ids
+     */
     public List<String> getBusIds() {
         return busIds;
     }

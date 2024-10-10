@@ -33,7 +33,7 @@ public class ViolationLocationSerializer extends StdSerializer<ViolationLocation
         if (ViolationLocation.Type.NODE_BREAKER == violationLocation.getType()) {
             NodeBreakerViolationLocation location = (NodeBreakerViolationLocation) violationLocation;
             jsonGenerator.writeStringField("voltageLevelId", location.getVoltageLevelId());
-            serializerProvider.defaultSerializeField("busbarIds", location.getBusBarIds(), jsonGenerator);
+            serializerProvider.defaultSerializeField("nodes", location.getNodes(), jsonGenerator);
         } else {
             BusBreakerViolationLocation location = (BusBreakerViolationLocation) violationLocation;
             serializerProvider.defaultSerializeField("busIds", location.getBusIds(), jsonGenerator);

@@ -24,10 +24,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -122,7 +119,7 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
     @Test
     void testVoltageViolationDetectionWithDetailLimitViolationId() {
         Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
-        // Add a new bus merged with "NHV20"
+        // Add a new bus "NHV20" which will be merged with "NHV2" in the bs view
         VoltageLevel vlh2 = network.getVoltageLevel("VLHV2");
         vlh2.getBusBreakerView().newBus()
                 .setId("NHV20")
@@ -176,12 +173,24 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                         vli -> {
                             assertEquals(ViolationLocation.Type.NODE_BREAKER, vli.getType());
                             assertEquals("S1VL1", vli.getVoltageLevelId());
-                            Assertions.assertThat(vli.getBusBarIds())
-                                .hasSize(1)
-                                .first()
-                                .isEqualTo("S1VL1_BBS");
+                            Assertions.assertThat(vli.getNodes())
+                                .hasSize(5)
+                                .isEqualTo(List.of(0, 1, 2, 3, 4));
                         });
             });
+        // Check corresponding busbar sections
+        ViolationLocation violationLocation = violationsCollector.get(0).getViolationLocation().orElseThrow();
+        NodeBreakerViolationLocation vloc = (NodeBreakerViolationLocation) violationLocation;
+        VoltageLevel vl = network.getVoltageLevel(vloc.getVoltageLevelId());
+        List<String> busbarSectionIds = vloc.getNodes().stream()
+                .map(node -> vl.getNodeBreakerView().getTerminal(node))
+                .filter(Objects::nonNull)
+                .map(Terminal::getConnectable)
+                .filter(t -> t.getType() == IdentifiableType.BUSBAR_SECTION)
+                .map(Identifiable::getId)
+                .toList();
+        assertEquals(1, busbarSectionIds.size());
+        assertEquals("S1VL1_BBS", busbarSectionIds.get(0));
     }
 
     @Test

@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.limitmodification.LimitsComputer;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.PermanentLimitCheckResult;
 import com.powsybl.security.detectors.LoadingLimitType;
 import org.slf4j.Logger;
@@ -272,12 +273,8 @@ public final class LimitViolationDetection {
     public static ViolationLocation createViolationLocation(Bus bus) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            List<String> busbarIds = bus.getConnectedTerminalStream()
-                .map(Terminal::getConnectable)
-                .filter(BusbarSection.class::isInstance)
-                .map(Connectable::getId)
-                .toList();
-            return new NodeBreakerViolationLocation(vl.getId(), busbarIds);
+            List<Integer> nodes = Networks.getNodesByBus(vl).get(bus.getId()).stream().toList();
+            return new NodeBreakerViolationLocation(vl.getId(), nodes);
         } else {
             try {
                 List<String> configuredBusIds = vl.getBusBreakerView().getBusStreamFromBusViewBusId(bus.getId())

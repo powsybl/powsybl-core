@@ -15,19 +15,24 @@ import java.util.Objects;
  */
 public class NodeBreakerViolationLocation implements ViolationLocation {
     private final String voltageLevelId;
-    private final List<String> busBarIds;
+    private final List<Integer> nodes;
 
-    public NodeBreakerViolationLocation(String voltageLevelId, List<String> busBarIds) {
+    /**
+     * Create a ViolationLocation for a violation detected in a voltage level in node/breaker topology.
+     * @param voltageLevelId the id of the voltage level
+     * @param nodes The list of the nodes where the violation was detected.
+     */
+    public NodeBreakerViolationLocation(String voltageLevelId, List<Integer> nodes) {
         this.voltageLevelId = Objects.requireNonNull(voltageLevelId, "voltageLevelId should not be null");
-        this.busBarIds = Objects.requireNonNull(busBarIds, "busBarIds should not be null");
+        this.nodes = Objects.requireNonNull(nodes, "nodes should not be null");
     }
 
     public String getVoltageLevelId() {
         return voltageLevelId;
     }
 
-    public List<String> getBusBarIds() {
-        return busBarIds;
+    public List<Integer> getNodes() {
+        return nodes;
     }
 
     @Override
@@ -39,7 +44,7 @@ public class NodeBreakerViolationLocation implements ViolationLocation {
     public String toString() {
         return "NodeBreakerVoltageLocation{" +
             "voltageLevelId='" + voltageLevelId + '\'' +
-            ", busBarIds=" + busBarIds +
+            ", nodes=" + nodes +
             '}';
     }
 }

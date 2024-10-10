@@ -27,7 +27,7 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
 
     private static final String BUS_IDS = "busIds";
     private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
-    private static final String BUS_BAR_IDS = "busbarIds";
+    private static final String NODES = "nodes";
 
     public ViolationLocationDeserializer() {
         super(ViolationLocation.class);
@@ -37,7 +37,7 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
     public ViolationLocation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String voltageLevelId = null;
         List<String> busIds = new ArrayList<>();
-        List<String> busbarIds = new ArrayList<>();
+        List<Integer> nodes = new ArrayList<>();
         ViolationLocation.Type type = null;
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.currentName()) {
@@ -54,16 +54,16 @@ public class ViolationLocationDeserializer extends StdDeserializer<ViolationLoca
                     voltageLevelId = parser.nextTextValue();
                     break;
 
-                case BUS_BAR_IDS:
+                case NODES:
                     parser.nextToken();
-                    busbarIds = JsonUtil.readList(deserializationContext, parser, String.class);
+                    nodes = JsonUtil.readList(deserializationContext, parser, Integer.class);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected field: " + parser.currentName());
             }
         }
         if (type == ViolationLocation.Type.NODE_BREAKER) {
-            return new NodeBreakerViolationLocation(voltageLevelId, busbarIds);
+            return new NodeBreakerViolationLocation(voltageLevelId, nodes);
         } else if (type == ViolationLocation.Type.BUS_BREAKER) {
             return new BusBreakerViolationLocation(busIds);
         } else {
