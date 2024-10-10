@@ -149,11 +149,11 @@ class LimitViolationDetectionTest extends AbstractLimitViolationDetectionTest {
                             assertEquals(2, vli.getBusIds().size());
                             assertTrue(vli.getBusIds().containsAll(List.of("NHV2", "NHV20"))); // Both configured buses are present
                             Set<Bus> buses = vli.getBusBreakerView(network).getBusStream().collect(Collectors.toSet());
-                            assertEquals(buses.size(), 2);
+                            assertEquals(2, buses.size());
                             assertTrue(buses.contains(network.getBusBreakerView().getBus("NHV2")));
                             assertTrue(buses.contains(network.getBusBreakerView().getBus("NHV20")));
                             Set<Bus> mergedBuses = vli.getBusView(network).getBusStream().collect(Collectors.toSet());
-                            assertEquals(mergedBuses.size(), 1);
+                            assertEquals(1, mergedBuses.size());
                         });
             });
     }
