@@ -7,9 +7,10 @@
  */
 package com.powsybl.security;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Network;
+
+import java.util.stream.Stream;
 
 /**
  * @author Étienne Lesot {@literal <etienne.lesot at rte-france.com>}
@@ -21,18 +22,13 @@ public interface ViolationLocation {
         BUS_BREAKER
     }
 
-    String getId();
-
     Type getType();
 
-    String getVoltageLevelId();
+    BusView getBusView(Network network);
 
-    default Optional<String> getBusId() {
-        return Optional.empty();
+    BusView getBusBreakerView(Network network);
+
+    interface BusView {
+        Stream<Bus> getBusStream();
     }
-
-    default List<String> getBusBarIds() {
-        return Collections.emptyList();
-    }
-
 }
