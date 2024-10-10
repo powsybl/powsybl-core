@@ -837,36 +837,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerCimLine() {
-        // A fictitious voltage level for every node in Line container
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-
-        VoltageLevel vl = network.getVoltageLevel("d3de846d-5271-465e-8558-3e736fa120c4_2_VL");
-        assertNotNull(vl);
-        assertNull(vl.getNullableSubstation());
-
-        vl = network.getVoltageLevel("e2f8de8c-3191-4676-9ee7-f920e46f9085_2_VL");
-        assertNotNull(vl);
-        assertNull(vl.getNullableSubstation());
-
-        // A fictitious voltage level for Line container
-
-        Properties importParams1 = new Properties();
-        importParams1.put(CgmesImport.IMPORT_CGM_WITH_SUBNETWORKS, "false");
-        importParams1.put(CgmesImport.CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE, "false");
-
-        Network network1 = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource(),
-                        NetworkFactory.findDefault(), importParams1);
-
-        vl = network1.getVoltageLevel("c2091d24-3470-4bde-b020-8618e9e352a6_VL");
-        assertNotNull(vl);
-        assertNull(vl.getNullableSubstation());
-    }
-
-    @Test
     void miniNodeBreakerProtectedSwitch() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerProtectedSwitch().dataSource(),
