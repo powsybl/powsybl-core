@@ -13,6 +13,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 
 import java.util.Properties;
@@ -68,8 +69,10 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         assertNotNull(network);
 
         // There is no real representative VoltageLevel for node CN_A, so a fictitious one has been created.
-        assertNotNull(network.getVoltageLevel("CN_A_VL"));
-        assertEquals("LN_A", network.getVoltageLevel("CN_A_VL").getProperty("CGMES.LineContainerId"));
+        VoltageLevel fictitiousVL = network.getVoltageLevel("CN_A_VL");
+        assertNotNull(fictitiousVL);
+        assertNull(fictitiousVL.getNullableSubstation());
+        assertEquals("LN_A", fictitiousVL.getProperty("CGMES.LineContainerId"));
     }
 
     @Test
