@@ -138,6 +138,25 @@
     <cim:Terminal.ConductingEquipment rdf:resource="#_SW_3L"/>
     <cim:Terminal.ConnectivityNode rdf:resource="#_CN_L"/>
 </cim:Terminal>
+<cim:BusbarSection rdf:ID="_BBS">
+    <cim:IdentifiedObject.name>Busbar section</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#VL_2" />
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV" />
+</cim:BusbarSection>
+<cim:Terminal rdf:ID="_T_BBS">
+    <cim:IdentifiedObject.name>Terminal BBS</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_BBS"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
+<cim:EnergyConsumer rdf:ID="_LD">
+    <cim:IdentifiedObject.name>Load</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_ST_3" />
+</cim:EnergyConsumer>
+<cim:Terminal rdf:ID="_T_LD">
+    <cim:IdentifiedObject.name>Terminal LD</cim:IdentifiedObject.name>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_LD"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
+</cim:Terminal>
 <cim:BaseVoltage rdf:ID="_BV">
     <cim:IdentifiedObject.name>110 kV</cim:IdentifiedObject.name>
     <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>

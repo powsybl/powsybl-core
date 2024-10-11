@@ -849,19 +849,6 @@ class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    void miniNodeBreakerSubstationNode() {
-        Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerSubstationNode().dataSource(),
-                        NetworkFactory.findDefault(), importParams);
-        assertNotNull(network); // Check it doesn't fail when a connectivity node is in substation
-        // Check that the test load is connected to a proper bus in the bus view
-        Load testLoad = network.getLoad("TEST_LOAD");
-        assertNotNull(testLoad);
-        Bus testBus = testLoad.getTerminal().getBusView().getBus();
-        assertNotNull(testBus);
-    }
-
-    @Test
     void miniNodeBreakerMissingSubstationRegion() {
         // Check that we fail with a powsybl exception instead of a NPE
         CgmesImport importer = new CgmesImport();
