@@ -34,6 +34,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         //   Switch SW_12 connects nodes in VoltageLevels VL_1B, VL_2 of Substations ST_1, ST_2.
         //   Switch SW_23 connects node in VoltageLevel VL_2 of Substation ST_2 with node in Substation ST_3.
         //   Switch SW_3L connects node in Substation ST_3 with node in Line LN_L.
+        //   There is a BusbarSection attached to the node in VL_2 and a Load attached to the node in ST_3
         // IIDM network:
         //   Ends of switches must be in the same VoltageLevel. So none of the situation above is allowed.
         //   In such cases, a representative Substation and VoltageLevel are determined and gather all the elements.
@@ -53,6 +54,10 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // Merged Substations and VoltageLevels are saved in aliases.
         assertEquals(Set.of("ST_2", "ST_3"), network.getSubstation("ST_1").getAliases());
         assertEquals(Set.of("VL_1B", "VL_2", "CN_3_VL", "CN_L_VL"), network.getVoltageLevel("VL_1A").getAliases());
+
+        // Verify that the Load has been imported and has a Bus
+        assertNotNull(network.getLoad("LD"));
+        assertNotNull(network.getLoad("LD").getTerminal().getBusView().getBus());
     }
 
     @Test
