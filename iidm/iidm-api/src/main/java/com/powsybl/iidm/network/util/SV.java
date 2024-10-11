@@ -68,6 +68,10 @@ public class SV {
         return a;
     }
 
+    public double getI() {
+        return Math.hypot(p, q) / (Math.sqrt(3.) * u / 1000);
+    }
+
     public TwoSides getSide() {
         return side;
     }
@@ -160,6 +164,14 @@ public class SV {
 
     public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
         return otherSide(dl, splitShuntAdmittance).getA();
+    }
+
+    public double otherSideI(DanglingLine dl) {
+        return otherSide(dl).getI();
+    }
+
+    public double otherSideI(DanglingLine dl, boolean splitShuntAdmittance) {
+        return otherSide(dl, splitShuntAdmittance).getI();
     }
 
     private static double getRho(TwoWindingsTransformer twt) {
