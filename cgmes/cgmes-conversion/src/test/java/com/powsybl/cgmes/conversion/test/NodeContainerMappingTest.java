@@ -9,8 +9,7 @@
 package com.powsybl.cgmes.conversion.test;
 
 import com.powsybl.commons.test.AbstractSerDeTest;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
 import java.util.Set;
@@ -61,6 +60,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
     void nodeOfTJunctionInLineContainerTest() {
         // CGMES network:
         //   3 VoltageLevels VL_1, VL_2, VL_3 are connected together through line segments in a T-junction.
+        //   ACLineSegments ACL_1A, ACL_2A are in Line LN_A, but ACL_3A has no EquipmentContainer.
         //   Node CN_A of T-junction is directly in Line Container LN_A.
         // IIDM network:
         //   Nodes must be within a VoltageLevel.
@@ -69,10 +69,14 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         assertNotNull(network);
 
         // There is no real representative VoltageLevel for node CN_A, so a fictitious one has been created.
-        VoltageLevel fictitiousVL = network.getVoltageLevel("CN_A_VL");
-        assertNotNull(fictitiousVL);
-        assertNull(fictitiousVL.getNullableSubstation());
-        assertEquals("LN_A", fictitiousVL.getProperty("CGMES.LineContainerId"));
+        VoltageLevel innerVL = network.getVoltageLevel("CN_A_VL");
+        assertNotNull(innerVL);
+        assertNull(innerVL.getNullableSubstation());
+        assertEquals("LN_A", innerVL.getProperty("CGMES.LineContainerId"));
+
+        // All line segments have been imported (even if not associated to an EquipmentContainer) and connected together
+        assertEquals(3, network.getLineCount());
+        assertEquals(3, innerVL.getBusBreakerView().getBuses().iterator().next().getConnectedTerminalCount());
     }
 
     @Test
