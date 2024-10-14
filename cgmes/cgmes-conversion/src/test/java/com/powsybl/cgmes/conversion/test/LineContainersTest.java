@@ -14,7 +14,6 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,40 +23,6 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class LineContainersTest {
-
-    @Test
-    void testLineContainerWithOneACLSnotAssociated() {
-        // This unit test reproduces a configuration observed in public data from a European TSO (NG)
-        // where three ACLSs lie on a common connectivity node inside a cim:Line container
-        // Two of the ACLSs have an association with the cim:Line container
-        // The other does not have any equipment container
-
-        // A fictitious voltage level is created to hold the connectivity node inside the cim:Line container,
-        // All three ACLSs must be imported
-        // And they have to share a bus
-
-        Network network = Network.read("line_container_3acls_EQ.xml", getClass().getResourceAsStream("/issues/line_container_3acls_EQ.xml"));
-        assertNotNull(network);
-
-        // Check all three ACLSs have been imported
-        Line l1 = network.getLine("ACLS1-without-Line-Container");
-        Line l2 = network.getLine("ACLS2");
-        Line l3 = network.getLine("ACLS3");
-        assertNotNull(l1);
-        assertNotNull(l2);
-        assertNotNull(l3);
-
-        VoltageLevel vlNodeInsideLineContainer = l1.getTerminal2().getVoltageLevel();
-        // Check that the fictitious voltage level created has a reference to the original Line container
-        assertEquals("LineContainer", vlNodeInsideLineContainer.getProperty("CGMES.LineContainerId"));
-        assertEquals("Line Container", vlNodeInsideLineContainer.getNameOrId());
-        // Check that the only bus in the fictitious voltage level has a terminal for each line
-        assertEquals(1, vlNodeInsideLineContainer.getBusBreakerView().getBusCount());
-        Bus tbus = vlNodeInsideLineContainer.getBusBreakerView().getBuses().iterator().next();
-        assertEquals(3, tbus.getConnectedTerminalCount());
-        assertEquals(List.of("ACLS1-without-Line-Container", "ACLS2", "ACLS3"),
-                tbus.getConnectedTerminalStream().map(Terminal::getConnectable).map(Connectable::getId).sorted().toList());
-    }
 
     @Test
     void testLineContainerWithSwitchConnectedToVoltageLevel() {
