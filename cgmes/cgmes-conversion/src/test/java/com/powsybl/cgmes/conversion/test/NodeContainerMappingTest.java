@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Set;
 
-import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesFiles;
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -36,7 +36,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Ends of switches must be in the same VoltageLevel. So none of the situation above is allowed.
         //   In such cases, a representative Substation and VoltageLevel are determined and gather all the elements.
-        Network network = readCgmesFiles(DIR, "containers_connected_by_switches.xml");
+        Network network = readCgmesResources(DIR, "containers_connected_by_switches.xml");
         assertNotNull(network);
 
         // All Substations and VoltageLevels are adjacent. Only 1 of each is kept.
@@ -65,7 +65,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Nodes must be within a VoltageLevel.
         //   If that is not the case and no real representative can be found, a fictitious one is created.
-        Network network = readCgmesFiles(DIR, "line_with_t-junction.xml");
+        Network network = readCgmesResources(DIR, "line_with_t-junction.xml");
         assertNotNull(network);
 
         // There is no real representative VoltageLevel for node CN_A, so a fictitious one has been created.
@@ -86,7 +86,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Ends of transformers need to be in the same Substation. So the situation above is not allowed.
         //   In such a case, a representative Substation is determined and gathers all the elements.
-        Network network = readCgmesFiles(DIR, "substations_connected_by_transformer.xml");
+        Network network = readCgmesResources(DIR, "substations_connected_by_transformer.xml");
         assertNotNull(network);
 
         // All Substations are adjacent, only 1 is kept.
@@ -106,7 +106,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Ends of switches must be in the same VoltageLevel regardless the switch status in SSH.
 
-        Network network = readCgmesFiles(DIR,
+        Network network = readCgmesResources(DIR,
                 "voltage_levels_connected_by_open_switch_EQ.xml", "voltage_levels_connected_by_open_switch_SSH.xml");
         assertNotNull(network);
 

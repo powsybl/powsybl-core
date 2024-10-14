@@ -86,11 +86,11 @@ public final class ConversionUtil {
         return false;
     }
 
-    public static Network readCgmesFiles(String dir, String... files) {
-        return readCgmesFiles(new Properties(), dir, files);
+    public static Network readCgmesResources(String dir, String... files) {
+        return readCgmesResources(new Properties(), dir, files);
     }
 
-    public static Network readCgmesFiles(Properties properties, String dir, String... files) {
+    public static Network readCgmesResources(Properties properties, String dir, String... files) {
         ReadOnlyDataSource ds = new ResourceDataSource("CGMES input file(s)", new ResourceSet(dir, files));
         return Network.read(ds, properties);
     }
