@@ -389,8 +389,8 @@ WHERE
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
     OPTIONAL { GRAPH ?graph2 {
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment
+        OPTIONAL { ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer }
     }}
     ?OperationalLimitType
         a cim:OperationalLimitType ;
