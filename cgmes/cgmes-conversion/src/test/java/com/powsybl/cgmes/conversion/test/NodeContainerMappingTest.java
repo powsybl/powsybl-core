@@ -8,11 +8,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.*;
 import org.junit.jupiter.api.Test;
 
+import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesResources;
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,6 +80,29 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // All line segments have been imported (even if not associated to an EquipmentContainer) and connected together
         assertEquals(3, network.getLineCount());
         assertEquals(3, innerVL.getBusBreakerView().getBuses().iterator().next().getConnectedTerminalCount());
+    }
+
+    @Test
+    void chainedLineSegmentsTest() {
+        // CGMES network:
+        //   2 Substations ST_1, ST_2 connected by 3 ACLineSegments in a row: ACL_1A, ACL_AB, ACL_B2.
+        //   The 3 ACLineSegments are in the Line container LN_12.
+        //   Extremity nodes CN_A and CN_B of ACL_AB are in LN_12, nodes CN_1, CN_2 are in VL_1, VL_2 of ST_1, ST_2.
+        // IIDM network:
+        //   Nodes must be within a VoltageLevel. In case of multiple nodes in the same non-VoltageLevel container,
+        //   a parameter allows to create a fictitious VoltageLevel for every node or for that container
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE, "false");
+        Network network = readCgmesResources(importParams, DIR, "chained_line_segments.xml");
+        assertNotNull(network);
+        assertEquals(Set.of("VL_1", "VL_2", "LN_12_VL"),
+                network.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toSet()));
+
+        importParams.put(CgmesImport.CREATE_FICTITIOUS_VOLTAGE_LEVEL_FOR_EVERY_NODE, "true");
+        network = readCgmesResources(importParams, DIR, "chained_line_segments.xml");
+        assertNotNull(network);
+        assertEquals(Set.of("VL_1", "VL_2", "CN_A_VL", "CN_B_VL"),
+                network.getVoltageLevelStream().map(Identifiable::getId).collect(Collectors.toSet()));
     }
 
     @Test
