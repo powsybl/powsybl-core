@@ -106,7 +106,7 @@
     <cim:IdentifiedObject.name>Terminal 2A 1</cim:IdentifiedObject.name>
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
     <cim:Terminal.ConductingEquipment rdf:resource="#_ACL_2A"/>
-    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
 </cim:Terminal>
 <cim:Terminal rdf:ID="_T_2A_2">
     <cim:IdentifiedObject.name>Terminal 2A 2</cim:IdentifiedObject.name>
@@ -132,7 +132,7 @@
     <cim:IdentifiedObject.name>Terminal 3A 1</cim:IdentifiedObject.name>
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
     <cim:Terminal.ConductingEquipment rdf:resource="#_ACL_3A"/>
-    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_3"/>
 </cim:Terminal>
 <cim:Terminal rdf:ID="_T_3A_2">
     <cim:IdentifiedObject.name>Terminal 3A 2</cim:IdentifiedObject.name>
