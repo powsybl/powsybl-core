@@ -30,7 +30,7 @@ class LineContainersTest {
         // This unit test reproduces a configuration observed in public data from a European TSO (NG)
         // where three ACLSs lie on a common connectivity node inside a cim:Line container
         // Two of the ACLSs have an association with the cim:Line container
-        // The other does not any equipment container
+        // The other does not have any equipment container
 
         // A fictitious voltage level is created to hold the connectivity node inside the cim:Line container,
         // All three ACLSs must be imported
