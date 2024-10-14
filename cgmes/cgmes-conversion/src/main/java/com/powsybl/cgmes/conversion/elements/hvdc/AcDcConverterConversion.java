@@ -26,13 +26,17 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversion {
 
-    private static final double DEFAULT_POWER_FACTOR = 0.8;
+    static final double DEFAULT_LOSS_FACTOR = 0.0;
+    static final double DEFAULT_POWER_FACTOR = 0.8;
 
-    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, String acDcConverterDcTerminalId, Context context) {
+    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, String acDcConverterDcTerminalId, Context context) {
         super(CgmesNames.ACDC_CONVERTER, c, context);
 
+        // TODO JAM
+    //public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, String acDcConverterDcTerminalId, Context context) {
+    //    super(, c, context);
+
         this.converterType = Objects.requireNonNull(converterType);
-        this.lossFactor = lossFactor;
         this.acDcConverterDcTerminalId = Objects.requireNonNull(acDcConverterDcTerminalId);
     }
 
@@ -53,7 +57,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         Objects.requireNonNull(converterType);
         if (converterType.equals(HvdcType.VSC)) {
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
-                .setLossFactor((float) this.lossFactor);
+                    .setLossFactor((float) DEFAULT_LOSS_FACTOR);
             identify(adder);
             connect(adder);
             RegulatingControlMappingForVscConverters.initialize(adder);
@@ -65,13 +69,9 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             context.regulatingControlMapping().forVscConverters().add(c.getId(), p);
         } else if (converterType.equals(HvdcType.LCC)) {
 
-            // TODO: There are two modes of control: dcVoltage and activePower
-            // For dcVoltage, setpoint is targetUdc,
-            // For activePower, setpoint is targetPpcc
-
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
-                .setLossFactor((float) this.lossFactor)
-                .setPowerFactor((float) getPowerFactor(p));
+                    .setLossFactor((float) DEFAULT_LOSS_FACTOR)
+                    .setPowerFactor((float) DEFAULT_POWER_FACTOR);
             identify(adder);
             connect(adder);
             LccConverterStation c = adder.add();
@@ -88,26 +88,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
         identifiable.addAlias(acDcConverterDcTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal");
     }
 
-    private static double getPowerFactor(PropertyBag propertyBag) {
-        double p = propertyBag.asDouble("p");
-        double q = propertyBag.asDouble("q");
-        double powerFactor = p / Math.hypot(p, q);
-        if (Double.isNaN(powerFactor)) {
-            return DEFAULT_POWER_FACTOR;
-        }
-        return powerFactor;
-    }
-
-    public void setLccPowerFactor(double powerFactor) {
-        this.lccConverter.setPowerFactor((float) powerFactor);
-    }
-
-    LccConverterStation getLccConverter() {
-        return this.lccConverter;
-    }
-
     private final HvdcType converterType;
-    private final double lossFactor;
     private final String acDcConverterDcTerminalId;
     private LccConverterStation lccConverter = null;
 }

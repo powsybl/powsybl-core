@@ -15,7 +15,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.report.ReportNode;
-import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -57,13 +56,17 @@ public class Context {
         dcMapping = new DcMapping(this);
         loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
-        nodeMapping = new NodeMapping(this);
+        nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
         powerTransformerRatioTapChangers = new HashMap<>();
         powerTransformerPhaseTapChangers = new HashMap<>();
+
+        regulatingControlUpdate = new RegulatingControlUpdate(cgmes);
+        generatingUnitUpdate = new GeneratingUnitUpdate(cgmes);
+        operationalLimitUpdate = new OperationalLimitUpdate(cgmes);
     }
 
     public CgmesModel cgmes() {
@@ -90,18 +93,17 @@ public class Context {
         return terminalMapping;
     }
 
-    public void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
-        // Record the mapping between CGMES and IIDM terminals
-        terminalMapping().add(terminalId, t, n);
-        // Update the power flow at terminal. Check that IIDM allows setting it
-        if (f.defined() && setPQAllowed(t)) {
-            t.setP(f.p());
-            t.setQ(f.q());
-        }
+    /**
+     * @deprecated Not used anymore. Use {@link #convertedTerminal(String, Terminal, int)} instead.
+     */
+    @Deprecated(since = "6.4.0")
+    public void convertedTerminalJ(String terminalId, Terminal t, int n, PowerFlow f) {
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
-    private boolean setPQAllowed(Terminal t) {
-        return t.getConnectable().getType() != IdentifiableType.BUSBAR_SECTION;
+    public void convertedTerminal(String terminalId, Terminal t, int n) {
+        // Record the mapping between CGMES and IIDM terminals
+        terminalMapping().add(terminalId, t, n);
     }
 
     public NodeMapping nodeMapping() {
@@ -219,6 +221,18 @@ public class Context {
         return network.getReportNodeContext().popReportNode();
     }
 
+    public RegulatingControlUpdate regulatingControlUpdate() {
+        return regulatingControlUpdate;
+    }
+
+    public GeneratingUnitUpdate generatingUnitUpdate() {
+        return generatingUnitUpdate;
+    }
+
+    public OperationalLimitUpdate operationalLimitUpdate() {
+        return operationalLimitUpdate;
+    }
+
     private enum ConversionIssueCategory {
         INVALID("Invalid"),
         IGNORED("Ignored"),
@@ -318,6 +332,9 @@ public class Context {
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
     private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
     private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
+    private final RegulatingControlUpdate regulatingControlUpdate;
+    private final GeneratingUnitUpdate generatingUnitUpdate;
+    private final OperationalLimitUpdate operationalLimitUpdate;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

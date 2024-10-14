@@ -122,11 +122,20 @@ public interface CgmesModel {
         return synchronousMachinesGenerators();
     }
 
+    // FIXME(Luma) we need to query all sync machines to perform updates, we may un-deprecate the previous func
+    default PropertyBags allSynchronousMachines() {
+        return new PropertyBags();
+    }
+
     default PropertyBags synchronousMachinesGenerators() {
         return new PropertyBags();
     }
 
     default PropertyBags synchronousMachinesCondensers() {
+        return new PropertyBags();
+    }
+
+    default PropertyBags generatingUnits() {
         return new PropertyBags();
     }
 
@@ -239,6 +248,14 @@ public interface CgmesModel {
     double nominalVoltage(String baseVoltageId);
 
     default PropertyBags modelProfiles() {
+        throw new UnsupportedOperationException();
+    }
+
+    default void invalidateCaches() {
+        throw new UnsupportedOperationException();
+    }
+
+    default void setQueryCatalog(String s) {
         throw new UnsupportedOperationException();
     }
 }

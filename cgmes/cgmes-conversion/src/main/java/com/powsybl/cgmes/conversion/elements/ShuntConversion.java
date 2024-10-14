@@ -9,16 +9,17 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.RegulatingControlUpdate;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño {@literal <zamarrenolm at aia.es>}
@@ -31,25 +32,11 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         super(CgmesNames.SHUNT_COMPENSATOR, sh, context);
     }
 
-    private int getSections(PropertyBag p, int normalSections) {
-        switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
-            case SSH:
-                return fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
-            case SV:
-                return fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
-            default:
-                throw new PowsyblException("Unexpected profile used for initial values");
-        }
-    }
-
     @Override
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        int sections = getSections(p, normalSections);
-        sections = Math.abs(sections);
-        maximumSections = Math.max(maximumSections, sections);
-        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(sections);
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator().setSectionCount(normalSections);
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
@@ -81,8 +68,98 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         ShuntCompensator shunt = adder.add();
         addAliasesAndProperties(shunt);
 
-        PowerFlow f = powerFlowSV();
-        context.convertedTerminal(terminalId(), shunt.getTerminal(), 1, f);
+        context.convertedTerminal(terminalId(), shunt.getTerminal(), 1);
         context.regulatingControlMapping().forShuntCompensators().add(shunt.getId(), p);
+
+        shunt.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalSections", String.valueOf(normalSections));
     }
+
+    @Override
+    public void update(Network network) {
+        // super.update(network); // TODO JAM delete
+        ShuntCompensator shunt = network.getShuntCompensator(id);
+        if (shunt == null) {
+            return;
+        }
+        updateSections(shunt);
+
+        String controlId = shunt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+        boolean controlEnabled = p.asBoolean("controlEnabled", false);
+        updateRegulatingControl(shunt, controlEnabled, controlId);
+    }
+
+    private void updateSections(ShuntCompensator shunt) {
+        int normalSections = getNormalSections(shunt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalSections"));
+        int sections = getSections(p, normalSections);
+        sections = Math.abs(sections);
+        shunt.setSectionCount(Math.min(sections, shunt.getMaximumSectionCount()));
+    }
+
+    private static int getNormalSections(String normalSections) {
+        return normalSections != null ? Integer.parseInt(normalSections) : 0;
+    }
+
+    private int getSections(PropertyBag p, int normalSections) {
+        return switch (context.config().getProfileForInitialValuesShuntSectionsTapPositions()) {
+            case SSH -> fromContinuous(p.asDouble("SSHsections", p.asDouble("SVsections", normalSections)));
+            case SV -> fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
+        };
+    }
+
+    private void updateRegulatingControl(ShuntCompensator shuntCompensator, boolean controlEnabled, String controlId) {
+
+        // This equipment is not participating in its regulating control
+        // We will not create default regulation data
+        // But will try to store information about corresponding regulating control
+        if (!controlEnabled) {
+            if (controlId != null) {
+                RegulatingControlUpdate.RegulatingControl control = context.regulatingControlUpdate().getRegulatingControl(controlId).orElse(null);
+                if (control != null) {
+                    setRegulatingControl(shuntCompensator, control, controlEnabled);
+                }
+            }
+            return;
+        }
+        // The equipment is participating in regulating control (cgmesRc.controlEnabled)
+        // But no regulating control information has been found
+        // We create default regulation data
+        if (controlId == null) {
+            LOG.trace("Regulating control Id not present for shunt compensator {}", shuntCompensator.getId());
+            setDefaultRegulatingControl(shuntCompensator);
+            return;
+        }
+        RegulatingControlUpdate.RegulatingControl control = context.regulatingControlUpdate().getRegulatingControl(controlId).orElse(null);
+        if (control == null) {
+            context.missing(String.format("Regulating control %s", controlId));
+            setDefaultRegulatingControl(shuntCompensator);
+            return;
+        }
+        // Finally, equipment participates in it regulating control,
+        // and the regulating control information is present in the CGMES model
+        setRegulatingControl(shuntCompensator, control, controlEnabled);
+    }
+
+    private void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
+        shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getTerminal().getBusView().getBus())
+                        .map(Bus::getV)
+                        .filter(v -> !Double.isNaN(v))
+                        .orElseGet(() -> shuntCompensator.getTerminal().getVoltageLevel().getNominalV()))
+                .setTargetDeadband(0.0)
+                .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
+    }
+
+    private void setRegulatingControl(ShuntCompensator shuntCompensator, RegulatingControlUpdate.RegulatingControl control, boolean controlEnabled) {
+        shuntCompensator.setTargetV(control.getTargetValue())
+                .setTargetDeadband(control.getTargetDeadband());
+        if (control.getTargetValue() > 0) {
+            // For the IIDM regulating control to be enabled
+            // both the equipment participation in the control and
+            // the regulating control itself should be enabled
+            shuntCompensator.setVoltageRegulatorOn(control.getEnabled() && controlEnabled);
+        } else {
+            shuntCompensator.setVoltageRegulatorOn(false);
+        }
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(ShuntConversion.class);
 }

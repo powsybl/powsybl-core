@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.BoundaryEquipment.BoundaryEquipmentType;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -70,20 +69,11 @@ public class CgmesBoundary {
         }
         nodesEquipment = new HashMap<>();
         nodesEquivalentInjections = new HashMap<>();
-        nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
     }
 
     public boolean containsNode(String id) {
         return nodes.contains(id);
-    }
-
-    public boolean hasPowerFlow(String node) {
-        return nodesPowerFlow.containsKey(node);
-    }
-
-    public PowerFlow powerFlowAtNode(String node) {
-        return nodesPowerFlow.get(node);
     }
 
     public void addAcLineSegmentAtNode(PropertyBag line, String node) {
@@ -112,10 +102,6 @@ public class CgmesBoundary {
 
     public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
         nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
-    }
-
-    public void addPowerFlowAtNode(String node, PowerFlow f) {
-        nodesPowerFlow.compute(node, (n, f0) -> f0 == null ? f : f0.sum(f));
     }
 
     public void addVoltageAtBoundary(String node, double v, double angle) {
@@ -177,7 +163,6 @@ public class CgmesBoundary {
     private final Set<String> nodes;
     private final Map<String, List<BoundaryEquipment>> nodesEquipment;
     private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
-    private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
     private final Map<String, String> topologicalNodes;
