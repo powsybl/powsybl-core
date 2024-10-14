@@ -8,17 +8,14 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.test.AbstractSerDeTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.junit.jupiter.api.Test;
 
-import java.util.Properties;
 import java.util.Set;
 
+import static com.powsybl.cgmes.conversion.test.ConversionUtil.readCgmesFiles;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -26,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 
 class NodeContainerMappingTest extends AbstractSerDeTest {
+
+    private static final String DIR = "/issues/node-containers/";
 
     @Test
     void nodeContainersConnectedBySwitchesTest() {
@@ -38,9 +37,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Ends of switches must be in the same VoltageLevel. So none of the situation above is allowed.
         //   In such cases, a representative Substation and VoltageLevel are determined and gather all the elements.
-        ReadOnlyDataSource ds = new ResourceDataSource("Node containers connected by switches",
-                new ResourceSet("/issues/node-containers/", "containers_connected_by_switches.xml"));
-        Network network = Network.read(ds, new Properties());
+        Network network = readCgmesFiles(DIR, "containers_connected_by_switches.xml");
         assertNotNull(network);
 
         // All Substations and VoltageLevels are adjacent. Only 1 of each is kept.
@@ -68,9 +65,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Nodes must be within a VoltageLevel.
         //   If that is not the case and no real representative can be found, a fictitious one is created.
-        ReadOnlyDataSource ds = new ResourceDataSource("Node of T-junction in line container",
-                new ResourceSet("/issues/node-containers/", "line_with_t-junction.xml"));
-        Network network = Network.read(ds, new Properties());
+        Network network = readCgmesFiles(DIR, "line_with_t-junction.xml");
         assertNotNull(network);
 
         // There is no real representative VoltageLevel for node CN_A, so a fictitious one has been created.
@@ -87,9 +82,7 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         // IIDM network:
         //   Ends of transformers need to be in the same Substation. So the situation above is not allowed.
         //   In such a case, a representative Substation is determined and gathers all the elements.
-        ReadOnlyDataSource ds = new ResourceDataSource("Substations connected by transformer",
-                new ResourceSet("/issues/node-containers/", "substations_connected_by_transformer.xml"));
-        Network network = Network.read(ds, new Properties());
+        Network network = readCgmesFiles(DIR, "substations_connected_by_transformer.xml");
         assertNotNull(network);
 
         // All Substations are adjacent, only 1 is kept.
@@ -108,11 +101,9 @@ class NodeContainerMappingTest extends AbstractSerDeTest {
         //   VoltageLevel VL_1 and VL_2 in Substation ST are connected by Switch SW_12 which is open in SSH.
         // IIDM network:
         //   Ends of switches must be in the same VoltageLevel regardless the switch status in SSH.
-        ReadOnlyDataSource ds = new ResourceDataSource("Lines connected by switch",
-                new ResourceSet("/issues/node-containers/",
-                        "voltage_levels_connected_by_open_switch_EQ.xml",
-                        "voltage_levels_connected_by_open_switch_SSH.xml"));
-        Network network = Network.read(ds, new Properties());
+
+        Network network = readCgmesFiles(DIR,
+                "voltage_levels_connected_by_open_switch_EQ.xml", "voltage_levels_connected_by_open_switch_SSH.xml");
         assertNotNull(network);
 
         // The Switch is indeed open.
