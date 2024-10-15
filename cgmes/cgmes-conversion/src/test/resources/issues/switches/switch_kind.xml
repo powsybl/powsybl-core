@@ -70,6 +70,25 @@
     <cim:Terminal.ConductingEquipment rdf:resource="#_SW"/>
     <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
 </cim:Terminal>
+<cim:Disconnector rdf:ID="_DIS">
+    <!-- cim:IdentifiedObject.name>Disconnector</cim:IdentifiedObject.name -->
+    <cim:Equipment.EquipmentContainer rdf:resource="#_VL"/>
+    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV"/>
+    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
+    <cim:Switch.retained>false</cim:Switch.retained>
+</cim:Disconnector>
+<cim:Terminal rdf:ID="_T_DIS_1">
+    <cim:IdentifiedObject.name>Terminal DIS 1</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_DIS"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_1"/>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_T_DIS_2">
+    <cim:IdentifiedObject.name>Terminal DIS 2</cim:IdentifiedObject.name>
+    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.ConductingEquipment rdf:resource="#_DIS"/>
+    <cim:Terminal.ConnectivityNode rdf:resource="#_CN_2"/>
+</cim:Terminal>
 <cim:BaseVoltage rdf:ID="_BV">
     <cim:IdentifiedObject.name>110 kV</cim:IdentifiedObject.name>
     <cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
