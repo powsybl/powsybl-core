@@ -41,16 +41,18 @@ class SwitchConversionTest extends AbstractSerDeTest {
     @Test
     void switchKindTest() {
         // CGMES network:
-        //   One LoadBreakSwitch and one generic Switch.
+        //   A LoadBreakSwitch, a generic Switch, and a Disconnector without name.
         // IIDM network:
         //   The switch kind is preserved. A generic CGMES switch is considered of kind breaker.
         Network network = readCgmesResources(DIR, "switch_kind.xml");
         assertNotNull(network);
 
         // Check that the switch kind has been preserved.
-        assertNotNull(network.getSwitch("LBS"));
         assertEquals(SwitchKind.LOAD_BREAK_SWITCH, network.getSwitch("LBS").getKind());
-        assertNotNull(network.getSwitch("SW"));
         assertEquals(SwitchKind.BREAKER, network.getSwitch("SW").getKind());
+        assertEquals(SwitchKind.DISCONNECTOR, network.getSwitch("DIS").getKind());
+
+        // Disconnector has no name, so getNameOrId() returns its id
+        assertEquals("DIS", network.getSwitch("DIS").getNameOrId());
     }
 }
