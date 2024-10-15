@@ -28,7 +28,7 @@ class SwitchConversionTest extends AbstractSerDeTest {
         // CGMES network:
         //   An ACLineSegment ACL_12 with zero impedance between two nodes of the same voltage level.
         // IIDM network:
-        //   A branch with 0 impedance inside a VoltageLevel is converted to a Switch
+        //   A branch with 0 impedance inside a VoltageLevel is converted to a Switch.
         Network network = readCgmesResources(DIR, "line_with_0_impedance.xml");
         assertNotNull(network);
 
@@ -36,5 +36,21 @@ class SwitchConversionTest extends AbstractSerDeTest {
         assertNull(network.getLine("ACL_12"));
         assertNotNull(network.getSwitch("ACL_12"));
         assertTrue(network.getSwitch("ACL_12").isFictitious());
+    }
+
+    @Test
+    void switchKindTest() {
+        // CGMES network:
+        //   One LoadBreakSwitch and one generic Switch.
+        // IIDM network:
+        //   The switch kind is preserved. A generic CGMES switch is considered of kind breaker.
+        Network network = readCgmesResources(DIR, "switch_kind.xml");
+        assertNotNull(network);
+
+        // Check that the switch kind has been preserved.
+        assertNotNull(network.getSwitch("LBS"));
+        assertEquals(SwitchKind.LOAD_BREAK_SWITCH, network.getSwitch("LBS").getKind());
+        assertNotNull(network.getSwitch("SW"));
+        assertEquals(SwitchKind.BREAKER, network.getSwitch("SW").getKind());
     }
 }
