@@ -58,12 +58,12 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         identify(adder);
         connection(adder);
         model(adder);
-        Load load = adder.add();
-        addAliasesAndProperties(load);
-        mappingTerminals(load.getTerminal());
-        setLoadDetail(loadKind, load, pFixed, qFixed);
+        Load newLoad = adder.add();
+        addAliasesAndProperties(newLoad);
+        mappingTerminals(newLoad.getTerminal());
+        setLoadDetail(loadKind, newLoad, pFixed, qFixed);
 
-        addSpecificProperties(load, pFixed, qFixed);
+        addSpecificProperties(newLoad, pFixed, qFixed);
     }
 
     private void addSpecificProperties(Load newLoad, double pFixed, double qFixed) {
@@ -130,16 +130,16 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         }
     }
 
-    private static void setLoadDetail(String type, Load load, double pFixed, double qFixed) {
+    private static void setLoadDetail(String type, Load newLoad, double pFixed, double qFixed) {
         if (type.equals("ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
-            load.newExtension(LoadDetailAdder.class)
+            newLoad.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower(0)
                     .withFixedReactivePower(0)
                     .withVariableActivePower((float) pFixed)
                     .withVariableReactivePower((float) qFixed)
                     .add();
         } else if (type.equals("NonConformLoad")) { // does not participate in scaling
-            load.newExtension(LoadDetailAdder.class)
+            newLoad.newExtension(LoadDetailAdder.class)
                     .withFixedActivePower((float) pFixed)
                     .withFixedReactivePower((float) qFixed)
                     .withVariableActivePower(0)
@@ -159,8 +159,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         load.setP0(updatedP0().orElse(defaultP(pFixed, load.getP0(), getDefaultValue(context))))
                 .setQ0(qupdatedQ0().orElse(defaultQ(qFixed, load.getQ0(), getDefaultValue(context))));
 
-        String loadKind = load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS);
-        updateLoadDetail(loadKind, pFixed, qFixed);
+        updateLoadDetail(load.getProperty(Conversion.PROPERTY_CGMES_ORIGINAL_CLASS), pFixed, qFixed);
     }
 
     private static Conversion.Config.DefaultValue getDefaultValue(Context context) {
